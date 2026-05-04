@@ -17,7 +17,8 @@ module Igniter
         attr_accessor :primary_callable, :candidate_callable,
                       :primary_normalizer, :candidate_normalizer,
                       :store_adapter, :observation_callback,
-                      :acceptance_policy, :acceptance_options, :clock_callable
+                      :acceptance_policy, :acceptance_options, :clock_callable,
+                      :redaction_input_policy
 
         def initialize(name:)
           @name = name.to_sym
@@ -29,6 +30,7 @@ module Igniter
           @async_adapter = nil
           @metadata_value = {}
           @input_redactor = ->(*, **) { {} }
+          @redaction_input_policy = :custom
           @acceptance_policy = :exact
           @acceptance_options = {}
           @event_handlers = []

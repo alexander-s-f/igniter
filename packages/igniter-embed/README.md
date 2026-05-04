@@ -211,3 +211,95 @@ ObservedQuote = Igniter::Embed.contractable(:quote) do |config|
   config.store QuoteObservationStore
 end
 ```
+
+## Observation Receipts
+
+Each contractable call produces a canonical observation receipt. The receipt
+includes a stable `observation_id`, `schema_version`, `receipt_kind`, and a
+`status` that summarises the outcome:
+
+```text
+:ok               — primary and candidate matched and were accepted
+:diverged         — outputs diverged but acceptance policy passed
+:candidate_error  — candidate raised an exception
+:acceptance_failed — candidate succeeded but acceptance policy failed
+:store_error      — store adapter raised after primary returned
+:unsampled        — call was outside the configured sample rate
+```
+
+A Spark-style store adapter wires receipts into a durable sink:
+
+```ruby
+class SparkObservationStore
+  def record_observation(receipt)
+    # receipt[:observation_id]  — stable id for linking to logs/admin
+    # receipt[:status]          — :ok | :diverged | :candidate_error | …
+    # receipt[:redaction]       — policy applied to inputs
+    ObservationRecord.create!(receipt.slice(:observation_id, :status, :name, :role, :stage).merge(payload: receipt))
+  end
+
+  def record_event(receipt)
+    # receipt[:receipt_kind]  == :contractable_event
+    # receipt[:event_id]      — unique per event
+    # receipt[:observation_id] — links back to the observation
+    # receipt[:severity]      — :info | :warning | :error
+    return unless receipt[:severity] == :error || receipt[:event] == :divergence
+
+    ObservationEvent.create!(receipt.slice(:event_id, :observation_id, :event, :severity, :summary))
+  end
+end
+```
+
+Register the store in a host:
+
+```ruby
+runner = Igniter::Embed.contractable(:marketing_executor) do
+  migrate Api::Marketing::ExecutorService::Legacy,
+          to: Api::Marketing::ExecutorService::Contract
+  shadow async: true, sample: 0.1
+  use :normalizer, Api::Marketing::ExecutorNormalizer
+  use :redaction, only: %i[provider_payload technician_id customer_id]
+  use :acceptance, policy: :shape, outputs: { status: String, result: Hash }
+  use :store, SparkObservationStore.new
+
+  on :divergence do |event|
+    Rails.logger.warn("[igniter] divergence obs=#{event.dig(:receipt, :observation_id)}")
+  end
+end
+```
+
+A divergence event payload includes a compact receipt:
+
+```ruby
+{
+  event: :divergence,
+  receipt: {
+    schema_version: 1,
+    receipt_kind: :contractable_event,
+    event_id: "evt_...",
+    observation_id: "obs_...",
+    severity: :warning,
+    summary: "outputs diverged from primary",
+    observation_ref: { observation_id: "obs_...", match: false, accepted: false }
+  }
+}
+```
+
+Async adapters receive a handoff descriptor for durable job wiring:
+
+```ruby
+class SidekiqObservationAdapter
+  def enqueue(name:, inputs:, metadata:, handoff: nil, &block)
+    if handoff
+      ObservationJob.perform_later(
+        observation_id: handoff[:observation_id],
+        name: handoff[:name],
+        queued_at: handoff[:queued_at]
+      )
+    else
+      # fallback: run inline
+      block.call
+    end
+  end
+end
+```

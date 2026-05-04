@@ -61,6 +61,7 @@ module Igniter
             config.normalize_candidate adapter
           when :redaction
             config.redact_inputs adapter || redaction_adapter(**options)
+            config.redaction_input_policy = adapter ? :custom : (options[:only] ? :only : :except)
           when :acceptance
             raise SugarError, "use :acceptance requires policy:" unless options.key?(:policy)
 

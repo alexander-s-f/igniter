@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "securerandom"
+
 module Igniter
   module Embed
     module Contractable
@@ -11,6 +13,28 @@ module Igniter
         end
         ExecutionLike = Struct.new(:outputs, keyword_init: true)
 
+        SEVERITY_MAP = {
+          observation: :info,
+          primary_success: :info,
+          candidate_success: :info,
+          divergence: :warning,
+          acceptance_failure: :warning,
+          primary_error: :error,
+          candidate_error: :error,
+          store_error: :error
+        }.freeze
+
+        SUMMARY_MAP = {
+          observation: "observation recorded",
+          primary_success: "primary succeeded",
+          candidate_success: "candidate succeeded",
+          divergence: "outputs diverged from primary",
+          acceptance_failure: "acceptance policy failed",
+          primary_error: "primary raised an error",
+          candidate_error: "candidate raised an error",
+          store_error: "store adapter raised an error"
+        }.freeze
+
         attr_reader :config
 
         def initialize(config:)
@@ -19,16 +43,18 @@ module Igniter
         end
 
         def call(*args, **kwargs)
-          primary_result = primary_payload(args, kwargs)
+          observation_id = generate_observation_id
+          primary_result = primary_payload(args, kwargs, observation_id)
           started_at = config.now
           sampled = config.sampled?
-          dispatch_event(:primary_success, observation: nil, error: nil, metadata: { inputs: redacted_inputs(args, kwargs) })
+          dispatch_event(:primary_success, observation_id: observation_id, observation: nil, error: nil, metadata: { inputs: redacted_inputs(args, kwargs) })
 
           if sampled
-            work = -> { observe(started_at: started_at, primary_result: primary_result, args: args, kwargs: kwargs, sampled: true) }
-            config.async_adapter.enqueue(name: config.name, inputs: redacted_inputs(args, kwargs), metadata: metadata_payload, &work)
+            handoff = build_async_handoff(observation_id, args, kwargs)
+            work = -> { observe(observation_id: observation_id, started_at: started_at, primary_result: primary_result, args: args, kwargs: kwargs, sampled: true) }
+            dispatch_async(name: config.name, inputs: redacted_inputs(args, kwargs), metadata: metadata_payload, handoff: handoff, &work)
           else
-            record_observation(sampled_observation(started_at: started_at, primary_result: primary_result, args: args, kwargs: kwargs))
+            record_observation(sampled_observation(observation_id: observation_id, started_at: started_at, primary_result: primary_result, args: args, kwargs: kwargs))
           end
 
           primary_result
@@ -36,14 +62,14 @@ module Igniter
 
         private
 
-        def primary_payload(args, kwargs)
+        def primary_payload(args, kwargs, observation_id)
           invoke(config.primary_callable, args, kwargs)
         rescue StandardError => e
-          dispatch_event(:primary_error, observation: nil, error: serialize_error(e), metadata: { inputs: safe_redacted_inputs(args, kwargs) })
+          dispatch_event(:primary_error, observation_id: observation_id, observation: nil, error: serialize_error(e), metadata: { inputs: safe_redacted_inputs(args, kwargs) })
           raise
         end
 
-        def observe(started_at:, primary_result:, args:, kwargs:, sampled:)
+        def observe(observation_id:, started_at:, primary_result:, args:, kwargs:, sampled:)
           primary = normalize_side(config.primary_normalizer, primary_result)
           candidate = candidate_payload(args, kwargs)
           report = build_report(primary: primary, candidate: candidate, args: args, kwargs: kwargs)
@@ -58,6 +84,7 @@ module Igniter
 
           record_observation(
             observation(
+              observation_id: observation_id,
               started_at: started_at,
               finished_at: config.now,
               args: args,
@@ -71,9 +98,10 @@ module Igniter
           )
         end
 
-        def sampled_observation(started_at:, primary_result:, args:, kwargs:)
+        def sampled_observation(observation_id:, started_at:, primary_result:, args:, kwargs:)
           primary = normalize_side(config.primary_normalizer, primary_result)
           observation(
+            observation_id: observation_id,
             started_at: started_at,
             finished_at: config.now,
             args: args,
@@ -129,14 +157,18 @@ module Igniter
           )
         end
 
-        def observation(started_at:, finished_at:, args:, kwargs:, sampled:, primary:, candidate:, report:, acceptance:)
+        def observation(observation_id:, started_at:, finished_at:, args:, kwargs:, sampled:, primary:, candidate:, report:, acceptance:)
           {
+            schema_version: 1,
+            receipt_kind: :contractable_observation,
+            observation_id: observation_id,
             name: config.name,
             role: config.role,
             stage: config.stage,
             mode: candidate ? :shadow : :observe,
             async: config.async,
             sampled: sampled,
+            status: nil,
             started_at: serialize_time(started_at),
             finished_at: serialize_time(finished_at),
             duration_ms: duration_ms(started_at, finished_at),
@@ -149,46 +181,62 @@ module Igniter
             acceptance: acceptance,
             error: candidate&.fetch(:error),
             store_error: nil,
-            metadata: metadata_payload
+            metadata: metadata_payload,
+            redaction: redaction_metadata
           }
         end
 
         def record_observation(observation)
           if config.store_adapter
             begin
-              config.store_adapter.record(observation)
+              if config.store_adapter.respond_to?(:record_observation)
+                config.store_adapter.record_observation(observation)
+              else
+                config.store_adapter.record(observation)
+              end
             rescue StandardError => e
               observation[:store_error] = serialize_error(e)
             end
           end
+          observation[:status] = observation_status(observation)
           config.observation_callback&.call(observation)
           dispatch_observation_events(observation)
           observation
         end
 
         def dispatch_observation_events(observation)
-          dispatch_event(:candidate_success, observation: observation) if candidate_success?(observation)
-          dispatch_event(:candidate_error, observation: observation, error: observation[:error]) if observation[:error]
-          dispatch_event(:divergence, observation: observation) if observation[:match] == false
-          dispatch_event(:acceptance_failure, observation: observation) if observation[:accepted] == false
-          dispatch_event(:store_error, observation: observation, error: observation[:store_error]) if observation[:store_error]
-          dispatch_event(:observation, observation: observation)
+          obs_id = observation[:observation_id]
+          dispatch_event(:candidate_success, observation_id: obs_id, observation: observation) if candidate_success?(observation)
+          dispatch_event(:candidate_error, observation_id: obs_id, observation: observation, error: observation[:error]) if observation[:error]
+          dispatch_event(:divergence, observation_id: obs_id, observation: observation) if observation[:match] == false
+          dispatch_event(:acceptance_failure, observation_id: obs_id, observation: observation) if observation[:accepted] == false
+          dispatch_event(:store_error, observation_id: obs_id, observation: observation, error: observation[:store_error]) if observation[:store_error]
+          dispatch_event(:observation, observation_id: obs_id, observation: observation)
         end
 
-        def dispatch_event(event, observation:, error: nil, metadata: {})
+        def dispatch_event(event, observation_id:, observation:, error: nil, metadata: {})
+          receipt = build_event_receipt(event: event, observation_id: observation_id, observation: observation)
           config.handlers_for(event).each do |event_handler|
             event_handler.handler.call(
               event_payload(
                 event: event,
                 observation: observation,
                 error: error,
-                metadata: metadata
+                metadata: metadata,
+                receipt: receipt
               )
             )
           end
+          if config.store_adapter&.respond_to?(:record_event)
+            begin
+              config.store_adapter.record_event(receipt)
+            rescue StandardError
+              nil
+            end
+          end
         end
 
-        def event_payload(event:, observation:, error:, metadata:)
+        def event_payload(event:, observation:, error:, metadata:, receipt:)
           {
             name: config.name,
             role: config.role,
@@ -197,8 +245,71 @@ module Igniter
             observation: observation,
             report: observation&.fetch(:report, nil),
             error: error,
-            metadata: metadata_payload.merge(normalize_hash(metadata))
+            metadata: metadata_payload.merge(normalize_hash(metadata)),
+            receipt: receipt
           }
+        end
+
+        def build_event_receipt(event:, observation_id:, observation:)
+          {
+            schema_version: 1,
+            receipt_kind: :contractable_event,
+            event_id: generate_event_id,
+            observation_id: observation_id,
+            event: event,
+            name: config.name,
+            occurred_at: serialize_time(config.now),
+            severity: SEVERITY_MAP.fetch(event, :info),
+            summary: SUMMARY_MAP.fetch(event, event.to_s.tr("_", " ")),
+            observation_ref: observation ? {
+              observation_id: observation[:observation_id],
+              match: observation[:match],
+              accepted: observation[:accepted]
+            } : nil,
+            metadata: {}
+          }
+        end
+
+        def observation_status(observation)
+          return :unsampled if observation[:sampled] == false
+          return :store_error if observation[:store_error]
+          return :candidate_error if observation.dig(:candidate, :status) == :error
+          return :acceptance_failed if observation[:accepted] == false
+          return :diverged if observation[:match] == false
+
+          :ok
+        end
+
+        def redaction_metadata
+          {
+            input_policy: config.redaction_input_policy,
+            output_policy: :none,
+            classes: []
+          }
+        end
+
+        def build_async_handoff(observation_id, args, kwargs)
+          {
+            schema_version: 1,
+            kind: :contractable_async_handoff,
+            observation_id: observation_id,
+            name: config.name,
+            inputs: redacted_inputs(args, kwargs),
+            metadata: metadata_payload,
+            queued_at: serialize_time(config.now)
+          }
+        end
+
+        def dispatch_async(name:, inputs:, metadata:, handoff:, &block)
+          adapter = config.async_adapter
+          params = adapter.method(:enqueue).parameters
+          accepts_handoff = params.any? { |(type, pname)| (type == :key || type == :keyreq) && pname == :handoff } ||
+                            params.any? { |(type, _)| type == :keyrest }
+          if accepts_handoff
+            adapter.enqueue(name: name, inputs: inputs, metadata: metadata, handoff: handoff, &block)
+          else
+            adapter.enqueue(name: name, inputs: inputs, metadata: metadata, &block)
+          end
         end
 
         def candidate_success?(observation)
@@ -260,6 +371,14 @@ module Igniter
           return nil unless started_at.respond_to?(:to_f) && finished_at.respond_to?(:to_f)
 
           ((finished_at.to_f - started_at.to_f) * 1000).round(3)
+        end
+
+        def generate_observation_id
+          "obs_#{SecureRandom.hex(12)}"
+        end
+
+        def generate_event_id
+          "evt_#{SecureRandom.hex(12)}"
         end
       end
     end

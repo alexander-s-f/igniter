@@ -5,13 +5,13 @@ module Igniter
     module Contractable
       module Adapters
         class InlineAsync
-          def enqueue(name:, inputs:, metadata:, &block) # rubocop:disable Lint/UnusedMethodArgument
+          def enqueue(name:, inputs:, metadata:, handoff: nil, &block) # rubocop:disable Lint/UnusedMethodArgument
             block.call
           end
         end
 
         class ThreadAsync
-          def enqueue(name:, inputs:, metadata:, &block) # rubocop:disable Lint/UnusedMethodArgument
+          def enqueue(name:, inputs:, metadata:, handoff: nil, &block) # rubocop:disable Lint/UnusedMethodArgument
             Thread.new { block.call }
           end
         end

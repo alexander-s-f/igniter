@@ -361,3 +361,67 @@ Status: done | partial | blocked
 [R] Risks / next recommendations:
 - ...
 ```
+
+---
+
+## Handoff
+
+```text
+[Package Agent / Companion+Store]
+Track: igniter-embed/contractable-observation-receipts-v0
+Status: done
+
+[D] Decisions:
+- observation_id generated once per call() invocation, threaded through all
+  downstream helpers as a keyword parameter (not stored as instance variable —
+  Runner instances are reused across concurrent calls).
+- status computed in record_observation after the store attempt so it can
+  reflect :store_error correctly; set as nil in observation() and filled in
+  immediately after the store call.
+- Priority order for status: unsampled > store_error > candidate_error >
+  acceptance_failed > diverged > ok. Matches the "root cause first" principle.
+- record_event called inside dispatch_event for all events (including
+  primary_success). Store implementations that only want significant events
+  should filter by severity or event type.
+- dispatch_async uses Method#parameters introspection to detect handoff:
+  support — avoids rescue ArgumentError and is safe for frozen objects.
+- redaction_input_policy tracked on Config, defaulting to :custom. SugarBuilder
+  sets :only or :except when use :redaction is called with those options.
+- Built-in adapters (InlineAsync, ThreadAsync) updated to accept handoff: nil.
+
+[S] Shipped:
+- runner.rb: observation_id, receipt_kind, schema_version, status, redaction
+  metadata in every observation hash (Scope A).
+- runner.rb: build_event_receipt generates event_id, severity, summary,
+  observation_ref; attached as :receipt in every event payload (Scope B).
+- runner.rb: record_observation now prefers store.record_observation(receipt)
+  over store.record(observation); dispatch_event calls store.record_event(receipt)
+  when present; store errors still do not alter primary result (Scope C).
+- config.rb + sugar_builder.rb: redaction_input_policy tracked and reflected
+  in observation[:redaction] (Scope D).
+- runner.rb: build_async_handoff descriptor passed via dispatch_async with
+  Method#parameters compat check; adapters.rb updated with handoff: nil (Scope E).
+- README.md: Spark-style example with SparkObservationStore, SidekiqObservationAdapter,
+  divergence event receipt shape, and status vocabulary.
+
+[T] Tests:
+- Full suite: 77 examples, 0 failures.
+- New contractable_spec.rb tests cover: observation_id format, uniqueness,
+  all 6 status values, event receipt fields (event_id, severity, summary,
+  observation_ref), observation_id linking, record_observation preference,
+  record_event called per event, handlers still fire when record_event present,
+  legacy record() fallback, store failure isolation, redaction policy metadata
+  (:custom/:only/:except), handoff descriptor in queue, legacy adapter compat.
+
+[R] Risks / next recommendations:
+- record_event is called for primary_success (pre-observation). Stores that
+  only want post-observation events should filter by event type. Could be
+  narrowed to observation-phase events only if noise becomes a concern.
+- Async handoff is a descriptor only — no durable job is created. Spark must
+  implement the SidekiqObservationAdapter or similar to make async work
+  durable. The descriptor provides everything needed (observation_id, name,
+  inputs, queued_at).
+- output redaction is :none — receipts document this explicitly. Deep output
+  PII redaction can be added in a future slice if Spark identifies specific
+  fields that must not appear in stored observations.
+```

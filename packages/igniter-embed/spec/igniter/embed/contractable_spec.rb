@@ -33,6 +33,25 @@ RSpec.describe Igniter::Embed::Contractable do
     end.new
   end
 
+  def rich_store
+    Class.new do
+      attr_reader :observations, :events
+
+      def initialize
+        @observations = []
+        @events = []
+      end
+
+      def record_observation(receipt)
+        observations << receipt
+      end
+
+      def record_event(receipt)
+        events << receipt
+      end
+    end.new
+  end
+
   def queue_adapter
     Class.new do
       attr_reader :jobs
@@ -41,8 +60,8 @@ RSpec.describe Igniter::Embed::Contractable do
         @jobs = []
       end
 
-      def enqueue(name:, inputs:, metadata:, &block)
-        jobs << { name: name, inputs: inputs, metadata: metadata, block: block }
+      def enqueue(name:, inputs:, metadata:, handoff: nil, &block)
+        jobs << { name: name, inputs: inputs, metadata: metadata, handoff: handoff, block: block }
       end
     end.new
   end
@@ -442,5 +461,467 @@ RSpec.describe Igniter::Embed::Contractable do
     expect(runner.config.role).to eq(:discovery_probe)
     expect(runner.config.stage).to eq(:profiled)
     expect(runner.config.metadata).to eq(capture: { calls: true, timing: true, errors: true })
+  end
+
+  # --- Scope A: Canonical Observation Receipt Shape ---
+
+  it "includes schema_version, receipt_kind, and stable observation_id in observations" do
+    store = memory_store
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount } }
+      config.async false
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+    end
+
+    runner.call(amount: 100)
+
+    observation = store.observations.fetch(0)
+    expect(observation.fetch(:schema_version)).to eq(1)
+    expect(observation.fetch(:receipt_kind)).to eq(:contractable_observation)
+    expect(observation.fetch(:observation_id)).to match(/\Aobs_[0-9a-f]{24}\z/)
+  end
+
+  it "generates a unique observation_id per call" do
+    store = memory_store
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount } }
+      config.async false
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+    end
+
+    runner.call(amount: 100)
+    runner.call(amount: 200)
+
+    ids = store.observations.map { |o| o.fetch(:observation_id) }
+    expect(ids.uniq.length).to eq(2)
+  end
+
+  it "sets status :ok for matching observation" do
+    store = memory_store
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount } }
+      config.async false
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+      config.accept :exact
+    end
+
+    runner.call(amount: 100)
+    expect(store.observations.fetch(0).fetch(:status)).to eq(:ok)
+  end
+
+  it "sets status :diverged when candidate diverges but acceptance passes" do
+    store = memory_store
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount + 1 } }
+      config.async false
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+      config.accept :completed
+    end
+
+    runner.call(amount: 100)
+    expect(store.observations.fetch(0).fetch(:status)).to eq(:diverged)
+  end
+
+  it "sets status :candidate_error when candidate raises" do
+    store = memory_store
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { raise "boom" }
+      config.async false
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+    end
+
+    runner.call(amount: 100)
+    expect(store.observations.fetch(0).fetch(:status)).to eq(:candidate_error)
+  end
+
+  it "sets status :acceptance_failed when candidate succeeds but acceptance policy fails" do
+    store = memory_store
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount + 1 } }
+      config.async false
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+      config.accept :exact
+    end
+
+    runner.call(amount: 100)
+    expect(store.observations.fetch(0).fetch(:status)).to eq(:acceptance_failed)
+  end
+
+  it "sets status :unsampled when observation is not sampled" do
+    store = memory_store
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount } }
+      config.async false
+      config.store store
+      config.sample 0.0
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+    end
+
+    runner.call(amount: 100)
+    expect(store.observations.fetch(0).fetch(:status)).to eq(:unsampled)
+  end
+
+  it "sets status :store_error when store adapter raises" do
+    broken_store = Class.new do
+      def record(observation)
+        raise "store is down"
+      end
+    end.new
+
+    observations = []
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount } }
+      config.async false
+      config.store broken_store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+      config.on_observation ->(obs) { observations << obs }
+    end
+
+    result = runner.call(amount: 100)
+    expect(result).to eq(total: 100)
+    expect(observations.fetch(0).fetch(:status)).to eq(:store_error)
+  end
+
+  # --- Scope B: Durable Event Receipts ---
+
+  it "attaches a receipt to event payloads" do
+    events = []
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:) { { total: amount } },
+              to: ->(amount:) { { total: amount + 1 } }
+      shadow async: false
+      use :normalizer, normalize
+      on :divergence do |event|
+        events << event
+      end
+    end
+
+    runner.call(amount: 100)
+
+    receipt = events.first.fetch(:receipt)
+    expect(receipt.fetch(:schema_version)).to eq(1)
+    expect(receipt.fetch(:receipt_kind)).to eq(:contractable_event)
+    expect(receipt.fetch(:event_id)).to match(/\Aevt_[0-9a-f]{24}\z/)
+    expect(receipt.fetch(:observation_id)).to match(/\Aobs_[0-9a-f]{24}\z/)
+    expect(receipt.fetch(:event)).to eq(:divergence)
+    expect(receipt.fetch(:severity)).to eq(:warning)
+    expect(receipt.fetch(:summary)).to eq("outputs diverged from primary")
+  end
+
+  it "includes observation_ref in event receipts when observation is present" do
+    events = []
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:) { { total: amount } },
+              to: ->(amount:) { { total: amount + 1 } }
+      shadow async: false
+      use :normalizer, normalize
+      on :divergence do |event|
+        events << event
+      end
+    end
+
+    runner.call(amount: 100)
+
+    observation_ref = events.first.dig(:receipt, :observation_ref)
+    expect(observation_ref).to include(match: false, accepted: false)
+    expect(observation_ref.fetch(:observation_id)).to match(/\Aobs_[0-9a-f]{24}\z/)
+  end
+
+  it "links event receipt observation_id to the observation receipt observation_id" do
+    observations = []
+    events = []
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:) { { total: amount } },
+              to: ->(amount:) { { total: amount + 1 } }
+      shadow async: false
+      use :normalizer, normalize
+      on :divergence do |event|
+        events << event
+      end
+      on_observation ->(obs) { observations << obs }
+    end
+
+    runner.call(amount: 100)
+
+    obs_id = observations.first.fetch(:observation_id)
+    event_obs_id = events.first.dig(:receipt, :observation_id)
+    expect(event_obs_id).to eq(obs_id)
+  end
+
+  it "assigns :error severity to primary_error events" do
+    events = []
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      observe -> { raise "primary exploded" }
+      normalize_primary normalize
+      on :primary_error do |event|
+        events << event
+      end
+    end
+
+    expect { runner.call }.to raise_error(RuntimeError)
+    expect(events.first.dig(:receipt, :severity)).to eq(:error)
+  end
+
+  it "sets observation_ref to nil in event receipts when no observation is available" do
+    events = []
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      observe -> { raise "primary exploded" }
+      normalize_primary normalize
+      on :primary_error do |event|
+        events << event
+      end
+    end
+
+    expect { runner.call }.to raise_error(RuntimeError)
+    expect(events.first.dig(:receipt, :observation_ref)).to be_nil
+  end
+
+  # --- Scope C: Store Adapter Protocol Upgrade ---
+
+  it "calls record_observation when the store adapter supports it" do
+    store = rich_store
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount } }
+      config.async false
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+    end
+
+    runner.call(amount: 100)
+
+    expect(store.observations.length).to eq(1)
+    expect(store.observations.first).to include(receipt_kind: :contractable_observation)
+  end
+
+  it "calls record_event for each event when the store adapter supports it" do
+    store = rich_store
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:) { { total: amount } },
+              to: ->(amount:) { { total: amount + 1 } }
+      shadow async: false
+      use :normalizer, normalize
+      use :store, store
+    end
+
+    runner.call(amount: 100)
+
+    event_types = store.events.map { |e| e.fetch(:event) }
+    expect(event_types).to include(:divergence, :acceptance_failure, :observation)
+    store.events.each do |receipt|
+      expect(receipt.fetch(:receipt_kind)).to eq(:contractable_event)
+      expect(receipt.fetch(:schema_version)).to eq(1)
+    end
+  end
+
+  it "still calls user event handlers even when record_event is present" do
+    store = rich_store
+    divergence_events = []
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:) { { total: amount } },
+              to: ->(amount:) { { total: amount + 1 } }
+      shadow async: false
+      use :normalizer, normalize
+      use :store, store
+      on :divergence do |event|
+        divergence_events << event
+      end
+    end
+
+    runner.call(amount: 100)
+
+    expect(divergence_events.length).to eq(1)
+    expect(store.events.map { |e| e[:event] }).to include(:divergence)
+  end
+
+  it "falls back to record(observation) for legacy store adapters" do
+    store = memory_store
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount } }
+      config.async false
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+    end
+
+    runner.call(amount: 100)
+
+    expect(store.observations.length).to eq(1)
+    expect(store.observations.first).to include(receipt_kind: :contractable_observation)
+  end
+
+  it "does not raise when store raises — primary result is unaffected" do
+    broken_store = Class.new do
+      def record(_observation)
+        raise "store is down"
+      end
+    end.new
+
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount } }
+      config.async false
+      config.store broken_store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+    end
+
+    expect(runner.call(amount: 100)).to eq(total: 100)
+  end
+
+  # --- Scope D: Redaction Policy Metadata ---
+
+  it "includes redaction metadata in observation receipts" do
+    store = memory_store
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount } }
+      config.async false
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+    end
+
+    runner.call(amount: 100)
+
+    redaction = store.observations.first.fetch(:redaction)
+    expect(redaction).to include(input_policy: :custom, output_policy: :none, classes: [])
+  end
+
+  it "reflects :only redaction policy in observation receipts" do
+    store = memory_store
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:, **) { { total: amount } },
+              to: ->(amount:, **) { { total: amount } }
+      shadow async: false
+      use :normalizer, normalize
+      use :redaction, only: %i[amount]
+      use :store, store
+    end
+
+    runner.call(amount: 100, token: "secret")
+
+    redaction = store.observations.first.fetch(:redaction)
+    expect(redaction.fetch(:input_policy)).to eq(:only)
+  end
+
+  it "reflects :except redaction policy in observation receipts" do
+    store = memory_store
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:, **) { { total: amount } },
+              to: ->(amount:, **) { { total: amount } }
+      shadow async: false
+      use :normalizer, normalize
+      use :redaction, except: :token
+      use :store, store
+    end
+
+    runner.call(amount: 100, token: "secret")
+
+    redaction = store.observations.first.fetch(:redaction)
+    expect(redaction.fetch(:input_policy)).to eq(:except)
+  end
+
+  # --- Scope E: Async Handoff Descriptor ---
+
+  it "passes a handoff descriptor to async adapters that accept it" do
+    store = memory_store
+    queue = queue_adapter
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount } }
+      config.async true
+      config.async_adapter queue
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+    end
+
+    runner.call(amount: 100)
+
+    job = queue.jobs.first
+    handoff = job.fetch(:handoff)
+    expect(handoff).not_to be_nil
+    expect(handoff.fetch(:schema_version)).to eq(1)
+    expect(handoff.fetch(:kind)).to eq(:contractable_async_handoff)
+    expect(handoff.fetch(:observation_id)).to match(/\Aobs_[0-9a-f]{24}\z/)
+    expect(handoff.fetch(:name)).to eq(:quote)
+    expect(handoff).to have_key(:queued_at)
+  end
+
+  it "falls back gracefully to adapters that do not accept handoff:" do
+    store = memory_store
+    legacy_queue = Class.new do
+      attr_reader :jobs
+
+      def initialize
+        @jobs = []
+      end
+
+      def enqueue(name:, inputs:, metadata:, &block)
+        jobs << { name: name, inputs: inputs, metadata: metadata, block: block }
+      end
+    end.new
+
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate ->(amount:) { { total: amount } }
+      config.async true
+      config.async_adapter legacy_queue
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+    end
+
+    expect(runner.call(amount: 100)).to eq(total: 100)
+    legacy_queue.jobs.first.fetch(:block).call
+    expect(store.observations.length).to eq(1)
   end
 end
