@@ -2,9 +2,20 @@
 
 require_relative "../../spec_helper"
 
+LEDGER_CLIENT_LIB = File.expand_path("../../../../igniter-ledger-client/lib", __dir__)
+$LOAD_PATH.unshift(LEDGER_CLIENT_LIB) unless $LOAD_PATH.include?(LEDGER_CLIENT_LIB)
+
+require "igniter-ledger-client"
+
 RSpec.describe Igniter::Store::ContractableReceiptSink do
   def new_sink(**opts)
     described_class.new(store: Igniter::Store::IgniterStore.new, **opts)
+  end
+
+  def new_client_sink(**opts)
+    engine = Igniter::Store::IgniterStore.new
+    client = Igniter::LedgerClient.wrap(engine.protocol)
+    described_class.new(client: client, **opts)
   end
 
   def observation_receipt(overrides = {})
@@ -68,6 +79,17 @@ RSpec.describe Igniter::Store::ContractableReceiptSink do
     expect(snapshot[:histories].keys).to include(:my_events)
   end
 
+  it "can be constructed with a LedgerClient instead of a local store" do
+    sink = new_client_sink
+    snapshot = sink.client.metadata_snapshot
+    expect(snapshot[:stores].keys).to include(:contractable_observations)
+    expect(snapshot[:histories].keys).to include(:contractable_events)
+  end
+
+  it "requires either store: or client:" do
+    expect { described_class.new }.to raise_error(ArgumentError, /store: or client:/)
+  end
+
   # --- record_observation (Scope A) ---
 
   it "writes an observation fact keyed by observation_id" do
@@ -82,6 +104,19 @@ RSpec.describe Igniter::Store::ContractableReceiptSink do
     fact = sink.record_observation(observation_receipt)
     expect(fact).to respond_to(:id)
     expect(fact).to respond_to(:value)
+  end
+
+  it "writes and reads observation receipts through LedgerClient" do
+    sink = new_client_sink
+    result = sink.record_observation(observation_receipt)
+
+    expect(result).to respond_to(:accepted?)
+    expect(result).to be_accepted
+    expect(sink.observation("obs_abc123")).to include(
+      receipt_kind: :contractable_observation,
+      observation_id: "obs_abc123",
+      status: :ok
+    )
   end
 
   it "overwrites an observation on retry with the same observation_id" do
@@ -111,6 +146,7 @@ RSpec.describe Igniter::Store::ContractableReceiptSink do
       def write(...)
         raise "store on fire"
       end
+
       def register_descriptor(*) = nil
     end.new
     sink = described_class.new(store: broken_store)
@@ -161,6 +197,17 @@ RSpec.describe Igniter::Store::ContractableReceiptSink do
     expect(events.map { |e| e[:event] }).to eq(%i[divergence acceptance_failure])
   end
 
+  it "reconstructs events_for through LedgerClient replay" do
+    sink = new_client_sink
+    sink.record_event(event_receipt(event_id: "evt_1", event: :divergence))
+    sink.record_event(event_receipt(event_id: "evt_2", event: :acceptance_failure))
+    sink.record_event(event_receipt(event_id: "evt_3", event: :observation, observation_id: "obs_other"))
+
+    events = sink.events_for("obs_abc123")
+    expect(events.length).to eq(2)
+    expect(events.map { |e| e[:event] }).to eq(%i[divergence acceptance_failure])
+  end
+
   it "returns [] when no events are recorded for the given observation_id" do
     sink = new_sink
     expect(sink.events_for("obs_unknown")).to eq([])
@@ -185,6 +232,17 @@ RSpec.describe Igniter::Store::ContractableReceiptSink do
     results = sink.observations
     expect(results.length).to eq(1)
     expect(results.first[:status]).to eq(:diverged)
+  end
+
+  it "returns latest observations through LedgerClient replay" do
+    sink = new_client_sink
+    sink.record_observation(observation_receipt(observation_id: "obs_1", status: :ok))
+    sink.record_observation(observation_receipt(observation_id: "obs_1", status: :diverged))
+    sink.record_observation(observation_receipt(observation_id: "obs_2", status: :ok))
+
+    results = sink.observations
+    expect(results.length).to eq(2)
+    expect(results.find { |r| r[:observation_id] == "obs_1" }[:status]).to eq(:diverged)
   end
 
   it "filters observations by status" do

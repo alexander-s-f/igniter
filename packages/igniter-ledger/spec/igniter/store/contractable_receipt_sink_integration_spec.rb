@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 # Cross-package integration proof: igniter-embed contractable runner wired to
-# igniter-store ContractableReceiptSink.
+# igniter-ledger ContractableReceiptSink.
 #
 # Dependency direction: Store accepts receipt hashes emitted by Embed.
 # Embed does not require Store.
 #
-# Load path is patched manually so igniter-store stays Rails/Embed-free.
+# Load path is patched manually so igniter-ledger stays Rails/Embed-free.
 
 require_relative "../../spec_helper"
 
