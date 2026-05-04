@@ -121,7 +121,7 @@ Required methods:
 ```ruby
 client.register_descriptor(...)
 client.write(store:, key:, value:, **metadata)
-client.append(history:, event:, partition_key: nil, **metadata)
+client.append(history:, event:, key: nil, partition_key: nil, **metadata)
 client.read(store:, key:, as_of: nil)
 client.query(store:, where:, limit: nil, as_of: nil)
 client.replay(store: nil, from: nil, to: nil, filter: nil)
@@ -278,6 +278,14 @@ HTTP dispatch proof if current specs already have HTTPAdapter helpers.
 - Keep pool/retry as a client/delivery concern, not a contract/Embed concern.
 - Be careful with naming. `LedgerClient` is a concept; `igniter-ledger` remains
   the package for now.
+
+## Follow-Up Note: Append Boundary
+
+As of `ledger-client-append-protocol-boundary-v0`, `LedgerClient#append`
+dispatches op `:append` instead of lowering history events to op `:write`.
+The client package still has no runtime dependency on `igniter-ledger`; it only
+adds `:append` to the shared envelope operation list. `key:` remains client-side
+metadata in protocol v0 and is not an idempotency guarantee.
 
 ## Handoff Format
 

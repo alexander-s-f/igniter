@@ -50,6 +50,46 @@ module Igniter
             derived:    []
           )
         end
+
+        def self.append_accepted(history:, fact:, requested_key: nil)
+          warnings = []
+          if requested_key && requested_key.to_s != fact.key.to_s
+            warnings << "append key is metadata only in protocol v0; generated fact key returned"
+          end
+
+          new(
+            schema_version: 1,
+            kind:       :append_receipt,
+            status:     :accepted,
+            store:      history,
+            key:        fact.key,
+            fact_id:    fact.id,
+            value_hash: fact.value_hash,
+            warnings:   warnings,
+            errors:     [],
+            derived:    []
+          )
+        end
+
+        def to_h
+          {
+            schema_version: schema_version,
+            kind:           kind,
+            status:         status,
+            name:           name,
+            store:          store,
+            key:            key,
+            fact_id:        fact_id,
+            value_hash:     value_hash,
+            warnings:       warnings,
+            errors:         errors,
+            derived:        derived
+          }.compact
+        end
+
+        def to_json(*args)
+          to_h.to_json(*args)
+        end
       end
     end
   end

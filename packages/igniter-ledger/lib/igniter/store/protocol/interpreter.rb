@@ -74,6 +74,23 @@ module Igniter
           Receipt.write_accepted(store: store.to_sym, key: key, fact: fact)
         end
 
+        # Append an event to a history. Returns an append Receipt carrying the
+        # generated fact key, fact_id, and value_hash.
+        def append(history:, event:, key: nil, partition_key: nil, schema_version: 1,
+                   valid_time: nil, term: nil, producer: nil, derivation: nil)
+          fact = @store.append(
+            history:        history.to_sym,
+            event:          event,
+            schema_version: schema_version,
+            valid_time:     valid_time,
+            term:           term,
+            partition_key:  partition_key&.to_sym,
+            producer:       producer,
+            derivation:     derivation
+          )
+          Receipt.append_accepted(history: history.to_sym, fact: fact, requested_key: key)
+        end
+
         # Accept a full fact packet hash (kind: :fact) and write it to the store.
         # Designed for wire replay, server ingestion, and protocol-native clients.
         # Note: at: is recorded in the packet but cannot override the engine timestamp —

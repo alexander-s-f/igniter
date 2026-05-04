@@ -232,7 +232,7 @@ Descriptor registry:
 Fact IO:
 
 - `write(store:, key:, value:, causation: nil, producer: nil)`
-- `append(history:, key:, event:, causation: nil, producer: nil)`
+- `append(history:, event:, key: nil, partition_key: nil, producer: nil)`
 - `read(store:, key:, as_of: nil)`
 - `query(store:, where: {}, order: nil, limit: nil, as_of: nil)`
 - `history(store:, key:, from: nil, to: nil)`
@@ -350,8 +350,9 @@ Shipped: `Protocol::Interpreter` (7 handler classes), content-addressed SHA256
 dedup, named helpers `register_store` / `register_history` / `register_access_path` /
 `register_relation` / `register_projection` / `register_derivation` /
 `register_subscription`. Protocol-level `write` / `write_fact` / `read` /
-`query(where:)` / `resolve`. Receipt contract: `:accepted | :rejected | :deduplicated`
-+ write receipts with `fact_id` and `value_hash`.
+`append` / `query(where:)` / `resolve`. Receipt contract:
+`:accepted | :rejected | :deduplicated` + write/append receipts with `fact_id`
+and `value_hash`.
 
 ### OP2: Metadata Export
 
@@ -364,10 +365,15 @@ consume one endpoint.
 ### OP3: Wire Envelope
 
 Shipped: `Protocol::WireEnvelope` dispatches op envelope hashes to Interpreter.
-9 operations: `register_descriptor`, `write`, `write_fact`, `read`, `query`,
-`resolve`, `metadata_snapshot`, `descriptor_snapshot`, `sync_hub_profile`, `replay`.
+Operations include `register_descriptor`, `write`, `append`, `write_fact`,
+`read`, `query`, `resolve`, `metadata_snapshot`, `descriptor_snapshot`,
+`sync_hub_profile`, and `replay`.
 Response envelope: `{ protocol:, schema_version:, request_id:, status:, result: }`.
 Error safety net: unexpected raises → error response. Pure Ruby — no I/O.
+
+`append` is append-only history semantics. A client may include `key:` in the
+packet, but protocol v0 returns the generated fact key and does not treat
+client-supplied `key:` as a stable idempotency guarantee.
 
 ```ruby
 {
@@ -443,5 +449,4 @@ External clients can be granted capabilities per descriptor:
 - metadata-only inspection
 
 This becomes useful for agents and decentralized human-agent interfaces.
-
 

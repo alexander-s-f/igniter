@@ -11,6 +11,7 @@ module Igniter
       OPERATIONS = %i[
         register_descriptor
         write
+        append
         write_fact
         read
         query

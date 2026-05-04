@@ -18,4 +18,8 @@ RSpec.describe Igniter::LedgerClient::Envelope do
   it "rejects unknown operations" do
     expect { described_class.request(operation: :unknown) }.to raise_error(ArgumentError, /unknown ledger op/)
   end
+
+  it "lists append as a first-class operation" do
+    expect(described_class::OPERATIONS).to include(:append)
+  end
 end

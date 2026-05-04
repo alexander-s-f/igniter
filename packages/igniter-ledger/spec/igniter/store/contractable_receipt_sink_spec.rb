@@ -18,6 +18,34 @@ RSpec.describe Igniter::Store::ContractableReceiptSink do
     described_class.new(client: client, **opts)
   end
 
+  class RecordingTransport
+    attr_reader :requests
+
+    def initialize
+      @requests = []
+    end
+
+    def dispatch(envelope)
+      @requests << envelope
+      result = case envelope[:op]
+      when :register_descriptor
+        { accepted: true }
+      when :append
+        { accepted: true, store: envelope[:packet][:history], key: "generated-key", fact_id: "fact-1" }
+      else
+        raise "unexpected op: #{envelope[:op].inspect}"
+      end
+
+      {
+        protocol: :igniter_store,
+        schema_version: 1,
+        request_id: envelope[:request_id],
+        status: :ok,
+        result: result
+      }
+    end
+  end
+
   def observation_receipt(overrides = {})
     {
       schema_version: 1,
@@ -168,6 +196,24 @@ RSpec.describe Igniter::Store::ContractableReceiptSink do
     sink = new_sink
     fact = sink.record_event(event_receipt)
     expect(fact).to respond_to(:id)
+  end
+
+  it "records events through client append rather than write" do
+    transport = RecordingTransport.new
+    client = Igniter::LedgerClient::Client.new(transport: transport)
+    sink = described_class.new(client: client)
+
+    sink.record_event(event_receipt)
+
+    append_request = transport.requests.last
+    expect(append_request[:op]).to eq(:append)
+    expect(transport.requests.map { |r| r[:op] }).not_to include(:write)
+    expect(append_request[:packet]).to include(
+      history: :contractable_events,
+      partition_key: :observation_id,
+      producer: { type: :embed, name: :contractable_receipt_sink }
+    )
+    expect(append_request[:packet][:event]).to include(event_id: "evt_def456")
   end
 
   it "raises ArgumentError for event missing required fields" do

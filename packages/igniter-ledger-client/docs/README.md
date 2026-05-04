@@ -2,6 +2,12 @@
 
 Package-local docs for the protocol-first Ledger client boundary.
 
+## Proposals
+
+| File | Description |
+|------|-------------|
+| [proposals/ledger-client-adoption-map.md](proposals/ledger-client-adoption-map.md) | Package adoption map for when consumers should use `LedgerClient` instead of direct Ledger APIs |
+
 ## Tracks
 
 | File | Description |

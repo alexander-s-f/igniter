@@ -379,14 +379,17 @@ module Igniter
         fact
       end
 
-      def append(history:, event:, schema_version: 1, valid_time: nil, term: nil, partition_key: nil)
+      def append(history:, event:, schema_version: 1, valid_time: nil, term: nil, partition_key: nil,
+                 producer: nil, derivation: nil)
         fact = Fact.build(
           store:          history,
           key:            SecureRandom.uuid,
           value:          event,
           schema_version: schema_version,
           valid_time:     valid_time,
-          term:           term
+          term:           term,
+          producer:       producer,
+          derivation:     derivation
         )
         @log.append(fact)
         @fact_id_index[fact.id] = fact

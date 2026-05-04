@@ -39,8 +39,8 @@ sink = Igniter::Ledger::ContractableReceiptSink.new(client: client)
 ## Notes
 
 - `record_observation` writes through `client.write`.
-- `record_event` writes through `client.append`, which still lowers to protocol
-  `write` in v0.
+- `record_event` writes through `client.append`, which now dispatches protocol
+  op `:append`.
 - Read helpers use protocol `read` and `replay` when only `client:` is present.
 - Direct embedded `history` / `history_partition` remains used for `store:`.
 
@@ -58,19 +58,16 @@ BUNDLE_GEMFILE=packages/igniter-ledger/Gemfile bundle exec rspec packages/ignite
 
 Latest result:
 
-- contractable sink focused specs: 33 examples, 0 failures
+- contractable sink focused specs: 34 examples, 0 failures
 - ledger-client specs: 8 examples, 0 failures
 - companion specs: 89 examples, 0 failures
 - ledger specs: 1211 examples, 0 failures
 
 ## Next
 
-Next useful boundary slice:
+Next useful boundary slices:
 
-- add a real `append` protocol operation instead of lowering client append to
-  `write`
 - define a small client-side read model for `read/query/replay` so consumers do
   not need to know raw protocol result shapes
 - migrate one more consumer, likely `igniter-companion`, to accept or produce a
   `LedgerClient` boundary where remote Ledger access is needed
-

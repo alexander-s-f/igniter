@@ -51,7 +51,8 @@ module Igniter
         target.append(
           history: events_store,
           event: receipt,
-          partition_key: :observation_id
+          partition_key: :observation_id,
+          producer: producer
         )
       end
 

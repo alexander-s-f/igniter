@@ -28,6 +28,7 @@ module Igniter
         OPERATIONS = %i[
           register_descriptor
           write
+          append
           write_fact
           read
           query
@@ -84,6 +85,19 @@ module Igniter
               key:      packet.fetch(:key),
               value:    packet.fetch(:value),
               producer: packet[:producer]
+            )
+
+          when :append
+            @interpreter.append(
+              history:        packet.fetch(:history),
+              event:          packet.fetch(:event),
+              key:            packet[:key],
+              partition_key:  packet[:partition_key],
+              schema_version: packet.fetch(:schema_version, 1),
+              valid_time:     packet[:valid_time],
+              term:           packet[:term],
+              producer:       packet[:producer],
+              derivation:     packet[:derivation]
             )
 
           when :write_fact

@@ -60,16 +60,23 @@ RSpec.describe Igniter::LedgerClient::Client do
     expect(transport.requests.last[:packet]).to include(store: :orders, kind: :exact_prune, limit: 10)
   end
 
-  it "lowers append to write in v0 and preserves event_id as key" do
+  it "dispatches append through a first-class protocol operation" do
     transport = FakeTransport.new
     client = described_class.new(transport: transport)
 
-    client.append(history: :contractable_events, event: { event_id: "evt_1", observation_id: "obs_1" }, partition_key: :observation_id)
+    client.append(
+      history: :contractable_events,
+      event: { event_id: "evt_1", observation_id: "obs_1" },
+      key: "client-key-1",
+      partition_key: :observation_id,
+      producer: { system: :spec }
+    )
 
     packet = transport.requests.first[:packet]
-    expect(transport.requests.first[:op]).to eq(:write)
-    expect(packet).to include(store: :contractable_events, key: "evt_1")
-    expect(packet[:value]).to include(event_id: "evt_1")
+    expect(transport.requests.first[:op]).to eq(:append)
+    expect(packet).to include(history: :contractable_events, key: "client-key-1")
+    expect(packet[:event]).to include(event_id: "evt_1")
     expect(packet[:partition_key]).to eq(:observation_id)
+    expect(packet[:producer]).to eq(system: :spec)
   end
 end

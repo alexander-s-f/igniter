@@ -33,6 +33,19 @@ RSpec.describe "OP1 — Descriptor Packet Import" do
       expect(r.value_hash).to eq(fact.value_hash)
       expect(r.accepted?).to  be true
     end
+
+    it "append_accepted carries generated key, fact_id, and value_hash" do
+      store = Igniter::Store::IgniterStore.new
+      fact = store.append(history: :events, event: { event_id: "evt_1" })
+      r = Igniter::Store::Protocol::Receipt.append_accepted(history: :events, fact: fact, requested_key: "client-key")
+
+      expect(r.kind).to       eq(:append_receipt)
+      expect(r.store).to      eq(:events)
+      expect(r.key).to        eq(fact.key)
+      expect(r.fact_id).to    eq(fact.id)
+      expect(r.value_hash).to eq(fact.value_hash)
+      expect(r.warnings.first).to match(/metadata only/)
+    end
   end
 
   # ------------------------------------------------------------------ Fact#producer
@@ -94,6 +107,38 @@ RSpec.describe "OP1 — Descriptor Packet Import" do
       )
       expect(receipt.accepted?).to be true
       expect(receipt.kind).to eq(:store)
+    end
+  end
+
+  # ------------------------------------------------------------------ append
+
+  describe "append" do
+    it "appends a history event and returns an append receipt" do
+      store = Igniter::Store::IgniterStore.new
+      proto = Igniter::Store::Protocol.new(store)
+
+      receipt = proto.append(
+        history: :contractable_events,
+        event: { event_id: "evt_1", observation_id: "obs_1" },
+        partition_key: :observation_id,
+        producer: { system: :spec }
+      )
+
+      expect(receipt.accepted?).to be true
+      expect(receipt.kind).to eq(:append_receipt)
+      expect(receipt.store).to eq(:contractable_events)
+      expect(receipt.key).not_to be_nil
+      expect(receipt.fact_id).not_to be_nil
+      expect(receipt.value_hash).not_to be_nil
+
+      events = store.history_partition(
+        store: :contractable_events,
+        partition_key: :observation_id,
+        partition_value: "obs_1"
+      )
+      expect(events.length).to eq(1)
+      expect(events.first.value).to include(event_id: "evt_1")
+      expect(events.first.producer).to eq(system: :spec)
     end
   end
 

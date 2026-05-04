@@ -124,6 +124,41 @@ RSpec.describe "OP3 — Wire Envelope" do
     end
   end
 
+  # ------------------------------------------------------------------ op: :append
+
+  describe "op: :append" do
+    it "is listed as a valid operation" do
+      expect(Igniter::Store::Protocol::WireEnvelope::OPERATIONS).to include(:append)
+    end
+
+    it "appends a history event and returns an append receipt" do
+      resp = wire.dispatch(envelope(:append, {
+        history: :contractable_events,
+        event: { event_id: "evt_1", observation_id: "obs_1" },
+        key: "client-key-1",
+        partition_key: :observation_id,
+        producer: { system: :spec }
+      }))
+
+      expect(resp[:status]).to eq(:ok)
+      expect(resp[:result].accepted?).to be true
+      expect(resp[:result].kind).to eq(:append_receipt)
+      expect(resp[:result].store).to eq(:contractable_events)
+      expect(resp[:result].key).not_to eq("client-key-1")
+      expect(resp[:result].warnings.first).to match(/metadata only/)
+
+      replay = wire.dispatch(envelope(:replay, { filter: { store: :contractable_events } }))
+      expect(replay[:result][:count]).to eq(1)
+      expect(replay[:result][:facts].first[:value]).to include(event_id: "evt_1")
+      expect(replay[:result][:facts].first[:producer]).to eq(system: :spec)
+    end
+
+    it "returns error when history: is missing" do
+      resp = wire.dispatch(envelope(:append, { event: {} }))
+      expect(resp[:status]).to eq(:error)
+    end
+  end
+
   # ------------------------------------------------------------------ op: :write_fact
 
   describe "op: :write_fact" do

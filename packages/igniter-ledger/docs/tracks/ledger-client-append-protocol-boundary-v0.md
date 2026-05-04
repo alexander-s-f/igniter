@@ -1,6 +1,6 @@
 # Track: Ledger Client Append Protocol Boundary v0
 
-Status: ready
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target packages:
@@ -192,3 +192,19 @@ Status: done | partial | blocked
 - ...
 ```
 
+## Final Notes
+
+Status date: 2026-05-04.
+
+- `LedgerClient#append` dispatches envelope op `:append`.
+- `Igniter::LedgerClient::Envelope::OPERATIONS` includes `:append`.
+- `Igniter::Store::Protocol::WireEnvelope::OPERATIONS` includes `:append`.
+- `Protocol::Interpreter#append` delegates to `IgniterStore#append` and returns
+  an append receipt with accepted status, history/store name, generated key,
+  fact id, value hash, and warnings.
+- `ContractableReceiptSink#record_event` uses `client.append` on the client
+  path and embedded `store.append` on the store path.
+- `append` accepts `producer`, `valid_time`, `schema_version`, and
+  `partition_key`; client-supplied `key:` remains metadata only in v0.
+- The `:igniter_store` protocol token and `Igniter::Store` internals were not
+  renamed.

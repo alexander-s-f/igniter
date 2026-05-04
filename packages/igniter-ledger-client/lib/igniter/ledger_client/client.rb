@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-
-require "securerandom"
 require_relative "envelope"
 require_relative "error"
 
@@ -21,13 +19,11 @@ module Igniter
         dispatch(:write, metadata.merge(store: store, key: key, value: value))
       end
 
-      # v0 client-level append lowers to the current Ledger Open Protocol write op.
-      # The server protocol does not yet expose a distinct append operation.
       def append(history:, event:, key: nil, partition_key: nil, **metadata)
-        generated_key = key || event_key(event)
-        packet = metadata.merge(store: history, key: generated_key, value: event)
+        packet = metadata.merge(history: history, event: event)
+        packet[:key] = key if key
         packet[:partition_key] = partition_key if partition_key
-        dispatch(:write, packet)
+        dispatch(:append, packet)
       end
 
       def read(store:, key:, as_of: nil)
@@ -85,16 +81,6 @@ module Igniter
 
       def close
         transport.close if transport.respond_to?(:close)
-      end
-
-      private
-
-      def event_key(event)
-        if event.respond_to?(:[])
-          event[:event_id] || event["event_id"] || event[:id] || event["id"] || SecureRandom.uuid
-        else
-          SecureRandom.uuid
-        end
       end
     end
   end

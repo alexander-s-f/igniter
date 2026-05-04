@@ -54,6 +54,13 @@ client.write(
   producer: { type: :app, name: :spark }
 )
 
+client.append(
+  history: :order_events,
+  event: { event_id: "evt-1", order_id: "order-1", event: :opened },
+  partition_key: :order_id,
+  producer: { type: :app, name: :spark }
+)
+
 client.read(store: :orders, key: "order-1")
 ```
 
@@ -95,10 +102,10 @@ client.compaction_activity(store: nil, kind: nil, since: nil, limit: nil)
 client.close
 ```
 
-`append` currently lowers to the Ledger Open Protocol `write` op because the
-server protocol does not yet expose a distinct append operation. That gap should
-be closed in the next protocol slice before high-volume history clients depend
-on it.
+`append` dispatches the Ledger Open Protocol `append` op and keeps append-only
+history semantics distinct from keyed record writes. `key:` may be sent as
+client metadata for future idempotency work, but protocol v0 returns the
+generated fact key and does not treat `key:` as a stable idempotency guarantee.
 
 ## Docs
 
