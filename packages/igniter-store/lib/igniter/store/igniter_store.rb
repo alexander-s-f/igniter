@@ -59,6 +59,10 @@ module Igniter
         # Schema coercion hooks: { store_name => callable(value, schema_version) }
         # Applied on every read path; raw facts remain immutable in the log and cache.
         @coercions = {}
+        # Fact-id lookup index: { fact_id => Fact }
+        # Maintained on write, append, replay, and rebuild_log!.
+        # Reflects currently live facts only — dropped facts are removed after compaction.
+        @fact_id_index = {}
       end
 
       def self.open(path, lru_cap: ReadCache::DEFAULT_LRU_CAP)
@@ -223,6 +227,7 @@ module Igniter
           derivation:     derivation
         )
         @log.append(fact)
+        @fact_id_index[fact.id] = fact
         @backend&.write_fact(fact)
         scope_changes = update_scope_indices(store, key, value)
         @cache.invalidate(store: store, key: key, scope_changes: scope_changes)
@@ -244,6 +249,7 @@ module Igniter
           term:           term
         )
         @log.append(fact)
+        @fact_id_index[fact.id] = fact
         @backend&.write_fact(fact)
         if partition_key && (pv = event[partition_key])
           idx_key = [history, partition_key]
@@ -401,6 +407,29 @@ module Igniter
         @log.size
       end
 
+      # Returns the exact Fact object for +fact_id+ if it is live in the store, nil otherwise.
+      # Safe to call with nil or blank id — returns nil without raising.
+      # Does not apply coercion; returns the raw Fact as written.
+      def fact_by_id(fact_id)
+        return nil if fact_id.nil? || fact_id.to_s.empty?
+        @fact_id_index[fact_id]
+      end
+
+      # Returns compact metadata for +fact_id+ without exposing the full value payload.
+      # Returns nil when the fact is not live.
+      def fact_ref(fact_id)
+        fact = fact_by_id(fact_id)
+        return nil unless fact
+        {
+          id:               fact.id,
+          store:            fact.store,
+          key:              fact.key,
+          transaction_time: fact.transaction_time,
+          valid_time:       fact.valid_time,
+          value_hash:       fact.value_hash
+        }
+      end
+
       # Return all facts from the log, optionally bounded by time range.
       # Used by the open protocol sync hub profile and replay operations.
       # Returns [] when the native FactLog lacks all_facts support.
@@ -433,6 +462,7 @@ module Igniter
 
       def replay(fact)
         @log.replay(fact)
+        @fact_id_index[fact.id] = fact
       end
 
       private
@@ -561,6 +591,7 @@ module Igniter
         end
 
         @log = new_log
+        @fact_id_index = new_facts.each_with_object({}) { |f, h| h[f.id] = f }
         @scope_mutex.synchronize     { @scope_index.clear }
         @partition_mutex.synchronize { @partition_index.clear }
         @cache = ReadCache.new(lru_cap: @lru_cap)

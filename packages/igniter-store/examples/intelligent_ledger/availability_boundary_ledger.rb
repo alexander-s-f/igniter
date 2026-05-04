@@ -543,11 +543,13 @@ module Igniter
           false
         end
 
-        # Scans :availability_snapshots for a fact whose id matches +fact_id+.
-        # Returns the fact's value (symbol-keyed hash) or nil if not found.
+        # Returns the value of a snapshot fact by id using the store's fact-id index.
+        # Rejects the result if the indexed fact is not from :availability_snapshots.
         def find_snapshot_value(fact_id)
           return nil unless fact_id
-          @store.history(store: :availability_snapshots).find { |f| f.id == fact_id }&.value
+          fact = @store.fact_by_id(fact_id)
+          return nil unless fact && fact.store == :availability_snapshots
+          fact.value
         end
 
         def safe_parse_time(val)
@@ -561,23 +563,20 @@ module Igniter
           facts.empty? ? nil : facts.max_by(&:transaction_time).value
         end
 
-        # Returns the raw Fact for fact_id, or nil.
+        # Returns the raw Fact for fact_id using the store's fact-id index.
         #
         # When store_hint is a known store name (from redirect provenance):
-        #   scan only that store — avoids cross-store sweep.
+        #   return nil if the indexed fact is in a different store (mismatch rejection).
         # When store_hint is nil or "unknown":
-        #   fall back to scanning all RAW_PROOF_STORES.
+        #   return the indexed fact regardless of store.
         def find_raw_fact(fact_id, store_hint: nil)
+          return nil unless fact_id
+          fact = @store.fact_by_id(fact_id)
+          return nil unless fact
           if store_hint && store_hint != "unknown"
-            match = @store.history(store: store_hint.to_sym).find { |f| f.id == fact_id }
-            return match  # nil if not found; we trust the provenance, no further scan
+            return nil unless fact.store.to_s == store_hint
           end
-
-          RAW_PROOF_STORES.each do |store_name|
-            match = @store.history(store: store_name).find { |f| f.id == fact_id }
-            return match if match
-          end
-          nil
+          fact
         end
 
         def redirect_evidence(redirect)
