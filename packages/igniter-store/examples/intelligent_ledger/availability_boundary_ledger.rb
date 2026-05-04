@@ -20,10 +20,11 @@ module Igniter
       #   :ledger_boundary_summaries            — key: boundary_key  (settlement output)
       #   :ledger_boundary_metrics              — key: boundary_key  (settlement output)
       #   :ledger_settlement_receipts           — key: boundary_key  (settlement output)
-      #   :ledger_cleanup_receipts              — key: boundary_key
+      #   :ledger_cleanup_receipts              — key: boundary_key  (logical compaction receipt)
       #   :ledger_fact_redirects                — key: original_fact_id (written at compaction)
       #   :ledger_relation_edge_targets         — key: to_fact_id    (access path; canonical is :ledger_relation_edges)
       #   :ledger_cleanup_execution_receipts    — key: plan_hash     (idempotent execution record)
+      #   :ledger_physical_purge_receipts       — key: plan_hash     (physical purge audit record)
       #   :late_fact_receipts                   — key: "late/<boundary_key>/<token>"
       #
       # Proof-known raw stores scanned by resolve_ref(:raw):
@@ -847,6 +848,143 @@ module Igniter
 
           { status: :executed_noop, plan_hash: hash, receipt_id: fact.id,
             deduplicated: false, receipt: receipt_value }
+        end
+
+        # Physically purges boundary source facts from the store, provided all
+        # safety rules pass.
+        #
+        # Safety rules (all must be true):
+        #   - cleanup execution receipt exists with status == executed_noop
+        #   - every boundary named in the receipt is compacted (logical purge done)
+        #   - every source fact id has a redirect entry in :ledger_fact_redirects
+        #   - the reference guard (require_reference_redirects: true) is still ready
+        #   - the store backend supports exact fact pruning
+        #
+        # dry_run: true  — returns what would be pruned, no facts removed.
+        # dry_run: false — calls store.prune_fact_ids and writes a physical purge receipt.
+        #
+        # Idempotent: second call for the same plan_hash returns deduplicated: true.
+        #
+        # Blocked reasons:
+        #   :cleanup_execution_receipt_missing, :cleanup_execution_not_successful,
+        #   :boundary_compaction_required, :fact_redirect_missing,
+        #   :reference_guard_failed, :store_prune_unsupported
+        def purge_cleanup_execution(plan_hash:, dry_run: false)
+          # 1 — Find and validate the execution receipt
+          exec_facts = @store.history(store: :ledger_cleanup_execution_receipts, key: plan_hash)
+          unless exec_facts.any?
+            return { status: :blocked, reason: :cleanup_execution_receipt_missing,
+                     plan_hash: plan_hash }
+          end
+
+          exec_receipt = exec_facts.last.value
+          unless exec_receipt[:status].to_s == "executed_noop"
+            return { status: :blocked, reason: :cleanup_execution_not_successful,
+                     plan_hash: plan_hash, receipt_status: exec_receipt[:status] }
+          end
+
+          # 2 — Validate each boundary: compacted? + all redirects present
+          boundary_keys = Array(exec_receipt[:boundary_keys])
+          source_fact_ids = []
+
+          boundary_keys.each do |bk|
+            boundary = @boundaries[bk]
+            unless boundary&.compacted?
+              return { status: :blocked, reason: :boundary_compaction_required,
+                       boundary_key: bk }
+            end
+
+            boundary.source_fact_ids.each do |src_id|
+              unless latest_redirect(src_id)
+                return { status: :blocked, reason: :fact_redirect_missing,
+                         fact_id: src_id, boundary_key: bk }
+              end
+              source_fact_ids << src_id
+            end
+          end
+
+          # 3 — Re-run reference guard
+          before_time = safe_parse_time(exec_receipt[:before])
+          guard_plan  = cleanup_plan(
+            store:                       (exec_receipt[:store] || "order_events").to_sym,
+            before:                      before_time || Time.now,
+            fidelity:                    (exec_receipt[:fidelity] || "boundary").to_sym,
+            require_reference_redirects: exec_receipt[:require_reference_redirects]
+          )
+
+          if guard_plan[:status] != :ready
+            return {
+              status:                  :blocked,
+              reason:                  :reference_guard_failed,
+              blocking_boundaries:     guard_plan[:blocking_boundaries],
+              blocking_relation_edges: Array(guard_plan[:blocking_relation_edges])
+            }
+          end
+
+          fact_ids_to_prune = source_fact_ids.uniq
+
+          # 4 — Dry run: return intent without any deletion
+          if dry_run
+            return {
+              status:            :ready,
+              dry_run:           true,
+              fact_ids_to_prune: fact_ids_to_prune,
+              boundary_keys:     boundary_keys,
+              blockers:          []
+            }
+          end
+
+          # 5 — Idempotency: existing purge receipt for this plan_hash
+          existing_purge = @store.history(store: :ledger_physical_purge_receipts, key: plan_hash)
+          if existing_purge.any?
+            return {
+              status:       :purged,
+              deduplicated: true,
+              plan_hash:    plan_hash,
+              receipt_id:   existing_purge.last.id
+            }
+          end
+
+          # 6 — Execute physical prune
+          prune_result = @store.prune_fact_ids(
+            fact_ids: fact_ids_to_prune,
+            reason:   :boundary_physical_purge,
+            metadata: {
+              source:        "availability_boundary_ledger",
+              plan_hash:     plan_hash,
+              boundary_keys: boundary_keys
+            }
+          )
+
+          if prune_result[:status] == :unsupported
+            return { status: :blocked, reason: :store_prune_unsupported,
+                     detail: prune_result }
+          end
+
+          # 7 — Write physical purge receipt
+          purge_fact = @store.write(
+            store:    :ledger_physical_purge_receipts,
+            key:      plan_hash,
+            value:    {
+              "status"           => "purged",
+              "plan_hash"        => plan_hash,
+              "boundary_keys"    => boundary_keys,
+              "fact_ids_pruned"  => fact_ids_to_prune,
+              "pruned_count"     => prune_result[:pruned_count],
+              "missing_count"    => prune_result[:missing_count],
+              "prune_receipt_id" => prune_result[:receipt_id],
+              "purged_at"        => Time.now.utc.iso8601(3)
+            },
+            producer: PRODUCER
+          )
+
+          {
+            status:       :purged,
+            deduplicated: false,
+            plan_hash:    plan_hash,
+            receipt_id:   purge_fact.id,
+            pruned_count: prune_result[:pruned_count]
+          }
         end
 
         private

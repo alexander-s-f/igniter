@@ -67,6 +67,30 @@ module Igniter
           FileUtils.mv(tmp, snapshot_path)
         end
 
+        # Pruning-safe barrier: atomically replace the snapshot with +facts+ AND
+        # truncate the WAL so that dropped facts cannot resurface on reopen.
+        #
+        # Normal checkpoint (#write_snapshot) is non-destructive — it leaves the
+        # WAL intact, which means any fact not present in the snapshot will still
+        # be loaded from the WAL on next open.  For physical purge that is wrong:
+        # the dropped fact ids would not be in the new snapshot, so the WAL would
+        # replay them back into existence.
+        #
+        # This method:
+        #   1. Writes the new snapshot atomically (tmp → rename).
+        #   2. Closes the current WAL file handle.
+        #   3. Truncates the WAL to 0 bytes (new open in write mode).
+        #   4. Reopens for future appends.
+        #
+        # After a successful call, close/reopen will load only the snapshot facts.
+        def replace_with_snapshot!(facts)
+          write_snapshot(facts)
+          @file.close
+          File.open(@path, "wb") {}   # truncate WAL
+          @file = File.open(@path, "ab")
+          @file.sync = true
+        end
+
         def snapshot_path
           @path + SNAPSHOT_SUFFIX
         end
@@ -150,6 +174,16 @@ module Igniter
           @_ruby_path + SNAPSHOT_SUFFIX
         end
 
+        # Pruning-safe barrier for native-backed stores.
+        # Writes the snapshot atomically, then truncates the WAL file so that
+        # dropped facts cannot be replayed on reopen.
+        # The native write handle is still open; after truncation, the next
+        # native write will restart from offset 0 (append mode semantics).
+        def replace_with_snapshot!(facts)
+          write_snapshot(facts)
+          File.open(@_ruby_path, "wb") {}   # truncate WAL
+        end
+
         def write_snapshot(facts)
           tmp = "#{snapshot_path}.tmp"
           File.open(tmp, "wb") do |f|
@@ -207,7 +241,18 @@ module Igniter
 
         SNAPSHOT_SUFFIX = NativeFileBackendSnapshotSupport::SNAPSHOT_SUFFIX
 
+        # The native extension defines `replay` (WAL-only) as a class-level method,
+        # which shadows the module's snapshot-aware `replay`.  Save the WAL-only
+        # version under an alias, then override `replay` in the class body so the
+        # snapshot-aware path is used on store open.
         alias_method :_native_replay_wal, :replay
+
+        def replay
+          snapshot_facts, seen_ids = load_native_snapshot
+          wal_facts = _native_replay_wal
+          delta = wal_facts.reject { |f| seen_ids.include?(f.id) }
+          snapshot_facts + delta
+        end
 
         class << self
           alias_method :_native_new, :new

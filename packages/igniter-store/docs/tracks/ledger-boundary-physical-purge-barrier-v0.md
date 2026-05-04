@@ -1,7 +1,7 @@
 # Track: Ledger Boundary Physical Purge Barrier v0
 
 Status date: 2026-05-04
-Status: ready
+Status: done
 Supervisor: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 
@@ -334,22 +334,69 @@ This is the key acceptance test for the replay barrier.
 - If tests need direct writes to relation edge stores, remember that
   `:ledger_relation_edge_targets` is now the cleanup guard access path.
 
-## Handoff Template
+## Handoff
 
 ```text
 [Package Agent / Companion+Store]
 Track: igniter-store/ledger-boundary-physical-purge-barrier-v0
-Status: done | partial | blocked
+Status: done
 
 [D] Decisions:
-- ...
+- Resurrection bug is a real gap in normal checkpoint: `write_snapshot` leaves the WAL
+  intact, so dropped facts replay back on reopen. Documented via a dedicated spec that
+  proves the bug, then proves `replace_with_snapshot!` fixes it.
+- `replace_with_snapshot!(facts)` chosen as the barrier name: atomic snapshot write
+  followed by WAL truncation. Normal `checkpoint`/`write_snapshot` remains non-destructive.
+- Native-mode `FileBackend` had a silent MRO shadowing bug: the Rust-native `replay`
+  (WAL-only) shadowed the Ruby module's snapshot-aware `replay`. Fixed by explicitly
+  overriding `replay` in the class body after saving the native alias as `_native_replay_wal`.
+- `prune_fact_ids` writes a compact receipt (no full payloads) before log rebuild, so
+  the receipt itself is included in the surviving facts and survives the prune barrier.
+- `purge_cleanup_execution` enforces 6 safety rules before calling the store primitive:
+  execution receipt present + successful, boundary compacted, redirects for all source
+  facts, reference guard still :ready with require_reference_redirects: true, and
+  backend supports `replace_with_snapshot!`.
+- Idempotency: second purge call returns `{ status: :purged, deduplicated: true }` and
+  does not write a duplicate physical purge receipt.
+- `full_replay` after purge returns `{ status: :detail_unavailable }` for pruned
+  boundaries; `replay` still returns the compact boundary output.
 
 [S] Shipped:
-- ...
+- `FileBackend#replace_with_snapshot!(facts)` — pure-Ruby and native variants:
+  writes snapshot atomically (tmp→rename), then truncates WAL. Native variant fixes
+  the MRO shadowing by defining `replay` explicitly in the class body.
+- `IgniterStore#prune_fact_ids(fact_ids:, reason:, metadata:, receipt_store:)`:
+  returns `:unsupported` when backend lacks `replace_with_snapshot!`; otherwise drops
+  exact facts from FactLog, writes prune receipt, rebuilds log+indexes, calls barrier.
+- `AvailabilityBoundaryLedger#purge_cleanup_execution(plan_hash:, dry_run: false)`:
+  6-rule safety check, dry-run support, store prune delegation, durable receipt in
+  `:ledger_physical_purge_receipts`, idempotent via `plan_hash` deduplication.
 
 [T] Tests:
-- ...
+- `spec/igniter/store/file_backend_prune_spec.rb` (6 examples):
+  resurrection bug proof, `replace_with_snapshot!` prevents resurrection, idempotent
+  barrier, facts written after barrier survive reopen, IgniterStore integration.
+- `spec/igniter/store/igniter_store_prune_spec.rb` (12 examples):
+  removes from index, receipt written + survives prune, missing IDs non-fatal,
+  unsupported backend, in-memory store, queryable after partial prune.
+- `spec/igniter/store/intelligent_ledger/ledger_boundary_physical_purge_proof_spec.rb`
+  (17 examples): dry-run intent, actual purge (facts removed, replay works,
+  full_replay→:detail_unavailable, redirects intact, receipt written), all 6 blocked
+  reasons, idempotency ×2, file-backed reopen ×2 (pruned absent, replay+redirects OK).
+- Full suite: 1109 examples, 0 failures (native extension active).
 
 [R] Risks / next recommendations:
-- ...
+- Native FileBackend `close` only flushes the BufWriter; it does not close the OS file
+  descriptor. After `replace_with_snapshot!` + WAL truncation the native handle is still
+  open and positioned beyond the truncation point. Writes after truncation land at the
+  correct offset because the OS sees the file as 0-byte and appends from 0. Confirmed
+  correct by the "facts written after barrier survive reopen" spec, but worth noting.
+- `SegmentedFileBackend` exact prune is explicitly unsupported in this slice; returns
+  `:store_prune_unsupported`. Segment-level retention is separate.
+- `purge_cleanup_execution` deduplicates by `plan_hash`, not by boundary id. Two
+  different cleanup plans for the same boundary would each produce independent receipts.
+  That's intentional, but callers should not re-generate plan hashes for the same
+  execution intent.
+- Next natural slice: expose purge via the Store Open Protocol / wire transport so
+  remote-backed stores can execute boundary purge without direct Ruby access.
 ```

@@ -115,6 +115,85 @@ module Igniter
         store ? all.select { |f| f.value[:compacted_store] == store } : all
       end
 
+      # Removes exact facts by id from the live FactLog and all derived indexes.
+      #
+      # Requires a backend that supports +replace_with_snapshot!+ (i.e. FileBackend
+      # in the Ruby-path proof).  Returns { status: :unsupported } for backends
+      # that do not support durable fact removal (e.g. SegmentedFileBackend).
+      # In-memory stores (backend: nil) support the operation without durability.
+      #
+      # Order of operations:
+      #   1. Write a prune receipt (compact refs, no full payloads) — survives the prune.
+      #   2. Rebuild log without the pruned facts.
+      #   3. Call backend.replace_with_snapshot! so dropped facts cannot resurface on reopen.
+      #
+      # Missing fact ids are reported in the result but are not fatal.
+      #
+      # Returns:
+      #   { status: :ok, receipt_id:, pruned_count:, missing_count:,
+      #     pruned_fact_refs:, missing_ids: }
+      #   { status: :unsupported, reason: :backend_does_not_support_exact_prune, backend: }
+      def prune_fact_ids(fact_ids:, reason:, metadata: {}, receipt_store: :__fact_prune_receipts)
+        if @backend && !@backend.respond_to?(:replace_with_snapshot!)
+          return {
+            status:  :unsupported,
+            reason:  :backend_does_not_support_exact_prune,
+            backend: @backend.class.name
+          }
+        end
+
+        ids_set = Set.new(fact_ids.map(&:to_s))
+
+        pruned_refs = []
+        missing_ids = []
+        ids_set.each do |id|
+          fact = @fact_id_index[id]
+          if fact
+            pruned_refs << {
+              id:               fact.id,
+              store:            fact.store,
+              key:              fact.key,
+              transaction_time: fact.transaction_time,
+              valid_time:       fact.valid_time,
+              value_hash:       fact.value_hash
+            }
+          else
+            missing_ids << id
+          end
+        end
+
+        now     = Process.clock_gettime(Process::CLOCK_REALTIME)
+        receipt = write(
+          store: receipt_store,
+          key:   SecureRandom.hex(8),
+          value: {
+            type:             :fact_prune_receipt,
+            reason:           reason,
+            requested_count:  ids_set.size,
+            pruned_count:     pruned_refs.size,
+            missing_count:    missing_ids.size,
+            pruned_fact_refs: pruned_refs,
+            missing_ids:      missing_ids,
+            metadata:         metadata,
+            pruned_at:        now
+          }
+        )
+
+        surviving = @log.all_facts.reject { |f| ids_set.include?(f.id.to_s) }
+        rebuild_log!(surviving)
+
+        @backend.replace_with_snapshot!(@log.all_facts) if @backend
+
+        {
+          status:           :ok,
+          receipt_id:       receipt.id,
+          pruned_count:     pruned_refs.size,
+          missing_count:    missing_ids.size,
+          pruned_fact_refs: pruned_refs,
+          missing_ids:      missing_ids
+        }
+      end
+
       # Declare a named cross-store relation backed by a materialized scatter index.
       #
       # When any fact is written to +source+, the value of +partition+ in that
