@@ -218,3 +218,65 @@ Status: done | partial | blocked
 [R] Risks / next recommendations:
 - ...
 ```
+
+---
+
+## Handoff
+
+```text
+[Package Agent / Companion+Store]
+Track: igniter-store/contractable-receipt-ledger-sink-v0
+Status: done
+
+[D] Decisions:
+- Observations: store.write keyed by observation_id. Same id on retry overwrites
+  current fact and produces a causation chain. Safe to retry from Sidekiq/etc.
+- Events: store.append with partition_key: :observation_id (append-only history
+  semantics). Retries produce duplicate entries; callers should deduplicate.
+  Documented in class comment.
+- Status computed in Embed Runner BEFORE calling the store adapter so the
+  receipt written to the sink always has the final status. If the write raises,
+  store_error is set and status is recomputed to :store_error. This required
+  a fix to Embed's Runner#record_observation ordering (previously status was set
+  after the write — the store would see status: nil).
+- Scope B (descriptor registration): uses existing Protocol::Interpreter /
+  register_descriptor surface. metadata_snapshot[:stores] / [:histories] are
+  Hash-keyed (not Arrays) — store descriptors are keyed by name symbol.
+- Scope C query helpers are in-memory: observations() iterates history() and
+  deduplicates by key; events_for() uses history_partition backed by the
+  partition index; error_events() filters in memory. No extra access paths
+  needed for this slice.
+- Scope D integration spec lives in igniter-store/spec with manual $LOAD_PATH
+  injection for igniter-embed. Embed does not require Store.
+
+[S] Shipped:
+- lib/igniter/store/contractable_receipt_sink.rb — ContractableReceiptSink
+  with record_observation, record_event, observation, events_for,
+  observations(status:, limit:), error_events(limit:), and register_descriptors.
+- lib/igniter/store.rb — require added for contractable_receipt_sink.
+- packages/igniter-embed/lib/igniter/embed/contractable/runner.rb — fixed
+  status computation ordering in record_observation (status set before store
+  write, recomputed after store error).
+- spec/igniter/store/contractable_receipt_sink_spec.rb — 25 unit tests.
+- spec/igniter/store/contractable_receipt_sink_integration_spec.rb — 7
+  cross-package integration tests (Embed runner + Store sink).
+- packages/igniter-store/README.md — Contractable Receipt Sink section with
+  constructor, query helpers, and custom names example.
+
+[T] Tests:
+- igniter-store: 1199 examples, 0 failures (was 1171; +28 new).
+- igniter-embed: 77 examples, 0 failures (unchanged; runner fix verified).
+
+[R] Risks / next recommendations:
+- events_for() and error_events() iterate all history facts in memory for each
+  call. Fine for test/early-integration volume; add a registered scope or access
+  path if queries become hot in production.
+- Duplicate events from async retries are not deduplicated. If Sidekiq retries
+  record_event, duplicate receipts will appear in events_for. Dedup guard can
+  be added in ContractableReceiptSink#record_event with a keyed write instead of
+  append — but that loses append-only history semantics. Decide at next pressure.
+- The status fix in Embed runner changes the timing of when status is set (before
+  vs after store write). This is correct behavior but may affect any code that
+  read status from the observation hash before the store call. No such code found
+  in tests; verified 77/0.
+```

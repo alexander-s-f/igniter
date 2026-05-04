@@ -189,6 +189,7 @@ module Igniter
         def record_observation(observation)
           if config.store_adapter
             begin
+              observation[:status] = observation_status(observation)
               if config.store_adapter.respond_to?(:record_observation)
                 config.store_adapter.record_observation(observation)
               else
@@ -196,9 +197,11 @@ module Igniter
               end
             rescue StandardError => e
               observation[:store_error] = serialize_error(e)
+              observation[:status] = observation_status(observation)
             end
+          else
+            observation[:status] = observation_status(observation)
           end
-          observation[:status] = observation_status(observation)
           config.observation_callback&.call(observation)
           dispatch_observation_events(observation)
           observation

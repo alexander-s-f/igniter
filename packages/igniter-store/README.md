@@ -104,6 +104,50 @@ store.write(
 store.read(store: :reminders, key: "r1")
 ```
 
+## Contractable Receipt Sink
+
+`ContractableReceiptSink` is a durable store adapter for Embed contractable
+observation/event receipts. Wire it as the `store:` option on any contractable:
+
+```ruby
+require "igniter-store"
+
+sink = Igniter::Store::ContractableReceiptSink.new(
+  store: Igniter::Store::IgniterStore.new
+)
+
+# Pass as store adapter to any igniter-embed contractable:
+runner = Igniter::Embed.contractable(:marketing_executor) do |config|
+  config.primary  LegacyExecutor
+  config.candidate ContractExecutor
+  config.async false
+  config.store sink
+  config.normalize_primary ExecutorNormalizer
+  config.normalize_candidate ExecutorNormalizer
+  config.redact_inputs ->(**inputs) { inputs.slice(:request_id) }
+end
+
+runner.call(request_id: "r1", provider_token: "secret")
+
+# Query:
+sink.observation("obs_abc123")                      # current state by id
+sink.events_for("obs_abc123")                       # all events in commit order
+sink.observations(status: :diverged, limit: 20)     # recent diverged observations
+sink.error_events(limit: 10)                        # recent error-severity events
+```
+
+Registers `contractable_observations` (store) and `contractable_events`
+(history) protocol descriptors on construction. Custom store names:
+
+```ruby
+sink = Igniter::Store::ContractableReceiptSink.new(
+  store: Igniter::Store::IgniterStore.new,
+  observations_store: :spark_observations,
+  events_store: :spark_events,
+  producer: { type: :embed, name: :spark_sink }
+)
+```
+
 Run the POC smoke:
 
 ```bash
