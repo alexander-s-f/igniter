@@ -1,6 +1,6 @@
 # Track: Durable Model Client Relation Resolve v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target packages: `packages/igniter-durable-model`, `packages/igniter-ledger-client`, `packages/igniter-ledger`
@@ -294,3 +294,13 @@ Status: done | partial | blocked
 - ...
 ```
 
+## Final Notes
+
+- Client-backed Durable Model now auto-wires supported one-to-many relations and
+  lowers explicit `register_relation` calls to Ledger relation descriptors.
+- Client-backed `resolve(relation_name, from:, as_of:)` now returns typed source
+  records when the source schema is registered, and `[]` for empty relation
+  partitions.
+- Ledger Client now wraps resolve responses in `ResolveResult` with
+  `items`/`results`/`count`; protocol wire resolve preserves value-only
+  `results` while adding keyed `items`.

@@ -24,6 +24,8 @@ RSpec.describe Igniter::LedgerClient::Client do
                  { value: { status: :open }, found: true }
                when :query
                  { items: [{ key: "o1", value: { status: :open } }], results: [{ status: :open }], count: 1 }
+               when :resolve
+                 { items: [{ key: "t1", value: { title: "Alpha" } }], results: [{ title: "Alpha" }], count: 1 }
                when :replay
                  { facts: [{ key: "evt_1" }], count: 1 }
                else
@@ -113,13 +115,14 @@ RSpec.describe Igniter::LedgerClient::Client do
     expect(packet[:producer]).to eq(system: :spec)
   end
 
-  it "normalizes descriptor, read, query, and replay results" do
+  it "normalizes descriptor, read, query, resolve, and replay results" do
     transport = FakeTransport.new
     client = described_class.new(transport: transport)
 
     descriptor = client.register_descriptor(kind: :store, name: :orders)
     read = client.read(store: :orders, key: "o1")
     query = client.query(store: :orders, where: { status: :open })
+    resolve = client.resolve(relation: :project_tasks, from: "p1")
     replay = client.replay(store: :order_events)
 
     expect(descriptor).to be_a(Igniter::LedgerClient::Results::ReceiptResult)
@@ -130,6 +133,10 @@ RSpec.describe Igniter::LedgerClient::Client do
     expect(query.items).to eq([{ key: "o1", value: { status: :open } }])
     expect(query.results).to eq([{ status: :open }])
     expect(query.count).to eq(1)
+    expect(resolve).to be_a(Igniter::LedgerClient::Results::ResolveResult)
+    expect(resolve.items).to eq([{ key: "t1", value: { title: "Alpha" } }])
+    expect(resolve.results).to eq([{ title: "Alpha" }])
+    expect(resolve.count).to eq(1)
     expect(replay.facts).to eq([{ key: "evt_1" }])
     expect(replay.count).to eq(1)
   end

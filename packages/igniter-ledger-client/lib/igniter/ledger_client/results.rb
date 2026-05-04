@@ -159,6 +159,46 @@ module Igniter
         end
       end
 
+      class ResolveResult
+        include HashAccess
+
+        attr_reader :items, :results, :count
+
+        def initialize(raw = {})
+          data = normalize(raw)
+          @items = normalize_items(data[:items]).freeze
+          @results = Array(data[:results] || items.map { |item| item[:value] }).freeze
+          @count = data.key?(:count) ? data[:count].to_i : [items.size, results.size].max
+          freeze
+        end
+
+        def to_h
+          { items: items, results: results, count: count }
+        end
+
+        private
+
+        def normalize(raw)
+          return { results: raw } if raw.is_a?(Array)
+
+          hash = raw.respond_to?(:to_h) ? raw.to_h : {}
+          hash.each_with_object({}) { |(key, value), acc| acc[key.to_sym] = value }
+        end
+
+        def normalize_items(raw_items)
+          Array(raw_items).map do |item|
+            data = item.to_h.transform_keys(&:to_sym)
+            { key: data[:key], value: normalize_value(data[:value] || {}) }
+          end
+        end
+
+        def normalize_value(value)
+          return value unless value.is_a?(Hash)
+
+          value.each_with_object({}) { |(key, entry), acc| acc[key.to_sym] = entry }
+        end
+      end
+
       class ReplayResult
         include HashAccess
 
@@ -257,6 +297,8 @@ module Igniter
           ReadResult.new(raw)
         when :query
           QueryResult.new(raw)
+        when :resolve
+          ResolveResult.new(raw)
         when :replay
           ReplayResult.new(raw)
         else

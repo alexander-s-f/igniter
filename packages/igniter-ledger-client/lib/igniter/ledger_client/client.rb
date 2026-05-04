@@ -61,7 +61,7 @@ module Igniter
       def resolve(relation:, from:, as_of: nil)
         packet = { relation: relation, from: from }
         packet[:as_of] = as_of if as_of
-        dispatch(:resolve, packet)
+        Results.wrap(:resolve, dispatch(:resolve, packet))
       end
 
       def metadata_snapshot = dispatch(:metadata_snapshot)

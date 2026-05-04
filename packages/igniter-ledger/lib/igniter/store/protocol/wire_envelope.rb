@@ -122,12 +122,12 @@ module Igniter
             { items: items, results: items.map { |item| item[:value] }, count: items.size }
 
           when :resolve
-            results = @interpreter.resolve(
+            items = @interpreter.resolve_items(
               packet.fetch(:relation).to_sym,
               from:  packet.fetch(:from),
               as_of: packet[:as_of]
             )
-            { results: results, count: results.size }
+            { items: items, results: items.map { |item| item[:value] }, count: items.size }
 
           when :metadata_snapshot
             @interpreter.metadata_snapshot

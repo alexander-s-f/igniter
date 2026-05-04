@@ -30,6 +30,7 @@ module Igniter
       def initialize(backend: :memory, path: nil, address: nil, transport: :tcp, client: nil)
         @registered     = Set.new
         @schema_by_store = {}
+        @relations_by_name = {}
         if client
           raise ArgumentError, "client: cannot be combined with backend/path/address/transport options" if backend != :memory || path || address || transport != :tcp
 
@@ -88,8 +89,6 @@ module Igniter
         end
 
         if schema_class.respond_to?(:_relations)
-          raise unsupported_client_mode!("relation auto-wire") if client_backed? && schema_class._relations.any?
-
           schema_class._relations.each do |rel_name, attrs|
             next unless attrs[:cardinality] == :one_to_many
             next if attrs[:join].nil? || attrs[:join].empty?
@@ -237,10 +236,28 @@ module Igniter
       # +source+ may be a schema class (store_name is used) or a Symbol.
       # +target+ may be a schema class or Symbol — informational only.
       def register_relation(name, source:, partition:, target:)
-        raise unsupported_client_mode!("relations") if client_backed?
-
         src = source.respond_to?(:store_name) ? source.store_name : source.to_sym
         tgt = target.respond_to?(:store_name) ? target.store_name : target.to_sym
+        rel = {
+          source: src,
+          partition: partition.to_sym,
+          target: tgt,
+          index_store: :"__rel_#{name}"
+        }
+        @relations_by_name[name.to_sym] = rel
+
+        if client_backed?
+          @inner.register_descriptor(
+            schema_version: 1,
+            kind:           :relation,
+            name:           name,
+            from:           { store: tgt, key: :id },
+            to:             { store: src, field: partition },
+            cardinality:    :many
+          )
+          return self
+        end
+
         @inner.register_relation(name, source: src, partition: partition, target: tgt)
         self
       end
@@ -254,7 +271,22 @@ module Igniter
       # as_of: Float timestamp — when given, reads the index state AND each
       # source value at that point in time (consistent point-in-time snapshot).
       def resolve(relation_name, from:, as_of: nil)
-        raise unsupported_client_mode!("relation resolve") if client_backed?
+        if client_backed?
+          relation = @relations_by_name[relation_name.to_sym]
+          raise ArgumentError, "No relation registered: #{relation_name.inspect}" unless relation
+
+          result = @inner.resolve(relation: relation_name, from: from, as_of: as_of)
+          source_class = @schema_by_store[relation[:source]]
+          return result.results unless source_class
+
+          return result.items.map { |item| source_class.new(key: item[:key], **item[:value]) } if result.items.any?
+
+          if result.results.any? && result.results.all? { |value| value.is_a?(Hash) && value.key?(:id) }
+            return result.results.map { |value| source_class.new(key: value[:id], **value) }
+          end
+
+          return result.results
+        end
 
         rule = @inner.schema_graph.relation_for(name: relation_name)
         raise ArgumentError, "No relation registered: #{relation_name.inspect}" unless rule
@@ -273,7 +305,7 @@ module Igniter
 
       # Returns a compact snapshot of all registered relation rules.
       def _relations
-        raise unsupported_client_mode!("relation snapshots") if client_backed?
+        return @relations_by_name.dup if client_backed?
 
         @inner.schema_graph.relation_snapshot
       end
@@ -381,6 +413,10 @@ module Igniter
 
         def append(...)
           client.append(...)
+        end
+
+        def resolve(...)
+          client.resolve(...)
         end
 
         def subscribe(...)

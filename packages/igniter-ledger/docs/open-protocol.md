@@ -241,7 +241,7 @@ Fact IO:
 
 Relations, projections, and derivations:
 
-- `resolve(relation:, from_key:, as_of: nil)`
+- `resolve(relation:, from:, as_of: nil)`
 - `relation_snapshot(name, as_of: nil)`
 - `projection_snapshot(name, as_of: nil)`
 - `derivation_snapshot(name, as_of: nil)`

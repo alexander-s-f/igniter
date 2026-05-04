@@ -472,6 +472,96 @@ RSpec.describe Igniter::Companion::Store do
     ensure
       s&.close
     end
+
+    it "auto-wires supported client-backed one-to-many relations during register" do
+      s = client_backed_store
+      s.register(BlogPost)
+
+      expect(s._relations.keys).to include(:comments_by_post, :tags_by_post)
+      expect(s._relations.keys).not_to include(:author_ref)
+      expect(s._relations[:comments_by_post]).to include(
+        source: :blog_comments,
+        partition: :post_id,
+        target: :blog_posts,
+        index_store: :__rel_comments_by_post
+      )
+    ensure
+      s&.close
+    end
+
+    it "supports client-backed typed relation resolve" do
+      s = client_backed_store
+      s.register(BlogPost)
+      s.register(BlogComment)
+
+      s.write(BlogComment, key: "c1", body: "Nice", post_id: "p1")
+      s.write(BlogComment, key: "c2", body: "Other", post_id: "p2")
+      s.write(BlogComment, key: "c3", body: "Great", post_id: "p1")
+
+      comments = s.resolve(:comments_by_post, from: "p1")
+
+      expect(comments).to all(be_a(BlogComment))
+      expect(comments.map(&:key)).to contain_exactly("c1", "c3")
+      expect(comments.map(&:body)).to contain_exactly("Nice", "Great")
+    ensure
+      s&.close
+    end
+
+    it "supports client-backed relation resolve at a past point in time" do
+      s = client_backed_store
+      s.register(BlogPost)
+      s.register(BlogComment)
+
+      s.write(BlogComment, key: "c1", body: "Early", post_id: "p1")
+      sleep 0.01
+      checkpoint = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.01
+      s.write(BlogComment, key: "c2", body: "Later", post_id: "p1")
+
+      past = s.resolve(:comments_by_post, from: "p1", as_of: checkpoint)
+      current = s.resolve(:comments_by_post, from: "p1")
+
+      expect(past.map(&:body)).to eq(["Early"])
+      expect(current.map(&:body)).to contain_exactly("Early", "Later")
+    ensure
+      s&.close
+    end
+
+    it "returns [] for unknown client-backed relation partitions" do
+      s = client_backed_store
+      s.register(BlogPost)
+      s.register(BlogComment)
+
+      expect(s.resolve(:comments_by_post, from: "missing")).to eq([])
+    ensure
+      s&.close
+    end
+
+    it "fails clearly for unknown client-backed relations" do
+      s = client_backed_store
+
+      expect { s.resolve(:missing_relation, from: "p1") }
+        .to raise_error(ArgumentError, /No relation registered/)
+    ensure
+      s&.close
+    end
+
+    it "supports explicit client-backed register_relation" do
+      s = client_backed_store
+      s.register(BlogComment)
+      s.register_relation(:manual_comments_by_post,
+        source: BlogComment,
+        partition: :post_id,
+        target: :blog_posts)
+
+      s.write(BlogComment, key: "c1", body: "Manual", post_id: "p1")
+      comments = s.resolve(:manual_comments_by_post, from: "p1")
+
+      expect(comments.first).to be_a(BlogComment)
+      expect(comments.first.body).to eq("Manual")
+    ensure
+      s&.close
+    end
   end
 
   # ── Manifest-generated classes ─────────────────────────────────────────────

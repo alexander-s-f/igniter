@@ -144,13 +144,15 @@ Successful mutation/read calls return small result objects:
 - `register_descriptor` -> `Igniter::LedgerClient::Results::ReceiptResult`
 - `read` -> `Igniter::LedgerClient::Results::ReadResult`
 - `query` -> `Igniter::LedgerClient::Results::QueryResult`
+- `resolve` -> `Igniter::LedgerClient::Results::ResolveResult`
 - `replay` -> `Igniter::LedgerClient::Results::ReplayResult`
 - `subscribe` events -> `Igniter::LedgerClient::Results::ChangeEventResult`
 
 Result objects expose named readers, `to_h`, and transitional `[]` access.
 `QueryResult#items` is the canonical row shape for query consumers and includes
 `{ key:, value: }` entries; `QueryResult#results` remains the backward-compatible
-value-only list.
+value-only list. `ResolveResult` follows the same `items`/`results` convention
+so typed clients can preserve source record keys.
 Snapshot-style methods such as `metadata_snapshot` and `observability_snapshot`
 still return raw protocol hashes in v0.
 

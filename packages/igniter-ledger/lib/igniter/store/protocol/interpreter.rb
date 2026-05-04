@@ -156,6 +156,22 @@ module Igniter
           @store.resolve(relation_name, from: from, as_of: as_of)
         end
 
+        # Resolve a named relation with source keys preserved for client-side
+        # typed record reconstruction. The value-only #resolve API remains
+        # stable for existing protocol callers.
+        def resolve_items(relation_name, from:, as_of: nil)
+          rule = @store.schema_graph.relation_for(name: relation_name)
+          raise ArgumentError, "No relation registered: #{relation_name.inspect}" unless rule
+
+          index_entry = @store.read(store: :"__rel_#{relation_name}", key: from.to_s, as_of: as_of)
+          return [] unless index_entry
+
+          index_entry[:keys].filter_map do |key|
+            value = @store.read(store: rule.source, key: key, as_of: as_of)
+            { key: key, value: value } if value
+          end
+        end
+
         # OP2: unified protocol metadata snapshot.
         # Combines raw descriptor registry (store/history/subscription),
         # engine routing metadata (access paths), and all derived graph artifacts
