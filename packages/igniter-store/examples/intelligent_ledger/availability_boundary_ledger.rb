@@ -490,6 +490,164 @@ module Igniter
           end
         end
 
+        # Creates a relation edge from one fact to another, persisting compact metadata.
+        #
+        # Uses fact_ref(to_fact_id) to populate to_store/to_key from the live index.
+        # If the target fact is unknown, the edge is persisted as :unresolved rather
+        # than raising an exception.
+        #
+        # Returns: { edge_id:, edge_fact: }
+        def link_fact(from_store:, from_key:, from_fact_id:, to_fact_id:, relation:)
+          edge_id = SecureRandom.uuid
+          to_ref  = @store.fact_ref(to_fact_id)
+
+          value = if to_ref
+            {
+              "edge_id"         => edge_id,
+              "relation"        => relation.to_s,
+              "from_store"      => from_store.to_s,
+              "from_key"        => from_key.to_s,
+              "from_fact_id"    => from_fact_id.to_s,
+              "to_store"        => to_ref[:store].to_s,
+              "to_key"          => to_ref[:key].to_s,
+              "to_fact_id"      => to_fact_id.to_s,
+              "to_boundary_key" => nil,
+              "ref_status"      => "raw",
+              "fidelity"        => "raw",
+              "evidence"        => {}
+            }
+          else
+            {
+              "edge_id"         => edge_id,
+              "relation"        => relation.to_s,
+              "from_store"      => from_store.to_s,
+              "from_key"        => from_key.to_s,
+              "from_fact_id"    => from_fact_id.to_s,
+              "to_store"        => nil,
+              "to_key"          => nil,
+              "to_fact_id"      => to_fact_id.to_s,
+              "to_boundary_key" => nil,
+              "ref_status"      => "unresolved",
+              "fidelity"        => "raw",
+              "evidence"        => {}
+            }
+          end
+
+          edge_fact = @store.write(
+            store:    :ledger_relation_edges,
+            key:      edge_id,
+            value:    value,
+            producer: PRODUCER
+          )
+
+          { edge_id: edge_id, edge_fact: edge_fact }
+        end
+
+        # Resolves a relation edge by edge_id, respecting the required fidelity.
+        #
+        # Delegates to resolve_ref semantics; maps results to edge vocabulary:
+        #
+        #   { status: :ok, ref_status: :raw, fidelity: :raw, to_fact: <Fact> }
+        #   { status: :ok, ref_status: :redirected, fidelity: :boundary,
+        #     to_boundary_key:, evidence: }
+        #   { status: :detail_unavailable, to_fact_id:, evidence: }
+        #   { status: :unresolved, ref_status: :unresolved, to_fact_id: }
+        #   { status: :not_found, edge_id: }
+        #
+        # assume_compacted: — for :raw fidelity; skips live fact check, returns
+        #   detail_unavailable when redirect exists.
+        def resolve_edge(edge_id, fidelity: :boundary, assume_compacted: false)
+          edge_facts = @store.history(store: :ledger_relation_edges, key: edge_id)
+          return { status: :not_found, edge_id: edge_id } if edge_facts.empty?
+
+          edge       = edge_facts.max_by(&:transaction_time).value
+          to_fact_id = edge[:to_fact_id]
+
+          return { status: :unresolved, ref_status: :unresolved, to_fact_id: to_fact_id } \
+            if edge[:ref_status].to_s == "unresolved"
+
+          # For :raw fidelity without assume_compacted, try live fact lookup first.
+          # resolve_ref(:raw) requires a redirect to exist; edges must also resolve
+          # when the raw fact is still live and no redirect has been written yet.
+          if fidelity == :raw && !assume_compacted
+            raw = @store.fact_by_id(to_fact_id)
+            return { status: :ok, ref_status: :raw, fidelity: :raw, to_fact: raw } if raw
+          end
+
+          ref_result = resolve_ref(to_fact_id, fidelity: fidelity, assume_compacted: assume_compacted)
+
+          case ref_result[:status]
+          when :ok
+            if ref_result[:kind] == :raw_fact
+              { status: :ok, ref_status: :raw, fidelity: :raw, to_fact: ref_result[:fact] }
+            else
+              { status: :ok, ref_status: :redirected, fidelity: :boundary,
+                to_boundary_key: ref_result[:boundary_key],
+                evidence:        ref_result[:evidence] }
+            end
+          when :redirected
+            { status: :ok, ref_status: :redirected, fidelity: :boundary,
+              to_boundary_key: ref_result[:boundary_key],
+              evidence:        ref_result[:evidence] }
+          when :detail_unavailable
+            { status: :detail_unavailable, to_fact_id: to_fact_id, evidence: ref_result[:evidence] }
+          else
+            { status: :unresolved, ref_status: :unresolved, to_fact_id: to_fact_id }
+          end
+        end
+
+        # Scans all raw relation edges and updates those whose target fact has been
+        # compacted (redirect evidence available) to ref_status: "redirected".
+        #
+        # assume_compacted: — when true, skips live fact check (simulates physical purge).
+        # Idempotent: already-redirected and unresolved edges are skipped.
+        #
+        # Returns: { refreshed_count:, skipped_count:, unresolved_count: }
+        def refresh_relation_edges(assume_compacted: false)
+          refreshed  = 0
+          skipped    = 0
+          unresolved = 0
+
+          @store.history(store: :ledger_relation_edges)
+            .group_by(&:key)
+            .each do |edge_id, facts|
+              edge = facts.max_by(&:transaction_time).value
+              next skipped += 1 unless edge[:ref_status].to_s == "raw"
+
+              to_fact_id = edge[:to_fact_id]
+
+              unless assume_compacted
+                next skipped += 1 if @store.fact_by_id(to_fact_id)
+              end
+
+              redirect = latest_redirect(to_fact_id)
+              next unresolved += 1 unless redirect
+
+              evidence = {
+                "boundary_output_fact_id" => redirect[:boundary_output_fact_id],
+                "boundary_receipt_id"     => redirect[:boundary_receipt_id],
+                "settlement_receipt_id"   => redirect[:settlement_receipt_id],
+                "compaction_receipt_id"   => redirect[:compaction_receipt_id]
+              }
+
+              @store.write(
+                store:    :ledger_relation_edges,
+                key:      edge_id,
+                value:    edge.transform_keys(&:to_s).merge(
+                  "ref_status"      => "redirected",
+                  "fidelity"        => "boundary",
+                  "to_boundary_key" => redirect[:boundary_key],
+                  "evidence"        => evidence,
+                  "refreshed_at"    => Time.now.iso8601(3)
+                ),
+                producer: PRODUCER
+              )
+              refreshed += 1
+            end
+
+          { refreshed_count: refreshed, skipped_count: skipped, unresolved_count: unresolved }
+        end
+
         # Records a late fact for a closed boundary without mutating the original.
         # The original result_hash and settlement outputs remain unchanged.
         # Records boundary_status_at_arrival and settlement_status_at_arrival so
