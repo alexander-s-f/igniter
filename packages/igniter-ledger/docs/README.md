@@ -6,6 +6,11 @@ Implementation specifications, progress records, and track handoffs for the
 Status: active pre-v1 Ledger substrate work. Prefer compact current-state docs
 first; use track docs for implementation history and acceptance evidence.
 
+Rename note: current user-facing package name is `igniter-ledger`. Legacy
+`igniter-store` require/CLI entrypoints remain compatibility shims only; the
+internal `Igniter::Store` namespace and `:igniter_store` protocol token are
+intentional pre-v1 carryovers until a later deep-rename phase.
+
 ## Fast Reading Path
 
 1. [progress.md](progress.md) — compact current implementation status.
@@ -57,6 +62,7 @@ first; use track docs for implementation history and acceptance evidence.
 | [tracks/compaction-lifecycle-unification-v0.md](tracks/compaction-lifecycle-unification-v0.md) | Unified compact/prune/purge vocabulary |
 | [tracks/compaction-activity-protocol-surface-v0.md](tracks/compaction-activity-protocol-surface-v0.md) | Compaction activity protocol/read surface |
 | [tracks/contractable-receipt-ledger-sink-v0.md](tracks/contractable-receipt-ledger-sink-v0.md) | Durable Store/Ledger sink for Embed contractable observation/event receipts |
+| [tracks/ledger-rename-hardening-compatibility-audit-v0.md](tracks/ledger-rename-hardening-compatibility-audit-v0.md) | Public rename hardening, compatibility tests, token audit map, and deep-rename plan |
 | [tracks/changefeed-events-v0.md](tracks/changefeed-events-v0.md) | Package Agent track for the first Changefeed events subsystem slice |
 | [tracks/changefeed-ordering-replay-v0.md](tracks/changefeed-ordering-replay-v0.md) | Package Agent track for Changefeed ordering and replay cursor semantics |
 | [tracks/changefeed-sse-events-v0.md](tracks/changefeed-sse-events-v0.md) | Package Agent track for SSE `/v1/events` over Changefeed replay/live push |

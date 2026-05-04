@@ -2,7 +2,7 @@
 
 Дата: 2026-04-29.
 Область: Ruby POC, доказывающий основную модель хранения. Не публичный API.
-Источник: `examples/igniter_store_poc.rb` — запускаемый, только stdlib.
+Источник: `examples/store_poc.rb` — запускаемый, только stdlib.
 Канонический: `poc-specification.md`.
 
 ---
@@ -305,5 +305,5 @@ Ruby фасад (`IgniterStore`) может остаться в Ruby как то
 
 - [Contract-Native Store Research](./research/store-iterations.md)
 - [Contract Persistence Organic Model](../../../docs/research/contract-persistence-organic-model.md)
-- [POC исходник](../../../examples/igniter_store_poc.rb)
+- [POC исходник](../examples/store_poc.rb)
 - [Канонический английский файл](./poc-specification.md)

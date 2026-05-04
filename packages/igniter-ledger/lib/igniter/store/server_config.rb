@@ -14,7 +14,7 @@ module Igniter
     #     backend:       :file,
     #     path:          "/var/lib/igniter/store.wal",
     #     log_level:     :info,
-    #     pid_file:      "/var/run/igniter-store.pid",
+    #     pid_file:      "/var/run/igniter-ledger.pid",
     #     drain_timeout: 10
     #   )
     class ServerConfig
