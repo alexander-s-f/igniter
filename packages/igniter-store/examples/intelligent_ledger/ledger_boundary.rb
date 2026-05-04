@@ -19,7 +19,8 @@ module Igniter
         RULE_VERSION = "1.0"
 
         attr_reader :boundary_key, :subject, :status, :result_hash,
-                    :source_fact_ids, :output_fact_id, :output_value,
+                    :source_fact_ids, :source_fact_refs,
+                    :output_fact_id, :output_value,
                     :receipt_fact_id, :detail_status, :closed_at,
                     :compacted_at, :compaction_receipt_id,
                     :settlement_status, :settlement_receipt_id
@@ -31,6 +32,7 @@ module Igniter
           @status        = :open
           @detail_status = :full
           @source_fact_ids       = [].freeze
+          @source_fact_refs      = [].freeze
           @output_fact_id        = nil
           @output_value          = nil
           @receipt_fact_id       = nil
@@ -51,13 +53,19 @@ module Igniter
 
         # Transitions open -> closed.
         # output_fact, receipt_fact, result_hash are immutable after this point.
-        def close!(output_fact:, receipt_fact:, source_fact_ids:)
+        # source_fact_refs — structured refs (id/store/role); optional, defaults to [].
+        #   Refs are normalized to string keys for consistency across store round-trips.
+        def close!(output_fact:, receipt_fact:, source_fact_ids:, source_fact_refs: [])
           raise "boundary already closed" unless @status == :open
 
           @output_fact_id  = output_fact.id
           @output_value    = output_fact.value
           @receipt_fact_id = receipt_fact.id
           @source_fact_ids = source_fact_ids.uniq.freeze
+          @source_fact_refs = source_fact_refs
+            .map { |r| r.transform_keys(&:to_s) }
+            .uniq { |r| r["id"] }
+            .freeze
           @result_hash     = compute_result_hash(@output_value, @source_fact_ids)
           @status          = :closed
           @closed_at       = Time.now
@@ -133,7 +141,10 @@ module Igniter
           @output_value    = output_value
           @receipt_fact_id = boundary_record[:receipt_fact_id]
           @result_hash     = boundary_record[:result_hash]
-          @source_fact_ids = Array(boundary_record[:source_fact_ids]).freeze
+          @source_fact_ids  = Array(boundary_record[:source_fact_ids]).freeze
+          @source_fact_refs = Array(boundary_record[:source_fact_refs] || [])
+            .map { |r| r.transform_keys(&:to_s) }
+            .freeze
 
           @closed_at             = parse_time_safe(boundary_record[:closed_at])
           @compacted_at          = compacted_at

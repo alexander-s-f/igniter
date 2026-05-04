@@ -27,10 +27,11 @@ module Igniter
         #   :overrides           — Array<Fact> (explicit time blocks)
         #   :active_reservations — Array<Fact> (reserved order slots)
         #
-        # horizon_start — Date (inclusive, start of window)
-        # horizon_days  — Integer (number of days to expand)
-        # source_fact_ids — Array<String> (all fact IDs that contributed)
-        def derive(base_facts:, horizon_start:, horizon_days:, source_fact_ids:)
+        # horizon_start    — Date (inclusive, start of window)
+        # horizon_days     — Integer (number of days to expand)
+        # source_fact_ids  — Array<String> (all fact IDs that contributed)
+        # source_fact_refs — Array<Hash>   (structured refs: id/store/role; optional)
+        def derive(base_facts:, horizon_start:, horizon_days:, source_fact_ids:, source_fact_refs: nil)
           template_value    = base_facts[:template]&.value || {}
           override_facts    = base_facts[:overrides] || []
           reservation_facts = base_facts[:active_reservations] || []
@@ -47,18 +48,21 @@ module Igniter
           # 4. Compute total available seconds
           available_seconds = available.sum { |s, e| e - s }
 
+          refs = (source_fact_refs || []).uniq { |r| r["id"] || r[:id] }
+
           {
-            "available_slots"       => available.map { |s, e| { "start" => s, "end" => e } },
-            "blocked_intervals"     => blocked.map { |s, e| { "start" => s, "end" => e } },
-            "available_seconds"     => available_seconds.round,
-            "derived_from_fact_ids" => source_fact_ids.uniq,
-            "derivation"            => {
+            "available_slots"        => available.map { |s, e| { "start" => s, "end" => e } },
+            "blocked_intervals"      => blocked.map { |s, e| { "start" => s, "end" => e } },
+            "available_seconds"      => available_seconds.round,
+            "derived_from_fact_ids"  => source_fact_ids.uniq,
+            "derived_from_fact_refs" => refs,
+            "derivation"             => {
               "name"    => DERIVATION_NAME,
               "version" => DERIVATION_VERSION
             },
-            "computed_at"           => Time.now.iso8601(3),
-            "horizon_start"         => horizon_start.iso8601,
-            "horizon_days"          => horizon_days
+            "computed_at"            => Time.now.iso8601(3),
+            "horizon_start"          => horizon_start.iso8601,
+            "horizon_days"           => horizon_days
           }
         end
 

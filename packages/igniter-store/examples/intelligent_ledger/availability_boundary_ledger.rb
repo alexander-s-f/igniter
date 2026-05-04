@@ -71,9 +71,15 @@ module Igniter
           )
           snapshot_fact = result[:snapshot_fact]
           receipt_fact  = result[:receipt_fact]
-          source_ids    = snapshot_fact.value[:derived_from_fact_ids] || []
+          source_ids    = snapshot_fact.value[:derived_from_fact_ids]  || []
+          source_refs   = snapshot_fact.value[:derived_from_fact_refs] || []
 
-          boundary.close!(output_fact: snapshot_fact, receipt_fact: receipt_fact, source_fact_ids: source_ids)
+          boundary.close!(
+            output_fact:      snapshot_fact,
+            receipt_fact:     receipt_fact,
+            source_fact_ids:  source_ids,
+            source_fact_refs: source_refs
+          )
 
           boundary_fact = @store.write(
             store:    :ledger_boundaries,
@@ -86,13 +92,14 @@ module Igniter
             store:    :ledger_boundary_receipts,
             key:      boundary.boundary_key,
             value:    {
-              "boundary_key"    => boundary.boundary_key,
-              "output_fact_id"  => boundary.output_fact_id,
-              "receipt_fact_id" => boundary.receipt_fact_id,
-              "result_hash"     => boundary.result_hash,
-              "source_fact_ids" => boundary.source_fact_ids,
-              "detail_status"   => boundary.detail_status.to_s,
-              "closed_at"       => boundary.closed_at.iso8601(3)
+              "boundary_key"     => boundary.boundary_key,
+              "output_fact_id"   => boundary.output_fact_id,
+              "receipt_fact_id"  => boundary.receipt_fact_id,
+              "result_hash"      => boundary.result_hash,
+              "source_fact_ids"  => boundary.source_fact_ids,
+              "source_fact_refs" => boundary.source_fact_refs,
+              "detail_status"    => boundary.detail_status.to_s,
+              "closed_at"        => boundary.closed_at.iso8601(3)
             },
             producer: PRODUCER
           )
@@ -215,6 +222,7 @@ module Igniter
               "output_fact_id"        => boundary.output_fact_id,
               "result_hash"           => boundary.result_hash,
               "source_fact_ids"       => boundary.source_fact_ids,
+              "source_fact_refs"      => boundary.source_fact_refs,
               "settlement_receipt_id" => boundary.settlement_receipt_id,
               "detail_status_after"   => "purged",
               "compacted_at"          => compacted_at
@@ -222,25 +230,51 @@ module Igniter
             producer: PRODUCER
           )
 
-          boundary.source_fact_ids.each do |src_id|
-            @store.write(
-              store:    :ledger_fact_redirects,
-              key:      src_id,
-              value:    {
-                "original_fact_id"        => src_id,
-                "original_store"          => "unknown",
-                "boundary_key"            => boundary_key,
-                "boundary_policy"         => LedgerBoundary::POLICY_NAME,
-                "boundary_output_fact_id" => boundary.output_fact_id,
-                "boundary_receipt_id"     => boundary.receipt_fact_id,
-                "settlement_receipt_id"   => boundary.settlement_receipt_id,
-                "compaction_receipt_id"   => compaction_receipt.id,
-                "detail_status"           => "purged",
-                "reference_role"          => "included_in_boundary",
-                "compacted_at"            => compacted_at
-              },
-              producer: PRODUCER
-            )
+          # Use structured refs when available (provides original_store + source_role).
+          # Fall back to bare IDs with "unknown" store for old-style boundaries.
+          if boundary.source_fact_refs.any?
+            boundary.source_fact_refs.each do |ref|
+              @store.write(
+                store:    :ledger_fact_redirects,
+                key:      ref["id"],
+                value:    {
+                  "original_fact_id"        => ref["id"],
+                  "original_store"          => ref["store"],
+                  "source_role"             => ref["role"],
+                  "boundary_key"            => boundary_key,
+                  "boundary_policy"         => LedgerBoundary::POLICY_NAME,
+                  "boundary_output_fact_id" => boundary.output_fact_id,
+                  "boundary_receipt_id"     => boundary.receipt_fact_id,
+                  "settlement_receipt_id"   => boundary.settlement_receipt_id,
+                  "compaction_receipt_id"   => compaction_receipt.id,
+                  "detail_status"           => "purged",
+                  "reference_role"          => "included_in_boundary",
+                  "compacted_at"            => compacted_at
+                },
+                producer: PRODUCER
+              )
+            end
+          else
+            boundary.source_fact_ids.each do |src_id|
+              @store.write(
+                store:    :ledger_fact_redirects,
+                key:      src_id,
+                value:    {
+                  "original_fact_id"        => src_id,
+                  "original_store"          => "unknown",
+                  "boundary_key"            => boundary_key,
+                  "boundary_policy"         => LedgerBoundary::POLICY_NAME,
+                  "boundary_output_fact_id" => boundary.output_fact_id,
+                  "boundary_receipt_id"     => boundary.receipt_fact_id,
+                  "settlement_receipt_id"   => boundary.settlement_receipt_id,
+                  "compaction_receipt_id"   => compaction_receipt.id,
+                  "detail_status"           => "purged",
+                  "reference_role"          => "included_in_boundary",
+                  "compacted_at"            => compacted_at
+                },
+                producer: PRODUCER
+              )
+            end
           end
 
           boundary.compact!(compaction_receipt_id: compaction_receipt.id)
@@ -441,7 +475,8 @@ module Igniter
             return { status: :not_found, original_fact_id: fact_id } unless redirect
             return raw_detail_unavailable(fact_id, redirect)          if assume_compacted
 
-            raw_fact = find_raw_fact(fact_id)
+            store_hint = redirect[:original_store]&.to_s
+            raw_fact   = find_raw_fact(fact_id, store_hint: store_hint)
             raw_fact ? { status: :ok, kind: :raw_fact, fact: raw_fact }
                      : raw_detail_unavailable(fact_id, redirect)
 
@@ -526,9 +561,18 @@ module Igniter
           facts.empty? ? nil : facts.max_by(&:transaction_time).value
         end
 
-        # Scans proof-known raw stores for a fact matching fact_id.
-        # Returns the Fact object or nil (linear scan, proof scope only).
-        def find_raw_fact(fact_id)
+        # Returns the raw Fact for fact_id, or nil.
+        #
+        # When store_hint is a known store name (from redirect provenance):
+        #   scan only that store — avoids cross-store sweep.
+        # When store_hint is nil or "unknown":
+        #   fall back to scanning all RAW_PROOF_STORES.
+        def find_raw_fact(fact_id, store_hint: nil)
+          if store_hint && store_hint != "unknown"
+            match = @store.history(store: store_hint.to_sym).find { |f| f.id == fact_id }
+            return match  # nil if not found; we trust the provenance, no further scan
+          end
+
           RAW_PROOF_STORES.each do |store_name|
             match = @store.history(store: store_name).find { |f| f.id == fact_id }
             return match if match
@@ -580,17 +624,18 @@ module Igniter
 
         def boundary_record_value(boundary)
           {
-            "boundary_key"    => boundary.boundary_key,
-            "policy_name"     => LedgerBoundary::POLICY_NAME,
-            "subject"         => boundary.subject.transform_keys(&:to_s),
-            "status"          => boundary.status.to_s,
-            "output_fact_id"  => boundary.output_fact_id,
-            "receipt_fact_id" => boundary.receipt_fact_id,
-            "result_hash"     => boundary.result_hash,
-            "source_fact_ids" => boundary.source_fact_ids,
-            "detail_status"   => boundary.detail_status.to_s,
-            "closed_at"       => boundary.closed_at&.iso8601(3),
-            "rule_version"    => LedgerBoundary::RULE_VERSION
+            "boundary_key"     => boundary.boundary_key,
+            "policy_name"      => LedgerBoundary::POLICY_NAME,
+            "subject"          => boundary.subject.transform_keys(&:to_s),
+            "status"           => boundary.status.to_s,
+            "output_fact_id"   => boundary.output_fact_id,
+            "receipt_fact_id"  => boundary.receipt_fact_id,
+            "result_hash"      => boundary.result_hash,
+            "source_fact_ids"  => boundary.source_fact_ids,
+            "source_fact_refs" => boundary.source_fact_refs,
+            "detail_status"    => boundary.detail_status.to_s,
+            "closed_at"        => boundary.closed_at&.iso8601(3),
+            "rule_version"     => LedgerBoundary::RULE_VERSION
           }
         end
       end

@@ -88,11 +88,27 @@ module Igniter
           # Active reservations = latest event per order_id where type != "cancelled"
           active_reservations = active_order_facts(order_facts)
 
-          # Collect all source fact IDs (template + overrides + all order events)
-          source_ids = []
-          source_ids << template_fact.id if template_fact
-          source_ids.concat(override_facts.map(&:id))
-          source_ids.concat(order_facts.map(&:id))
+          # Collect source fact IDs and structured refs (id + store + role).
+          source_ids  = []
+          source_refs = []
+
+          if template_fact
+            source_ids  << template_fact.id
+            source_refs << { "id" => template_fact.id, "store" => "availability_templates",
+                             "role" => "template", "key" => template_fact.key }
+          end
+
+          override_facts.each do |f|
+            source_ids  << f.id
+            source_refs << { "id" => f.id, "store" => "availability_overrides",
+                             "role" => "override", "key" => f.key }
+          end
+
+          order_facts.each do |f|
+            source_ids  << f.id
+            source_refs << { "id" => f.id, "store" => "order_events",
+                             "role" => "order_event", "key" => f.key }
+          end
 
           base_facts = {
             template:            template_fact,
@@ -102,10 +118,11 @@ module Igniter
 
           # --- derive ---
           snapshot_value = @deriver.derive(
-            base_facts:     base_facts,
-            horizon_start:  horizon_start,
-            horizon_days:   horizon_days,
-            source_fact_ids: source_ids
+            base_facts:       base_facts,
+            horizon_start:    horizon_start,
+            horizon_days:     horizon_days,
+            source_fact_ids:  source_ids,
+            source_fact_refs: source_refs
           )
 
           # --- persist snapshot ---
@@ -127,6 +144,7 @@ module Igniter
             "derivation_name"    => AvailabilityDeriver::DERIVATION_NAME,
             "derivation_version" => AvailabilityDeriver::DERIVATION_VERSION,
             "source_fact_ids"    => source_ids.uniq,
+            "source_fact_refs"   => source_refs.uniq { |r| r["id"] },
             "derived_at"         => Time.now.iso8601(3)
           }
 
@@ -167,9 +185,10 @@ module Igniter
         def snapshot_derivation_metadata(snapshot_value)
           raw = snapshot_value.fetch("derivation")
           {
-            name: raw.fetch("name"),
-            version: raw.fetch("version"),
-            source_fact_ids: snapshot_value.fetch("derived_from_fact_ids")
+            name:             raw.fetch("name"),
+            version:          raw.fetch("version"),
+            source_fact_ids:  snapshot_value.fetch("derived_from_fact_ids"),
+            source_fact_refs: snapshot_value.fetch("derived_from_fact_refs", [])
           }
         end
       end
