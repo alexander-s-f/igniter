@@ -20,7 +20,12 @@ module Igniter
       #   :ledger_boundary_metrics    — key: boundary_key  (settlement output)
       #   :ledger_settlement_receipts — key: boundary_key  (settlement output)
       #   :ledger_cleanup_receipts    — key: boundary_key
+      #   :ledger_fact_redirects      — key: original_fact_id (written at compaction)
       #   :late_fact_receipts         — key: "late/<boundary_key>/<token>"
+      #
+      # Proof-known raw stores scanned by resolve_ref(:raw):
+      RAW_PROOF_STORES = %i[availability_templates availability_overrides order_events].freeze
+
       class AvailabilityBoundaryLedger
         PRODUCER = {
           "system"  => "availability_boundary_ledger",
@@ -190,7 +195,8 @@ module Igniter
             metrics_fact: metrics_fact, settlement_receipt: settlement_receipt }
         end
 
-        # Compact a settled boundary: marks detail_status :purged, writes cleanup receipt.
+        # Compact a settled boundary: marks detail_status :purged, writes cleanup receipt,
+        # and writes one :ledger_fact_redirects entry per source_fact_id.
         # Settlement is required before compaction.
         # Returns the compaction receipt fact.
         def compact_boundary(boundary_key)
@@ -198,6 +204,8 @@ module Igniter
           raise ArgumentError, "boundary not found: #{boundary_key}"        unless boundary
           raise ArgumentError, "boundary must be closed before compaction"  unless boundary.status == :closed
           raise ArgumentError, "boundary must be settled before compaction" unless boundary.settled?
+
+          compacted_at = Time.now.iso8601(3)
 
           compaction_receipt = @store.write(
             store:    :ledger_cleanup_receipts,
@@ -209,10 +217,31 @@ module Igniter
               "source_fact_ids"       => boundary.source_fact_ids,
               "settlement_receipt_id" => boundary.settlement_receipt_id,
               "detail_status_after"   => "purged",
-              "compacted_at"          => Time.now.iso8601(3)
+              "compacted_at"          => compacted_at
             },
             producer: PRODUCER
           )
+
+          boundary.source_fact_ids.each do |src_id|
+            @store.write(
+              store:    :ledger_fact_redirects,
+              key:      src_id,
+              value:    {
+                "original_fact_id"        => src_id,
+                "original_store"          => "unknown",
+                "boundary_key"            => boundary_key,
+                "boundary_policy"         => LedgerBoundary::POLICY_NAME,
+                "boundary_output_fact_id" => boundary.output_fact_id,
+                "boundary_receipt_id"     => boundary.receipt_fact_id,
+                "settlement_receipt_id"   => boundary.settlement_receipt_id,
+                "compaction_receipt_id"   => compaction_receipt.id,
+                "detail_status"           => "purged",
+                "reference_role"          => "included_in_boundary",
+                "compacted_at"            => compacted_at
+              },
+              producer: PRODUCER
+            )
+          end
 
           boundary.compact!(compaction_receipt_id: compaction_receipt.id)
           compaction_receipt
@@ -378,6 +407,54 @@ module Igniter
           { status: :ok, hydrated_count: hydrated, skipped_count: skipped, warnings: warnings }
         end
 
+        # Resolves a reference to a fact, respecting the required fidelity.
+        #
+        # fidelity:
+        #   :raw      — return raw fact if accessible; never silently downgrade to boundary
+        #               evidence. With assume_compacted: true (or when raw is physically
+        #               absent), returns :detail_unavailable with redirect evidence.
+        #   :boundary — intentionally follow redirect evidence when raw is compacted.
+        #               Returns :redirected with boundary evidence.
+        #   :summary  — like :boundary but marks kind: :summary_ref, signals settlement
+        #               evidence is available via settlement_receipt_id in the redirect.
+        #
+        # assume_compacted: — for :raw fidelity only. When true, skips raw fact lookup
+        #   and returns :detail_unavailable if a redirect exists. Useful in tests to
+        #   simulate physical purge (which this proof does not perform).
+        #
+        # Returns one of:
+        #   { status: :ok, kind: :raw_fact, fact: <Fact> }
+        #   { status: :redirected, kind: :boundary_ref | :summary_ref, ... }
+        #   { status: :detail_unavailable, original_fact_id:, boundary_key:,
+        #     required_fidelity: :raw, available_fidelity: :boundary, evidence: }
+        #   { status: :not_found, original_fact_id: }
+        # Raises ArgumentError for unsupported fidelity values.
+        def resolve_ref(fact_id, fidelity: :boundary, assume_compacted: false)
+          unless %i[raw boundary summary].include?(fidelity)
+            raise ArgumentError, "unsupported fidelity: #{fidelity.inspect}"
+          end
+
+          redirect = latest_redirect(fact_id)
+
+          case fidelity
+          when :raw
+            return { status: :not_found, original_fact_id: fact_id } unless redirect
+            return raw_detail_unavailable(fact_id, redirect)          if assume_compacted
+
+            raw_fact = find_raw_fact(fact_id)
+            raw_fact ? { status: :ok, kind: :raw_fact, fact: raw_fact }
+                     : raw_detail_unavailable(fact_id, redirect)
+
+          when :boundary
+            return { status: :not_found, original_fact_id: fact_id } unless redirect
+            boundary_redirect_response(fact_id, redirect)
+
+          when :summary
+            return { status: :not_found, original_fact_id: fact_id } unless redirect
+            summary_redirect_response(fact_id, redirect)
+          end
+        end
+
         # Records a late fact for a closed boundary without mutating the original.
         # The original result_hash and settlement outputs remain unchanged.
         # Records boundary_status_at_arrival and settlement_status_at_arrival so
@@ -442,6 +519,63 @@ module Igniter
           val ? Time.parse(val.to_s) : nil
         rescue ArgumentError, TypeError
           nil
+        end
+
+        def latest_redirect(fact_id)
+          facts = @store.history(store: :ledger_fact_redirects, key: fact_id)
+          facts.empty? ? nil : facts.max_by(&:transaction_time).value
+        end
+
+        # Scans proof-known raw stores for a fact matching fact_id.
+        # Returns the Fact object or nil (linear scan, proof scope only).
+        def find_raw_fact(fact_id)
+          RAW_PROOF_STORES.each do |store_name|
+            match = @store.history(store: store_name).find { |f| f.id == fact_id }
+            return match if match
+          end
+          nil
+        end
+
+        def redirect_evidence(redirect)
+          {
+            boundary_output_fact_id: redirect[:boundary_output_fact_id],
+            boundary_receipt_id:     redirect[:boundary_receipt_id],
+            settlement_receipt_id:   redirect[:settlement_receipt_id],
+            compaction_receipt_id:   redirect[:compaction_receipt_id]
+          }
+        end
+
+        def raw_detail_unavailable(fact_id, redirect)
+          {
+            status:             :detail_unavailable,
+            original_fact_id:   fact_id,
+            boundary_key:       redirect[:boundary_key],
+            required_fidelity:  :raw,
+            available_fidelity: :boundary,
+            evidence:           redirect_evidence(redirect)
+          }
+        end
+
+        def boundary_redirect_response(fact_id, redirect)
+          {
+            status:           :redirected,
+            kind:             :boundary_ref,
+            original_fact_id: fact_id,
+            boundary_key:     redirect[:boundary_key],
+            detail_status:    :purged,
+            evidence:         redirect_evidence(redirect)
+          }
+        end
+
+        def summary_redirect_response(fact_id, redirect)
+          {
+            status:           :redirected,
+            kind:             :summary_ref,
+            original_fact_id: fact_id,
+            boundary_key:     redirect[:boundary_key],
+            detail_status:    :purged,
+            evidence:         redirect_evidence(redirect)
+          }
         end
 
         def boundary_record_value(boundary)

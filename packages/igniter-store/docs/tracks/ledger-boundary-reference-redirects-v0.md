@@ -1,7 +1,7 @@
 # Track: Ledger Boundary Reference Redirects v0
 
 Status date: 2026-05-04
-Status: ready
+Status: done
 Supervisor: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 
@@ -299,17 +299,55 @@ docs/intelligent-ledger/ledger-boundaries-compaction-plan.md
 ```text
 [Package Agent / Companion+Store]
 Track: igniter-store/ledger-boundary-reference-redirects-v0
-Status: ready
+Status: done
 
-[D] Supervisor intent:
-- Prove reference consistency after boundary compaction.
-- Keep it app-local under examples/intelligent_ledger.
-- Prefer small, explicit methods over generalized core abstractions.
-- Do not physically delete raw facts; model/verify redirect semantics first.
+[D] Decisions:
+- compact_boundary now writes one :ledger_fact_redirects entry per source_fact_id,
+  keyed by the original fact_id. The redirect is written before compact! is called on
+  the boundary so compaction_receipt_id is already resolved.
+- original_store field is "unknown" — we don't track per-fact store provenance at
+  compaction time without an additional scan; documented in comment.
+- resolve_ref reads :ledger_fact_redirects directly from the persisted store, so it
+  works on fresh ledger instances without hydrate_boundaries. Restart proof confirmed.
+- :raw fidelity with assume_compacted: false: attempts find_raw_fact (scans
+  RAW_PROOF_STORES = [:availability_templates, :availability_overrides, :order_events]).
+  Returns :ok with the fact object when raw is physically accessible. This proves raw
+  fidelity does NOT silently downgrade when facts are still present.
+- :raw fidelity with assume_compacted: true: skips raw scan, returns :detail_unavailable
+  if redirect exists. Simulates physical purge without actually deleting facts.
+- :summary fidelity returns kind: :summary_ref; evidence shape identical to :boundary
+  (settlement_receipt_id already present in the redirect record — no separate store scan).
+- Multiple redirects for same key: latest by transaction_time wins (max_by).
+- Zero source_fact_ids: compact_boundary skips redirect loop silently; compaction succeeds.
+- RAW_PROOF_STORES constant placed at class level (above the class body) as a module
+  constant under AvailabilityBoundaryLedger.
 
-[A] Acceptance anchor:
-- The key result is not "redirects exist"; it is:
-  raw-reference callers never get a silent boundary downgrade,
-  boundary/summary callers can intentionally follow durable evidence,
-  and this survives restart.
+[S] Shipped:
+- examples/intelligent_ledger/availability_boundary_ledger.rb (updated)
+    compact_boundary: added redirect write loop over source_fact_ids → :ledger_fact_redirects.
+    Added public resolve_ref(fact_id, fidelity:, assume_compacted: false).
+    Added private: latest_redirect, find_raw_fact, redirect_evidence,
+      raw_detail_unavailable, boundary_redirect_response, summary_redirect_response.
+    Added RAW_PROOF_STORES constant.
+    Updated store layout comment.
+- spec/igniter/store/intelligent_ledger/ledger_boundary_reference_redirects_proof_spec.rb (new)
+    44 examples across 11 scenarios covering all acceptance criteria.
+
+[T] Tests:
+- 44 new reference redirects proof examples, 0 failures
+- 956/956 full package suite examples, 0 failures
+- All existing availability, settlement, and hydration specs remain green.
+
+[R] Risks / next recommendations:
+- find_raw_fact scans all facts in each raw store (O(n)): fine for proof but would need
+  keyed or indexed lookup at production scale.
+- original_store is "unknown" — tracking per-fact store provenance at write time would
+  enable richer redirect records, but requires threading store name through source_fact_ids
+  collection (currently just IDs, not ID+store pairs).
+- :summary fidelity could additionally read :ledger_boundary_summaries to embed the
+  actual summary fact_id and metrics_fact_id in the evidence. Currently it only returns
+  the settlement_receipt_id from the redirect record. No tests require this extra step.
+- Idempotency: duplicate compaction is prevented by compact! guard (raises unless status
+  == :closed). Writing redirects twice for the same fact_id is therefore impossible in
+  normal flow. If needed, the latest-by-transaction-time rule handles it cleanly.
 ```
