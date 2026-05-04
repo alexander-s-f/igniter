@@ -1,6 +1,6 @@
 # Track: Durable Model Client History Partition Replay v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target packages: `packages/igniter-durable-model`, `packages/igniter-ledger-client`, `packages/igniter-ledger`
@@ -254,3 +254,11 @@ Status: done | partial | blocked
 - ...
 ```
 
+## Final Notes
+
+- Ledger protocol `replay` now supports `filter[:store] + filter[:key]` and
+  `filter[:store] + filter[:partition_key] + filter[:partition_value]`.
+- Ledger Client now exposes replay convenience arguments for key and partition
+  filters while preserving explicit `filter:`.
+- Client-backed Durable Model now supports `replay(history_class, partition:)`
+  with `since:` / `as_of:` boundaries.

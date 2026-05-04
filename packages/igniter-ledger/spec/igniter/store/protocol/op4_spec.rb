@@ -134,6 +134,49 @@ RSpec.describe "OP4 — Sync Hub Profile" do
       expect(task_packets.size).to eq(3)
     end
 
+    it "filters a history by store and key" do
+      proto.append(history: :tracker_logs, event: { tracker_id: "sleep", value: 7.0 })
+      target = proto.append(history: :tracker_logs, event: { tracker_id: "sleep", value: 8.5 })
+      proto.append(history: :tracker_logs, event: { tracker_id: "training", value: 45.0 })
+
+      packets = proto.replay(filter: { store: :tracker_logs, key: target.key })
+
+      expect(packets.map { |packet| packet[:key] }).to eq([target.key])
+      expect(packets.first[:value]).to include(tracker_id: "sleep", value: 8.5)
+    end
+
+    it "filters a history by partition key and partition value" do
+      proto.append(history: :tracker_logs, event: { tracker_id: "sleep", value: 7.0 }, partition_key: :tracker_id)
+      proto.append(history: :tracker_logs, event: { tracker_id: "training", value: 45.0 }, partition_key: :tracker_id)
+      proto.append(history: :tracker_logs, event: { tracker_id: "sleep", value: 8.5 }, partition_key: :tracker_id)
+
+      packets = proto.replay(filter: {
+        store: :tracker_logs, partition_key: :tracker_id, partition_value: "sleep"
+      })
+
+      expect(packets.map { |packet| packet[:value][:value] }).to eq([7.0, 8.5])
+    end
+
+    it "combines partition replay with from: and to:" do
+      proto.append(history: :tracker_logs, event: { tracker_id: "sleep", value: 6.0 }, partition_key: :tracker_id)
+      sleep 0.005
+      lower = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.005
+      proto.append(history: :tracker_logs, event: { tracker_id: "sleep", value: 7.0 }, partition_key: :tracker_id)
+      sleep 0.005
+      upper = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.005
+      proto.append(history: :tracker_logs, event: { tracker_id: "sleep", value: 8.5 }, partition_key: :tracker_id)
+
+      packets = proto.replay(
+        from: lower,
+        to: upper,
+        filter: { store: :tracker_logs, partition_key: :tracker_id, partition_value: "sleep" }
+      )
+
+      expect(packets.map { |packet| packet[:value][:value] }).to eq([7.0])
+    end
+
     it "filters by time range with from: and to:" do
       sleep 0.005
       mid = Process.clock_gettime(Process::CLOCK_REALTIME)
@@ -288,6 +331,19 @@ RSpec.describe "OP4 — Sync Hub Profile" do
       proto.write(store: :projects, key: "p1", value: { name: "X" })
       resp = wire.dispatch(env(:replay, { filter: { store: :tasks } }))
       expect(resp[:result][:count]).to eq(3)
+    end
+
+    it "filters by partition through the wire envelope" do
+      proto.append(history: :tracker_logs, event: { tracker_id: "sleep", value: 7.0 }, partition_key: :tracker_id)
+      proto.append(history: :tracker_logs, event: { tracker_id: "training", value: 45.0 }, partition_key: :tracker_id)
+
+      resp = wire.dispatch(env(:replay, {
+        filter: { store: :tracker_logs, partition_key: :tracker_id, partition_value: "sleep" }
+      }))
+
+      expect(resp[:status]).to eq(:ok)
+      expect(resp[:result][:count]).to eq(1)
+      expect(resp[:result][:facts].first[:value]).to include(value: 7.0)
     end
   end
 end

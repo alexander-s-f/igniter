@@ -134,6 +134,44 @@ RSpec.describe Igniter::LedgerClient::Client do
     expect(replay.count).to eq(1)
   end
 
+  it "builds replay filters from store and key convenience arguments" do
+    transport = FakeTransport.new
+    client = described_class.new(transport: transport)
+
+    client.replay(store: :order_events, key: "evt_1")
+
+    expect(transport.requests.first[:packet][:filter]).to eq(store: :order_events, key: "evt_1")
+  end
+
+  it "builds replay filters from partition convenience arguments" do
+    transport = FakeTransport.new
+    client = described_class.new(transport: transport)
+
+    client.replay(
+      store: :tracker_logs,
+      partition_key: :tracker_id,
+      partition_value: "sleep",
+      from: 1.0,
+      to: 2.0
+    )
+
+    packet = transport.requests.first[:packet]
+    expect(packet[:from]).to eq(1.0)
+    expect(packet[:to]).to eq(2.0)
+    expect(packet[:filter]).to eq(
+      store: :tracker_logs,
+      partition_key: :tracker_id,
+      partition_value: "sleep"
+    )
+  end
+
+  it "rejects ambiguous replay filter arguments" do
+    client = described_class.new(transport: FakeTransport.new)
+
+    expect { client.replay(store: :events, filter: { store: :other_events }) }
+      .to raise_error(ArgumentError, /cannot be combined/)
+  end
+
   it "subscribes through the transport and yields normalized change events" do
     transport = FakeSubscriptionTransport.new
     client = described_class.new(transport: transport)

@@ -93,7 +93,15 @@ client.write(store:, key:, value:, **metadata)
 client.append(history:, event:, key: nil, partition_key: nil, **metadata)
 client.read(store:, key:, as_of: nil)
 client.query(store:, where:, limit: nil, as_of: nil, order: nil)
-client.replay(store: nil, from: nil, to: nil, filter: nil)
+client.replay(
+  store: nil,
+  from: nil,
+  to: nil,
+  key: nil,
+  partition_key: nil,
+  partition_value: nil,
+  filter: nil
+)
 client.resolve(relation:, from:, as_of: nil)
 client.subscribe(stores:, cursor: nil) { |event| ... }
 client.metadata_snapshot
@@ -107,6 +115,11 @@ client.close
 history semantics distinct from keyed record writes. `key:` may be sent as
 client metadata for future idempotency work, but protocol v0 returns the
 generated fact key and does not treat `key:` as a stable idempotency guarantee.
+
+`replay` accepts either an explicit protocol `filter:` or convenience arguments
+for store, key, and partition replay. Partition replay sends
+`filter: { store:, partition_key:, partition_value: }` and uses Ledger
+partition indexes when the endpoint is backed by a Ledger protocol interpreter.
 
 `subscribe` returns an idempotently closeable handle and yields
 `Igniter::LedgerClient::Results::ChangeEventResult` objects. Remote HTTP

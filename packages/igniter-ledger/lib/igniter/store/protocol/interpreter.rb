@@ -268,16 +268,38 @@ module Igniter
 
         # OP4: return all (or range-filtered) facts as serialized fact packets.
         # Suitable for WAL replay to a cold hub or test double.
-        # filter: { store: :name } — optional store filter.
+        #
+        # Filter forms:
+        #   { store: :name }
+        #   { store: :name, key: "event-key" }
+        #   { store: :name, partition_key: :tracker_id, partition_value: "sleep" }
         def replay(from: nil, to: nil, filter: nil)
-          raw_facts = @store.fact_log_all(since: from, as_of: to)
-
           if filter
             filter = filter.transform_keys(&:to_sym)
             store_sym = filter[:store]&.to_sym
-            raw_facts = raw_facts.select { |f| f.store == store_sym } if store_sym
+
+            if store_sym && filter.key?(:key)
+              return @store.history(
+                store: store_sym,
+                key:   filter[:key],
+                since: from,
+                as_of: to
+              ).map { |f| serialize_fact(f) }
+            end
+
+            if store_sym && filter[:partition_key] && filter.key?(:partition_value)
+              return @store.history_partition(
+                store:           store_sym,
+                partition_key:   filter[:partition_key].to_sym,
+                partition_value: filter[:partition_value],
+                since:           from,
+                as_of:           to
+              ).map { |f| serialize_fact(f) }
+            end
           end
 
+          raw_facts = @store.fact_log_all(since: from, as_of: to)
+          raw_facts = raw_facts.select { |f| f.store == filter[:store]&.to_sym } if filter && filter[:store]
           raw_facts.map { |f| serialize_fact(f) }
         end
 

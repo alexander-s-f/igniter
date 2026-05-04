@@ -217,8 +217,6 @@ module Igniter
       # `partition:` filters by the declared partition_key value (e.g. tracker_id: "sleep").
       # `since:` / `as_of:` are timestamp boundaries.
       def replay(history_class, since: nil, as_of: nil, partition: nil)
-        raise unsupported_client_mode!("partition replay") if client_backed? && partition
-
         pk    = history_class._partition_key
         facts = if partition && pk
           @inner.history_partition(
@@ -390,9 +388,17 @@ module Igniter
         end
 
         def history(store:, key: nil, since: nil, as_of: nil)
-          raise NotImplementedError, "client-backed Durable Model store does not support key-filtered history replay yet" if key
+          client.replay(store: store, key: key, from: since, to: as_of).facts.map { |fact| normalize_fact(fact) }
+        end
 
-          client.replay(store: store, from: since, to: as_of).facts.map { |fact| normalize_fact(fact) }
+        def history_partition(store:, partition_key:, partition_value:, since: nil, as_of: nil)
+          client.replay(
+            store: store,
+            partition_key: partition_key,
+            partition_value: partition_value,
+            from: since,
+            to: as_of
+          ).facts.map { |fact| normalize_fact(fact) }
         end
 
         def metadata_snapshot

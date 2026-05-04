@@ -435,12 +435,40 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
-    it "fails clearly for unsupported partition replay" do
+    it "supports client-backed partition replay" do
       s = client_backed_store
       s.register(TrackerLog)
 
-      expect { s.replay(TrackerLog, partition: "sleep") }
-        .to raise_error(NotImplementedError, /partition replay/)
+      s.append(TrackerLog, tracker_id: "sleep", value: 7.0)
+      s.append(TrackerLog, tracker_id: "training", value: 45.0)
+      s.append(TrackerLog, tracker_id: "sleep", value: 8.5)
+
+      events = s.replay(TrackerLog, partition: "sleep")
+
+      expect(events.map(&:value)).to eq([7.0, 8.5])
+      expect(events).to all(be_a(TrackerLog))
+    ensure
+      s&.close
+    end
+
+    it "supports client-backed partition replay with since: and as_of:" do
+      s = client_backed_store
+      s.register(TrackerLog)
+
+      s.append(TrackerLog, tracker_id: "sleep", value: 6.0)
+      sleep 0.01
+      lower = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.01
+      s.append(TrackerLog, tracker_id: "sleep", value: 7.0)
+      sleep 0.01
+      upper = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.01
+      s.append(TrackerLog, tracker_id: "sleep", value: 8.5)
+      s.append(TrackerLog, tracker_id: "training", value: 45.0)
+
+      events = s.replay(TrackerLog, partition: "sleep", since: lower, as_of: upper)
+
+      expect(events.map(&:value)).to eq([7.0])
     ensure
       s&.close
     end

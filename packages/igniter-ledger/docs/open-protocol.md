@@ -235,8 +235,8 @@ Fact IO:
 - `append(history:, event:, key: nil, partition_key: nil, producer: nil)`
 - `read(store:, key:, as_of: nil)`
 - `query(store:, where: {}, order: nil, limit: nil, as_of: nil)`
-- `history(store:, key:, from: nil, to: nil)`
-- `history_partition(history:, key:, from: nil, to: nil)`
+- `history(store:, key: nil, from: nil, to: nil)`
+- `history_partition(store:, partition_key:, partition_value:, from: nil, to: nil)`
 - `causation_chain(fact_id)`
 
 Relations, projections, and derivations:
@@ -257,7 +257,9 @@ Retention and compaction:
 Server and wire:
 
 - `write_fact(packet)`
-- `replay(from: nil, to: nil, filter: nil)`
+- `replay(from: nil, to: nil, filter: nil)` where filter may be
+  `{ store: }`, `{ store:, key: }`, or
+  `{ store:, partition_key:, partition_value: }`
 - `subscribe(subscription_packet)`
 - `stats`
 - `drain`
@@ -449,4 +451,3 @@ External clients can be granted capabilities per descriptor:
 - metadata-only inspection
 
 This becomes useful for agents and decentralized human-agent interfaces.
-

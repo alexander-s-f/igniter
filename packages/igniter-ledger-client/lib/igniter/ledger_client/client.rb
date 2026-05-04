@@ -43,12 +43,18 @@ module Igniter
         Results.wrap(:query, dispatch(:query, packet))
       end
 
-      def replay(store: nil, from: nil, to: nil, filter: nil)
+      def replay(store: nil, from: nil, to: nil, key: nil, partition_key: nil, partition_value: nil, filter: nil)
         packet = {}
         packet[:from] = from if from
         packet[:to] = to if to
-        packet[:filter] = filter if filter
-        packet[:filter] = { store: store } if store && !filter
+        filter_packet = replay_filter(
+          store: store,
+          key: key,
+          partition_key: partition_key,
+          partition_value: partition_value,
+          filter: filter
+        )
+        packet[:filter] = filter_packet if filter_packet
         Results.wrap(:replay, dispatch(:replay, packet))
       end
 
@@ -94,6 +100,25 @@ module Igniter
 
       def close
         transport.close if transport.respond_to?(:close)
+      end
+
+      private
+
+      def replay_filter(store:, key:, partition_key:, partition_value:, filter:)
+        convenience_filter = {}
+        convenience_filter[:store] = store if store
+        convenience_filter[:key] = key if key
+        convenience_filter[:partition_key] = partition_key if partition_key
+        convenience_filter[:partition_value] = partition_value if partition_value
+
+        if filter && !convenience_filter.empty?
+          raise ArgumentError, "replay filter: cannot be combined with store/key/partition convenience arguments"
+        end
+
+        return filter if filter
+        return nil if convenience_filter.empty?
+
+        convenience_filter
       end
     end
   end
