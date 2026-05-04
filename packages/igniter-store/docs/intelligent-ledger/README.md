@@ -48,6 +48,7 @@ The ledger should remember:
 | [inference-datalog-plan.md](inference-datalog-plan.md) | Datalog-like inference | Can facts plus bounded rules produce explainable derived facts? |
 | [reactive-derivations-plan.md](reactive-derivations-plan.md) | Reactive derivations | Can combinations of facts drive MobX/Railway-like computed projections? |
 | [fact-routes-state-machines-plan.md](fact-routes-state-machines-plan.md) | Fact routes / state machines | Can facts deploy versioned declarative transitions without arbitrary code execution? |
+| [fact-capsules-compaction-plan.md](fact-capsules-compaction-plan.md) | Fact capsules / timeframes | Can closed semantic containers preserve boundary truth while internal detail is compacted? |
 
 ## Shared Vocabulary
 
@@ -61,6 +62,10 @@ The ledger should remember:
   facts and rule versions.
 - **TransitionReceipt**: proof that a state transition occurred under a specific
   route version.
+- **FactCapsule**: closed semantic container over many facts; preserves inputs,
+  outputs, source references, result hash, and receipts so internal details can
+  later be retained, summarized, archived, or purged without losing boundary
+  truth.
 
 ## Boundary Rule
 
@@ -108,4 +113,3 @@ Status: done | partial | blocked
 [R] Risks / next recommendations:
 - ...
 ```
-

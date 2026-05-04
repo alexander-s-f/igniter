@@ -313,8 +313,11 @@ module Igniter
       # Protocol::Interpreter#observability_snapshot.
       def observability_snapshot
         @metrics.check_alerts(backend: @backend)
-        snap = @metrics.snapshot(backend: @backend)
-        now  = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        snap    = @metrics.snapshot(backend: @backend)
+        cf_snap = @changefeed.snapshot
+        now     = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        # Merge server/storage alerts with changefeed delivery alerts.
+        all_alerts = Array(snap[:alerts]) + Array(cf_snap[:alerts])
         {
           schema_version: 1,
           generated_at:   snap[:generated_at],
@@ -334,15 +337,15 @@ module Igniter
             rejected_connections_total: snap[:rejected_connections_total],
             subscription_count:         snap[:subscription_count]
           },
-          alerts:  snap[:alerts],
-          storage: snap[:storage_stats],
+          alerts:     all_alerts,
+          storage:    snap[:storage_stats],
           server: {
             backend:      @backend_type.to_s,
             transport:    @transport_type.to_s,
             bind_address: @bind_address_str,
             last_error:   @last_error
           },
-          changefeed: @changefeed.snapshot
+          changefeed: cf_snap
         }
       end
 

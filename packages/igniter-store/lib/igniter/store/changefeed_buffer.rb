@@ -4,7 +4,8 @@ require "securerandom"
 
 module Igniter
   module Store
-    # Bounded in-memory Changefeed buffer with async per-subscriber fan-out.
+    # Bounded in-memory Changefeed buffer with async per-subscriber fan-out,
+    # delivery policies, and production diagnostics.
     #
     # Receives committed facts via +emit+, builds ChangeEvent objects with
     # monotonic sequence cursors, retains recent events in a bounded ring, and
@@ -29,6 +30,16 @@ module Igniter
     # - +:drain+    — deliver all queued events before stopping the worker.
     # - +:discard+  — clear the queue immediately; worker exits after current event.
     #
+    # Alert thresholds (optional, checked at each #snapshot call):
+    # - +:failed_total+           — fires :changefeed_subscriber_failures
+    # - +:overflow_dropped_total+ — fires :changefeed_overflow_drops
+    # - +:total_queued+           — fires :changefeed_queue_pressure (aggregate)
+    # - +:queue_pressure_ratio+   — fires :changefeed_queue_pressure (per-subscriber)
+    #
+    # Diagnostics ring records bounded lifecycle/failure events:
+    # - :subscriber_subscribed / :subscriber_closed / :subscriber_failed
+    # - :subscriber_overflow
+    #
     # Ordering policy:
     # - Sequences are assigned in emit-call order (monotonically increasing).
     # - IgniterStore emits the source fact BEFORE triggering derivations/scatters,
@@ -50,9 +61,11 @@ module Igniter
       DEFAULT_SUBSCRIBER_QUEUE_SIZE = 100
       DEFAULT_OVERFLOW              = :drop_oldest
       DEFAULT_CLOSE_POLICY          = :drain
+      DEFAULT_DIAGNOSTIC_RING_SIZE  = 100
 
       VALID_OVERFLOW_POLICIES = %i[drop_oldest drop_newest].freeze
       VALID_CLOSE_POLICIES    = %i[drain discard].freeze
+      VALID_THRESHOLD_KEYS    = %i[total_queued overflow_dropped_total failed_total queue_pressure_ratio].freeze
 
       # Bounded FIFO queue for one subscriber's async delivery pipeline.
       #
@@ -91,16 +104,6 @@ module Igniter
           end
         end
 
-        # Blocks until an event is available. Returns +nil+ when closed and drained.
-        # Pass +discard: true+ to clear queued events before closing.
-        def close(discard: false)
-          @mu.synchronize do
-            @items.clear if discard
-            @closed = true
-            @cond.broadcast
-          end
-        end
-
         # Blocks until next event or close signal. Returns nil when closed+drained.
         def pop
           @mu.synchronize do
@@ -109,15 +112,59 @@ module Igniter
           end
         end
 
+        # Pass +discard: true+ to clear queued events before signaling close.
+        def close(discard: false)
+          @mu.synchronize do
+            @items.clear if discard
+            @closed = true
+            @cond.broadcast
+          end
+        end
+
         def size
           @mu.synchronize { @items.size }
+        end
+      end
+
+      # Bounded ring buffer for structured diagnostic entries.
+      # All push/snapshot operations are thread-safe.
+      # Oldest entries are evicted when +max_size+ is exceeded;
+      # +dropped_diagnostics_total+ counts evictions.
+      class DiagnosticRing
+        def initialize(max_size)
+          @max_size  = max_size
+          @entries   = []
+          @mu        = Mutex.new
+          @total     = 0
+          @dropped   = 0
+        end
+
+        def push(entry)
+          @mu.synchronize do
+            @total += 1
+            if @entries.size >= @max_size
+              @entries.shift
+              @dropped += 1
+            end
+            @entries << entry
+          end
+        end
+
+        def snapshot
+          @mu.synchronize do
+            {
+              recent:                    @entries.dup,
+              recent_count:              @total,
+              dropped_diagnostics_total: @dropped
+            }
+          end
         end
       end
 
       # Returned by #subscribe. Call #close to stop delivery and release resources.
       # Close behavior is governed by the buffer's +close_policy+:
       # - +:drain+   — pending events are delivered before worker stops.
-      # - +:discard+ — pending events are dropped; worker stops immediately.
+      # - +:discard+ — pending events are dropped; worker stops after current event.
       # Calling #close is idempotent.
       class Subscription
         def initialize(record, buffer)
@@ -142,7 +189,9 @@ module Igniter
       def initialize(max_size: DEFAULT_MAX_SIZE,
                      subscriber_queue_size: DEFAULT_SUBSCRIBER_QUEUE_SIZE,
                      overflow: DEFAULT_OVERFLOW,
-                     close_policy: DEFAULT_CLOSE_POLICY)
+                     close_policy: DEFAULT_CLOSE_POLICY,
+                     diagnostic_ring_size: DEFAULT_DIAGNOSTIC_RING_SIZE,
+                     alert_thresholds: {})
         unless VALID_OVERFLOW_POLICIES.include?(overflow)
           raise ArgumentError, "unknown overflow policy: #{overflow.inspect}. " \
                                "Valid: #{VALID_OVERFLOW_POLICIES.map(&:inspect).join(", ")}"
@@ -152,10 +201,19 @@ module Igniter
                                "Valid: #{VALID_CLOSE_POLICIES.map(&:inspect).join(", ")}"
         end
 
+        thresholds = (alert_thresholds || {}).transform_keys(&:to_sym)
+        unknown    = thresholds.keys - VALID_THRESHOLD_KEYS
+        unless unknown.empty?
+          raise ArgumentError, "unknown alert_threshold keys: #{unknown.map(&:inspect).join(", ")}. " \
+                               "Valid: #{VALID_THRESHOLD_KEYS.map(&:inspect).join(", ")}"
+        end
+
         @max_size               = max_size
         @subscriber_queue_size  = subscriber_queue_size
         @overflow               = overflow
         @close_policy           = close_policy
+        @alert_thresholds       = thresholds
+        @diagnostics            = DiagnosticRing.new(diagnostic_ring_size)
         @ring                   = []
         @records                = []
         @mutex                  = Mutex.new
@@ -198,13 +256,22 @@ module Igniter
                 @delivered_total += 1
                 record.delivered_total += 1
               end
-            rescue StandardError
+            rescue StandardError => e
+              ts = Process.clock_gettime(Process::CLOCK_REALTIME)
               @mutex.synchronize do
                 @failed_total += 1
                 record.failed_total += 1
                 record.status = :failed
               end
-              remove_record(record)
+              @diagnostics.push({
+                type:          :subscriber_failed,
+                subscriber_id: record.id,
+                stores:        record.stores,
+                error_class:   e.class.name,
+                message:       e.message.to_s.slice(0, 200),
+                ts:            ts
+              })
+              remove_record(record, record_diagnostic: false)
               break
             end
           end
@@ -212,6 +279,13 @@ module Igniter
         record.thread = thread
 
         @mutex.synchronize { @records << record }
+        @diagnostics.push({
+          type:          :subscriber_subscribed,
+          subscriber_id: record.id,
+          stores:        record.stores,
+          ts:            Process.clock_gettime(Process::CLOCK_REALTIME)
+        })
+
         Subscription.new(record, self)
       end
 
@@ -334,6 +408,8 @@ module Igniter
       end
 
       # Compact snapshot of current changefeed state for observability.
+      # Includes +alerts+ (evaluated against configured thresholds) and
+      # +diagnostics+ (recent bounded ring of lifecycle/failure entries).
       #
       # +dropped_total+          — retained ring drops (ring full)
       # +overflow_dropped_total+ — subscriber queue drops (slow consumer)
@@ -341,7 +417,7 @@ module Igniter
       def snapshot
         @mutex.synchronize do
           total_queued = @records.sum { |r| r.queue.size }
-          {
+          current = {
             emitted_total:          @emitted_total,
             delivered_total:        @delivered_total,
             dropped_total:          @dropped_total,
@@ -357,6 +433,9 @@ module Igniter
             oldest_sequence:        @ring.first&.cursor&.fetch(:sequence, nil),
             newest_sequence:        @ring.last&.cursor&.fetch(:sequence, nil)
           }
+          current[:alerts]      = compute_alerts(current)
+          current[:diagnostics] = @diagnostics.snapshot
+          current
         end
       end
 
@@ -392,10 +471,21 @@ module Igniter
       # Respects the record's +close_policy+ (:drain or :discard).
       # Does not join the worker thread — safe to call from inside the worker.
       # Subscription#close handles the join for external callers.
-      def remove_record(record)
+      #
+      # +record_diagnostic:+ — when true (default), records a :subscriber_closed
+      # diagnostic entry. Pass false when the caller has already recorded a more
+      # specific entry (e.g., :subscriber_failed from the worker rescue block).
+      def remove_record(record, record_diagnostic: true)
         return unless record
         @mutex.synchronize { @records.reject! { |r| r.equal?(record) } }
         record.queue&.close(discard: record.close_policy == :discard)
+        return unless record_diagnostic
+        @diagnostics.push({
+          type:          :subscriber_closed,
+          subscriber_id: record.id,
+          stores:        record.stores,
+          ts:            Process.clock_gettime(Process::CLOCK_REALTIME)
+        })
       end
 
       private
@@ -416,7 +506,65 @@ module Igniter
               r.overflow_dropped_total += 1
             end
           end
+          ts = Process.clock_gettime(Process::CLOCK_REALTIME)
+          overflow_records.each do |r|
+            @diagnostics.push({
+              type:          :subscriber_overflow,
+              subscriber_id: r.id,
+              ts:            ts
+            })
+          end
         end
+      end
+
+      # Evaluate configured alert thresholds against the current snapshot values.
+      # Called from within #snapshot while @mutex is held.
+      # Per-subscriber ratio alert accesses subscriber queue sizes (safe by lock order).
+      def compute_alerts(snap)
+        alerts = []
+
+        if (t = @alert_thresholds[:failed_total]) && snap[:failed_total] >= t
+          alerts << {
+            code:      :changefeed_subscriber_failures,
+            severity:  :warning,
+            value:     snap[:failed_total],
+            threshold: t
+          }
+        end
+
+        if (t = @alert_thresholds[:overflow_dropped_total]) && snap[:overflow_dropped_total] >= t
+          alerts << {
+            code:      :changefeed_overflow_drops,
+            severity:  :warning,
+            value:     snap[:overflow_dropped_total],
+            threshold: t
+          }
+        end
+
+        if (t = @alert_thresholds[:total_queued]) && snap[:total_queued] >= t
+          alerts << {
+            code:      :changefeed_queue_pressure,
+            severity:  :warning,
+            value:     snap[:total_queued],
+            threshold: t
+          }
+        end
+
+        if (ratio_t = @alert_thresholds[:queue_pressure_ratio]) && @subscriber_queue_size > 0
+          @records.each do |r|
+            ratio = r.queue.size.to_f / @subscriber_queue_size
+            next if ratio < ratio_t
+            alerts << {
+              code:          :changefeed_queue_pressure,
+              severity:      :warning,
+              subscriber_id: r.id,
+              value:         ratio.round(3),
+              threshold:     ratio_t
+            }
+          end
+        end
+
+        alerts
       end
     end
   end

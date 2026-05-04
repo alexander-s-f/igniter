@@ -731,6 +731,316 @@ RSpec.describe "Changefeed subsystem" do
           expect(buf2.subscriber_count).to eq(0)
         end
       end
+
+      # ── Production diagnostics ───────────────────────────────────────────────
+
+      describe "production diagnostics" do
+        describe "alert threshold validation" do
+          it "raises ArgumentError for unknown threshold keys" do
+            expect {
+              described_class.new(alert_thresholds: { typo_key: 5 })
+            }.to raise_error(ArgumentError, /unknown alert_threshold keys/)
+          end
+
+          it "accepts all valid threshold keys" do
+            expect {
+              described_class.new(alert_thresholds: {
+                total_queued:           500,
+                overflow_dropped_total: 10,
+                failed_total:           1,
+                queue_pressure_ratio:   0.8
+              })
+            }.not_to raise_error
+          end
+
+          it "accepts empty thresholds" do
+            expect { described_class.new(alert_thresholds: {}) }.not_to raise_error
+          end
+        end
+
+        describe "diagnostic ring — lifecycle events" do
+          it "records :subscriber_subscribed on subscribe" do
+            buf2   = described_class.new
+            handle = buf2.subscribe(stores: ["tasks"]) { }
+
+            diag = buf2.snapshot[:diagnostics]
+            entry = diag[:recent].find { |e| e[:type] == :subscriber_subscribed }
+            expect(entry).not_to be_nil
+            expect(entry[:stores]).to eq(["tasks"])
+            expect(entry[:ts]).to     be_a(Float)
+
+            handle.close
+          end
+
+          it "records :subscriber_closed when Subscription#close is called" do
+            buf2   = described_class.new
+            handle = buf2.subscribe(stores: []) { }
+            handle.close
+
+            diag  = buf2.snapshot[:diagnostics]
+            entry = diag[:recent].find { |e| e[:type] == :subscriber_closed }
+            expect(entry).not_to be_nil
+            expect(entry[:subscriber_id]).to be_a(String)
+          end
+
+          it "records :subscriber_failed with error_class and message" do
+            buf2   = described_class.new
+            handle = buf2.subscribe(stores: []) { |_e| raise ArgumentError, "bad input" }
+
+            buf2.emit(build_fact)
+            sleep 0.05
+
+            diag  = buf2.snapshot[:diagnostics]
+            entry = diag[:recent].find { |e| e[:type] == :subscriber_failed }
+            expect(entry).not_to         be_nil
+            expect(entry[:error_class]).to eq("ArgumentError")
+            expect(entry[:message]).to    eq("bad input")
+            expect(entry[:stores]).to     be_an(Array)
+            expect(entry[:ts]).to         be_a(Float)
+
+            handle.close  # idempotent
+          end
+
+          it "records :subscriber_overflow on queue overflow" do
+            buf2  = described_class.new(subscriber_queue_size: 2, overflow: :drop_oldest)
+            latch = Mutex.new
+            go    = ConditionVariable.new
+            pause = true
+
+            handle = buf2.subscribe(stores: []) { latch.synchronize { go.wait(latch) while pause } }
+
+            5.times { buf2.emit(build_fact) }
+            sleep 0.02
+
+            diag  = buf2.snapshot[:diagnostics]
+            entry = diag[:recent].find { |e| e[:type] == :subscriber_overflow }
+            expect(entry).not_to be_nil
+            expect(entry[:subscriber_id]).to be_a(String)
+
+            latch.synchronize { pause = false; go.broadcast }
+            handle.close
+          end
+
+          it "failed subscriber detail is in diagnostics after removal from active snapshot" do
+            buf2   = described_class.new
+            handle = buf2.subscribe(stores: []) { raise "oops" }
+
+            buf2.emit(build_fact)
+            sleep 0.05
+
+            # Subscriber removed from active list
+            expect(buf2.subscriber_count).to eq(0)
+            expect(buf2.subscriber_snapshot).to be_empty
+
+            # But failure is visible in diagnostic ring
+            diag  = buf2.snapshot[:diagnostics]
+            entry = diag[:recent].find { |e| e[:type] == :subscriber_failed }
+            expect(entry).not_to be_nil
+            expect(entry[:error_class]).to eq("RuntimeError")
+
+            handle.close
+          end
+
+          it "diagnostics snapshot has required keys" do
+            buf2 = described_class.new
+            diag = buf2.snapshot[:diagnostics]
+            expect(diag).to have_key(:recent)
+            expect(diag).to have_key(:recent_count)
+            expect(diag).to have_key(:dropped_diagnostics_total)
+            expect(diag[:recent]).to be_an(Array)
+          end
+
+          it "recent_count tracks total entries ever recorded" do
+            buf2    = described_class.new
+            handle  = buf2.subscribe(stores: []) { }
+            handle.close
+
+            # 1 :subscriber_subscribed + 1 :subscriber_closed = 2
+            diag = buf2.snapshot[:diagnostics]
+            expect(diag[:recent_count]).to eq(2)
+          end
+        end
+
+        describe "diagnostic ring — bounded memory" do
+          it "evicts oldest entries when ring is full" do
+            buf2 = described_class.new(diagnostic_ring_size: 3)
+
+            # Each subscribe+close records 2 entries → 4 entries, ring size 3
+            2.times do
+              h = buf2.subscribe(stores: []) { }
+              h.close
+            end
+
+            diag = buf2.snapshot[:diagnostics]
+            expect(diag[:recent].size).to    be <= 3
+            expect(diag[:recent_count]).to   eq(4)
+            expect(diag[:dropped_diagnostics_total]).to be >= 1
+          end
+
+          it "dropped_diagnostics_total is 0 when ring never fills" do
+            buf2 = described_class.new(diagnostic_ring_size: 100)
+            diag = buf2.snapshot[:diagnostics]
+            expect(diag[:dropped_diagnostics_total]).to eq(0)
+          end
+        end
+
+        describe "alerts — threshold evaluation" do
+          it "snapshot[:alerts] is an empty array when no thresholds set" do
+            buf2 = described_class.new
+            expect(buf2.snapshot[:alerts]).to eq([])
+          end
+
+          it "fires :changefeed_subscriber_failures when failed_total >= threshold" do
+            buf2   = described_class.new(alert_thresholds: { failed_total: 1 })
+            handle = buf2.subscribe(stores: []) { raise "boom" }
+
+            buf2.emit(build_fact)
+            sleep 0.05
+
+            alerts = buf2.snapshot[:alerts]
+            alert  = alerts.find { |a| a[:code] == :changefeed_subscriber_failures }
+            expect(alert).not_to         be_nil
+            expect(alert[:severity]).to  eq(:warning)
+            expect(alert[:value]).to     be >= 1
+            expect(alert[:threshold]).to eq(1)
+
+            handle.close
+          end
+
+          it "does not fire :changefeed_subscriber_failures below threshold" do
+            buf2   = described_class.new(alert_thresholds: { failed_total: 5 })
+            handle = buf2.subscribe(stores: []) { raise "boom" }
+
+            buf2.emit(build_fact)
+            sleep 0.05
+
+            alerts = buf2.snapshot[:alerts]
+            expect(alerts.any? { |a| a[:code] == :changefeed_subscriber_failures }).to be false
+
+            handle.close
+          end
+
+          it "fires :changefeed_overflow_drops when overflow_dropped_total >= threshold" do
+            buf2  = described_class.new(
+              subscriber_queue_size: 2,
+              overflow: :drop_oldest,
+              alert_thresholds: { overflow_dropped_total: 1 }
+            )
+            latch = Mutex.new
+            go    = ConditionVariable.new
+            pause = true
+
+            handle = buf2.subscribe(stores: []) { latch.synchronize { go.wait(latch) while pause } }
+
+            5.times { buf2.emit(build_fact) }
+            sleep 0.02
+
+            alerts = buf2.snapshot[:alerts]
+            alert  = alerts.find { |a| a[:code] == :changefeed_overflow_drops }
+            expect(alert).not_to be_nil
+            expect(alert[:severity]).to eq(:warning)
+
+            latch.synchronize { pause = false; go.broadcast }
+            handle.close
+          end
+
+          it "fires :changefeed_queue_pressure when total_queued >= threshold" do
+            buf2  = described_class.new(
+              subscriber_queue_size: 20,
+              alert_thresholds: { total_queued: 2 }
+            )
+            latch = Mutex.new
+            go    = ConditionVariable.new
+            pause = true
+
+            handle = buf2.subscribe(stores: []) { latch.synchronize { go.wait(latch) while pause } }
+
+            5.times { buf2.emit(build_fact) }
+            sleep 0.02
+
+            alerts = buf2.snapshot[:alerts]
+            alert  = alerts.find { |a| a[:code] == :changefeed_queue_pressure }
+            expect(alert).not_to be_nil
+
+            latch.synchronize { pause = false; go.broadcast }
+            handle.close
+          end
+
+          it "fires :changefeed_queue_pressure per subscriber when ratio exceeded" do
+            buf2  = described_class.new(
+              subscriber_queue_size: 10,
+              alert_thresholds: { queue_pressure_ratio: 0.5 }
+            )
+            latch = Mutex.new
+            go    = ConditionVariable.new
+            pause = true
+
+            handle = buf2.subscribe(stores: []) { latch.synchronize { go.wait(latch) while pause } }
+
+            8.times { buf2.emit(build_fact) }
+            sleep 0.02
+
+            alerts = buf2.snapshot[:alerts]
+            alert  = alerts.find { |a| a[:code] == :changefeed_queue_pressure && a[:subscriber_id] }
+            expect(alert).not_to         be_nil
+            expect(alert[:severity]).to  eq(:warning)
+            expect(alert[:value]).to     be_a(Float)
+            expect(alert[:threshold]).to eq(0.5)
+
+            latch.synchronize { pause = false; go.broadcast }
+            handle.close
+          end
+
+          it "alerts array includes code, severity, value, and threshold" do
+            buf2   = described_class.new(alert_thresholds: { failed_total: 1 })
+            handle = buf2.subscribe(stores: []) { raise "x" }
+            buf2.emit(build_fact)
+            sleep 0.05
+
+            alert = buf2.snapshot[:alerts].first
+            expect(alert).to have_key(:code)
+            expect(alert).to have_key(:severity)
+            expect(alert).to have_key(:value)
+            expect(alert).to have_key(:threshold)
+
+            handle.close
+          end
+        end
+
+        describe "StoreServer observability_snapshot includes changefeed alerts" do
+          def free_port
+            s = TCPServer.new("127.0.0.1", 0)
+            p = s.addr[1]; s.close; p
+          end
+
+          def null_logger
+            Igniter::Store::ServerLogger.new(nil, :error)
+          end
+
+          after(:each) { @server&.stop }
+
+          it "observability_snapshot[:alerts] is an array (may be empty)" do
+            port    = free_port
+            @server = Igniter::Store::StoreServer.new(address: "127.0.0.1:#{port}", logger: null_logger)
+            @server.start_async
+            @server.wait_until_ready
+
+            snap = @server.observability_snapshot
+            expect(snap[:alerts]).to be_an(Array)
+          end
+
+          it "changefeed[:alerts] is present in observability_snapshot" do
+            port    = free_port
+            @server = Igniter::Store::StoreServer.new(address: "127.0.0.1:#{port}", logger: null_logger)
+            @server.start_async
+            @server.wait_until_ready
+
+            snap = @server.observability_snapshot
+            expect(snap[:changefeed]).to have_key(:alerts)
+            expect(snap[:changefeed]).to have_key(:diagnostics)
+          end
+        end
+      end
     end
   end
 
