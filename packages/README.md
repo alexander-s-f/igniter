@@ -1,31 +1,49 @@
 # Igniter Packages
 
 Deprecated legacy material lives under private playgrounds and is reference-only.
+This directory is the current package map for the pre-v1 Igniter framework.
 
-Active runtime packages:
+## Active Platform Packages
 
-- `igniter-contracts`
-- `igniter-extensions`
-- `igniter-application`
-- `igniter-ai`
-- `igniter-agents`
-- `igniter-hub`
-- `igniter-web`
-- `igniter-cluster`
-- `igniter-mcp-adapter`
-
-Experimental research packages:
-
-- `igniter-store` - contract-native store POC for immutable facts,
-  time-travel reads, reactive invalidation, WAL replay, and future sync-hub
-  experiments.
+- `igniter-contracts` - the contract graph kernel: DSL, compiler, runtime,
+  diagnostics, effects, and contractable service semantics.
+- `igniter-embed` - host-application bridge for registering contracts and
+  observing/shadowing existing services without changing primary responses.
+- `igniter-extensions` - optional packs, tooling, provenance, reactive,
+  differential, invariant, and operational extension lanes.
+- `igniter-store` - Ledger substrate for facts, histories, receipts, WAL,
+  replay, changefeed, Store Open Protocol, compaction activity, and intelligent
+  boundary proofs. Still pre-v1/POC, but now an active platform lane.
 - `igniter-companion` - typed Record/History facade over `igniter-store`,
-  carrying Companion app-local persistence pressure toward package-level
-  Store/History experiments.
+  carrying app-facing persistence pressure back into Store/Ledger design.
+- `igniter-application` - contracts-native app runtime: manifests, providers,
+  services, credentials, agents, sessions, snapshots, and boot/shutdown plans.
+- `igniter-web` - operator and interaction surfaces for receipts, dashboards,
+  event streams, approval gates, investigation views, and app-local mounts.
+- `igniter-ai` - AI provider and execution lane.
+- `igniter-agents` - agent runtime lane for runs, turns, traces, state, and
+  approval-oriented execution.
+- `igniter-cluster` - distributed runtime seams for capability-aware peers,
+  planning, routing, ownership, health, and failover experiments.
+- `igniter-hub` - hub/synchronization lane for package-level coordination and
+  eventually externalized control surfaces.
+- `igniter-mcp-adapter` - MCP-facing transport surface for tools, reads, and
+  operator introspection.
 
-Remaining recreation work:
+## Status
 
-- rebuild `igniter-server` only if an adapter surface is still needed
+All packages are pre-v1. API stability, transport guarantees, and production
+deployment promises should be checked in the owning package README and current
+track docs before depending on them.
+
+`igniter-store` and `igniter-companion` are no longer parked as passive research
+packages. They remain experimental in API shape, but they are active foundation
+work for Ledger-backed companion systems.
+
+## Deferred / Conditional Work
+
+- Rebuild `igniter-server` only if an adapter surface is still needed after
+  `igniter-store`, `igniter-web`, MCP, and app-local mounts settle.
 
 See [AI And Agents Target Plan](../docs/dev/ai-agents-target-plan.md) before
 adding provider clients or agent runtime logic to an application example.

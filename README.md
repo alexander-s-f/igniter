@@ -1,39 +1,120 @@
 # Igniter
 
-Igniter is being rebuilt around a contracts-native package graph:
+Igniter is a pre-v1 Ruby framework for building contracts-native applications,
+companions, and agent-aware systems.
 
-- `igniter-contracts` — canonical embedded kernel
-- `igniter-extensions` — packs, tooling, and domain behavior
-- `igniter-application` — contracts-native app runtime
-- `igniter-web` — contracts-first web runtime and authoring lane
-- `igniter-cluster` — distributed planning and mesh execution layer
-- `igniter-mcp-adapter` — transport-facing MCP surface
+At the center is a small contract graph kernel: validated inputs, computations,
+effects, outputs, diagnostics, and execution plans. Around that kernel Igniter is
+growing into a platform for:
 
-The active repository surface is intentionally limited to those packages. Older
-layers are private reference material, not the current framework story.
+- embedding contract behavior into existing applications
+- observing and shadowing legacy services without changing production responses
+- storing immutable facts, histories, receipts, and replayable decisions
+- building companion apps beside existing systems of record
+- exposing operator surfaces, streams, MCP tools, and eventually cluster peers
+- giving AI agents evidence, receipts, and approval boundaries before authority
 
-## Pre-v1 Status
+The short version:
+
+```text
+Contracts
+  -> Embed migration bridge
+  -> Store / Ledger facts and receipts
+  -> Companion typed Record/History facade
+  -> Application + Web operator surfaces
+  -> Agents / AI / Cluster / Hub runtime lanes
+```
+
+## Status
 
 Igniter is pre-v1. There is no backward-compatibility promise and no stable
-public API guarantee yet. That is intentional: weak shapes should be replaced
-quickly while the better architecture is still visible.
+public API guarantee yet. That is intentional: weak shapes should still be
+replaced quickly while the better architecture is visible.
 
-Use the runnable examples and package READMEs to evaluate the current direction.
-Enterprise-grade guarantees and compatibility policy belong after v1.
+The project is now large enough to be treated as a framework/platform, but its
+surface is still being actively shaped by real application pressure. Current
+proofs are strongest in:
 
-## Root Facade
+- contract graph authoring and execution
+- host-local embedding and contractable shadowing
+- Store/Ledger facts, WAL, replay, changefeeds, compaction activity, and
+  read-only protocol surfaces
+- application/web package structure and operator-oriented surfaces
+- early agents, AI, hub, and cluster package lanes
 
-`require "igniter"` is now a thin convenience facade over the current packages.
-It exposes:
+Use package READMEs, runnable examples, and track docs to evaluate current
+capability. Production-grade guarantees and compatibility policy belong after
+v1.
 
-- `Igniter::Contracts`
-- `Igniter::Application`
-- delegation helpers like `Igniter.with`, `Igniter.compile`, and `Igniter.application`
+## Platform Lanes
 
-Archived legacy entrypoints such as `igniter/contract`, `igniter/runtime`, and
-`igniter/diagnostics` are no longer active root APIs.
+### `igniter-contracts`
 
-## Small Example
+The kernel: DSL authoring, graph compilation, runtime execution, diagnostics,
+effects, and the core `Contractable` service protocol used inside contracts.
+
+### `igniter-embed`
+
+The migration bridge for existing applications. It registers host-local
+contracts and wraps opaque services with `contractable` observation/shadowing:
+
+```text
+legacy primary result
+  -> returned unchanged
+  -> optional candidate/shadow execution
+  -> normalized comparison
+  -> observation / divergence receipts
+```
+
+This is the safest first path for Rails and other host apps.
+
+### `igniter-store`
+
+The Ledger substrate: immutable facts, `Store[T]` and `History[T]` experiments,
+causation, current/time-travel reads, access paths, WAL durability, changefeed,
+Store Open Protocol, StoreServer, compaction lifecycle, and intelligent-ledger
+boundary proofs.
+
+It is still a POC package, but it is no longer just "persistence research"; it
+is the event memory and receipt substrate for companion systems.
+
+### `igniter-companion`
+
+Typed application-facing `Record` / `History` facade over `igniter-store`.
+It turns raw facts into ergonomic app objects while applying pressure back onto
+Store capabilities such as scopes, partitions, receipts, manifests, and typed
+storage semantics.
+
+### `igniter-application`
+
+Contracts-native application runtime: app manifests, providers, services,
+credentials, agents, sessions, snapshots, boot/shutdown plans, and embedded host
+activation paths.
+
+### `igniter-web`
+
+Operator and interaction surfaces: receipt/report views, event streams,
+dashboards, human approval gates, investigation workspaces, and app-local web
+mounts. It is not trying to replace a Rails admin UI.
+
+### `igniter-agents` and `igniter-ai`
+
+Agent and AI runtime lanes: runs, turns, traces, serializable state, provider
+registration, and the promotion ladder from observe-only to human-approved
+authority.
+
+### `igniter-cluster` and `igniter-hub`
+
+Distributed and sync lanes: capability-aware peers, ownership, leases, health,
+failover, admission/trust, and hub-style synchronization. These should emerge
+from real partitioned domains rather than "distributed everything".
+
+### `igniter-mcp-adapter`
+
+Transport-facing MCP surface for exposing tools, protocol reads, and operator
+introspection.
+
+## Small Contract Example
 
 ```ruby
 require "igniter"
@@ -59,92 +140,69 @@ result.output(:gross_total)
 # => 120.0
 ```
 
-## Packages
+## Companion Direction
 
-### `igniter-contracts`
+Igniter is being shaped by real application pressure such as Spark CRM:
 
-Use this for:
+```text
+Existing app remains the system of record
+  -> Igniter Embed observes/shadows risky services
+  -> Igniter Store records facts and receipts
+  -> Ledger boundaries close semantic decisions
+  -> Web/Agents explain, review, and recommend
+```
 
-- DSL authoring
-- graph compilation
-- execution/runtime
-- diagnostics
-- baseline effect and executor seams
+This is the current strategic pattern: do not rewrite a production app into
+Igniter. Build an Igniter companion beside it, move event-heavy and
+explanation-heavy responsibilities behind explicit facts, receipts, boundaries,
+and approval gates.
 
-### `igniter-extensions`
+## What Is Not Promised Yet
 
-Use this for:
+- Stable v1 API compatibility.
+- A production database adapter abstraction.
+- Remote mutating Store operations for compaction/prune/purge.
+- Cluster consensus or deployment guarantees.
+- AI authority without receipts, policies, replay, and human approval paths.
 
-- lowered DSL packs such as `lookup`, `project`, and aggregates
-- operational packs such as journaling and execution reporting
-- debug, provenance, reactive, invariant, differential, and MCP tooling layers
+## Repository Map
 
-### `igniter-application`
+- [docs/](./docs/README.md) — documentation portal
+- [docs/guide/](./docs/guide/README.md) — user-facing guide
+- [docs/concepts/](./docs/concepts/README.md) — mental models and vocabulary
+- [docs/dev/](./docs/dev/README.md) — architecture and package boundaries
+- [examples/](./examples/README.md) — runnable examples
+- [packages/](./packages/README.md) — package list and local package docs
+- [playgrounds/](./playgrounds/README.md) — private/local-first experiments and history
 
-Use this for:
+## Package Docs
 
-- contracts-native local hosting
-- providers, services, contracts, and boot flow
-- application profiles and embedded host runtime
+- [igniter-contracts](./packages/igniter-contracts/README.md)
+- [igniter-extensions](./packages/igniter-extensions/README.md)
+- [igniter-embed](./packages/igniter-embed/README.md)
+- [igniter-store](./packages/igniter-store/README.md)
+- [igniter-companion](./packages/igniter-companion/README.md)
+- [igniter-application](./packages/igniter-application/README.md)
+- [igniter-web](./packages/igniter-web/README.md)
+- [igniter-agents](./packages/igniter-agents/README.md)
+- [igniter-ai](./packages/igniter-ai/README.md)
+- [igniter-cluster](./packages/igniter-cluster/README.md)
+- [igniter-hub](./packages/igniter-hub/README.md)
+- [igniter-mcp-adapter](./packages/igniter-mcp-adapter/README.md)
 
-### `igniter-web`
+## Working Principle
 
-Use this for:
+Igniter evolves through a tight loop:
 
-- contracts-first web ingress and transport surfaces
-- app-local mounted review surfaces
-- dashboards and operator-facing UI workflows in current examples
-- manual review scaffolding that does not imply production server behavior
+```text
+real app pressure
+  -> proof-local experiment
+  -> receipt-backed package primitive
+  -> protocol/read surface
+  -> docs compression
+  -> next pressure
+```
 
-### `igniter-cluster`
-
-Use this for:
-
-- contracts-native distributed runtime seams
-- cluster planning, routing, and remote compose examples
-- mesh-oriented execution traces that leave real deployment guarantees for later
-
-### `igniter-mcp-adapter`
-
-Use this for:
-
-- MCP tool catalog exposure
-- tool invocation wrappers
-- JSON-RPC host and server surfaces
-
-## Examples And Docs
-
-- Runnable examples: [examples/README.md](./examples/README.md)
-- Application showcase portfolio: [docs/guide/application-showcase-portfolio.md](./docs/guide/application-showcase-portfolio.md)
-- User guide index: [docs/guide/README.md](./docs/guide/README.md)
-- Internal design docs: [docs/dev/README.md](./docs/dev/README.md)
-- Package docs:
-  - [packages/igniter-contracts/README.md](./packages/igniter-contracts/README.md)
-  - [packages/igniter-extensions/README.md](./packages/igniter-extensions/README.md)
-  - [packages/igniter-application/README.md](./packages/igniter-application/README.md)
-  - [packages/igniter-web/README.md](./packages/igniter-web/README.md)
-  - [packages/igniter-cluster/README.md](./packages/igniter-cluster/README.md)
-  - [packages/igniter-mcp-adapter/README.md](./packages/igniter-mcp-adapter/README.md)
-
-The fuller map lives in [`docs/guide/README.md`](./docs/guide/README.md).
-
-## Repository Landmarks
-
-- [`docs/`](./docs/README.md) — structured documentation portal
-- [`docs/guide/`](./docs/guide/README.md) — user-facing docs
-- [`docs/dev/`](./docs/dev/README.md) — contributor-facing docs
-- [`examples/`](./examples/README.md) — public runnable examples
-- [`playgrounds/`](./playgrounds/README.md) — local-first experiments such as home-lab work
-
-## Status
-
-Igniter is intentionally being shaped as layered infrastructure:
-
-- keep `igniter-contracts` small and strict
-- let `igniter-application`, `igniter-web`, and `igniter-cluster` grow above it
-- move reusable optional capabilities into `igniter-extensions`
-- keep user docs in `docs/guide/`
-- keep internal architecture and planning docs in `docs/dev/`
-- keep package-local quick reference next to each package README
-
-For the full documentation map, start at [`docs/README.md`](./docs/README.md).
+That loop is why some docs live beside packages, some live in public guide/dev
+sections, and older long-form research is compressed into `playgrounds/docs/`
+instead of being used as public onboarding.
