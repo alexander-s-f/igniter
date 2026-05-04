@@ -208,6 +208,20 @@ module Igniter
                                "Valid: #{VALID_THRESHOLD_KEYS.map(&:inspect).join(", ")}"
         end
 
+        unless max_size.is_a?(Integer) && max_size > 0
+          raise ArgumentError, "max_size must be a positive integer, got #{max_size.inspect}"
+        end
+        unless subscriber_queue_size.is_a?(Integer) && subscriber_queue_size > 0
+          raise ArgumentError, "subscriber_queue_size must be a positive integer, got #{subscriber_queue_size.inspect}"
+        end
+        unless diagnostic_ring_size.is_a?(Integer) && diagnostic_ring_size > 0
+          raise ArgumentError, "diagnostic_ring_size must be a positive integer, got #{diagnostic_ring_size.inspect}"
+        end
+        ratio = thresholds[:queue_pressure_ratio]
+        if ratio && !(ratio.is_a?(Numeric) && ratio >= 0.0 && ratio <= 1.0)
+          raise ArgumentError, "queue_pressure_ratio must be between 0.0 and 1.0, got #{ratio.inspect}"
+        end
+
         @max_size               = max_size
         @subscriber_queue_size  = subscriber_queue_size
         @overflow               = overflow

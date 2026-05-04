@@ -72,7 +72,8 @@ module Igniter
                      address: nil,
                      metrics_thresholds: {},
                      slow_op_threshold_ms: nil,
-                     max_recent_events:    100)
+                     max_recent_events:    100,
+                     changefeed:           nil)
         cfg = config || ServerConfig.new
 
         # Keyword args override the config where explicitly provided.
@@ -107,7 +108,8 @@ module Igniter
         # The server socket is bound and listening as soon as build_server returns.
         # Signal readiness here so wait_until_ready is race-free for callers that
         # connect before start_async is called.
-        @changefeed      = ChangefeedBuffer.new
+        resolved_cf      = (cfg.changefeed || {}).merge(changefeed || {})
+        @changefeed      = ChangefeedBuffer.new(**resolved_cf)
         @ready_latch     = true
         @started_at      = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         # Cache the bind address string now while the socket is guaranteed open,

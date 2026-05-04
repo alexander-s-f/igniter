@@ -15,7 +15,9 @@
 require "optparse"
 require_relative "../lib/igniter-store"
 
-opts = {}
+opts        = {}
+cf_opts     = {}
+cf_thresholds = {}
 
 parser = OptionParser.new do |o|
   o.banner = "Usage: igniter-store-server [options]"
@@ -42,6 +44,18 @@ parser = OptionParser.new do |o|
   o.on("--tcp-port PORT",  Integer, "TCP adapter port   (default: disabled)") { |v| opts[:tcp_port]  = v }
 
   o.separator ""
+  o.separator "Changefeed:"
+  o.on("--changefeed-max-size N",               Integer, "Event ring size           (default: 1000)")   { |v| cf_opts[:max_size] = v }
+  o.on("--changefeed-subscriber-queue-size N",  Integer, "Per-subscriber queue size (default: 100)")    { |v| cf_opts[:subscriber_queue_size] = v }
+  o.on("--changefeed-overflow POLICY",                   "drop_oldest|drop_newest  (default: drop_oldest)") { |v| cf_opts[:overflow] = v.to_sym }
+  o.on("--changefeed-close-policy POLICY",               "drain|discard            (default: drain)")   { |v| cf_opts[:close_policy] = v.to_sym }
+  o.on("--changefeed-diagnostic-ring-size N",   Integer, "Diagnostic ring size      (default: 100)")    { |v| cf_opts[:diagnostic_ring_size] = v }
+  o.on("--changefeed-alert-total-queued N",      Integer, "Alert: total_queued >= N")                   { |v| cf_thresholds[:total_queued] = v }
+  o.on("--changefeed-alert-overflow-dropped-total N", Integer, "Alert: overflow_dropped_total >= N")    { |v| cf_thresholds[:overflow_dropped_total] = v }
+  o.on("--changefeed-alert-failed-total N",      Integer, "Alert: failed_total >= N")                   { |v| cf_thresholds[:failed_total] = v }
+  o.on("--changefeed-alert-queue-pressure-ratio FLOAT", Float, "Alert: queue_pressure_ratio >= FLOAT")  { |v| cf_thresholds[:queue_pressure_ratio] = v }
+
+  o.separator ""
   o.on("-h", "--help", "Show this help and exit") { puts o; exit 0 }
   o.on("-v", "--version", "Show version and exit") do
     require "igniter/version"
@@ -66,6 +80,9 @@ end
 
 http_port = opts.delete(:http_port)
 tcp_port  = opts.delete(:tcp_port)
+
+cf_opts[:alert_thresholds] = cf_thresholds unless cf_thresholds.empty?
+opts[:changefeed] = cf_opts unless cf_opts.empty?
 
 config = Igniter::Store::ServerConfig.new(**opts)
 

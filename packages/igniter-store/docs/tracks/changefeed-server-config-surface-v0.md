@@ -1,7 +1,7 @@
 # Track: Changefeed Server Config Surface v0
 
 Status date: 2026-05-04
-Status: assigned
+Status: done
 Supervisor: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 

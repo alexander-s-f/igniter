@@ -28,7 +28,8 @@ module Igniter
         log_level:       :info,
         pid_file:        nil,
         drain_timeout:   5,    # seconds to wait for active connections before force-stop
-        max_connections: nil   # nil = unlimited
+        max_connections: nil,  # nil = unlimited
+        changefeed:      {}    # ChangefeedBuffer constructor kwargs; {} = all defaults
       }.freeze
 
       attr_reader(*DEFAULTS.keys)
