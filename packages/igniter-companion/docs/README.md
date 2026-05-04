@@ -9,3 +9,4 @@ Status reports, manifest glossary, and performance signals for the `igniter-comp
 | [manifest-glossary.md](manifest-glossary.md) | Persistence manifest field glossary |
 | [performance.md](performance.md) | Contract performance signal notes |
 | [tracks/companion-ledger-client-remote-boundary-v0.md](tracks/companion-ledger-client-remote-boundary-v0.md) | Track for accepting `LedgerClient` as Companion's preferred remote Ledger boundary |
+| [tracks/companion-ledger-client-scope-query-boundary-v0.md](tracks/companion-ledger-client-scope-query-boundary-v0.md) | Proposed next track for remote Companion scopes over `LedgerClient#query` |
