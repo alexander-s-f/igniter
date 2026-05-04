@@ -14,21 +14,21 @@ RSpec.describe Igniter::LedgerClient::Client do
     def dispatch(envelope)
       @requests << envelope
       result = case envelope[:op]
-      when :register_descriptor
-        { kind: :store, status: :accepted, name: envelope[:packet][:name], warnings: [], errors: [] }
-      when :write
-        { kind: :receipt, status: :accepted, store: envelope[:packet][:store], key: envelope[:packet][:key], fact_id: "fact_w", value_hash: "hash_w" }
-      when :append
-        { kind: :append_receipt, status: :accepted, store: envelope[:packet][:history], key: "generated-key", fact_id: "fact_a", value_hash: "hash_a" }
-      when :read
-        { value: { status: :open }, found: true }
-      when :query
-        { results: [{ status: :open }], count: 1 }
-      when :replay
-        { facts: [{ key: "evt_1" }], count: 1 }
-      else
-        { op: envelope[:op], packet: envelope[:packet] }
-      end
+               when :register_descriptor
+                 { kind: :store, status: :accepted, name: envelope[:packet][:name], warnings: [], errors: [] }
+               when :write
+                 { kind: :receipt, status: :accepted, store: envelope[:packet][:store], key: envelope[:packet][:key], fact_id: "fact_w", value_hash: "hash_w" }
+               when :append
+                 { kind: :append_receipt, status: :accepted, store: envelope[:packet][:history], key: "generated-key", fact_id: "fact_a", value_hash: "hash_a" }
+               when :read
+                 { value: { status: :open }, found: true }
+               when :query
+                 { results: [{ status: :open }], count: 1 }
+               when :replay
+                 { facts: [{ key: "evt_1" }], count: 1 }
+               else
+                 { op: envelope[:op], packet: envelope[:packet] }
+               end
 
       @response || {
         protocol: :igniter_store,

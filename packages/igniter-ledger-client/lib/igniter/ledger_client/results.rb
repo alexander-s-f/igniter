@@ -68,16 +68,14 @@ module Igniter
 
         def self.normalize(raw)
           hash = if raw.respond_to?(:to_h)
-            raw.to_h
-          else
-            FIELDS.each_with_object({}) do |field, acc|
-              acc[field] = raw.public_send(field) if raw.respond_to?(field)
-            end
-          end
+                   raw.to_h
+                 else
+                   FIELDS.each_with_object({}) do |field, acc|
+                     acc[field] = raw.public_send(field) if raw.respond_to?(field)
+                   end
+                 end
 
-          hash.to_h.each_with_object({}) do |(key, value), acc|
-            acc[key.to_sym] = value
-          end
+          hash.to_h.transform_keys(&:to_sym)
         end
 
         private
@@ -101,7 +99,7 @@ module Igniter
         def initialize(raw = {})
           data = normalize(raw)
           @value = data[:value]
-          @found = data.key?(:found) ? !!data[:found] : !value.nil?
+          @found = data.key?(:found) ? !data[:found].nil? : !value.nil?
           freeze
         end
 

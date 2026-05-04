@@ -28,13 +28,13 @@ RSpec.describe Igniter::Store::ContractableReceiptSink do
     def dispatch(envelope)
       @requests << envelope
       result = case envelope[:op]
-      when :register_descriptor
-        { accepted: true }
-      when :append
-        { accepted: true, store: envelope[:packet][:history], key: "generated-key", fact_id: "fact-1" }
-      else
-        raise "unexpected op: #{envelope[:op].inspect}"
-      end
+               when :register_descriptor
+                 { accepted: true }
+               when :append
+                 { accepted: true, store: envelope[:packet][:history], key: "generated-key", fact_id: "fact-1" }
+               else
+                 raise "unexpected op: #{envelope[:op].inspect}"
+               end
 
       {
         protocol: :igniter_store,
