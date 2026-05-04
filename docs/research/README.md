@@ -23,6 +23,9 @@ design notes. Keep implementation snapshots and package specs in their respectiv
   naming.
 - [Contract Persistence Organic Model](./contract-persistence-organic-model.md) -
   horizon model for Store/History as future graph-native concepts.
+- [Igniter Lang Convergence Report](./igniter-lang-convergence-report.md) -
+  public synthesis of the private Igniter-Lang research against current Ledger,
+  Ledger Client, and Durable Model direction.
 
 ### Wizard Type Spec
 - [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md) -
