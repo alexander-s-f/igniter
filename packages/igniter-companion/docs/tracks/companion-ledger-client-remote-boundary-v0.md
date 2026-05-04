@@ -1,6 +1,6 @@
 # Track: Companion Ledger Client Remote Boundary v0
 
-Status: ready
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-companion`
@@ -211,3 +211,20 @@ Status: done | partial | blocked
 - ...
 ```
 
+## Final Notes
+
+Status date: 2026-05-04.
+
+- Added `igniter-ledger-client` as a Companion dependency.
+- Added `Igniter::Companion::Store.new(client: client)`.
+- Added a private client-backed adapter supporting descriptor registration,
+  write/read, append/plain replay, metadata snapshots, descriptor snapshots, and
+  close.
+- Client-backed Companion uses `WriteResult`, `AppendResult`, `ReadResult`, and
+  `ReplayResult` instead of raw protocol hashes.
+- Local embedded `backend: :memory` / `:file` and legacy `backend: :network`
+  construction remain in place.
+- Client-backed v0 raises `NotImplementedError` for scope queries,
+  scope subscriptions, relation/scatter/projection operations, causation
+  chains, key-filtered history, and partition replay.
+- No dependency from `igniter-ledger-client` to `igniter-ledger` was introduced.

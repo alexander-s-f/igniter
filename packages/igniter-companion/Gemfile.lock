@@ -1,4 +1,9 @@
 PATH
+  remote: ../igniter-ledger-client
+  specs:
+    igniter-ledger-client (0.5.1)
+
+PATH
   remote: ../igniter-ledger
   specs:
     igniter-ledger (0.5.1)
@@ -10,6 +15,7 @@ PATH
   specs:
     igniter-companion (0.1.0)
       igniter-ledger
+      igniter-ledger-client
 
 GEM
   remote: https://rubygems.org/
@@ -39,6 +45,7 @@ PLATFORMS
 DEPENDENCIES
   igniter-companion!
   igniter-ledger!
+  igniter-ledger-client!
   rake (~> 13.0)
   rspec (~> 3.0)
 
@@ -46,6 +53,7 @@ CHECKSUMS
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
   igniter-companion (0.1.0)
   igniter-ledger (0.5.1)
+  igniter-ledger-client (0.5.1)
   msgpack (1.8.0)
   rack (3.2.6)
   rake (13.4.2) sha256=cb825b2bd5f1f8e91ca37bddb4b9aaf345551b4731da62949be002fa89283701

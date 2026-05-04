@@ -7,4 +7,5 @@ Gem::Specification.new do |spec|
   spec.files         = Dir["lib/**/*.rb"]
 
   spec.add_dependency "igniter-ledger"
+  spec.add_dependency "igniter-ledger-client"
 end

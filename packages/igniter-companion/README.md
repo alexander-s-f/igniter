@@ -114,6 +114,29 @@ store.replay(TrackerLog, partition: "sleep")     # filtered by partition_key val
 store.causation_chain(Reminder, key: "r1")       # mutation chain for debugging
 ```
 
+#### Remote Ledger Client Boundary
+
+For remote Ledger deployments, prefer the standard `igniter-ledger-client`
+boundary over the older `backend: :network` transport proof:
+
+```ruby
+client = Igniter::LedgerClient.remote_http("http://127.0.0.1:7300/v1/dispatch")
+store = Igniter::Companion::Store.new(client: client)
+
+store.register(Reminder)
+store.write(Reminder, key: "r1", title: "Buy milk", status: :open)
+store.read(Reminder, key: "r1")
+
+store.register(TrackerLog)
+store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
+store.replay(TrackerLog)
+```
+
+Client-backed mode currently supports `register`, `write`, `read`, `append`,
+plain `replay`, `metadata_snapshot`, and `descriptor_snapshot`. Scope queries,
+scope subscriptions, relation resolution, and partition replay still require the
+embedded Ledger engine path and raise `NotImplementedError` in client-backed v0.
+
 ### Normalized receipts
 
 `write` and `append` return receipt objects carrying mutation metadata.

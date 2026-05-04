@@ -289,6 +289,97 @@ RSpec.describe Igniter::Companion::Store do
     end
   end
 
+  describe "client-backed Ledger boundary" do
+    def client_backed_store
+      ledger = Igniter::Ledger::LedgerStore.new
+      client = Igniter::LedgerClient.wrap(ledger.protocol)
+      described_class.new(client: client)
+    end
+
+    it "rejects mixed client and backend options" do
+      client = Igniter::LedgerClient.wrap(Igniter::Ledger::LedgerStore.new.protocol)
+
+      expect do
+        described_class.new(client: client, backend: :file, path: "/tmp/companion-client.wal")
+      end.to raise_error(ArgumentError, /client: cannot be combined/)
+    end
+
+    it "registers record and history descriptors through LedgerClient" do
+      s = client_backed_store
+      s.register(Reminder)
+      s.register(TrackerLog)
+
+      snapshot = s.descriptor_snapshot
+      expect(snapshot[:stores]).to include(Reminder.store_name)
+      expect(snapshot[:histories]).to include(TrackerLog.store_name)
+    ensure
+      s&.close
+    end
+
+    it "writes and reads a Record through LedgerClient results" do
+      s = client_backed_store
+      s.register(Reminder)
+
+      receipt = s.write(Reminder, key: "r1", title: "Buy milk", status: :open)
+      record = s.read(Reminder, key: "r1")
+
+      expect(receipt).to be_a(Igniter::Companion::WriteReceipt)
+      expect(receipt.fact_id).not_to be_nil
+      expect(receipt.value_hash).not_to be_nil
+      expect(record).to be_a(Reminder)
+      expect(record.title).to eq("Buy milk")
+      expect(record.status).to eq(:open)
+    ensure
+      s&.close
+    end
+
+    it "appends and replays History events without partition filtering" do
+      s = client_backed_store
+      s.register(TrackerLog)
+
+      receipt = s.append(TrackerLog, tracker_id: "sleep", value: 7.0)
+      s.append(TrackerLog, tracker_id: "training", value: 45.0)
+
+      events = s.replay(TrackerLog)
+      expect(receipt).to be_a(Igniter::Companion::AppendReceipt)
+      expect(receipt.fact_id).not_to be_nil
+      expect(receipt.value_hash).not_to be_nil
+      expect(events.map(&:value)).to eq([7.0, 45.0])
+      expect(events).to all(be_a(TrackerLog))
+    ensure
+      s&.close
+    end
+
+    it "returns nil for missing client-backed reads" do
+      s = client_backed_store
+      s.register(Reminder)
+
+      expect(s.read(Reminder, key: "missing")).to be_nil
+    ensure
+      s&.close
+    end
+
+    it "fails clearly for unsupported scope queries" do
+      s = client_backed_store
+      s.register(Reminder)
+
+      expect { s.scope(Reminder, :open) }
+        .to raise_error(NotImplementedError, /scope queries/)
+    ensure
+      s&.close
+    end
+
+    it "fails clearly for unsupported partition replay" do
+      s = client_backed_store
+      s.register(TrackerLog)
+
+      expect { s.replay(TrackerLog, partition: "sleep") }
+        .to raise_error(NotImplementedError, /partition replay/)
+    ensure
+      s&.close
+    end
+  end
+
   # ── Manifest-generated classes ─────────────────────────────────────────────
 
   RECORD_MANIFEST = {

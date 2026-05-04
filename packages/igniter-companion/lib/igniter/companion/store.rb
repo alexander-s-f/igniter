@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "igniter/ledger"
+require "igniter-ledger-client"
 
 module Igniter
   module Companion
@@ -17,6 +18,7 @@ module Igniter
     #     address:   "127.0.0.1:7400",
     #     transport: :tcp    # default; or :unix for Unix domain sockets
     #   )
+    #   store = Igniter::Companion::Store.new(client: ledger_client)    # preferred remote boundary
     #
     #   store.register(Reminder)
     #   store.write(Reminder, key: "r1", title: "Buy milk", status: :open)
@@ -25,9 +27,16 @@ module Igniter
     #   store.append(TrackerLog, tracker_id: "t1", value: 8.5)
     #   store.replay(TrackerLog)
     class Store
-      def initialize(backend: :memory, path: nil, address: nil, transport: :tcp)
+      def initialize(backend: :memory, path: nil, address: nil, transport: :tcp, client: nil)
         @registered     = Set.new
         @schema_by_store = {}
+        if client
+          raise ArgumentError, "client: cannot be combined with backend/path/address/transport options" if backend != :memory || path || address || transport != :tcp
+
+          @inner = ClientAdapter.new(client)
+          return
+        end
+
         @inner = case backend
         when :memory
           Igniter::Ledger::LedgerStore.new
@@ -63,7 +72,7 @@ module Igniter
         @registered << schema_class
         @schema_by_store[schema_class.store_name] = schema_class
 
-        if schema_class.respond_to?(:_scopes)
+        if schema_class.respond_to?(:_scopes) && !client_backed?
           schema_class._scopes.each do |scope_name, opts|
             @inner.register_path(
               Igniter::Store::AccessPath.new(
@@ -79,6 +88,8 @@ module Igniter
         end
 
         if schema_class.respond_to?(:_relations)
+          raise unsupported_client_mode!("relation auto-wire") if client_backed? && schema_class._relations.any?
+
           schema_class._relations.each do |rel_name, attrs|
             next unless attrs[:cardinality] == :one_to_many
             next if attrs[:join].nil? || attrs[:join].empty?
@@ -108,6 +119,8 @@ module Igniter
       # Subscribe a callable to scope-level changes.
       # The callable receives (store_name, scope_name) when facts in the store change.
       def on_scope(schema_class, scope_name, &block)
+        raise unsupported_client_mode!("scope subscriptions") if client_backed?
+
         scope_opts = schema_class._scopes[scope_name] || {}
         @inner.register_path(
           Igniter::Store::AccessPath.new(
@@ -129,21 +142,24 @@ module Igniter
       # returns typed instances without requiring an explicit register call.
       def write(schema_class, key:, **fields)
         @schema_by_store[schema_class.store_name] ||= schema_class
-        fact = @inner.write(store: schema_class.store_name, key: key, value: fields)
+        result = @inner.write(store: schema_class.store_name, key: key, value: fields)
         record = schema_class.new(key: key, **fields)
         WriteReceipt.new(
           mutation_intent: :record_write,
-          fact_id:         fact.id,
-          value_hash:      fact.value_hash,
-          causation:       fact.causation,
-          key:             key,
+          fact_id:         result_fact_id(result),
+          value_hash:      result_value_hash(result),
+          causation:       result_causation(result),
+          key:             result_key(result, fallback: key),
           record:          record
         )
       end
 
       # Read the latest value for a key. Returns nil if not found.
       def read(schema_class, key:, as_of: nil)
-        value = @inner.read(store: schema_class.store_name, key: key, as_of: as_of)
+        result = @inner.read(store: schema_class.store_name, key: key, as_of: as_of)
+        return nil if result.respond_to?(:found?) && !result.found?
+
+        value = result.respond_to?(:value) ? result.value : result
         return nil unless value
 
         schema_class.new(key: key, **value)
@@ -151,6 +167,8 @@ module Igniter
 
       # Query all records matching a registered scope.
       def scope(schema_class, scope_name, as_of: nil)
+        raise unsupported_client_mode!("scope queries") if client_backed?
+
         facts = @inner.query(store: schema_class.store_name, scope: scope_name, as_of: as_of)
         facts.map { |f| schema_class.from_fact(f) }
       end
@@ -159,13 +177,13 @@ module Igniter
       # Receipt delegates unknown methods to the event (e.g. receipt.value).
       def append(history_class, **fields)
         pk    = history_class._partition_key
-        fact  = @inner.append(history: history_class.store_name, event: fields, partition_key: pk)
-        event = history_class.new(fact_id: fact.id, timestamp: fact.timestamp, **fields)
+        result = @inner.append(history: history_class.store_name, event: fields, partition_key: pk)
+        event = history_class.new(fact_id: result_fact_id(result), timestamp: result_timestamp(result), **fields)
         AppendReceipt.new(
           mutation_intent: :history_append,
-          fact_id:         fact.id,
-          value_hash:      fact.value_hash,
-          timestamp:       fact.timestamp,
+          fact_id:         result_fact_id(result),
+          value_hash:      result_value_hash(result),
+          timestamp:       result_timestamp(result),
           event:           event
         )
       end
@@ -174,6 +192,8 @@ module Igniter
       # `partition:` filters by the declared partition_key value (e.g. tracker_id: "sleep").
       # `since:` / `as_of:` are timestamp boundaries.
       def replay(history_class, since: nil, as_of: nil, partition: nil)
+        raise unsupported_client_mode!("partition replay") if client_backed? && partition
+
         pk    = history_class._partition_key
         facts = if partition && pk
           @inner.history_partition(
@@ -194,6 +214,8 @@ module Igniter
       # +source+ may be a schema class (store_name is used) or a Symbol.
       # +target+ may be a schema class or Symbol — informational only.
       def register_relation(name, source:, partition:, target:)
+        raise unsupported_client_mode!("relations") if client_backed?
+
         src = source.respond_to?(:store_name) ? source.store_name : source.to_sym
         tgt = target.respond_to?(:store_name) ? target.store_name : target.to_sym
         @inner.register_relation(name, source: src, partition: partition, target: tgt)
@@ -209,6 +231,8 @@ module Igniter
       # as_of: Float timestamp — when given, reads the index state AND each
       # source value at that point in time (consistent point-in-time snapshot).
       def resolve(relation_name, from:, as_of: nil)
+        raise unsupported_client_mode!("relation resolve") if client_backed?
+
         rule = @inner.schema_graph.relation_for(name: relation_name)
         raise ArgumentError, "No relation registered: #{relation_name.inspect}" unless rule
 
@@ -226,6 +250,8 @@ module Igniter
 
       # Returns a compact snapshot of all registered relation rules.
       def _relations
+        raise unsupported_client_mode!("relation snapshots") if client_backed?
+
         @inner.schema_graph.relation_snapshot
       end
 
@@ -234,6 +260,8 @@ module Igniter
       # +source_schema+ may be a schema class (its store_name is used) or a Symbol.
       # +target_store+ is always a Symbol (the raw store name for the index).
       def register_scatter(source_schema, partition_by:, target_store:, rule:)
+        raise unsupported_client_mode!("scatter registration") if client_backed?
+
         source = source_schema.respond_to?(:store_name) ? source_schema.store_name : source_schema.to_sym
         @inner.register_scatter(
           source_store: source,
@@ -246,6 +274,8 @@ module Igniter
 
       # Returns a compact snapshot of all registered scatter rules.
       def _scatters
+        raise unsupported_client_mode!("scatter snapshots") if client_backed?
+
         @inner.schema_graph.scatter_snapshot
       end
 
@@ -253,6 +283,8 @@ module Igniter
       # Records which stores and relations a cross-record projection reads,
       # making this visible to the store engine via SchemaGraph.
       def register_projection(name, reads:, relations: [], consumer_hint: :contract_node, reactive: false)
+        raise unsupported_client_mode!("projection registration") if client_backed?
+
         @inner.register_projection(
           Igniter::Store::ProjectionPath.new(
             name:          name,
@@ -267,11 +299,15 @@ module Igniter
 
       # Returns a compact snapshot of all registered projection descriptors.
       def _projections
+        raise unsupported_client_mode!("projection snapshots") if client_backed?
+
         @inner.schema_graph.projection_snapshot
       end
 
       # Causation chain for a Record key — useful for debugging mutations.
       def causation_chain(schema_class, key:)
+        raise unsupported_client_mode!("causation chains") if client_backed?
+
         @inner.causation_chain(store: schema_class.store_name, key: key)
       end
 
@@ -292,6 +328,113 @@ module Igniter
       end
 
       private
+
+      ClientFact = Struct.new(:id, :store, :key, :value, :transaction_time, :valid_time, :value_hash, keyword_init: true) do
+        def timestamp = transaction_time
+      end
+
+      class ClientAdapter
+        attr_reader :client
+
+        def initialize(client)
+          @client = Igniter::LedgerClient.wrap(client)
+        end
+
+        def register_descriptor(descriptor)
+          client.register_descriptor(descriptor)
+        end
+
+        def write(...)
+          client.write(...)
+        end
+
+        def read(...)
+          client.read(...)
+        end
+
+        def append(...)
+          client.append(...)
+        end
+
+        def history(store:, key: nil, since: nil, as_of: nil)
+          raise NotImplementedError, "client-backed Companion store does not support key-filtered history replay yet" if key
+
+          client.replay(store: store, from: since, to: as_of).facts.map { |fact| normalize_fact(fact) }
+        end
+
+        def metadata_snapshot
+          client.metadata_snapshot
+        end
+
+        def descriptor_snapshot
+          client.descriptor_snapshot
+        end
+
+        def protocol
+          self
+        end
+
+        def close
+          client.close
+        end
+
+        private
+
+        def normalize_fact(fact)
+          data = fact.to_h.transform_keys(&:to_sym)
+          ClientFact.new(
+            id: data[:id],
+            store: token(data[:store]),
+            key: data[:key],
+            value: normalize_value(data[:value] || {}),
+            transaction_time: data[:transaction_time] || data[:timestamp],
+            valid_time: data[:valid_time],
+            value_hash: data[:value_hash]
+          )
+        end
+
+        def normalize_value(value)
+          return value unless value.is_a?(Hash)
+
+          value.each_with_object({}) { |(key, entry), acc| acc[key.to_sym] = entry }
+        end
+
+        def token(value)
+          value.is_a?(String) ? value.to_sym : value
+        end
+      end
+
+      def client_backed?
+        @inner.is_a?(ClientAdapter)
+      end
+
+      def unsupported_client_mode!(feature)
+        NotImplementedError.new("client-backed Companion store does not support #{feature} in v0")
+      end
+
+      def result_fact_id(result)
+        result.respond_to?(:fact_id) ? result.fact_id : result.id
+      end
+
+      def result_value_hash(result)
+        result.respond_to?(:value_hash) ? result.value_hash : result.value_hash
+      end
+
+      def result_causation(result)
+        result.respond_to?(:causation) ? result.causation : nil
+      end
+
+      def result_key(result, fallback:)
+        result.respond_to?(:key) && result.key ? result.key : fallback
+      end
+
+      def result_timestamp(result)
+        if result.respond_to?(:timestamp)
+          result.timestamp
+        elsif result.respond_to?(:transaction_time)
+          result.transaction_time
+        end
+      end
 
       def emit_companion_descriptor(schema_class)
         if schema_class.respond_to?(:_scopes)
