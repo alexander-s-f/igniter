@@ -1,7 +1,7 @@
 # Track: Compaction Lifecycle Unification v0
 
 Status date: 2026-05-04
-Status: ready
+Status: done
 Supervisor: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 
@@ -245,22 +245,77 @@ Keep this proof-local and additive.
   this difference, not hide it.
 - Keep normal checkpoint non-destructive.
 
-## Handoff Template
+## Handoff
 
 ```text
 [Package Agent / Companion+Store]
 Track: igniter-store/compaction-lifecycle-unification-v0
-Status: done | partial | blocked
+Status: done
 
 [D] Decisions:
-- ...
+- Vocabulary is now canonical: compact = semantic/lifecycle, prune = exact fact-id
+  executor, purge = physical storage artifact executor. Documented in progress.md and
+  ledger-boundaries-compaction-plan.md; no new deletion API should bypass these terms.
+- Scope A fix: replaced `@backend.write_snapshot` in `compact_store` with
+  `@backend.replace_with_snapshot!` when the backend supports it.  This closes the
+  same resurrection gap that the physical purge barrier track identified.
+  Falls back to `write_snapshot` (non-destructive) when `replace_with_snapshot!` is
+  absent, and skips entirely for in-memory stores.
+- `durable: true/false` added to `compact` return shape.  `true` means the prune
+  barrier was applied and compacted facts will not return on reopen.  `false` means
+  the compaction is in-memory only (SegmentedFileBackend, no backend, or no drop).
+- `durable: false` is NOT a failure — it is the explicit signal the track asked for.
+  Callers must not treat it as an error; it simply means the backend does not
+  guarantee resurrection-free reopen for retention-compacted facts.
+- SegmentedFileBackend: does not implement `replace_with_snapshot!`; `compact` returns
+  `durable: false`.  Segment-level physical deletion remains via `SegmentedFileBackend#purge!`.
+- Scope B: `store.compaction_activity(store: nil)` normalizes entries from three
+  sources: `:__compaction_receipts` (retention compaction), `:__fact_prune_receipts`
+  (exact prune), and `backend.purge_receipts` (segment purge).  Entries have a
+  stable shape: `{ kind:, executor:, store:, status:, reason:, fact_count:, receipt_id:, occurred_at: }`.
+- Scope D: `ledger.compaction_activity` delegates to `store.compaction_activity` and
+  appends boundary physical purge entries from `:ledger_physical_purge_receipts`.
+  This is the single surface that operators need to observe the full lifecycle.
 
 [S] Shipped:
-- ...
+- `IgniterStore#compact_store`: uses `replace_with_snapshot!` barrier when backend
+  supports it; adds `durable:` to return hash.
+- `IgniterStore#compaction_activity(store: nil)`: normalized activity read model
+  spanning retention compaction, exact prune, and backend segment purge.
+- `AvailabilityBoundaryLedger#compaction_activity`: full ledger activity including
+  boundary physical purge receipts, sorted by `occurred_at`.
+- `docs/progress.md`: canonical compaction vocabulary section added; test signal updated.
+- `docs/intelligent-ledger/ledger-boundaries-compaction-plan.md`: compact/prune/purge
+  vocabulary block added at the top.
 
 [T] Tests:
-- ...
+- `spec/igniter/store/compaction_durability_spec.rb` (12 examples):
+  Historical resurrection bug documented (write_snapshot leaves WAL intact);
+  FileBackend compact → no resurrection; receipt survives reopen; facts written after
+  compact survive reopen; in-memory store works; SegmentedFileBackend returns
+  `durable: false`; no-drop returns `durable: false`.
+- `spec/igniter/store/compaction_activity_spec.rb` (23 examples):
+  Retention compaction entries, filter by store, empty when no compact;
+  Exact prune entries; Segment purge entries (real SegmentedFileBackend scenario);
+  Ordering; Boundary integration (all 5 ledger activity checks).
+- Full suite: 1132 examples, 0 failures (native extension active).
 
 [R] Risks / next recommendations:
-- ...
+- Native mode snapshot round-trip converts Ruby Symbol values (e.g. `:things`) to
+  bare strings after write_snapshot → load_native_snapshot → Fact.build.  This is the
+  known Phase 2 gap (Fact.build regenerates id/timestamp).  Specs normalize with
+  `.to_sym` where needed.  This does NOT affect correctness of the barrier or read
+  model, only the specific symbol type assertion.
+- `compact_store` still writes a compaction receipt AND the prune barrier applies.
+  There is no separate prune receipt for retention compaction — this avoids double
+  receipts.  `compaction_activity` sees only the compaction receipt for these events.
+  If `fact_ids` of compacted facts are needed in the activity, callers should use
+  `compaction_receipts` directly (which records oldest/newest dropped IDs).
+- `SegmentedFileBackend#purge!` segment receipts use the `"fact_count"` key from the
+  manifest (which reflects the sealed count at checkpoint time).  If segments are
+  appended across multiple checkpoints, the count in the purge receipt matches the
+  sealed segment, not the total store count.
+- Next natural slice: expose `compaction_activity` via the Open Protocol / wire
+  transport so remote-backed stores and StoreServer can surface compaction history
+  without direct Ruby access.
 ```

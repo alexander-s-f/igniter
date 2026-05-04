@@ -987,6 +987,30 @@ module Igniter
           }
         end
 
+        # Normalized compaction activity for this ledger.
+        # Delegates to the underlying store for retention compaction, exact prune,
+        # and segment purge entries, then appends boundary physical purge receipts
+        # from :ledger_physical_purge_receipts.
+        def compaction_activity
+          entries = @store.compaction_activity
+
+          @store.history(store: :ledger_physical_purge_receipts).each do |f|
+            v = f.value
+            entries << {
+              kind:        :boundary_physical_purge,
+              executor:    :boundary_ledger,
+              store:       nil,
+              status:      (v["status"] || v[:status])&.to_sym || :purged,
+              reason:      :boundary_physical_purge,
+              fact_count:  (v["pruned_count"] || v[:pruned_count]).to_i,
+              receipt_id:  f.id,
+              occurred_at: f.transaction_time
+            }
+          end
+
+          entries.sort_by { |e| e[:occurred_at] }
+        end
+
         private
 
         # Returns the latest relation edge value for each blocking edge (raw or

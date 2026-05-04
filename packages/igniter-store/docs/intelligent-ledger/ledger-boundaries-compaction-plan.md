@@ -4,6 +4,17 @@ Status date: 2026-05-04
 Status: research horizon
 Supervisor: [Architect Supervisor / Codex]
 
+## Compaction Vocabulary (canonical — do not introduce competing terms)
+
+```text
+compact  — semantic verb: reduce retained detail while preserving truth/proof
+prune    — exact fact-id executor: remove facts from the hot logical log
+purge    — physical storage executor: remove whole storage artifacts (segments)
+```
+
+All three share one lifecycle, inspectable via `store.compaction_activity` /
+`ledger.compaction_activity`.  Executors are specialized; vocabulary is unified.
+
 ## Insight
 
 An intelligent ledger cannot keep every high-frequency operational fact forever

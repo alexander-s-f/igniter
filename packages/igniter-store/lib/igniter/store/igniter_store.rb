@@ -115,6 +115,67 @@ module Igniter
         store ? all.select { |f| f.value[:compacted_store] == store } : all
       end
 
+      # Normalized compaction activity across all executors.
+      #
+      # Merges entries from:
+      #   :__compaction_receipts   — retention compaction (store.compact)
+      #   :__fact_prune_receipts   — exact fact-id prune (store.prune_fact_ids)
+      #   backend.purge_receipts   — segment purge (SegmentedFileBackend.purge!)
+      #
+      # Each entry: { kind:, executor:, store:, status:, reason:, fact_count:,
+      #               receipt_id:, occurred_at: }
+      #
+      # Boundary-specific receipts are not included here; use
+      # AvailabilityBoundaryLedger#compaction_activity for the full picture.
+      def compaction_activity(store: nil)
+        entries = []
+
+        compaction_receipts(store: store).each do |f|
+          v = f.value
+          entries << {
+            kind:        :retention_compaction,
+            executor:    :store_compact,
+            store:       v[:compacted_store],
+            status:      :ok,
+            reason:      v[:strategy],
+            fact_count:  v[:compacted_count].to_i,
+            receipt_id:  f.id,
+            occurred_at: v[:compacted_at].to_f
+          }
+        end
+
+        @log.facts_for(store: :__fact_prune_receipts).each do |f|
+          v = f.value
+          entries << {
+            kind:        :exact_prune,
+            executor:    :fact_prune,
+            store:       nil,
+            status:      :ok,
+            reason:      v[:reason],
+            fact_count:  v[:pruned_count].to_i,
+            receipt_id:  f.id,
+            occurred_at: v[:pruned_at].to_f
+          }
+        end
+
+        if @backend.respond_to?(:purge_receipts)
+          @backend.purge_receipts(store: store).each do |r|
+            entries << {
+              kind:        :segment_purge,
+              executor:    :segmented_backend,
+              store:       r["store"]&.to_sym,
+              status:      :ok,
+              reason:      r["purge_strategy"],
+              fact_count:  r["fact_count"].to_i,
+              receipt_id:  r["segment_path"],
+              occurred_at: r["purged_at"].to_f
+            }
+          end
+        end
+
+        entries.sort_by { |e| e[:occurred_at] }
+      end
+
       # Removes exact facts by id from the live FactLog and all derived indexes.
       #
       # Requires a backend that supports +replace_with_snapshot!+ (i.e. FileBackend
@@ -595,7 +656,7 @@ module Igniter
         store_facts = @log.facts_for(store: store)
         keep, drop  = partition_compaction(store_facts, policy, now: now)
 
-        return { store: store, strategy: policy.strategy, dropped_count: 0, kept_count: keep.size, receipt_id: nil } if drop.empty?
+        return { store: store, strategy: policy.strategy, dropped_count: 0, kept_count: keep.size, receipt_id: nil, durable: false } if drop.empty?
 
         # Belt 7b — write receipt to meta-store before rebuilding log
         receipt = write_compaction_receipt(store, drop, policy, now)
@@ -606,11 +667,21 @@ module Igniter
         new_facts = (surviving + keep).sort_by(&:transaction_time)
         rebuild_log!(new_facts)
 
-        if @backend.respond_to?(:write_snapshot) && @log.respond_to?(:all_facts)
+        # Use the pruning-safe barrier when the backend supports it so that
+        # compacted facts cannot resurrect on reopen.  Fall back to the
+        # non-destructive checkpoint when only write_snapshot is available
+        # (in-memory durability only), and skip entirely for in-memory stores.
+        durable = if @backend.respond_to?(:replace_with_snapshot!)
+          @backend.replace_with_snapshot!(@log.all_facts)
+          true
+        elsif @backend.respond_to?(:write_snapshot) && @log.respond_to?(:all_facts)
           @backend.write_snapshot(@log.all_facts)
+          false
+        else
+          false
         end
 
-        { store: store, strategy: policy.strategy, dropped_count: drop.size, kept_count: keep.size, receipt_id: receipt.id }
+        { store: store, strategy: policy.strategy, dropped_count: drop.size, kept_count: keep.size, receipt_id: receipt.id, durable: durable }
       end
 
       # Returns [keep_facts, drop_facts]. Latest fact per key is always kept.

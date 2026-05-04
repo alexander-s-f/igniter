@@ -81,9 +81,38 @@ Network backend
 - The server model keeps contract computation in the app and moves durable fact
   projection to the store server.
 
+## Compaction Lifecycle Vocabulary
+
+One lifecycle, three verbs. Future slices must not introduce competing terms.
+
+```text
+compact
+  semantic lifecycle verb
+  reduce retained detail while preserving truth/proof
+  executor: IgniterStore#compact (retention policy)
+            AvailabilityBoundaryLedger#compact_boundary (semantic boundary)
+
+prune
+  exact fact-level executor
+  remove known fact ids from the hot logical log
+  executor: IgniterStore#prune_fact_ids
+            (called internally by boundary purge and retention compact)
+
+purge
+  physical storage executor
+  remove whole storage artifacts such as sealed segments
+  executor: SegmentedFileBackend#purge! (segment-level)
+            AvailabilityBoundaryLedger#purge_cleanup_execution (boundary physical detail)
+```
+
+Rule: no new deletion/compaction API should bypass this lifecycle.
+Executors remain specialized; plans and receipts normalize into one inspectable
+activity stream via `store.compaction_activity` /
+`ledger.compaction_activity`.
+
 ## Current Test Signal
 
-- `packages/igniter-store`: 798 examples, 0 failures (as of 2026-05-04, includes Changefeed v0 + ordering/replay + SSE events + async fan-out + delivery policy + observability + production diagnostics + server config surface).
+- `packages/igniter-store`: 1109 examples, 0 failures (as of 2026-05-04, includes Compaction Lifecycle Unification v0 + Physical Purge Barrier v0).
 - `packages/igniter-companion`: 89 examples, 0 failures.
 
 ## Architecture Meaning
