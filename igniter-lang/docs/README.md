@@ -12,6 +12,7 @@ implementation detail of the current Igniter platform.
 | Track | Status | Purpose |
 |------|--------|---------|
 | [tracks/observable-contract-language-v0.md](tracks/observable-contract-language-v0.md) | proposal | Completed first axiom slice for "everything observable, everything contract" |
+| [tracks/observable-spine-v0.md](tracks/observable-spine-v0.md) | research | Define the smallest observation packet model without committing to grammar or runtime |
 
 ## Core Documents
 
