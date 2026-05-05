@@ -1,6 +1,6 @@
 # Track: Durable Model Command Flow Temporal Slices v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -269,3 +269,16 @@ Please keep the implementation narrow and compositional:
 This slice is intentionally the first bridge from "single command flow" to
 "temporal operational meaning". It should feel like a read model/projection, not
 like a workflow runtime.
+
+## Final Notes
+
+- `CommandFlowSlice` is an app-safe temporal read model over `CommandActivity`
+  history, not an aggregate table or workflow runtime.
+- `Store#command_flow_slice` uses existing `replay` / partition replay paths;
+  no Ledger protocol operation was added.
+- Slice items group by `metadata[:request_id]` when present and use a per-event
+  fallback for old activity without request ids.
+- `since:` is treated as the inclusive lower bound and `as_of:` as the
+  inclusive observation horizon, matching existing replay semantics.
+- `Store#command_flow_summary` is a compact convenience wrapper around
+  `command_flow_slice(...).summary`.

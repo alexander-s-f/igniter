@@ -247,6 +247,14 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   never hides mutation: storage changes only happen with `mode: :apply`.
 - `CommandFlow` serializes an app-safe command story and omits raw fact ids,
   value hashes, causation, and planned record values from its `to_h`.
+- `Store#command_flow_slice` reads `CommandActivity` history over an explicit
+  temporal horizon and returns `CommandFlowSlice`, an app-safe projection with
+  grouped request items and status/command/actor counts.
+- Temporal slice semantics: `since:` is the inclusive lower bound, `as_of:` is
+  the inclusive observation horizon, both lower through existing replay paths,
+  and `generated_at` records when the slice object was created.
+- Slice items group by `metadata[:request_id]` when present and omit raw fact
+  ids, value hashes, causation, command values, and provider payloads.
 
 `effects`
 
@@ -268,6 +276,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   already-recorded activity and folds status deterministically.
 - Command flow orchestration is not a workflow engine. It stitches existing
   app-boundary objects together and keeps preview non-mutating.
+- Command flow slices are read models, not aggregate tables. They read retained
+  activity history and fold status for dashboards/agents.
 - Applying commands is still app-owned behavior. Ledger stores descriptors and
   facts, but does not run command callbacks or decide policy/capability.
   `CommandPolicyDecision` is a summary, not an authorization token.

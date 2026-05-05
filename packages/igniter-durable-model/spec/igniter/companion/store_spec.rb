@@ -659,6 +659,37 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "builds client-backed temporal command flow slices" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+      s.command_flow(CommandedReminder, :complete,
+        key: "r1",
+        actor: "user-1",
+        capabilities: [:reminder_complete],
+        metadata: { request_id: "req-client-slice" },
+        mode: :apply,
+        audit: true)
+      slice = s.command_flow_slice(
+        owner: :commanded_reminders,
+        command: :complete,
+        actor: "user-1",
+        status: :applied)
+
+      expect(slice).to be_a(Igniter::DurableModel::CommandFlowSlice)
+      expect(slice.size).to eq(1)
+      expect(slice.status_counts).to eq(applied: 1)
+      expect(slice.items.first).to include(
+        request_id: "req-client-slice",
+        actor: "user-1",
+        status: :applied,
+        command: :complete
+      )
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -2495,6 +2526,201 @@ RSpec.describe Igniter::Companion::Store do
         expect do
           s.command_flow(CommandedReminder, :complete, mode: :surprise)
         end.to raise_error(ArgumentError, /Unknown command_flow mode/)
+      ensure
+        s&.close
+      end
+
+      it "builds app-safe temporal command flow slices with counts" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+        s.write(CommandedReminder, key: "r2", id: "r2", title: "Pay bills", status: :open)
+
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          actor: "user-1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-slice-planned" },
+          audit: true)
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          actor: "user-1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-slice-applied" },
+          mode: :apply,
+          audit: true)
+        s.command_flow(CommandedReminder, :complete,
+          key: "r2",
+          actor: "user-2",
+          capabilities: [],
+          metadata: { request_id: "req-slice-denied" },
+          mode: :apply,
+          audit: true)
+        s.command_flow(CommandedReminder, :review_complete,
+          key: "r2",
+          actor: "user-3",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-slice-review" },
+          mode: :apply,
+          audit: true)
+        s.command_flow(CommandedReminder, :complete,
+          key: "missing",
+          actor: "user-4",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-slice-invalid" },
+          mode: :apply,
+          audit: true)
+
+        slice = s.command_flow_slice(owner: :commanded_reminders)
+
+        expect(slice).to be_frozen
+        expect(slice[:kind]).to eq(:command_flow_slice)
+        expect(slice.size).to eq(5)
+        expect(slice.empty?).to be false
+        expect(slice.status_counts).to include(
+          planned: 1,
+          applied: 1,
+          policy_denied: 1,
+          review_required: 1,
+          rejected: 1
+        )
+        expect(slice.command_counts).to include(complete: 4, review_complete: 1)
+        expect(slice.actor_counts).to include("user-1" => 2, "user-2" => 1)
+        expect(slice.subject_count).to eq(3)
+        expect(slice.request_count).to eq(5)
+        expect(slice.summary).to include(total: 5, empty: false)
+        expect(slice.items.first).to include(
+          owner: :commanded_reminders,
+          request_id: "req-slice-planned",
+          status: :planned,
+          activity_count: 1
+        )
+        expect(slice.to_h).not_to have_key(:fact_id)
+        expect(slice.items.first).not_to have_key(:fact_id)
+        expect(slice.items.first).not_to have_key(:value)
+        expect(slice.items.first).not_to have_key(:causation)
+      ensure
+        s&.close
+      end
+
+      it "filters command flow slices by command subject request actor status and limit" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+        s.write(CommandedReminder, key: "r2", id: "r2", title: "Pay bills", status: :open)
+
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          actor: "user-1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-filter-1" },
+          mode: :apply,
+          audit: true)
+        s.command_flow(CommandedReminder, :complete,
+          key: "r2",
+          actor: "user-2",
+          capabilities: [],
+          metadata: { request_id: "req-filter-2" },
+          mode: :apply,
+          audit: true)
+        s.command_flow(CommandedReminder, :review_complete,
+          key: "r2",
+          actor: "user-3",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-filter-3" },
+          mode: :apply,
+          audit: true)
+
+        expect(s.command_flow_slice(
+          owner: :commanded_reminders,
+          command: :complete).size).to eq(2)
+        expect(s.command_flow_slice(
+          owner: :commanded_reminders,
+          subject_key: "r2").size).to eq(2)
+        expect(s.command_flow_slice(
+          owner: :commanded_reminders,
+          request_id: "req-filter-1").items.map { |item| item[:request_id] }).to eq(["req-filter-1"])
+        expect(s.command_flow_slice(
+          owner: :commanded_reminders,
+          actor: "user-2").items.map { |item| item[:actor] }).to eq(["user-2"])
+        expect(s.command_flow_slice(
+          owner: :commanded_reminders,
+          status: :policy_denied).items.map { |item| item[:status] }).to eq([:policy_denied])
+        expect(s.command_flow_slice(
+          owner: :commanded_reminders,
+          limit: 2).size).to eq(2)
+        expect(s.command_flow_summary(owner: :commanded_reminders)[:total]).to eq(3)
+      ensure
+        s&.close
+      end
+
+      it "applies temporal filters to command flow slices" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+        s.write(CommandedReminder, key: "r2", id: "r2", title: "Pay bills", status: :open)
+        s.write(CommandedReminder, key: "r3", id: "r3", title: "Read", status: :open)
+
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-window-before" },
+          audit: true)
+        sleep 0.01
+        since = Time.at(Time.now.to_f)
+        sleep 0.01
+        s.command_flow(CommandedReminder, :complete,
+          key: "r2",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-window-inside" },
+          audit: true)
+        sleep 0.01
+        as_of = Time.at(Time.now.to_f)
+        sleep 0.01
+        s.command_flow(CommandedReminder, :complete,
+          key: "r3",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-window-after" },
+          audit: true)
+
+        slice = s.command_flow_slice(
+          owner: :commanded_reminders,
+          since: since,
+          as_of: as_of)
+
+        expect(slice.items.map { |item| item[:request_id] }).to eq(["req-window-inside"])
+        expect(slice.since).to eq(since)
+        expect(slice.as_of).to eq(as_of)
+        expect(slice.generated_at).to be_a(Time)
+      ensure
+        s&.close
+      end
+
+      it "groups command flow slice activity by request id" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :complete,
+          key: "r1",
+          metadata: { request_id: "req-grouped" })
+        plan = s.command_operation_plan(intent)
+        policy = s.command_policy_decision(plan, capabilities: [:reminder_complete])
+        s.append_command_activity(s.command_activity_event(plan))
+        s.apply_command(plan, policy_decision: policy, audit: true)
+
+        slice = s.command_flow_slice(
+          owner: :commanded_reminders,
+          request_id: "req-grouped")
+
+        expect(slice.size).to eq(1)
+        expect(slice.items.first).to include(
+          request_id: "req-grouped",
+          status: :applied,
+          activity_count: 2
+        )
+        expect(slice.items.first[:errors]).to eq([])
+        expect(slice.items.first[:warnings]).to eq([])
       ensure
         s&.close
       end

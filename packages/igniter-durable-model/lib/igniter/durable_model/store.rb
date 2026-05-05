@@ -608,6 +608,46 @@ module Igniter
           actor: actor)
       end
 
+      # Temporal app-safe read model over CommandActivity history.
+      def command_flow_slice(owner:, command: nil, subject_key: nil,
+                             request_id: nil, actor: nil, status: nil,
+                             since: nil, as_of: nil, limit: nil,
+                             history_class: CommandActivity)
+        filters = command_flow_slice_filters(
+          command: command,
+          subject_key: subject_key,
+          request_id: request_id,
+          actor: actor,
+          status: status
+        )
+        events = replay(history_class,
+          partition: token(owner),
+          since: temporal_value(since),
+          as_of: temporal_value(as_of))
+        filtered_events = filter_command_flow_slice_events(events,
+          command: command,
+          subject_key: subject_key,
+          request_id: request_id,
+          actor: actor)
+        items = command_flow_slice_items(filtered_events,
+          owner: owner,
+          status: status)
+        limited_items = limit ? items.first(limit) : items
+
+        CommandFlowSlice.new(
+          owner: owner,
+          filters: filters,
+          since: since,
+          as_of: as_of,
+          limit: limit,
+          items: limited_items
+        )
+      end
+
+      def command_flow_summary(...)
+        command_flow_slice(...).summary
+      end
+
       # Summarize app-owned policy/capability checks for a command plan.
       # This is metadata-only and never mutates storage or evaluates in Ledger.
       def command_policy_decision(plan, actor: nil, capabilities: [],
@@ -1288,6 +1328,93 @@ module Igniter
         }
       end
 
+      def command_flow_slice_filters(command:, subject_key:, request_id:,
+                                     actor:, status:)
+        {
+          command: command.nil? ? nil : token(command),
+          subject_key: subject_key,
+          request_id: request_id,
+          actor: actor,
+          status: status.nil? ? nil : token(status)
+        }.compact
+      end
+
+      def filter_command_flow_slice_events(events, command:, subject_key:,
+                                           request_id:, actor:)
+        events.select do |event|
+          command_matches = command.nil? || event.command == token(command)
+          subject_matches = subject_key.nil? || event.subject_key == subject_key
+          request_matches = request_id.nil? || event.metadata[:request_id] == request_id
+          actor_matches = actor.nil? || event.metadata[:actor] == actor
+
+          command_matches && subject_matches && request_matches && actor_matches
+        end
+      end
+
+      def command_flow_slice_items(events, owner:, status:)
+        grouped_events = command_flow_slice_groups(events)
+        items = grouped_events.map do |_group_key, group_events|
+          lifecycle = build_command_lifecycle(group_events,
+            owner: owner,
+            command: group_events.last.command,
+            subject_key: group_events.last.subject_key,
+            request_id: group_events.last.metadata[:request_id])
+          command_flow_slice_item(lifecycle, group_events)
+        end
+        filtered_items = if status
+          items.select { |item| item[:status] == token(status) }
+        else
+          items
+        end
+        filtered_items.sort_by { |item| [item[:last_seen_at] || 0, item[:request_id].to_s] }
+      end
+
+      def command_flow_slice_groups(events)
+        groups = {}
+        events.each_with_index do |event, index|
+          key = event.metadata[:request_id]
+          group_key = if key
+            [:request_id, key]
+          else
+            [:activity, event.owner, event.command, event.subject_key, event.timestamp || index]
+          end
+          groups[group_key] ||= []
+          groups[group_key] << event
+        end
+        groups
+      end
+
+      def command_flow_slice_item(lifecycle, events)
+        first = events.first
+        last = events.last
+        {
+          owner: lifecycle.owner,
+          command: lifecycle.command,
+          subject_key: lifecycle.subject_key,
+          request_id: lifecycle.request_id,
+          actor: lifecycle.actor,
+          status: lifecycle.status,
+          intent_status: lifecycle.intent_status,
+          plan_status: lifecycle.plan_status,
+          policy_status: lifecycle.policy_status,
+          apply_status: lifecycle.apply_status,
+          operation: lifecycle.operation,
+          target: lifecycle.target,
+          first_seen_at: first.timestamp,
+          last_seen_at: last.timestamp,
+          activity_count: events.size,
+          errors: lifecycle.errors,
+          warnings: lifecycle.warnings,
+          metadata: lifecycle.metadata
+        }
+      end
+
+      def temporal_value(value)
+        return nil if value.nil?
+
+        value.respond_to?(:to_f) ? value.to_f : value
+      end
+
       def ensure_command_flow_request_id(metadata)
         data = normalize_value(metadata || {})
         data[:request_id] ? data : data.merge(request_id: command_flow_request_id)
@@ -1324,7 +1451,17 @@ module Igniter
           :rejected
         end
 
-        command_activity_event(plan, status: status)
+        command_activity_event(plan,
+          status: status,
+          metadata: command_flow_activity_metadata(policy_decision))
+      end
+
+      def command_flow_activity_metadata(policy_decision)
+        {
+          actor: policy_decision.actor,
+          policy_status: policy_decision.status,
+          lifecycle_stage: :preview
+        }.compact
       end
 
       def command_flow_lifecycle_event(activity_event, apply_receipt:,
