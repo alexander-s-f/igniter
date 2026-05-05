@@ -39,6 +39,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [research-process.md](research-process.md) | Research lifecycle, document rotation, handoff protocol |
 | [agent-motion.md](agent-motion.md) | Current multi-agent movement and handoff routing |
 | [temporal-positioning.md](temporal-positioning.md) | Meta thesis: time, contracts, projections, and language positioning |
+| [axiomatic-contract-model.md](axiomatic-contract-model.md) | Meta thesis: language, runtime, distributed execution, and time as contract boundaries |
 
 ## Research Vectors
 
@@ -59,6 +60,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Bridge Observation Envelope (PROP-005)
 - Axiom Layer Type Signatures (QUEUED — PROP-004b)
 - Temporal Contracts and Projections (QUEUED — Research Agent track)
+- Axiomatic Contract Model (language/runtime/time as contract boundaries)
 
 ## Review Cadence
 
