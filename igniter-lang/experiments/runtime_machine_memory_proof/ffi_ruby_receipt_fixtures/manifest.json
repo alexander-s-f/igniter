@@ -1,0 +1,10 @@
+{
+  "artifact": "manifest",
+  "files": [
+    {
+      "content_hash": "sha256:5a8219444495002781f6f11db34526a665f3c2106fb80129ca199a2903a0e96f",
+      "path": "ffi_ruby_receipts.golden.json"
+    }
+  ],
+  "schema_version": "runtime-machine-ffi-ruby-receipt-fixtures-v0"
+}

@@ -2,7 +2,7 @@
 
 Status: done
 Slice state: done on 2026-05-05
-Slice name: `runtime-machine-external-candidate-normalizer-fixtures-v0`
+Slice name: `runtime-machine-ffi-ruby-receipt-fixtures-v0`
 Owner: `[Igniter-Lang Research Agent]`
 Supervisor: `[Architect Supervisor / Codex]`
 
@@ -247,6 +247,52 @@ It also writes optional, non-admission human review artifacts:
 - `external_ref_map.json`
 - `adapter_diagnostics.json`
 
+## FFI Ruby Receipt Fixtures
+
+Validate standalone Ruby FFI ObsPacket fixtures:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb
+```
+
+Regenerate the committed fixture artifacts:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb --write-fixtures
+```
+
+Write and check a candidate fixture directory:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb --write-fixtures --candidate /tmp/runtime_machine_ffi_ruby_receipt_candidate
+ruby igniter-lang/experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb --candidate /tmp/runtime_machine_ffi_ruby_receipt_candidate
+```
+
+Expected summary:
+
+```text
+PASS runtime_machine_ffi_ruby_receipt_fixtures
+fixture_dir: <dir>
+manifest: ok
+artifact_header: ok
+descriptor_packets: ok
+scenario_packets: ok
+read_success: ok
+write_audit_success: ok
+capability_denied: ok
+host_error: ok
+cross_case: ok
+```
+
+Fixture scenarios:
+
+- `read_success` - `fact_observation`, lifecycle `session`.
+- `write_audit_success` - `receipt_observation`, lifecycle `audit`.
+- `capability_denied` - `failure_observation`, lifecycle `session`,
+  `host_call_attempted: false`.
+- `host_error` - `failure_observation`, lifecycle `session`,
+  `host_call_attempted: true`.
+
 ## What It Proves
 
 [D] A minimal Runtime Machine can make lifecycle continuity executable without
@@ -279,6 +325,10 @@ session logs.
 admission path from raw external refs to canonical candidate artifacts, without
 package edits.
 
+[D] FFI Ruby receipt fixtures now prove read success, write/audit success,
+capability denial, and host error as ObsPacket fixtures with checker
+expectations.
+
 ## Files
 
 - `runtime_machine_memory_proof.rb` - executable harness.
@@ -290,6 +340,10 @@ package edits.
   normalizer that emits selected-profile candidate directories.
 - `external_candidate_fixture/raw_candidate.json` - tiny raw external candidate
   fixture with external refs and semantic assertions.
+- `ffi_ruby_receipt_fixtures.rb` - standalone fixture generator/checker for
+  Ruby FFI read/write/failure ObsPackets.
+- `ffi_ruby_receipt_fixtures/*.json` - committed Ruby FFI receipt/failure
+  fixture artifacts.
 - `fixtures/*.golden.json` - structural golden artifacts generated from the
   harness.
 
@@ -297,7 +351,7 @@ package edits.
 
 ```text
 [Igniter-Lang Research Agent]
-Track: runtime-machine-external-candidate-normalizer-fixtures-v0
+Track: runtime-machine-ffi-ruby-receipt-fixtures-v0
 Artifact: igniter-lang/experiments/runtime_machine_memory_proof/
 Status: done
 
@@ -318,6 +372,8 @@ Status: done
 - Checker and sidecar builder support `full_log` and `selected_profile` modes.
 - `external_candidate_normalizer.rb` maps a raw external candidate fixture into
   selected-profile artifacts and checks them against golden fixtures.
+- `ffi_ruby_receipt_fixtures.rb` emits and checks Ruby FFI read success,
+  write/audit success, capability denied, and host error packets.
 
 [R] Recommendations:
 - Use this experiment as the next golden fixture source for sidecar packet
@@ -335,6 +391,8 @@ Status: done
   bridge/package-derived candidate experiments.
 - Keep external source maps and adapter diagnostics outside trusted admission
   evidence until the checker explicitly consumes them.
+- Keep FFI receipt/failure fixtures standalone until an integration slice
+  defines where package adapters emit them.
 
 [S] Signals:
 - Runtime Machine semantics are now executable at toy scale.
@@ -349,6 +407,7 @@ Status: done
   required evidence links or result hash checks.
 - External candidate normalization now has an executable proof surface:
   raw external refs -> canonical selected-profile artifacts -> checker pass.
+- FFI outcomes are now visible as packet fixtures, not prose-only examples.
 
 [Q] Open Questions:
 - Should this harness later move under an approved experiment runner?
@@ -363,9 +422,12 @@ Status: done
   substitutions under explicit compatibility rules?
 - Should a future checker validate `external_ref_map.json` and
   `adapter_diagnostics.json`, or keep them human-review only?
+- Should FFI `intent_observation` become a first-class packet kind before
+  package integration?
 
 [Next] Proposed next slice:
-- `runtime-machine-ffi-ruby-receipt-fixtures-v0`
-  Add standalone FFI read/write/failure receipt fixtures and validate their
-  ObsPacket shapes without package integration.
+- `runtime-machine-normalized-equivalence-profile-v0`
+  Define when package/bridge candidate packets may differ from golden fixtures
+  while preserving result meaning, evidence links, lifecycle, and compatibility
+  decisions.
 ```

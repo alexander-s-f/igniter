@@ -1,0 +1,374 @@
+{
+  "artifact": "ffi_ruby_receipt_fixtures",
+  "payload": {
+    "descriptors": {
+      "assign_technician_ffi": {
+        "id": "obs/58370a7822a0d9e5",
+        "kind": "descriptor_observation",
+        "links": [
+          {
+            "ref": "axiom/core-v0",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "execution_environment/ffi_fixture",
+            "rel": "produced_in",
+            "required": true
+          }
+        ],
+        "payload": {
+          "audit": true,
+          "capabilities": [
+            "dispatch_assign"
+          ],
+          "descriptor": "FFIRequirement",
+          "effects": [
+            "write"
+          ],
+          "failures": [
+            "conflict",
+            "permission_denied",
+            "timeout"
+          ],
+          "ffi_id": "spark.assign_technician.v0",
+          "fragment_class": "ESCAPE",
+          "host_lang": "ruby",
+          "host_ref": "SparkCRM::AssignTechnician.call",
+          "input_ports": [
+            {
+              "name": "order_id",
+              "required": true,
+              "type_tag": "OrderId"
+            },
+            {
+              "name": "technician_id",
+              "required": true,
+              "type_tag": "TechnicianId"
+            }
+          ],
+          "lifecycle": "durable",
+          "output_ports": [
+            {
+              "name": "assignment_receipt",
+              "required": true,
+              "type_tag": "AssignmentReceipt"
+            }
+          ]
+        },
+        "payload_hash": "sha256:2065b0e51545e63d0624f30382d5d6a9d466e2604fd7ff9a8d6af8443432cf3d",
+        "subject": "ffi://ruby/spark.assign_technician.v0",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "fact_scope": "ffi/spark.assign_technician.v0",
+          "lifecycle": "load",
+          "rule_version": "ffi_ruby_receipts@1"
+        }
+      },
+      "order_lookup_ffi": {
+        "id": "obs/8a58f186e21545b6",
+        "kind": "descriptor_observation",
+        "links": [
+          {
+            "ref": "axiom/core-v0",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "execution_environment/ffi_fixture",
+            "rel": "produced_in",
+            "required": true
+          }
+        ],
+        "payload": {
+          "audit": false,
+          "capabilities": [
+            "orders_read"
+          ],
+          "descriptor": "FFIRequirement",
+          "effects": [
+            "read"
+          ],
+          "failures": [
+            "not_found",
+            "permission_denied",
+            "timeout"
+          ],
+          "ffi_id": "spark.order_lookup.v0",
+          "fragment_class": "ESCAPE",
+          "host_lang": "ruby",
+          "host_ref": "SparkCRM::OrderLookup.call",
+          "input_ports": [
+            {
+              "name": "order_id",
+              "required": true,
+              "type_tag": "OrderId"
+            }
+          ],
+          "lifecycle": "session",
+          "output_ports": [
+            {
+              "name": "order",
+              "required": true,
+              "type_tag": "OrderSnapshot"
+            }
+          ]
+        },
+        "payload_hash": "sha256:ce0bfad1ee515bb154e6c73fe4635f8106c5a2b090b2dbddfd03c9bb9a4f01b5",
+        "subject": "ffi://ruby/spark.order_lookup.v0",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "fact_scope": "ffi/spark.order_lookup.v0",
+          "lifecycle": "load",
+          "rule_version": "ffi_ruby_receipts@1"
+        }
+      }
+    },
+    "expectations": {
+      "descriptors": [
+        "order_lookup_ffi",
+        "assign_technician_ffi"
+      ],
+      "lifecycle": {
+        "capability_denied": "session",
+        "host_error": "session",
+        "read_success": "session",
+        "write_audit_success": "audit"
+      },
+      "packets": [
+        "read_success",
+        "write_audit_success",
+        "capability_denied",
+        "host_error"
+      ],
+      "reason_codes": {
+        "capability_denied": "capability.denied",
+        "host_error": "ffi.host_error"
+      },
+      "required_links": {
+        "capability_denied": [
+          "caused_by",
+          "read_from",
+          "executed_by",
+          "produced_in"
+        ],
+        "host_error": [
+          "caused_by",
+          "read_from",
+          "executed_by",
+          "produced_in"
+        ],
+        "read_success": [
+          "read_from",
+          "executed_by",
+          "produced_in"
+        ],
+        "write_audit_success": [
+          "caused_by",
+          "read_from",
+          "executed_by",
+          "produced_in"
+        ]
+      }
+    },
+    "packets": {
+      "capability_denied": {
+        "id": "obs/ed5c60b6287a6f61",
+        "kind": "failure_observation",
+        "links": [
+          {
+            "ref": "obs/dispatch_decision_pinned",
+            "rel": "caused_by",
+            "required": true
+          },
+          {
+            "ref": "obs/58370a7822a0d9e5",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "runtime/ffi_executor/ruby",
+            "rel": "executed_by",
+            "required": true
+          },
+          {
+            "ref": "execution_environment/server",
+            "rel": "produced_in",
+            "required": true
+          }
+        ],
+        "payload": {
+          "effect": "write",
+          "ffi_id": "spark.assign_technician.v0",
+          "granted_capabilities": [
+            "orders_read"
+          ],
+          "host_call_attempted": false,
+          "host_ref": "SparkCRM::AssignTechnician.call",
+          "lifecycle": "session",
+          "missing_capabilities": [
+            "dispatch_assign"
+          ],
+          "reason_code": "capability.denied",
+          "required_capability": "dispatch_assign",
+          "retryable": false
+        },
+        "payload_hash": "sha256:3fb2b5916061a3e944e6858466c356993192de10c31ee5d4b50c55d5fef2814e",
+        "subject": "ffi://ruby/spark.assign_technician.v0/order/O-101",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "fact_scope": "spark/order/O-101",
+          "lifecycle": "session",
+          "rule_version": "ffi_ruby_receipts@1"
+        }
+      },
+      "host_error": {
+        "id": "obs/e6f214ce9ce918cd",
+        "kind": "failure_observation",
+        "links": [
+          {
+            "ref": "obs/dispatch_decision_pinned",
+            "rel": "caused_by",
+            "required": true
+          },
+          {
+            "ref": "obs/58370a7822a0d9e5",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "runtime/ffi_executor/ruby",
+            "rel": "executed_by",
+            "required": true
+          },
+          {
+            "ref": "execution_environment/server",
+            "rel": "produced_in",
+            "required": true
+          }
+        ],
+        "payload": {
+          "declared_failure": "conflict",
+          "effect": "write",
+          "error_class": "SparkCRM::ConflictError",
+          "error_message": "conflict: already assigned",
+          "ffi_id": "spark.assign_technician.v0",
+          "host_call_attempted": true,
+          "host_ref": "SparkCRM::AssignTechnician.call",
+          "lifecycle": "session",
+          "reason_code": "ffi.host_error",
+          "retryable": true
+        },
+        "payload_hash": "sha256:6993f9cceea72bcb8fd7b6877bdcca2c609e7c6a994098b65da4c962800a3f1c",
+        "subject": "ffi://ruby/spark.assign_technician.v0/order/O-102",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "fact_scope": "spark/order/O-102",
+          "lifecycle": "session",
+          "rule_version": "ffi_ruby_receipts@1"
+        }
+      },
+      "read_success": {
+        "id": "obs/3deff162eb0e977d",
+        "kind": "fact_observation",
+        "links": [
+          {
+            "ref": "obs/8a58f186e21545b6",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "external:spark://orders/O-100",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "runtime/ffi_executor/ruby",
+            "rel": "executed_by",
+            "required": true
+          },
+          {
+            "ref": "execution_environment/server",
+            "rel": "produced_in",
+            "required": true
+          }
+        ],
+        "payload": {
+          "effect": "read",
+          "ffi_id": "spark.order_lookup.v0",
+          "host_call_attempted": true,
+          "host_ref": "SparkCRM::OrderLookup.call",
+          "lifecycle": "session",
+          "outcome": "success",
+          "output": {
+            "order_id": "O-100",
+            "service": "install",
+            "status": "open"
+          },
+          "result_type": "OrderSnapshot"
+        },
+        "payload_hash": "sha256:65a1c2d748a776d3aa62c6d575cf0e852e41afaa2fea86be48afd1c1b15392c3",
+        "subject": "ffi://ruby/spark.order_lookup.v0/order/O-100",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "fact_scope": "spark/order/O-100",
+          "lifecycle": "session",
+          "rule_version": "ffi_ruby_receipts@1"
+        }
+      },
+      "write_audit_success": {
+        "id": "obs/826a0c9a9b3c44c9",
+        "kind": "receipt_observation",
+        "links": [
+          {
+            "ref": "obs/dispatch_decision_pinned",
+            "rel": "caused_by",
+            "required": true
+          },
+          {
+            "ref": "obs/58370a7822a0d9e5",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "obs/resumed_dispatch_candidate_value",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "runtime/ffi_executor/ruby",
+            "rel": "executed_by",
+            "required": true
+          },
+          {
+            "ref": "execution_environment/server",
+            "rel": "produced_in",
+            "required": true
+          }
+        ],
+        "payload": {
+          "effect": "write",
+          "ffi_id": "spark.assign_technician.v0",
+          "host_call_attempted": true,
+          "host_ref": "SparkCRM::AssignTechnician.call",
+          "idempotency_key": "dispatch/O-100/T-7/rule-v3",
+          "lifecycle": "audit",
+          "order_id": "O-100",
+          "outcome": "success",
+          "receipt_type": "AssignmentReceipt",
+          "status": "committed",
+          "technician_id": "T-7"
+        },
+        "payload_hash": "sha256:77262eedf9c41e8bd9461e674a4eeaca3d06f4769f08b41e5038ba5b3ac5d5c7",
+        "subject": "ffi://ruby/spark.assign_technician.v0/order/O-100",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "fact_scope": "spark/order/O-100",
+          "lifecycle": "audit",
+          "rule_version": "ffi_ruby_receipts@1"
+        }
+      }
+    }
+  },
+  "schema_version": "runtime-machine-ffi-ruby-receipt-fixtures-v0"
+}
