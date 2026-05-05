@@ -14,6 +14,7 @@ require_relative "durable_model/command_flow_slice"
 require_relative "durable_model/command_flow_monitor_result"
 require_relative "durable_model/command_flow_view_descriptor"
 require_relative "durable_model/command_flow_view"
+require_relative "durable_model/command_flow_view_pin"
 require_relative "durable_model/store"
 
 module Igniter

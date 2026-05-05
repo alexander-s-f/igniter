@@ -718,41 +718,88 @@ module Igniter
       # Evaluate a named app-local command-flow operational view.
       def command_flow_view(name, since: nil, as_of: nil, limit: nil,
                             overrides: {}, history_class: CommandActivity)
-        descriptor = @command_flow_views[token(name)]
-        raise ArgumentError, "Unknown command flow view: #{name.inspect}" unless descriptor
-
-        filters = descriptor.filters.merge(normalize_value(overrides || {}))
+        descriptor = command_flow_view_descriptor(name)
         horizon = normalize_command_flow_view_horizon(descriptor.horizon)
-        resolved_as_of = as_of.nil? ? command_flow_view_as_of(horizon) : as_of
-        slice = command_flow_slice(
-          owner: descriptor.owner,
-          command: filters[:command],
-          subject_key: filters[:subject_key],
-          request_id: filters[:request_id],
-          actor: filters[:actor],
-          status: filters[:status],
+        build_command_flow_view(
+          descriptor,
           since: since,
-          as_of: resolved_as_of,
+          as_of: as_of,
           limit: limit,
-          history_class: history_class
+          overrides: overrides,
+          history_class: history_class,
+          horizon: horizon
         )
-        monitor = command_flow_monitor(
-          owner: descriptor.owner,
-          name: descriptor.name,
-          rules: descriptor.rules,
-          slice: slice
+      end
+
+      # Pin a named operational view into reproducible app-owned decision evidence.
+      def pin_command_flow_view(name, action:, actor: nil, capabilities: [],
+                                since: nil, as_of: nil, limit: nil,
+                                overrides: {}, metadata: {},
+                                history_class: CommandActivity)
+        raise ArgumentError, "action: is required" if action.nil?
+
+        descriptor = command_flow_view_descriptor(name)
+        pinned_as_of = as_of || Time.now.utc
+        horizon = pinned_command_flow_view_horizon(descriptor, pinned_as_of)
+        normalized_capabilities = Array(capabilities).map { |value| token(value) }
+        normalized_action = token(action)
+        normalized_metadata = normalize_value(metadata || {})
+        generated_at = Time.now.utc
+        view = build_command_flow_view(
+          descriptor,
+          since: since,
+          as_of: pinned_as_of,
+          limit: limit,
+          overrides: overrides,
+          history_class: history_class,
+          horizon: horizon
         )
-        CommandFlowView.new(
-          name: descriptor.name,
-          owner: descriptor.owner,
-          status: monitor.status,
-          mode: horizon[:mode],
+        missing_capabilities = command_flow_view_missing_capabilities(
+          view.action_policy,
+          normalized_capabilities
+        )
+        errors = command_flow_view_pin_errors(
+          view,
+          normalized_action,
+          missing_capabilities
+        )
+        allowed = errors.empty? && view.actionable?(
+          normalized_action,
+          capabilities: normalized_capabilities
+        )
+        status = allowed ? :pinned : :blocked
+        meaning_status = command_flow_view_pin_meaning_status(
+          horizon,
+          allowed
+        )
+        receipt = command_flow_view_pin_receipt(
+          view,
+          action: normalized_action,
+          actor: actor,
+          status: status,
+          meaning_status: meaning_status,
           horizon: horizon,
-          filters: filters,
-          action_policy: descriptor.action_policy,
-          slice: slice,
-          monitor: monitor,
-          summary: monitor.summary
+          capabilities: normalized_capabilities,
+          missing_capabilities: missing_capabilities,
+          metadata: normalized_metadata,
+          generated_at: generated_at
+        )
+
+        CommandFlowViewPin.new(
+          status: status,
+          meaning_status: meaning_status,
+          name: view.name,
+          owner: view.owner,
+          action: normalized_action,
+          actor: actor,
+          capabilities: normalized_capabilities,
+          missing_capabilities: missing_capabilities,
+          horizon: horizon,
+          view: view,
+          receipt: receipt,
+          errors: errors,
+          metadata: normalized_metadata,
+          generated_at: generated_at
         )
       end
 
@@ -1622,6 +1669,143 @@ module Igniter
         return :warning if alerts.any? { |alert| alert[:severity] == :warning }
 
         :ok
+      end
+
+      def command_flow_view_descriptor(name)
+        descriptor = @command_flow_views[token(name)]
+        raise ArgumentError, "Unknown command flow view: #{name.inspect}" unless descriptor
+
+        descriptor
+      end
+
+      def build_command_flow_view(descriptor, since:, as_of:, limit:,
+                                  overrides:, history_class:, horizon:)
+        filters = descriptor.filters.merge(normalize_value(overrides || {}))
+        resolved_as_of = as_of.nil? ? command_flow_view_as_of(horizon) : as_of
+        slice = command_flow_slice(
+          owner: descriptor.owner,
+          command: filters[:command],
+          subject_key: filters[:subject_key],
+          request_id: filters[:request_id],
+          actor: filters[:actor],
+          status: filters[:status],
+          since: since,
+          as_of: resolved_as_of,
+          limit: limit,
+          history_class: history_class
+        )
+        monitor = command_flow_monitor(
+          owner: descriptor.owner,
+          name: descriptor.name,
+          rules: descriptor.rules,
+          slice: slice
+        )
+        CommandFlowView.new(
+          name: descriptor.name,
+          owner: descriptor.owner,
+          status: monitor.status,
+          mode: horizon[:mode],
+          horizon: horizon,
+          filters: filters,
+          action_policy: descriptor.action_policy,
+          slice: slice,
+          monitor: monitor,
+          summary: monitor.summary
+        )
+      end
+
+      def pinned_command_flow_view_horizon(descriptor, as_of)
+        horizon = normalize_command_flow_view_horizon(descriptor.horizon)
+        rule_version = horizon[:rule_version]
+        rule_version = :current_rules if rule_version.nil? || rule_version == :latest
+        fact_scope = horizon[:fact_scope] || {
+          history: :command_activity,
+          owner: descriptor.owner
+        }
+
+        horizon.merge(
+          mode: :reproducible,
+          as_of: as_of,
+          rule_version: rule_version,
+          fact_scope: fact_scope
+        )
+      end
+
+      def command_flow_view_missing_capabilities(action_policy, capabilities)
+        required = Array(action_policy[:required_capabilities]).map do |value|
+          token(value)
+        end
+        required - capabilities
+      end
+
+      def command_flow_view_pin_errors(view, action, missing_capabilities)
+        decision = view.action_policy[action]
+        errors = []
+        if decision.nil?
+          errors << command_flow_view_pin_error(
+            :unknown_view_action,
+            "Unknown command flow view action: #{action.inspect}"
+          )
+        elsif decision == false || token(decision) == :forbidden
+          errors << command_flow_view_pin_error(
+            :action_forbidden,
+            "Command flow view action is forbidden: #{action.inspect}"
+          )
+        end
+        if missing_capabilities.any?
+          errors << command_flow_view_pin_error(
+            :missing_capabilities,
+            "Command flow view action is missing required capabilities",
+            capabilities: missing_capabilities
+          )
+        end
+        if token(decision) == :requires_pinned_horizon && !view.reproducible?
+          errors << command_flow_view_pin_error(
+            :pinned_horizon_required,
+            "Command flow view action requires a pinned horizon"
+          )
+        end
+
+        errors
+      end
+
+      def command_flow_view_pin_error(code, message, **metadata)
+        {
+          code: code,
+          message: message,
+          metadata: normalize_value(metadata)
+        }
+      end
+
+      def command_flow_view_pin_meaning_status(horizon, allowed)
+        return :reproducible if allowed && horizon[:mode] == :reproducible && horizon[:fact_scope]
+        return :live if horizon[:mode] == :live
+
+        :unknown
+      end
+
+      def command_flow_view_pin_receipt(view, action:, actor:, status:,
+                                        meaning_status:, horizon:,
+                                        capabilities:, missing_capabilities:,
+                                        metadata:, generated_at:)
+        {
+          kind: :command_flow_view_pin_receipt,
+          receipt_id: "cfvp_#{SecureRandom.hex(8)}",
+          view_name: view.name,
+          owner: view.owner,
+          action: action,
+          actor: actor,
+          status: status,
+          meaning_status: meaning_status,
+          horizon: horizon,
+          capabilities: capabilities,
+          missing_capabilities: missing_capabilities,
+          view_status: view.status,
+          monitor_status: view.monitor.status,
+          summary: view.summary,
+          generated_at: generated_at,
+          metadata: metadata
+        }
       end
 
       def normalize_command_flow_view_horizon(horizon)

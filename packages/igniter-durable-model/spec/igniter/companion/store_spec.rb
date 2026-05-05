@@ -768,6 +768,36 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "pins client-backed command flow operational views" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+      s.register_command_flow_view(:client_pin_health,
+        owner: :commanded_reminders,
+        command: :complete,
+        action_policy: {
+          mutate: :requires_pinned_horizon,
+          required_capabilities: [:dispatch_review]
+        })
+
+      s.command_flow(CommandedReminder, :complete,
+        key: "r1",
+        capabilities: [:reminder_complete],
+        mode: :apply,
+        audit: true)
+      pin = s.pin_command_flow_view(:client_pin_health,
+        action: :mutate,
+        capabilities: [:dispatch_review])
+
+      expect(pin).to be_pinned
+      expect(pin).to be_reproducible
+      expect(pin.view).to be_reproducible
+      expect(pin.receipt[:kind]).to eq(:command_flow_view_pin_receipt)
+      expect(pin.receipt[:receipt_id]).to start_with("cfvp_")
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -3262,6 +3292,147 @@ RSpec.describe Igniter::Companion::Store do
         expect(default_view.filters).to include(actor: "user-1")
         expect(override_view.slice.size).to eq(1)
         expect(override_view.filters).to include(actor: "user-2")
+      ensure
+        s&.close
+      end
+
+      it "pins live command flow views into reproducible evidence" do
+        s = described_class.new
+        fixed_as_of = Time.utc(2026, 12, 1, 12, 0, 0)
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+        s.register_command_flow_view(:assignment_pin_health,
+          owner: :commanded_reminders,
+          command: :complete,
+          horizon: { mode: :live, as_of: :latest },
+          action_policy: {
+            mutate: :requires_pinned_horizon,
+            required_capabilities: [:dispatch_review]
+          },
+          rules: [{
+            name: :denials,
+            metric: :status_count,
+            status: :policy_denied,
+            op: :>=,
+            value: 1,
+            severity: :warning
+          }])
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          capabilities: [],
+          mode: :apply,
+          audit: true)
+        before_events = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete
+        ).size
+
+        pin = s.pin_command_flow_view(:assignment_pin_health,
+          action: :mutate,
+          actor: "dispatcher-1",
+          capabilities: [:dispatch_review],
+          as_of: fixed_as_of,
+          metadata: { request_id: "pin-1" })
+        after_events = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete
+        ).size
+
+        expect(pin).to be_frozen
+        expect(pin).to be_pinned
+        expect(pin).to be_reproducible
+        expect(pin[:status]).to eq(:pinned)
+        expect(pin.name).to eq(:assignment_pin_health)
+        expect(pin.action).to eq(:mutate)
+        expect(pin.actor).to eq("dispatcher-1")
+        expect(pin.missing_capabilities).to eq([])
+        expect(pin.horizon).to include(
+          mode: :reproducible,
+          as_of: fixed_as_of,
+          rule_version: :current_rules,
+          fact_scope: { history: :command_activity, owner: :commanded_reminders }
+        )
+        expect(pin.view).to be_reproducible
+        expect(pin.view).to be_warning
+        expect(pin.view.summary[:total]).to eq(1)
+        expect(pin.receipt).to include(
+          kind: :command_flow_view_pin_receipt,
+          view_name: :assignment_pin_health,
+          owner: :commanded_reminders,
+          action: :mutate,
+          actor: "dispatcher-1",
+          status: :pinned,
+          meaning_status: :reproducible,
+          view_status: :warning,
+          monitor_status: :warning,
+          metadata: { request_id: "pin-1" }
+        )
+        expect(pin.receipt[:receipt_id]).to start_with("cfvp_")
+        expect(pin.to_h).not_to have_key(:fact_id)
+        expect(pin.to_h).not_to have_key(:value_hash)
+        expect(pin.to_h).not_to have_key(:causation)
+        expect(after_events).to eq(before_events)
+      ensure
+        s&.close
+      end
+
+      it "blocks forbidden command flow view pin actions" do
+        s = described_class.new
+        s.register_command_flow_view(:blocked_health,
+          owner: :commanded_reminders,
+          action_policy: { execute: :forbidden })
+
+        pin = s.pin_command_flow_view(:blocked_health, action: :execute)
+
+        expect(pin).to be_blocked
+        expect(pin).not_to be_reproducible
+        expect(pin.errors.map { |error| error[:code] }).to include(:action_forbidden)
+        expect(pin.receipt[:status]).to eq(:blocked)
+        expect(pin.view).to be_reproducible
+      ensure
+        s&.close
+      end
+
+      it "blocks command flow view pins with missing capabilities" do
+        s = described_class.new
+        s.register_command_flow_view(:capability_health,
+          owner: :commanded_reminders,
+          action_policy: {
+            approve: :requires_pinned_horizon,
+            required_capabilities: %i[dispatch_review ops_lead]
+          })
+
+        pin = s.pin_command_flow_view(:capability_health,
+          action: :approve,
+          capabilities: [:dispatch_review])
+
+        expect(pin).to be_blocked
+        expect(pin.missing_capabilities).to eq([:ops_lead])
+        expect(pin.errors.map { |error| error[:code] }).to include(:missing_capabilities)
+        expect(pin.receipt[:missing_capabilities]).to eq([:ops_lead])
+      ensure
+        s&.close
+      end
+
+      it "blocks unknown command flow view pin actions without raising" do
+        s = described_class.new
+        s.register_command_flow_view(:action_health, owner: :commanded_reminders)
+
+        pin = s.pin_command_flow_view(:action_health, action: :teleport)
+
+        expect(pin).to be_blocked
+        expect(pin.errors.map { |error| error[:code] }).to include(:unknown_view_action)
+      ensure
+        s&.close
+      end
+
+      it "raises for missing command flow view pins and malformed actions" do
+        s = described_class.new
+
+        expect { s.pin_command_flow_view(:missing, action: :mutate) }
+          .to raise_error(ArgumentError, /Unknown command flow view/)
+        expect { s.pin_command_flow_view(:missing, action: nil) }
+          .to raise_error(ArgumentError, /action: is required/)
       ensure
         s&.close
       end

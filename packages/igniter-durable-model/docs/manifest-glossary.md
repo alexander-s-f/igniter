@@ -287,6 +287,23 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Command-flow operational views are read models only: no mutation, command
   activity append, command execution, scheduler, notification delivery, or
   Ledger protocol operation happens during evaluation.
+- `Store#pin_command_flow_view` evaluates a named operational view with a fixed
+  reproducible horizon and returns `CommandFlowViewPin` decision evidence.
+- Pinning synthesizes an app-local bounded command-activity fact scope when the
+  descriptor does not provide one, sets `mode: :reproducible`, and uses an
+  explicit `rule_version` (`:current_rules` when the descriptor is unset or
+  live/latest).
+- `CommandFlowViewPin` records pinned/blocked status, meaning status, action,
+  actor, capabilities, missing capabilities, horizon, evaluated view, stable
+  receipt, structured errors, metadata, and app-boundary safety flags.
+- Pin receipts use `kind: :command_flow_view_pin_receipt` and an app-local
+  `cfvp_...` receipt id. They are decision artifacts, not Ledger fact ids.
+- Forbidden, unknown, missing-capability, or unpinned-horizon actions return
+  blocked pin evidence with structured error codes. Missing view names and
+  malformed actions remain API errors.
+- Pinning is still read-model behavior: no business record mutation, command
+  execution, command activity append, durable pin registry, scheduler,
+  notification delivery, or Ledger protocol operation happens.
 
 `effects`
 

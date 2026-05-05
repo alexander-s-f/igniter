@@ -15,6 +15,7 @@ require "igniter/durable_model/command_flow_slice"
 require "igniter/durable_model/command_flow_monitor_result"
 require "igniter/durable_model/command_flow_view_descriptor"
 require "igniter/durable_model/command_flow_view"
+require "igniter/durable_model/command_flow_view_pin"
 require "igniter/durable_model/store"
 require_relative "../spec_helper"
 
@@ -86,6 +87,7 @@ RSpec.describe Igniter::DurableModel do
     expect(described_class::CommandFlowMonitorResult).to equal(Igniter::Companion::CommandFlowMonitorResult)
     expect(described_class::CommandFlowViewDescriptor).to equal(Igniter::Companion::CommandFlowViewDescriptor)
     expect(described_class::CommandFlowView).to equal(Igniter::Companion::CommandFlowView)
+    expect(described_class::CommandFlowViewPin).to equal(Igniter::Companion::CommandFlowViewPin)
   end
 
   it "supports register/write/read/scope through DurableModel::Store" do

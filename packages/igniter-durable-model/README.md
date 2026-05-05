@@ -196,6 +196,9 @@ store.register_command_flow_view(:reminder_flow_health,
     value: 0
   }])
 store.command_flow_view(:reminder_flow_health)
+store.pin_command_flow_view(:reminder_flow_health,
+  action: :mutate,
+  capabilities: [:dispatch_review])
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -211,7 +214,8 @@ projection descriptor registration, command/effect descriptor registration,
 `command_lifecycle_events`, `command_flow`, `command_flow_slice`,
 `command_flow_summary`, `command_flow_monitor`,
 `register_command_flow_view`, `_command_flow_views`, `command_flow_view`,
-`causation_chain`, `lineage`, `metadata_snapshot`, and `descriptor_snapshot`.
+`pin_command_flow_view`, `causation_chain`, `lineage`, `metadata_snapshot`,
+and `descriptor_snapshot`.
 Partition replay lowers through the Ledger replay filter and uses Ledger
 partition indexes when served by a Ledger protocol interpreter. Relation support
 is v0 and lowers supported one-to-many declarations to Ledger relation
@@ -233,6 +237,8 @@ append, explicit `CommandPolicyDecision`, explicit `Store#apply_command`, and
 `CommandFlowViewDescriptor` and `CommandFlowView` add named, reusable
 operational views that bind filters, horizon defaults, monitor rules, and an
 advisory action policy for dashboards and agents.
+`CommandFlowViewPin` turns a named view into explicit app-owned pinned decision
+evidence with a reproducible horizon and stable app-local receipt shape.
 Future app security infrastructure remains outside this package.
 `Store#command_intent`, `Store#command_operation_plan`, and
 `Store#command_activity_event` build data only.
@@ -265,6 +271,10 @@ append, command execution, scheduler, notification delivery, or Ledger protocol
 surface. Live views can mark mutation-grade actions as requiring a pinned
 horizon; reproducible views are inferred from fixed `as_of`, fixed
 `rule_version`, and bounded `fact_scope` unless explicitly declared.
+`Store#pin_command_flow_view` evaluates a named view with a fixed
+reproducible horizon, checks advisory action policy/capabilities, and returns
+`CommandFlowViewPin` evidence with a compact app-local receipt. Blocked actions
+return structured errors instead of executing anything.
 
 ### Normalized receipts
 

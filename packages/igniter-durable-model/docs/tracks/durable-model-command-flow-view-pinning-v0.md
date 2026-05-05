@@ -1,6 +1,6 @@
 # Track: Durable Model Command Flow View Pinning v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -271,3 +271,22 @@ Please keep this slice narrow:
 
 This slice should turn "this view requires pinning" into an explicit object the
 application, agent, or future bridge can carry forward.
+
+## Final Notes
+
+Implemented as an app-owned read-model pinning layer:
+
+- Added `CommandFlowViewPin` with frozen app-safe serialization, helpers, and a
+  stable nested receipt shape.
+- Added `Igniter::Companion::CommandFlowViewPin` compatibility alias.
+- Added `Store#pin_command_flow_view`.
+- Pinning builds a reproducible horizon from the descriptor, supplied or current
+  `as_of`, explicit rule version, and bounded command-activity fact scope.
+- Pinning evaluates the named operational view with that pinned horizon and
+  returns `:pinned` or `:blocked` decision evidence.
+- Forbidden, unknown, and missing-capability actions return blocked evidence
+  with structured error codes.
+- Missing view names and missing action input raise `ArgumentError`.
+- Covered embedded and client-backed stores, generated receipt ids, explicit
+  `as_of`, no command activity append, app-safe serialization, blocked actions,
+  missing capabilities, and the compatibility alias.
