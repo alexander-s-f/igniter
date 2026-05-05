@@ -137,7 +137,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
 | `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-proof-sidecar-profile-modes-v0.md` | done | runtime machine proof external candidate adapter |
-| `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-009-semantic-image-resume-compatibility-v0.md` | done | temporal lifecycle / retention semantics |
+| `[Igniter-Lang Compiler/Grammar Expert]` | `language-position-report.md` + `proposals/PROP-012-compilation-artifact-deployment-model-v0.md` | done | PROP-013 stdlib/fold or PROP-014 source-to-SemanticIR boundary |
 
 ## Current Meta Thesis
 

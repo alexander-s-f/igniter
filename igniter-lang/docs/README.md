@@ -26,6 +26,7 @@ implementation detail of the current Igniter platform.
 | [tracks/runtime-machine-proof-packet-builder-check-v0.md](tracks/runtime-machine-proof-packet-builder-check-v0.md) | done | Added a standalone structural checker for memory proof golden artifacts and candidate packet-builder outputs |
 | [tracks/runtime-machine-proof-sidecar-builder-profiles-v0.md](tracks/runtime-machine-proof-sidecar-builder-profiles-v0.md) | done | Added standalone sidecar profiles that emit candidate fixture directories accepted by the packet-builder checker |
 | [tracks/runtime-machine-proof-sidecar-profile-modes-v0.md](tracks/runtime-machine-proof-sidecar-profile-modes-v0.md) | done | Defined full-log and selected-profile comparison modes for sidecar candidate artifacts |
+| [tracks/add-igapp-devkit-fixture-v0.md](tracks/add-igapp-devkit-fixture-v0.md) | done | Defined the first hand-authored `.igapp/` artifact and RuntimeMachine load/evaluate/checkpoint proof target |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 | [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
@@ -69,6 +70,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [axiomatic-contract-model.md](axiomatic-contract-model.md) | Meta thesis: language, runtime, distributed execution, and time as contract boundaries |
 | [runtime-machine.md](runtime-machine.md) | Meta thesis: Runtime Machine lifecycle, TBackend, semantic image, and resume model |
 | [compilation-deployment.md](compilation-deployment.md) | Meta thesis: compilation artifacts, deployment modes, native backend path, and contractable FFI |
+| [current-status.md](current-status.md) | Compact fixed point for the current round: theory, devkit proof, fixtures, gaps, and next slices |
 
 ## Research Vectors
 
@@ -100,16 +102,18 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Runtime Machine Proof Packet Builder Check (Research Agent track)
 - Runtime Machine Proof Sidecar Builder Profiles (Research Agent track)
 - Runtime Machine Proof Sidecar Profile Modes (Research Agent track)
+- Add.igapp Devkit Fixture (Compiler/Grammar Expert track)
 - Compilation and Deployment (compilation-deployment.md)
 - Temporal Lifecycle (temporal-lifecycle.md)
 - Runtime Machine Lifecycle (PROP-011)
 - Compilation Artifact and Deployment Model (PROP-012)
+- Igniter-Lang Position Report (language-position-report.md)
 - Temporal Lifecycle (temporal-lifecycle.md)
 - Axiomatic Contract Model (axiomatic-contract-model.md)
 - Runtime Machine (runtime-machine.md)
 - Compilation and Deployment (compilation-deployment.md)
 - stdlib v0 (QUEUED — PROP-013)
-- .igapp/ fixture for Add contract (QUEUED — devkit track)
+- Source syntax to SemanticIR boundary (QUEUED — PROP-014 candidate)
 - FFI Ruby bridge adapter (QUEUED — bridge track)
 
 ## Review Cadence
