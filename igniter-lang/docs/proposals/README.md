@@ -15,7 +15,7 @@ design decision or formal specification.
 |------|--------|--------|---------|
 | [META-001-compiler-grammar-expert-entry.md](META-001-compiler-grammar-expert-entry.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Entry assessment, meta-corrections to existing tracks, proposed research vectors |
 | [PROP-001-semantic-domain-v0.md](PROP-001-semantic-domain-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Formal semantic domain: values, types, temporal context, contracts, observations, failures |
-| [PROP-002-contract-composition-algebra-v0.md](PROP-002-contract-composition-algebra-v0.md) | assigned | `[Igniter-Lang Compiler/Grammar Expert]` | Contract composition algebra over the PROP-001 semantic domain |
+| [PROP-002-contract-composition-algebra-v0.md](PROP-002-contract-composition-algebra-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Typed port graph algebra: >>, ||, branch, over, embed; algebraic laws; composition closure theorem |
 
 ---
 
@@ -23,7 +23,7 @@ design decision or formal specification.
 
 | ID | Title | Depends On | Priority |
 |----|-------|------------|----------|
-| PROP-003 | Grammar Fragment Classification | PROP-001 | high |
+| PROP-003 | Grammar Fragment Classification | PROP-001, PROP-002 | high |
 | PROP-004 | Type System v0 | PROP-001, PROP-002 | medium |
 | PROP-005 | Bridge Observation Envelope v0 | tracks/failure-observation-v0 | medium |
 
