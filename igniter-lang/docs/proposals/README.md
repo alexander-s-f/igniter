@@ -33,6 +33,7 @@ design decision or formal specification.
 | [PROP-014-source-syntax-semanticir-boundary-v0.md](PROP-014-source-syntax-semanticir-boundary-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Minimal syntax kernel; ParsedProgram; 4-stage path to SemanticIR; OOF rejection; .igapp/ fixture mapping |
 | [PROP-015-grammar-module-system-v0.md](PROP-015-grammar-module-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | def blocks (pure/non-recursive); TypeDecl (structural); module/import; full v0 BNF; complete source for both fixtures |
 | [PROP-016-polymorphism-traits-contract-shapes-v0.md](PROP-016-polymorphism-traits-contract-shapes-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Generic contracts; traits (compile-time, not OO); impl coherence; contract_shape; implements (structural); monomorphization; compile-time overload; no unresolved overloads in SemanticIR |
+| [PROP-017-schema-evolution-contract-migration-v0.md](PROP-017-schema-evolution-contract-migration-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | SemVer versioning; schema_fingerprint; 5 safe/7 breaking changes; CompatibilityReport schema_check (4th dim); MigrationDecl (ESCAPE+audit receipt+replaces link); OOF-S1..S5 |
 
 ---
 

@@ -69,6 +69,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-014](proposals/PROP-014-source-syntax-semanticir-boundary-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Minimal syntax kernel; ParsedProgram shape; 4-stage path to SemanticIR; OOF rejection rules; .igapp/ mapping |
 | [proposals/PROP-015](proposals/PROP-015-grammar-module-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | def blocks (pure/non-recursive/inlined); TypeDecl (structural records); module/import; full v0 BNF; Add + Availability source files |
 | [proposals/PROP-016](proposals/PROP-016-polymorphism-traits-contract-shapes-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Generic contracts; traits (compile-time); impl coherence; contract_shape; implements structural; monomorphization; compile-time overload only; no unresolved overloads in SemanticIR |
+| [proposals/PROP-017](proposals/PROP-017-schema-evolution-contract-migration-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | SemVer; schema_fingerprint; 5 safe/7 breaking changes; schema_check (4th CompatibilityReport dim); MigrationDecl ESCAPE+audit+replaces; OOF-S1..S5 |
 
 ## Core Documents
 
