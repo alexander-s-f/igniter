@@ -23,6 +23,7 @@ alias.
 | [tracks/durable-model-command-intent-boundary-v0.md](tracks/durable-model-command-intent-boundary-v0.md) | Completed pure command intent objects at the app boundary |
 | [tracks/durable-model-command-operation-plan-v0.md](tracks/durable-model-command-operation-plan-v0.md) | Completed non-mutating command operation planning and dry-run validation |
 | [tracks/durable-model-command-activity-projection-v0.md](tracks/durable-model-command-activity-projection-v0.md) | Completed app-safe command activity projection without persistence |
+| [tracks/durable-model-command-activity-history-v0.md](tracks/durable-model-command-activity-history-v0.md) | Proposed track for explicit app-safe command activity history persistence |
 | [tracks/companion-ledger-client-remote-boundary-v0.md](tracks/companion-ledger-client-remote-boundary-v0.md) | Track for accepting `LedgerClient` as Companion's preferred remote Ledger boundary |
 | [tracks/companion-ledger-client-scope-query-boundary-v0.md](tracks/companion-ledger-client-scope-query-boundary-v0.md) | Proposed next track for remote Companion scopes over `LedgerClient#query` |
 | [tracks/companion-ledger-client-scope-subscriptions-v0.md](tracks/companion-ledger-client-scope-subscriptions-v0.md) | Proposed next track for remote Companion `on_scope` over Ledger Client events |
