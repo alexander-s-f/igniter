@@ -17,6 +17,7 @@ alias.
 | [tracks/durable-model-public-reference-cleanup-v0.md](tracks/durable-model-public-reference-cleanup-v0.md) | Proposed cleanup track for current docs/examples after the Durable Model package rename |
 | [tracks/durable-model-client-history-partition-replay-v0.md](tracks/durable-model-client-history-partition-replay-v0.md) | Proposed track for client-backed History partition replay through Ledger Client replay filters |
 | [tracks/durable-model-client-relation-resolve-v0.md](tracks/durable-model-client-relation-resolve-v0.md) | Proposed track for client-backed relation auto-wire and typed resolve through Ledger descriptors |
+| [tracks/durable-model-client-projection-descriptor-v0.md](tracks/durable-model-client-projection-descriptor-v0.md) | Proposed track for client-backed projection metadata descriptors and read-only scatter snapshots |
 | [tracks/companion-ledger-client-remote-boundary-v0.md](tracks/companion-ledger-client-remote-boundary-v0.md) | Track for accepting `LedgerClient` as Companion's preferred remote Ledger boundary |
 | [tracks/companion-ledger-client-scope-query-boundary-v0.md](tracks/companion-ledger-client-scope-query-boundary-v0.md) | Proposed next track for remote Companion scopes over `LedgerClient#query` |
 | [tracks/companion-ledger-client-scope-subscriptions-v0.md](tracks/companion-ledger-client-scope-subscriptions-v0.md) | Proposed next track for remote Companion `on_scope` over Ledger Client events |
