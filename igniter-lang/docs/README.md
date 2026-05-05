@@ -22,6 +22,7 @@ implementation detail of the current Igniter platform.
 | [tracks/bridge-observation-envelope-package-mapping-v0.md](tracks/bridge-observation-envelope-package-mapping-v0.md) | done | Mapped current package facts, projections, pins, decisions, and runtime session packets to bridge profiles |
 | [tracks/runtime-machine-lifecycle-v0.md](tracks/runtime-machine-lifecycle-v0.md) | done | Defined Runtime Machine boot/load/evaluate/checkpoint/resume lifecycle, semantic image, TBackend adapters, compatibility, and CORE/ESCAPE boundary |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
+| [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 
 ## Active Proposals
 
@@ -40,6 +41,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-007](proposals/PROP-007-conformance-verification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Conformance verification: 5 check suites, trust levels, agent trust decision procedure |
 | [proposals/PROP-008](proposals/PROP-008-tbackend-contract-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | TBackend[T]: read/append/replay/snapshot/compact/subscribe; reproducible resume; adapter classes |
 | [proposals/PROP-009](proposals/PROP-009-semantic-image-resume-compatibility-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | SemanticImage; CompatibilityReport; ResumeStatus: trusted/provisional/downgraded/blocked |
+| [proposals/PROP-010](proposals/PROP-010-temporal-lifecycle-retention-semantics-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | 6 lifecycle classes; flush; semantic GC roots; 5 downgrade rules (DR-1..DR-5); retention matrix |
 
 ## Core Documents
 
@@ -75,12 +77,13 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Conformance Verification (PROP-007)
 - TBackend Contract (PROP-008)
 - Semantic Image and Resume Compatibility (PROP-009)
+- Temporal Lifecycle and Retention Semantics (PROP-010)
 - Temporal Lifecycle (temporal-lifecycle.md)
+- Temporal Lifecycle Application Scenarios (Research Agent track)
 - Axiomatic Contract Model (axiomatic-contract-model.md)
 - Runtime Machine (runtime-machine.md)
-- Bridge Observation Envelope Implementation Plan (Research Agent track)
 - Temporal Contracts and Projections (QUEUED — Research Agent track)
-- Runtime Machine Lifecycle (QUEUED — PROP-010)
+- Runtime Machine Lifecycle (QUEUED — PROP-011)
 
 ## Review Cadence
 

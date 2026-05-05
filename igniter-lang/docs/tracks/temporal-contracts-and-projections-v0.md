@@ -441,3 +441,115 @@ Status: done
 - `igniter-lang/docs/tracks/bridge-observation-envelope-v0.md`, now including
   named slice, horizon, projection_observation, and receipt pinning semantics.
 ```
+
+---
+
+## Extension: Formal Window and Boundary Types (C/G Expert)
+
+_Added: 2026-05-05 — bridges track to PROP-008, PROP-009, PROP-010 formal types._
+
+### TemporalWindow (formal)
+
+```text
+TemporalWindow = Record {
+  name              : String
+  kind              : :ttl | :calendar | :business
+  unit              : Option[:hour | :day | :week | :month | Symbol]
+  boundary_key      : Option[Symbol]          -- for :business windows
+  close_trigger     : CloseTrigger
+  detail_retain     : Option[Duration]        -- from window close time
+  snapshot_schedule : Option[SnapshotSchedule]
+}
+
+CloseTrigger = :ttl_expired | :business_event | :explicit_close | :boundary_receipt
+
+SnapshotSchedule = Record {
+  frequency : Duration | :on_close | :on_demand
+  horizon   : ProjectionHorizon
+  type_tag  : TypeTag
+  store_as  : SliceName
+}
+```
+
+### BoundaryPolicy (formal)
+
+```text
+BoundaryPolicy = Record {
+  kind                : :calendar | :business | :explicit
+  unit                : Option[:hour | :day | :week | :month | Symbol]
+  boundary_key        : Option[Symbol]
+  close_trigger       : CloseTrigger
+  receipt_kind        : ObsKind              -- typically :receipt_observation
+  receipt_subject     : SubjectRef
+  on_missing_receipt  : :promote | :block | :warn
+}
+```
+
+`on_missing_receipt` maps to PROP-010 downgrade rule DR-2:
+- `:promote` — observations upgraded to `:session`; compaction blocked
+- `:block` — compaction hard-blocked; `constraint.lifecycle_violation` emitted
+- `:warn` — ESCAPE; compaction allowed but data loss risk flagged
+
+### BoundaryReceipt (formal)
+
+```text
+Obs[:receipt_observation, BoundaryReceipt] where BoundaryReceipt = Record {
+  window_name    : String
+  boundary_key   : Option[String]
+  period         : Record { from: TimeRef, to: TimeRef }
+  summary_ref    : ObsId                     -- snapshot produced at close
+  detail_count   : Int
+  detail_hash    : Hash                      -- over ordered raw ObsIds
+}
+with:
+  lifecycle      : :audit
+  links          : [
+    { rel: :materializes, ref: summary_ref, required: true },
+    { rel: :caused_by,    ref: close_trigger_obs_id, required: false }
+  ]
+```
+
+`detail_hash` is the temporal equivalent of a Git tree hash: it proves the
+boundary covered exactly these facts, resolvable even after raw facts are
+compacted.
+
+### Slice Lifecycle Through a Window
+
+```text
+T=0  window opens; raw facts appended (lifecycle: :window)
+T=1  SnapshotSchedule fires → TBackend.snapshot(horizon) → SnapshotRef
+     NamedSlice materialised (lifecycle: :window → :durable on snapshot)
+T=2  close_trigger fires → BoundaryReceipt produced (lifecycle: :audit)
+     detail_retain TTL starts
+T=3  detail_retain expires → raw facts compaction-eligible (PROP-010 DR-2 satisfied)
+     TBackend.compact → :compacted stubs; content_hash preserved
+T=4  NamedSlice snapshot: :durable / BoundaryReceipt: :audit / Stubs: :compacted
+```
+
+### Two Consumption Modes
+
+| Mode | TBackend call | as_of | reproducible |
+|------|--------------|-------|-------------|
+| Snapshot load | `read(subject, as_of: Timestamp)` | Fixed | `true` |
+| Live subscribe | `subscribe(SliceRef, cursor: nil)` | `:latest` | `false` |
+
+Live → pinned transition at decision time:
+```text
+live_slice pinned at decision_time
+  -> TBackend.snapshot(horizon { as_of: decision_time })
+  -> BoundaryReceipt (if window closes)
+  -> Obs[:receipt_observation] with horizon in payload
+```
+
+### Technician Dispatch — Retention Map
+
+From `temporal-lifecycle.md` §Hypothetical App:
+
+| Material | Lifecycle class | Retention |
+|----------|----------------|-----------|
+| Raw GeoSignal | `:window` | 24–72h; compact into RouteSegmentSnapshot |
+| Schedule/Order facts | `:durable` | Keep as business facts |
+| AvailabilityProjection | `:window` / `:compacted` | Snapshot hourly/daily |
+| DispatchDecision | `:audit` | Preserve as explanation/action evidence |
+| Runtime traces | `:local` / `:session` | Flush unless pinned, failed, or checkpointed |
+| SemanticImage | `:session` / `:audit` | Retain while resume/audit needed |

@@ -136,7 +136,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/bridge-observation-envelope-implementation-plan-v0.md` | done | bridge packet builder golden fixtures |
+| `[Igniter-Lang Research Agent]` | `tracks/temporal-lifecycle-application-scenarios-v0.md` | done | temporal lifecycle boundary fixtures |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-009-semantic-image-resume-compatibility-v0.md` | done | temporal lifecycle / retention semantics |
 
 ## Current Meta Thesis
@@ -228,6 +228,20 @@ Future work should model flush, retention, semantic GC, preserve roots, and
 boundary compaction as language-visible lifecycle semantics. Igniter Ledger is
 a possible persistence backend, not the definition of `T`.
 
+[D] Spark CRM technician dispatch is the current practical pressure case for
+temporal lifecycle semantics. The product split is:
+
+```text
+live availability
+  -> inspect / suggest
+
+pinned dispatch decision
+  -> assign / approve / audit
+```
+
+Raw telemetry should close into AvailabilitySnapshot, RouteSegmentSnapshot,
+DailyTechnicianBoundary, OrderBoundary, and audit receipts before compaction.
+
 ---
 
 ## Handoff Cadence
@@ -279,6 +293,8 @@ igniter-lang/docs/
     runtime-machine-lifecycle-v0.md [done]
     bridge-observation-envelope-implementation-plan-v0.md [done]
     bridge-packet-builder-golden-fixtures-v0.md [queued - no package edits]
+    temporal-lifecycle-application-scenarios-v0.md [done]
+    temporal-lifecycle-boundary-fixtures-v0.md [queued - no package edits]
 
   proposals/                     <- formal design proposals
     README.md                                        [index]
@@ -325,6 +341,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-package-mapping-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-lifecycle-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-implementation-plan-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-application-scenarios-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |
