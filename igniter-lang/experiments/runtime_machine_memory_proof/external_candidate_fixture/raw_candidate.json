@@ -1,0 +1,56 @@
+{
+  "schema_version": "runtime-machine-external-candidate-normalizer-fixtures-v0",
+  "profile_mode": "selected_profile",
+  "source": {
+    "adapter": "spark_crm_shadow_adapter",
+    "emitted_at": "2026-05-05T10:42:30Z",
+    "full_session_logs": false,
+    "host_language": "ruby"
+  },
+  "source_refs": {
+    "order": {
+      "external_ref": "spark://orders/O-100",
+      "canonical_ref": "order/o-1"
+    },
+    "technician": {
+      "external_ref": "spark://technicians/T-700",
+      "canonical_ref": "tech/t-17"
+    },
+    "contract": {
+      "external_ref": "ruby://SparkCRM::DispatchCandidate",
+      "canonical_ref": "contract/toy_dispatch"
+    }
+  },
+  "normalization": {
+    "canonical_profile": "runtime_machine_memory_proof:selected_profile",
+    "semantic_substitutions": [
+      {
+        "external": "spark://orders/O-100",
+        "canonical": "order/o-1",
+        "reason": "fixture order alias"
+      },
+      {
+        "external": "spark://technicians/T-700",
+        "canonical": "tech/t-17",
+        "reason": "fixture technician alias"
+      },
+      {
+        "external": "ruby://SparkCRM::DispatchCandidate",
+        "canonical": "contract/toy_dispatch",
+        "reason": "fixture contract alias"
+      }
+    ]
+  },
+  "semantic_assertions": {
+    "result_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+    "semantic_image_content_hash": "sha256:42b496c5bb94891022c3095d179a69e6fc2f83aeff8291407fb4bda66855cb85",
+    "trusted_resume_status": "trusted",
+    "required_links": [
+      "read_from",
+      "executed_by",
+      "produced_in",
+      "observed_under"
+    ],
+    "negative_evidence_policy": "preserve"
+  }
+}

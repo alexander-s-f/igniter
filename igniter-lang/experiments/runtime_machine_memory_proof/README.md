@@ -2,7 +2,7 @@
 
 Status: done
 Slice state: done on 2026-05-05
-Slice name: `runtime-machine-proof-sidecar-profile-modes-v0`
+Slice name: `runtime-machine-external-candidate-normalizer-fixtures-v0`
 Owner: `[Igniter-Lang Research Agent]`
 Supervisor: `[Architect Supervisor / Codex]`
 
@@ -195,6 +195,58 @@ Profile builders:
 - `NegativeEvidenceProfile`
 - `ResultSummaryProfile`
 
+## External Candidate Normalizer
+
+Normalize a tiny raw external candidate fixture into a selected-profile
+candidate directory and check it:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/external_candidate_normalizer.rb
+```
+
+Write to a specific candidate directory and check it:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/external_candidate_normalizer.rb --candidate /tmp/runtime_machine_external_candidate_normalized
+```
+
+Expected summary:
+
+```text
+PASS runtime_machine_external_candidate_normalizer
+raw_candidate: <path>
+candidate_dir: <dir>
+profile_mode: selected_profile
+normalize.raw.schema_version: ok
+normalize.raw.profile_mode: ok
+normalize.raw.source.full_session_logs: ok
+normalize.assert.result_hash: ok
+normalize.assert.semantic_image_content_hash: ok
+normalize.assert.trusted_resume_status: ok
+normalize.assert.negative_evidence_policy: ok
+normalize.assert.required_links.read_from: ok
+normalize.assert.required_links.executed_by: ok
+normalize.assert.required_links.produced_in: ok
+normalize.assert.required_links.observed_under: ok
+normalize.raw.normalization.semantic_substitutions: ok
+write_candidate: ok
+packet_builder_check: ok
+```
+
+The normalizer writes trusted admission artifacts:
+
+- `manifest.json`
+- `obs_packets.golden.json`
+- `semantic_image.golden.json`
+- `compatibility_reports.golden.json`
+- `negative_evidence.golden.json`
+- `result_summary.golden.json`
+
+It also writes optional, non-admission human review artifacts:
+
+- `external_ref_map.json`
+- `adapter_diagnostics.json`
+
 ## What It Proves
 
 [D] A minimal Runtime Machine can make lifecycle continuity executable without
@@ -223,6 +275,10 @@ passes the structural checker without touching package code.
 for future bridge/package candidates that cannot or should not emit full
 session logs.
 
+[D] The external candidate normalizer proves the first selected-profile
+admission path from raw external refs to canonical candidate artifacts, without
+package edits.
+
 ## Files
 
 - `runtime_machine_memory_proof.rb` - executable harness.
@@ -230,6 +286,10 @@ session logs.
   fixture directories.
 - `sidecar_builder_profiles.rb` - standalone sidecar profile builder that emits
   candidate fixture directories.
+- `external_candidate_normalizer.rb` - standalone raw external candidate
+  normalizer that emits selected-profile candidate directories.
+- `external_candidate_fixture/raw_candidate.json` - tiny raw external candidate
+  fixture with external refs and semantic assertions.
 - `fixtures/*.golden.json` - structural golden artifacts generated from the
   harness.
 
@@ -237,7 +297,7 @@ session logs.
 
 ```text
 [Igniter-Lang Research Agent]
-Track: runtime-machine-proof-sidecar-profile-modes-v0
+Track: runtime-machine-external-candidate-normalizer-fixtures-v0
 Artifact: igniter-lang/experiments/runtime_machine_memory_proof/
 Status: done
 
@@ -256,6 +316,8 @@ Status: done
 - `sidecar_builder_profiles.rb` emits candidate artifact directories from
   standalone profile builders and checks them against golden fixtures.
 - Checker and sidecar builder support `full_log` and `selected_profile` modes.
+- `external_candidate_normalizer.rb` maps a raw external candidate fixture into
+  selected-profile artifacts and checks them against golden fixtures.
 
 [R] Recommendations:
 - Use this experiment as the next golden fixture source for sidecar packet
@@ -271,6 +333,8 @@ Status: done
   schema is approved.
 - Use `full_log` for proof-regression work and `selected_profile` for early
   bridge/package-derived candidate experiments.
+- Keep external source maps and adapter diagnostics outside trusted admission
+  evidence until the checker explicitly consumes them.
 
 [S] Signals:
 - Runtime Machine semantics are now executable at toy scale.
@@ -283,6 +347,8 @@ Status: done
   proof output -> profile builders -> candidate JSON -> structural checker.
 - Selected-profile mode gives future agents a smaller target without weakening
   required evidence links or result hash checks.
+- External candidate normalization now has an executable proof surface:
+  raw external refs -> canonical selected-profile artifacts -> checker pass.
 
 [Q] Open Questions:
 - Should this harness later move under an approved experiment runner?
@@ -295,9 +361,11 @@ Status: done
   stay only as the memory proof candidate generator?
 - Should selected-profile comparison also allow SemanticImage/report field
   substitutions under explicit compatibility rules?
+- Should a future checker validate `external_ref_map.json` and
+  `adapter_diagnostics.json`, or keep them human-review only?
 
 [Next] Proposed next slice:
-- `runtime-machine-proof-external-candidate-adapter-v0`
-  Define how an external bridge/package candidate directory can map into the
-  selected-profile artifact contract.
+- `runtime-machine-ffi-ruby-receipt-fixtures-v0`
+  Add standalone FFI read/write/failure receipt fixtures and validate their
+  ObsPacket shapes without package integration.
 ```

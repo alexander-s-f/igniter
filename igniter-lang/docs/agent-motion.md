@@ -136,7 +136,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-proof-sidecar-profile-modes-v0.md` | done | runtime machine proof external candidate adapter |
+| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-external-candidate-normalizer-fixtures-v0.md` | done | runtime machine FFI Ruby receipt fixtures |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `language-position-report.md` + `proposals/PROP-012-compilation-artifact-deployment-model-v0.md` | done | PROP-013 stdlib/fold or PROP-014 source-to-SemanticIR boundary |
 
 ## Current Meta Thesis
@@ -292,6 +292,31 @@ selected_profile -> selected packet surface + result hash + structural evidence 
 Future external candidate adapters should target `selected_profile` first, then
 earn `full_log` only when complete replay logs are available.
 
+[S] External candidate admission and Ruby FFI proof now share one boundary:
+
+```text
+declared source/effect/capability/lifecycle
+  -> normalized selected_profile artifacts
+  -> receipt_or_failure observation
+  -> evidence-linked result
+```
+
+Package or bridge integration should remain blocked until an external candidate
+passes the selected-profile checker and Ruby host calls are modeled as
+contractable ESCAPE, not ambient implementation calls.
+
+[S] External candidate normalization is now executable:
+
+```text
+external_candidate_fixture/raw_candidate.json
+  -> external_candidate_normalizer.rb
+  -> selected_profile candidate artifacts
+  -> packet_builder_check.rb --profile-mode selected_profile
+```
+
+The generated `external_ref_map.json` and `adapter_diagnostics.json` are
+human-review aids, not trusted admission evidence in v0.
+
 [D] `T` has a lifecycle. Igniter-Lang must not imply that all temporal
 observations live forever:
 
@@ -403,6 +428,8 @@ igniter-lang/docs/
     runtime-machine-proof-packet-builder-check-v0.md [done]
     runtime-machine-proof-sidecar-builder-profiles-v0.md [done]
     runtime-machine-proof-sidecar-profile-modes-v0.md [done]
+    runtime-machine-external-candidate-and-ffi-proof-v0.md [done]
+    runtime-machine-external-candidate-normalizer-fixtures-v0.md [done]
     bridge-observation-envelope-implementation-plan-v0.md [done]
     bridge-packet-builder-golden-fixtures-v0.md [queued - no package edits]
     temporal-lifecycle-application-scenarios-v0.md [done]
@@ -422,7 +449,7 @@ igniter-lang/docs/
     PROP-005-verification-observation-extension-v0.md [queued]
 
   experiments/
-    runtime_machine_memory_proof/ [done - standalone harness + golden fixtures + checker + profiles + modes]
+    runtime_machine_memory_proof/ [done - standalone harness + golden fixtures + checker + profiles + modes + external normalizer]
   bridge/                        <- bridge notes to Igniter platform (none yet)
 ```
 
@@ -459,6 +486,8 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-proof-packet-builder-check-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-proof-sidecar-builder-profiles-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-proof-sidecar-profile-modes-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-external-candidate-and-ffi-proof-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-external-candidate-normalizer-fixtures-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-implementation-plan-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-application-scenarios-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-boundary-fixtures-v0.md | done |

@@ -26,7 +26,10 @@ implementation detail of the current Igniter platform.
 | [tracks/runtime-machine-proof-packet-builder-check-v0.md](tracks/runtime-machine-proof-packet-builder-check-v0.md) | done | Added a standalone structural checker for memory proof golden artifacts and candidate packet-builder outputs |
 | [tracks/runtime-machine-proof-sidecar-builder-profiles-v0.md](tracks/runtime-machine-proof-sidecar-builder-profiles-v0.md) | done | Added standalone sidecar profiles that emit candidate fixture directories accepted by the packet-builder checker |
 | [tracks/runtime-machine-proof-sidecar-profile-modes-v0.md](tracks/runtime-machine-proof-sidecar-profile-modes-v0.md) | done | Defined full-log and selected-profile comparison modes for sidecar candidate artifacts |
+| [tracks/runtime-machine-external-candidate-and-ffi-proof-v0.md](tracks/runtime-machine-external-candidate-and-ffi-proof-v0.md) | done | Defined selected-profile admission rules for external candidates and Ruby FFI as contractable ESCAPE proof |
+| [tracks/runtime-machine-external-candidate-normalizer-fixtures-v0.md](tracks/runtime-machine-external-candidate-normalizer-fixtures-v0.md) | done | Added a standalone raw external candidate normalizer fixture that emits selected-profile artifacts and passes the checker |
 | [tracks/add-igapp-devkit-fixture-v0.md](tracks/add-igapp-devkit-fixture-v0.md) | done | Defined the first hand-authored `.igapp/` artifact and RuntimeMachine load/evaluate/checkpoint proof target |
+| [tracks/ffi-ruby-contractable-proof-v0.md](tracks/ffi-ruby-contractable-proof-v0.md) | done | Proved Ruby host calls as ESCAPE contracts: FFIRequirement, CapabilityGate, call discipline (intent→check→call→receipt/failure), evidence links |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 | [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
@@ -35,7 +38,7 @@ implementation detail of the current Igniter platform.
 
 | Experiment | Status | Purpose |
 |------------|--------|---------|
-| [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-proof-sidecar-profile-modes-v0: standalone memory proof, golden fixtures, checker, sidecar profiles, and profile modes |
+| [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-external-candidate-normalizer-fixtures-v0: standalone memory proof, golden fixtures, checker, sidecar profiles, profile modes, and external candidate normalizer |
 
 ## Active Proposals
 
@@ -57,6 +60,9 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-010](proposals/PROP-010-temporal-lifecycle-retention-semantics-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | 6 lifecycle classes; flush; semantic GC roots; 5 downgrade rules (DR-1..DR-5); retention matrix |
 | [proposals/PROP-011](proposals/PROP-011-runtime-machine-lifecycle-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Runtime Machine: boot/load/evaluate/checkpoint/resume — typed lifecycle using PROP-006..PROP-010 |
 | [proposals/PROP-012](proposals/PROP-012-compilation-artifact-deployment-model-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | CompiledProgram; 4 compiler stages; SemanticIR; artifact hash; 4 deployment modes; contractable FFI |
+| [proposals/PROP-013](proposals/PROP-013-stdlib-fold-aggregate-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Collection[T], Option[T], Result[T,E]; fold/map/filter/group_by/avg; TR-1 termination; aggregated_from links |
+| [proposals/PROP-014](proposals/PROP-014-source-syntax-semanticir-boundary-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Minimal syntax kernel; ParsedProgram shape; 4-stage path to SemanticIR; OOF rejection rules; .igapp/ mapping |
+| [proposals/PROP-015](proposals/PROP-015-grammar-module-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | def blocks (pure/non-recursive/inlined); TypeDecl (structural records); module/import; full v0 BNF; Add + Availability source files |
 
 ## Core Documents
 
@@ -102,6 +108,8 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Runtime Machine Proof Packet Builder Check (Research Agent track)
 - Runtime Machine Proof Sidecar Builder Profiles (Research Agent track)
 - Runtime Machine Proof Sidecar Profile Modes (Research Agent track)
+- Runtime Machine External Candidate and FFI Proof (Research Agent track)
+- Runtime Machine External Candidate Normalizer Fixtures (Research Agent track)
 - Add.igapp Devkit Fixture (Compiler/Grammar Expert track)
 - Compilation and Deployment (compilation-deployment.md)
 - Temporal Lifecycle (temporal-lifecycle.md)
@@ -112,9 +120,12 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Axiomatic Contract Model (axiomatic-contract-model.md)
 - Runtime Machine (runtime-machine.md)
 - Compilation and Deployment (compilation-deployment.md)
-- stdlib v0 (QUEUED — PROP-013)
-- Source syntax to SemanticIR boundary (QUEUED — PROP-014 candidate)
+- stdlib v0 (PROP-013: Collection, Option, Result, fold, temporal primitives)
+- Source Syntax to SemanticIR Boundary (PROP-014: minimal grammar kernel)
+- Grammar and Module System (PROP-015: def, TypeDecl, module/import, full v0 BNF)
+- Pattern Matching and Generics (QUEUED — PROP-016)
 - FFI Ruby bridge adapter (QUEUED — bridge track)
+- Runtime Machine FFI Ruby Receipt Fixtures (QUEUED — research track)
 
 ## Review Cadence
 

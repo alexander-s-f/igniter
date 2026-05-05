@@ -29,6 +29,9 @@ design decision or formal specification.
 | [PROP-010-temporal-lifecycle-retention-semantics-v0.md](PROP-010-temporal-lifecycle-retention-semantics-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | 6 lifecycle classes, flush semantics, semantic GC roots, 5 downgrade rules, lifecycle matrix |
 | [PROP-011-runtime-machine-lifecycle-v0.md](PROP-011-runtime-machine-lifecycle-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Runtime Machine: 5 typed lifecycle steps (boot/load/evaluate/checkpoint/resume) using PROP-006..010 |
 | [PROP-012-compilation-artifact-deployment-model-v0.md](PROP-012-compilation-artifact-deployment-model-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | CompiledProgram, 4 compiler stages, SemanticIR, artifact hash, 4 deployment modes, contractable FFI |
+| [PROP-013-stdlib-fold-aggregate-v0.md](PROP-013-stdlib-fold-aggregate-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Collection[T], Option[T], Result[T,E], fold/map/filter/group_by/avg; TR-1 termination; aggregated_from links |
+| [PROP-014-source-syntax-semanticir-boundary-v0.md](PROP-014-source-syntax-semanticir-boundary-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Minimal syntax kernel; ParsedProgram; 4-stage path to SemanticIR; OOF rejection; .igapp/ fixture mapping |
+| [PROP-015-grammar-module-system-v0.md](PROP-015-grammar-module-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | def blocks (pure/non-recursive); TypeDecl (structural); module/import; full v0 BNF; complete source for both fixtures |
 
 ---
 
@@ -36,9 +39,9 @@ design decision or formal specification.
 
 | ID | Title | Depends On | Priority |
 |----|-------|------------|----------|
-| PROP-013 | igniter-lang-stdlib v0 (core contracts, temporal primitives) | PROP-004b, PROP-012 | medium |
-| — | .igapp/ fixture for Add contract (devkit) | PROP-012 | high (track) |
-| — | igniter-lang-ffi-ruby bridge adapter | PROP-012 | high (track) |
+| PROP-016 | Pattern Matching and Generics v0 | PROP-015 | medium |
+| — | ffi-ruby-contractable-proof-v0 | PROP-012, PROP-013 | high (bridge track) |
+| — | runtime-machine-proof-external-candidate-adapter-v0 | PROP-008, PROP-012 | high (research) |
 
 ---
 
