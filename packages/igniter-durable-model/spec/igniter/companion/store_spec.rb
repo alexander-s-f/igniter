@@ -616,6 +616,37 @@ RSpec.describe Igniter::Companion::Store do
     ensure
       s&.close
     end
+
+    it "supports client-backed causation chains" do
+      s = client_backed_store
+      s.register(Reminder)
+
+      s.write(Reminder, key: "r1", title: "One", status: :open)
+      s.write(Reminder, key: "r1", title: "Two", status: :done)
+
+      chain = s.causation_chain(Reminder, key: "r1")
+
+      expect(chain.length).to eq(2)
+      expect(chain.first[:causation]).to be_nil
+      expect(chain.last[:causation]).not_to be_nil
+    ensure
+      s&.close
+    end
+
+    it "supports client-backed lineage introspection" do
+      s = client_backed_store
+      s.register(Reminder)
+
+      s.write(Reminder, key: "r1", title: "One", status: :open)
+
+      lineage = s.lineage(Reminder, key: "r1")
+
+      expect(lineage[:subject]).to eq(store: :reminders, key: "r1")
+      expect(lineage[:depth]).to eq(1)
+      expect(lineage[:proof_hash]).to be_a(String)
+    ensure
+      s&.close
+    end
   end
 
   # ── Manifest-generated classes ─────────────────────────────────────────────

@@ -193,6 +193,46 @@ RSpec.describe Igniter::Store::MCPAdapter do
     end
   end
 
+  describe "provenance tools" do
+    it "exposes causation_chain, lineage, and fact_ref as read tools" do
+      names = adapter.tool_list.map { |tool| tool[:name].to_sym }
+      expect(names).to include(:causation_chain, :lineage, :fact_ref)
+    end
+
+    it "returns a causation chain" do
+      store.write(store: :tasks, key: "t1", value: { title: "One" })
+      store.write(store: :tasks, key: "t1", value: { title: "Two" })
+
+      resp = adapter.call_tool(:causation_chain, store: "tasks", key: "t1")
+
+      expect(resp[:status]).to eq(:ok)
+      expect(resp[:source_protocol_op]).to eq(:causation_chain)
+      expect(resp[:result][:count]).to eq(2)
+    end
+
+    it "returns lineage proof metadata" do
+      store.write(store: :tasks, key: "t1", value: { title: "One" })
+
+      resp = adapter.call_tool(:lineage, store: "tasks", key: "t1")
+
+      expect(resp[:status]).to eq(:ok)
+      expect(resp[:result][:subject]).to eq(store: :tasks, key: "t1")
+      expect(resp[:result][:depth]).to eq(1)
+      expect(resp[:result][:proof_hash]).to be_a(String)
+    end
+
+    it "returns compact fact refs without values" do
+      fact = store.write(store: :tasks, key: "t1", value: { secret: "value" })
+
+      resp = adapter.call_tool(:fact_ref, fact_id: fact.id)
+
+      expect(resp[:status]).to eq(:ok)
+      expect(resp[:result][:found]).to be true
+      expect(resp[:result][:ref]).to include(id: fact.id, store: :tasks, key: "t1")
+      expect(resp[:result][:ref]).not_to have_key(:value)
+    end
+  end
+
   # ── storage_stats and segment_manifest (in-memory returns nil) ────────────────
 
   describe "storage_stats tool (in-memory store)" do

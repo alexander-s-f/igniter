@@ -223,6 +223,92 @@ module Igniter
         end
       end
 
+      class CausationChainResult
+        include HashAccess
+
+        attr_reader :chain, :count
+
+        def initialize(raw = {})
+          data = normalize(raw)
+          @chain = Array(data[:chain]).map { |entry| normalize_hash(entry) }.freeze
+          @count = data.key?(:count) ? data[:count].to_i : chain.size
+          freeze
+        end
+
+        def to_h
+          { chain: chain, count: count }
+        end
+
+        private
+
+        def normalize(raw)
+          return { chain: raw } if raw.is_a?(Array)
+
+          normalize_hash(raw)
+        end
+
+        def normalize_hash(raw)
+          raw.respond_to?(:to_h) ? raw.to_h.transform_keys(&:to_sym) : {}
+        end
+      end
+
+      class LineageResult
+        include HashAccess
+
+        attr_reader :subject, :chain, :depth, :derived_by, :proof_hash
+
+        def initialize(raw = {})
+          data = normalize_hash(raw)
+          @subject = normalize_hash(data[:subject]).freeze
+          @chain = Array(data[:chain]).map { |entry| normalize_hash(entry) }.freeze
+          @depth = data.key?(:depth) ? data[:depth].to_i : chain.size
+          @derived_by = Array(data[:derived_by]).map { |entry| normalize_hash(entry) }.freeze
+          @proof_hash = data[:proof_hash]
+          freeze
+        end
+
+        def to_h
+          {
+            subject: subject,
+            chain: chain,
+            depth: depth,
+            derived_by: derived_by,
+            proof_hash: proof_hash
+          }
+        end
+
+        private
+
+        def normalize_hash(raw)
+          raw.respond_to?(:to_h) ? raw.to_h.transform_keys(&:to_sym) : {}
+        end
+      end
+
+      class FactRefResult
+        include HashAccess
+
+        attr_reader :ref
+
+        def initialize(raw = {})
+          data = normalize_hash(raw)
+          @ref = data[:ref] ? normalize_hash(data[:ref]).freeze : nil
+          @found = data.key?(:found) ? !!data[:found] : !ref.nil?
+          freeze
+        end
+
+        def found? = @found
+
+        def to_h
+          { found: found?, ref: ref }
+        end
+
+        private
+
+        def normalize_hash(raw)
+          raw.respond_to?(:to_h) ? raw.to_h.transform_keys(&:to_sym) : {}
+        end
+      end
+
       class ChangeEventResult
         include HashAccess
 
@@ -301,6 +387,12 @@ module Igniter
           ResolveResult.new(raw)
         when :replay
           ReplayResult.new(raw)
+        when :causation_chain
+          CausationChainResult.new(raw)
+        when :lineage
+          LineageResult.new(raw)
+        when :fact_ref
+          FactRefResult.new(raw)
         else
           raw
         end

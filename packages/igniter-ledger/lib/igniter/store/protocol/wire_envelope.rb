@@ -33,6 +33,9 @@ module Igniter
           read
           query
           resolve
+          causation_chain
+          lineage
+          fact_ref
           metadata_snapshot
           descriptor_snapshot
           observability_snapshot
@@ -128,6 +131,23 @@ module Igniter
               as_of: packet[:as_of]
             )
             { items: items, results: items.map { |item| item[:value] }, count: items.size }
+
+          when :causation_chain
+            chain = @interpreter.causation_chain(
+              store: packet.fetch(:store),
+              key:   packet.fetch(:key)
+            )
+            { chain: chain, count: chain.size }
+
+          when :lineage
+            @interpreter.lineage(
+              store: packet.fetch(:store),
+              key:   packet.fetch(:key)
+            )
+
+          when :fact_ref
+            ref = @interpreter.fact_ref(packet.fetch(:fact_id))
+            { found: !ref.nil?, ref: ref }
 
           when :metadata_snapshot
             @interpreter.metadata_snapshot

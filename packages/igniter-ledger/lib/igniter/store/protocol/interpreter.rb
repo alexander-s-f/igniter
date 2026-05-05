@@ -156,6 +156,21 @@ module Igniter
           @store.resolve(relation_name, from: from, as_of: as_of)
         end
 
+        # Read-only provenance: compact causation chain for one store/key.
+        def causation_chain(store:, key:)
+          @store.causation_chain(store: store.to_sym, key: key)
+        end
+
+        # Read-only provenance: causal proof and downstream derivation metadata.
+        def lineage(store:, key:)
+          @store.lineage(store: store.to_sym, key: key)
+        end
+
+        # Read-only provenance: compact fact reference, without fact value.
+        def fact_ref(fact_id)
+          @store.fact_ref(fact_id)
+        end
+
         # Resolve a named relation with source keys preserved for client-side
         # typed record reconstruction. The value-only #resolve API remains
         # stable for existing protocol callers.

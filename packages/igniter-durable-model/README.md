@@ -119,6 +119,7 @@ store.replay(TrackerLog, since: cutoff)          # time-filtered
 store.replay(TrackerLog, partition: "sleep")     # filtered by partition_key value
 
 store.causation_chain(Reminder, key: "r1")       # mutation chain for debugging
+store.lineage(Reminder, key: "r1")               # compact provenance proof
 ```
 
 ### Compatibility
@@ -157,13 +158,16 @@ Client-backed mode currently supports `register`, `write`, `read`, `append`,
 plain `replay`, `replay(partition:)`, `scope`, `on_scope`, declared
 one-to-many relation auto-wire, typed `resolve`, `_relations`,
 projection descriptor registration, `_projections`, read-only `_scatters`,
-`metadata_snapshot`, and `descriptor_snapshot`. Partition replay lowers through
-the Ledger replay filter and uses Ledger partition indexes when served by a
-Ledger protocol interpreter. Relation support is v0 and lowers supported
-one-to-many declarations to Ledger relation descriptors. Projection support is
-metadata-only; no remote projection execution is promised. Direct
-`register_scatter` and causation chains still require the embedded Ledger engine
-path and raise `NotImplementedError` in client-backed v0.
+`causation_chain`, `lineage`, `metadata_snapshot`, and `descriptor_snapshot`.
+Partition replay lowers through the Ledger replay filter and uses Ledger
+partition indexes when served by a Ledger protocol interpreter. Relation support
+is v0 and lowers supported one-to-many declarations to Ledger relation
+descriptors. Projection support is metadata-only; no remote projection
+execution is promised. Direct `register_scatter` still requires the embedded
+Ledger engine path and raises `NotImplementedError` in client-backed v0.
+Provenance support is read-only and compact: Durable Model exposes
+`causation_chain`/`lineage`, while Ledger Client `fact_ref` returns metadata
+only and does not expose arbitrary `fact_by_id` reads.
 
 ### Normalized receipts
 

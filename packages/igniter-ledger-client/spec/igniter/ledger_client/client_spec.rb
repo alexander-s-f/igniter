@@ -28,6 +28,18 @@ RSpec.describe Igniter::LedgerClient::Client do
                  { items: [{ key: "t1", value: { title: "Alpha" } }], results: [{ title: "Alpha" }], count: 1 }
                when :replay
                  { facts: [{ key: "evt_1" }], count: 1 }
+               when :causation_chain
+                 { chain: [{ id: "fact_1", value_hash: "hash_1", causation: nil }], count: 1 }
+               when :lineage
+                 {
+                   subject: { store: "orders", key: "o1" },
+                   chain: [{ id: "fact_1" }],
+                   depth: 1,
+                   derived_by: [],
+                   proof_hash: "abc123"
+                 }
+               when :fact_ref
+                 { found: true, ref: { id: "fact_1", store: "orders", key: "o1", value_hash: "hash_1" } }
                else
                  { op: envelope[:op], packet: envelope[:packet] }
                end
@@ -139,6 +151,26 @@ RSpec.describe Igniter::LedgerClient::Client do
     expect(resolve.count).to eq(1)
     expect(replay.facts).to eq([{ key: "evt_1" }])
     expect(replay.count).to eq(1)
+  end
+
+  it "normalizes provenance result models" do
+    transport = FakeTransport.new
+    client = described_class.new(transport: transport)
+
+    chain = client.causation_chain(store: :orders, key: "o1")
+    lineage = client.lineage(store: :orders, key: "o1")
+    ref = client.fact_ref("fact_1")
+
+    expect(chain).to be_a(Igniter::LedgerClient::Results::CausationChainResult)
+    expect(chain.count).to eq(1)
+    expect(chain.chain.first[:id]).to eq("fact_1")
+    expect(lineage).to be_a(Igniter::LedgerClient::Results::LineageResult)
+    expect(lineage.subject).to eq(store: "orders", key: "o1")
+    expect(lineage.depth).to eq(1)
+    expect(ref).to be_a(Igniter::LedgerClient::Results::FactRefResult)
+    expect(ref).to be_found
+    expect(ref.ref).to include(id: "fact_1", store: "orders")
+    expect(transport.requests.last[:op]).to eq(:fact_ref)
   end
 
   it "builds replay filters from store and key convenience arguments" do

@@ -64,6 +64,18 @@ module Igniter
         Results.wrap(:resolve, dispatch(:resolve, packet))
       end
 
+      def causation_chain(store:, key:)
+        Results.wrap(:causation_chain, dispatch(:causation_chain, { store: store, key: key }))
+      end
+
+      def lineage(store:, key:)
+        Results.wrap(:lineage, dispatch(:lineage, { store: store, key: key }))
+      end
+
+      def fact_ref(fact_id)
+        Results.wrap(:fact_ref, dispatch(:fact_ref, { fact_id: fact_id }))
+      end
+
       def metadata_snapshot = dispatch(:metadata_snapshot)
 
       def descriptor_snapshot = dispatch(:descriptor_snapshot)

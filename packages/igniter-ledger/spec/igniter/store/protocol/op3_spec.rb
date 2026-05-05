@@ -280,6 +280,49 @@ RSpec.describe "OP3 — Wire Envelope" do
     end
   end
 
+  # ------------------------------------------------------------------ op: provenance
+
+  describe "read-only provenance ops" do
+    it "includes provenance operations in the allowed operation list" do
+      expect(Igniter::Store::Protocol::WireEnvelope::OPERATIONS)
+        .to include(:causation_chain, :lineage, :fact_ref)
+    end
+
+    it "returns a causation chain envelope" do
+      wire.dispatch(envelope(:write, { store: :tasks, key: "t1", value: { title: "One" } }))
+      wire.dispatch(envelope(:write, { store: :tasks, key: "t1", value: { title: "Two" } }))
+
+      resp = wire.dispatch(envelope(:causation_chain, { store: :tasks, key: "t1" }))
+
+      expect(resp[:status]).to eq(:ok)
+      expect(resp[:result][:count]).to eq(2)
+      expect(resp[:result][:chain].last[:causation]).not_to be_nil
+    end
+
+    it "returns lineage proof metadata" do
+      wire.dispatch(envelope(:write, { store: :tasks, key: "t1", value: { title: "One" } }))
+
+      resp = wire.dispatch(envelope(:lineage, { store: :tasks, key: "t1" }))
+
+      expect(resp[:status]).to eq(:ok)
+      expect(resp[:result][:subject]).to eq(store: :tasks, key: "t1")
+      expect(resp[:result][:depth]).to eq(1)
+      expect(resp[:result][:proof_hash]).to be_a(String)
+    end
+
+    it "returns compact fact refs without values" do
+      receipt = wire.dispatch(envelope(:write, { store: :tasks, key: "t1", value: { secret: "value" } }))
+      fact_id = receipt[:result].fact_id
+
+      resp = wire.dispatch(envelope(:fact_ref, { fact_id: fact_id }))
+
+      expect(resp[:status]).to eq(:ok)
+      expect(resp[:result][:found]).to be true
+      expect(resp[:result][:ref]).to include(id: fact_id, store: :tasks, key: "t1")
+      expect(resp[:result][:ref]).not_to have_key(:value)
+    end
+  end
+
   # ------------------------------------------------------------------ op: :metadata_snapshot
 
   describe "op: :metadata_snapshot" do

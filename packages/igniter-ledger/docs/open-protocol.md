@@ -237,7 +237,13 @@ Fact IO:
 - `query(store:, where: {}, order: nil, limit: nil, as_of: nil)`
 - `history(store:, key: nil, from: nil, to: nil)`
 - `history_partition(store:, partition_key:, partition_value:, from: nil, to: nil)`
-- `causation_chain(fact_id)`
+- `causation_chain(store:, key:)`
+- `lineage(store:, key:)`
+- `fact_ref(fact_id)`
+
+Provenance operations are read-only. `fact_ref` returns compact fact metadata
+for boundary redirects and audit links; full arbitrary `fact_by_id` value reads
+remain engine-local / future debug tooling.
 
 Relations, projections, and derivations:
 
@@ -246,7 +252,6 @@ Relations, projections, and derivations:
 - `projection_snapshot(name, as_of: nil)`
 - `derivation_snapshot(name, as_of: nil)`
 - `scatter_snapshot(name, as_of: nil)`
-- `lineage(name_or_fact_id)`
 
 Retention and compaction:
 
@@ -260,6 +265,9 @@ Server and wire:
 - `replay(from: nil, to: nil, filter: nil)` where filter may be
   `{ store: }`, `{ store:, key: }`, or
   `{ store:, partition_key:, partition_value: }`
+- `causation_chain(store:, key:)`
+- `lineage(store:, key:)`
+- `fact_ref(fact_id)`
 - `subscribe(subscription_packet)`
 - `stats`
 - `drain`

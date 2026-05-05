@@ -16,6 +16,9 @@ module Igniter
         read
         query
         resolve
+        causation_chain
+        lineage
+        fact_ref
         metadata_snapshot
         descriptor_snapshot
         observability_snapshot

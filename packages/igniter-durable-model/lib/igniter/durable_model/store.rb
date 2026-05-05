@@ -387,9 +387,12 @@ module Igniter
 
       # Causation chain for a Record key — useful for debugging mutations.
       def causation_chain(schema_class, key:)
-        raise unsupported_client_mode!("causation chains") if client_backed?
-
         @inner.causation_chain(store: schema_class.store_name, key: key)
+      end
+
+      # Read-only provenance summary for a Record key.
+      def lineage(schema_class, key:)
+        @inner.lineage(store: schema_class.store_name, key: key)
       end
 
       # Returns the unified OP2 metadata snapshot including all schemas registered
@@ -443,6 +446,14 @@ module Igniter
 
         def resolve(...)
           client.resolve(...)
+        end
+
+        def causation_chain(store:, key:)
+          client.causation_chain(store: store, key: key).chain
+        end
+
+        def lineage(store:, key:)
+          client.lineage(store: store, key: key).to_h
         end
 
         def subscribe(...)

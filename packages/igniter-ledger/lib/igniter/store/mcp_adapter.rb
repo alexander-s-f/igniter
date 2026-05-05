@@ -43,6 +43,9 @@ module Igniter
         read
         query
         resolve
+        causation_chain
+        lineage
+        fact_ref
         replay
         sync_profile
         storage_stats
@@ -57,6 +60,9 @@ module Igniter
         read:                   :read,
         query:                  :query,
         resolve:                :resolve,
+        causation_chain:        :causation_chain,
+        lineage:                :lineage,
+        fact_ref:               :fact_ref,
         replay:                 :replay,
         sync_profile:           :sync_hub_profile,
         storage_stats:          :storage_stats,
@@ -192,6 +198,23 @@ module Igniter
             as_of: args[:as_of]
           )
 
+        when :causation_chain
+          chain = @interpreter.causation_chain(
+            store: args.fetch(:store),
+            key:   args.fetch(:key)
+          )
+          { chain: chain, count: chain.size }
+
+        when :lineage
+          @interpreter.lineage(
+            store: args.fetch(:store),
+            key:   args.fetch(:key)
+          )
+
+        when :fact_ref
+          ref = @interpreter.fact_ref(args.fetch(:fact_id))
+          { found: !ref.nil?, ref: ref }
+
         when :replay
           unless args[:limit] || args[:store] || args[:from]
             raise ArgumentError, "replay: requires at least one bounding argument (limit:, store:, or from:)"
@@ -246,6 +269,10 @@ module Igniter
             order: args[:order], limit: args[:limit].to_i, as_of: args[:as_of] }
         when :resolve
           { relation: args.fetch(:relation), from: args.fetch(:from), as_of: args[:as_of] }
+        when :causation_chain, :lineage
+          { store: args.fetch(:store), key: args.fetch(:key) }
+        when :fact_ref
+          { fact_id: args.fetch(:fact_id) }
         when :replay
           unless args[:limit] || args[:store] || args[:from]
             raise ArgumentError, "replay: requires at least one bounding argument (limit:, store:, or from:)"
@@ -320,6 +347,9 @@ module Igniter
           read:                   "Read the current (or as_of) value for one key.",
           query:                  "Query a bounded store view with optional where/order/limit/as_of.",
           resolve:                "Resolve a registered relation from a source key.",
+          causation_chain:        "Return the compact causation chain for a store/key.",
+          lineage:                "Return read-only lineage proof metadata for a store/key.",
+          fact_ref:               "Return compact metadata for a fact id without exposing fact value.",
           replay:                 "Replay bounded facts by store, time range, or limit.",
           sync_profile:           "Return a sync hub profile (facts + descriptors + cursor).",
           storage_stats:          "Return aggregate storage statistics for one or all stores.",
@@ -343,6 +373,12 @@ module Igniter
           { type: "object", required: ["relation", "from"],
             properties: { relation: { type: "string" }, from: { type: "string" },
                           as_of: { type: "number" } } }
+        when :causation_chain, :lineage
+          { type: "object", required: ["store", "key"],
+            properties: { store: { type: "string" }, key: { type: "string" } } }
+        when :fact_ref
+          { type: "object", required: ["fact_id"],
+            properties: { fact_id: { type: "string" } } }
         when :replay
           { type: "object",
             properties: { store: { type: "string" }, from: { type: "number" },

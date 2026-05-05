@@ -1,6 +1,6 @@
 # Track: Durable Model Client Provenance Introspection v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target packages: `packages/igniter-durable-model`, `packages/igniter-ledger-client`, `packages/igniter-ledger`
@@ -312,5 +312,9 @@ Status: done | partial | blocked
   client into a Ledger engine.
 - Provenance is intentionally read-only and compact: chain, lineage proof, and
   fact refs.
+- Protocol, Ledger Client, Durable Model, and MCP now share the same read-only
+  provenance boundary.
+- `fact_by_id` remains outside the public client/MCP surface; `fact_ref` is the
+  compact cross-boundary reference.
 - This surface will also support future boundary redirect, cleanup guard, and
   Spark CRM audit/debug workflows.

@@ -103,6 +103,9 @@ client.replay(
   filter: nil
 )
 client.resolve(relation:, from:, as_of: nil)
+client.causation_chain(store:, key:)
+client.lineage(store:, key:)
+client.fact_ref(fact_id)
 client.subscribe(stores:, cursor: nil) { |event| ... }
 client.metadata_snapshot
 client.descriptor_snapshot
@@ -146,6 +149,9 @@ Successful mutation/read calls return small result objects:
 - `query` -> `Igniter::LedgerClient::Results::QueryResult`
 - `resolve` -> `Igniter::LedgerClient::Results::ResolveResult`
 - `replay` -> `Igniter::LedgerClient::Results::ReplayResult`
+- `causation_chain` -> `Igniter::LedgerClient::Results::CausationChainResult`
+- `lineage` -> `Igniter::LedgerClient::Results::LineageResult`
+- `fact_ref` -> `Igniter::LedgerClient::Results::FactRefResult`
 - `subscribe` events -> `Igniter::LedgerClient::Results::ChangeEventResult`
 
 Result objects expose named readers, `to_h`, and transitional `[]` access.
@@ -153,6 +159,9 @@ Result objects expose named readers, `to_h`, and transitional `[]` access.
 `{ key:, value: }` entries; `QueryResult#results` remains the backward-compatible
 value-only list. `ResolveResult` follows the same `items`/`results` convention
 so typed clients can preserve source record keys.
+`causation_chain`, `lineage`, and `fact_ref` are read-only provenance
+introspection calls. `fact_ref` returns compact metadata only; arbitrary
+`fact_by_id` value reads remain outside the public client surface.
 Snapshot-style methods such as `metadata_snapshot` and `observability_snapshot`
 still return raw protocol hashes in v0.
 

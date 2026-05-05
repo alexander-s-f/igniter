@@ -108,6 +108,7 @@ store.replay(TrackerLog, since: cutoff)          # с фильтром по вр
 store.replay(TrackerLog, partition: "sleep")     # фильтр по partition_key
 
 store.causation_chain(Reminder, key: "r1")       # цепочка мутаций для отладки
+store.lineage(Reminder, key: "r1")               # компактное provenance-proof
 ```
 
 ### Compatibility
@@ -146,12 +147,15 @@ store.replay(TrackerLog)
 `replay`, `replay(partition:)`, `scope`, `on_scope`, declared one-to-many
 relation auto-wire, typed `resolve`, `_relations`, projection descriptor
 registration, `_projections`, read-only `_scatters`, `metadata_snapshot` и
-`descriptor_snapshot`. Partition replay проходит через Ledger replay filter и
-использует Ledger partition indexes, когда запрос обслуживает Ledger protocol
-interpreter. Relation support в v0 понижает поддержанные one-to-many декларации
-в Ledger relation descriptors. Projection support — metadata-only; remote
-projection execution не обещается. Прямой `register_scatter` и causation chains
-пока требуют embedded Ledger engine path и явно поднимают `NotImplementedError`.
+`descriptor_snapshot`, а также `causation_chain` и `lineage`. Partition replay
+проходит через Ledger replay filter и использует Ledger partition indexes, когда
+запрос обслуживает Ledger protocol interpreter. Relation support в v0 понижает
+поддержанные one-to-many декларации в Ledger relation descriptors. Projection
+support — metadata-only; remote projection execution не обещается. Прямой
+`register_scatter` пока требует embedded Ledger engine path и явно поднимает
+`NotImplementedError`. Provenance support read-only и compact: Durable Model
+экспонирует `causation_chain`/`lineage`, а Ledger Client `fact_ref` возвращает
+только metadata и не открывает произвольный `fact_by_id`.
 
 ### Нормализованные receipts
 
