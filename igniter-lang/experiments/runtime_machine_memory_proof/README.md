@@ -2,7 +2,7 @@
 
 Status: done
 Slice state: done on 2026-05-05
-Slice name: `runtime-machine-proof-packet-fixtures-v0`
+Slice name: `runtime-machine-proof-packet-builder-check-v0`
 Owner: `[Igniter-Lang Research Agent]`
 Supervisor: `[Architect Supervisor / Codex]`
 
@@ -96,6 +96,44 @@ Fixture files:
 - `fixtures/negative_evidence.golden.json`
 - `fixtures/result_summary.golden.json`
 
+## Packet Builder Check
+
+Validate fixture structure:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/packet_builder_check.rb
+```
+
+Validate a generated candidate fixture directory against the golden fixtures:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/packet_builder_check.rb --candidate <dir>
+```
+
+Expected checker summary:
+
+```text
+PASS runtime_machine_proof_packet_builder_check
+manifest: ok
+artifact_headers: ok
+obs_packets: ok
+semantic_image: ok
+compatibility_reports: ok
+negative_evidence: ok
+result_summary: ok
+```
+
+The checker validates:
+
+- manifest raw SHA-256 hashes
+- artifact schema and payload wrappers
+- ObsPacket ids, payload hashes, kinds, and link shape
+- resumed value packet evidence links
+- SemanticImage content hash and image id
+- CompatibilityReport status decisions
+- negative evidence for ambient time and missing proof links
+- result summary equality and trusted evidence status
+
 ## What It Proves
 
 [D] A minimal Runtime Machine can make lifecycle continuity executable without
@@ -113,9 +151,14 @@ and compatibility evidence.
 [D] Golden fixtures let the next layer validate packet structure, SemanticImage
 content, and CompatibilityReport decisions without scraping PASS text.
 
+[D] The packet builder check is now a machine-readable gate for future
+sidecar-builder candidates.
+
 ## Files
 
 - `runtime_machine_memory_proof.rb` - executable harness.
+- `packet_builder_check.rb` - structural checker for golden or candidate
+  fixture directories.
 - `fixtures/*.golden.json` - structural golden artifacts generated from the
   harness.
 
@@ -123,7 +166,7 @@ content, and CompatibilityReport decisions without scraping PASS text.
 
 ```text
 [Igniter-Lang Research Agent]
-Track: runtime-machine-proof-packet-fixtures-v0
+Track: runtime-machine-proof-packet-builder-check-v0
 Artifact: igniter-lang/experiments/runtime_machine_memory_proof/
 Status: done
 
@@ -137,6 +180,8 @@ Status: done
   match.
 - The proof now exports golden ObsPacket, SemanticImage, CompatibilityReport,
   negative evidence, and result summary artifacts.
+- `packet_builder_check.rb` validates structural fixture contracts and optional
+  candidate fixture directories.
 
 [R] Recommendations:
 - Use this experiment as the next golden fixture source for sidecar packet
@@ -146,20 +191,27 @@ Status: done
 - Add file-backed TBackend only after memory lifecycle checks remain stable.
 - Make the next checker consume `--verify-fixtures` or parse the JSON fixtures,
   not the human PASS summary.
+- Make future sidecar builders emit the same artifact set first, then let this
+  checker reject drift before any package integration.
 
 [S] Signals:
 - Runtime Machine semantics are now executable at toy scale.
 - The negative fixtures make false reproducibility visible.
 - Structural fixtures are now stable enough to drive packet-builder tests.
+- Fixture validation now has categories granular enough to tell whether drift
+  came from packet identity, SemanticImage, CompatibilityReport, or summary
+  behavior.
 
 [Q] Open Questions:
 - Should this harness later move under an approved experiment runner?
 - Should CompatibilityReport become a shared bridge fixture before any package
   implementation work?
 - Should future fixtures split full packet logs from selected packet profiles?
+- Should the checker eventually produce JSON diagnostics in addition to the
+  compact PASS/FAIL text?
 
 [Next] Proposed next slice:
-- `runtime-machine-proof-packet-builder-check-v0`
-  Build a checker that validates generated sidecar packets against these
-  structural golden artifacts.
+- `runtime-machine-proof-sidecar-builder-profiles-v0`
+  Build standalone sidecar builder profiles that emit candidate artifacts for
+  this checker.
 ```
