@@ -205,6 +205,17 @@ store.command_flow_decision_review(
     op: :>=,
     value: 1
   }])
+store.command_flow_evidence_profile(
+  view_name: :reminder_flow_health,
+  action: :inspect,
+  capabilities: [:dispatch_review],
+  decision_rules: [{
+    name: :blocked,
+    metric: :status_count,
+    status: :blocked,
+    op: :>=,
+    value: 1
+  }])
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -221,8 +232,9 @@ registration, command/effect descriptor registration, `_projections`,
 `command_flow_monitor`, `register_command_flow_view`, `_command_flow_views`,
 `command_flow_view`, `pin_command_flow_view`,
 `append_command_flow_decision`, `command_flow_decisions`,
-`command_flow_decision_review`, `metadata_snapshot` и `descriptor_snapshot`, а
-также `causation_chain` и `lineage`. Partition replay проходит через Ledger replay
+`command_flow_decision_review`, `command_flow_evidence_profile`,
+`metadata_snapshot` и `descriptor_snapshot`, а также `causation_chain` и
+`lineage`. Partition replay проходит через Ledger replay
 filter и использует Ledger partition indexes, когда запрос обслуживает Ledger
 protocol interpreter. Relation support в v0 понижает
 поддержанные one-to-many декларации в Ledger relation descriptors. Projection,
@@ -249,8 +261,11 @@ reproducible horizon и stable app-local receipt shape.
 `CommandFlowDecision` и `CommandFlowDecisionReceipt` добавляют explicit
 app-owned decision history для сохранения pinned или blocked decisions только
 по явному запросу. `CommandFlowDecisionReview` добавляет compact read model
-поверх persisted decisions с summary metrics и advisory findings. Будущая app
-security infrastructure остаётся вне этого пакета.
+поверх persisted decisions с summary metrics и advisory findings.
+`CommandFlowEvidenceProfile` собирает view, optional pin, decision review,
+decision entries, package-local packet candidates и logical links для UI,
+agents, exports и future bridge code. Будущая app security infrastructure
+остаётся вне этого пакета.
 `Store#command_intent`,
 `Store#command_operation_plan` и
 `Store#command_activity_event` строят только данные. `Store#append_command_activity`
@@ -299,6 +314,11 @@ Ledger protocol surface.
 view, action, actor, missing capabilities, errors, warnings и simple
 rule-derived findings. Decision entries сохраняют и pin `receipt_id`, и
 app-local `decision_receipt_id`; ни один из них не является Ledger fact id.
+`Store#command_flow_evidence_profile` упаковывает текущий operational view,
+optional pin evidence, persisted decision review, compact decision entries,
+bridge-ready package-local packet candidates и stable logical links. Он не
+append-ит decisions или command activity, не мутирует records, не исполняет
+commands и не зависит от Igniter-Lang observation packets.
 
 ### Нормализованные receipts
 

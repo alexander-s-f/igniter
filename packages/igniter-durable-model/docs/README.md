@@ -34,6 +34,7 @@ alias.
 | [tracks/durable-model-command-flow-view-pinning-v0.md](tracks/durable-model-command-flow-view-pinning-v0.md) | Completed explicit pinning of operational views into reproducible decision evidence |
 | [tracks/durable-model-command-flow-decision-history-v0.md](tracks/durable-model-command-flow-decision-history-v0.md) | Completed explicit history persistence and replay for command-flow view decisions |
 | [tracks/durable-model-command-flow-decision-review-v0.md](tracks/durable-model-command-flow-decision-review-v0.md) | Completed read model for summarizing persisted command-flow decisions |
+| [tracks/durable-model-command-flow-evidence-profile-v0.md](tracks/durable-model-command-flow-evidence-profile-v0.md) | Completed portable app-safe evidence profile over command-flow views, pins, decisions, and reviews |
 | [tracks/companion-ledger-client-remote-boundary-v0.md](tracks/companion-ledger-client-remote-boundary-v0.md) | Track for accepting `LedgerClient` as Companion's preferred remote Ledger boundary |
 | [tracks/companion-ledger-client-scope-query-boundary-v0.md](tracks/companion-ledger-client-scope-query-boundary-v0.md) | Proposed next track for remote Companion scopes over `LedgerClient#query` |
 | [tracks/companion-ledger-client-scope-subscriptions-v0.md](tracks/companion-ledger-client-scope-subscriptions-v0.md) | Proposed next track for remote Companion `on_scope` over Ledger Client events |

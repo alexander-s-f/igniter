@@ -914,6 +914,68 @@ module Igniter
         )
       end
 
+      # Bundle command-flow view, optional pin, and decision review evidence.
+      def command_flow_evidence_profile(view_name:, action: nil, actor: nil,
+                                        capabilities: [], since: nil,
+                                        as_of: nil, decision_status: nil,
+                                        decision_meaning_status: nil,
+                                        decision_receipt_id: nil,
+                                        decision_limit: nil,
+                                        decision_rules: [], metadata: {})
+        view = command_flow_view(view_name, since: since, as_of: as_of)
+        pin = if action
+          pin_command_flow_view(view_name,
+            action: action,
+            actor: actor,
+            capabilities: capabilities,
+            since: since,
+            as_of: as_of,
+            metadata: metadata)
+        end
+        review = command_flow_decision_review(
+          owner: view.owner,
+          view_name: view.name,
+          action: action,
+          actor: actor,
+          status: decision_status,
+          meaning_status: decision_meaning_status,
+          decision_receipt_id: decision_receipt_id,
+          since: since,
+          as_of: as_of,
+          limit: decision_limit,
+          rules: decision_rules,
+          metadata: metadata
+        )
+        links = command_flow_evidence_profile_links(
+          owner: view.owner,
+          view_name: view.name,
+          pin: pin,
+          review: review
+        )
+        packets = command_flow_evidence_packets(
+          view: view,
+          pin: pin,
+          review: review
+        )
+
+        CommandFlowEvidenceProfile.new(
+          owner: view.owner,
+          view_name: view.name,
+          action: action,
+          actor: actor,
+          status: command_flow_evidence_profile_status(view, pin, review),
+          meaning_status: command_flow_evidence_profile_meaning_status(view, pin, review),
+          horizon: command_flow_evidence_profile_horizon(view, pin, review),
+          view: view,
+          pin: pin,
+          review: review,
+          decisions: review.decisions,
+          packets: packets,
+          links: links,
+          metadata: metadata
+        )
+      end
+
       # Summarize app-owned policy/capability checks for a command plan.
       # This is metadata-only and never mutates storage or evaluates in Ledger.
       def command_policy_decision(plan, actor: nil, capabilities: [],
@@ -2088,6 +2150,170 @@ module Igniter
         return :warning if findings.any? { |finding| finding[:severity] == :warning }
 
         :ok
+      end
+
+      def command_flow_evidence_profile_status(view, pin, review)
+        return :critical if review.critical?
+        return :blocked if pin&.blocked?
+        return :warning if review.warning? || view.warning? || view.monitor.warning?
+
+        :ok
+      end
+
+      def command_flow_evidence_profile_meaning_status(view, pin, review)
+        meanings = review.decisions.map { |decision| token(decision[:meaning_status]) }.compact.uniq
+        return :unknown if pin&.blocked?
+        return :unknown if meanings.include?(:unknown) || meanings.include?(:provisional)
+        return :mixed if meanings.size > 1
+        return :reproducible if pin&.reproducible? || (pin.nil? && view.reproducible?)
+        return :live if view.live?
+
+        :unknown
+      end
+
+      def command_flow_evidence_profile_horizon(view, pin, review)
+        {
+          view: view.horizon,
+          pin: pin&.horizon,
+          review: review.horizon
+        }.compact
+      end
+
+      def command_flow_evidence_profile_links(owner:, view_name:, pin:, review:)
+        view_ref = command_flow_evidence_ref(:view, view_name)
+        links = [{
+          rel: :derived_from,
+          from: view_ref,
+          to: command_flow_evidence_ref(:owner, owner)
+        }, {
+          rel: :reviews,
+          from: command_flow_evidence_ref(:decision_review, "#{owner}/#{view_name}"),
+          to: view_ref
+        }]
+        if pin
+          links << {
+            rel: :pins,
+            from: command_flow_evidence_ref(:pin, pin.receipt[:receipt_id]),
+            to: view_ref
+          }
+        end
+        review.decisions.each do |decision|
+          decision_ref = command_flow_decision_evidence_ref(decision)
+          links << {
+            rel: :derived_from,
+            from: decision_ref,
+            to: command_flow_evidence_ref(:pin, decision[:receipt_id])
+          } if decision[:receipt_id]
+          links << {
+            rel: :identified_by,
+            from: decision_ref,
+            to: command_flow_evidence_ref(:decision_receipt, decision[:decision_receipt_id])
+          } if decision[:decision_receipt_id]
+        end
+        links
+      end
+
+      def command_flow_evidence_packets(view:, pin:, review:)
+        packets = [
+          command_flow_evidence_packet(
+            kind: :command_flow_view_evidence,
+            subject: command_flow_evidence_ref(:view, view.name),
+            meaning_status: view.reproducible? ? :reproducible : :live,
+            payload: view.to_h,
+            links: [{
+              rel: :derived_from,
+              ref: command_flow_evidence_ref(:owner, view.owner)
+            }]
+          )
+        ]
+        if pin
+          packets << command_flow_evidence_packet(
+            kind: :command_flow_pin_evidence,
+            subject: command_flow_evidence_ref(:pin, pin.receipt[:receipt_id]),
+            meaning_status: pin.meaning_status,
+            payload: pin.to_h,
+            links: [{
+              rel: :pins,
+              ref: command_flow_evidence_ref(:view, pin.name)
+            }]
+          )
+        end
+        packets << command_flow_evidence_packet(
+          kind: :command_flow_decision_review_evidence,
+          subject: command_flow_evidence_ref(:decision_review, "#{review.owner}/#{review.filters[:view_name] || :all}"),
+          meaning_status: review.meaning_status,
+          payload: review.to_h,
+          links: [{
+            rel: :reviews,
+            ref: command_flow_evidence_ref(:view, review.filters[:view_name] || :all)
+          }]
+        )
+        review.decisions.each do |decision|
+          packets << command_flow_evidence_packet(
+            kind: :command_flow_decision_evidence,
+            subject: command_flow_decision_evidence_ref(decision),
+            meaning_status: decision[:meaning_status],
+            payload: decision,
+            links: command_flow_decision_packet_links(decision)
+          )
+        end
+        packets
+      end
+
+      def command_flow_evidence_packet(kind:, subject:, meaning_status:, payload:, links:)
+        {
+          schema_version: 1,
+          kind: kind,
+          subject: subject,
+          meaning_status: meaning_status,
+          payload: payload,
+          links: links,
+          policy: {
+            store_fact_exposed: false,
+            value_hash_exposed: false
+          }
+        }
+      end
+
+      def command_flow_decision_packet_links(decision)
+        links = []
+        if decision[:receipt_id]
+          links << {
+            rel: :derived_from,
+            ref: command_flow_evidence_ref(:pin, decision[:receipt_id])
+          }
+        end
+        if decision[:decision_receipt_id]
+          links << {
+            rel: :identified_by,
+            ref: command_flow_evidence_ref(:decision_receipt, decision[:decision_receipt_id])
+          }
+        end
+        links
+      end
+
+      def command_flow_decision_evidence_ref(decision)
+        id = decision[:decision_receipt_id] || decision[:receipt_id] || "unknown"
+        command_flow_evidence_ref(:decision, id)
+      end
+
+      def command_flow_evidence_ref(kind, id)
+        case kind
+        when :owner
+          "durable-model://command-flow/owners/#{id}"
+        when :view
+          "durable-model://command-flow/views/#{id}"
+        when :pin
+          "durable-model://command-flow/pins/#{id}"
+        when :decision_review
+          "durable-model://command-flow/decision-reviews/#{id}"
+        when :decision_receipt
+          "durable-model://command-flow/decision-receipts/#{id}"
+        when :decision
+          "durable-model://command-flow/decisions/#{id}"
+        else
+          "durable-model://command-flow/#{kind}/#{id}"
+        end
       end
 
       def normalize_command_flow_view_horizon(horizon)

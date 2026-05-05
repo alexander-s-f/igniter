@@ -18,6 +18,7 @@ require "igniter/durable_model/command_flow_view_descriptor"
 require "igniter/durable_model/command_flow_view"
 require "igniter/durable_model/command_flow_view_pin"
 require "igniter/durable_model/command_flow_decision_review"
+require "igniter/durable_model/command_flow_evidence_profile"
 require "igniter/durable_model/store"
 require_relative "../spec_helper"
 
@@ -93,6 +94,7 @@ RSpec.describe Igniter::DurableModel do
     expect(described_class::CommandFlowView).to equal(Igniter::Companion::CommandFlowView)
     expect(described_class::CommandFlowViewPin).to equal(Igniter::Companion::CommandFlowViewPin)
     expect(described_class::CommandFlowDecisionReview).to equal(Igniter::Companion::CommandFlowDecisionReview)
+    expect(described_class::CommandFlowEvidenceProfile).to equal(Igniter::Companion::CommandFlowEvidenceProfile)
   end
 
   it "defines command flow decision history shape" do

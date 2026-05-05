@@ -852,6 +852,49 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "builds client-backed command flow evidence profiles" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.register_command_flow_view(:client_profile_health,
+        owner: :commanded_reminders,
+        action_policy: {
+          inspect: true,
+          required_capabilities: [:dispatch_review]
+        })
+      pin = s.pin_command_flow_view(:client_profile_health,
+        action: :inspect,
+        actor: "dispatcher-1",
+        capabilities: [:dispatch_review])
+      s.append_command_flow_decision(pin)
+
+      profile = s.command_flow_evidence_profile(
+        view_name: :client_profile_health,
+        action: :inspect,
+        actor: "dispatcher-1",
+        capabilities: [:dispatch_review],
+        decision_rules: [{
+          name: :pinned,
+          metric: :status_count,
+          status: :pinned,
+          op: :>=,
+          value: 1
+        }]
+      )
+
+      expect(profile).to be_warning
+      expect(profile.view_name).to eq(:client_profile_health)
+      expect(profile.pin[:status]).to eq(:pinned)
+      expect(profile.review[:status]).to eq(:warning)
+      expect(profile.packets.map { |packet| packet[:kind] }).to include(
+        :command_flow_view_evidence,
+        :command_flow_pin_evidence,
+        :command_flow_decision_review_evidence,
+        :command_flow_decision_evidence
+      )
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -3781,6 +3824,175 @@ RSpec.describe Igniter::Companion::Store do
           s.command_flow_decision_review(owner: :commanded_reminders,
             rules: [{ name: :bad, metric: :status_count, op: :>=, value: 1 }])
         end.to raise_error(ArgumentError, /requires status/)
+      ensure
+        s&.close
+      end
+
+      it "builds view-only command flow evidence profiles" do
+        s = described_class.new
+        s.register_command_flow_view(:profile_view_only,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+
+        profile = s.command_flow_evidence_profile(view_name: :profile_view_only)
+
+        expect(profile).to be_frozen
+        expect(profile).to be_ok
+        expect(profile.meaning_status).to eq(:live)
+        expect(profile[:kind]).to eq(:command_flow_evidence_profile)
+        expect(profile.view[:name]).to eq(:profile_view_only)
+        expect(profile.pin).to be_nil
+        expect(profile.review[:summary][:total]).to eq(0)
+        expect(profile.decisions).to eq([])
+        expect(profile.packets.map { |packet| packet[:kind] }).to include(
+          :command_flow_view_evidence,
+          :command_flow_decision_review_evidence
+        )
+        expect(profile.links.first).to include(
+          rel: :derived_from,
+          from: "durable-model://command-flow/views/profile_view_only",
+          to: "durable-model://command-flow/owners/commanded_reminders"
+        )
+        expect(profile.to_h).not_to have_key(:fact_id)
+        expect(profile.to_h).not_to have_key(:value_hash)
+        expect(profile.to_h).not_to have_key(:causation)
+      ensure
+        s&.close
+      end
+
+      it "builds command flow evidence profiles with pins, reviews, packets, and links" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+        s.register_command_flow_view(:profile_health,
+          owner: :commanded_reminders,
+          command: :complete,
+          action_policy: {
+            mutate: :requires_pinned_horizon,
+            required_capabilities: [:dispatch_review]
+          },
+          rules: [{
+            name: :denials,
+            metric: :status_count,
+            status: :policy_denied,
+            op: :>=,
+            value: 1,
+            severity: :warning
+          }])
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          capabilities: [],
+          mode: :apply,
+          audit: true)
+        stored_pin = s.pin_command_flow_view(:profile_health,
+          action: :mutate,
+          actor: "dispatcher-1",
+          capabilities: [:dispatch_review])
+        receipt = s.append_command_flow_decision(stored_pin)
+        before_decisions = s.command_flow_decisions(owner: :commanded_reminders).size
+        before_activity = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete
+        ).size
+
+        profile = s.command_flow_evidence_profile(
+          view_name: :profile_health,
+          action: :mutate,
+          actor: "dispatcher-1",
+          capabilities: [:dispatch_review],
+          decision_receipt_id: receipt.decision_receipt_id,
+          decision_rules: [{
+            name: :decision_present,
+            metric: :total,
+            op: :>=,
+            value: 1,
+            severity: :critical
+          }],
+          metadata: { source: :ops_dashboard }
+        )
+        after_decisions = s.command_flow_decisions(owner: :commanded_reminders).size
+        after_activity = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete
+        ).size
+        record = s.read(CommandedReminder, key: "r1")
+
+        expect(profile).to be_critical
+        expect(profile.meaning_status).to eq(:reproducible)
+        expect(profile.metadata).to eq(source: :ops_dashboard)
+        expect(profile.view[:status]).to eq(:warning)
+        expect(profile.pin[:status]).to eq(:pinned)
+        expect(profile.review[:findings].first).to include(
+          name: :decision_present,
+          severity: :critical
+        )
+        expect(profile.decisions.size).to eq(1)
+        expect(profile.decisions.first[:decision_receipt_id]).to eq(receipt.decision_receipt_id)
+        expect(profile.horizon[:pin]).to include(mode: :reproducible)
+        expect(profile.packets.map { |packet| packet[:kind] }).to include(
+          :command_flow_view_evidence,
+          :command_flow_pin_evidence,
+          :command_flow_decision_review_evidence,
+          :command_flow_decision_evidence
+        )
+        expect(profile.packets).to all(include(policy: {
+          store_fact_exposed: false,
+          value_hash_exposed: false
+        }))
+        expect(profile.packets.first[:subject]).to eq(
+          "durable-model://command-flow/views/profile_health"
+        )
+        expect(profile.links).to include(
+          rel: :identified_by,
+          from: "durable-model://command-flow/decisions/#{receipt.decision_receipt_id}",
+          to: "durable-model://command-flow/decision-receipts/#{receipt.decision_receipt_id}"
+        )
+        expect(profile.to_h.dig(:packets, 0, :payload)).not_to have_key(:fact_id)
+        expect(record.status).to eq(:open)
+        expect(after_decisions).to eq(before_decisions)
+        expect(after_activity).to eq(before_activity)
+      ensure
+        s&.close
+      end
+
+      it "builds blocked command flow evidence profiles conservatively" do
+        s = described_class.new
+        s.register_command_flow_view(:blocked_profile,
+          owner: :commanded_reminders,
+          action_policy: { execute: :forbidden })
+
+        profile = s.command_flow_evidence_profile(
+          view_name: :blocked_profile,
+          action: :execute
+        )
+
+        expect(profile).to be_blocked
+        expect(profile.meaning_status).to eq(:unknown)
+        expect(profile.pin[:errors].map { |error| error[:code] }).to include(:action_forbidden)
+      ensure
+        s&.close
+      end
+
+      it "keeps mixed meaning status for evidence profiles with mixed decisions" do
+        s = described_class.new
+        s.register_command_flow_view(:mixed_profile,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        reproducible_pin = s.pin_command_flow_view(:mixed_profile, action: :inspect)
+        unknown_pin = Igniter::DurableModel::CommandFlowViewPin.new(
+          status: :blocked,
+          meaning_status: :live,
+          name: :mixed_profile,
+          owner: :commanded_reminders,
+          action: :inspect,
+          receipt: { receipt_id: "cfvp_live" }
+        )
+        s.append_command_flow_decision(reproducible_pin)
+        s.append_command_flow_decision(unknown_pin)
+
+        profile = s.command_flow_evidence_profile(view_name: :mixed_profile)
+
+        expect(profile.meaning_status).to eq(:mixed)
       ensure
         s&.close
       end

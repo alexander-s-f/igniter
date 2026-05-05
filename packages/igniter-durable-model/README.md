@@ -216,6 +216,17 @@ store.command_flow_decision_review(
     op: :>=,
     value: 1
   }])
+store.command_flow_evidence_profile(
+  view_name: :reminder_flow_health,
+  action: :inspect,
+  capabilities: [:dispatch_review],
+  decision_rules: [{
+    name: :blocked,
+    metric: :status_count,
+    status: :blocked,
+    op: :>=,
+    value: 1
+  }])
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -232,8 +243,9 @@ projection descriptor registration, command/effect descriptor registration,
 `command_flow_summary`, `command_flow_monitor`,
 `register_command_flow_view`, `_command_flow_views`, `command_flow_view`,
 `pin_command_flow_view`, `append_command_flow_decision`,
-`command_flow_decisions`, `command_flow_decision_review`, `causation_chain`,
-`lineage`, `metadata_snapshot`, and `descriptor_snapshot`.
+`command_flow_decisions`, `command_flow_decision_review`,
+`command_flow_evidence_profile`, `causation_chain`, `lineage`,
+`metadata_snapshot`, and `descriptor_snapshot`.
 Partition replay lowers through the Ledger replay filter and uses Ledger
 partition indexes when served by a Ledger protocol interpreter. Relation support
 is v0 and lowers supported one-to-many declarations to Ledger relation
@@ -261,6 +273,9 @@ evidence with a reproducible horizon and stable app-local receipt shape.
 decision history for persisting pinned or blocked decisions only when requested.
 `CommandFlowDecisionReview` adds a compact read model over persisted decisions
 with summary metrics and advisory findings.
+`CommandFlowEvidenceProfile` bundles view, optional pin, decision review,
+decision entries, package-local packet candidates, and logical links for UI,
+agents, exports, and future bridge code.
 Future app security infrastructure remains outside this package.
 `Store#command_intent`, `Store#command_operation_plan`, and
 `Store#command_activity_event` build data only.
@@ -309,6 +324,11 @@ returns `CommandFlowDecisionReview` with counts by status, meaning status,
 view, action, actor, missing capabilities, errors, warnings, and simple
 rule-derived findings. Decision entries persist both the pin `receipt_id` and
 the app-local `decision_receipt_id`; neither is a Ledger fact id.
+`Store#command_flow_evidence_profile` packages the current operational view,
+optional pin evidence, persisted decision review, compact decision entries,
+bridge-ready package-local packet candidates, and stable logical links. It
+does not append decisions or command activity, mutate records, execute commands,
+or depend on Igniter-Lang observation packets.
 
 ### Normalized receipts
 

@@ -329,6 +329,19 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Decision review rules are app-local read-model checks over summary metrics.
   Findings fold review status to `:critical`, `:warning`, or `:ok`; they do not
   authorize or execute anything.
+- `Store#command_flow_evidence_profile` builds a portable
+  `CommandFlowEvidenceProfile` from a named operational view, optional pin,
+  decision review, compact decision entries, package-local packet candidates,
+  and logical links.
+- Evidence profiles fold status conservatively across view, pin, and review
+  artifacts and fold meaning status without overclaiming reproducibility.
+- Evidence packet candidates are Durable Model local shapes, not Igniter-Lang
+  `ObsPacket` values. Packet subjects and links use stable app-safe
+  `durable-model://...` refs for owners, views, pins, decisions, and decision
+  receipts.
+- Evidence profiles are packaging/read-model artifacts only: they do not append
+  decision history, append command activity, mutate business records, execute
+  commands, add transport endpoints, or add Ledger protocol operations.
 - Command-flow decision history is separate from `CommandActivity`: decisions
   describe human/agent/app decisions made from operational views, while command
   activity describes command attempts.
