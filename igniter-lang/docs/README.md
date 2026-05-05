@@ -27,6 +27,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-001](proposals/PROP-001-semantic-domain-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Formal semantic domain: V, T, Tt, C, Expr, O, F |
 | [proposals/PROP-002](proposals/PROP-002-contract-composition-algebra-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Contract composition: >>, \|\|, branch, over, embed — algebraic laws + closure theorem |
 | [proposals/PROP-003](proposals/PROP-003-grammar-fragment-classification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Fragment classification: CORE / ESCAPE / OOF; Pass 0 compiler; DSL keyword mapping |
+| [proposals/PROP-004](proposals/PROP-004-type-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Structural types, temporal capabilities, Projection[T,horizon], Obs[kind,T], soundness |
 
 ## Core Documents
 
@@ -50,8 +51,11 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Formal Semantic Domain (PROP-001)
 - Contract Composition Algebra (PROP-002)
 - Grammar Fragment Classification (PROP-003)
-- Type System v0 (QUEUED — PROP-004)
+- Type System v0 (PROP-004)
+- Temporal Contract Semantics (PROP-004 + temporal-positioning.md)
+- Projections / Slices / As-Of Views (Projection[T, horizon] — PROP-004)
 - Bridge Observation Envelope (QUEUED — PROP-005)
+- Axiom Layer Type Signatures (QUEUED — PROP-004b)
 
 ## Review Cadence
 

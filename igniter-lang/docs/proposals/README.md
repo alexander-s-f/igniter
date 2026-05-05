@@ -17,6 +17,7 @@ design decision or formal specification.
 | [PROP-001-semantic-domain-v0.md](PROP-001-semantic-domain-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Formal semantic domain: values, types, temporal context, contracts, observations, failures |
 | [PROP-002-contract-composition-algebra-v0.md](PROP-002-contract-composition-algebra-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Typed port graph algebra: >>, ||, branch, over, embed; algebraic laws; composition closure theorem |
 | [PROP-003-grammar-fragment-classification-v0.md](PROP-003-grammar-fragment-classification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Three-class fragment model: CORE / ESCAPE / OOF; Pass 0 compiler; DSL keyword mapping |
+| [PROP-004-type-system-v0.md](PROP-004-type-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Structural types, temporal capabilities, Projection[T,horizon], Obs[kind,T], soundness theorem |
 
 ---
 
@@ -24,8 +25,8 @@ design decision or formal specification.
 
 | ID | Title | Depends On | Priority |
 |----|-------|------------|----------|
-| PROP-004 | Type System v0 | PROP-001, PROP-002, PROP-003 | high |
-| PROP-005 | Bridge Observation Envelope v0 | tracks/failure-observation-v0, PROP-003 | medium |
+| PROP-005 | Bridge Observation Envelope v0 | tracks/failure-observation-v0, PROP-003, PROP-004 | high |
+| PROP-004b | Axiom Layer Type Signatures | PROP-004 | low |
 
 ---
 
