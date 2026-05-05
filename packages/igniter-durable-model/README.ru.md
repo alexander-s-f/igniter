@@ -195,6 +195,16 @@ store.append_command_flow_decision(pin)
 store.command_flow_decisions(
   owner: :reminders,
   view_name: :reminder_flow_health)
+store.command_flow_decision_review(
+  owner: :reminders,
+  view_name: :reminder_flow_health,
+  rules: [{
+    name: :blocked,
+    metric: :status_count,
+    status: :blocked,
+    op: :>=,
+    value: 1
+  }])
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -211,8 +221,8 @@ registration, command/effect descriptor registration, `_projections`,
 `command_flow_monitor`, `register_command_flow_view`, `_command_flow_views`,
 `command_flow_view`, `pin_command_flow_view`,
 `append_command_flow_decision`, `command_flow_decisions`,
-`metadata_snapshot` и `descriptor_snapshot`, а также `causation_chain` и
-`lineage`. Partition replay проходит через Ledger replay
+`command_flow_decision_review`, `metadata_snapshot` и `descriptor_snapshot`, а
+также `causation_chain` и `lineage`. Partition replay проходит через Ledger replay
 filter и использует Ledger partition indexes, когда запрос обслуживает Ledger
 protocol interpreter. Relation support в v0 понижает
 поддержанные one-to-many декларации в Ledger relation descriptors. Projection,
@@ -238,8 +248,9 @@ advisory action policy для dashboards и agents. `CommandFlowViewPin`
 reproducible horizon и stable app-local receipt shape.
 `CommandFlowDecision` и `CommandFlowDecisionReceipt` добавляют explicit
 app-owned decision history для сохранения pinned или blocked decisions только
-по явному запросу. Будущая app security infrastructure остаётся вне этого
-пакета.
+по явному запросу. `CommandFlowDecisionReview` добавляет compact read model
+поверх persisted decisions с summary metrics и advisory findings. Будущая app
+security infrastructure остаётся вне этого пакета.
 `Store#command_intent`,
 `Store#command_operation_plan` и
 `Store#command_activity_event` строят только данные. `Store#append_command_activity`
@@ -283,6 +294,11 @@ history по owner partition с view/action/actor/status/meaning/receipt и
 temporal filters. Decision history отделена от `CommandActivity` и не мутирует
 records, не исполняет commands, не append-ит command activity и не добавляет
 Ledger protocol surface.
+`Store#command_flow_decision_review` строится поверх persisted decision history
+и возвращает `CommandFlowDecisionReview` с counts by status, meaning status,
+view, action, actor, missing capabilities, errors, warnings и simple
+rule-derived findings. Decision entries сохраняют и pin `receipt_id`, и
+app-local `decision_receipt_id`; ни один из них не является Ledger fact id.
 
 ### Нормализованные receipts
 

@@ -821,7 +821,19 @@ RSpec.describe Igniter::Companion::Store do
         action: :inspect,
         actor: "dispatcher-1",
         status: :pinned,
-        receipt_id: pin.receipt[:receipt_id]
+        receipt_id: pin.receipt[:receipt_id],
+        decision_receipt_id: receipt.decision_receipt_id
+      )
+      review = s.command_flow_decision_review(
+        owner: :commanded_reminders,
+        view_name: :client_decision_health,
+        rules: [{
+          name: :pinned,
+          metric: :status_count,
+          status: :pinned,
+          op: :>=,
+          value: 1
+        }]
       )
 
       expect(receipt).to be_appended
@@ -829,10 +841,13 @@ RSpec.describe Igniter::Companion::Store do
       expect(receipt.decision_receipt_id).to start_with("cfd_")
       expect(decisions.size).to eq(1)
       expect(decisions.first).to be_a(Igniter::DurableModel::CommandFlowDecision)
+      expect(decisions.first.decision_receipt_id).to eq(receipt.decision_receipt_id)
       expect(decisions.first.metadata).to include(
         request_id: "client-pin",
         persisted_by: :client_spec
       )
+      expect(review).to be_warning
+      expect(review.findings.first[:name]).to eq(:pinned)
     ensure
       s&.close
     end
@@ -3525,7 +3540,8 @@ RSpec.describe Igniter::Companion::Store do
           actor: "dispatcher-1",
           status: :pinned,
           meaning_status: :reproducible,
-          receipt_id: pin.receipt[:receipt_id]
+          receipt_id: pin.receipt[:receipt_id],
+          decision_receipt_id: receipt.decision_receipt_id
         )
 
         expect(receipt).to be_frozen
@@ -3546,6 +3562,7 @@ RSpec.describe Igniter::Companion::Store do
           status: :pinned,
           meaning_status: :reproducible,
           receipt_id: pin.receipt[:receipt_id],
+          decision_receipt_id: receipt.decision_receipt_id,
           view_status: :warning,
           monitor_status: :warning,
           store_fact_exposed: false,
@@ -3621,6 +3638,149 @@ RSpec.describe Igniter::Companion::Store do
 
         expect { s.append_command_flow_decision(Object.new) }
           .to raise_error(ArgumentError, /CommandFlowViewPin/)
+      ensure
+        s&.close
+      end
+
+      it "returns an ok empty command flow decision review" do
+        s = described_class.new
+
+        review = s.command_flow_decision_review(owner: :commanded_reminders)
+
+        expect(review).to be_frozen
+        expect(review).to be_ok
+        expect(review[:kind]).to eq(:command_flow_decision_review)
+        expect(review.summary).to include(
+          total: 0,
+          status_count: {},
+          meaning_status_count: {},
+          view_count: {},
+          action_count: {},
+          actor_count: {},
+          missing_capability_count: 0,
+          error_count: 0,
+          warning_count: 0,
+          latest_generated_at: nil
+        )
+        expect(review.findings).to eq([])
+        expect(review.decisions).to eq([])
+        expect(review.to_h).not_to have_key(:fact_id)
+        expect(review.to_h).not_to have_key(:value_hash)
+        expect(review.to_h).not_to have_key(:causation)
+      ensure
+        s&.close
+      end
+
+      it "reviews command flow decisions with summary metrics and findings" do
+        s = described_class.new
+        s.register_command_flow_view(:review_health,
+          owner: :commanded_reminders,
+          action_policy: {
+            approve: :requires_pinned_horizon,
+            required_capabilities: [:dispatch_review]
+          })
+        s.register_command_flow_view(:warning_health,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        pinned = s.pin_command_flow_view(:review_health,
+          action: :approve,
+          actor: "dispatcher-1",
+          capabilities: [:dispatch_review])
+        blocked = s.pin_command_flow_view(:review_health,
+          action: :approve,
+          actor: "dispatcher-2",
+          capabilities: [])
+        warning_pin = Igniter::DurableModel::CommandFlowViewPin.new(
+          status: :blocked,
+          meaning_status: :unknown,
+          name: :warning_health,
+          owner: :commanded_reminders,
+          action: :inspect,
+          actor: "dispatcher-1",
+          receipt: { receipt_id: "cfvp_warning" },
+          warnings: [{ code: :manual_review, message: "needs review" }]
+        )
+        pinned_receipt = s.append_command_flow_decision(pinned)
+        s.append_command_flow_decision(blocked)
+        s.append_command_flow_decision(warning_pin)
+        before_decisions = s.command_flow_decisions(owner: :commanded_reminders).size
+
+        review = s.command_flow_decision_review(
+          owner: :commanded_reminders,
+          since: Time.now.utc - 60,
+          as_of: Time.now.utc + 60,
+          rules: [
+            { name: :total, metric: :total, op: :>=, value: 3, severity: :warning },
+            { name: :blocked, metric: :status_count, status: :blocked, op: :>=, value: 2 },
+            { name: :unknown, metric: :meaning_status_count, meaning_status: :unknown, op: :>=, value: 2 },
+            { name: :view, metric: :view_count, view_name: :review_health, op: :>=, value: 2 },
+            { name: :action, metric: :action_count, action: :approve, op: :>=, value: 2 },
+            { name: :actor, metric: :actor_count, actor: "dispatcher-1", op: :>=, value: 2 },
+            { name: :missing, metric: :missing_capability_count, op: :>=, value: 1 },
+            { name: :errors, metric: :error_count, op: :>=, value: 1 },
+            { name: :warnings, metric: :warning_count, op: :>=, value: 1, severity: :critical }
+          ],
+          metadata: { dashboard: :ops }
+        )
+        after_decisions = s.command_flow_decisions(owner: :commanded_reminders).size
+
+        expect(review).to be_critical
+        expect(review.summary).to include(
+          total: 3,
+          missing_capability_count: 1,
+          error_count: 1,
+          warning_count: 1
+        )
+        expect(review.summary[:status_count]).to include(pinned: 1, blocked: 2)
+        expect(review.summary[:meaning_status_count]).to include(reproducible: 1, unknown: 2)
+        expect(review.summary[:view_count]).to include(review_health: 2, warning_health: 1)
+        expect(review.summary[:action_count]).to include(approve: 2, inspect: 1)
+        expect(review.summary[:actor_count]).to include(:"dispatcher-1" => 2)
+        expect(review.findings.map { |finding| finding[:name] }).to include(
+          :total,
+          :blocked,
+          :unknown,
+          :view,
+          :action,
+          :actor,
+          :missing,
+          :errors,
+          :warnings
+        )
+        expect(review.findings.last).to include(status: :matched, severity: :critical)
+        expect(review.metadata).to eq(dashboard: :ops)
+        expect(after_decisions).to eq(before_decisions)
+
+        filtered = s.command_flow_decision_review(
+          owner: :commanded_reminders,
+          decision_receipt_id: pinned_receipt.decision_receipt_id,
+          limit: 1
+        )
+        expect(filtered.decisions.size).to eq(1)
+        expect(filtered.decisions.first[:decision_receipt_id]).to eq(pinned_receipt.decision_receipt_id)
+      ensure
+        s&.close
+      end
+
+      it "raises for malformed command flow decision review rules" do
+        s = described_class.new
+
+        expect do
+          s.command_flow_decision_review(owner: :commanded_reminders,
+            rules: [{ name: :bad, metric: :mystery, op: :>=, value: 1 }])
+        end.to raise_error(ArgumentError, /metric/)
+        expect do
+          s.command_flow_decision_review(owner: :commanded_reminders,
+            rules: [{ name: :bad, metric: :total, op: :between, value: 1 }])
+        end.to raise_error(ArgumentError, /operator/)
+        expect do
+          s.command_flow_decision_review(owner: :commanded_reminders,
+            rules: [{ name: :bad, metric: :total, op: :>= }])
+        end.to raise_error(ArgumentError, /requires value/)
+        expect do
+          s.command_flow_decision_review(owner: :commanded_reminders,
+            rules: [{ name: :bad, metric: :status_count, op: :>=, value: 1 }])
+        end.to raise_error(ArgumentError, /requires status/)
       ensure
         s&.close
       end

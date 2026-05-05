@@ -17,6 +17,7 @@ require "igniter/durable_model/command_flow_monitor_result"
 require "igniter/durable_model/command_flow_view_descriptor"
 require "igniter/durable_model/command_flow_view"
 require "igniter/durable_model/command_flow_view_pin"
+require "igniter/durable_model/command_flow_decision_review"
 require "igniter/durable_model/store"
 require_relative "../spec_helper"
 
@@ -91,6 +92,7 @@ RSpec.describe Igniter::DurableModel do
     expect(described_class::CommandFlowViewDescriptor).to equal(Igniter::Companion::CommandFlowViewDescriptor)
     expect(described_class::CommandFlowView).to equal(Igniter::Companion::CommandFlowView)
     expect(described_class::CommandFlowViewPin).to equal(Igniter::Companion::CommandFlowViewPin)
+    expect(described_class::CommandFlowDecisionReview).to equal(Igniter::Companion::CommandFlowDecisionReview)
   end
 
   it "defines command flow decision history shape" do
@@ -105,6 +107,7 @@ RSpec.describe Igniter::DurableModel do
       status: include(default: nil),
       meaning_status: include(default: nil),
       receipt_id: include(default: nil),
+      decision_receipt_id: include(default: nil),
       horizon: include(default: {}),
       capabilities: include(default: []),
       missing_capabilities: include(default: []),

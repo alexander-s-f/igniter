@@ -1,6 +1,6 @@
 # Track: Durable Model Command Flow Decision Review v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -266,3 +266,25 @@ Please keep this slice as an app-safe read model over explicit decision history:
 
 This slice should make persisted decisions operationally useful without changing
 the command execution boundary.
+
+## Final Notes
+
+Implemented as a read-only review model over explicit decision history:
+
+- Added `CommandFlowDecisionReview` with frozen app-safe serialization,
+  summary metrics, findings, filters, horizon, and metadata.
+- Added `Igniter::Companion::CommandFlowDecisionReview` compatibility alias.
+- Added `Store#command_flow_decision_review`.
+- Added `decision_receipt_id` to persisted `CommandFlowDecision` entries and to
+  `Store#command_flow_decisions` filtering, making the v0 identity story
+  explicit alongside the pin `receipt_id`.
+- Review builds on `command_flow_decisions`, supports the same filters and
+  temporal window, and does not append history, mutate records, execute
+  commands, append command activity, or add Ledger protocol operations.
+- Summary includes total, status/meaning/view/action/actor counts, missing
+  capability count, error count, warning count, and latest decision timestamp.
+- Rules support total/status/meaning/view/action/actor/missing/error/warning
+  metrics with comparison operators and warning/critical status folding.
+- Covered empty review, embedded and client-backed paths, filters, temporal
+  windows, limit, summary metrics, rule findings, malformed rules, app-safe
+  serialization, and compatibility alias.

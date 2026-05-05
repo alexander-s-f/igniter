@@ -16,6 +16,7 @@ module Igniter
       field :status
       field :meaning_status
       field :receipt_id
+      field :decision_receipt_id, default: nil
       field :horizon, default: {}
       field :capabilities, default: []
       field :missing_capabilities, default: []

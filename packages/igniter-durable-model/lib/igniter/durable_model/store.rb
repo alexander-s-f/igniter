@@ -816,6 +816,7 @@ module Igniter
         decision_receipt_id = "cfd_#{SecureRandom.hex(8)}"
         append(history_class, **command_flow_decision_payload(
           pin,
+          decision_receipt_id: decision_receipt_id,
           metadata: merged_metadata
         ))
 
@@ -839,6 +840,7 @@ module Igniter
       def command_flow_decisions(owner:, view_name: nil, action: nil,
                                  actor: nil, status: nil,
                                  meaning_status: nil, receipt_id: nil,
+                                 decision_receipt_id: nil,
                                  since: nil, as_of: nil, limit: nil,
                                  history_class: CommandFlowDecision)
         decisions = replay(history_class,
@@ -853,10 +855,63 @@ module Igniter
             actor: actor,
             status: status,
             meaning_status: meaning_status,
-            receipt_id: receipt_id
+            receipt_id: receipt_id,
+            decision_receipt_id: decision_receipt_id
           )
         end
         limit ? filtered.first(limit) : filtered
+      end
+
+      # Compact app-safe review over persisted command-flow decision history.
+      def command_flow_decision_review(owner:, view_name: nil, action: nil,
+                                       actor: nil, status: nil,
+                                       meaning_status: nil, receipt_id: nil,
+                                       decision_receipt_id: nil, since: nil,
+                                       as_of: nil, limit: nil, rules: [],
+                                       metadata: {},
+                                       history_class: CommandFlowDecision)
+        decisions = command_flow_decisions(
+          owner: owner,
+          view_name: view_name,
+          action: action,
+          actor: actor,
+          status: status,
+          meaning_status: meaning_status,
+          receipt_id: receipt_id,
+          decision_receipt_id: decision_receipt_id,
+          since: since,
+          as_of: as_of,
+          limit: limit,
+          history_class: history_class
+        )
+        summary = command_flow_decision_review_summary(decisions)
+        normalized_rules = Array(rules).map do |rule|
+          normalize_decision_review_rule(rule)
+        end
+        findings = normalized_rules.filter_map do |rule|
+          command_flow_decision_review_finding(rule, summary)
+        end
+        review_status = command_flow_decision_review_status(findings)
+
+        CommandFlowDecisionReview.new(
+          owner: owner,
+          filters: command_flow_decision_review_filters(
+            view_name: view_name,
+            action: action,
+            actor: actor,
+            status: status,
+            meaning_status: meaning_status,
+            receipt_id: receipt_id,
+            decision_receipt_id: decision_receipt_id
+          ),
+          status: review_status,
+          meaning_status: meaning_status || :mixed,
+          horizon: { since: since, as_of: as_of, limit: limit }.compact,
+          summary: summary,
+          findings: findings,
+          decisions: decisions,
+          metadata: metadata
+        )
       end
 
       # Summarize app-owned policy/capability checks for a command plan.
@@ -1864,7 +1919,7 @@ module Igniter
         }
       end
 
-      def command_flow_decision_payload(pin, metadata:)
+      def command_flow_decision_payload(pin, decision_receipt_id:, metadata:)
         {
           owner: pin.owner,
           view_name: pin.name,
@@ -1873,6 +1928,7 @@ module Igniter
           status: pin.status,
           meaning_status: pin.meaning_status,
           receipt_id: pin.receipt[:receipt_id],
+          decision_receipt_id: decision_receipt_id,
           horizon: pin.horizon,
           capabilities: pin.capabilities,
           missing_capabilities: pin.missing_capabilities,
@@ -1892,7 +1948,8 @@ module Igniter
       end
 
       def command_flow_decision_matches?(decision, view_name:, action:, actor:,
-                                         status:, meaning_status:, receipt_id:)
+                                         status:, meaning_status:, receipt_id:,
+                                         decision_receipt_id:)
         view_matches = view_name.nil? || decision.view_name == token(view_name)
         action_matches = action.nil? || decision.action == token(action)
         actor_matches = actor.nil? || decision.actor == actor
@@ -1900,9 +1957,137 @@ module Igniter
         meaning_matches = meaning_status.nil? ||
                           decision.meaning_status == token(meaning_status)
         receipt_matches = receipt_id.nil? || decision.receipt_id == receipt_id
+        decision_receipt_matches = decision_receipt_id.nil? ||
+                                   decision.decision_receipt_id == decision_receipt_id
 
         view_matches && action_matches && actor_matches && status_matches &&
-          meaning_matches && receipt_matches
+          meaning_matches && receipt_matches && decision_receipt_matches
+      end
+
+      REVIEW_METRICS = %i[
+        total status_count meaning_status_count view_count action_count
+        actor_count missing_capability_count error_count warning_count
+      ].freeze
+
+      def command_flow_decision_review_filters(view_name:, action:, actor:,
+                                               status:, meaning_status:,
+                                               receipt_id:,
+                                               decision_receipt_id:)
+        {
+          view_name: token(view_name),
+          action: token(action),
+          actor: actor,
+          status: token(status),
+          meaning_status: token(meaning_status),
+          receipt_id: receipt_id,
+          decision_receipt_id: decision_receipt_id
+        }.compact
+      end
+
+      def command_flow_decision_review_summary(decisions)
+        generated_values = decisions.map(&:timestamp).compact
+        {
+          total: decisions.size,
+          status_count: count_by(decisions.map(&:status)),
+          meaning_status_count: count_by(decisions.map(&:meaning_status)),
+          view_count: count_by(decisions.map(&:view_name)),
+          action_count: count_by(decisions.map(&:action)),
+          actor_count: count_by(decisions.map(&:actor).compact),
+          missing_capability_count: decisions.sum { |decision| Array(decision.missing_capabilities).size },
+          error_count: decisions.sum { |decision| Array(decision.errors).size },
+          warning_count: decisions.sum { |decision| Array(decision.warnings).size },
+          latest_generated_at: generated_values.max
+        }
+      end
+
+      def count_by(values)
+        values.each_with_object(Hash.new(0)) do |value, counts|
+          counts[value] += 1
+        end.to_h
+      end
+
+      def normalize_decision_review_rule(rule)
+        data = normalize_value(rule || {})
+        metric = token(data[:metric])
+        op = token(data[:op])
+        severity = token(data[:severity] || :warning)
+
+        unless REVIEW_METRICS.include?(metric)
+          raise ArgumentError, "Unknown command_flow_decision_review metric: #{metric.inspect}"
+        end
+        unless MONITOR_OPERATORS.include?(op)
+          raise ArgumentError, "Unknown command_flow_decision_review operator: #{op.inspect}"
+        end
+        unless MONITOR_SEVERITIES.include?(severity)
+          raise ArgumentError, "Unknown command_flow_decision_review severity: #{severity.inspect}"
+        end
+        raise ArgumentError, "command_flow_decision_review rule requires name" unless data[:name]
+        raise ArgumentError, "command_flow_decision_review rule requires value" unless data.key?(:value)
+
+        data.merge(
+          name: token(data[:name]),
+          metric: metric,
+          op: op,
+          severity: severity,
+          status: token(data[:status]),
+          meaning_status: token(data[:meaning_status]),
+          view_name: token(data[:view_name]),
+          action: token(data[:action])
+        ).compact
+      end
+
+      def command_flow_decision_review_finding(rule, summary)
+        actual = command_flow_decision_review_metric(rule, summary)
+        return nil unless command_flow_monitor_compare(actual, rule[:op], rule[:value])
+
+        {
+          name: rule[:name],
+          status: :matched,
+          severity: rule[:severity],
+          metric: rule[:metric],
+          expected: rule[:value],
+          actual: actual,
+          message: rule[:message]
+        }.compact
+      end
+
+      def command_flow_decision_review_metric(rule, summary)
+        case rule[:metric]
+        when :total
+          summary[:total]
+        when :status_count
+          summary[:status_count].fetch(required_decision_review_rule_field(rule, :status), 0)
+        when :meaning_status_count
+          summary[:meaning_status_count].fetch(required_decision_review_rule_field(rule, :meaning_status), 0)
+        when :view_count
+          summary[:view_count].fetch(required_decision_review_rule_field(rule, :view_name), 0)
+        when :action_count
+          summary[:action_count].fetch(required_decision_review_rule_field(rule, :action), 0)
+        when :actor_count
+          summary[:actor_count].fetch(required_decision_review_rule_field(rule, :actor), 0)
+        when :missing_capability_count
+          summary[:missing_capability_count]
+        when :error_count
+          summary[:error_count]
+        when :warning_count
+          summary[:warning_count]
+        else
+          raise ArgumentError, "Unknown command_flow_decision_review metric: #{rule[:metric].inspect}"
+        end
+      end
+
+      def required_decision_review_rule_field(rule, key)
+        return rule[key] if rule.key?(key)
+
+        raise ArgumentError,
+              "command_flow_decision_review metric=#{rule[:metric].inspect} requires #{key}:"
+      end
+
+      def command_flow_decision_review_status(findings)
+        return :critical if findings.any? { |finding| finding[:severity] == :critical }
+        return :warning if findings.any? { |finding| finding[:severity] == :warning }
+
+        :ok
       end
 
       def normalize_command_flow_view_horizon(horizon)

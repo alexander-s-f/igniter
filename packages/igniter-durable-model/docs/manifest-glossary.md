@@ -316,6 +316,19 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - `Store#command_flow_decisions` replays decision history by owner partition and
   filters by view name, action, actor, status, meaning status, receipt id, and
   temporal window.
+- Decision entries persist both the originating pin `receipt_id` and the
+  app-local `decision_receipt_id` returned by
+  `CommandFlowDecisionReceipt`. Both are app-safe ids; neither exposes Ledger
+  fact ids.
+- `Store#command_flow_decision_review` builds a compact
+  `CommandFlowDecisionReview` over persisted decisions using the same filters
+  and temporal windows as `command_flow_decisions`.
+- `CommandFlowDecisionReview` exposes total counts plus counts by status,
+  meaning status, view, action, actor, missing capabilities, errors, warnings,
+  latest decision timestamp, and rule-derived findings.
+- Decision review rules are app-local read-model checks over summary metrics.
+  Findings fold review status to `:critical`, `:warning`, or `:ok`; they do not
+  authorize or execute anything.
 - Command-flow decision history is separate from `CommandActivity`: decisions
   describe human/agent/app decisions made from operational views, while command
   activity describes command attempts.

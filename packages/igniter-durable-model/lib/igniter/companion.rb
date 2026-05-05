@@ -25,6 +25,7 @@ module Igniter
     CommandFlowViewDescriptor = DurableModel::CommandFlowViewDescriptor
     CommandFlowView = DurableModel::CommandFlowView
     CommandFlowViewPin = DurableModel::CommandFlowViewPin
+    CommandFlowDecisionReview = DurableModel::CommandFlowDecisionReview
 
     def self.from_manifest(manifest, store: nil)
       DurableModel.from_manifest(manifest, store: store)
