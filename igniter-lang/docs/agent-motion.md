@@ -136,7 +136,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/bridge-observation-envelope-package-mapping-v0.md` | done | bridge implementation plan preflight |
+| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-lifecycle-v0.md` | done | bridge implementation plan preflight |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-007-conformance-verification-v0.md` | done | PROP-005 verification_observation extension |
 
 ## Current Meta Thesis
@@ -178,6 +178,21 @@ meaning_status
 
 Agents must downgrade action rights for live, provisional, stale, or unknown
 runtime evidence.
+
+[D] Runtime Machine lifecycle is now the semantic owner of boot, load,
+evaluate, checkpoint, and resume. Cross-session continuity is a compatible
+evidence chain, not a live process:
+
+```text
+SemanticImage
+  + RuntimeContract
+  + AxiomDescriptor
+  + TBackendAdapter
+  + replay_cursor
+  -> compatible resume | provisional resume | blocked resume
+```
+
+Ledger is one possible durable TBackend adapter. It is not the language core.
 
 ---
 
@@ -227,6 +242,7 @@ igniter-lang/docs/
     runtime-contracts-and-execution-environments-v0.md [done]
     bridge-observation-envelope-runtime-evidence-v0.md [done]
     bridge-observation-envelope-package-mapping-v0.md [done]
+    runtime-machine-lifecycle-v0.md [done]
     bridge-observation-envelope-implementation-plan-v0.md [queued - requires Architect review]
 
   proposals/                     <- formal design proposals
@@ -272,6 +288,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-contracts-and-execution-environments-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-runtime-evidence-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-package-mapping-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-lifecycle-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |

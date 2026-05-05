@@ -20,6 +20,7 @@ implementation detail of the current Igniter platform.
 | [tracks/runtime-contracts-and-execution-environments-v0.md](tracks/runtime-contracts-and-execution-environments-v0.md) | done | Defined runtime contracts, execution environments, guarantees, and result meaning status |
 | [tracks/bridge-observation-envelope-runtime-evidence-v0.md](tracks/bridge-observation-envelope-runtime-evidence-v0.md) | done | Extended bridge vocabulary with runtime evidence, meaning status, and runtime links |
 | [tracks/bridge-observation-envelope-package-mapping-v0.md](tracks/bridge-observation-envelope-package-mapping-v0.md) | done | Mapped current package facts, projections, pins, decisions, and runtime session packets to bridge profiles |
+| [tracks/runtime-machine-lifecycle-v0.md](tracks/runtime-machine-lifecycle-v0.md) | done | Defined Runtime Machine boot/load/evaluate/checkpoint/resume lifecycle, semantic image, TBackend adapters, compatibility, and CORE/ESCAPE boundary |
 
 ## Active Proposals
 
@@ -36,6 +37,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-004b](proposals/PROP-004b-axiom-layer-type-signatures-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Three-tier axiom stack: language built-ins, runtime contracts, platform observations |
 | [proposals/PROP-006](proposals/PROP-006-runtime-contract-specification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | RuntimeContract: scheduler, clock, cache, storage, capability, distributed ESCAPE; conformance |
 | [proposals/PROP-007](proposals/PROP-007-conformance-verification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Conformance verification: 5 check suites, trust levels, agent trust decision procedure |
+| [proposals/PROP-008](proposals/PROP-008-tbackend-contract-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | TBackend[T]: read/append/replay/snapshot/compact/subscribe; reproducible resume; adapter classes |
 
 ## Core Documents
 
@@ -68,12 +70,11 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Axiom Layer Type Signatures (PROP-004b)
 - Runtime Contract Specification (PROP-006)
 - Conformance Verification (PROP-007)
+- TBackend Contract (PROP-008)
 - Axiomatic Contract Model (axiomatic-contract-model.md)
-- Temporal Contracts and Projections (Research Agent track)
-- Runtime Contracts and Execution Environments (Research Agent track)
-- Bridge Runtime Evidence (Research Agent track)
-- Bridge Package Mapping (Research Agent track)
-- Runtime Machine (lifecycle, TBackend, semantic image, resume)
+- Runtime Machine (runtime-machine.md)
+- Temporal Contracts and Projections (QUEUED — Research Agent track)
+- Runtime Machine Lifecycle (QUEUED — PROP-009)
 
 ## Review Cadence
 
