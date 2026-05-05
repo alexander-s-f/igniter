@@ -1,6 +1,6 @@
 # Track: Durable Model Command Activity Projection v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -292,3 +292,7 @@ Status: done | partial | blocked
 
 - This is the app-safe summary bridge after planning.
 - Keep it projection-only. Persistence/application is a later explicit slice.
+- `CommandActivityEvent` is immutable, hash-readable, and omits fact ids,
+  value hashes, and planned record values.
+- `Store#command_activity_event` covers `CommandIntent`, ready plans, and
+  invalid plans without producing facts or audit history.

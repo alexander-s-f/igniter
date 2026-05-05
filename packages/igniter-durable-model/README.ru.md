@@ -140,7 +140,8 @@ store.read(Reminder, key: "r1")
 store._commands
 store._effects
 intent = store.command_intent(Reminder, :complete, key: "r1")
-store.command_operation_plan(intent)
+plan = store.command_operation_plan(intent)
+store.command_activity_event(plan)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -163,12 +164,14 @@ support read-only и compact: Durable Model экспонирует
 `causation_chain`/`lineage`, а Ledger Client `fact_ref` возвращает только
 metadata и не открывает произвольный `fact_by_id`.
 
-Command support состоит из четырёх слоёв: descriptor metadata
+Command support состоит из пяти слоёв: descriptor metadata
 (`_commands`/`_effects`), pure `CommandIntent` objects, dry-run
-`CommandOperationPlan` previews и будущая app-boundary application/projection.
-`Store#command_intent` и `Store#command_operation_plan` строят только данные и
-всегда несут `execution_allowed: false`; они не пишут records, не append-ят
-histories, не публикуют events и не просят Ledger исполнять commands.
+`CommandOperationPlan` previews, app-safe `CommandActivityEvent` summaries и
+будущая app-boundary application/audit persistence. `Store#command_intent`,
+`Store#command_operation_plan` и `Store#command_activity_event` строят только
+данные и всегда несут `execution_allowed: false`; они не пишут records, не
+append-ят histories, не публикуют events, не раскрывают fact ids/value hashes и
+не просят Ledger исполнять commands.
 
 ### Нормализованные receipts
 

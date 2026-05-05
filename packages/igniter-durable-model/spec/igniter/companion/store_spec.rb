@@ -447,6 +447,42 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "projects client-backed command activity events without exposing storage internals" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+      intent = s.command_intent(CommandedReminder, :complete,
+        key: "r1",
+        metadata: { request_id: "req-1" })
+      plan = s.command_operation_plan(intent)
+      event = s.command_activity_event(plan, metadata: { actor: "user-1" })
+
+      expect(event).to be_a(Igniter::DurableModel::CommandActivityEvent)
+      expect(event.to_h).to include(
+        kind: :command_activity_event,
+        owner: :commanded_reminders,
+        command: :complete,
+        subject_key: "r1",
+        operation: :record_update,
+        status: :planned,
+        intent_status: :ready,
+        plan_status: :ready,
+        target: { shape: :store, name: :commanded_reminders, key: "r1" },
+        errors: [],
+        store_fact_exposed: false,
+        value_hash_exposed: false,
+        execution_allowed: false
+      )
+      expect(event.metadata).to eq(request_id: "req-1", actor: "user-1")
+      expect(event.to_h).not_to have_key(:fact_id)
+      expect(event.to_h).not_to have_key(:value_hash)
+      expect(event.to_h).not_to have_key(:value)
+      expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -1517,6 +1553,87 @@ RSpec.describe Igniter::Companion::Store do
         expect(plan.value).to be_nil
         expect(plan.event).to be_nil
         expect(plan.execution_allowed).to be false
+      ensure
+        s&.close
+      end
+
+      it "projects command intents into intended activity events" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :complete,
+          key: "r1",
+          metadata: { request_id: "req-1" })
+        event = s.command_activity_event(intent, metadata: { actor: "user-1" })
+
+        expect(event).to be_frozen
+        expect(event[:owner]).to eq(:commanded_reminders)
+        expect(event.to_h).to include(
+          schema_version: 1,
+          kind: :command_activity_event,
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          operation: :record_update,
+          status: :intended,
+          intent_status: :ready,
+          plan_status: nil,
+          target: nil,
+          errors: [],
+          warnings: [],
+          metadata: { request_id: "req-1", actor: "user-1" },
+          store_fact_exposed: false,
+          value_hash_exposed: false,
+          execution_allowed: false
+        )
+      ensure
+        s&.close
+      end
+
+      it "projects ready command operation plans into planned activity events" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :complete, key: "r1")
+        plan = s.command_operation_plan(intent)
+        event = s.command_activity_event(plan)
+
+        expect(event.status).to eq(:planned)
+        expect(event.plan_status).to eq(:ready)
+        expect(event.target).to eq(shape: :store, name: :commanded_reminders, key: "r1")
+        expect(event.errors).to eq([])
+        expect(event.to_h).not_to have_key(:value)
+        expect(event.to_h).not_to have_key(:fact_id)
+        expect(event.to_h).not_to have_key(:value_hash)
+      ensure
+        s&.close
+      end
+
+      it "projects invalid command operation plans into rejected activity events" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :complete, key: "missing")
+        plan = s.command_operation_plan(intent)
+        event = s.command_activity_event(plan)
+
+        expect(event.status).to eq(:rejected)
+        expect(event.plan_status).to eq(:invalid)
+        expect(event.errors).to include(include(code: :record_not_found))
+        expect(event.execution_allowed).to be false
+      ensure
+        s&.close
+      end
+
+      it "allows explicit activity status overrides" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :complete, key: "r1")
+        event = s.command_activity_event(intent, status: :previewed)
+
+        expect(event.status).to eq(:previewed)
       ensure
         s&.close
       end

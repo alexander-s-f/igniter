@@ -151,7 +151,8 @@ store.read(Reminder, key: "r1")
 store._commands
 store._effects
 intent = store.command_intent(Reminder, :complete, key: "r1")
-store.command_operation_plan(intent)
+plan = store.command_operation_plan(intent)
+store.command_activity_event(plan)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -175,12 +176,13 @@ Provenance support is read-only and compact: Durable Model exposes
 `causation_chain`/`lineage`, while Ledger Client `fact_ref` returns metadata
 only and does not expose arbitrary `fact_by_id` reads.
 
-Command support has four layers: descriptor metadata (`_commands`/`_effects`),
-pure `CommandIntent` objects, dry-run `CommandOperationPlan` previews, and
-future app-boundary application/projection. `Store#command_intent` and
-`Store#command_operation_plan` build data only and always carry
+Command support has five layers: descriptor metadata (`_commands`/`_effects`),
+pure `CommandIntent` objects, dry-run `CommandOperationPlan` previews, app-safe
+`CommandActivityEvent` summaries, and future app-boundary application/audit
+persistence. `Store#command_intent`, `Store#command_operation_plan`, and
+`Store#command_activity_event` build data only and always carry
 `execution_allowed: false`; they do not write records, append histories,
-publish events, or ask Ledger to execute commands.
+publish events, expose fact ids/value hashes, or ask Ledger to execute commands.
 
 ### Normalized receipts
 

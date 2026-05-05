@@ -209,6 +209,12 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   validation status, errors, and warnings.
 - Operation plans carry `execution_allowed: false`; future app-boundary
   apply/audit remains a separate layer.
+- `Store#command_activity_event` projects intents/plans into app-safe
+  `kind: :command_activity_event` summaries for UI previews, audit candidates,
+  and agent monitors.
+- Activity events carry `store_fact_exposed: false`,
+  `value_hash_exposed: false`, and `execution_allowed: false`; they do not
+  persist audit histories or expose planned record values.
 
 `effects`
 
@@ -222,6 +228,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   project or apply the intent later.
 - Operation plans also embed effect metadata so previews can show the intended
   store/history operation without mutating storage.
+- Activity events intentionally omit raw effect payload values; they summarize
+  status, target, errors, and warnings for app-facing surfaces.
 
 `projections`
 

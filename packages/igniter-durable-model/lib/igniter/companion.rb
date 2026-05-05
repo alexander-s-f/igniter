@@ -11,6 +11,7 @@ module Igniter
     AppendReceipt = DurableModel::AppendReceipt
     CommandIntent = DurableModel::CommandIntent
     CommandOperationPlan = DurableModel::CommandOperationPlan
+    CommandActivityEvent = DurableModel::CommandActivityEvent
 
     def self.from_manifest(manifest, store: nil)
       DurableModel.from_manifest(manifest, store: store)

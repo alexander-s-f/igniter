@@ -408,6 +408,20 @@ module Igniter
         end
       end
 
+      # Project a command intent or plan into app-safe activity data.
+      # This does not persist audit history or expose Ledger storage internals.
+      def command_activity_event(source, status: nil, metadata: {})
+        case source
+        when CommandIntent
+          activity_from_intent(source, status: status, metadata: metadata)
+        when CommandOperationPlan
+          activity_from_plan(source, status: status, metadata: metadata)
+        else
+          raise ArgumentError,
+                "command_activity_event expects CommandIntent or CommandOperationPlan"
+        end
+      end
+
       # Register a projection descriptor — metadata-only, no execution.
       # Records which stores and relations a cross-record projection reads,
       # making this visible to the store engine via SchemaGraph.
@@ -980,6 +994,42 @@ module Igniter
 
       def plan_error(code, message)
         { code: code, message: message }
+      end
+
+      def activity_from_intent(intent, status:, metadata:)
+        CommandActivityEvent.new(
+          owner: intent.owner,
+          command: intent.command,
+          subject_key: intent.subject_key,
+          operation: intent.operation,
+          status: status || :intended,
+          intent_status: :ready,
+          plan_status: nil,
+          target: nil,
+          errors: [],
+          warnings: [],
+          metadata: merged_metadata(intent.metadata, metadata)
+        )
+      end
+
+      def activity_from_plan(plan, status:, metadata:)
+        CommandActivityEvent.new(
+          owner: plan.owner,
+          command: plan.command,
+          subject_key: plan.subject_key,
+          operation: plan.operation,
+          status: status || (plan.ready? ? :planned : :rejected),
+          intent_status: :ready,
+          plan_status: plan.status,
+          target: plan.target,
+          errors: plan.errors,
+          warnings: plan.warnings,
+          metadata: merged_metadata(plan.metadata, metadata)
+        )
+      end
+
+      def merged_metadata(source_metadata, explicit_metadata)
+        normalize_value(source_metadata || {}).merge(normalize_value(explicit_metadata || {}))
       end
     end
   end

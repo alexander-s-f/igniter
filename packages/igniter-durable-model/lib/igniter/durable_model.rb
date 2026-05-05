@@ -5,6 +5,7 @@ require_relative "durable_model/history"
 require_relative "durable_model/receipts"
 require_relative "durable_model/command_intent"
 require_relative "durable_model/command_operation_plan"
+require_relative "durable_model/command_activity_event"
 require_relative "durable_model/store"
 
 module Igniter
