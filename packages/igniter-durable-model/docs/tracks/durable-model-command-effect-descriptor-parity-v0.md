@@ -1,6 +1,6 @@
 # Track: Durable Model Command / Effect Descriptor Parity v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target packages: `packages/igniter-durable-model`, `packages/igniter-ledger`, `packages/igniter-ledger-client`
@@ -352,3 +352,7 @@ Status: done | partial | blocked
   descriptor path as storage, relations, and projections.
 - It keeps the important boundary intact: Ledger can inspect command/effect
   intent, but only the app/contract boundary can execute side effects.
+- Ledger protocol now has metadata-only `:command` and `:effect` descriptor
+  handlers with clear validation.
+- Durable Model registration emits command/effect descriptors in embedded and
+  client-backed modes; `_commands` and `_effects` expose read-only snapshots.

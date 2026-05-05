@@ -335,6 +335,22 @@ module Igniter
         @inner.schema_graph.scatter_snapshot
       end
 
+      # Returns command descriptors grouped by owning Record store.
+      # Metadata-only: commands remain app-boundary behavior contracts.
+      def _commands
+        return normalize_command_snapshot(metadata_snapshot[:commands]) if client_backed?
+
+        @inner.schema_graph.command_snapshot
+      end
+
+      # Returns derived persistence effect descriptors grouped by owning Record store.
+      # Metadata-only: Ledger stores intent descriptors but does not execute app code.
+      def _effects
+        return normalize_effect_snapshot(metadata_snapshot[:effects]) if client_backed?
+
+        @inner.schema_graph.effect_snapshot
+      end
+
       # Register a projection descriptor — metadata-only, no execution.
       # Records which stores and relations a cross-record projection reads,
       # making this visible to the store engine via SchemaGraph.
@@ -566,6 +582,12 @@ module Igniter
         end
       end
 
+      def normalize_value(value)
+        return value unless value.is_a?(Hash)
+
+        value.each_with_object({}) { |(key, entry), acc| acc[token(key)] = entry }
+      end
+
       def token(value)
         value.is_a?(String) ? value.to_sym : value
       end
@@ -597,6 +619,8 @@ module Igniter
       def emit_companion_descriptor(schema_class)
         if schema_class.respond_to?(:_scopes)
           emit_store_descriptor(schema_class)
+          emit_command_descriptors(schema_class)
+          emit_effect_descriptors(schema_class)
         else
           emit_history_descriptor(schema_class)
         end
@@ -644,6 +668,105 @@ module Igniter
           key:            pk || :id,
           producer:       { system: :igniter_companion, name: schema_class.name.to_s }
         })
+      end
+
+      def emit_command_descriptors(schema_class)
+        return unless schema_class.respond_to?(:_commands)
+
+        schema_class._commands.each do |command_name, attrs|
+          descriptor = command_descriptor(schema_class, command_name, attrs)
+          @inner.register_descriptor(descriptor)
+        end
+      end
+
+      def emit_effect_descriptors(schema_class)
+        return unless schema_class.respond_to?(:_effects)
+
+        schema_class._effects.each do |command_name, attrs|
+          descriptor = effect_descriptor(schema_class, command_name, attrs)
+          @inner.register_descriptor(descriptor)
+        end
+      end
+
+      def command_descriptor(schema_class, command_name, attrs)
+        data = attrs.to_h.transform_keys(&:to_sym)
+        operation = token(data[:operation] || :none)
+        descriptor = data.merge(
+          schema_version: 1,
+          kind:           :command,
+          name:           command_name,
+          owner:          schema_class.store_name,
+          operation:      operation,
+          target_shape:   data[:target_shape] || target_shape_for(operation),
+          boundary:       data[:boundary] || :app,
+          mutation_intent: data[:mutation_intent] || operation
+        )
+        descriptor[:changes] = data[:changes] if data.key?(:changes)
+        descriptor
+      end
+
+      def effect_descriptor(schema_class, command_name, attrs)
+        data = attrs.to_h.transform_keys(&:to_sym)
+        data.merge(
+          schema_version: 1,
+          kind:           :effect,
+          name:           command_name,
+          owner:          schema_class.store_name,
+          store_op:       data[:store_op] || :none,
+          write_kind:     data[:write_kind] || :none,
+          lowers_to:      data[:lowers_to] || :none,
+          boundary:       data[:boundary] || :app
+        )
+      end
+
+      def target_shape_for(operation)
+        case operation
+        when :record_append, :record_update
+          :store
+        when :history_append
+          :history
+        else
+          :none
+        end
+      end
+
+      def normalize_command_snapshot(snapshot)
+        normalize_descriptor_snapshot(snapshot) do |data|
+          {
+            name: token(data[:name]),
+            owner: token(data[:owner]),
+            operation: token(data[:operation]),
+            target_shape: token(data[:target_shape]),
+            boundary: token(data[:boundary]),
+            mutation_intent: token(data[:mutation_intent]),
+            changes: normalize_value(data[:changes] || {})
+          }.compact
+        end
+      end
+
+      def normalize_effect_snapshot(snapshot)
+        normalize_descriptor_snapshot(snapshot) do |data|
+          {
+            name: token(data[:name]),
+            owner: token(data[:owner]),
+            store_op: token(data[:store_op]),
+            write_kind: token(data[:write_kind]),
+            lowers_to: token(data[:lowers_to]),
+            boundary: token(data[:boundary]),
+            source_operation: token(data[:source_operation])
+          }.compact
+        end
+      end
+
+      def normalize_descriptor_snapshot(snapshot)
+        return {} unless snapshot
+
+        snapshot.to_h.each_with_object({}) do |(owner, entries), acc|
+          acc[token(owner)] = entries.to_h.each_with_object({}) do |(name, raw), owner_acc|
+            data = raw.to_h.transform_keys(&:to_sym)
+            owner_acc[token(name)] = yield(data)
+          end
+        end
       end
     end
   end

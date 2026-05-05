@@ -104,6 +104,31 @@ RSpec.describe "OP3 — Wire Envelope" do
       expect(resp[:status]).to           eq(:ok)
       expect(resp[:result].rejected?).to be true
     end
+
+    it "routes command and effect descriptors as metadata-only packets" do
+      command = wire.dispatch(envelope(:register_descriptor, {
+        schema_version: 1,
+        kind: :command,
+        name: :complete,
+        owner: :reminders,
+        operation: :record_update
+      }))
+      effect = wire.dispatch(envelope(:register_descriptor, {
+        schema_version: 1,
+        kind: :effect,
+        name: :complete,
+        owner: :reminders,
+        store_op: :store_write,
+        write_kind: :update
+      }))
+
+      snapshot = wire.dispatch(envelope(:metadata_snapshot))[:result]
+
+      expect(command[:result].accepted?).to be true
+      expect(effect[:result].accepted?).to be true
+      expect(snapshot[:commands][:reminders]).to have_key(:complete)
+      expect(snapshot[:effects][:reminders]).to have_key(:complete)
+    end
   end
 
   # ------------------------------------------------------------------ op: :write

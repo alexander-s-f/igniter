@@ -203,4 +203,50 @@ RSpec.describe Igniter::Store::SchemaGraph do
       expect(entry[:relation_count]).to eq(0)
     end
   end
+
+  describe "#command_snapshot / #effect_snapshot" do
+    it "stores command descriptors grouped by owner" do
+      graph.register_command_descriptor(
+        name: :complete,
+        owner: :reminders,
+        operation: :record_update,
+        target_shape: :store,
+        boundary: :app
+      )
+
+      expect(graph.command_snapshot[:reminders][:complete]).to include(
+        operation: :record_update,
+        target_shape: :store,
+        boundary: :app
+      )
+    end
+
+    it "stores effect descriptors grouped by owner" do
+      graph.register_effect_descriptor(
+        name: :complete,
+        owner: :reminders,
+        store_op: :store_write,
+        write_kind: :update,
+        lowers_to: :store_t,
+        boundary: :app
+      )
+
+      expect(graph.effect_snapshot[:reminders][:complete]).to include(
+        store_op: :store_write,
+        write_kind: :update,
+        lowers_to: :store_t,
+        boundary: :app
+      )
+    end
+
+    it "includes command and effect registries in descriptor_snapshot" do
+      graph.register_command_descriptor(name: :complete, owner: :reminders, operation: :record_update)
+      graph.register_effect_descriptor(name: :complete, owner: :reminders, store_op: :store_write, write_kind: :update)
+
+      snapshot = graph.descriptor_snapshot
+
+      expect(snapshot[:commands][:reminders]).to have_key(:complete)
+      expect(snapshot[:effects][:reminders]).to have_key(:complete)
+    end
+  end
 end

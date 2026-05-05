@@ -196,6 +196,19 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Commands return result plus normalized mutation intent.
 - Current mutation operations: `record_append`, `record_update`,
   `history_append`, and `none`.
+- Durable Model mirrors command metadata into Ledger `kind: :command`
+  descriptors during schema registration.
+- Ledger metadata snapshots expose commands by owner/name, but Ledger does not
+  execute app commands.
+
+`effects`
+
+- Metadata-only persistence intents derived from commands.
+- Current store operations are `store_write`, `store_append`, and `none`.
+- Effects preserve `command -> mutation_intent -> app boundary`; side effects
+  still happen in app-owned code, not inside Ledger.
+- Durable Model mirrors effects into Ledger `kind: :effect` descriptors during
+  schema registration.
 
 `projections`
 

@@ -13,6 +13,8 @@ module Igniter
         # Raw protocol descriptor storage (OP2 — metadata export)
         @store_descriptors        = {}
         @history_descriptors      = {}
+        @command_descriptors      = {}
+        @effect_descriptors       = {}
         @subscription_descriptors = {}
       end
 
@@ -187,11 +189,37 @@ module Igniter
         self
       end
 
+      def register_command_descriptor(descriptor)
+        owner = descriptor[:owner].to_sym
+        name = descriptor[:name].to_sym
+        @command_descriptors[owner] ||= {}
+        @command_descriptors[owner][name] = descriptor
+        self
+      end
+
+      def register_effect_descriptor(descriptor)
+        owner = descriptor[:owner].to_sym
+        name = descriptor[:name].to_sym
+        @effect_descriptors[owner] ||= {}
+        @effect_descriptors[owner][name] = descriptor
+        self
+      end
+
+      def command_snapshot
+        @command_descriptors
+      end
+
+      def effect_snapshot
+        @effect_descriptors
+      end
+
       # Snapshot of all raw protocol-level descriptors registered via OP1.
       def descriptor_snapshot
         {
           stores:        @store_descriptors,
           histories:     @history_descriptors,
+          commands:      @command_descriptors,
+          effects:       @effect_descriptors,
           subscriptions: @subscription_descriptors
         }
       end

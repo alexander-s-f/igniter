@@ -148,6 +148,8 @@ store = Igniter::DurableModel::Store.new(client: client)
 store.register(Reminder)
 store.write(Reminder, key: "r1", title: "Buy milk", status: :open)
 store.read(Reminder, key: "r1")
+store._commands
+store._effects
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -157,14 +159,16 @@ store.replay(TrackerLog)
 Client-backed mode currently supports `register`, `write`, `read`, `append`,
 plain `replay`, `replay(partition:)`, `scope`, `on_scope`, declared
 one-to-many relation auto-wire, typed `resolve`, `_relations`,
-projection descriptor registration, `_projections`, read-only `_scatters`,
+projection descriptor registration, command/effect descriptor registration,
+`_projections`, `_commands`, `_effects`, read-only `_scatters`,
 `causation_chain`, `lineage`, `metadata_snapshot`, and `descriptor_snapshot`.
 Partition replay lowers through the Ledger replay filter and uses Ledger
 partition indexes when served by a Ledger protocol interpreter. Relation support
 is v0 and lowers supported one-to-many declarations to Ledger relation
-descriptors. Projection support is metadata-only; no remote projection
-execution is promised. Direct `register_scatter` still requires the embedded
-Ledger engine path and raises `NotImplementedError` in client-backed v0.
+descriptors. Projection, command, and effect support is metadata-only; Ledger
+stores descriptors but does not execute app commands or callbacks. Direct
+`register_scatter` still requires the embedded Ledger engine path and raises
+`NotImplementedError` in client-backed v0.
 Provenance support is read-only and compact: Durable Model exposes
 `causation_chain`/`lineage`, while Ledger Client `fact_ref` returns metadata
 only and does not expose arbitrary `fact_by_id` reads.

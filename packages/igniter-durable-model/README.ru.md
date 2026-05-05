@@ -137,6 +137,8 @@ store = Igniter::DurableModel::Store.new(client: client)
 store.register(Reminder)
 store.write(Reminder, key: "r1", title: "Buy milk", status: :open)
 store.read(Reminder, key: "r1")
+store._commands
+store._effects
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -146,16 +148,18 @@ store.replay(TrackerLog)
 В client-backed v0 поддержаны `register`, `write`, `read`, `append`, обычный
 `replay`, `replay(partition:)`, `scope`, `on_scope`, declared one-to-many
 relation auto-wire, typed `resolve`, `_relations`, projection descriptor
-registration, `_projections`, read-only `_scatters`, `metadata_snapshot` и
+registration, command/effect descriptor registration, `_projections`,
+`_commands`, `_effects`, read-only `_scatters`, `metadata_snapshot` и
 `descriptor_snapshot`, а также `causation_chain` и `lineage`. Partition replay
 проходит через Ledger replay filter и использует Ledger partition indexes, когда
 запрос обслуживает Ledger protocol interpreter. Relation support в v0 понижает
-поддержанные one-to-many декларации в Ledger relation descriptors. Projection
-support — metadata-only; remote projection execution не обещается. Прямой
-`register_scatter` пока требует embedded Ledger engine path и явно поднимает
-`NotImplementedError`. Provenance support read-only и compact: Durable Model
-экспонирует `causation_chain`/`lineage`, а Ledger Client `fact_ref` возвращает
-только metadata и не открывает произвольный `fact_by_id`.
+поддержанные one-to-many декларации в Ledger relation descriptors. Projection,
+command и effect support — metadata-only: Ledger хранит descriptors, но не
+исполняет app commands или callbacks. Прямой `register_scatter` пока требует
+embedded Ledger engine path и явно поднимает `NotImplementedError`. Provenance
+support read-only и compact: Durable Model экспонирует
+`causation_chain`/`lineage`, а Ledger Client `fact_ref` возвращает только
+metadata и не открывает произвольный `fact_by_id`.
 
 ### Нормализованные receipts
 

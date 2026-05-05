@@ -26,6 +26,19 @@ class TrackerLog
   field :notes, default: nil
 end
 
+class CommandedReminder
+  include Igniter::Companion::Record
+  store_name :commanded_reminders
+
+  field :id
+  field :title
+  field :status, default: :open
+
+  command :complete,
+    operation: :record_update,
+    changes: { status: :done }
+end
+
 # ── Store specs ───────────────────────────────────────────────────────────────
 
 RSpec.describe Igniter::Companion::Store do
@@ -312,6 +325,48 @@ RSpec.describe Igniter::Companion::Store do
       snapshot = s.descriptor_snapshot
       expect(snapshot[:stores]).to include(Reminder.store_name)
       expect(snapshot[:histories]).to include(TrackerLog.store_name)
+    ensure
+      s&.close
+    end
+
+    it "registers command and effect descriptors through LedgerClient" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+
+      commands = s.metadata_snapshot[:commands]
+      effects = s.metadata_snapshot[:effects]
+
+      expect(commands[:commanded_reminders][:complete]).to include(
+        operation: :record_update,
+        target_shape: :store,
+        boundary: :app,
+        mutation_intent: :record_update,
+        changes: { status: :done }
+      )
+      expect(effects[:commanded_reminders][:complete]).to include(
+        store_op: :store_write,
+        write_kind: :update,
+        lowers_to: :store_t,
+        boundary: :app,
+        source_operation: :record_update
+      )
+    ensure
+      s&.close
+    end
+
+    it "exposes client-backed command and effect helpers without execution vocabulary" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+
+      expect(s._commands[:commanded_reminders][:complete]).to include(
+        operation: :record_update,
+        changes: { status: :done }
+      )
+      expect(s._effects[:commanded_reminders][:complete]).to include(
+        store_op: :store_write,
+        write_kind: :update
+      )
+      expect(s).not_to respond_to(:complete)
     ensure
       s&.close
     end
@@ -1137,21 +1192,60 @@ RSpec.describe Igniter::Companion::Store do
         s&.close
       end
 
-      it "includes access_paths, relations, projections, scatters, retention keys" do
+      it "includes access_paths, relations, projections, commands, effects, scatters, retention keys" do
         snap = store.metadata_snapshot
         expect(snap).to have_key(:access_paths)
         expect(snap).to have_key(:relations)
         expect(snap).to have_key(:projections)
+        expect(snap).to have_key(:commands)
+        expect(snap).to have_key(:effects)
         expect(snap).to have_key(:scatters)
         expect(snap).to have_key(:retention)
+      end
+
+      it "includes embedded command and effect descriptors after register" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        commands = s.metadata_snapshot[:commands]
+        effects = s.metadata_snapshot[:effects]
+
+        expect(CommandedReminder._commands[:complete]).to include(
+          operation: :record_update,
+          changes: { status: :done }
+        )
+        expect(CommandedReminder._effects[:complete]).to include(
+          store_op: :store_write,
+          write_kind: :update,
+          lowers_to: :store_t,
+          source_operation: :record_update
+        )
+        expect(commands[:commanded_reminders][:complete]).to include(
+          operation: :record_update,
+          target_shape: :store,
+          boundary: :app,
+          mutation_intent: :record_update,
+          changes: { status: :done }
+        )
+        expect(effects[:commanded_reminders][:complete]).to include(
+          store_op: :store_write,
+          write_kind: :update,
+          lowers_to: :store_t,
+          boundary: :app,
+          source_operation: :record_update
+        )
+      ensure
+        s&.close
       end
     end
 
     describe "#descriptor_snapshot" do
-      it "returns a Hash with :stores and :histories keys" do
+      it "returns a Hash with :stores, :histories, :commands, and :effects keys" do
         snap = store.descriptor_snapshot
         expect(snap).to have_key(:stores)
         expect(snap).to have_key(:histories)
+        expect(snap).to have_key(:commands)
+        expect(snap).to have_key(:effects)
       end
 
       it "descriptor_snapshot[:stores] contains the Reminder descriptor" do
@@ -1186,6 +1280,17 @@ RSpec.describe Igniter::Companion::Store do
         s.register(TrackerLog)
         desc = s.descriptor_snapshot[:histories][TrackerLog.store_name]
         expect(desc[:key]).to eq(TrackerLog._partition_key)
+      ensure
+        s&.close
+      end
+
+      it "includes command and effect descriptor registries" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        snap = s.descriptor_snapshot
+
+        expect(snap[:commands][:commanded_reminders]).to have_key(:complete)
+        expect(snap[:effects][:commanded_reminders]).to have_key(:complete)
       ensure
         s&.close
       end

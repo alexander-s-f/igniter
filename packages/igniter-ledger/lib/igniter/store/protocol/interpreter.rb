@@ -14,6 +14,8 @@ module Igniter
           relation:     Handlers::RelationHandler,
           projection:   Handlers::ProjectionHandler,
           derivation:   Handlers::DerivationHandler,
+          command:      Handlers::CommandHandler,
+          effect:       Handlers::EffectHandler,
           subscription: Handlers::SubscriptionHandler,
         }.freeze
 
@@ -56,6 +58,8 @@ module Igniter
         def register_relation(descriptor)     = register(descriptor)
         def register_projection(descriptor)   = register(descriptor)
         def register_derivation(descriptor)   = register(descriptor)
+        def register_command(descriptor)      = register(descriptor)
+        def register_effect(descriptor)       = register(descriptor)
         def register_subscription(descriptor) = register(descriptor)
 
         # Write a fact. Returns a write Receipt carrying fact_id and value_hash.
@@ -203,6 +207,8 @@ module Igniter
             access_paths:  g.metadata_snapshot,
             relations:     g.relation_snapshot,
             projections:   g.projection_snapshot,
+            commands:      g.command_snapshot,
+            effects:       g.effect_snapshot,
             derivations:   g.derivation_snapshot,
             scatters:      g.scatter_snapshot,
             subscriptions: ds[:subscriptions],

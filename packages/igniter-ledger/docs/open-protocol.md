@@ -164,6 +164,45 @@ Below the waist:
 }
 ```
 
+### Command Descriptor
+
+```ruby
+{
+  schema_version: 1,
+  kind: :command,
+  name: :complete,
+  owner: :reminders,
+  operation: :record_update,
+  target_shape: :store,
+  boundary: :app,
+  mutation_intent: :record_update,
+  changes: { status: :done }
+}
+```
+
+Command descriptors are metadata-only app-boundary contracts. Ledger records
+the command vocabulary and mutation intent, but it does not execute commands or
+call app code.
+
+### Effect Descriptor
+
+```ruby
+{
+  schema_version: 1,
+  kind: :effect,
+  name: :complete,
+  owner: :reminders,
+  store_op: :store_write,
+  write_kind: :update,
+  lowers_to: :store_t,
+  boundary: :app,
+  source_operation: :record_update
+}
+```
+
+Effect descriptors describe the persistence intent a command lowers to. They
+are metadata-only; side effects still happen at the app boundary.
+
 ### Subscription Descriptor
 
 ```ruby
@@ -226,6 +265,8 @@ Descriptor registry:
 - `register_relation(descriptor)`
 - `register_projection(descriptor)`
 - `register_derivation(descriptor)`
+- `register_command(descriptor)`
+- `register_effect(descriptor)`
 - `register_subscription(descriptor)`
 - `metadata_snapshot`
 
@@ -359,8 +400,10 @@ lineage, retention, and sync are defined and used throughout the codebase.
 Shipped: `Protocol::Interpreter` (7 handler classes), content-addressed SHA256
 dedup, named helpers `register_store` / `register_history` / `register_access_path` /
 `register_relation` / `register_projection` / `register_derivation` /
-`register_subscription`. Protocol-level `write` / `write_fact` / `read` /
-`append` / `query(where:)` / `resolve`. Receipt contract:
+`register_command` / `register_effect` / `register_subscription`.
+Command/effect descriptors are metadata-only and app-boundary owned.
+Protocol-level `write` / `write_fact` / `read` / `append` / `query(where:)` /
+`resolve`. Receipt contract:
 `:accepted | :rejected | :deduplicated` + write/append receipts with `fact_id`
 and `value_hash`.
 
@@ -368,9 +411,9 @@ and `value_hash`.
 
 Shipped: `Protocol::Interpreter#metadata_snapshot` returns unified snapshot
 (`stores`, `histories`, `access_paths`, `relations`, `projections`, `derivations`,
-`scatters`, `subscriptions`, `retention`). `descriptor_snapshot` for raw
-store/history/subscription descriptors. Companion, LedgerServer, and visual tools
-consume one endpoint.
+`commands`, `effects`, `scatters`, `subscriptions`, `retention`).
+`descriptor_snapshot` includes raw store/history/command/effect/subscription
+descriptors. Companion, LedgerServer, and visual tools consume one endpoint.
 
 ### OP3: Wire Envelope
 
@@ -417,6 +460,9 @@ Shipped: `Companion::Store#register` emits `:store` or `:history` descriptor via
 (detected via `respond_to?(:_scopes)`) produce `:store` descriptors with
 `fields`, `capabilities`, and `producer: { system: :igniter_companion }`.
 History classes produce `:history` descriptors with the declared `partition_key`.
+Record command/effect metadata emits `:command` and `:effect` descriptors, which
+preserve `command -> mutation_intent -> app boundary` without adding command
+execution to Ledger.
 `Companion::Store#metadata_snapshot` / `#descriptor_snapshot` delegate to
 `@inner.protocol` — companion-managed schemas appear in the OP2 unified snapshot.
 

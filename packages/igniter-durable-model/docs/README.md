@@ -19,7 +19,7 @@ alias.
 | [tracks/durable-model-client-relation-resolve-v0.md](tracks/durable-model-client-relation-resolve-v0.md) | Proposed track for client-backed relation auto-wire and typed resolve through Ledger descriptors |
 | [tracks/durable-model-client-projection-descriptor-v0.md](tracks/durable-model-client-projection-descriptor-v0.md) | Completed track for client-backed projection metadata descriptors and read-only scatter snapshots |
 | [tracks/durable-model-client-provenance-introspection-v0.md](tracks/durable-model-client-provenance-introspection-v0.md) | Completed read-only provenance/lineage protocol and client-backed causation chains |
-| [tracks/durable-model-command-effect-descriptor-parity-v0.md](tracks/durable-model-command-effect-descriptor-parity-v0.md) | Proposed track for metadata-only command/effect descriptors through Ledger metadata |
+| [tracks/durable-model-command-effect-descriptor-parity-v0.md](tracks/durable-model-command-effect-descriptor-parity-v0.md) | Completed metadata-only command/effect descriptors through Ledger metadata |
 | [tracks/companion-ledger-client-remote-boundary-v0.md](tracks/companion-ledger-client-remote-boundary-v0.md) | Track for accepting `LedgerClient` as Companion's preferred remote Ledger boundary |
 | [tracks/companion-ledger-client-scope-query-boundary-v0.md](tracks/companion-ledger-client-scope-query-boundary-v0.md) | Proposed next track for remote Companion scopes over `LedgerClient#query` |
 | [tracks/companion-ledger-client-scope-subscriptions-v0.md](tracks/companion-ledger-client-scope-subscriptions-v0.md) | Proposed next track for remote Companion `on_scope` over Ledger Client events |

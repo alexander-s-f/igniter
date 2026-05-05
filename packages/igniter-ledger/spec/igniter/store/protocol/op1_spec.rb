@@ -375,6 +375,118 @@ RSpec.describe "OP1 — Descriptor Packet Import" do
     end
   end
 
+  # ------------------------------------------------------------------ command/effect descriptors (metadata only)
+
+  describe "register_command" do
+    it "accepts a valid command descriptor and exposes it in metadata" do
+      r = proto.register_command(
+        schema_version: 1,
+        kind: :command,
+        name: :complete,
+        owner: :reminders,
+        operation: :record_update,
+        changes: { status: :done }
+      )
+
+      command = proto.metadata_snapshot[:commands][:reminders][:complete]
+
+      expect(r.accepted?).to be true
+      expect(command).to include(
+        name: :complete,
+        owner: :reminders,
+        operation: :record_update,
+        target_shape: :store,
+        boundary: :app,
+        mutation_intent: :record_update,
+        changes: { status: :done }
+      )
+    end
+
+    it "rejects missing command fields clearly" do
+      r = proto.register_command(schema_version: 1, kind: :command, name: :complete)
+
+      expect(r.rejected?).to be true
+      expect(r.errors.first).to match(/owner, operation/)
+    end
+
+    it "rejects unsupported command operations" do
+      r = proto.register_command(
+        schema_version: 1,
+        kind: :command,
+        name: :complete,
+        owner: :reminders,
+        operation: :teleport
+      )
+
+      expect(r.rejected?).to be true
+      expect(r.errors.first).to match(/Unsupported command operation/)
+    end
+  end
+
+  describe "register_effect" do
+    it "accepts a valid effect descriptor and exposes it in metadata" do
+      r = proto.register_effect(
+        schema_version: 1,
+        kind: :effect,
+        name: :complete,
+        owner: :reminders,
+        store_op: :store_write,
+        write_kind: :update,
+        source_operation: :record_update
+      )
+
+      effect = proto.metadata_snapshot[:effects][:reminders][:complete]
+
+      expect(r.accepted?).to be true
+      expect(effect).to include(
+        name: :complete,
+        owner: :reminders,
+        store_op: :store_write,
+        write_kind: :update,
+        lowers_to: :store_t,
+        boundary: :app,
+        source_operation: :record_update
+      )
+    end
+
+    it "rejects invalid effect descriptors clearly" do
+      r = proto.register_effect(
+        schema_version: 1,
+        kind: :effect,
+        name: :complete,
+        owner: :reminders,
+        store_op: :system_shell,
+        write_kind: :update
+      )
+
+      expect(r.rejected?).to be true
+      expect(r.errors.first).to match(/Unsupported effect store_op/)
+    end
+
+    it "includes command and effect descriptors in descriptor_snapshot" do
+      proto.register_command(
+        schema_version: 1,
+        kind: :command,
+        name: :complete,
+        owner: :reminders,
+        operation: :record_update
+      )
+      proto.register_effect(
+        schema_version: 1,
+        kind: :effect,
+        name: :complete,
+        owner: :reminders,
+        store_op: :store_write,
+        write_kind: :update
+      )
+
+      snap = proto.descriptor_snapshot
+
+      expect(snap[:commands][:reminders]).to have_key(:complete)
+      expect(snap[:effects][:reminders]).to have_key(:complete)
+    end
+  end
+
   # ------------------------------------------------------------------ subscription descriptor
 
   describe "register_subscription" do
@@ -556,11 +668,13 @@ RSpec.describe "OP1 — Descriptor Packet Import" do
       expect(snap[:subscriptions]).to have_key(:widget_changed)
     end
 
-    it "includes :derivations, :scatters, :projections, :retention keys" do
+    it "includes :derivations, :scatters, :projections, :commands, :effects, :retention keys" do
       snap = proto.metadata_snapshot
       expect(snap).to have_key(:derivations)
       expect(snap).to have_key(:scatters)
       expect(snap).to have_key(:projections)
+      expect(snap).to have_key(:commands)
+      expect(snap).to have_key(:effects)
       expect(snap).to have_key(:retention)
     end
 
