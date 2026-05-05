@@ -17,7 +17,7 @@ module RuntimeMachineMemoryProof
   class CompiledProgram
     attr_reader :program_id, :artifact_hash, :language_version, :format
     attr_reader :contracts, :semantic_ir, :classified_ast
-    attr_reader :requirements, :diagnostics
+    attr_reader :requirements, :diagnostics, :schema_descriptor
 
     def self.load_igapp(path)
       dir = Pathname.new(path)
@@ -55,15 +55,18 @@ module RuntimeMachineMemoryProof
     end
 
     def initialize(manifest:, semantic_ir:, classified_ast:, requirements:, diagnostics:, contracts:)
-      @program_id      = manifest.fetch("program_id")
-      @artifact_hash   = manifest.fetch("artifact_hash")
+      @program_id       = manifest.fetch("program_id")
+      @artifact_hash    = manifest.fetch("artifact_hash")
       @language_version = manifest.fetch("language_version")
-      @format          = manifest.fetch("format")
-      @semantic_ir     = semantic_ir
-      @classified_ast  = classified_ast
-      @requirements    = requirements
-      @diagnostics     = diagnostics
-      @contracts       = contracts
+      @format           = manifest.fetch("format")
+      @semantic_ir      = semantic_ir
+      @classified_ast   = classified_ast
+      @requirements     = requirements
+      @diagnostics      = diagnostics
+      @contracts        = contracts
+
+      # PROP-017: schema descriptor — built from manifest + contracts
+      @schema_descriptor = build_schema_descriptor(manifest)
     end
 
     def fragment_class
@@ -109,6 +112,17 @@ module RuntimeMachineMemoryProof
       raise ValidationError, errors.join("; ") unless errors.empty?
     end
 
+    # PROP-017: schema_version from manifest ("0.0.0" if absent)
+    def schema_version
+      @schema_descriptor.fetch("schema_version")
+    end
+
+    # PROP-017: schema_fingerprint over observable surface only
+    # Covers: input_ports, output_ports, type_env, trait_bounds (sorted)
+    def schema_fingerprint
+      @schema_descriptor.fetch("schema_fingerprint")
+    end
+
     # Evaluate a contract — supports both pure compute and window read nodes
     # backend: MemoryTBackend for tbackend_read nodes
     # inputs must be a Hash with symbol or string keys
@@ -143,6 +157,46 @@ module RuntimeMachineMemoryProof
     end
 
     private
+
+    # PROP-017: Build schema descriptor from manifest + loaded contracts.
+    # schema_fingerprint covers ONLY the observable surface (ports + type_env + trait_bounds).
+    # It is NOT the artifact_hash (which covers full implementation).
+    def build_schema_descriptor(manifest)
+      schema_version = manifest.fetch("schema_version", "0.0.0")
+
+      # Build stable surface from all contracts' input/output ports
+      port_surface = @contracts.values.flat_map do |c|
+        inputs  = c.fetch("input_ports",  []).map { |p| { "dir" => "in",  "name" => p["name"], "type_tag" => p["type_tag"], "lifecycle" => p["lifecycle"] } }
+        outputs = c.fetch("output_ports", []).map { |p| { "dir" => "out", "name" => p["name"], "type_tag" => p["type_tag"], "lifecycle" => p["lifecycle"] } }
+        inputs + outputs
+      end.sort_by { |p| "#{p["dir"]}:#{p["name"]}" }
+
+      # Type environment: all referenced type names (sorted)
+      type_env = @contracts.values.flat_map do |c|
+        ports = c.fetch("input_ports", []) + c.fetch("output_ports", [])
+        ports.map { |p| p["type_tag"] }
+      end.uniq.sort
+
+      # Trait bounds: from schema_descriptor in manifest if present
+      trait_bounds = manifest.fetch("schema_descriptor", {}).fetch("trait_bounds", [])
+
+      fingerprint_payload = {
+        "schema_version" => schema_version,
+        "port_surface"   => port_surface,
+        "type_env"       => type_env,
+        "trait_bounds"   => trait_bounds
+      }
+      fingerprint = "sha256:#{Digest::SHA256.hexdigest(JSON.generate(fingerprint_payload))}"
+
+      {
+        "schema_version"     => schema_version,
+        "schema_fingerprint" => fingerprint,
+        "port_surface"       => port_surface,
+        "type_env"           => type_env,
+        "trait_bounds"       => trait_bounds,
+        "migrations"         => manifest.fetch("schema_descriptor", {}).fetch("migrations", [])
+      }
+    end
 
     def eval_node(node, values, backend:, as_of:)
       expr = node.fetch("expression")

@@ -527,7 +527,10 @@ module RuntimeMachineMemoryProof
           position: checkpoint_ref.fetch(:seq_id),
           inclusive: false
         },
-        temporal_horizon: horizon
+        temporal_horizon: horizon,
+        # PROP-017: schema evolution fields
+        schema_version:     (@loaded_program&.schema_version     || "0.0.0"),
+        schema_fingerprint: (@loaded_program&.schema_fingerprint || "sha256:unknown")
       }
       image_id = "image/#{Canonical.short_hash(image_base)}"
       semantic_image = image_base.merge(
@@ -717,7 +720,8 @@ module RuntimeMachineMemoryProof
         ),
         check("temporal", @image.fetch("temporal_horizon").fetch("as_of"), @requested_as_of, "blocked"),
         snapshot_check,
-        replay_check
+        replay_check,
+        schema_check    # PROP-017: 4th CompatibilityReport dimension
       ]
       status = resume_status(checks)
 
@@ -774,9 +778,83 @@ module RuntimeMachineMemoryProof
     def severity_for(outcome)
       case outcome
       when "compatible" then "info"
-      when "downgrade" then "warning"
+      when "downgrade"  then "warning"
+      when "provisional" then "warning"
+      when "migrating"  then "warning"
       else "critical"
       end
+    end
+
+    # PROP-017: schema_check — 4th CompatibilityReport dimension
+    # Compares image.schema_fingerprint with the currently loaded program.
+    def schema_check
+      image_ver         = @image.fetch("schema_version", "0.0.0")
+      image_fingerprint = @image.fetch("schema_fingerprint", nil)
+
+      # If SemanticImage has no schema fields (pre-PROP-017 harness image),
+      # treat as trusted to preserve backward compat with existing specs.
+      if image_fingerprint.nil?
+        return {
+          dimension:           "schema",
+          outcome:             "compatible",
+          expected:            "(pre-PROP-017 image: no fingerprint)",
+          actual:              "(no fingerprint available)",
+          severity:            "info",
+          schema_version:      image_ver,
+          fingerprint_match:   true,
+          change_class:        "none",
+          migration_available: false,
+          decision:            "trusted"
+        }
+      end
+
+      current_program     = @machine.loaded_program
+      current_version     = current_program&.schema_version     || "0.0.0"
+      current_fingerprint = current_program&.schema_fingerprint || nil
+
+      match = image_fingerprint == current_fingerprint
+
+      if match
+        outcome      = "compatible"
+        change_class = "none"
+        decision     = "trusted"
+      else
+        # Determine change class: breaking if major version differs, else safe
+        old_major = image_ver.split(".").first.to_i
+        new_major = current_version.split(".").first.to_i
+        if new_major > old_major
+          change_class = "breaking"
+          outcome      = "blocked"
+        else
+          change_class = "safe"
+          outcome      = "provisional"
+        end
+
+        # Check if a migration is available
+        migrations = current_program&.schema_descriptor&.fetch("migrations", []) || []
+        migration  = migrations.find { |m|
+          m["from_version"] == image_ver && m["to_version"] == current_version
+        }
+        if migration
+          outcome  = "migrating"
+          decision = "migrating"
+        else
+          decision = change_class == "breaking" ? "blocked" : "provisional"
+        end
+      end
+
+      {
+        dimension:           "schema",
+        outcome:             outcome,
+        expected:            image_fingerprint,
+        actual:              current_fingerprint,
+        severity:            severity_for(outcome),
+        schema_version:      { from: image_ver, to: current_version },
+        fingerprint_match:   match,
+        change_class:        match ? "none" : change_class,
+        migration_available: !!(migrations&.any?),
+        decision:            match ? "trusted" : decision
+      }
     end
 
     def resume_status(checks)
