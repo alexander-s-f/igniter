@@ -136,7 +136,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-proof-sidecar-builder-profiles-v0.md` | done | runtime machine proof sidecar profile modes |
+| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-proof-sidecar-profile-modes-v0.md` | done | runtime machine proof external candidate adapter |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-009-semantic-image-resume-compatibility-v0.md` | done | temporal lifecycle / retention semantics |
 
 ## Current Meta Thesis
@@ -281,6 +281,17 @@ proof output
 The profiles are research-local adapters. They define the candidate artifact
 target that future package or bridge builders must match before integration.
 
+[S] Runtime Machine sidecar profile modes now separate strict proof regression
+from bridge/package candidate experiments:
+
+```text
+full_log -> full session logs + exact golden comparison
+selected_profile -> selected packet surface + result hash + structural evidence checks
+```
+
+Future external candidate adapters should target `selected_profile` first, then
+earn `full_log` only when complete replay logs are available.
+
 [D] `T` has a lifecycle. Igniter-Lang must not imply that all temporal
 observations live forever:
 
@@ -391,6 +402,7 @@ igniter-lang/docs/
     runtime-machine-proof-packet-fixtures-v0.md [done]
     runtime-machine-proof-packet-builder-check-v0.md [done]
     runtime-machine-proof-sidecar-builder-profiles-v0.md [done]
+    runtime-machine-proof-sidecar-profile-modes-v0.md [done]
     bridge-observation-envelope-implementation-plan-v0.md [done]
     bridge-packet-builder-golden-fixtures-v0.md [queued - no package edits]
     temporal-lifecycle-application-scenarios-v0.md [done]
@@ -410,7 +422,7 @@ igniter-lang/docs/
     PROP-005-verification-observation-extension-v0.md [queued]
 
   experiments/
-    runtime_machine_memory_proof/ [done - standalone harness + golden fixtures + checker + profiles]
+    runtime_machine_memory_proof/ [done - standalone harness + golden fixtures + checker + profiles + modes]
   bridge/                        <- bridge notes to Igniter platform (none yet)
 ```
 
@@ -446,6 +458,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-proof-packet-fixtures-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-proof-packet-builder-check-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-proof-sidecar-builder-profiles-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-proof-sidecar-profile-modes-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-implementation-plan-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-application-scenarios-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-boundary-fixtures-v0.md | done |

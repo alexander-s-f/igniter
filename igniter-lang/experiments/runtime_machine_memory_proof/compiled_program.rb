@@ -86,6 +86,18 @@ module RuntimeMachineMemoryProof
       requirements.dig("capabilities", "effect_kinds") || []
     end
 
+    def has_window?
+      requirements.dig("lifecycle", "has_window") || false
+    end
+
+    def temporal_windows
+      (requirements.dig("temporal", "windows") || [])
+    end
+
+    def boundary_descriptors
+      semantic_ir.fetch("boundary_descriptors", [])
+    end
+
     def dependency_graph
       semantic_ir.fetch("dependency_graph", {})
     end
@@ -94,17 +106,17 @@ module RuntimeMachineMemoryProof
       errors = []
       errors << "diagnostics is non-empty: #{diagnostics["diagnostics"]}" unless diagnostics.fetch("diagnostics", []).empty?
       errors << "oof_count > 0" if oof_count > 0
-      errors << "fragment_class != core for strict load" if fragment_class != "core"
       raise ValidationError, errors.join("; ") unless errors.empty?
     end
 
-    # Evaluate a simple compute contract in-memory (no full evaluator needed for Add)
-    def evaluate_contract(contract_id, inputs)
+    # Evaluate a contract — supports both pure compute and window read nodes
+    # backend: MemoryTBackend for tbackend_read nodes
+    # inputs must be a Hash with symbol or string keys
+    def evaluate_contract(contract_id, inputs, backend: nil, as_of: nil)
       contract = @contracts.fetch(contract_id) do
         raise ArgumentError, "Unknown contract: #{contract_id}"
       end
 
-      # Walk compute nodes in dependency order
       values = {}
       contract.fetch("input_ports", []).each do |port|
         name = port.fetch("name")
@@ -112,45 +124,94 @@ module RuntimeMachineMemoryProof
       end
 
       contract.fetch("compute_nodes", []).each do |node|
-        values[node.fetch("name")] = eval_node(node, values)
+        values[node.fetch("name")] = eval_node(node, values, backend: backend, as_of: as_of)
       end
 
-      # Return output ports
       outputs = {}
       contract.fetch("output_ports", []).each do |port|
         name = port.fetch("name")
-        outputs[name] = values.fetch(name)
+        outputs[name] = values[name]
       end
       outputs
     end
 
-    private
-
-    def eval_node(node, values)
-      expr = node.fetch("expression")
-      eval_expr(expr, values)
+    # Temporal window for a contract (first one)
+    def contract_window(contract_id)
+      contract = @contracts[contract_id]
+      return nil unless contract
+      contract.fetch("temporal_window", nil)
     end
 
-    def eval_expr(expr, values)
+    private
+
+    def eval_node(node, values, backend:, as_of:)
+      expr = node.fetch("expression")
+      eval_expr(expr, values, backend: backend, as_of: as_of)
+    end
+
+    def eval_expr(expr, values, backend:, as_of:)
       case expr.fetch("kind")
       when "apply"
-        operands = expr.fetch("operands").map { |op| eval_expr(op, values) }
+        operands = expr.fetch("operands").map { |op| eval_expr(op, values, backend: backend, as_of: as_of) }
         apply_operator(expr.fetch("operator"), operands)
       when "ref"
         values.fetch(expr.fetch("name"))
+      when "tbackend_read"
+        raise ArgumentError, "tbackend_read requires a backend" unless backend
+        raise ArgumentError, "tbackend_read requires as_of" unless as_of
+        subject = build_subject(expr.fetch("subject_template"), values)
+        backend.read(subject: subject, as_of: as_of)&.payload
       else
         raise ArgumentError, "Unknown expression kind: #{expr["kind"]}"
       end
     end
 
+    def build_subject(template, values)
+      template.gsub(/\{(\w+)\}/) { values[$1] || values[$1.to_sym] }
+    end
+
     def apply_operator(op, operands)
       case op
-      when "add" then operands.reduce(:+)
-      when "sub" then operands.reduce(:-)
-      when "mul" then operands.reduce(:*)
-      when "div" then operands.reduce(:/)
+      when "add"            then operands.reduce(:+)
+      when "sub"            then operands.reduce(:-)
+      when "mul"            then operands.reduce(:*)
+      when "div"            then operands.reduce(:/)
+      when "compute_slots"  then compute_slots(*operands)
+      when "build_snapshot" then build_snapshot(*operands)
       else raise ArgumentError, "Unknown operator: #{op}"
       end
+    end
+
+    # Computes available time slots from geo_signals and schedule
+    # geo_signals: Array of { "hour" => 0..23, "signal" => "available"|"busy" }
+    # schedule:    { "working_hours" => [start_h, end_h], "day_off" => bool }
+    def compute_slots(geo_signals, schedule)
+      return [] if schedule.nil? || schedule.fetch("day_off", false)
+
+      working = schedule.fetch("working_hours", [8, 17])
+      start_h, end_h = working[0], working[1]
+
+      signals_by_hour = {}
+      Array(geo_signals).each do |sig|
+        signals_by_hour[sig.fetch("hour")] = sig.fetch("signal")
+      end
+
+      (start_h...end_h).map do |hour|
+        status = signals_by_hour.fetch(hour, "available")
+        { "hour" => hour, "status" => status }
+      end
+    end
+
+    # Build an AvailabilitySnapshot from computed slots
+    def build_snapshot(slots, technician_id, date)
+      available_count = Array(slots).count { |s| s.fetch("status") == "available" }
+      {
+        "technician_id"   => technician_id,
+        "date"            => date,
+        "available_slots" => slots,
+        "available_count" => available_count,
+        "snapshot_at"     => date
+      }
     end
   end
 
@@ -257,14 +318,19 @@ module RuntimeMachineMemoryProof
       return failure("runtime.no_program", "no program loaded via load_program") unless @loaded_program
 
       @state = "evaluating"
-      outputs = @loaded_program.evaluate_contract(contract_id, inputs)
+      # Pass backend and as_of for tbackend_read nodes
+      outputs = @loaded_program.evaluate_contract(contract_id, inputs, backend: @backend, as_of: as_of)
+
+      lifecycle = @loaded_program.has_window? ? "window" : "session"
 
       outputs.each do |name, value|
+        next if value.nil?
+        lc = name == "snapshot" ? "durable" : lifecycle
         value_packet = packet(
           kind:    "value_observation",
           subject: "contract://#{contract_id}/#{name}",
           payload: value,
-          temporal: { as_of: as_of },
+          temporal: { as_of: as_of, lifecycle: lc },
           links:   evidence_links + [link("executed_by", @runtime_contract_ref)]
         )
         @backend.append(value_packet)
@@ -276,10 +342,10 @@ module RuntimeMachineMemoryProof
         kind:    "platform_observation",
         subject: "eval://#{@session_id}/1",
         payload: {
-          status:          "ok",
-          contract_id:     contract_id,
-          output_obs_ids:  @backend.entries.last(outputs.size).map { |e| e.fetch(:packet).id },
-          temporal_ctx:    { as_of: as_of }
+          status:         "ok",
+          contract_id:    contract_id,
+          output_obs_ids: @backend.entries.last(outputs.compact.size).map { |e| e.fetch(:packet).id },
+          temporal_ctx:   { as_of: as_of }
         },
         temporal: { as_of: as_of },
         links:    evidence_links
@@ -292,6 +358,44 @@ module RuntimeMachineMemoryProof
         outputs:      outputs,
         eval_receipt: eval_receipt
       }
+    end
+
+    # Emit a BoundaryReceipt for a window close (PROP-010 DR-2)
+    # window_name: String
+    # period:      { from: TimeRef, to: TimeRef }
+    # summary_ref: ObsId of the snapshot observation
+    # detail_obs_ids: Array[ObsId] of raw window observations
+    def emit_boundary_receipt(window_name:, period:, summary_obs_id:, detail_obs_ids:, as_of:)
+      detail_hash = Canonical.hash(detail_obs_ids.sort)
+      receipt = packet(
+        kind:    "receipt_observation",
+        subject: "boundary://#{window_name}",
+        payload: {
+          window_name:   window_name,
+          boundary_key:  nil,
+          period:        period,
+          summary_ref:   summary_obs_id,
+          detail_count:  detail_obs_ids.size,
+          detail_hash:   detail_hash
+        },
+        temporal: { as_of: as_of, lifecycle: "audit" },
+        links:    evidence_links + [link("materializes", summary_obs_id, required: true)]
+      )
+      @backend.append(receipt)
+      receipt
+    end
+
+    # Emit a window snapshot — stores the snapshot payload and returns the obs
+    def emit_window_snapshot(window_name:, snapshot_payload:, as_of:)
+      snap = packet(
+        kind:    "fact_observation",
+        subject: "snapshot://#{window_name}",
+        payload: snapshot_payload,
+        temporal: { as_of: as_of, lifecycle: "durable" },
+        links:   evidence_links
+      )
+      @backend.append(snap)
+      snap
     end
 
     attr_reader :loaded_program

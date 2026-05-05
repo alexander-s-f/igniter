@@ -25,6 +25,7 @@ implementation detail of the current Igniter platform.
 | [tracks/runtime-machine-proof-packet-fixtures-v0.md](tracks/runtime-machine-proof-packet-fixtures-v0.md) | done | Extracted structural golden ObsPacket, SemanticImage, CompatibilityReport, negative evidence, and result summary artifacts from the memory proof |
 | [tracks/runtime-machine-proof-packet-builder-check-v0.md](tracks/runtime-machine-proof-packet-builder-check-v0.md) | done | Added a standalone structural checker for memory proof golden artifacts and candidate packet-builder outputs |
 | [tracks/runtime-machine-proof-sidecar-builder-profiles-v0.md](tracks/runtime-machine-proof-sidecar-builder-profiles-v0.md) | done | Added standalone sidecar profiles that emit candidate fixture directories accepted by the packet-builder checker |
+| [tracks/runtime-machine-proof-sidecar-profile-modes-v0.md](tracks/runtime-machine-proof-sidecar-profile-modes-v0.md) | done | Defined full-log and selected-profile comparison modes for sidecar candidate artifacts |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 | [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
@@ -33,7 +34,7 @@ implementation detail of the current Igniter platform.
 
 | Experiment | Status | Purpose |
 |------------|--------|---------|
-| [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-proof-sidecar-builder-profiles-v0: standalone memory proof, golden fixtures, checker, and candidate sidecar profile builders |
+| [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-proof-sidecar-profile-modes-v0: standalone memory proof, golden fixtures, checker, sidecar profiles, and profile modes |
 
 ## Active Proposals
 
@@ -98,6 +99,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Runtime Machine Proof Packet Fixtures (Research Agent track)
 - Runtime Machine Proof Packet Builder Check (Research Agent track)
 - Runtime Machine Proof Sidecar Builder Profiles (Research Agent track)
+- Runtime Machine Proof Sidecar Profile Modes (Research Agent track)
 - Compilation and Deployment (compilation-deployment.md)
 - Temporal Lifecycle (temporal-lifecycle.md)
 - Runtime Machine Lifecycle (PROP-011)

@@ -10,6 +10,7 @@ module RuntimeMachineProofPacketBuilderCheck
 
   SCHEMA_VERSION = RuntimeMachineMemoryProof::FixtureArtifacts::SCHEMA_VERSION
   DEFAULT_FIXTURE_DIR = File.expand_path("fixtures", __dir__)
+  PROFILE_MODES = %w[full_log selected_profile].freeze
 
   ARTIFACT_FILES = {
     "obs_packets.golden.json" => "obs_packets",
@@ -53,9 +54,10 @@ module RuntimeMachineProofPacketBuilderCheck
   end
 
   class Checker
-    def initialize(candidate_dir:, golden_dir:)
+    def initialize(candidate_dir:, golden_dir:, profile_mode: "full_log")
       @candidate_dir = File.expand_path(candidate_dir)
       @golden_dir = File.expand_path(golden_dir)
+      @profile_mode = normalize_profile_mode(profile_mode)
       @result = Result.new
       @candidate = {}
       @golden = {}
@@ -64,6 +66,7 @@ module RuntimeMachineProofPacketBuilderCheck
 
     def call
       load_sets
+      @result.category("profile_mode") { check_profile_mode }
       @result.category("manifest") { check_manifest(@candidate_dir, @candidate.fetch("manifest.json")) }
       @result.category("artifact_headers") { check_artifact_headers(@candidate) }
       @result.category("obs_packets") { check_obs_packets }
@@ -71,11 +74,26 @@ module RuntimeMachineProofPacketBuilderCheck
       @result.category("compatibility_reports") { check_compatibility_reports }
       @result.category("negative_evidence") { check_negative_evidence }
       @result.category("result_summary") { check_result_summary }
-      @result.category("golden_comparison") { check_against_golden } unless @candidate_dir == @golden_dir
+      unless @candidate_dir == @golden_dir
+        category = full_log_mode? ? "golden_comparison" : "selected_comparison"
+        @result.category(category) { check_against_golden }
+      end
       @result
     end
 
     private
+
+    def normalize_profile_mode(mode)
+      mode.to_s.tr("-", "_")
+    end
+
+    def full_log_mode?
+      @profile_mode == "full_log"
+    end
+
+    def check_profile_mode
+      @result.expect(PROFILE_MODES.include?(@profile_mode), "unknown profile mode: #{@profile_mode}")
+    end
 
     def load_sets
       ALL_FILES.each do |name|
@@ -129,14 +147,15 @@ module RuntimeMachineProofPacketBuilderCheck
       obs = artifact_payload("obs_packets.golden.json")
       sessions = obs.fetch("sessions", {})
 
-      %w[session_a session_b].each do |name|
-        entries = sessions.fetch(name, [])
-        @result.expect(entries.any?, "#{name} packet log is empty")
-        entries.each_with_index do |entry, index|
-          @result.expect(entry.fetch("seq_id", nil).is_a?(Integer), "#{name}[#{index}] seq_id missing")
-          @result.expect(entry.fetch("transaction_time", nil).is_a?(String), "#{name}[#{index}] transaction_time missing")
-          check_packet(entry.fetch("packet", {}), "#{name}[#{index}].packet")
+      if full_log_mode?
+        %w[session_a session_b].each do |name|
+          entries = sessions.fetch(name, [])
+          @result.expect(entries.any?, "#{name} packet log is empty")
+          check_session_entries(name, entries)
         end
+      else
+        @result.expect(obs.fetch("profile_mode", nil) == @profile_mode, "selected profile mode mismatch")
+        sessions.each { |name, entries| check_session_entries(name, entries) }
       end
 
       selected = obs.fetch("selected", {})
@@ -155,6 +174,14 @@ module RuntimeMachineProofPacketBuilderCheck
       @result.expect(rels.include?("executed_by"), "resumed value packet missing executed_by link")
       @result.expect(rels.include?("produced_in"), "resumed value packet missing produced_in link")
       @result.expect(rels.count("observed_under") >= 3, "resumed value packet missing observed_under links")
+    end
+
+    def check_session_entries(name, entries)
+      entries.each_with_index do |entry, index|
+        @result.expect(entry.fetch("seq_id", nil).is_a?(Integer), "#{name}[#{index}] seq_id missing")
+        @result.expect(entry.fetch("transaction_time", nil).is_a?(String), "#{name}[#{index}] transaction_time missing")
+        check_packet(entry.fetch("packet", {}), "#{name}[#{index}].packet")
+      end
     end
 
     def check_semantic_image
@@ -237,12 +264,33 @@ module RuntimeMachineProofPacketBuilderCheck
     end
 
     def check_against_golden
+      return check_selected_against_golden unless full_log_mode?
+
       ARTIFACT_FILES.each_key do |name|
         candidate_payload = @candidate.fetch(name).fetch("payload", nil)
         golden_payload = @golden.fetch(name).fetch("payload", nil)
         @result.expect(Canonical.normalize(candidate_payload) == Canonical.normalize(golden_payload),
                        "candidate payload differs from golden for #{name}")
       end
+    end
+
+    def check_selected_against_golden
+      candidate_obs = @candidate.fetch("obs_packets.golden.json").fetch("payload", {})
+      golden_obs = @golden.fetch("obs_packets.golden.json").fetch("payload", {})
+      candidate_selected = candidate_obs.fetch("selected", {})
+      golden_selected = golden_obs.fetch("selected", {})
+
+      @result.expect(
+        Canonical.normalize(candidate_selected) == Canonical.normalize(golden_selected),
+        "candidate selected packets differ from golden selected packets"
+      )
+
+      candidate_summary = @candidate.fetch("result_summary.golden.json").fetch("payload", {})
+      golden_summary = @golden.fetch("result_summary.golden.json").fetch("payload", {})
+      @result.expect(
+        candidate_summary.fetch("result_hash", nil) == golden_summary.fetch("result_hash", nil),
+        "candidate result hash differs from golden result hash"
+      )
     end
 
     def artifact_payload(name)
@@ -312,7 +360,8 @@ module RuntimeMachineProofPacketBuilderCheck
       options = parse(argv)
       checker = Checker.new(
         candidate_dir: options.fetch(:candidate_dir),
-        golden_dir: options.fetch(:golden_dir)
+        golden_dir: options.fetch(:golden_dir),
+        profile_mode: options.fetch(:profile_mode)
       )
       result = checker.call
       print_result(result)
@@ -322,7 +371,8 @@ module RuntimeMachineProofPacketBuilderCheck
     def parse(argv)
       options = {
         golden_dir: DEFAULT_FIXTURE_DIR,
-        candidate_dir: nil
+        candidate_dir: nil,
+        profile_mode: "full_log"
       }
 
       until argv.empty?
@@ -332,6 +382,8 @@ module RuntimeMachineProofPacketBuilderCheck
           options[:golden_dir] = argv.shift || abort_usage("--golden requires a directory")
         when "--candidate"
           options[:candidate_dir] = argv.shift || abort_usage("--candidate requires a directory")
+        when "--profile-mode"
+          options[:profile_mode] = normalize_profile_mode(argv.shift || abort_usage("--profile-mode requires a mode"))
         when "--help", "-h"
           puts usage
           exit 0
@@ -342,6 +394,10 @@ module RuntimeMachineProofPacketBuilderCheck
 
       options[:candidate_dir] ||= options.fetch(:golden_dir)
       options
+    end
+
+    def normalize_profile_mode(mode)
+      mode.to_s.tr("-", "_")
     end
 
     def abort_usage(message)
@@ -356,6 +412,7 @@ module RuntimeMachineProofPacketBuilderCheck
           ruby igniter-lang/experiments/runtime_machine_memory_proof/packet_builder_check.rb
           ruby igniter-lang/experiments/runtime_machine_memory_proof/packet_builder_check.rb --candidate <dir>
           ruby igniter-lang/experiments/runtime_machine_memory_proof/packet_builder_check.rb --golden <dir> --candidate <dir>
+          ruby igniter-lang/experiments/runtime_machine_memory_proof/packet_builder_check.rb --profile-mode selected_profile --candidate <dir>
       TEXT
     end
 

@@ -2,7 +2,7 @@
 
 Status: done
 Slice state: done on 2026-05-05
-Slice name: `runtime-machine-proof-sidecar-builder-profiles-v0`
+Slice name: `runtime-machine-proof-sidecar-profile-modes-v0`
 Owner: `[Igniter-Lang Research Agent]`
 Supervisor: `[Architect Supervisor / Codex]`
 
@@ -110,10 +110,17 @@ Validate a generated candidate fixture directory against the golden fixtures:
 ruby igniter-lang/experiments/runtime_machine_memory_proof/packet_builder_check.rb --candidate <dir>
 ```
 
+Validate a selected-profile candidate:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/packet_builder_check.rb --profile-mode selected_profile --candidate <dir>
+```
+
 Expected checker summary:
 
 ```text
 PASS runtime_machine_proof_packet_builder_check
+profile_mode: ok
 manifest: ok
 artifact_headers: ok
 obs_packets: ok
@@ -133,6 +140,14 @@ The checker validates:
 - CompatibilityReport status decisions
 - negative evidence for ambient time and missing proof links
 - result summary equality and trusted evidence status
+
+Profile modes:
+
+- `full_log` - requires Session A and Session B packet logs and performs exact
+  golden payload comparison.
+- `selected_profile` - allows `obs_packets` without full session logs, requires
+  `profile_mode`, selected packets, and compares the selected packet surface
+  plus result hash.
 
 ## Sidecar Builder Profiles
 
@@ -155,11 +170,18 @@ Write a candidate directory without running the checker:
 ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb --write-candidate <dir>
 ```
 
+Build a selected-profile candidate:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb --profile-mode selected_profile --candidate /tmp/runtime_machine_sidecar_selected
+```
+
 Expected summary:
 
 ```text
 PASS runtime_machine_proof_sidecar_builder_profiles
 candidate_dir: <dir>
+profile_mode: <full_log | selected_profile>
 proof_capture: ok
 write_candidate: ok
 packet_builder_check: ok
@@ -196,6 +218,11 @@ sidecar-builder candidates.
 [D] Sidecar builder profiles can now emit a candidate fixture directory that
 passes the structural checker without touching package code.
 
+[D] The checker and sidecar builder now support `full_log` and
+`selected_profile` modes. `selected_profile` is the first compatibility shape
+for future bridge/package candidates that cannot or should not emit full
+session logs.
+
 ## Files
 
 - `runtime_machine_memory_proof.rb` - executable harness.
@@ -210,7 +237,7 @@ passes the structural checker without touching package code.
 
 ```text
 [Igniter-Lang Research Agent]
-Track: runtime-machine-proof-sidecar-builder-profiles-v0
+Track: runtime-machine-proof-sidecar-profile-modes-v0
 Artifact: igniter-lang/experiments/runtime_machine_memory_proof/
 Status: done
 
@@ -228,6 +255,7 @@ Status: done
   candidate fixture directories.
 - `sidecar_builder_profiles.rb` emits candidate artifact directories from
   standalone profile builders and checks them against golden fixtures.
+- Checker and sidecar builder support `full_log` and `selected_profile` modes.
 
 [R] Recommendations:
 - Use this experiment as the next golden fixture source for sidecar packet
@@ -241,6 +269,8 @@ Status: done
   checker reject drift before any package integration.
 - Keep sidecar profiles as research-local adapters until the bridge packet
   schema is approved.
+- Use `full_log` for proof-regression work and `selected_profile` for early
+  bridge/package-derived candidate experiments.
 
 [S] Signals:
 - Runtime Machine semantics are now executable at toy scale.
@@ -251,6 +281,8 @@ Status: done
   behavior.
 - Candidate artifact emission now has a clean seam before package integration:
   proof output -> profile builders -> candidate JSON -> structural checker.
+- Selected-profile mode gives future agents a smaller target without weakening
+  required evidence links or result hash checks.
 
 [Q] Open Questions:
 - Should this harness later move under an approved experiment runner?
@@ -261,9 +293,11 @@ Status: done
   compact PASS/FAIL text?
 - Should sidecar profiles eventually accept external packet-builder output, or
   stay only as the memory proof candidate generator?
+- Should selected-profile comparison also allow SemanticImage/report field
+  substitutions under explicit compatibility rules?
 
 [Next] Proposed next slice:
-- `runtime-machine-proof-sidecar-profile-modes-v0`
-  Define selected-profile vs full-log comparison modes before package bridge
-  work begins.
+- `runtime-machine-proof-external-candidate-adapter-v0`
+  Define how an external bridge/package candidate directory can map into the
+  selected-profile artifact contract.
 ```

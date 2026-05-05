@@ -11,13 +11,15 @@ require_relative "packet_builder_check"
 module RuntimeMachineProofSidecarBuilderProfiles
   Canonical = RuntimeMachineMemoryProof::Canonical
   SCHEMA_VERSION = RuntimeMachineMemoryProof::FixtureArtifacts::SCHEMA_VERSION
+  PROFILE_MODES = RuntimeMachineProofPacketBuilderCheck::PROFILE_MODES
 
   DEFAULT_GOLDEN_DIR = RuntimeMachineProofPacketBuilderCheck::DEFAULT_FIXTURE_DIR
   DEFAULT_CANDIDATE_DIR = File.join(Dir.tmpdir, "runtime_machine_proof_sidecar_builder_profiles")
 
   class ProfileSet
-    def initialize(proof_artifacts)
+    def initialize(proof_artifacts, profile_mode:)
       @proof_artifacts = proof_artifacts
+      @profile_mode = profile_mode
     end
 
     def files
@@ -32,7 +34,7 @@ module RuntimeMachineProofSidecarBuilderProfiles
 
     def artifact_profiles
       [
-        ObsPacketsProfile.new(@proof_artifacts.fetch("obs_packets")),
+        ObsPacketsProfile.new(@proof_artifacts.fetch("obs_packets"), profile_mode: @profile_mode),
         SemanticImageProfile.new(@proof_artifacts.fetch("semantic_image")),
         CompatibilityReportsProfile.new(@proof_artifacts.fetch("compatibility_reports")),
         NegativeEvidenceProfile.new(@proof_artifacts.fetch("negative_evidence")),
@@ -77,8 +79,19 @@ module RuntimeMachineProofSidecarBuilderProfiles
   end
 
   class ObsPacketsProfile < ArtifactProfile
-    def initialize(payload)
-      super("obs_packets", "obs_packets.golden.json", payload)
+    def initialize(payload, profile_mode:)
+      super("obs_packets", "obs_packets.golden.json", payload_for(payload, profile_mode))
+    end
+
+    private
+
+    def payload_for(payload, profile_mode)
+      return payload if profile_mode == "full_log"
+
+      {
+        profile_mode: profile_mode,
+        selected: payload.fetch("selected")
+      }
     end
   end
 
@@ -107,13 +120,14 @@ module RuntimeMachineProofSidecarBuilderProfiles
   end
 
   class Builder
-    def initialize(candidate_dir:, golden_dir:)
+    def initialize(candidate_dir:, golden_dir:, profile_mode: "full_log")
       @candidate_dir = File.expand_path(candidate_dir)
       @golden_dir = File.expand_path(golden_dir)
+      @profile_mode = normalize_profile_mode(profile_mode)
       @checks = []
     end
 
-    attr_reader :checks, :candidate_dir
+    attr_reader :checks, :candidate_dir, :profile_mode
 
     def write_candidate
       runner = RuntimeMachineMemoryProof::ProofRunner.new
@@ -121,7 +135,7 @@ module RuntimeMachineProofSidecarBuilderProfiles
       record("proof_capture", proof_ok)
       return false unless proof_ok
 
-      files = ProfileSet.new(runner.artifacts).files
+      files = ProfileSet.new(runner.artifacts, profile_mode: @profile_mode).files
       FileUtils.mkdir_p(@candidate_dir)
       files.each do |name, content|
         File.write(File.join(@candidate_dir, name), content)
@@ -133,7 +147,8 @@ module RuntimeMachineProofSidecarBuilderProfiles
     def check_candidate
       checker = RuntimeMachineProofPacketBuilderCheck::Checker.new(
         candidate_dir: @candidate_dir,
-        golden_dir: @golden_dir
+        golden_dir: @golden_dir,
+        profile_mode: @profile_mode
       )
       result = checker.call
       record("packet_builder_check", result.ok?)
@@ -142,6 +157,10 @@ module RuntimeMachineProofSidecarBuilderProfiles
     end
 
     private
+
+    def normalize_profile_mode(mode)
+      mode.to_s.tr("-", "_")
+    end
 
     def record(name, ok)
       @checks << { name: name, ok: ok }
@@ -155,7 +174,8 @@ module RuntimeMachineProofSidecarBuilderProfiles
       options = parse(argv)
       builder = Builder.new(
         candidate_dir: options.fetch(:candidate_dir),
-        golden_dir: options.fetch(:golden_dir)
+        golden_dir: options.fetch(:golden_dir),
+        profile_mode: options.fetch(:profile_mode)
       )
 
       write_ok = builder.write_candidate
@@ -170,7 +190,8 @@ module RuntimeMachineProofSidecarBuilderProfiles
       options = {
         mode: "check",
         candidate_dir: DEFAULT_CANDIDATE_DIR,
-        golden_dir: DEFAULT_GOLDEN_DIR
+        golden_dir: DEFAULT_GOLDEN_DIR,
+        profile_mode: "full_log"
       }
 
       until argv.empty?
@@ -183,6 +204,8 @@ module RuntimeMachineProofSidecarBuilderProfiles
           options[:candidate_dir] = argv.shift || abort_usage("--write-candidate requires a directory")
         when "--golden"
           options[:golden_dir] = argv.shift || abort_usage("--golden requires a directory")
+        when "--profile-mode"
+          options[:profile_mode] = normalize_profile_mode(argv.shift || abort_usage("--profile-mode requires a mode"))
         when "--help", "-h"
           puts usage
           exit 0
@@ -191,7 +214,12 @@ module RuntimeMachineProofSidecarBuilderProfiles
         end
       end
 
+      abort_usage("unknown profile mode: #{options.fetch(:profile_mode)}") unless PROFILE_MODES.include?(options.fetch(:profile_mode))
       options
+    end
+
+    def normalize_profile_mode(mode)
+      mode.to_s.tr("-", "_")
     end
 
     def abort_usage(message)
@@ -207,12 +235,14 @@ module RuntimeMachineProofSidecarBuilderProfiles
           ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb --candidate <dir>
           ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb --write-candidate <dir>
           ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb --golden <dir> --candidate <dir>
+          ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb --profile-mode selected_profile --candidate <dir>
       TEXT
     end
 
     def print_result(success, builder)
       puts "#{success ? "PASS" : "FAIL"} runtime_machine_proof_sidecar_builder_profiles"
       puts "candidate_dir: #{builder.candidate_dir}"
+      puts "profile_mode: #{builder.profile_mode}"
       builder.checks.each do |check|
         puts "#{check.fetch(:name)}: #{check.fetch(:ok) ? "ok" : "fail"}"
       end
