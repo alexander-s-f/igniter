@@ -136,7 +136,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-ffi-ruby-receipt-fixtures-v0.md` | done | runtime-machine-ffi-ruby-intent-and-delegation-v0 |
+| `[Igniter-Lang Research Agent]` | `tracks/polymorphic-add-devkit-fixture-v0.md` | done | polymorphic-add-parser-pressure-check-v0 |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/source-fixture-parser-acceptance-harness-v0.md` | partial | source-fixture-parsed-surface-checker-v0 or ESCAPE capability algebra |
 
 ## Current Meta Thesis
@@ -375,6 +375,18 @@ staged self-hosting
 These decisions should be treated as language semantics, not runtime
 implementation preferences.
 
+[S] Polymorphic Add is now a source pressure fixture:
+
+```text
+igniter-lang/source/polymorphic_add.ig
+igniter-lang/source/polymorphic_add.parsed_program.expected.json
+```
+
+It introduces `trait`, `impl`, `contract_shape`, and generic contract headers
+as expected future ParsedProgram shape only. RuntimeMachine must still receive
+monomorphic SemanticIR specializations such as `Add[Integer]` and `Add[Float]`;
+no unresolved overload survives load.
+
 [D] `T` has a lifecycle. Igniter-Lang must not imply that all temporal
 observations live forever:
 
@@ -491,6 +503,7 @@ igniter-lang/docs/
     ffi-ruby-contractable-proof-v0.md [done]
     runtime-machine-ffi-ruby-receipt-fixtures-v0.md [done]
     source-fixture-parser-acceptance-harness-v0.md [partial]
+    polymorphic-add-devkit-fixture-v0.md [done]
     bridge-observation-envelope-implementation-plan-v0.md [done]
     temporal-lifecycle-application-scenarios-v0.md [done]
     temporal-lifecycle-boundary-fixtures-v0.md [done]
@@ -518,6 +531,8 @@ igniter-lang/docs/
   source/
     add.ig [source fixture]
     availability_projection.ig [source fixture]
+    polymorphic_add.ig [pressure fixture - trait/impl/contract_shape]
+    polymorphic_add.parsed_program.expected.json [expected future ParsedProgram shape]
 
   experiments/
     runtime_machine_memory_proof/ [done - standalone harness + golden fixtures + checker + profiles + modes + external normalizer + FFI receipt fixtures]
@@ -564,6 +579,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-implementation-plan-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-application-scenarios-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-boundary-fixtures-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/polymorphic-add-devkit-fixture-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |

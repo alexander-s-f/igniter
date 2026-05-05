@@ -1,0 +1,138 @@
+{
+  "kind": "parsed_program",
+  "source_path": "igniter-lang/source/polymorphic_add.ig",
+  "source_hash": "sha256:1d56d5e61f84c607a74945e5e3485b83f060603a51c0b5f3f58e55d1206948d0",
+  "grammar_version": "polymorphic-pressure-v0",
+  "module": "Lang.Examples.PolymorphicAdd",
+  "imports": [],
+  "traits": [
+    {
+      "kind": "trait",
+      "name": "Additive",
+      "type_params": [
+        "T"
+      ],
+      "methods": [
+        {
+          "kind": "trait_method",
+          "name": "add",
+          "params": [
+            {
+              "name": "a",
+              "type_annotation": "T"
+            },
+            {
+              "name": "b",
+              "type_annotation": "T"
+            }
+          ],
+          "return_type": "T"
+        }
+      ]
+    }
+  ],
+  "impls": [
+    {
+      "kind": "impl",
+      "trait_ref": {
+        "name": "Additive",
+        "type_args": [
+          "Integer"
+        ]
+      },
+      "using": {
+        "kind": "qualified_ref",
+        "name": "stdlib.numeric.add"
+      }
+    },
+    {
+      "kind": "impl",
+      "trait_ref": {
+        "name": "Additive",
+        "type_args": [
+          "Float"
+        ]
+      },
+      "using": {
+        "kind": "qualified_ref",
+        "name": "stdlib.numeric.add"
+      }
+    }
+  ],
+  "contract_shapes": [
+    {
+      "kind": "contract_shape",
+      "name": "AddShape",
+      "type_params": [
+        "T"
+      ],
+      "body": [
+        {
+          "kind": "input",
+          "name": "a",
+          "type_annotation": "T"
+        },
+        {
+          "kind": "input",
+          "name": "b",
+          "type_annotation": "T"
+        },
+        {
+          "kind": "output",
+          "name": "sum",
+          "type_annotation": "T"
+        }
+      ]
+    }
+  ],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "Add",
+      "type_params": [
+        {
+          "name": "T",
+          "bounds": [
+            {
+              "trait_ref": {
+                "name": "Additive",
+                "type_args": [
+                  "T"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "implements": {
+        "name": "AddShape",
+        "type_args": [
+          "T"
+        ]
+      },
+      "body": [
+        {
+          "kind": "compute",
+          "name": "sum",
+          "expr": {
+            "kind": "call",
+            "fn": "add",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "a"
+              },
+              {
+                "kind": "ref",
+                "name": "b"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "parse_errors": []
+}

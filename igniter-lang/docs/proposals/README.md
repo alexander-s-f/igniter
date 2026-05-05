@@ -32,6 +32,7 @@ design decision or formal specification.
 | [PROP-013-stdlib-fold-aggregate-v0.md](PROP-013-stdlib-fold-aggregate-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Collection[T], Option[T], Result[T,E], fold/map/filter/group_by/avg; TR-1 termination; aggregated_from links |
 | [PROP-014-source-syntax-semanticir-boundary-v0.md](PROP-014-source-syntax-semanticir-boundary-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Minimal syntax kernel; ParsedProgram; 4-stage path to SemanticIR; OOF rejection; .igapp/ fixture mapping |
 | [PROP-015-grammar-module-system-v0.md](PROP-015-grammar-module-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | def blocks (pure/non-recursive); TypeDecl (structural); module/import; full v0 BNF; complete source for both fixtures |
+| [PROP-016-polymorphism-traits-contract-shapes-v0.md](PROP-016-polymorphism-traits-contract-shapes-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Generic contracts; traits (compile-time, not OO); impl coherence; contract_shape; implements (structural); monomorphization; compile-time overload; no unresolved overloads in SemanticIR |
 
 ---
 
@@ -39,8 +40,10 @@ design decision or formal specification.
 
 | ID | Title | Depends On | Priority |
 |----|-------|------------|----------|
-| PROP-016 | ESCAPE Capability Algebra v0 | PROP-003, PROP-012, FFI proof | high |
-| PROP-017 | Contract Schema Evolution and Migration v0 | PROP-009, PROP-012 | high |
+| PROP-017 | Schema Evolution and Contract Migration v0 | PROP-016 | high |
+| PROP-018 | Higher-Kinded Types and Associated Types v0 | PROP-016 | medium |
+| — | ffi-ruby-contractable-proof-v0 | PROP-012, PROP-013 | done (track+spec) |
+| — | runtime-machine-proof-external-candidate-adapter-v0 | PROP-008, PROP-012 | high (research) |
 | PROP-018 | Pattern Matching and Generics v0 | PROP-015, PROP-016 | medium |
 | — | source-fixture-parsed-surface-checker-v0 | PROP-014, PROP-015 | high (devkit track) |
 | — | runtime-machine-ffi-ruby-intent-and-delegation-v0 | FFI receipt fixtures, PROP-012 | high (research track) |

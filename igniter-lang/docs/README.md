@@ -32,6 +32,7 @@ implementation detail of the current Igniter platform.
 | [tracks/ffi-ruby-contractable-proof-v0.md](tracks/ffi-ruby-contractable-proof-v0.md) | done | Proved Ruby host calls as ESCAPE contracts: FFIRequirement, CapabilityGate, call discipline (intent→check→call→receipt/failure), evidence links |
 | [tracks/runtime-machine-ffi-ruby-receipt-fixtures-v0.md](tracks/runtime-machine-ffi-ruby-receipt-fixtures-v0.md) | done | Added executable FFI read/write/failure golden receipt fixtures and checker coverage |
 | [tracks/source-fixture-parser-acceptance-harness-v0.md](tracks/source-fixture-parser-acceptance-harness-v0.md) | partial | Started source fixture parser harness: `.ig` source fixtures parse to ParsedProgram JSON; `.igapp` comparison still pending |
+| [tracks/polymorphic-add-devkit-fixture-v0.md](tracks/polymorphic-add-devkit-fixture-v0.md) | done | Added polymorphic Add pressure fixture with expected ParsedProgram shape, specialization rules, and no runtime overloads |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 | [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
@@ -67,6 +68,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-013](proposals/PROP-013-stdlib-fold-aggregate-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Collection[T], Option[T], Result[T,E]; fold/map/filter/group_by/avg; TR-1 termination; aggregated_from links |
 | [proposals/PROP-014](proposals/PROP-014-source-syntax-semanticir-boundary-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Minimal syntax kernel; ParsedProgram shape; 4-stage path to SemanticIR; OOF rejection rules; .igapp/ mapping |
 | [proposals/PROP-015](proposals/PROP-015-grammar-module-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | def blocks (pure/non-recursive/inlined); TypeDecl (structural records); module/import; full v0 BNF; Add + Availability source files |
+| [proposals/PROP-016](proposals/PROP-016-polymorphism-traits-contract-shapes-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Generic contracts; traits (compile-time); impl coherence; contract_shape; implements structural; monomorphization; compile-time overload only; no unresolved overloads in SemanticIR |
 
 ## Core Documents
 
@@ -130,10 +132,11 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Source Syntax to SemanticIR Boundary (PROP-014: minimal grammar kernel)
 - Grammar and Module System (PROP-015: def, TypeDecl, module/import, full v0 BNF)
 - Parser Acceptance Harness (DONE — add.ig + availability_projection.ig → ParsedProgram, 61 specs)
+- Polymorphic Add Devkit Fixture (DONE — trait/impl/contract_shape pressure fixture, monomorphic SemanticIR specializations, no unresolved RuntimeMachine overloads)
 - FFI Ruby Contractable Proof (DONE — CapabilityGate + call discipline, 36 specs)
-- ESCAPE Capability Algebra (QUEUED — PROP-016)
+- ESCAPE Capability Algebra (QUEUED — proposal ID TBD)
 - Contract Schema Evolution and Migration (QUEUED — PROP-017)
-- Pattern Matching and Generics (QUEUED — PROP-018)
+- Pattern Matching and Generics (QUEUED — post-PROP-016)
 - Runtime Machine FFI Ruby Receipt Fixtures (QUEUED — research track)
 
 ## Experiments and Source Files
@@ -148,6 +151,8 @@ igniter-lang/experiments/runtime_machine_memory_proof/
 igniter-lang/source/
   add.ig                     <- canonical CORE source (module Lang.Examples.Add)
   availability_projection.ig <- ESCAPE source with window/defs/TBackend reads
+  polymorphic_add.ig         <- polymorphic Add pressure fixture, not current parser acceptance
+  polymorphic_add.parsed_program.expected.json <- expected future ParsedProgram shape
 
 spec/igniter/
   parser_acceptance_spec.rb     <- 61 acceptance tests (ParsedProgram -> fixture compare path)
