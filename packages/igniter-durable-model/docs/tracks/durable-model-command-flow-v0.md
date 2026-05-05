@@ -1,6 +1,6 @@
 # Track: Durable Model Command Flow v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -285,3 +285,16 @@ Status: done | partial | blocked
 [R] Risks / next recommendations:
 - ...
 ```
+
+## Final Notes
+
+- `CommandFlow` is an app-safe orchestration summary, not a workflow engine or
+  Ledger-side executor.
+- `Store#command_flow` defaults to `mode: :preview`; mutation only happens with
+  explicit `mode: :apply`.
+- Flow metadata preserves caller-provided `request_id` or generates compact
+  app-local ids with `cmd_` prefix. These ids feed intent metadata and lifecycle
+  queries.
+- Preview lifecycle is derived from the in-memory activity event unless
+  `audit: true` persists preview activity. Apply lifecycle is read from history
+  when audited, otherwise derived from current flow objects.

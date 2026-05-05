@@ -241,6 +241,12 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   exposing raw receipts/fact ids/value hashes.
 - `Store#command_lifecycle_events` returns the typed filtered
   `CommandActivity` timeline for apps that need the full activity history.
+- `Store#command_flow` is a transparent app-owned orchestrator over intent,
+  plan, activity event, policy decision, optional apply, and lifecycle. It
+  defaults to preview mode, preserves or generates an app-local request id, and
+  never hides mutation: storage changes only happen with `mode: :apply`.
+- `CommandFlow` serializes an app-safe command story and omits raw fact ids,
+  value hashes, causation, and planned record values from its `to_h`.
 
 `effects`
 
@@ -260,6 +266,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   activity never mutates the target record or planned business history.
 - Lifecycle projection is separate from command application. It only reads
   already-recorded activity and folds status deterministically.
+- Command flow orchestration is not a workflow engine. It stitches existing
+  app-boundary objects together and keeps preview non-mutating.
 - Applying commands is still app-owned behavior. Ledger stores descriptors and
   facts, but does not run command callbacks or decide policy/capability.
   `CommandPolicyDecision` is a summary, not an authorization token.

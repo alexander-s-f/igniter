@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "securerandom"
 require "igniter/ledger"
 require "igniter-ledger-client"
 
@@ -541,6 +542,70 @@ module Igniter
 
           command_matches && subject_matches && request_matches
         end
+      end
+
+      # High-level transparent command orchestration. Preview is the default;
+      # mutation only happens in mode: :apply via apply_command.
+      def command_flow(schema_class, command_name, key: nil, params: {},
+                       metadata: {}, actor: nil, capabilities: [],
+                       approvals: [], policy: nil, mode: :preview,
+                       audit: false, history_class: nil,
+                       activity_history_class: CommandActivity)
+        flow_mode = token(mode)
+        unless %i[preview apply].include?(flow_mode)
+          raise ArgumentError, "Unknown command_flow mode: #{mode.inspect}"
+        end
+
+        flow_metadata = ensure_command_flow_request_id(metadata)
+        intent = command_intent(schema_class, command_name,
+          key: key,
+          params: params,
+          metadata: flow_metadata)
+        plan = command_operation_plan(intent)
+        policy_decision = command_policy_decision(plan,
+          actor: actor,
+          capabilities: capabilities,
+          approvals: approvals,
+          metadata: flow_metadata,
+          policy: policy)
+        activity_event = command_flow_activity_event(plan, policy_decision)
+
+        if flow_mode == :preview
+          append_command_activity(activity_event, history_class: activity_history_class) if audit
+          lifecycle = command_flow_lifecycle(activity_event,
+            audit: audit,
+            history_class: activity_history_class)
+          return build_command_flow(mode: flow_mode,
+            intent: intent,
+            plan: plan,
+            activity_event: activity_event,
+            policy_decision: policy_decision,
+            apply_receipt: nil,
+            lifecycle: lifecycle,
+            metadata: flow_metadata,
+            actor: actor)
+        end
+
+        apply_receipt = apply_command(plan,
+          key: key,
+          history_class: history_class,
+          audit: audit,
+          activity_history_class: activity_history_class,
+          policy_decision: policy_decision)
+        lifecycle = command_flow_lifecycle(activity_event,
+          audit: audit,
+          history_class: activity_history_class,
+          apply_receipt: apply_receipt,
+          policy_decision: policy_decision)
+        build_command_flow(mode: flow_mode,
+          intent: intent,
+          plan: plan,
+          activity_event: activity_event,
+          policy_decision: policy_decision,
+          apply_receipt: apply_receipt,
+          lifecycle: lifecycle,
+          metadata: flow_metadata,
+          actor: actor)
       end
 
       # Summarize app-owned policy/capability checks for a command plan.
@@ -1221,6 +1286,117 @@ module Igniter
           value_hash_exposed: event.value_hash_exposed,
           execution_allowed: event.execution_allowed
         }
+      end
+
+      def ensure_command_flow_request_id(metadata)
+        data = normalize_value(metadata || {})
+        data[:request_id] ? data : data.merge(request_id: command_flow_request_id)
+      end
+
+      def command_flow_request_id
+        "cmd_#{SecureRandom.hex(6)}"
+      end
+
+      def command_flow_lifecycle(activity_event, audit:, history_class:,
+                                 apply_receipt: nil, policy_decision: nil)
+        if audit
+          return command_lifecycle(
+            owner: activity_event.owner,
+            command: activity_event.command,
+            subject_key: activity_event.subject_key,
+            request_id: activity_event.metadata[:request_id],
+            history_class: history_class
+          )
+        end
+
+        events = [command_flow_lifecycle_event(activity_event,
+          apply_receipt: apply_receipt,
+          policy_decision: policy_decision)]
+        build_command_lifecycle(events,
+          owner: activity_event.owner,
+          command: activity_event.command,
+          subject_key: activity_event.subject_key,
+          request_id: activity_event.metadata[:request_id])
+      end
+
+      def command_flow_activity_event(plan, policy_decision)
+        status = if !plan.ready? || !policy_decision.allowed?
+          :rejected
+        end
+
+        command_activity_event(plan, status: status)
+      end
+
+      def command_flow_lifecycle_event(activity_event, apply_receipt:,
+                                       policy_decision:)
+        return activity_event unless apply_receipt
+
+        CommandActivityEvent.new(
+          owner: activity_event.owner,
+          command: activity_event.command,
+          subject_key: activity_event.subject_key,
+          operation: activity_event.operation,
+          status: apply_receipt.status,
+          intent_status: activity_event.intent_status,
+          plan_status: activity_event.plan_status,
+          target: activity_event.target,
+          errors: apply_receipt.errors,
+          warnings: apply_receipt.warnings,
+          metadata: command_flow_apply_metadata(activity_event, policy_decision)
+        )
+      end
+
+      def command_flow_apply_metadata(activity_event, policy_decision)
+        metadata = activity_event.metadata.merge(lifecycle_stage: :apply)
+        return metadata unless policy_decision
+
+        metadata.merge(
+          actor: policy_decision.actor,
+          policy_status: policy_decision.status
+        ).compact
+      end
+
+      def build_command_flow(mode:, intent:, plan:, activity_event:,
+                             policy_decision:, apply_receipt:, lifecycle:,
+                             metadata:, actor:)
+        CommandFlow.new(
+          status: command_flow_status(mode, plan, policy_decision, apply_receipt),
+          mode: mode,
+          owner: intent.owner,
+          command: intent.command,
+          subject_key: intent.subject_key,
+          request_id: metadata[:request_id],
+          actor: actor,
+          intent: intent,
+          plan: plan,
+          activity_event: activity_event,
+          policy_decision: policy_decision,
+          apply_receipt: apply_receipt,
+          lifecycle: lifecycle,
+          errors: command_flow_errors(plan, policy_decision, apply_receipt),
+          warnings: command_flow_warnings(plan, policy_decision, apply_receipt),
+          metadata: metadata
+        )
+      end
+
+      def command_flow_status(mode, plan, policy_decision, apply_receipt)
+        return apply_receipt.status if apply_receipt&.status == :applied
+        return :rejected unless plan.ready?
+        return :review_required if policy_decision&.review_required?
+        return :policy_denied if policy_decision&.denied?
+        return apply_receipt.status if mode == :apply && apply_receipt
+
+        :planned
+      end
+
+      def command_flow_errors(plan, policy_decision, apply_receipt)
+        source = apply_receipt || policy_decision || plan
+        Array(source.errors)
+      end
+
+      def command_flow_warnings(plan, policy_decision, apply_receipt)
+        source = apply_receipt || policy_decision || plan
+        Array(source.warnings)
       end
 
       def policy_for_plan(plan)

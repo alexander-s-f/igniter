@@ -9,6 +9,7 @@ require_relative "durable_model/command_operation_plan"
 require_relative "durable_model/command_activity_event"
 require_relative "durable_model/command_policy_decision"
 require_relative "durable_model/command_lifecycle"
+require_relative "durable_model/command_flow"
 require_relative "durable_model/store"
 
 module Igniter

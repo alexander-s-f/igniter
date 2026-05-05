@@ -162,6 +162,11 @@ store.command_lifecycle(
   owner: :reminders,
   command: :complete,
   subject_key: "r1")
+store.command_flow(Reminder, :complete,
+  key: "r1",
+  actor: "user-1",
+  capabilities: [:reminder_complete],
+  mode: :preview)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -174,8 +179,8 @@ one-to-many relation auto-wire, typed `resolve`, `_relations`,
 projection descriptor registration, command/effect descriptor registration,
 `_projections`, `_commands`, `_effects`, read-only `_scatters`,
 `command_policy_decision`, `apply_command`, `command_lifecycle`,
-`command_lifecycle_events`, `causation_chain`, `lineage`, `metadata_snapshot`,
-and `descriptor_snapshot`.
+`command_lifecycle_events`, `command_flow`, `causation_chain`, `lineage`,
+`metadata_snapshot`, and `descriptor_snapshot`.
 Partition replay lowers through the Ledger replay filter and uses Ledger
 partition indexes when served by a Ledger protocol interpreter. Relation support
 is v0 and lowers supported one-to-many declarations to Ledger relation
@@ -187,13 +192,14 @@ Provenance support is read-only and compact: Durable Model exposes
 `causation_chain`/`lineage`, while Ledger Client `fact_ref` returns metadata
 only and does not expose arbitrary `fact_by_id` reads.
 
-Command support has nine layers: descriptor metadata (`_commands`/`_effects`),
+Command support has ten layers: descriptor metadata (`_commands`/`_effects`),
 pure `CommandIntent` objects, dry-run `CommandOperationPlan` previews, app-safe
 `CommandActivityEvent` summaries, explicit `CommandActivity` audit history
 append, explicit `CommandPolicyDecision`, explicit `Store#apply_command`, and
-`CommandLifecycle` read models, with future app security infrastructure still
-outside this package. `Store#command_intent`, `Store#command_operation_plan`,
-and `Store#command_activity_event` build data only.
+`CommandLifecycle` read models, plus transparent `CommandFlow` orchestration.
+Future app security infrastructure remains outside this package.
+`Store#command_intent`, `Store#command_operation_plan`, and
+`Store#command_activity_event` build data only.
 `Store#append_command_activity` is the explicit audit persistence step; it
 writes only the app-safe summary and returns `CommandActivityReceipt`.
 `Store#command_policy_decision` summarizes app-owned capability/review metadata
@@ -205,6 +211,9 @@ still does not expose fact ids/value hashes or ask Ledger to execute commands.
 `Store#command_lifecycle` is a read model over `CommandActivity` history; it
 folds intended/planned/rejected/policy_denied/review_required/applied activity
 for UI and agents without executing commands or evaluating policy.
+`Store#command_flow` is a transparent app-owned orchestrator over the same
+pieces. It defaults to `mode: :preview`, generates or preserves a request id,
+does not mutate in preview mode, and only applies through `mode: :apply`.
 
 ### Normalized receipts
 

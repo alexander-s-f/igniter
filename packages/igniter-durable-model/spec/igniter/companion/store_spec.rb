@@ -630,6 +630,35 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "runs client-backed command flow in preview and apply modes" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+      preview = s.command_flow(CommandedReminder, :complete,
+        key: "r1",
+        actor: "user-1",
+        capabilities: [:reminder_complete],
+        metadata: { request_id: "req-client-preview" })
+      applied = s.command_flow(CommandedReminder, :complete,
+        key: "r1",
+        actor: "user-1",
+        capabilities: [:reminder_complete],
+        metadata: { request_id: "req-client-apply" },
+        mode: :apply,
+        audit: true)
+
+      expect(preview.status).to eq(:planned)
+      expect(preview).not_to be_applied
+      expect(preview.lifecycle.status).to eq(:planned)
+      expect(applied.status).to eq(:applied)
+      expect(applied).to be_applied
+      expect(applied.lifecycle.status).to eq(:applied)
+      expect(s.read(CommandedReminder, key: "r1").status).to eq(:done)
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -2281,6 +2310,191 @@ RSpec.describe Igniter::Companion::Store do
         expect(timeline.map(&:status)).to eq(%i[planned applied])
         expect(timeline).to all(be_a(Igniter::DurableModel::CommandActivity))
         expect(s.read(CommandedReminder, key: "r1").status).to eq(:done)
+      ensure
+        s&.close
+      end
+
+      it "runs command flow preview without mutation and preserves request identity" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        flow = s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          actor: "user-1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-flow-preview" })
+
+        expect(flow).to be_frozen
+        expect(flow).to be_a(Igniter::DurableModel::CommandFlow)
+        expect(flow.status).to eq(:planned)
+        expect(flow.mode).to eq(:preview)
+        expect(flow.applied?).to be false
+        expect(flow.request_id).to eq("req-flow-preview")
+        expect(flow.intent.metadata[:request_id]).to eq("req-flow-preview")
+        expect(flow.plan).to be_ready
+        expect(flow.policy_decision).to be_allowed
+        expect(flow.apply_receipt).to be_nil
+        expect(flow.lifecycle).to be_a(Igniter::DurableModel::CommandLifecycle)
+        expect(flow.lifecycle.status).to eq(:planned)
+        expect(flow.to_h[:plan]).not_to have_key(:value)
+        expect(flow.to_h).not_to have_key(:fact_id)
+        expect(flow.to_h).not_to have_key(:causation)
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+      ensure
+        s&.close
+      end
+
+      it "generates command flow request ids when metadata omits one" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        flow = s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          capabilities: [:reminder_complete])
+
+        expect(flow.request_id).to match(/\Acmd_[0-9a-f]{12}\z/)
+        expect(flow.metadata[:request_id]).to eq(flow.request_id)
+        expect(flow.lifecycle.request_id).to eq(flow.request_id)
+      ensure
+        s&.close
+      end
+
+      it "applies command flow only in explicit apply mode" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        flow = s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          actor: "user-1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-flow-apply" },
+          mode: :apply,
+          audit: true)
+        audit = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          request_id: "req-flow-apply")
+
+        expect(flow.status).to eq(:applied)
+        expect(flow).to be_applied
+        expect(flow.apply_receipt.status).to eq(:applied)
+        expect(flow.apply_receipt.activity_recorded).to be true
+        expect(flow.lifecycle.status).to eq(:applied)
+        expect(flow.lifecycle.apply_status).to eq(:applied)
+        expect(audit.map(&:status)).to eq([:applied])
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:done)
+      ensure
+        s&.close
+      end
+
+      it "returns policy denied command flow without mutation" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        flow = s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          actor: "user-1",
+          capabilities: [],
+          metadata: { request_id: "req-flow-denied" },
+          mode: :apply,
+          audit: true)
+
+        expect(flow.status).to eq(:policy_denied)
+        expect(flow).to be_rejected
+        expect(flow.apply_receipt.status).to eq(:rejected)
+        expect(flow.errors).to include(include(code: :missing_capabilities))
+        expect(flow.lifecycle.status).to eq(:policy_denied)
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+      ensure
+        s&.close
+      end
+
+      it "returns review required command flow without mutation" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        flow = s.command_flow(CommandedReminder, :review_complete,
+          key: "r1",
+          actor: "user-1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-flow-review" },
+          mode: :apply,
+          audit: true)
+
+        expect(flow.status).to eq(:review_required)
+        expect(flow).to be_review_required
+        expect(flow.apply_receipt.status).to eq(:rejected)
+        expect(flow.lifecycle.status).to eq(:review_required)
+        expect(flow.warnings).to include(include(code: :review_required))
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+      ensure
+        s&.close
+      end
+
+      it "returns rejected command flow for invalid plans without mutation" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        flow = s.command_flow(CommandedReminder, :complete,
+          key: "missing",
+          actor: "user-1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-flow-invalid" },
+          mode: :apply,
+          audit: true)
+
+        expect(flow.status).to eq(:rejected)
+        expect(flow.apply_receipt.status).to eq(:rejected)
+        expect(flow.errors).to include(include(code: :record_not_found))
+        expect(flow.lifecycle.status).to eq(:rejected)
+        expect(s.read(CommandedReminder, key: "missing")).to be_nil
+      ensure
+        s&.close
+      end
+
+      it "records preview activity only when command flow audit is requested" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-flow-no-audit" })
+        audited = s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-flow-audit" },
+          audit: true)
+
+        expect(s.command_lifecycle(
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          request_id: "req-flow-no-audit").status).to eq(:unknown)
+        expect(audited.lifecycle.status).to eq(:planned)
+        expect(s.command_lifecycle(
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          request_id: "req-flow-audit").status).to eq(:planned)
+      ensure
+        s&.close
+      end
+
+      it "rejects unknown command flow modes" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        expect do
+          s.command_flow(CommandedReminder, :complete, mode: :surprise)
+        end.to raise_error(ArgumentError, /Unknown command_flow mode/)
       ensure
         s&.close
       end
