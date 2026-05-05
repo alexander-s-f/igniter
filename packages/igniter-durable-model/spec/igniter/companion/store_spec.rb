@@ -483,6 +483,42 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "explicitly appends client-backed command activity without applying command effects" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+      intent = s.command_intent(CommandedReminder, :complete, key: "r1")
+      plan = s.command_operation_plan(intent)
+      event = s.command_activity_event(plan)
+      receipt = s.append_command_activity(event)
+
+      audit = s.replay(Igniter::DurableModel::CommandActivity, partition: :commanded_reminders)
+
+      expect(receipt).to be_a(Igniter::DurableModel::CommandActivityReceipt)
+      expect(receipt.to_h).to include(
+        kind: :command_activity_receipt,
+        status: :recorded,
+        history: :command_activity,
+        owner: :commanded_reminders,
+        command: :complete,
+        subject_key: "r1",
+        activity_status: :planned,
+        store_fact_exposed: false,
+        value_hash_exposed: false,
+        execution_allowed: false
+      )
+      expect(receipt).not_to respond_to(:fact_id)
+      expect(receipt).not_to respond_to(:value_hash)
+      expect(receipt).not_to respond_to(:causation)
+      expect(audit.size).to eq(1)
+      expect(audit.first).to be_a(Igniter::DurableModel::CommandActivity)
+      expect(audit.first.status).to eq(:planned)
+      expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -1634,6 +1670,81 @@ RSpec.describe Igniter::Companion::Store do
         event = s.command_activity_event(intent, status: :previewed)
 
         expect(event.status).to eq(:previewed)
+      ensure
+        s&.close
+      end
+
+      it "explicitly appends command activity and replays typed audit history by owner" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :complete, key: "r1")
+        plan = s.command_operation_plan(intent)
+        event = s.command_activity_event(plan, metadata: { actor: "user-1" })
+        receipt = s.append_command_activity(event)
+
+        audit = s.replay(Igniter::DurableModel::CommandActivity, partition: :commanded_reminders)
+
+        expect(receipt).to be_frozen
+        expect(receipt[:history]).to eq(:command_activity)
+        expect(receipt.to_h).to include(
+          schema_version: 1,
+          kind: :command_activity_receipt,
+          status: :recorded,
+          history: :command_activity,
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          activity_status: :planned,
+          store_fact_exposed: false,
+          value_hash_exposed: false,
+          execution_allowed: false
+        )
+        expect(receipt.to_h).not_to have_key(:fact_id)
+        expect(receipt.to_h).not_to have_key(:value_hash)
+        expect(receipt.to_h).not_to have_key(:causation)
+        expect(audit.size).to eq(1)
+        expect(audit.first).to be_a(Igniter::DurableModel::CommandActivity)
+        expect(audit.first.owner).to eq(:commanded_reminders)
+        expect(audit.first.command).to eq(:complete)
+        expect(audit.first.metadata).to eq(actor: "user-1")
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+      ensure
+        s&.close
+      end
+
+      it "does not append command activity automatically during projection" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :complete, key: "missing")
+        plan = s.command_operation_plan(intent)
+        s.command_activity_event(plan)
+
+        audit = s.replay(Igniter::DurableModel::CommandActivity, partition: :commanded_reminders)
+
+        expect(audit).to be_empty
+      ensure
+        s&.close
+      end
+
+      it "does not append planned business histories when recording activity" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.register(TrackerLog)
+
+        intent = s.command_intent(CommandedReminder, :audit,
+          params: { actor: "user-1" },
+          metadata: { history: :tracker_logs })
+        plan = s.command_operation_plan(intent)
+        event = s.command_activity_event(plan)
+
+        s.append_command_activity(event)
+
+        expect(s.replay(Igniter::DurableModel::CommandActivity,
+          partition: :commanded_reminders).size).to eq(1)
+        expect(s.replay(TrackerLog)).to be_empty
       ensure
         s&.close
       end

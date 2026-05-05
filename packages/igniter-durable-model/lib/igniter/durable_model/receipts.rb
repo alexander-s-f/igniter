@@ -76,5 +76,58 @@ module Igniter
         "#<AppendReceipt intent=#{@mutation_intent} fact_id=#{@fact_id&.slice(0, 8)}>"
       end
     end
+
+    # App-safe receipt for explicit command activity audit persistence.
+    # It intentionally does not expose fact ids, value hashes, or causation.
+    class CommandActivityReceipt
+      attr_reader :schema_version, :kind, :status, :history, :owner, :command,
+                  :subject_key, :activity_status, :store_fact_exposed,
+                  :value_hash_exposed, :execution_allowed
+
+      def initialize(history:, owner:, command:, subject_key:, activity_status:,
+                     status: :recorded, schema_version: 1,
+                     kind: :command_activity_receipt,
+                     store_fact_exposed: false, value_hash_exposed: false,
+                     execution_allowed: false)
+        @schema_version = schema_version
+        @kind = token(kind)
+        @status = token(status)
+        @history = token(history)
+        @owner = token(owner)
+        @command = token(command)
+        @subject_key = subject_key
+        @activity_status = token(activity_status)
+        @store_fact_exposed = !!store_fact_exposed
+        @value_hash_exposed = !!value_hash_exposed
+        @execution_allowed = !!execution_allowed
+        freeze
+      end
+
+      def [](key)
+        to_h[key.to_sym]
+      end
+
+      def to_h
+        {
+          schema_version: schema_version,
+          kind: kind,
+          status: status,
+          history: history,
+          owner: owner,
+          command: command,
+          subject_key: subject_key,
+          activity_status: activity_status,
+          store_fact_exposed: store_fact_exposed,
+          value_hash_exposed: value_hash_exposed,
+          execution_allowed: execution_allowed
+        }
+      end
+
+      private
+
+      def token(value)
+        value.is_a?(String) ? value.to_sym : value
+      end
+    end
   end
 end

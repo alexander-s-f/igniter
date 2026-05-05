@@ -1,6 +1,6 @@
 # Track: Durable Model Command Activity History v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -277,3 +277,6 @@ Status: done | partial | blocked
 
 - This is the first explicit persistence step after app-safe projection.
 - Keep the receipt app-safe and the operation non-executing.
+- `CommandActivity` is a built-in History partitioned by owner.
+- `Store#append_command_activity` records only app-safe audit summaries and
+  returns `CommandActivityReceipt` without exposing fact ids/value hashes.

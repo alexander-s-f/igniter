@@ -6,9 +6,11 @@ module Igniter
   module Companion
     Record = DurableModel::Record
     History = DurableModel::History
+    CommandActivity = DurableModel::CommandActivity
     Store = DurableModel::Store
     WriteReceipt = DurableModel::WriteReceipt
     AppendReceipt = DurableModel::AppendReceipt
+    CommandActivityReceipt = DurableModel::CommandActivityReceipt
     CommandIntent = DurableModel::CommandIntent
     CommandOperationPlan = DurableModel::CommandOperationPlan
     CommandActivityEvent = DurableModel::CommandActivityEvent

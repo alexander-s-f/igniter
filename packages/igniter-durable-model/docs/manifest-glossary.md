@@ -215,6 +215,11 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Activity events carry `store_fact_exposed: false`,
   `value_hash_exposed: false`, and `execution_allowed: false`; they do not
   persist audit histories or expose planned record values.
+- `Store#append_command_activity` is the explicit audit persistence step. It
+  appends the app-safe summary to built-in `History[CommandActivity]` and
+  returns `CommandActivityReceipt`.
+- `CommandActivityReceipt` intentionally omits fact ids, value hashes, and
+  causation; it records audit status, not command execution.
 
 `effects`
 
@@ -230,6 +235,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   store/history operation without mutating storage.
 - Activity events intentionally omit raw effect payload values; they summarize
   status, target, errors, and warnings for app-facing surfaces.
+- Command activity history is separate from effect application. Recording audit
+  activity never mutates the target record or planned business history.
 
 `projections`
 

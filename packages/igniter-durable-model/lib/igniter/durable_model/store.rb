@@ -422,6 +422,27 @@ module Igniter
         end
       end
 
+      # Explicitly persist app-safe command activity into an audit History.
+      # This records the activity summary only; it does not apply command effects.
+      def append_command_activity(event, history_class: CommandActivity)
+        unless event.is_a?(CommandActivityEvent)
+          raise ArgumentError, "append_command_activity expects Igniter::DurableModel::CommandActivityEvent"
+        end
+
+        register(history_class)
+        append(history_class, **command_activity_payload(event))
+        CommandActivityReceipt.new(
+          history: history_class.store_name,
+          owner: event.owner,
+          command: event.command,
+          subject_key: event.subject_key,
+          activity_status: event.status,
+          store_fact_exposed: event.store_fact_exposed,
+          value_hash_exposed: event.value_hash_exposed,
+          execution_allowed: event.execution_allowed
+        )
+      end
+
       # Register a projection descriptor — metadata-only, no execution.
       # Records which stores and relations a cross-record projection reads,
       # making this visible to the store engine via SchemaGraph.
@@ -1030,6 +1051,25 @@ module Igniter
 
       def merged_metadata(source_metadata, explicit_metadata)
         normalize_value(source_metadata || {}).merge(normalize_value(explicit_metadata || {}))
+      end
+
+      def command_activity_payload(event)
+        {
+          owner: event.owner,
+          command: event.command,
+          subject_key: event.subject_key,
+          operation: event.operation,
+          status: event.status,
+          intent_status: event.intent_status,
+          plan_status: event.plan_status,
+          target: event.target,
+          errors: event.errors,
+          warnings: event.warnings,
+          metadata: event.metadata,
+          store_fact_exposed: event.store_fact_exposed,
+          value_hash_exposed: event.value_hash_exposed,
+          execution_allowed: event.execution_allowed
+        }
       end
     end
   end

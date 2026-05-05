@@ -3,6 +3,7 @@
 require "igniter/durable_model"
 require "igniter/durable_model/record"
 require "igniter/durable_model/history"
+require "igniter/durable_model/command_activity"
 require "igniter/durable_model/receipts"
 require "igniter/durable_model/command_intent"
 require "igniter/durable_model/command_operation_plan"
@@ -62,9 +63,11 @@ RSpec.describe Igniter::DurableModel do
   it "exposes clear canonical and compatibility constant identity" do
     expect(described_class::Record).to equal(Igniter::Companion::Record)
     expect(described_class::History).to equal(Igniter::Companion::History)
+    expect(described_class::CommandActivity).to equal(Igniter::Companion::CommandActivity)
     expect(described_class::Store).to equal(Igniter::Companion::Store)
     expect(described_class::WriteReceipt).to equal(Igniter::Companion::WriteReceipt)
     expect(described_class::AppendReceipt).to equal(Igniter::Companion::AppendReceipt)
+    expect(described_class::CommandActivityReceipt).to equal(Igniter::Companion::CommandActivityReceipt)
     expect(described_class::CommandIntent).to equal(Igniter::Companion::CommandIntent)
     expect(described_class::CommandOperationPlan).to equal(Igniter::Companion::CommandOperationPlan)
     expect(described_class::CommandActivityEvent).to equal(Igniter::Companion::CommandActivityEvent)
