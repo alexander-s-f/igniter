@@ -136,8 +136,8 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/track-errata-application-v0.md` | done | bridge-observation-envelope-v0 after PROP-003 review |
-| `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-003-grammar-fragment-classification-v0.md` | done | PROP-004 Type System v0 |
+| `[Igniter-Lang Research Agent]` | `tracks/temporal-contracts-and-projections-v0.md` | done | bridge-observation-envelope-v0 with projection horizon |
+| `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-004-type-system-v0.md` | done | PROP-005 Bridge Observation Envelope v0 |
 
 ## Current Meta Thesis
 
@@ -199,7 +199,8 @@ igniter-lang/docs/
     failure-observation-v0.md            [done]
     semantic-domain-reconciliation-v0.md [done]
     track-errata-application-v0.md       [done]
-    bridge-observation-envelope-v0.md    [queued - after PROP-003 review]
+    temporal-contracts-and-projections-v0.md [done]
+    bridge-observation-envelope-v0.md    [queued - include temporal projection horizon]
 
   proposals/                     <- formal design proposals
     README.md                                        [index]
@@ -207,7 +208,7 @@ igniter-lang/docs/
     PROP-001-semantic-domain-v0.md                   [done]
     PROP-002-contract-composition-algebra-v0.md      [done]
     PROP-003-grammar-fragment-classification-v0.md   [done]
-    PROP-004-type-system-v0.md                       [queued]
+    PROP-004-type-system-v0.md                       [done]
     PROP-005-bridge-observation-envelope-v0.md       [queued]
 
   experiments/                   <- approved experiment plans (none yet)
@@ -236,8 +237,10 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/failure-observation-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/semantic-domain-reconciliation-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/track-errata-application-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-contracts-and-projections-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-002 composition algebra | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-003 grammar fragment classification | done |
+| 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-004 type system | done |
