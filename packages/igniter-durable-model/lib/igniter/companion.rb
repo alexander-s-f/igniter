@@ -20,6 +20,8 @@ module Igniter
     CommandFlow = DurableModel::CommandFlow
     CommandFlowSlice = DurableModel::CommandFlowSlice
     CommandFlowMonitorResult = DurableModel::CommandFlowMonitorResult
+    CommandFlowViewDescriptor = DurableModel::CommandFlowViewDescriptor
+    CommandFlowView = DurableModel::CommandFlowView
 
     def self.from_manifest(manifest, store: nil)
       DurableModel.from_manifest(manifest, store: store)

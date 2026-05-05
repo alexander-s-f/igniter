@@ -30,7 +30,7 @@ alias.
 | [tracks/durable-model-command-flow-v0.md](tracks/durable-model-command-flow-v0.md) | Completed app-owned command flow orchestrator over intent, plan, policy, audit, apply, and lifecycle |
 | [tracks/durable-model-command-flow-temporal-slices-v0.md](tracks/durable-model-command-flow-temporal-slices-v0.md) | Completed temporal command-flow slice read model over command activity history |
 | [tracks/durable-model-command-flow-monitors-v0.md](tracks/durable-model-command-flow-monitors-v0.md) | Completed command-flow monitor evaluation over temporal slices |
-| [tracks/durable-model-command-flow-operational-views-v0.md](tracks/durable-model-command-flow-operational-views-v0.md) | Proposed named operational views over command-flow slices and monitors |
+| [tracks/durable-model-command-flow-operational-views-v0.md](tracks/durable-model-command-flow-operational-views-v0.md) | Completed named operational views over command-flow slices and monitors |
 | [tracks/companion-ledger-client-remote-boundary-v0.md](tracks/companion-ledger-client-remote-boundary-v0.md) | Track for accepting `LedgerClient` as Companion's preferred remote Ledger boundary |
 | [tracks/companion-ledger-client-scope-query-boundary-v0.md](tracks/companion-ledger-client-scope-query-boundary-v0.md) | Proposed next track for remote Companion scopes over `LedgerClient#query` |
 | [tracks/companion-ledger-client-scope-subscriptions-v0.md](tracks/companion-ledger-client-scope-subscriptions-v0.md) | Proposed next track for remote Companion `on_scope` over Ledger Client events |

@@ -33,6 +33,7 @@ module Igniter
         @schema_by_store = {}
         @relations_by_name = {}
         @projections_by_name = {}
+        @command_flow_views = {}
         if client
           raise ArgumentError, "client: cannot be combined with backend/path/address/transport options" if backend != :memory || path || address || transport != :tcp
 
@@ -682,6 +683,76 @@ module Igniter
           alerts: alerts,
           summary: monitor_slice.summary,
           slice: monitor_slice
+        )
+      end
+
+      # Register an app-local named operational view over command-flow slices.
+      def register_command_flow_view(name, owner:, command: nil,
+                                     subject_key: nil, request_id: nil,
+                                     actor: nil, status: nil, horizon: {},
+                                     action_policy: {}, rules: [],
+                                     metadata: {})
+        descriptor = CommandFlowViewDescriptor.new(
+          name: name,
+          owner: owner,
+          filters: command_flow_slice_filters(
+            command: command,
+            subject_key: subject_key,
+            request_id: request_id,
+            actor: actor,
+            status: status
+          ),
+          horizon: normalize_command_flow_view_horizon(horizon),
+          action_policy: action_policy,
+          rules: rules,
+          metadata: metadata
+        )
+        @command_flow_views[descriptor.name] = descriptor
+        descriptor
+      end
+
+      def _command_flow_views
+        @command_flow_views.transform_values(&:to_h)
+      end
+
+      # Evaluate a named app-local command-flow operational view.
+      def command_flow_view(name, since: nil, as_of: nil, limit: nil,
+                            overrides: {}, history_class: CommandActivity)
+        descriptor = @command_flow_views[token(name)]
+        raise ArgumentError, "Unknown command flow view: #{name.inspect}" unless descriptor
+
+        filters = descriptor.filters.merge(normalize_value(overrides || {}))
+        horizon = normalize_command_flow_view_horizon(descriptor.horizon)
+        resolved_as_of = as_of.nil? ? command_flow_view_as_of(horizon) : as_of
+        slice = command_flow_slice(
+          owner: descriptor.owner,
+          command: filters[:command],
+          subject_key: filters[:subject_key],
+          request_id: filters[:request_id],
+          actor: filters[:actor],
+          status: filters[:status],
+          since: since,
+          as_of: resolved_as_of,
+          limit: limit,
+          history_class: history_class
+        )
+        monitor = command_flow_monitor(
+          owner: descriptor.owner,
+          name: descriptor.name,
+          rules: descriptor.rules,
+          slice: slice
+        )
+        CommandFlowView.new(
+          name: descriptor.name,
+          owner: descriptor.owner,
+          status: monitor.status,
+          mode: horizon[:mode],
+          horizon: horizon,
+          filters: filters,
+          action_policy: descriptor.action_policy,
+          slice: slice,
+          monitor: monitor,
+          summary: monitor.summary
         )
       end
 
@@ -1551,6 +1622,29 @@ module Igniter
         return :warning if alerts.any? { |alert| alert[:severity] == :warning }
 
         :ok
+      end
+
+      def normalize_command_flow_view_horizon(horizon)
+        data = normalize_value(horizon || {})
+        mode = token(data[:mode])
+        mode ||= inferred_command_flow_view_horizon_mode(data)
+        unless %i[live reproducible].include?(mode)
+          raise ArgumentError, "Unknown command_flow_view horizon mode: #{mode.inspect}"
+        end
+
+        data.merge(mode: mode)
+      end
+
+      def inferred_command_flow_view_horizon_mode(horizon)
+        return :live if horizon.empty? || horizon[:as_of].nil? || horizon[:as_of] == :latest
+        return :live if horizon[:rule_version].nil? || horizon[:rule_version] == :latest
+        return :live if horizon[:fact_scope].nil?
+
+        :reproducible
+      end
+
+      def command_flow_view_as_of(horizon)
+        horizon[:as_of] == :latest ? nil : horizon[:as_of]
       end
 
       def ensure_command_flow_request_id(metadata)

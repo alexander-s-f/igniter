@@ -1,6 +1,6 @@
 # Track: Durable Model Command Flow Operational Views v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -363,3 +363,25 @@ Please keep this slice a package-level operational read model:
 
 This slice should make the command observation stack reusable by applications
 without turning Durable Model into a workflow engine or notification system.
+
+## Final Notes
+
+Implemented as an app-local Durable Model read-model layer:
+
+- Added `CommandFlowViewDescriptor` and `CommandFlowView` value objects with
+  frozen app-safe serialization, horizon helpers, pin checks, and advisory
+  `actionable?` policy interpretation.
+- Added `Igniter::Companion` compatibility aliases for both value objects.
+- Added `Store#register_command_flow_view`, `Store#_command_flow_views`, and
+  `Store#command_flow_view`.
+- View registration overwrites duplicate names; unknown view lookup raises
+  `ArgumentError`.
+- View evaluation merges descriptor filters with call-time overrides, builds a
+  `CommandFlowSlice`, evaluates `CommandFlowMonitorResult`, and returns a
+  named report without mutation, audit append, command execution, scheduler,
+  notification delivery, or Ledger protocol surface.
+- Horizon mode defaults to `:live`; fixed `as_of`, fixed `rule_version`, and
+  bounded `fact_scope` infer `:reproducible` unless explicitly declared.
+- Covered embedded and client-backed stores, serialization safety, aliases,
+  duplicate registration, overrides, horizon mode, `pin_required?`, and
+  `actionable?`.

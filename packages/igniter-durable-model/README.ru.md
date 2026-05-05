@@ -169,6 +169,22 @@ store.command_flow_monitor(
     op: :>,
     value: 0
   }])
+store.register_command_flow_view(:reminder_flow_health,
+  owner: :reminders,
+  command: :complete,
+  horizon: { mode: :live, as_of: :latest },
+  action_policy: {
+    inspect: true,
+    mutate: :requires_pinned_horizon
+  },
+  rules: [{
+    name: :denials,
+    metric: :status_count,
+    status: :policy_denied,
+    op: :>,
+    value: 0
+  }])
+store.command_flow_view(:reminder_flow_health)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -182,7 +198,8 @@ registration, command/effect descriptor registration, `_projections`,
 `_commands`, `_effects`, read-only `_scatters`, `command_policy_decision`,
 `apply_command`, `command_lifecycle`, `command_lifecycle_events`,
 `command_flow`, `command_flow_slice`, `command_flow_summary`,
-`command_flow_monitor`, `metadata_snapshot` и `descriptor_snapshot`, а также
+`command_flow_monitor`, `register_command_flow_view`, `_command_flow_views`,
+`command_flow_view`, `metadata_snapshot` и `descriptor_snapshot`, а также
 `causation_chain` и `lineage`. Partition replay проходит через Ledger replay
 filter и использует Ledger partition indexes, когда запрос обслуживает Ledger
 protocol interpreter. Relation support в v0 понижает
@@ -202,7 +219,10 @@ explicit `CommandActivity` audit history append, explicit
 read models, плюс transparent `CommandFlow` orchestration. `CommandFlowSlice`
 добавляет temporal operational read models поверх command activity;
 `CommandFlowMonitorResult` добавляет deterministic rule evaluation поверх этих
-slices. Будущая app security infrastructure остаётся вне этого пакета.
+slices. `CommandFlowViewDescriptor` и `CommandFlowView` добавляют named reusable
+operational views, которые связывают filters, horizon defaults, monitor rules и
+advisory action policy для dashboards и agents. Будущая app security
+infrastructure остаётся вне этого пакета.
 `Store#command_intent`,
 `Store#command_operation_plan` и
 `Store#command_activity_event` строят только данные. `Store#append_command_activity`
@@ -228,6 +248,13 @@ rules поверх slice и возвращает app-safe `CommandFlowMonitorRes
 observations, alerts и статусом `:ok`/`:warning`/`:critical`. Он не планирует
 задачи, не отправляет notifications, не мутирует storage и не добавляет
 Ledger-side monitor runtime.
+`Store#register_command_flow_view` записывает только app-local descriptor;
+`Store#command_flow_view` оценивает этот descriptor через slice и monitor result
+и возвращает app-safe named report без мутаций, audit append, command execution,
+scheduler, notification delivery или Ledger protocol surface. Live views могут
+помечать mutation-grade actions как требующие pinned horizon; reproducible views
+выводятся из fixed `as_of`, fixed `rule_version` и bounded `fact_scope`, если
+mode не указан явно.
 
 ### Нормализованные receipts
 

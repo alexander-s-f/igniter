@@ -730,6 +730,44 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "evaluates client-backed command flow operational views" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+      s.write(CommandedReminder, key: "r2", id: "r2", title: "Pay bills", status: :open)
+      s.register_command_flow_view(:client_health,
+        owner: :commanded_reminders,
+        command: :complete,
+        action_policy: { inspect: true },
+        rules: [{
+          name: :denials,
+          metric: :status_count,
+          status: :policy_denied,
+          op: :>=,
+          value: 1,
+          severity: :warning
+        }])
+
+      s.command_flow(CommandedReminder, :complete,
+        key: "r1",
+        capabilities: [:reminder_complete],
+        mode: :apply,
+        audit: true)
+      s.command_flow(CommandedReminder, :complete,
+        key: "r2",
+        capabilities: [],
+        mode: :apply,
+        audit: true)
+      view = s.command_flow_view(:client_health)
+
+      expect(view).to be_warning
+      expect(view.slice.size).to eq(2)
+      expect(view.monitor.alerts.first[:name]).to eq(:denials)
+      expect(view.actionable?(:inspect)).to be true
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -3033,6 +3071,197 @@ RSpec.describe Igniter::Companion::Store do
         )
         expect(result.to_h).not_to have_key(:fact_id)
         expect(result.to_h).not_to have_key(:causation)
+      ensure
+        s&.close
+      end
+
+      it "registers command flow view descriptors and exposes snapshots" do
+        s = described_class.new
+
+        descriptor = s.register_command_flow_view(:assignment_health,
+          owner: :commanded_reminders,
+          command: :complete,
+          actor: "user-1",
+          horizon: { mode: :live, as_of: :latest },
+          action_policy: {
+            inspect: true,
+            mutate: :requires_pinned_horizon,
+            required_capabilities: [:dispatch_review]
+          },
+          rules: [{
+            name: :denials,
+            metric: :status_count,
+            status: :policy_denied,
+            op: :>,
+            value: 0
+          }],
+          metadata: { dashboard: :dispatch })
+
+        expect(descriptor).to be_frozen
+        expect(descriptor).to be_live
+        expect(descriptor).not_to be_reproducible
+        expect(descriptor.to_h).to include(
+          kind: :command_flow_view_descriptor,
+          name: :assignment_health,
+          owner: :commanded_reminders,
+          filters: { command: :complete, actor: "user-1" },
+          mode: :live,
+          metadata: { dashboard: :dispatch },
+          store_fact_exposed: false,
+          value_hash_exposed: false
+        )
+        expect(s._command_flow_views[:assignment_health]).to include(
+          name: :assignment_health,
+          owner: :commanded_reminders
+        )
+      ensure
+        s&.close
+      end
+
+      it "overwrites duplicate command flow view registrations" do
+        s = described_class.new
+
+        s.register_command_flow_view(:health, owner: :commanded_reminders, command: :complete)
+        s.register_command_flow_view(:health, owner: :commanded_reminders, command: :review_complete)
+
+        expect(s._command_flow_views[:health][:filters]).to eq(command: :review_complete)
+      ensure
+        s&.close
+      end
+
+      it "raises for unknown command flow views and horizon modes" do
+        s = described_class.new
+
+        expect { s.command_flow_view(:missing) }
+          .to raise_error(ArgumentError, /Unknown command flow view/)
+        expect do
+          s.register_command_flow_view(:bad,
+            owner: :commanded_reminders,
+            horizon: { mode: :timey_wimey })
+        end.to raise_error(ArgumentError, /horizon mode/)
+      ensure
+        s&.close
+      end
+
+      it "evaluates embedded command flow operational views over real history" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+        s.write(CommandedReminder, key: "r2", id: "r2", title: "Pay bills", status: :open)
+        s.register_command_flow_view(:assignment_health,
+          owner: :commanded_reminders,
+          command: :complete,
+          horizon: {
+            mode: :live,
+            as_of: :latest,
+            rule_version: :latest,
+            fact_scope: { history: :command_activity, owner: :commanded_reminders }
+          },
+          action_policy: {
+            inspect: true,
+            suggest: true,
+            mutate: :requires_pinned_horizon,
+            execute: :forbidden,
+            required_capabilities: [:dispatch_review]
+          },
+          rules: [{
+            name: :denials,
+            metric: :status_count,
+            status: :policy_denied,
+            op: :>=,
+            value: 1,
+            severity: :warning
+          }])
+
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          capabilities: [:reminder_complete],
+          mode: :apply,
+          audit: true)
+        s.command_flow(CommandedReminder, :complete,
+          key: "r2",
+          capabilities: [],
+          mode: :apply,
+          audit: true)
+        view = s.command_flow_view(:assignment_health)
+
+        expect(view).to be_frozen
+        expect(view).to be_warning
+        expect(view).to be_live
+        expect(view).not_to be_reproducible
+        expect(view).to be_pin_required
+        expect(view.slice.size).to eq(2)
+        expect(view.monitor).to be_warning
+        expect(view.summary[:total]).to eq(2)
+        expect(view.actionable?(:inspect, capabilities: [:dispatch_review])).to be true
+        expect(view.actionable?(:suggest, capabilities: [])).to be false
+        expect(view.actionable?(:mutate, capabilities: [:dispatch_review])).to be false
+        expect(view.actionable?(:execute, capabilities: [:dispatch_review])).to be false
+        expect(view.to_h).not_to have_key(:fact_id)
+        expect(view.to_h).not_to have_key(:causation)
+      ensure
+        s&.close
+      end
+
+      it "supports reproducible command flow views and pinned actions" do
+        s = described_class.new
+        fixed_as_of = Time.utc(2026, 1, 31)
+        s.register_command_flow_view(:repro_health,
+          owner: :commanded_reminders,
+          horizon: {
+            as_of: fixed_as_of,
+            rule_version: :rules_v1,
+            fact_scope: { history: :command_activity, owner: :commanded_reminders }
+          },
+          action_policy: {
+            approve: :requires_pinned_horizon,
+            mutate: :requires_capability,
+            required_capabilities: [:dispatch_review]
+          })
+
+        descriptor = s._command_flow_views[:repro_health]
+        view = s.command_flow_view(:repro_health)
+
+        expect(descriptor[:mode]).to eq(:reproducible)
+        expect(view).to be_reproducible
+        expect(view).not_to be_pin_required
+        expect(view.actionable?(:approve, capabilities: [:dispatch_review])).to be true
+        expect(view.actionable?(:approve, capabilities: [])).to be false
+        expect(view.actionable?(:mutate, capabilities: [:dispatch_review])).to be true
+      ensure
+        s&.close
+      end
+
+      it "merges command flow view descriptor filters with call-time overrides" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+        s.write(CommandedReminder, key: "r2", id: "r2", title: "Pay bills", status: :open)
+        s.register_command_flow_view(:by_actor,
+          owner: :commanded_reminders,
+          command: :complete,
+          actor: "user-1")
+
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          actor: "user-1",
+          capabilities: [:reminder_complete],
+          mode: :apply,
+          audit: true)
+        s.command_flow(CommandedReminder, :complete,
+          key: "r2",
+          actor: "user-2",
+          capabilities: [:reminder_complete],
+          mode: :apply,
+          audit: true)
+
+        default_view = s.command_flow_view(:by_actor)
+        override_view = s.command_flow_view(:by_actor, overrides: { actor: "user-2" })
+
+        expect(default_view.slice.size).to eq(1)
+        expect(default_view.filters).to include(actor: "user-1")
+        expect(override_view.slice.size).to eq(1)
+        expect(override_view.filters).to include(actor: "user-2")
       ensure
         s&.close
       end

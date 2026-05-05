@@ -180,6 +180,22 @@ store.command_flow_monitor(
     op: :>,
     value: 0
   }])
+store.register_command_flow_view(:reminder_flow_health,
+  owner: :reminders,
+  command: :complete,
+  horizon: { mode: :live, as_of: :latest },
+  action_policy: {
+    inspect: true,
+    mutate: :requires_pinned_horizon
+  },
+  rules: [{
+    name: :denials,
+    metric: :status_count,
+    status: :policy_denied,
+    op: :>,
+    value: 0
+  }])
+store.command_flow_view(:reminder_flow_health)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -193,8 +209,9 @@ projection descriptor registration, command/effect descriptor registration,
 `_projections`, `_commands`, `_effects`, read-only `_scatters`,
 `command_policy_decision`, `apply_command`, `command_lifecycle`,
 `command_lifecycle_events`, `command_flow`, `command_flow_slice`,
-`command_flow_summary`, `command_flow_monitor`, `causation_chain`, `lineage`,
-`metadata_snapshot`, and `descriptor_snapshot`.
+`command_flow_summary`, `command_flow_monitor`,
+`register_command_flow_view`, `_command_flow_views`, `command_flow_view`,
+`causation_chain`, `lineage`, `metadata_snapshot`, and `descriptor_snapshot`.
 Partition replay lowers through the Ledger replay filter and uses Ledger
 partition indexes when served by a Ledger protocol interpreter. Relation support
 is v0 and lowers supported one-to-many declarations to Ledger relation
@@ -213,6 +230,9 @@ append, explicit `CommandPolicyDecision`, explicit `Store#apply_command`, and
 `CommandLifecycle` read models, plus transparent `CommandFlow` orchestration.
 `CommandFlowSlice` adds temporal operational read models over command activity;
 `CommandFlowMonitorResult` adds deterministic rule evaluation over those slices.
+`CommandFlowViewDescriptor` and `CommandFlowView` add named, reusable
+operational views that bind filters, horizon defaults, monitor rules, and an
+advisory action policy for dashboards and agents.
 Future app security infrastructure remains outside this package.
 `Store#command_intent`, `Store#command_operation_plan`, and
 `Store#command_activity_event` build data only.
@@ -238,6 +258,13 @@ dashboards and agents without raw Ledger facts or command values.
 slice and returns an app-safe `CommandFlowMonitorResult` with observations,
 alerts, and `:ok`/`:warning`/`:critical` status. It does not schedule, notify,
 mutate, or add Ledger-side monitor runtime.
+`Store#register_command_flow_view` records an app-local descriptor only;
+`Store#command_flow_view` evaluates that descriptor by building a slice and
+monitor result, returning an app-safe named report without mutation, audit
+append, command execution, scheduler, notification delivery, or Ledger protocol
+surface. Live views can mark mutation-grade actions as requiring a pinned
+horizon; reproducible views are inferred from fixed `as_of`, fixed
+`rule_version`, and bounded `fact_scope` unless explicitly declared.
 
 ### Normalized receipts
 

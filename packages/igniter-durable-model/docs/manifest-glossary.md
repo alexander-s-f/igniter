@@ -263,6 +263,30 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - `CommandFlowMonitorResult` folds status to `:critical` for critical alerts,
   `:warning` for warning alerts, and `:ok` otherwise. Matched `:info` alerts do
   not worsen the overall status.
+- `Store#register_command_flow_view` registers an app-local named operational
+  view descriptor over command-flow slices and monitor rules. Duplicate names
+  overwrite the previous descriptor.
+- `Store#_command_flow_views` returns compact app-safe
+  `CommandFlowViewDescriptor` snapshots keyed by view name. This registry is
+  local Durable Model metadata and does not add a Ledger descriptor kind.
+- `Store#command_flow_view` evaluates a registered descriptor by merging
+  descriptor filters with call-time overrides, building a `CommandFlowSlice`,
+  evaluating `CommandFlowMonitorResult`, and returning `CommandFlowView`.
+- `CommandFlowViewDescriptor` stores name, owner, filters, horizon, monitor
+  rules, advisory action policy, metadata, and app-boundary safety flags.
+- `CommandFlowView` stores the evaluated status, horizon mode, filters, slice,
+  monitor, summary, and generated timestamp. It exposes `ok?`, `warning?`,
+  `critical?`, `live?`, `reproducible?`, `pin_required?`, and
+  `actionable?`.
+- Operational view horizons default to `:live`; `as_of: :latest` is live, while
+  fixed `as_of`, fixed `rule_version`, and bounded `fact_scope` infer
+  `:reproducible` unless mode is declared explicitly.
+- Operational view action policy is advisory, not authorization. Mutation-grade
+  actions can require a pinned/reproducible horizon, but real writes still go
+  through command policy and apply APIs.
+- Command-flow operational views are read models only: no mutation, command
+  activity append, command execution, scheduler, notification delivery, or
+  Ledger protocol operation happens during evaluation.
 
 `effects`
 
