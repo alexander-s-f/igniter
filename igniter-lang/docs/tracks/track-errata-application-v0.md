@@ -68,7 +68,7 @@ Future `bridge-observation-envelope-v0` must consume the errata:
 - keep package-specific reason codes advisory
 
 The bridge should wait for Architect review and, ideally, the current
-`PROP-002` composition work.
+`PROP-003` fragment classification review.
 
 ## Handoff
 
@@ -83,7 +83,7 @@ Status: done
 - Pointed all three practical tracks toward `PROP-001` without rewriting them.
 
 [R] Recommendations:
-- Wait for `PROP-002` review before opening `bridge-observation-envelope-v0`.
+- Wait for `PROP-003` review before opening `bridge-observation-envelope-v0`.
 - Keep future practical tracks citing `PROP-001` for semantic-domain terms.
 - Keep package work blocked until an approved bridge exists.
 
@@ -103,6 +103,6 @@ Status: done
 - Treating flat failure status as the formal model.
 
 [Next] Proposed next slice:
-- `igniter-lang/docs/tracks/bridge-observation-envelope-v0.md` after `PROP-002`
+- `igniter-lang/docs/tracks/bridge-observation-envelope-v0.md` after `PROP-003`
   is reviewed or redirected.
 ```

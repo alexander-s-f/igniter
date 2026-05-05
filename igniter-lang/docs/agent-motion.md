@@ -136,7 +136,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/track-errata-application-v0.md` | done | bridge-observation-envelope-v0 after PROP-002 review |
+| `[Igniter-Lang Research Agent]` | `tracks/track-errata-application-v0.md` | done | bridge-observation-envelope-v0 after PROP-003 review |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-003-grammar-fragment-classification-v0.md` | done | PROP-004 Type System v0 |
 
 ## Current Meta Thesis
@@ -239,5 +239,5 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |
-| 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-002 composition algebra | in progress |
+| 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-002 composition algebra | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-003 grammar fragment classification | done |
