@@ -443,6 +443,52 @@ module Igniter
         )
       end
 
+      # Explicit app-boundary command application.
+      # Applies only ready CommandOperationPlan data through Durable Model APIs.
+      def apply_command(plan, key: nil, history_class: nil, audit: false,
+                        activity_history_class: CommandActivity)
+        unless plan.is_a?(CommandOperationPlan)
+          raise ArgumentError, "apply_command expects Igniter::DurableModel::CommandOperationPlan"
+        end
+
+        unless plan.ready?
+          return rejected_command_apply_receipt(plan,
+            audit: audit,
+            activity_history_class: activity_history_class)
+        end
+
+        case plan.operation
+        when :record_update
+          apply_record_update_command(plan,
+            audit: audit,
+            activity_history_class: activity_history_class)
+        when :record_append
+          apply_record_append_command(plan,
+            key: key,
+            audit: audit,
+            activity_history_class: activity_history_class)
+        when :history_append
+          apply_history_append_command(plan,
+            history_class: history_class,
+            audit: audit,
+            activity_history_class: activity_history_class)
+        when :none
+          applied_command_receipt(plan,
+            target: plan.target,
+            mutation_intent: :none,
+            activity_recorded: record_apply_activity(plan,
+              status: :applied,
+              audit: audit,
+              activity_history_class: activity_history_class))
+        else
+          rejected_command_apply_receipt(plan,
+            errors: [plan_error(:unsupported_operation,
+              "Unsupported command operation: #{plan.operation.inspect}")],
+            audit: audit,
+            activity_history_class: activity_history_class)
+        end
+      end
+
       # Register a projection descriptor — metadata-only, no execution.
       # Records which stores and relations a cross-record projection reads,
       # making this visible to the store engine via SchemaGraph.
@@ -1070,6 +1116,172 @@ module Igniter
           value_hash_exposed: event.value_hash_exposed,
           execution_allowed: event.execution_allowed
         }
+      end
+
+      def apply_record_update_command(plan, audit:, activity_history_class:)
+        schema_class = registered_record_schema_for(plan.owner)
+        unless schema_class
+          return rejected_command_apply_receipt(plan,
+            errors: [plan_error(:schema_not_registered,
+              "No Record schema registered for owner=#{plan.owner.inspect}")],
+            audit: audit,
+            activity_history_class: activity_history_class)
+        end
+
+        unless plan.subject_key
+          return rejected_command_apply_receipt(plan,
+            errors: [plan_error(:missing_key,
+              "record_update command apply requires subject_key")],
+            audit: audit,
+            activity_history_class: activity_history_class)
+        end
+
+        write(schema_class, key: plan.subject_key, **apply_value(plan))
+        applied_command_receipt(plan,
+          target: command_target_with_key(plan, plan.subject_key),
+          mutation_intent: :record_write,
+          activity_recorded: record_apply_activity(plan,
+            status: :applied,
+            audit: audit,
+            activity_history_class: activity_history_class))
+      end
+
+      def apply_record_append_command(plan, key:, audit:, activity_history_class:)
+        schema_class = registered_record_schema_for(plan.owner)
+        unless schema_class
+          return rejected_command_apply_receipt(plan,
+            errors: [plan_error(:schema_not_registered,
+              "No Record schema registered for owner=#{plan.owner.inspect}")],
+            audit: audit,
+            activity_history_class: activity_history_class)
+        end
+
+        applied_key = key || plan.subject_key
+        unless applied_key
+          return rejected_command_apply_receipt(plan,
+            errors: [plan_error(:missing_key,
+              "record_append command apply requires explicit key")],
+            audit: audit,
+            activity_history_class: activity_history_class)
+        end
+
+        write(schema_class, key: applied_key, **apply_value(plan))
+        applied_command_receipt(plan,
+          target: command_target_with_key(plan, applied_key),
+          mutation_intent: :record_write,
+          activity_recorded: record_apply_activity(plan,
+            status: :applied,
+            audit: audit,
+            activity_history_class: activity_history_class))
+      end
+
+      def apply_history_append_command(plan, history_class:, audit:,
+                                       activity_history_class:)
+        target_name = plan.target.is_a?(Hash) ? plan.target[:name] : nil
+        resolved_history_class = history_class || registered_history_schema_for(target_name)
+        unless resolved_history_class
+          return rejected_command_apply_receipt(plan,
+            errors: [plan_error(:history_not_registered,
+              "No History schema registered for target=#{target_name.inspect}")],
+            audit: audit,
+            activity_history_class: activity_history_class)
+        end
+
+        register(resolved_history_class) if history_class
+        append(resolved_history_class, **apply_event(plan))
+        applied_command_receipt(plan,
+          target: plan.target,
+          mutation_intent: :history_append,
+          activity_recorded: record_apply_activity(plan,
+            status: :applied,
+            audit: audit,
+            activity_history_class: activity_history_class))
+      end
+
+      def registered_record_schema_for(store_name)
+        schema_class = @schema_by_store[token(store_name)]
+        return nil if schema_class&.respond_to?(:_partition_key)
+
+        schema_class
+      end
+
+      def registered_history_schema_for(store_name)
+        schema_class = @schema_by_store[token(store_name)]
+        return schema_class if schema_class&.respond_to?(:_partition_key)
+
+        nil
+      end
+
+      def apply_value(plan)
+        plan.value.is_a?(Hash) ? plan.value : {}
+      end
+
+      def apply_event(plan)
+        plan.event.is_a?(Hash) ? plan.event : {}
+      end
+
+      def command_target_with_key(plan, key)
+        target = plan.target.is_a?(Hash) ? plan.target : {}
+        target.merge(key: key)
+      end
+
+      def applied_command_receipt(plan, target:, mutation_intent:,
+                                  activity_recorded:)
+        CommandApplyReceipt.new(
+          status: :applied,
+          owner: plan.owner,
+          command: plan.command,
+          subject_key: plan.subject_key,
+          operation: plan.operation,
+          target: target,
+          mutation_intent: mutation_intent,
+          activity_recorded: activity_recorded,
+          errors: [],
+          warnings: plan.warnings
+        )
+      end
+
+      def rejected_command_apply_receipt(plan, errors: [], audit:,
+                                         activity_history_class:)
+        all_errors = Array(plan.errors) + Array(errors)
+        activity_recorded = record_apply_activity(plan,
+          status: :rejected,
+          errors: all_errors,
+          audit: audit,
+          activity_history_class: activity_history_class)
+        CommandApplyReceipt.new(
+          status: :rejected,
+          owner: plan.owner,
+          command: plan.command,
+          subject_key: plan.subject_key,
+          operation: plan.operation,
+          target: plan.target,
+          mutation_intent: :none,
+          activity_recorded: activity_recorded,
+          errors: all_errors,
+          warnings: plan.warnings
+        )
+      end
+
+      def record_apply_activity(plan, status:, audit:, activity_history_class:,
+                                errors: plan.errors)
+        return false unless audit
+
+        event = CommandActivityEvent.new(
+          owner: plan.owner,
+          command: plan.command,
+          subject_key: plan.subject_key,
+          operation: plan.operation,
+          status: status,
+          intent_status: :ready,
+          plan_status: plan.status,
+          target: plan.target,
+          errors: errors,
+          warnings: plan.warnings,
+          metadata: plan.metadata
+        )
+        append_command_activity(event, history_class: activity_history_class)
+        true
       end
     end
   end

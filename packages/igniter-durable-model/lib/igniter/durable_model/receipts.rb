@@ -129,5 +129,81 @@ module Igniter
         value.is_a?(String) ? value.to_sym : value
       end
     end
+
+    # App-boundary receipt for explicit command application.
+    # It reports command outcome without exposing Ledger storage internals.
+    class CommandApplyReceipt
+      attr_reader :schema_version, :kind, :status, :owner, :command,
+                  :subject_key, :operation, :target, :mutation_intent,
+                  :activity_recorded, :store_fact_exposed,
+                  :value_hash_exposed, :execution_boundary, :errors, :warnings
+
+      def initialize(owner:, command:, subject_key:, operation:, target:,
+                     mutation_intent:, status: :applied,
+                     activity_recorded: false, errors: [], warnings: [],
+                     schema_version: 1, kind: :command_apply_receipt,
+                     store_fact_exposed: false, value_hash_exposed: false,
+                     execution_boundary: :app)
+        @schema_version = schema_version
+        @kind = token(kind)
+        @status = token(status)
+        @owner = token(owner)
+        @command = token(command)
+        @subject_key = subject_key
+        @operation = token(operation)
+        @target = normalize_value(target)
+        @mutation_intent = token(mutation_intent)
+        @activity_recorded = !!activity_recorded
+        @store_fact_exposed = !!store_fact_exposed
+        @value_hash_exposed = !!value_hash_exposed
+        @execution_boundary = token(execution_boundary)
+        @errors = Array(errors).map { |entry| normalize_value(entry) }.freeze
+        @warnings = Array(warnings).map { |entry| normalize_value(entry) }.freeze
+        freeze
+      end
+
+      def [](key)
+        to_h[key.to_sym]
+      end
+
+      def to_h
+        {
+          schema_version: schema_version,
+          kind: kind,
+          status: status,
+          owner: owner,
+          command: command,
+          subject_key: subject_key,
+          operation: operation,
+          target: target,
+          mutation_intent: mutation_intent,
+          activity_recorded: activity_recorded,
+          store_fact_exposed: store_fact_exposed,
+          value_hash_exposed: value_hash_exposed,
+          execution_boundary: execution_boundary,
+          errors: errors,
+          warnings: warnings
+        }
+      end
+
+      private
+
+      def normalize_value(value)
+        case value
+        when Hash
+          value.each_with_object({}) do |(key, entry), acc|
+            acc[token(key)] = normalize_value(entry)
+          end.freeze
+        when Array
+          value.map { |entry| normalize_value(entry) }.freeze
+        else
+          value
+        end
+      end
+
+      def token(value)
+        value.is_a?(String) ? value.to_sym : value
+      end
+    end
   end
 end

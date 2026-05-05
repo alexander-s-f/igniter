@@ -1,6 +1,6 @@
 # Track: Durable Model Command Apply Boundary v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -264,3 +264,13 @@ Status: done | partial | blocked
 [R] Risks / next recommendations:
 - ...
 ```
+
+## Final Notes
+
+- `Store#apply_command` applies ready plans through Durable Model `write` and
+  `append`, never through Ledger-side command execution.
+- `CommandApplyReceipt` is app-safe and omits fact ids, value hashes, causation,
+  and raw activity receipts.
+- Optional `audit: true` records applied/rejected `CommandActivity` without
+  making audit persistence automatic.
+- Policy/capability remains the next layer.

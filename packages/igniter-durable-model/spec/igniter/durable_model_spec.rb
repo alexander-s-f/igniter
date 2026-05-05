@@ -68,6 +68,7 @@ RSpec.describe Igniter::DurableModel do
     expect(described_class::WriteReceipt).to equal(Igniter::Companion::WriteReceipt)
     expect(described_class::AppendReceipt).to equal(Igniter::Companion::AppendReceipt)
     expect(described_class::CommandActivityReceipt).to equal(Igniter::Companion::CommandActivityReceipt)
+    expect(described_class::CommandApplyReceipt).to equal(Igniter::Companion::CommandApplyReceipt)
     expect(described_class::CommandIntent).to equal(Igniter::Companion::CommandIntent)
     expect(described_class::CommandOperationPlan).to equal(Igniter::Companion::CommandOperationPlan)
     expect(described_class::CommandActivityEvent).to equal(Igniter::Companion::CommandActivityEvent)

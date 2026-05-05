@@ -207,8 +207,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - `Store#command_operation_plan` turns a command intent into a dry-run
   `kind: :command_operation_plan` preview with target/value/event shape,
   validation status, errors, and warnings.
-- Operation plans carry `execution_allowed: false`; future app-boundary
-  apply/audit remains a separate layer.
+- Operation plans carry `execution_allowed: false`; app-boundary apply/audit
+  remains a separate explicit layer.
 - `Store#command_activity_event` projects intents/plans into app-safe
   `kind: :command_activity_event` summaries for UI previews, audit candidates,
   and agent monitors.
@@ -220,6 +220,13 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   returns `CommandActivityReceipt`.
 - `CommandActivityReceipt` intentionally omits fact ids, value hashes, and
   causation; it records audit status, not command execution.
+- `Store#apply_command` is the explicit app-owned command application boundary.
+  It accepts ready `CommandOperationPlan` values and lowers supported operations
+  through Durable Model `write`/`append`, not through Ledger-side command
+  execution.
+- `CommandApplyReceipt` reports applied/rejected status, mutation intent,
+  target, warnings, errors, and whether activity was recorded. It intentionally
+  omits fact ids, value hashes, causation, and the raw activity receipt.
 
 `effects`
 
@@ -237,6 +244,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   status, target, errors, and warnings for app-facing surfaces.
 - Command activity history is separate from effect application. Recording audit
   activity never mutates the target record or planned business history.
+- Applying commands is still app-owned behavior. Ledger stores descriptors and
+  facts, but does not run command callbacks or decide policy/capability.
 
 `projections`
 

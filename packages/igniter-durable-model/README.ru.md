@@ -143,6 +143,7 @@ intent = store.command_intent(Reminder, :complete, key: "r1")
 plan = store.command_operation_plan(intent)
 event = store.command_activity_event(plan)
 store.append_command_activity(event)
+store.apply_command(plan, audit: true)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -153,10 +154,11 @@ store.replay(TrackerLog)
 `replay`, `replay(partition:)`, `scope`, `on_scope`, declared one-to-many
 relation auto-wire, typed `resolve`, `_relations`, projection descriptor
 registration, command/effect descriptor registration, `_projections`,
-`_commands`, `_effects`, read-only `_scatters`, `metadata_snapshot` и
-`descriptor_snapshot`, а также `causation_chain` и `lineage`. Partition replay
-проходит через Ledger replay filter и использует Ledger partition indexes, когда
-запрос обслуживает Ledger protocol interpreter. Relation support в v0 понижает
+`_commands`, `_effects`, read-only `_scatters`, `apply_command`,
+`metadata_snapshot` и `descriptor_snapshot`, а также `causation_chain` и
+`lineage`. Partition replay проходит через Ledger replay filter и использует
+Ledger partition indexes, когда запрос обслуживает Ledger protocol interpreter.
+Relation support в v0 понижает
 поддержанные one-to-many декларации в Ledger relation descriptors. Projection,
 command и effect support — metadata-only: Ledger хранит descriptors, но не
 исполняет app commands или callbacks. Прямой `register_scatter` пока требует
@@ -165,16 +167,18 @@ support read-only и compact: Durable Model экспонирует
 `causation_chain`/`lineage`, а Ledger Client `fact_ref` возвращает только
 metadata и не открывает произвольный `fact_by_id`.
 
-Command support состоит из шести слоёв: descriptor metadata
+Command support состоит из семи слоёв: descriptor metadata
 (`_commands`/`_effects`), pure `CommandIntent` objects, dry-run
 `CommandOperationPlan` previews, app-safe `CommandActivityEvent` summaries,
-explicit `CommandActivity` audit history append и будущая app-boundary command
-application. `Store#command_intent`, `Store#command_operation_plan` и
-`Store#command_activity_event` строят только данные. `Store#append_command_activity`
-— явный шаг audit persistence: он пишет только app-safe summary, возвращает
-`CommandActivityReceipt` и не применяет command effects, не мутирует target
-records, не append-ит planned business history, не раскрывает fact ids/value
-hashes и не просит Ledger исполнять commands.
+explicit `CommandActivity` audit history append, explicit `Store#apply_command`
+и будущая policy/capability guarded application. `Store#command_intent`,
+`Store#command_operation_plan` и `Store#command_activity_event` строят только
+данные. `Store#append_command_activity` — явный шаг audit persistence: он пишет
+только app-safe summary и возвращает `CommandActivityReceipt`.
+`Store#apply_command` — явная app-owned граница применения: она применяет ready
+plans через существующие Durable Model `write`/`append` APIs, может записывать
+applied/rejected activity, возвращает `CommandApplyReceipt` и всё ещё не
+раскрывает fact ids/value hashes и не просит Ledger исполнять commands.
 
 ### Нормализованные receipts
 

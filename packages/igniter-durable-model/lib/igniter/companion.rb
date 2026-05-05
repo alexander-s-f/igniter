@@ -11,6 +11,7 @@ module Igniter
     WriteReceipt = DurableModel::WriteReceipt
     AppendReceipt = DurableModel::AppendReceipt
     CommandActivityReceipt = DurableModel::CommandActivityReceipt
+    CommandApplyReceipt = DurableModel::CommandApplyReceipt
     CommandIntent = DurableModel::CommandIntent
     CommandOperationPlan = DurableModel::CommandOperationPlan
     CommandActivityEvent = DurableModel::CommandActivityEvent

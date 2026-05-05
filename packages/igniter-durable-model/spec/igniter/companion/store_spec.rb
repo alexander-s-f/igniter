@@ -519,6 +519,40 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "applies client-backed command plans through the app boundary" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+      intent = s.command_intent(CommandedReminder, :complete, key: "r1")
+      plan = s.command_operation_plan(intent)
+      receipt = s.apply_command(plan, audit: true)
+      audit = s.replay(Igniter::DurableModel::CommandActivity, partition: :commanded_reminders)
+
+      expect(receipt).to be_a(Igniter::DurableModel::CommandApplyReceipt)
+      expect(receipt.to_h).to include(
+        kind: :command_apply_receipt,
+        status: :applied,
+        owner: :commanded_reminders,
+        command: :complete,
+        subject_key: "r1",
+        operation: :record_update,
+        target: { shape: :store, name: :commanded_reminders, key: "r1" },
+        mutation_intent: :record_write,
+        activity_recorded: true,
+        store_fact_exposed: false,
+        value_hash_exposed: false,
+        execution_boundary: :app
+      )
+      expect(receipt.to_h).not_to have_key(:fact_id)
+      expect(receipt.to_h).not_to have_key(:value_hash)
+      expect(receipt.to_h).not_to have_key(:causation)
+      expect(s.read(CommandedReminder, key: "r1").status).to eq(:done)
+      expect(audit.last.status).to eq(:applied)
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -1745,6 +1779,148 @@ RSpec.describe Igniter::Companion::Store do
         expect(s.replay(Igniter::DurableModel::CommandActivity,
           partition: :commanded_reminders).size).to eq(1)
         expect(s.replay(TrackerLog)).to be_empty
+      ensure
+        s&.close
+      end
+
+      it "applies ready record_update plans and records applied activity on request" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :complete, key: "r1")
+        plan = s.command_operation_plan(intent)
+        receipt = s.apply_command(plan, audit: true)
+        audit = s.replay(Igniter::DurableModel::CommandActivity, partition: :commanded_reminders)
+
+        expect(receipt).to be_frozen
+        expect(receipt[:status]).to eq(:applied)
+        expect(receipt.to_h).to include(
+          schema_version: 1,
+          kind: :command_apply_receipt,
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          operation: :record_update,
+          target: { shape: :store, name: :commanded_reminders, key: "r1" },
+          mutation_intent: :record_write,
+          activity_recorded: true,
+          store_fact_exposed: false,
+          value_hash_exposed: false,
+          execution_boundary: :app,
+          errors: [],
+          warnings: []
+        )
+        expect(receipt.to_h).not_to have_key(:fact_id)
+        expect(receipt.to_h).not_to have_key(:value_hash)
+        expect(receipt.to_h).not_to have_key(:causation)
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:done)
+        expect(audit.size).to eq(1)
+        expect(audit.first.status).to eq(:applied)
+      ensure
+        s&.close
+      end
+
+      it "applies ready record_append plans only when an explicit key is available" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :draft,
+          params: { attributes: { id: "r2", title: "Draft" } })
+        plan = s.command_operation_plan(intent)
+        rejected = s.apply_command(plan)
+
+        expect(rejected.status).to eq(:rejected)
+        expect(rejected.errors).to include(include(code: :missing_key))
+        expect(rejected.activity_recorded).to be false
+        expect(s.read(CommandedReminder, key: "r2")).to be_nil
+        applied = s.apply_command(plan, key: "r2")
+        expect(applied.to_h).to include(
+          status: :applied,
+          operation: :record_append,
+          target: { shape: :store, name: :commanded_reminders, key: "r2" },
+          mutation_intent: :record_write,
+          activity_recorded: false
+        )
+        expect(s.read(CommandedReminder, key: "r2").status).to eq(:open)
+      ensure
+        s&.close
+      end
+
+      it "applies history_append plans through resolved or explicit History classes" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.register(TrackerLog)
+
+        resolved_intent = s.command_intent(CommandedReminder, :audit,
+          params: { tracker_id: "sleep", value: 8.5 },
+          metadata: { history: :tracker_logs })
+        resolved_plan = s.command_operation_plan(resolved_intent)
+        resolved_receipt = s.apply_command(resolved_plan)
+
+        explicit_intent = s.command_intent(CommandedReminder, :audit,
+          params: { tracker_id: "focus", value: 3.0 },
+          metadata: { history: :tracker_logs })
+        explicit_plan = s.command_operation_plan(explicit_intent)
+        explicit_receipt = s.apply_command(explicit_plan, history_class: TrackerLog)
+
+        expect(resolved_receipt.to_h).to include(
+          status: :applied,
+          operation: :history_append,
+          mutation_intent: :history_append
+        )
+        expect(explicit_receipt.status).to eq(:applied)
+        expect(s.replay(TrackerLog, partition: "sleep").map(&:value)).to eq([8.5])
+        expect(s.replay(TrackerLog, partition: "focus").map(&:value)).to eq([3.0])
+      ensure
+        s&.close
+      end
+
+      it "applies none plans as app-boundary no-ops without storage mutation" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :noop)
+        plan = s.command_operation_plan(intent)
+        receipt = s.apply_command(plan, audit: true)
+        audit = s.replay(Igniter::DurableModel::CommandActivity, partition: :commanded_reminders)
+
+        expect(receipt.to_h).to include(
+          status: :applied,
+          operation: :none,
+          target: { shape: :none },
+          mutation_intent: :none,
+          activity_recorded: true
+        )
+        expect(audit.size).to eq(1)
+        expect(audit.first.status).to eq(:applied)
+      ensure
+        s&.close
+      end
+
+      it "rejects invalid plans without mutation and can audit the rejection" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :complete, key: "missing")
+        plan = s.command_operation_plan(intent)
+        receipt = s.apply_command(plan, audit: true)
+        audit = s.replay(Igniter::DurableModel::CommandActivity, partition: :commanded_reminders)
+
+        expect(receipt.to_h).to include(
+          status: :rejected,
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "missing",
+          operation: :record_update,
+          mutation_intent: :none,
+          activity_recorded: true
+        )
+        expect(receipt.errors).to include(include(code: :record_not_found))
+        expect(s.read(CommandedReminder, key: "missing")).to be_nil
+        expect(audit.size).to eq(1)
+        expect(audit.first.status).to eq(:rejected)
+        expect(audit.first.errors).to include(include(code: :record_not_found))
       ensure
         s&.close
       end
