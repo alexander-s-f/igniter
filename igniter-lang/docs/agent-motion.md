@@ -136,8 +136,8 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/bridge-observation-envelope-runtime-evidence-v0.md` | done | bridge package mapping preflight |
-| `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-004b-axiom-layer-type-signatures-v0.md` | done | PROP-006 Runtime Contract Specification |
+| `[Igniter-Lang Research Agent]` | `tracks/bridge-observation-envelope-package-mapping-v0.md` | done | bridge implementation plan preflight |
+| `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-007-conformance-verification-v0.md` | done | PROP-005 verification_observation extension |
 
 ## Current Meta Thesis
 
@@ -226,7 +226,8 @@ igniter-lang/docs/
     temporal-contracts-and-projections-v0.md [done]
     runtime-contracts-and-execution-environments-v0.md [done]
     bridge-observation-envelope-runtime-evidence-v0.md [done]
-    bridge-observation-envelope-package-mapping-v0.md [queued - metadata-only preflight]
+    bridge-observation-envelope-package-mapping-v0.md [done]
+    bridge-observation-envelope-implementation-plan-v0.md [queued - requires Architect review]
 
   proposals/                     <- formal design proposals
     README.md                                        [index]
@@ -237,7 +238,9 @@ igniter-lang/docs/
     PROP-004-type-system-v0.md                       [done]
     PROP-005-bridge-observation-envelope-v0.md       [done]
     PROP-004b-axiom-layer-type-signatures-v0.md      [done]
-    PROP-006-runtime-contract-specification-v0.md    [queued]
+    PROP-006-runtime-contract-specification-v0.md    [done]
+    PROP-007-conformance-verification-v0.md          [done]
+    PROP-005-verification-observation-extension-v0.md [queued]
 
   experiments/                   <- approved experiment plans (none yet)
   bridge/                        <- bridge notes to Igniter platform (none yet)
@@ -268,6 +271,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-contracts-and-projections-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-contracts-and-execution-environments-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-runtime-evidence-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-package-mapping-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |
@@ -276,3 +280,5 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-004 type system | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-005 bridge observation envelope | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-004b axiom layer type signatures | done |
+| 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-006 runtime contract specification | done |
+| 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-007 conformance verification | done |

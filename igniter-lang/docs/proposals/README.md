@@ -21,6 +21,7 @@ design decision or formal specification.
 | [PROP-005-bridge-observation-envelope-v0.md](PROP-005-bridge-observation-envelope-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Formal envelope spec: Obs[kind,T], Identity/Provenance/Policy groups, Option[T] payload, package mappings |
 | [PROP-004b-axiom-layer-type-signatures-v0.md](PROP-004b-axiom-layer-type-signatures-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Three-tier axiom stack: built-ins, runtime contracts, platform observations; language boundary definition |
 | [PROP-006-runtime-contract-specification-v0.md](PROP-006-runtime-contract-specification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | RuntimeContract: scheduler, clock, cache, storage, capability, distributed ESCAPE; conformance levels |
+| [PROP-007-conformance-verification-v0.md](PROP-007-conformance-verification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Verification protocol: 5 check suites, warning/failure rules, trust levels; agent trust decision |
 
 ---
 
@@ -28,7 +29,8 @@ design decision or formal specification.
 
 | ID | Title | Depends On | Priority |
 |----|-------|------------|----------|
-| PROP-007 | Conformance Verification | PROP-006 | medium |
+| PROP-005.1 | Add :verification_observation to ObsKind | PROP-005, PROP-007 | medium |
+| PROP-008 | Temporal Contracts and Projections v0 | PROP-004, PROP-006, PROP-007 | high |
 
 ---
 
