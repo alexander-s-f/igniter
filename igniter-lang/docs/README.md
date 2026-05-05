@@ -35,6 +35,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [ecosystem-split-proposal.md](ecosystem-split-proposal.md) | Defines the Igniter vs Igniter-Lang split |
 | [research-process.md](research-process.md) | Research lifecycle, document rotation, handoff protocol |
 | [agent-motion.md](agent-motion.md) | Current multi-agent movement and handoff routing |
+| [temporal-positioning.md](temporal-positioning.md) | Meta thesis: time, contracts, projections, and language positioning |
 
 ## Research Vectors
 
@@ -42,7 +43,8 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Everything Is Contract
 - Organic Axiom Layer
 - Agent-Friendly Language
-- Persistence / Temporal Semantics
+- Temporal Contract Semantics
+- Projections / Slices / As-Of Views
 - Contract Synthesis
 - Igniter Bridge
 - Formal Semantic Domain (PROP-001)

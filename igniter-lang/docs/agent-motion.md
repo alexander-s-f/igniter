@@ -137,7 +137,23 @@ The Architect Supervisor decides which corrections to absorb into canon.
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
 | `[Igniter-Lang Research Agent]` | `tracks/track-errata-application-v0.md` | done | bridge-observation-envelope-v0 after PROP-002 review |
-| `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-001-semantic-domain-v0.md` | done | PROP-002 |
+| `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-003-grammar-fragment-classification-v0.md` | done | PROP-004 Type System v0 |
+
+## Current Meta Thesis
+
+[D] Time is not a secondary runtime field in Igniter-Lang. Time is a language
+dimension beside contract and observation.
+
+```text
+contract + explicit time + projection/slice
+  -> reproducible meaning
+  -> explainable state
+  -> agent-friendly review
+```
+
+Future temporal work should treat `as_of`, replay cursor, rule version,
+valid-time, transaction-time, lifecycle stage, and projection horizon as
+observable semantic inputs, not ambient implementation details.
 
 ---
 
@@ -183,14 +199,14 @@ igniter-lang/docs/
     failure-observation-v0.md            [done]
     semantic-domain-reconciliation-v0.md [done]
     track-errata-application-v0.md       [done]
-    bridge-observation-envelope-v0.md    [queued - after PROP-002 review]
+    bridge-observation-envelope-v0.md    [queued - after PROP-003 review]
 
   proposals/                     <- formal design proposals
     README.md                                        [index]
     META-001-compiler-grammar-expert-entry.md        [done]
     PROP-001-semantic-domain-v0.md                   [done]
-    PROP-002-contract-composition-algebra-v0.md      [in progress]
-    PROP-003-grammar-fragment-classification-v0.md   [queued]
+    PROP-002-contract-composition-algebra-v0.md      [done]
+    PROP-003-grammar-fragment-classification-v0.md   [done]
     PROP-004-type-system-v0.md                       [queued]
     PROP-005-bridge-observation-envelope-v0.md       [queued]
 
@@ -224,3 +240,4 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-002 composition algebra | in progress |
+| 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-003 grammar fragment classification | done |
