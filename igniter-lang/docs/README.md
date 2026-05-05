@@ -29,6 +29,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-002](proposals/PROP-002-contract-composition-algebra-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Contract composition: >>, \|\|, branch, over, embed — algebraic laws + closure theorem |
 | [proposals/PROP-003](proposals/PROP-003-grammar-fragment-classification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Fragment classification: CORE / ESCAPE / OOF; Pass 0 compiler; DSL keyword mapping |
 | [proposals/PROP-004](proposals/PROP-004-type-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Structural types, temporal capabilities, Projection[T,horizon], Obs[kind,T], soundness |
+| [proposals/PROP-005](proposals/PROP-005-bridge-observation-envelope-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Formal envelope: ObsPacket[kind,T], Identity/Provenance/Policy, Option[T] payload, package mappings |
 
 ## Core Documents
 
@@ -55,8 +56,9 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Type System v0 (PROP-004)
 - Temporal Contract Semantics (PROP-004 + temporal-positioning.md)
 - Projections / Slices / As-Of Views (Projection[T, horizon] — PROP-004)
-- Bridge Observation Envelope (QUEUED — PROP-005)
+- Bridge Observation Envelope (PROP-005)
 - Axiom Layer Type Signatures (QUEUED — PROP-004b)
+- Temporal Contracts and Projections (QUEUED — Research Agent track)
 
 ## Review Cadence
 
