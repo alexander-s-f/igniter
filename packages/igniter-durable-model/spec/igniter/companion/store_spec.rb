@@ -895,6 +895,28 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "exports client-backed command flow evidence profiles" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.register_command_flow_view(:client_export_health,
+        owner: :commanded_reminders,
+        action_policy: { inspect: true })
+
+      export = s.command_flow_evidence_export(
+        view_name: :client_export_health,
+        action: :inspect,
+        privacy: :summary_only)
+
+      expect(export).to be_a(Igniter::DurableModel::CommandFlowEvidenceExport)
+      expect(export.export_id).to start_with("cfe_")
+      expect(export.canonical_json).to include("command_flow_evidence_export_content")
+      expect(export.profile).not_to have_key(:view)
+      expect(export.diagnostics.map { |diagnostic| diagnostic[:code] })
+        .to include(:evidence_payloads_omitted)
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -3993,6 +4015,211 @@ RSpec.describe Igniter::Companion::Store do
         profile = s.command_flow_evidence_profile(view_name: :mixed_profile)
 
         expect(profile.meaning_status).to eq(:mixed)
+      ensure
+        s&.close
+      end
+
+      it "exports command flow evidence profiles deterministically" do
+        s = described_class.new
+        s.register_command_flow_view(:export_profile,
+          owner: :commanded_reminders,
+          action_policy: {
+            inspect: true,
+            required_capabilities: [:dispatch_review]
+          })
+        pin = s.pin_command_flow_view(:export_profile,
+          action: :inspect,
+          actor: "dispatcher-1",
+          capabilities: [:dispatch_review])
+        receipt = s.append_command_flow_decision(pin)
+        profile = s.command_flow_evidence_profile(
+          view_name: :export_profile,
+          action: :inspect,
+          actor: "dispatcher-1",
+          capabilities: [:dispatch_review],
+          decision_receipt_id: receipt.decision_receipt_id
+        )
+
+        first = s.export_command_flow_evidence_profile(profile,
+          metadata: { source: :spec })
+        second = s.export_command_flow_evidence_profile(profile,
+          metadata: { source: :spec })
+
+        expect(first).to be_frozen
+        expect(first[:kind]).to eq(:command_flow_evidence_export)
+        expect(first.export_id).to start_with("cfe_")
+        expect(first.export_id).to eq(second.export_id)
+        expect(first.content_hash).to eq(second.content_hash)
+        expect(first.canonical_json).to eq(second.canonical_json)
+        expect(first.profile[:kind]).to eq(:command_flow_evidence_profile)
+        expect(first.packets).not_to be_empty
+        expect(first.links).not_to be_empty
+        expect(first.metadata).to eq(source: :spec)
+        expect(first.to_h).not_to have_key(:fact_id)
+        expect(first.to_h).not_to have_key(:value_hash)
+        expect(first.to_h).not_to have_key(:causation)
+      ensure
+        s&.close
+      end
+
+      it "exports summary-only command flow evidence with redactions" do
+        s = described_class.new
+        s.register_command_flow_view(:summary_export,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        pin = s.pin_command_flow_view(:summary_export, action: :inspect)
+        s.append_command_flow_decision(pin)
+        profile = s.command_flow_evidence_profile(
+          view_name: :summary_export,
+          action: :inspect
+        )
+
+        export = s.export_command_flow_evidence_profile(profile,
+          privacy: :summary_only)
+
+        expect(export.privacy).to eq(:summary_only)
+        expect(export.profile).to include(:status, :meaning_status, :horizon, :review, :links)
+        expect(export.profile).not_to have_key(:view)
+        expect(export.profile).not_to have_key(:pin)
+        expect(export.profile).not_to have_key(:decisions)
+        expect(export.packets).to all(satisfy { |packet| !packet.key?(:payload) })
+        expect(export.redactions.map { |redaction| redaction[:action] }).to include(:removed)
+        expect(export.diagnostics.map { |diagnostic| diagnostic[:code] }).to include(:evidence_payloads_omitted)
+      ensure
+        s&.close
+      end
+
+      it "exports hash-payload command flow evidence with payload hashes" do
+        s = described_class.new
+        s.register_command_flow_view(:hashed_export,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        profile = s.command_flow_evidence_profile(
+          view_name: :hashed_export,
+          action: :inspect
+        )
+
+        export = s.export_command_flow_evidence_profile(profile,
+          privacy: :hash_payloads)
+
+        expect(export.privacy).to eq(:hash_payloads)
+        expect(export.profile[:view]).to have_key(:content_hash)
+        expect(export.profile[:pin]).to have_key(:content_hash)
+        expect(export.packets).to all(include(:payload_hash))
+        expect(export.packets).to all(satisfy { |packet| !packet.key?(:payload) })
+        expect(export.redactions.map { |redaction| redaction[:action] }).to include(:hashed)
+        expect(export.diagnostics.map { |diagnostic| diagnostic[:code] }).to include(:evidence_payloads_hashed)
+      ensure
+        s&.close
+      end
+
+      it "exports command flow evidence without packets or decisions" do
+        s = described_class.new
+        s.register_command_flow_view(:omitted_export,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        pin = s.pin_command_flow_view(:omitted_export, action: :inspect)
+        s.append_command_flow_decision(pin)
+        profile = s.command_flow_evidence_profile(
+          view_name: :omitted_export,
+          action: :inspect
+        )
+
+        export = s.export_command_flow_evidence_profile(profile,
+          include_packets: false,
+          include_decisions: false)
+
+        expect(export.packets).to eq([])
+        expect(export.profile[:decisions]).to eq([])
+        expect(export.redactions).to include(
+          include(path: [:packets], action: :removed),
+          include(path: [:decisions], action: :removed)
+        )
+        expect(export.diagnostics.map { |diagnostic| diagnostic[:code] }).to include(
+          :evidence_packets_omitted
+        )
+      ensure
+        s&.close
+      end
+
+      it "reports export diagnostics for blocked, critical, and empty evidence" do
+        s = described_class.new
+        s.register_command_flow_view(:diagnostic_export,
+          owner: :commanded_reminders,
+          action_policy: { execute: :forbidden })
+
+        export = s.command_flow_evidence_export(
+          view_name: :diagnostic_export,
+          action: :execute,
+          decision_rules: [{
+            name: :empty,
+            metric: :total,
+            op: :==,
+            value: 0,
+            severity: :critical
+          }]
+        )
+
+        expect(export.status).to eq(:critical)
+        expect(export.meaning_status).to eq(:unknown)
+        expect(export.diagnostics.map { |diagnostic| diagnostic[:code] }).to include(
+          :evidence_profile_blocked,
+          :evidence_meaning_incomplete,
+          :evidence_review_critical,
+          :evidence_decisions_empty
+        )
+      ensure
+        s&.close
+      end
+
+      it "raises for unknown command flow evidence export privacy" do
+        s = described_class.new
+        s.register_command_flow_view(:bad_privacy_export,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        profile = s.command_flow_evidence_profile(view_name: :bad_privacy_export)
+
+        expect do
+          s.export_command_flow_evidence_profile(profile, privacy: :classified)
+        end.to raise_error(ArgumentError, /privacy/)
+      ensure
+        s&.close
+      end
+
+      it "does not mutate history or records while exporting evidence" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+        s.register_command_flow_view(:readonly_export,
+          owner: :commanded_reminders,
+          command: :complete,
+          action_policy: { inspect: true })
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          capabilities: [:reminder_complete],
+          mode: :apply,
+          audit: true)
+        before_decisions = s.command_flow_decisions(owner: :commanded_reminders).size
+        before_activity = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete
+        ).size
+        before_status = s.read(CommandedReminder, key: "r1").status
+
+        s.command_flow_evidence_export(
+          view_name: :readonly_export,
+          action: :inspect
+        )
+        after_decisions = s.command_flow_decisions(owner: :commanded_reminders).size
+        after_activity = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete
+        ).size
+        record = s.read(CommandedReminder, key: "r1")
+
+        expect(after_decisions).to eq(before_decisions)
+        expect(after_activity).to eq(before_activity)
+        expect(record.status).to eq(before_status)
       ensure
         s&.close
       end

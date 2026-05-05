@@ -216,6 +216,10 @@ store.command_flow_evidence_profile(
     op: :>=,
     value: 1
   }])
+store.command_flow_evidence_export(
+  view_name: :reminder_flow_health,
+  action: :inspect,
+  privacy: :summary_only)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -233,6 +237,7 @@ registration, command/effect descriptor registration, `_projections`,
 `command_flow_view`, `pin_command_flow_view`,
 `append_command_flow_decision`, `command_flow_decisions`,
 `command_flow_decision_review`, `command_flow_evidence_profile`,
+`command_flow_evidence_export`, `export_command_flow_evidence_profile`,
 `metadata_snapshot` и `descriptor_snapshot`, а также `causation_chain` и
 `lineage`. Partition replay проходит через Ledger replay
 filter и использует Ledger partition indexes, когда запрос обслуживает Ledger
@@ -264,8 +269,10 @@ app-owned decision history для сохранения pinned или blocked dec
 поверх persisted decisions с summary metrics и advisory findings.
 `CommandFlowEvidenceProfile` собирает view, optional pin, decision review,
 decision entries, package-local packet candidates и logical links для UI,
-agents, exports и future bridge code. Будущая app security infrastructure
-остаётся вне этого пакета.
+agents, exports и future bridge code. `CommandFlowEvidenceExport` добавляет
+deterministic package-local canonicalization, content hashes, export ids,
+privacy redactions и diagnostics для evidence profiles. Будущая app security
+infrastructure остаётся вне этого пакета.
 `Store#command_intent`,
 `Store#command_operation_plan` и
 `Store#command_activity_event` строят только данные. `Store#append_command_activity`
@@ -319,6 +326,12 @@ optional pin evidence, persisted decision review, compact decision entries,
 bridge-ready package-local packet candidates и stable logical links. Он не
 append-ит decisions или command activity, не мутирует records, не исполняет
 commands и не зависит от Igniter-Lang observation packets.
+`Store#export_command_flow_evidence_profile` экспортирует existing profile без
+re-evaluation; `Store#command_flow_evidence_export` строит и экспортирует за
+один read-only call. Exports поддерживают `:app_safe`, `:summary_only` и
+`:hash_payloads` privacy policies, записывают redactions/diagnostics и дают
+package-local v0 canonical JSON плюс SHA256 content hashes и `cfe_...` export
+ids.
 
 ### Нормализованные receipts
 

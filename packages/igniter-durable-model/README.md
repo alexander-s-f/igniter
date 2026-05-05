@@ -227,6 +227,10 @@ store.command_flow_evidence_profile(
     op: :>=,
     value: 1
   }])
+store.command_flow_evidence_export(
+  view_name: :reminder_flow_health,
+  action: :inspect,
+  privacy: :summary_only)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -244,7 +248,8 @@ projection descriptor registration, command/effect descriptor registration,
 `register_command_flow_view`, `_command_flow_views`, `command_flow_view`,
 `pin_command_flow_view`, `append_command_flow_decision`,
 `command_flow_decisions`, `command_flow_decision_review`,
-`command_flow_evidence_profile`, `causation_chain`, `lineage`,
+`command_flow_evidence_profile`, `command_flow_evidence_export`,
+`export_command_flow_evidence_profile`, `causation_chain`, `lineage`,
 `metadata_snapshot`, and `descriptor_snapshot`.
 Partition replay lowers through the Ledger replay filter and uses Ledger
 partition indexes when served by a Ledger protocol interpreter. Relation support
@@ -276,6 +281,9 @@ with summary metrics and advisory findings.
 `CommandFlowEvidenceProfile` bundles view, optional pin, decision review,
 decision entries, package-local packet candidates, and logical links for UI,
 agents, exports, and future bridge code.
+`CommandFlowEvidenceExport` adds deterministic package-local canonicalization,
+content hashes, export ids, privacy redactions, and diagnostics for evidence
+profiles.
 Future app security infrastructure remains outside this package.
 `Store#command_intent`, `Store#command_operation_plan`, and
 `Store#command_activity_event` build data only.
@@ -329,6 +337,12 @@ optional pin evidence, persisted decision review, compact decision entries,
 bridge-ready package-local packet candidates, and stable logical links. It
 does not append decisions or command activity, mutate records, execute commands,
 or depend on Igniter-Lang observation packets.
+`Store#export_command_flow_evidence_profile` exports an existing profile without
+re-evaluating it; `Store#command_flow_evidence_export` builds and exports in one
+read-only call. Exports support `:app_safe`, `:summary_only`, and
+`:hash_payloads` privacy policies, record redactions/diagnostics, and provide
+package-local v0 canonical JSON plus SHA256 content hashes and `cfe_...`
+export ids.
 
 ### Normalized receipts
 

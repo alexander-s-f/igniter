@@ -27,6 +27,7 @@ module Igniter
     CommandFlowViewPin = DurableModel::CommandFlowViewPin
     CommandFlowDecisionReview = DurableModel::CommandFlowDecisionReview
     CommandFlowEvidenceProfile = DurableModel::CommandFlowEvidenceProfile
+    CommandFlowEvidenceExport = DurableModel::CommandFlowEvidenceExport
 
     def self.from_manifest(manifest, store: nil)
       DurableModel.from_manifest(manifest, store: store)

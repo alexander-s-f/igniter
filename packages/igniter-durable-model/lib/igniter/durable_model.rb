@@ -18,6 +18,7 @@ require_relative "durable_model/command_flow_view"
 require_relative "durable_model/command_flow_view_pin"
 require_relative "durable_model/command_flow_decision_review"
 require_relative "durable_model/command_flow_evidence_profile"
+require_relative "durable_model/command_flow_evidence_export"
 require_relative "durable_model/store"
 
 module Igniter

@@ -1,6 +1,6 @@
 # Track: Durable Model Command Flow Evidence Export v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -297,3 +297,27 @@ Please keep this as an export/canonicalization slice:
 
 This slice should make evidence profiles stable enough for humans, agents, and
 golden fixtures without turning Durable Model into the Igniter-Lang bridge.
+
+## Final Notes
+
+Implemented as a deterministic read-only export envelope:
+
+- Added `CommandFlowEvidenceExport` with frozen app-safe serialization,
+  canonical JSON, SHA256 content hash, `cfe_...` export id, diagnostics,
+  redactions, packets, links, and metadata.
+- Added `Igniter::Companion::CommandFlowEvidenceExport` compatibility alias.
+- Added `Store#export_command_flow_evidence_profile` for exporting an existing
+  `CommandFlowEvidenceProfile` without re-evaluating it.
+- Added `Store#command_flow_evidence_export` convenience API.
+- Implemented package-local v0 canonicalization with stable key ordering,
+  symbol/string normalization, stable Time formatting, and stdlib JSON/Digest.
+- Implemented `:app_safe`, `:summary_only`, and `:hash_payloads` privacy
+  policies with redaction records.
+- Added diagnostics for blocked profiles, incomplete meaning, critical reviews,
+  empty decisions, omitted packets, omitted payloads, and hash-only payloads.
+- Export remains read-only: it does not append decision history, append command
+  activity, mutate records, execute commands, persist exports, add endpoints, or
+  add Ledger protocol operations.
+- Covered deterministic exports, all privacy policies, redactions,
+  diagnostics, include/exclude packets and decisions, embedded path,
+  client-backed path, read-only behavior, and compatibility alias.

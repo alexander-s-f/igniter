@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require "securerandom"
+require "digest"
+require "json"
+require "time"
 require "igniter/ledger"
 require "igniter-ledger-client"
 
@@ -974,6 +977,82 @@ module Igniter
           links: links,
           metadata: metadata
         )
+      end
+
+      # Export an existing evidence profile into a deterministic app-safe envelope.
+      def export_command_flow_evidence_profile(profile, privacy: :app_safe,
+                                               include_packets: true,
+                                               include_decisions: true,
+                                               metadata: {})
+        unless profile.is_a?(CommandFlowEvidenceProfile)
+          raise ArgumentError, "export_command_flow_evidence_profile expects Igniter::DurableModel::CommandFlowEvidenceProfile"
+        end
+
+        export_payload = command_flow_evidence_export_payload(
+          profile,
+          privacy: privacy,
+          include_packets: include_packets,
+          include_decisions: include_decisions,
+          metadata: metadata
+        )
+        canonical_json = command_flow_evidence_canonical_json(export_payload)
+        content_hash = Digest::SHA256.hexdigest(canonical_json)
+
+        CommandFlowEvidenceExport.new(
+          export_id: "cfe_#{content_hash[0, 16]}",
+          profile_kind: profile.kind,
+          owner: profile.owner,
+          view_name: profile.view_name,
+          action: profile.action,
+          actor: profile.actor,
+          status: profile.status,
+          meaning_status: profile.meaning_status,
+          privacy: privacy,
+          generated_at: profile.generated_at,
+          content_hash: content_hash,
+          canonical_json: canonical_json,
+          profile: export_payload[:profile],
+          packets: export_payload[:packets],
+          links: export_payload[:links],
+          diagnostics: export_payload[:diagnostics],
+          redactions: export_payload[:redactions],
+          metadata: export_payload[:metadata],
+          store_fact_exposed: profile.store_fact_exposed,
+          value_hash_exposed: profile.value_hash_exposed
+        )
+      end
+
+      # Convenience profile builder plus export, still read-only.
+      def command_flow_evidence_export(view_name:, action: nil, actor: nil,
+                                       capabilities: [], since: nil,
+                                       as_of: nil, decision_status: nil,
+                                       decision_meaning_status: nil,
+                                       decision_receipt_id: nil,
+                                       decision_limit: nil,
+                                       decision_rules: [],
+                                       privacy: :app_safe,
+                                       include_packets: true,
+                                       include_decisions: true,
+                                       metadata: {})
+        profile = command_flow_evidence_profile(
+          view_name: view_name,
+          action: action,
+          actor: actor,
+          capabilities: capabilities,
+          since: since,
+          as_of: as_of,
+          decision_status: decision_status,
+          decision_meaning_status: decision_meaning_status,
+          decision_receipt_id: decision_receipt_id,
+          decision_limit: decision_limit,
+          decision_rules: decision_rules,
+          metadata: metadata
+        )
+        export_command_flow_evidence_profile(profile,
+          privacy: privacy,
+          include_packets: include_packets,
+          include_decisions: include_decisions,
+          metadata: metadata)
       end
 
       # Summarize app-owned policy/capability checks for a command plan.
@@ -2313,6 +2392,248 @@ module Igniter
           "durable-model://command-flow/decisions/#{id}"
         else
           "durable-model://command-flow/#{kind}/#{id}"
+        end
+      end
+
+      EVIDENCE_EXPORT_PRIVACY = %i[app_safe summary_only hash_payloads].freeze
+
+      def command_flow_evidence_export_payload(profile, privacy:, include_packets:,
+                                               include_decisions:, metadata:)
+        policy = token(privacy)
+        unless EVIDENCE_EXPORT_PRIVACY.include?(policy)
+          raise ArgumentError, "Unknown command_flow_evidence_export privacy: #{privacy.inspect}"
+        end
+
+        redactions = []
+        export_profile = command_flow_evidence_export_profile(profile,
+          privacy: policy,
+          include_decisions: include_decisions,
+          redactions: redactions)
+        packets = command_flow_evidence_export_packets(profile,
+          privacy: policy,
+          include_packets: include_packets,
+          redactions: redactions)
+        diagnostics = command_flow_evidence_export_diagnostics(profile,
+          privacy: policy,
+          include_packets: include_packets,
+          include_decisions: include_decisions)
+
+        {
+          schema_version: 1,
+          kind: :command_flow_evidence_export_content,
+          profile_kind: profile.kind,
+          owner: profile.owner,
+          view_name: profile.view_name,
+          action: profile.action,
+          actor: profile.actor,
+          status: profile.status,
+          meaning_status: profile.meaning_status,
+          privacy: policy,
+          generated_at: profile.generated_at,
+          profile: export_profile,
+          packets: packets,
+          links: profile.links,
+          diagnostics: diagnostics,
+          redactions: redactions,
+          metadata: normalize_value(metadata || {}),
+          store_fact_exposed: false,
+          value_hash_exposed: false
+        }
+      end
+
+      def command_flow_evidence_export_profile(profile, privacy:, include_decisions:,
+                                               redactions:)
+        data = profile.to_h
+        case privacy
+        when :app_safe
+          data = data.merge(decisions: command_flow_evidence_export_decisions(data[:decisions],
+            include_decisions: include_decisions,
+            redactions: redactions))
+        when :summary_only
+          data = command_flow_evidence_summary_profile(data)
+          if profile.decisions.any?
+            redactions << {
+              path: [:profile, :decisions],
+              action: :removed,
+              count: profile.decisions.size
+            }
+          end
+        when :hash_payloads
+          data = command_flow_evidence_hash_profile_payloads(data, redactions)
+          data = data.merge(decisions: command_flow_evidence_export_decisions(data[:decisions],
+            include_decisions: include_decisions,
+            redactions: redactions))
+        end
+        data
+      end
+
+      def command_flow_evidence_summary_profile(data)
+        {
+          schema_version: data[:schema_version],
+          kind: data[:kind],
+          owner: data[:owner],
+          view_name: data[:view_name],
+          action: data[:action],
+          actor: data[:actor],
+          status: data[:status],
+          meaning_status: data[:meaning_status],
+          generated_at: data[:generated_at],
+          horizon: data[:horizon],
+          review: {
+            status: data.dig(:review, :status),
+            meaning_status: data.dig(:review, :meaning_status),
+            horizon: data.dig(:review, :horizon),
+            summary: data.dig(:review, :summary),
+            findings: data.dig(:review, :findings)
+          },
+          links: data[:links],
+          metadata: data[:metadata],
+          store_fact_exposed: data[:store_fact_exposed],
+          value_hash_exposed: data[:value_hash_exposed]
+        }
+      end
+
+      def command_flow_evidence_hash_profile_payloads(data, redactions)
+        %i[view pin decisions].each do |key|
+          next if data[key].nil? || (data[key].respond_to?(:empty?) && data[key].empty?)
+
+          hash = command_flow_evidence_content_hash(data[key])
+          data[key] = { content_hash: hash }
+          redactions << {
+            path: [:profile, key],
+            action: :hashed,
+            hash: hash
+          }
+        end
+        data
+      end
+
+      def command_flow_evidence_export_decisions(decisions, include_decisions:, redactions:)
+        return decisions if include_decisions
+
+        count = Array(decisions).size
+        redactions << {
+          path: [:decisions],
+          action: :removed,
+          count: count
+        } if count.positive?
+        []
+      end
+
+      def command_flow_evidence_export_packets(profile, privacy:, include_packets:, redactions:)
+        unless include_packets
+          redactions << {
+            path: [:packets],
+            action: :removed,
+            count: profile.packets.size
+          } if profile.packets.any?
+          return []
+        end
+
+        case privacy
+        when :summary_only
+          profile.packets.each_with_index.map do |packet, index|
+            packet.reject { |key, _| key == :payload }.tap do
+              redactions << {
+                path: [:packets, index, :payload],
+                action: :removed
+              }
+            end
+          end
+        when :hash_payloads
+          profile.packets.each_with_index.map do |packet, index|
+            next packet unless packet.key?(:payload)
+
+            hash = command_flow_evidence_content_hash(packet[:payload])
+            packet.merge(payload_hash: hash).reject { |key, _| key == :payload }.tap do
+              redactions << {
+                path: [:packets, index, :payload],
+                action: :hashed,
+                hash: hash
+              }
+            end
+          end
+        else
+          profile.packets
+        end
+      end
+
+      def command_flow_evidence_export_diagnostics(profile, privacy:,
+                                                   include_packets:,
+                                                   include_decisions:)
+        diagnostics = []
+        if profile.action && profile.pin.nil?
+          diagnostics << command_flow_evidence_diagnostic(:evidence_pin_missing,
+            :warning,
+            "Profile action was supplied but no pin evidence is present")
+        end
+        if profile.pin && profile.pin[:status] == :blocked
+          diagnostics << command_flow_evidence_diagnostic(:evidence_profile_blocked,
+            :warning,
+            "Profile includes a blocked pin")
+        end
+        if %i[unknown provisional mixed].include?(profile.meaning_status)
+          diagnostics << command_flow_evidence_diagnostic(:evidence_meaning_incomplete,
+            :info,
+            "Profile meaning status is #{profile.meaning_status.inspect}")
+        end
+        if profile.review[:status] == :critical
+          diagnostics << command_flow_evidence_diagnostic(:evidence_review_critical,
+            :critical,
+            "Profile includes a critical decision review")
+        end
+        if include_decisions && profile.review.dig(:summary, :total).to_i.zero?
+          diagnostics << command_flow_evidence_diagnostic(:evidence_decisions_empty,
+            :info,
+            "Decision review contains no persisted decisions")
+        end
+        unless include_packets
+          diagnostics << command_flow_evidence_diagnostic(:evidence_packets_omitted,
+            :info,
+            "Evidence packets were omitted by export options")
+        end
+        if privacy == :summary_only
+          diagnostics << command_flow_evidence_diagnostic(:evidence_payloads_omitted,
+            :info,
+            "Detailed payloads were omitted by privacy policy")
+        elsif privacy == :hash_payloads
+          diagnostics << command_flow_evidence_diagnostic(:evidence_payloads_hashed,
+            :info,
+            "Detailed payloads were replaced with hashes")
+        end
+        diagnostics
+      end
+
+      def command_flow_evidence_diagnostic(code, severity, message)
+        {
+          code: code,
+          severity: severity,
+          message: message
+        }
+      end
+
+      def command_flow_evidence_content_hash(value)
+        Digest::SHA256.hexdigest(command_flow_evidence_canonical_json(value))
+      end
+
+      def command_flow_evidence_canonical_json(value)
+        JSON.generate(command_flow_evidence_canonical_value(value))
+      end
+
+      def command_flow_evidence_canonical_value(value)
+        case value
+        when Hash
+          value.keys.sort_by(&:to_s).each_with_object({}) do |key, acc|
+            acc[key.to_s] = command_flow_evidence_canonical_value(value[key])
+          end
+        when Array
+          value.map { |entry| command_flow_evidence_canonical_value(entry) }
+        when Symbol
+          value.to_s
+        when Time
+          value.utc.iso8601(6)
+        else
+          value
         end
       end
 

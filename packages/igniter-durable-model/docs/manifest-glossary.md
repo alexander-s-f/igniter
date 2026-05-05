@@ -342,6 +342,21 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Evidence profiles are packaging/read-model artifacts only: they do not append
   decision history, append command activity, mutate business records, execute
   commands, add transport endpoints, or add Ledger protocol operations.
+- `Store#export_command_flow_evidence_profile` exports an existing
+  `CommandFlowEvidenceProfile` into a deterministic `CommandFlowEvidenceExport`
+  envelope without re-evaluating the profile.
+- `Store#command_flow_evidence_export` builds an evidence profile and exports it
+  in one read-only call.
+- Evidence exports support `:app_safe`, `:summary_only`, and `:hash_payloads`
+  privacy policies. Redactions record removed or hashed paths.
+- Evidence export canonical JSON and content hashes are package-local v0
+  canonicalization for comparisons and fixtures, not a global cross-language
+  serializer promise.
+- Evidence export diagnostics are advisory app-safe signals for blocked,
+  unknown, critical, empty, omitted, or hash-only evidence.
+- Evidence exports do not persist exports automatically, append decisions,
+  append command activity, mutate records, execute commands, add endpoints, or
+  add Ledger protocol operations.
 - Command-flow decision history is separate from `CommandActivity`: decisions
   describe human/agent/app decisions made from operational views, while command
   activity describes command attempts.
