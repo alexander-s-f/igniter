@@ -1,0 +1,78 @@
+{
+  "artifact": "negative_evidence",
+  "payload": {
+    "failure_packets": {
+      "ambient_time": {
+        "id": "obs/5563f587f7fa8f61",
+        "kind": "failure_observation",
+        "links": [
+          {
+            "ref": "obs/0f1ab1fdd7e5d339",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f0a9581038271dfe",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/d0d7aec5d08f78b6",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/fa45846f2f1aa163",
+            "rel": "produced_in",
+            "required": true
+          }
+        ],
+        "payload": {
+          "context": {},
+          "message": "evaluate requires explicit as_of",
+          "reason_code": "temporal.as_of_missing",
+          "status": "blocked"
+        },
+        "payload_hash": "sha256:0e9dd8e63457f2ab78647ade7cf4fd4413c99f816e28a56d11e67575634bbc06",
+        "subject": "runtime-machine/runtime-machine/negative-as-of/failure",
+        "temporal": {
+          "as_of": null
+        }
+      }
+    },
+    "same_value_without_evidence": {
+      "evidence_status": {
+        "missing": [
+          "executed_by",
+          "read_from",
+          "observed_under",
+          "produced_in"
+        ],
+        "status": "provisional"
+      },
+      "expected_result_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+      "value_packet": {
+        "id": "obs/fd34a21ac8b2b44d",
+        "kind": "value_observation",
+        "links": [],
+        "payload": {
+          "available": true,
+          "order_id": "order/o-1",
+          "reason_codes": [
+            "service_match",
+            "schedule_free",
+            "not_off_schedule"
+          ],
+          "technician_id": "tech/t-17"
+        },
+        "payload_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+        "subject": "dispatch-candidate/order/o-1/tech/t-17",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "rule_version": "toy_dispatch@1"
+        }
+      }
+    }
+  },
+  "schema_version": "runtime-machine-proof-packet-fixtures-v0"
+}

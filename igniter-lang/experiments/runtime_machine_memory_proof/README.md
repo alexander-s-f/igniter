@@ -2,7 +2,7 @@
 
 Status: done
 Slice state: done on 2026-05-05
-Slice name: `runtime-machine-memory-proof-implementation-v0`
+Slice name: `runtime-machine-proof-packet-fixtures-v0`
 Owner: `[Igniter-Lang Research Agent]`
 Supervisor: `[Architect Supervisor / Codex]`
 
@@ -67,6 +67,35 @@ negative.same_value_without_evidence: ok
 negative.evidence_missing_provisional: ok
 ```
 
+## Golden Fixtures
+
+Generate structural golden artifacts:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/runtime_machine_memory_proof.rb --write-fixtures
+```
+
+Verify current harness behavior against the committed fixture artifacts:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/runtime_machine_memory_proof.rb --verify-fixtures
+```
+
+Expected fixture verification:
+
+```text
+PASS runtime_machine_memory_proof_fixtures
+```
+
+Fixture files:
+
+- `fixtures/manifest.json`
+- `fixtures/obs_packets.golden.json`
+- `fixtures/semantic_image.golden.json`
+- `fixtures/compatibility_reports.golden.json`
+- `fixtures/negative_evidence.golden.json`
+- `fixtures/result_summary.golden.json`
+
 ## What It Proves
 
 [D] A minimal Runtime Machine can make lifecycle continuity executable without
@@ -81,15 +110,20 @@ The empty-backend resume fixture must remain blocked.
 [D] Equal result hashes are not enough. The proof requires observation links
 and compatibility evidence.
 
+[D] Golden fixtures let the next layer validate packet structure, SemanticImage
+content, and CompatibilityReport decisions without scraping PASS text.
+
 ## Files
 
 - `runtime_machine_memory_proof.rb` - executable harness.
+- `fixtures/*.golden.json` - structural golden artifacts generated from the
+  harness.
 
 ## Handoff
 
 ```text
 [Igniter-Lang Research Agent]
-Track: runtime-machine-memory-proof-implementation-v0
+Track: runtime-machine-proof-packet-fixtures-v0
 Artifact: igniter-lang/experiments/runtime_machine_memory_proof/
 Status: done
 
@@ -101,6 +135,8 @@ Status: done
   loss.
 - The proof treats missing evidence links as provisional even when value hashes
   match.
+- The proof now exports golden ObsPacket, SemanticImage, CompatibilityReport,
+  negative evidence, and result summary artifacts.
 
 [R] Recommendations:
 - Use this experiment as the next golden fixture source for sidecar packet
@@ -108,17 +144,22 @@ Status: done
 - Keep package integration blocked until packet shape and write location are
   approved separately.
 - Add file-backed TBackend only after memory lifecycle checks remain stable.
+- Make the next checker consume `--verify-fixtures` or parse the JSON fixtures,
+  not the human PASS summary.
 
 [S] Signals:
 - Runtime Machine semantics are now executable at toy scale.
 - The negative fixtures make false reproducibility visible.
+- Structural fixtures are now stable enough to drive packet-builder tests.
 
 [Q] Open Questions:
 - Should this harness later move under an approved experiment runner?
 - Should CompatibilityReport become a shared bridge fixture before any package
   implementation work?
+- Should future fixtures split full packet logs from selected packet profiles?
 
 [Next] Proposed next slice:
-- `runtime-machine-proof-packet-fixtures-v0`
-  Extract expected ObsPacket/CompatibilityReport fixtures from this harness.
+- `runtime-machine-proof-packet-builder-check-v0`
+  Build a checker that validates generated sidecar packets against these
+  structural golden artifacts.
 ```

@@ -1,0 +1,69 @@
+{
+  "artifact": "result_summary",
+  "payload": {
+    "checks": [
+      {
+        "name": "golden.boot",
+        "ok": true
+      },
+      {
+        "name": "golden.load",
+        "ok": true
+      },
+      {
+        "name": "golden.evaluate",
+        "ok": true
+      },
+      {
+        "name": "golden.checkpoint",
+        "ok": true
+      },
+      {
+        "name": "golden.resume",
+        "ok": true
+      },
+      {
+        "name": "golden.same_result_hash",
+        "ok": true
+      },
+      {
+        "name": "golden.evidence_links",
+        "ok": true
+      },
+      {
+        "name": "negative.ambient_time_blocked",
+        "ok": true
+      },
+      {
+        "name": "negative.empty_backend_resume_blocked",
+        "ok": true
+      },
+      {
+        "name": "negative.runtime_drift_downgraded",
+        "ok": true
+      },
+      {
+        "name": "negative.contract_drift_blocked",
+        "ok": true
+      },
+      {
+        "name": "negative.same_value_without_evidence",
+        "ok": true
+      },
+      {
+        "name": "negative.evidence_missing_provisional",
+        "ok": true
+      }
+    ],
+    "evidence_status": {
+      "missing": [],
+      "status": "trusted"
+    },
+    "pass": true,
+    "proof_name": "runtime_machine_memory_proof",
+    "result_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+    "resumed_result_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+    "same_result_hash": true
+  },
+  "schema_version": "runtime-machine-proof-packet-fixtures-v0"
+}

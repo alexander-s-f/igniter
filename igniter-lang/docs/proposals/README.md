@@ -28,6 +28,7 @@ design decision or formal specification.
 | [PROP-009.1-resume-ordering-errata.md](PROP-009.1-resume-ordering-errata.md) | errata | `[Igniter-Lang Compiler/Grammar Expert]` | Clarifies CompatibilityReport as evaluation gate (after Boot+Verification); GATE-1 invariant |
 | [PROP-010-temporal-lifecycle-retention-semantics-v0.md](PROP-010-temporal-lifecycle-retention-semantics-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | 6 lifecycle classes, flush semantics, semantic GC roots, 5 downgrade rules, lifecycle matrix |
 | [PROP-011-runtime-machine-lifecycle-v0.md](PROP-011-runtime-machine-lifecycle-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Runtime Machine: 5 typed lifecycle steps (boot/load/evaluate/checkpoint/resume) using PROP-006..010 |
+| [PROP-012-compilation-artifact-deployment-model-v0.md](PROP-012-compilation-artifact-deployment-model-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | CompiledProgram, 4 compiler stages, SemanticIR, artifact hash, 4 deployment modes, contractable FFI |
 
 ---
 
@@ -35,8 +36,9 @@ design decision or formal specification.
 
 | ID | Title | Depends On | Priority |
 |----|-------|------------|----------|
-| PROP-012 | Bridge Implementation Track v0 | PROP-001..PROP-011 | high |
-| — | memory-tbackend-lifecycle-golden-fixtures-v0 | PROP-008..PROP-011 | high (track) |
+| PROP-013 | igniter-lang-stdlib v0 (core contracts, temporal primitives) | PROP-004b, PROP-012 | medium |
+| — | .igapp/ fixture for Add contract (devkit) | PROP-012 | high (track) |
+| — | igniter-lang-ffi-ruby bridge adapter | PROP-012 | high (track) |
 
 ---
 

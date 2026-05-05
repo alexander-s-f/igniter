@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require "digest"
+require "fileutils"
 require "json"
 require "time"
 
@@ -834,20 +835,190 @@ module RuntimeMachineMemoryProof
     end
   end
 
-  class ProofRunner
-    def initialize
-      @checks = []
-      @golden = nil
+  module FixtureArtifacts
+    SCHEMA_VERSION = "runtime-machine-proof-packet-fixtures-v0"
+
+    module_function
+
+    def build(golden:, checks:, negative_reports:, negative_failures:, negative_evidence:)
+      Canonical.normalize(
+        schema_version: SCHEMA_VERSION,
+        generated_by: "runtime_machine_memory_proof.rb",
+        proof_as_of: PROOF_AS_OF,
+        rule_version: RULE_VERSION,
+        obs_packets: obs_packets(golden),
+        semantic_image: semantic_image(golden),
+        compatibility_reports: compatibility_reports(golden, negative_reports),
+        negative_evidence: negative_evidence.merge(failure_packets: negative_failures),
+        result_summary: result_summary(golden, checks)
+      )
     end
 
-    def run
+    def files(artifacts)
+      {
+        "obs_packets.golden.json" => {
+          schema_version: SCHEMA_VERSION,
+          artifact: "obs_packets",
+          payload: artifacts.fetch("obs_packets")
+        },
+        "semantic_image.golden.json" => {
+          schema_version: SCHEMA_VERSION,
+          artifact: "semantic_image",
+          payload: artifacts.fetch("semantic_image")
+        },
+        "compatibility_reports.golden.json" => {
+          schema_version: SCHEMA_VERSION,
+          artifact: "compatibility_reports",
+          payload: artifacts.fetch("compatibility_reports")
+        },
+        "negative_evidence.golden.json" => {
+          schema_version: SCHEMA_VERSION,
+          artifact: "negative_evidence",
+          payload: artifacts.fetch("negative_evidence")
+        },
+        "result_summary.golden.json" => {
+          schema_version: SCHEMA_VERSION,
+          artifact: "result_summary",
+          payload: artifacts.fetch("result_summary")
+        }
+      }
+    end
+
+    def obs_packets(golden)
+      {
+        sessions: {
+          session_a: golden.fetch(:session_a_entries).map { |entry| entry_to_h(entry) },
+          session_b: golden.fetch(:session_b_entries).map { |entry| entry_to_h(entry) }
+        },
+        selected: {
+          dispatch_candidate_value: golden.fetch(:value_packet).to_h,
+          resumed_dispatch_candidate_value: golden.fetch(:resumed_value_packet).to_h,
+          semantic_image_packet: golden.fetch(:semantic_image_packet).to_h,
+          trusted_compatibility_report_packet: golden.fetch(:compatibility_packet).to_h
+        }
+      }
+    end
+
+    def semantic_image(golden)
+      {
+        semantic_image: golden.fetch(:semantic_image),
+        semantic_image_packet: golden.fetch(:semantic_image_packet).to_h,
+        checkpoint_receipt: golden.fetch(:checkpoint_receipt).to_h
+      }
+    end
+
+    def compatibility_reports(golden, negative_reports)
+      {
+        trusted_resume: golden.fetch(:compatibility_report),
+        blocked_empty_backend_resume: negative_reports.fetch("empty_backend_resume"),
+        downgraded_runtime_drift: negative_reports.fetch("runtime_drift"),
+        blocked_contract_drift: negative_reports.fetch("contract_drift")
+      }
+    end
+
+    def result_summary(golden, checks)
+      {
+        proof_name: "runtime_machine_memory_proof",
+        pass: checks.all? { |check| check.fetch(:ok) },
+        checks: checks,
+        result_hash: golden.fetch(:result_hash),
+        resumed_result_hash: golden.fetch(:resumed_result_hash),
+        same_result_hash: golden.fetch(:result_hash) == golden.fetch(:resumed_result_hash),
+        evidence_status: golden.fetch(:evidence_status)
+      }
+    end
+
+    def entry_to_h(entry)
+      {
+        seq_id: entry.fetch(:seq_id),
+        transaction_time: entry.fetch(:transaction_time),
+        packet: entry.fetch(:packet).to_h
+      }
+    end
+  end
+
+  module FixtureFiles
+    DEFAULT_DIR = File.expand_path("fixtures", __dir__)
+
+    module_function
+
+    def write(dir, artifacts)
+      FileUtils.mkdir_p(dir)
+      files = rendered_files(artifacts)
+
+      files.each do |name, content|
+        File.write(File.join(dir, name), content)
+      end
+
+      files
+    end
+
+    def verify(dir, artifacts)
+      expected = rendered_files(artifacts)
+      expected.filter_map do |name, content|
+        path = File.join(dir, name)
+        if !File.file?(path)
+          { file: name, reason: "missing" }
+        elsif File.read(path) != content
+          { file: name, reason: "content_mismatch" }
+        end
+      end
+    end
+
+    def rendered_files(artifacts)
+      payloads = FixtureArtifacts.files(artifacts)
+      rendered = payloads.transform_values { |payload| json(payload) }
+      rendered["manifest.json"] = json(manifest(rendered))
+      rendered
+    end
+
+    def manifest(rendered_payloads)
+      {
+        schema_version: FixtureArtifacts::SCHEMA_VERSION,
+        artifact: "manifest",
+        files: rendered_payloads.keys.sort.map do |name|
+          {
+            path: name,
+            content_hash: "sha256:#{Digest::SHA256.hexdigest(rendered_payloads.fetch(name))}"
+          }
+        end
+      }
+    end
+
+    def json(value)
+      "#{JSON.pretty_generate(Canonical.normalize(value))}\n"
+    end
+  end
+
+  class ProofRunner
+    attr_reader :artifacts
+
+    def initialize
+      @print_summary = true
+      @checks = []
+      @golden = nil
+      @artifacts = nil
+      @negative_reports = {}
+      @negative_failures = {}
+      @negative_evidence = {}
+    end
+
+    def run(print_summary: true)
+      @print_summary = print_summary
       @golden = run_golden_path
       run_negative_ambient_time
       run_negative_empty_backend_resume
       run_negative_runtime_drift
       run_negative_contract_drift
       run_negative_value_without_evidence
-      print_summary
+      @artifacts = FixtureArtifacts.build(
+        golden: @golden,
+        checks: @checks,
+        negative_reports: @negative_reports,
+        negative_failures: @negative_failures,
+        negative_evidence: @negative_evidence
+      )
+      print_summary_output if @print_summary
       success?
     end
 
@@ -907,10 +1078,19 @@ module RuntimeMachineMemoryProof
       {
         backend: backend,
         contract: contract,
+        session_a_entries: backend.entries.map(&:dup),
+        session_b_entries: restored_backend.entries.map(&:dup),
         semantic_image: checkpoint.fetch(:semantic_image),
+        semantic_image_packet: checkpoint.fetch(:semantic_image_packet),
+        checkpoint_receipt: checkpoint.fetch(:receipt),
+        compatibility_report: resume.fetch(:report),
+        compatibility_packet: resume.fetch(:packet),
         result_hash: eval_a.fetch(:result_hash),
+        resumed_result_hash: eval_b.fetch(:result_hash),
         result_payload: eval_a.fetch(:payload),
-        value_packet: eval_a.fetch(:value_packet)
+        value_packet: eval_a.fetch(:value_packet),
+        resumed_value_packet: eval_b.fetch(:value_packet),
+        evidence_status: evidence
       }
     end
 
@@ -931,6 +1111,7 @@ module RuntimeMachineMemoryProof
         rule_version: RULE_VERSION
       )
 
+      @negative_failures["ambient_time"] = result.fetch(:packet).to_h
       check("negative.ambient_time_blocked", result.fetch(:reason_code) == "temporal.as_of_missing")
     end
 
@@ -948,6 +1129,7 @@ module RuntimeMachineMemoryProof
         requested_as_of: PROOF_AS_OF
       )
 
+      @negative_reports["empty_backend_resume"] = resume.fetch(:report)
       check("negative.empty_backend_resume_blocked", resume.fetch(:status) == "blocked")
     end
 
@@ -968,6 +1150,7 @@ module RuntimeMachineMemoryProof
         requested_as_of: PROOF_AS_OF
       )
 
+      @negative_reports["runtime_drift"] = resume.fetch(:report)
       check("negative.runtime_drift_downgraded", resume.fetch(:status) == "downgraded")
     end
 
@@ -987,6 +1170,7 @@ module RuntimeMachineMemoryProof
         requested_as_of: PROOF_AS_OF
       )
 
+      @negative_reports["contract_drift"] = resume.fetch(:report)
       check("negative.contract_drift_blocked", resume.fetch(:status) == "blocked")
     end
 
@@ -1000,6 +1184,11 @@ module RuntimeMachineMemoryProof
       )
       evidence = EvidenceVerifier.value_packet_status(fake)
 
+      @negative_evidence["same_value_without_evidence"] = {
+        value_packet: fake.to_h,
+        evidence_status: evidence,
+        expected_result_hash: @golden.fetch(:result_hash)
+      }
       check("negative.same_value_without_evidence", fake.payload_hash == @golden.fetch(:result_hash))
       check("negative.evidence_missing_provisional", evidence.fetch(:status) == "provisional")
     end
@@ -1012,7 +1201,7 @@ module RuntimeMachineMemoryProof
       @checks.all? { |check| check.fetch(:ok) }
     end
 
-    def print_summary
+    def print_summary_output
       puts "#{success? ? "PASS" : "FAIL"} runtime_machine_memory_proof"
       @checks.each do |check|
         puts "#{check.fetch(:name)}: #{check.fetch(:ok) ? "ok" : "fail"}"
@@ -1022,6 +1211,32 @@ module RuntimeMachineMemoryProof
 end
 
 if $PROGRAM_NAME == __FILE__
-  success = RuntimeMachineMemoryProof::ProofRunner.new.run
-  exit(success ? 0 : 1)
+  command = ARGV.shift
+  runner = RuntimeMachineMemoryProof::ProofRunner.new
+
+  case command
+  when "--write-fixtures"
+    dir = ARGV.shift || RuntimeMachineMemoryProof::FixtureFiles::DEFAULT_DIR
+    success = runner.run(print_summary: false)
+    RuntimeMachineMemoryProof::FixtureFiles.write(dir, runner.artifacts) if success
+    puts "WROTE runtime_machine_memory_proof_fixtures #{dir}" if success
+    exit(success ? 0 : 1)
+  when "--verify-fixtures"
+    dir = ARGV.shift || RuntimeMachineMemoryProof::FixtureFiles::DEFAULT_DIR
+    success = runner.run(print_summary: false)
+    mismatches = RuntimeMachineMemoryProof::FixtureFiles.verify(dir, runner.artifacts)
+    if success && mismatches.empty?
+      puts "PASS runtime_machine_memory_proof_fixtures"
+      exit 0
+    end
+
+    puts "FAIL runtime_machine_memory_proof_fixtures"
+    mismatches.each do |mismatch|
+      puts "#{mismatch.fetch(:file)}: #{mismatch.fetch(:reason)}"
+    end
+    exit 1
+  else
+    success = runner.run
+    exit(success ? 0 : 1)
+  end
 end

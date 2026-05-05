@@ -1,0 +1,26 @@
+{
+  "artifact": "manifest",
+  "files": [
+    {
+      "content_hash": "sha256:87db62c304a569f9ddece15fd19df899a615701a0772ab676ab32d82425f6227",
+      "path": "compatibility_reports.golden.json"
+    },
+    {
+      "content_hash": "sha256:9538e190fe6b9392ac3f2f90a7ffcb6f16221305d2883ccfc63cf32d1293ea1f",
+      "path": "negative_evidence.golden.json"
+    },
+    {
+      "content_hash": "sha256:a8c6639b7fbde3ea8cb888781ad080e31fb0b76e4f296589b9be37687d60e1fd",
+      "path": "obs_packets.golden.json"
+    },
+    {
+      "content_hash": "sha256:391ecd063bda7d9cb20fa53e3acca0a30f51b410982c43a3bc3eda1a33665d23",
+      "path": "result_summary.golden.json"
+    },
+    {
+      "content_hash": "sha256:23979b7e2f92fed55e75ed2212c0e009ec0a373edcc1e85d884ee2eb830f81e6",
+      "path": "semantic_image.golden.json"
+    }
+  ],
+  "schema_version": "runtime-machine-proof-packet-fixtures-v0"
+}

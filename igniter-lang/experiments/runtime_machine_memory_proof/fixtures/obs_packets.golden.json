@@ -1,0 +1,2168 @@
+{
+  "artifact": "obs_packets",
+  "payload": {
+    "selected": {
+      "dispatch_candidate_value": {
+        "id": "obs/95160c7effd51aa5",
+        "kind": "value_observation",
+        "links": [
+          {
+            "ref": "obs/0f1ab1fdd7e5d339",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f0a9581038271dfe",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/d0d7aec5d08f78b6",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f8e0bea5b62934c8",
+            "rel": "produced_in",
+            "required": true
+          },
+          {
+            "ref": "obs/f0a9581038271dfe",
+            "rel": "executed_by",
+            "required": true
+          },
+          {
+            "ref": "obs/3496e2114d28a3da",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "obs/bd05c4aa4da75eab",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "obs/2b7f74c345bf82ae",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "obs/7a0fc60564032104",
+            "rel": "read_from",
+            "required": true
+          }
+        ],
+        "payload": {
+          "available": true,
+          "order_id": "order/o-1",
+          "reason_codes": [
+            "service_match",
+            "schedule_free",
+            "not_off_schedule"
+          ],
+          "technician_id": "tech/t-17"
+        },
+        "payload_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+        "subject": "dispatch-candidate/order/o-1/tech/t-17",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "rule_version": "toy_dispatch@1"
+        }
+      },
+      "resumed_dispatch_candidate_value": {
+        "id": "obs/275792921be66e5f",
+        "kind": "value_observation",
+        "links": [
+          {
+            "ref": "obs/0f1ab1fdd7e5d339",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f0a9581038271dfe",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/d0d7aec5d08f78b6",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/4933f4feffabdaf1",
+            "rel": "produced_in",
+            "required": true
+          },
+          {
+            "ref": "obs/f0a9581038271dfe",
+            "rel": "executed_by",
+            "required": true
+          },
+          {
+            "ref": "obs/3496e2114d28a3da",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "obs/bd05c4aa4da75eab",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "obs/2b7f74c345bf82ae",
+            "rel": "read_from",
+            "required": true
+          },
+          {
+            "ref": "obs/7a0fc60564032104",
+            "rel": "read_from",
+            "required": true
+          }
+        ],
+        "payload": {
+          "available": true,
+          "order_id": "order/o-1",
+          "reason_codes": [
+            "service_match",
+            "schedule_free",
+            "not_off_schedule"
+          ],
+          "technician_id": "tech/t-17"
+        },
+        "payload_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+        "subject": "dispatch-candidate/order/o-1/tech/t-17",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "rule_version": "toy_dispatch@1"
+        }
+      },
+      "semantic_image_packet": {
+        "id": "obs/761dc9a3d81d047e",
+        "kind": "platform_observation",
+        "links": [
+          {
+            "ref": "obs/0f1ab1fdd7e5d339",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f0a9581038271dfe",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/d0d7aec5d08f78b6",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f8e0bea5b62934c8",
+            "rel": "produced_in",
+            "required": true
+          },
+          {
+            "ref": "obs/95160c7effd51aa5",
+            "rel": "caused_by",
+            "required": true
+          }
+        ],
+        "payload": {
+          "axiom_descriptor_ref": "obs/0f1ab1fdd7e5d339",
+          "backend_descriptor_hash": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "backend_descriptor_ref": "obs/d0d7aec5d08f78b6",
+          "checkpoint": {
+            "as_of": "2026-05-05T10:42:00Z",
+            "checkpoint_id": "checkpoint/d90c3f93a824c5fd",
+            "created_at": "2026-05-05T10:42:15Z",
+            "seq_id": 14,
+            "snapshot_hash": "sha256:ea301039df9545a47627170cf08bd696c7dde3a044bfe8018fb44fe5f70fbc0c",
+            "snapshot_ref": "memory-snapshot/ea301039df9545a4"
+          },
+          "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "content_hash": "sha256:42b496c5bb94891022c3095d179a69e6fc2f83aeff8291407fb4bda66855cb85",
+          "contract_descriptor_ref": "obs/f92eff59d0521787",
+          "execution_environment_ref": "obs/f8e0bea5b62934c8",
+          "image_id": "image/42b496c5bb948910",
+          "observation_count": 14,
+          "observation_hash": "sha256:a7989bd100dbeba04208e889bc8171a5440fc535280512d0b404c8ab54e3b3bc",
+          "produced_at": "2026-05-05T10:42:15Z",
+          "receipt_refs": [
+            "obs/0f1ab1fdd7e5d339",
+            "obs/f0a9581038271dfe",
+            "obs/d0d7aec5d08f78b6",
+            "obs/f8e0bea5b62934c8",
+            "obs/fa982bdd7552e82b",
+            "obs/3496e2114d28a3da",
+            "obs/bd05c4aa4da75eab",
+            "obs/2b7f74c345bf82ae",
+            "obs/7a0fc60564032104",
+            "obs/f92eff59d0521787",
+            "obs/b1e5c67368e0da3f",
+            "obs/c94eaec412eec236",
+            "obs/95160c7effd51aa5",
+            "obs/484f6e8102336584"
+          ],
+          "replay_cursor": {
+            "anchor": "seq_id",
+            "inclusive": false,
+            "position": 14
+          },
+          "runtime_contract_ref": "obs/f0a9581038271dfe",
+          "session_id": "session/a",
+          "temporal_horizon": {
+            "as_of": "2026-05-05T10:42:00Z",
+            "fact_scope": {
+              "order_id": "order/o-1",
+              "technician_id": "tech/t-17"
+            },
+            "rule_version": "toy_dispatch@1"
+          },
+          "value_hashes": [
+            "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0"
+          ],
+          "value_refs": [
+            "obs/95160c7effd51aa5"
+          ]
+        },
+        "payload_hash": "sha256:a6f3c8fbebb8899f9784ad541ab2275836c5316c5db7828ffdcdf5c88204d246",
+        "subject": "semantic-image/session/a",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "lifecycle": "checkpoint"
+        }
+      },
+      "trusted_compatibility_report_packet": {
+        "id": "obs/2756551165c7e771",
+        "kind": "platform_observation",
+        "links": [
+          {
+            "ref": "obs/0f1ab1fdd7e5d339",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f0a9581038271dfe",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/d0d7aec5d08f78b6",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/4933f4feffabdaf1",
+            "rel": "produced_in",
+            "required": true
+          },
+          {
+            "ref": "image/42b496c5bb948910",
+            "rel": "caused_by",
+            "required": true
+          }
+        ],
+        "payload": {
+          "checks": [
+            {
+              "actual": "obs/0f1ab1fdd7e5d339",
+              "dimension": "axiom",
+              "expected": "obs/0f1ab1fdd7e5d339",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "obs/f0a9581038271dfe",
+              "dimension": "runtime",
+              "expected": "obs/f0a9581038271dfe",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+              "dimension": "backend",
+              "expected": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+              "dimension": "contract",
+              "expected": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "2026-05-05T10:42:00Z",
+              "dimension": "temporal",
+              "expected": "2026-05-05T10:42:00Z",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "memory-snapshot/ea301039df9545a4",
+              "dimension": "snapshot",
+              "expected": "memory-snapshot/ea301039df9545a4",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "seq=19",
+              "dimension": "replay",
+              "expected": "seq>=14",
+              "outcome": "compatible",
+              "severity": "info"
+            }
+          ],
+          "image_id": "image/42b496c5bb948910",
+          "intent": "exact_replay",
+          "report_id": "compat/70a40ebebea32d78",
+          "reproducibility": "reproducible_within_memory_harness",
+          "resume_status": "trusted"
+        },
+        "payload_hash": "sha256:ba135b827674c428f257c4e2babc57b5e1efa0cc7426c7d07571fe8cfbb67460",
+        "subject": "compatibility-report/session/b",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "lifecycle": "resume"
+        }
+      }
+    },
+    "sessions": {
+      "session_a": [
+        {
+          "packet": {
+            "id": "obs/0f1ab1fdd7e5d339",
+            "kind": "platform_observation",
+            "links": [],
+            "payload": {
+              "descriptor": "AxiomDescriptor",
+              "hash_policy": "canonical-json-sha256",
+              "temporal_policy": "explicit_only",
+              "version": "core-v0"
+            },
+            "payload_hash": "sha256:4b2c3ec5f51d2f05383cc292f5588aef71b04bb32cede23d0f0605edd7567ca8",
+            "subject": "axiom/core-v0",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 1,
+          "transaction_time": "2026-05-05T10:42:01Z"
+        },
+        {
+          "packet": {
+            "id": "obs/f0a9581038271dfe",
+            "kind": "platform_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              }
+            ],
+            "payload": {
+              "cache_policy": "none",
+              "capability_executor": "deny_by_default",
+              "clock_policy": "explicit_only",
+              "concurrency": "single_threaded",
+              "descriptor": "RuntimeContract",
+              "scheduler": "inline",
+              "version": "proof-runtime-v1"
+            },
+            "payload_hash": "sha256:43eb435c35bf14939debf640b24c8ddc777b0da8bac2c0c8c6cbe9b8d7aaf3fc",
+            "subject": "runtime/proof-inline",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 2,
+          "transaction_time": "2026-05-05T10:42:02Z"
+        },
+        {
+          "packet": {
+            "id": "obs/d0d7aec5d08f78b6",
+            "kind": "platform_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              }
+            ],
+            "payload": {
+              "backend_id": "memory-proof",
+              "backend_kind": "memory",
+              "capabilities": {
+                "append_atomic": true,
+                "compact_enabled": false,
+                "consistency": "single_process_total_order",
+                "max_replay_window": null,
+                "read_as_of": true,
+                "replay_enabled": true,
+                "snapshot_enabled": true,
+                "subscribe_enabled": false
+              },
+              "durability_model": "process_memory",
+              "loss_window": "all_on_process_loss",
+              "version": "0.1.0"
+            },
+            "payload_hash": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+            "subject": "tbackend/memory-proof",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 3,
+          "transaction_time": "2026-05-05T10:42:03Z"
+        },
+        {
+          "packet": {
+            "id": "obs/f8e0bea5b62934c8",
+            "kind": "platform_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              }
+            ],
+            "payload": {
+              "descriptor": "ExecutionEnvironment",
+              "host": "standalone-proof",
+              "machine_id": "runtime-machine/memory-proof-a",
+              "process_model": "single_process",
+              "session_id": "session/a"
+            },
+            "payload_hash": "sha256:d948cf8917785e9f93406db67c54310f1158146a37ca5ed05060e84897d23b6c",
+            "subject": "execution-environment/runtime-machine/memory-proof-a",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 4,
+          "transaction_time": "2026-05-05T10:42:04Z"
+        },
+        {
+          "packet": {
+            "id": "obs/fa982bdd7552e82b",
+            "kind": "receipt_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "next_state": "booted",
+              "status": "ok",
+              "transition": "boot"
+            },
+            "payload_hash": "sha256:600bff3430ff8bb71f3a202a1a5dbe21f689c1a1a2e6fa8b37dde0b8ed20ea30",
+            "subject": "runtime-machine/runtime-machine/memory-proof-a/boot",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 5,
+          "transaction_time": "2026-05-05T10:42:05Z"
+        },
+        {
+          "packet": {
+            "id": "obs/3496e2114d28a3da",
+            "kind": "fact_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "service": "install"
+            },
+            "payload_hash": "sha256:334d800d6f7cbd807b08e9ee178bfe0dbd3459488846d55e11692a57e6874f05",
+            "subject": "order/order/o-1",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z"
+            }
+          },
+          "seq_id": 6,
+          "transaction_time": "2026-05-05T10:42:06Z"
+        },
+        {
+          "packet": {
+            "id": "obs/bd05c4aa4da75eab",
+            "kind": "fact_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "services": [
+                "install"
+              ],
+              "zone": "north"
+            },
+            "payload_hash": "sha256:3637f788fb36e7f255c243d2fc22fa8ac3b70e894802ab2e3a19447cd3861f5a",
+            "subject": "technician-profile/tech/t-17",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z"
+            }
+          },
+          "seq_id": 7,
+          "transaction_time": "2026-05-05T10:42:07Z"
+        },
+        {
+          "packet": {
+            "id": "obs/2b7f74c345bf82ae",
+            "kind": "fact_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "occupied": false
+            },
+            "payload_hash": "sha256:3fde63376b109f0d2cb3f78fb03e507875228ac84bafe4942a71e0397631d6e5",
+            "subject": "schedule-slot/tech/t-17/2026-05-05T10:42:00Z",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z"
+            }
+          },
+          "seq_id": 8,
+          "transaction_time": "2026-05-05T10:42:08Z"
+        },
+        {
+          "packet": {
+            "id": "obs/7a0fc60564032104",
+            "kind": "fact_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "disabled": false
+            },
+            "payload_hash": "sha256:1d11441a60f0c81871548ccecf0b533ae2fff9f3b47aeb8d8d25ff1f2f10f54f",
+            "subject": "off-schedule/tech/t-17/2026-05-05T10:42:00Z",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z"
+            }
+          },
+          "seq_id": 9,
+          "transaction_time": "2026-05-05T10:42:09Z"
+        },
+        {
+          "packet": {
+            "id": "obs/f92eff59d0521787",
+            "kind": "descriptor_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "capabilities": [],
+              "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+              "effects": [],
+              "fragment_class": "CORE",
+              "name": "ToyDispatchContract",
+              "output": "DispatchCandidate",
+              "reads": [
+                "OrderRequest(order_id)",
+                "TechnicianProfile(technician_id)",
+                "ScheduleSlot(technician_id, as_of)",
+                "OffSchedule(technician_id, as_of)"
+              ],
+              "required_escapes": [],
+              "version": "toy-dispatch-contract-v0"
+            },
+            "payload_hash": "sha256:d68b343022cf8d8c0ca37fd7c76fa929775c1fbbc344bc9c148f4303e151a635",
+            "subject": "contract/toy-dispatch",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "load"
+            }
+          },
+          "seq_id": 10,
+          "transaction_time": "2026-05-05T10:42:10Z"
+        },
+        {
+          "packet": {
+            "id": "obs/b1e5c67368e0da3f",
+            "kind": "descriptor_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/f92eff59d0521787",
+                "rel": "describes",
+                "required": true
+              }
+            ],
+            "payload": {
+              "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+              "fragment_class": "CORE",
+              "required_escapes": []
+            },
+            "payload_hash": "sha256:5bc3f6895588b2ad3ecafc42ac808967e4acd7604724fadcedf87646c7aaced1",
+            "subject": "fragment/toy-dispatch",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "load"
+            }
+          },
+          "seq_id": 11,
+          "transaction_time": "2026-05-05T10:42:11Z"
+        },
+        {
+          "packet": {
+            "id": "obs/c94eaec412eec236",
+            "kind": "receipt_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/f92eff59d0521787",
+                "rel": "describes",
+                "required": true
+              }
+            ],
+            "payload": {
+              "loaded_unit": {
+                "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+                "contract_descriptor_ref": "obs/f92eff59d0521787",
+                "fragment_class": "CORE",
+                "fragment_descriptor_ref": "obs/b1e5c67368e0da3f",
+                "unit_id": "loaded-unit/7afd133595b173a7"
+              },
+              "status": "ok",
+              "transition": "load"
+            },
+            "payload_hash": "sha256:9d14e1adc77b6f6c4fd555e25c4215a5cad48ae3cbbbe05b2ef315eadcb4f421",
+            "subject": "runtime-machine/runtime-machine/memory-proof-a/load",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "load"
+            }
+          },
+          "seq_id": 12,
+          "transaction_time": "2026-05-05T10:42:12Z"
+        },
+        {
+          "packet": {
+            "id": "obs/95160c7effd51aa5",
+            "kind": "value_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "executed_by",
+                "required": true
+              },
+              {
+                "ref": "obs/3496e2114d28a3da",
+                "rel": "read_from",
+                "required": true
+              },
+              {
+                "ref": "obs/bd05c4aa4da75eab",
+                "rel": "read_from",
+                "required": true
+              },
+              {
+                "ref": "obs/2b7f74c345bf82ae",
+                "rel": "read_from",
+                "required": true
+              },
+              {
+                "ref": "obs/7a0fc60564032104",
+                "rel": "read_from",
+                "required": true
+              }
+            ],
+            "payload": {
+              "available": true,
+              "order_id": "order/o-1",
+              "reason_codes": [
+                "service_match",
+                "schedule_free",
+                "not_off_schedule"
+              ],
+              "technician_id": "tech/t-17"
+            },
+            "payload_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+            "subject": "dispatch-candidate/order/o-1/tech/t-17",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "rule_version": "toy_dispatch@1"
+            }
+          },
+          "seq_id": 13,
+          "transaction_time": "2026-05-05T10:42:13Z"
+        },
+        {
+          "packet": {
+            "id": "obs/484f6e8102336584",
+            "kind": "receipt_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/95160c7effd51aa5",
+                "rel": "caused_by",
+                "required": true
+              }
+            ],
+            "payload": {
+              "result_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+              "status": "ok",
+              "transition": "evaluate",
+              "value_ref": "obs/95160c7effd51aa5"
+            },
+            "payload_hash": "sha256:e9ed68ddf5581bfbce77fcee19c67e15be0cf9bf13aeb9b75643d05eee947d1b",
+            "subject": "runtime-machine/runtime-machine/memory-proof-a/evaluate",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "rule_version": "toy_dispatch@1"
+            }
+          },
+          "seq_id": 14,
+          "transaction_time": "2026-05-05T10:42:14Z"
+        },
+        {
+          "packet": {
+            "id": "obs/761dc9a3d81d047e",
+            "kind": "platform_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/95160c7effd51aa5",
+                "rel": "caused_by",
+                "required": true
+              }
+            ],
+            "payload": {
+              "axiom_descriptor_ref": "obs/0f1ab1fdd7e5d339",
+              "backend_descriptor_hash": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+              "backend_descriptor_ref": "obs/d0d7aec5d08f78b6",
+              "checkpoint": {
+                "as_of": "2026-05-05T10:42:00Z",
+                "checkpoint_id": "checkpoint/d90c3f93a824c5fd",
+                "created_at": "2026-05-05T10:42:15Z",
+                "seq_id": 14,
+                "snapshot_hash": "sha256:ea301039df9545a47627170cf08bd696c7dde3a044bfe8018fb44fe5f70fbc0c",
+                "snapshot_ref": "memory-snapshot/ea301039df9545a4"
+              },
+              "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+              "content_hash": "sha256:42b496c5bb94891022c3095d179a69e6fc2f83aeff8291407fb4bda66855cb85",
+              "contract_descriptor_ref": "obs/f92eff59d0521787",
+              "execution_environment_ref": "obs/f8e0bea5b62934c8",
+              "image_id": "image/42b496c5bb948910",
+              "observation_count": 14,
+              "observation_hash": "sha256:a7989bd100dbeba04208e889bc8171a5440fc535280512d0b404c8ab54e3b3bc",
+              "produced_at": "2026-05-05T10:42:15Z",
+              "receipt_refs": [
+                "obs/0f1ab1fdd7e5d339",
+                "obs/f0a9581038271dfe",
+                "obs/d0d7aec5d08f78b6",
+                "obs/f8e0bea5b62934c8",
+                "obs/fa982bdd7552e82b",
+                "obs/3496e2114d28a3da",
+                "obs/bd05c4aa4da75eab",
+                "obs/2b7f74c345bf82ae",
+                "obs/7a0fc60564032104",
+                "obs/f92eff59d0521787",
+                "obs/b1e5c67368e0da3f",
+                "obs/c94eaec412eec236",
+                "obs/95160c7effd51aa5",
+                "obs/484f6e8102336584"
+              ],
+              "replay_cursor": {
+                "anchor": "seq_id",
+                "inclusive": false,
+                "position": 14
+              },
+              "runtime_contract_ref": "obs/f0a9581038271dfe",
+              "session_id": "session/a",
+              "temporal_horizon": {
+                "as_of": "2026-05-05T10:42:00Z",
+                "fact_scope": {
+                  "order_id": "order/o-1",
+                  "technician_id": "tech/t-17"
+                },
+                "rule_version": "toy_dispatch@1"
+              },
+              "value_hashes": [
+                "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0"
+              ],
+              "value_refs": [
+                "obs/95160c7effd51aa5"
+              ]
+            },
+            "payload_hash": "sha256:a6f3c8fbebb8899f9784ad541ab2275836c5316c5db7828ffdcdf5c88204d246",
+            "subject": "semantic-image/session/a",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "checkpoint"
+            }
+          },
+          "seq_id": 15,
+          "transaction_time": "2026-05-05T10:42:15Z"
+        },
+        {
+          "packet": {
+            "id": "obs/c3baf74390e640f1",
+            "kind": "receipt_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/761dc9a3d81d047e",
+                "rel": "caused_by",
+                "required": true
+              }
+            ],
+            "payload": {
+              "image_id": "image/42b496c5bb948910",
+              "semantic_image_ref": "obs/761dc9a3d81d047e",
+              "status": "ok",
+              "transition": "checkpoint"
+            },
+            "payload_hash": "sha256:c244a2480c9725b56aaa2df347024ebf6806446eb862068047a6ccb0869a991b",
+            "subject": "runtime-machine/runtime-machine/memory-proof-a/checkpoint",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "checkpoint"
+            }
+          },
+          "seq_id": 16,
+          "transaction_time": "2026-05-05T10:42:16Z"
+        }
+      ],
+      "session_b": [
+        {
+          "packet": {
+            "id": "obs/0f1ab1fdd7e5d339",
+            "kind": "platform_observation",
+            "links": [],
+            "payload": {
+              "descriptor": "AxiomDescriptor",
+              "hash_policy": "canonical-json-sha256",
+              "temporal_policy": "explicit_only",
+              "version": "core-v0"
+            },
+            "payload_hash": "sha256:4b2c3ec5f51d2f05383cc292f5588aef71b04bb32cede23d0f0605edd7567ca8",
+            "subject": "axiom/core-v0",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 1,
+          "transaction_time": "2026-05-05T10:42:01Z"
+        },
+        {
+          "packet": {
+            "id": "obs/f0a9581038271dfe",
+            "kind": "platform_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              }
+            ],
+            "payload": {
+              "cache_policy": "none",
+              "capability_executor": "deny_by_default",
+              "clock_policy": "explicit_only",
+              "concurrency": "single_threaded",
+              "descriptor": "RuntimeContract",
+              "scheduler": "inline",
+              "version": "proof-runtime-v1"
+            },
+            "payload_hash": "sha256:43eb435c35bf14939debf640b24c8ddc777b0da8bac2c0c8c6cbe9b8d7aaf3fc",
+            "subject": "runtime/proof-inline",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 2,
+          "transaction_time": "2026-05-05T10:42:02Z"
+        },
+        {
+          "packet": {
+            "id": "obs/d0d7aec5d08f78b6",
+            "kind": "platform_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              }
+            ],
+            "payload": {
+              "backend_id": "memory-proof",
+              "backend_kind": "memory",
+              "capabilities": {
+                "append_atomic": true,
+                "compact_enabled": false,
+                "consistency": "single_process_total_order",
+                "max_replay_window": null,
+                "read_as_of": true,
+                "replay_enabled": true,
+                "snapshot_enabled": true,
+                "subscribe_enabled": false
+              },
+              "durability_model": "process_memory",
+              "loss_window": "all_on_process_loss",
+              "version": "0.1.0"
+            },
+            "payload_hash": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+            "subject": "tbackend/memory-proof",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 3,
+          "transaction_time": "2026-05-05T10:42:03Z"
+        },
+        {
+          "packet": {
+            "id": "obs/f8e0bea5b62934c8",
+            "kind": "platform_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              }
+            ],
+            "payload": {
+              "descriptor": "ExecutionEnvironment",
+              "host": "standalone-proof",
+              "machine_id": "runtime-machine/memory-proof-a",
+              "process_model": "single_process",
+              "session_id": "session/a"
+            },
+            "payload_hash": "sha256:d948cf8917785e9f93406db67c54310f1158146a37ca5ed05060e84897d23b6c",
+            "subject": "execution-environment/runtime-machine/memory-proof-a",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 4,
+          "transaction_time": "2026-05-05T10:42:04Z"
+        },
+        {
+          "packet": {
+            "id": "obs/fa982bdd7552e82b",
+            "kind": "receipt_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "next_state": "booted",
+              "status": "ok",
+              "transition": "boot"
+            },
+            "payload_hash": "sha256:600bff3430ff8bb71f3a202a1a5dbe21f689c1a1a2e6fa8b37dde0b8ed20ea30",
+            "subject": "runtime-machine/runtime-machine/memory-proof-a/boot",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 5,
+          "transaction_time": "2026-05-05T10:42:05Z"
+        },
+        {
+          "packet": {
+            "id": "obs/3496e2114d28a3da",
+            "kind": "fact_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "service": "install"
+            },
+            "payload_hash": "sha256:334d800d6f7cbd807b08e9ee178bfe0dbd3459488846d55e11692a57e6874f05",
+            "subject": "order/order/o-1",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z"
+            }
+          },
+          "seq_id": 6,
+          "transaction_time": "2026-05-05T10:42:06Z"
+        },
+        {
+          "packet": {
+            "id": "obs/bd05c4aa4da75eab",
+            "kind": "fact_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "services": [
+                "install"
+              ],
+              "zone": "north"
+            },
+            "payload_hash": "sha256:3637f788fb36e7f255c243d2fc22fa8ac3b70e894802ab2e3a19447cd3861f5a",
+            "subject": "technician-profile/tech/t-17",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z"
+            }
+          },
+          "seq_id": 7,
+          "transaction_time": "2026-05-05T10:42:07Z"
+        },
+        {
+          "packet": {
+            "id": "obs/2b7f74c345bf82ae",
+            "kind": "fact_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "occupied": false
+            },
+            "payload_hash": "sha256:3fde63376b109f0d2cb3f78fb03e507875228ac84bafe4942a71e0397631d6e5",
+            "subject": "schedule-slot/tech/t-17/2026-05-05T10:42:00Z",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z"
+            }
+          },
+          "seq_id": 8,
+          "transaction_time": "2026-05-05T10:42:08Z"
+        },
+        {
+          "packet": {
+            "id": "obs/7a0fc60564032104",
+            "kind": "fact_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "disabled": false
+            },
+            "payload_hash": "sha256:1d11441a60f0c81871548ccecf0b533ae2fff9f3b47aeb8d8d25ff1f2f10f54f",
+            "subject": "off-schedule/tech/t-17/2026-05-05T10:42:00Z",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z"
+            }
+          },
+          "seq_id": 9,
+          "transaction_time": "2026-05-05T10:42:09Z"
+        },
+        {
+          "packet": {
+            "id": "obs/f92eff59d0521787",
+            "kind": "descriptor_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "capabilities": [],
+              "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+              "effects": [],
+              "fragment_class": "CORE",
+              "name": "ToyDispatchContract",
+              "output": "DispatchCandidate",
+              "reads": [
+                "OrderRequest(order_id)",
+                "TechnicianProfile(technician_id)",
+                "ScheduleSlot(technician_id, as_of)",
+                "OffSchedule(technician_id, as_of)"
+              ],
+              "required_escapes": [],
+              "version": "toy-dispatch-contract-v0"
+            },
+            "payload_hash": "sha256:d68b343022cf8d8c0ca37fd7c76fa929775c1fbbc344bc9c148f4303e151a635",
+            "subject": "contract/toy-dispatch",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "load"
+            }
+          },
+          "seq_id": 10,
+          "transaction_time": "2026-05-05T10:42:10Z"
+        },
+        {
+          "packet": {
+            "id": "obs/b1e5c67368e0da3f",
+            "kind": "descriptor_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/f92eff59d0521787",
+                "rel": "describes",
+                "required": true
+              }
+            ],
+            "payload": {
+              "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+              "fragment_class": "CORE",
+              "required_escapes": []
+            },
+            "payload_hash": "sha256:5bc3f6895588b2ad3ecafc42ac808967e4acd7604724fadcedf87646c7aaced1",
+            "subject": "fragment/toy-dispatch",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "load"
+            }
+          },
+          "seq_id": 11,
+          "transaction_time": "2026-05-05T10:42:11Z"
+        },
+        {
+          "packet": {
+            "id": "obs/c94eaec412eec236",
+            "kind": "receipt_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/f92eff59d0521787",
+                "rel": "describes",
+                "required": true
+              }
+            ],
+            "payload": {
+              "loaded_unit": {
+                "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+                "contract_descriptor_ref": "obs/f92eff59d0521787",
+                "fragment_class": "CORE",
+                "fragment_descriptor_ref": "obs/b1e5c67368e0da3f",
+                "unit_id": "loaded-unit/7afd133595b173a7"
+              },
+              "status": "ok",
+              "transition": "load"
+            },
+            "payload_hash": "sha256:9d14e1adc77b6f6c4fd555e25c4215a5cad48ae3cbbbe05b2ef315eadcb4f421",
+            "subject": "runtime-machine/runtime-machine/memory-proof-a/load",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "load"
+            }
+          },
+          "seq_id": 12,
+          "transaction_time": "2026-05-05T10:42:12Z"
+        },
+        {
+          "packet": {
+            "id": "obs/95160c7effd51aa5",
+            "kind": "value_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "executed_by",
+                "required": true
+              },
+              {
+                "ref": "obs/3496e2114d28a3da",
+                "rel": "read_from",
+                "required": true
+              },
+              {
+                "ref": "obs/bd05c4aa4da75eab",
+                "rel": "read_from",
+                "required": true
+              },
+              {
+                "ref": "obs/2b7f74c345bf82ae",
+                "rel": "read_from",
+                "required": true
+              },
+              {
+                "ref": "obs/7a0fc60564032104",
+                "rel": "read_from",
+                "required": true
+              }
+            ],
+            "payload": {
+              "available": true,
+              "order_id": "order/o-1",
+              "reason_codes": [
+                "service_match",
+                "schedule_free",
+                "not_off_schedule"
+              ],
+              "technician_id": "tech/t-17"
+            },
+            "payload_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+            "subject": "dispatch-candidate/order/o-1/tech/t-17",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "rule_version": "toy_dispatch@1"
+            }
+          },
+          "seq_id": 13,
+          "transaction_time": "2026-05-05T10:42:13Z"
+        },
+        {
+          "packet": {
+            "id": "obs/484f6e8102336584",
+            "kind": "receipt_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f8e0bea5b62934c8",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/95160c7effd51aa5",
+                "rel": "caused_by",
+                "required": true
+              }
+            ],
+            "payload": {
+              "result_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+              "status": "ok",
+              "transition": "evaluate",
+              "value_ref": "obs/95160c7effd51aa5"
+            },
+            "payload_hash": "sha256:e9ed68ddf5581bfbce77fcee19c67e15be0cf9bf13aeb9b75643d05eee947d1b",
+            "subject": "runtime-machine/runtime-machine/memory-proof-a/evaluate",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "rule_version": "toy_dispatch@1"
+            }
+          },
+          "seq_id": 14,
+          "transaction_time": "2026-05-05T10:42:14Z"
+        },
+        {
+          "packet": {
+            "id": "obs/4933f4feffabdaf1",
+            "kind": "platform_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              }
+            ],
+            "payload": {
+              "descriptor": "ExecutionEnvironment",
+              "host": "standalone-proof",
+              "machine_id": "runtime-machine/memory-proof-b",
+              "process_model": "single_process",
+              "session_id": "session/b"
+            },
+            "payload_hash": "sha256:5793aab47b8c44f2109945f9d7f9884e3c845c28ab6578e2bf8f50f4d251d3d6",
+            "subject": "execution-environment/runtime-machine/memory-proof-b",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 15,
+          "transaction_time": "2026-05-05T10:42:15Z"
+        },
+        {
+          "packet": {
+            "id": "obs/c2d9fd36308d5a9f",
+            "kind": "receipt_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/4933f4feffabdaf1",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "next_state": "booted",
+              "status": "ok",
+              "transition": "boot"
+            },
+            "payload_hash": "sha256:600bff3430ff8bb71f3a202a1a5dbe21f689c1a1a2e6fa8b37dde0b8ed20ea30",
+            "subject": "runtime-machine/runtime-machine/memory-proof-b/boot",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "boot"
+            }
+          },
+          "seq_id": 16,
+          "transaction_time": "2026-05-05T10:42:16Z"
+        },
+        {
+          "packet": {
+            "id": "obs/9c407a4d09b7c7af",
+            "kind": "descriptor_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/4933f4feffabdaf1",
+                "rel": "produced_in",
+                "required": true
+              }
+            ],
+            "payload": {
+              "capabilities": [],
+              "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+              "effects": [],
+              "fragment_class": "CORE",
+              "name": "ToyDispatchContract",
+              "output": "DispatchCandidate",
+              "reads": [
+                "OrderRequest(order_id)",
+                "TechnicianProfile(technician_id)",
+                "ScheduleSlot(technician_id, as_of)",
+                "OffSchedule(technician_id, as_of)"
+              ],
+              "required_escapes": [],
+              "version": "toy-dispatch-contract-v0"
+            },
+            "payload_hash": "sha256:d68b343022cf8d8c0ca37fd7c76fa929775c1fbbc344bc9c148f4303e151a635",
+            "subject": "contract/toy-dispatch",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "load"
+            }
+          },
+          "seq_id": 17,
+          "transaction_time": "2026-05-05T10:42:17Z"
+        },
+        {
+          "packet": {
+            "id": "obs/c021bbf9807612cd",
+            "kind": "descriptor_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/4933f4feffabdaf1",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/9c407a4d09b7c7af",
+                "rel": "describes",
+                "required": true
+              }
+            ],
+            "payload": {
+              "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+              "fragment_class": "CORE",
+              "required_escapes": []
+            },
+            "payload_hash": "sha256:5bc3f6895588b2ad3ecafc42ac808967e4acd7604724fadcedf87646c7aaced1",
+            "subject": "fragment/toy-dispatch",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "load"
+            }
+          },
+          "seq_id": 18,
+          "transaction_time": "2026-05-05T10:42:18Z"
+        },
+        {
+          "packet": {
+            "id": "obs/68f24f0634b2e07a",
+            "kind": "receipt_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/4933f4feffabdaf1",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/9c407a4d09b7c7af",
+                "rel": "describes",
+                "required": true
+              }
+            ],
+            "payload": {
+              "loaded_unit": {
+                "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+                "contract_descriptor_ref": "obs/9c407a4d09b7c7af",
+                "fragment_class": "CORE",
+                "fragment_descriptor_ref": "obs/c021bbf9807612cd",
+                "unit_id": "loaded-unit/7afd133595b173a7"
+              },
+              "status": "ok",
+              "transition": "load"
+            },
+            "payload_hash": "sha256:c25b2aeab6022a228a9959f6209ff465504a027ede0553cb897df4721086387e",
+            "subject": "runtime-machine/runtime-machine/memory-proof-b/load",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "load"
+            }
+          },
+          "seq_id": 19,
+          "transaction_time": "2026-05-05T10:42:19Z"
+        },
+        {
+          "packet": {
+            "id": "obs/2756551165c7e771",
+            "kind": "platform_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/4933f4feffabdaf1",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "image/42b496c5bb948910",
+                "rel": "caused_by",
+                "required": true
+              }
+            ],
+            "payload": {
+              "checks": [
+                {
+                  "actual": "obs/0f1ab1fdd7e5d339",
+                  "dimension": "axiom",
+                  "expected": "obs/0f1ab1fdd7e5d339",
+                  "outcome": "compatible",
+                  "severity": "info"
+                },
+                {
+                  "actual": "obs/f0a9581038271dfe",
+                  "dimension": "runtime",
+                  "expected": "obs/f0a9581038271dfe",
+                  "outcome": "compatible",
+                  "severity": "info"
+                },
+                {
+                  "actual": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+                  "dimension": "backend",
+                  "expected": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+                  "outcome": "compatible",
+                  "severity": "info"
+                },
+                {
+                  "actual": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+                  "dimension": "contract",
+                  "expected": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+                  "outcome": "compatible",
+                  "severity": "info"
+                },
+                {
+                  "actual": "2026-05-05T10:42:00Z",
+                  "dimension": "temporal",
+                  "expected": "2026-05-05T10:42:00Z",
+                  "outcome": "compatible",
+                  "severity": "info"
+                },
+                {
+                  "actual": "memory-snapshot/ea301039df9545a4",
+                  "dimension": "snapshot",
+                  "expected": "memory-snapshot/ea301039df9545a4",
+                  "outcome": "compatible",
+                  "severity": "info"
+                },
+                {
+                  "actual": "seq=19",
+                  "dimension": "replay",
+                  "expected": "seq>=14",
+                  "outcome": "compatible",
+                  "severity": "info"
+                }
+              ],
+              "image_id": "image/42b496c5bb948910",
+              "intent": "exact_replay",
+              "report_id": "compat/70a40ebebea32d78",
+              "reproducibility": "reproducible_within_memory_harness",
+              "resume_status": "trusted"
+            },
+            "payload_hash": "sha256:ba135b827674c428f257c4e2babc57b5e1efa0cc7426c7d07571fe8cfbb67460",
+            "subject": "compatibility-report/session/b",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "resume"
+            }
+          },
+          "seq_id": 20,
+          "transaction_time": "2026-05-05T10:42:20Z"
+        },
+        {
+          "packet": {
+            "id": "obs/489d41a83bf11f16",
+            "kind": "receipt_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/4933f4feffabdaf1",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/2756551165c7e771",
+                "rel": "caused_by",
+                "required": true
+              }
+            ],
+            "payload": {
+              "image_id": "image/42b496c5bb948910",
+              "status": "trusted",
+              "transition": "resume"
+            },
+            "payload_hash": "sha256:9a272672d781d599c79619f4dbe55af6c0015c436adf69aa723f0a09868d970b",
+            "subject": "runtime-machine/runtime-machine/memory-proof-b/resume",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "lifecycle": "resume"
+            }
+          },
+          "seq_id": 21,
+          "transaction_time": "2026-05-05T10:42:21Z"
+        },
+        {
+          "packet": {
+            "id": "obs/275792921be66e5f",
+            "kind": "value_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/4933f4feffabdaf1",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "executed_by",
+                "required": true
+              },
+              {
+                "ref": "obs/3496e2114d28a3da",
+                "rel": "read_from",
+                "required": true
+              },
+              {
+                "ref": "obs/bd05c4aa4da75eab",
+                "rel": "read_from",
+                "required": true
+              },
+              {
+                "ref": "obs/2b7f74c345bf82ae",
+                "rel": "read_from",
+                "required": true
+              },
+              {
+                "ref": "obs/7a0fc60564032104",
+                "rel": "read_from",
+                "required": true
+              }
+            ],
+            "payload": {
+              "available": true,
+              "order_id": "order/o-1",
+              "reason_codes": [
+                "service_match",
+                "schedule_free",
+                "not_off_schedule"
+              ],
+              "technician_id": "tech/t-17"
+            },
+            "payload_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+            "subject": "dispatch-candidate/order/o-1/tech/t-17",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "rule_version": "toy_dispatch@1"
+            }
+          },
+          "seq_id": 22,
+          "transaction_time": "2026-05-05T10:42:22Z"
+        },
+        {
+          "packet": {
+            "id": "obs/9560ef3fb4bc67e3",
+            "kind": "receipt_observation",
+            "links": [
+              {
+                "ref": "obs/0f1ab1fdd7e5d339",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/f0a9581038271dfe",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/d0d7aec5d08f78b6",
+                "rel": "observed_under",
+                "required": true
+              },
+              {
+                "ref": "obs/4933f4feffabdaf1",
+                "rel": "produced_in",
+                "required": true
+              },
+              {
+                "ref": "obs/275792921be66e5f",
+                "rel": "caused_by",
+                "required": true
+              }
+            ],
+            "payload": {
+              "result_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
+              "status": "ok",
+              "transition": "evaluate",
+              "value_ref": "obs/275792921be66e5f"
+            },
+            "payload_hash": "sha256:f418df0362d06b6423bf5e9df8cce50a05896f93e343c19d41c1ba6e273c3148",
+            "subject": "runtime-machine/runtime-machine/memory-proof-b/evaluate",
+            "temporal": {
+              "as_of": "2026-05-05T10:42:00Z",
+              "rule_version": "toy_dispatch@1"
+            }
+          },
+          "seq_id": 23,
+          "transaction_time": "2026-05-05T10:42:23Z"
+        }
+      ]
+    }
+  },
+  "schema_version": "runtime-machine-proof-packet-fixtures-v0"
+}

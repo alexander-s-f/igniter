@@ -22,6 +22,7 @@ implementation detail of the current Igniter platform.
 | [tracks/bridge-observation-envelope-package-mapping-v0.md](tracks/bridge-observation-envelope-package-mapping-v0.md) | done | Mapped current package facts, projections, pins, decisions, and runtime session packets to bridge profiles |
 | [tracks/runtime-machine-lifecycle-v0.md](tracks/runtime-machine-lifecycle-v0.md) | done | Defined Runtime Machine boot/load/evaluate/checkpoint/resume lifecycle, semantic image, TBackend adapters, compatibility, and CORE/ESCAPE boundary |
 | [tracks/runtime-machine-executable-proof-plan-v0.md](tracks/runtime-machine-executable-proof-plan-v0.md) | done | Planned the minimal executable proof for :memory TBackend boot/load/evaluate/checkpoint/resume on a toy CORE contract |
+| [tracks/runtime-machine-proof-packet-fixtures-v0.md](tracks/runtime-machine-proof-packet-fixtures-v0.md) | done | Extracted structural golden ObsPacket, SemanticImage, CompatibilityReport, negative evidence, and result summary artifacts from the memory proof |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 | [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
@@ -30,7 +31,7 @@ implementation detail of the current Igniter platform.
 
 | Experiment | Status | Purpose |
 |------------|--------|---------|
-| [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-memory-proof-implementation-v0: standalone stdlib proof of :memory TBackend boot/load/evaluate/checkpoint/resume on a toy CORE contract |
+| [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-proof-packet-fixtures-v0: standalone stdlib memory proof plus structural golden fixtures and fixture verification |
 
 ## Active Proposals
 
@@ -51,6 +52,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-009](proposals/PROP-009-semantic-image-resume-compatibility-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | SemanticImage; CompatibilityReport; ResumeStatus: trusted/provisional/downgraded/blocked |
 | [proposals/PROP-010](proposals/PROP-010-temporal-lifecycle-retention-semantics-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | 6 lifecycle classes; flush; semantic GC roots; 5 downgrade rules (DR-1..DR-5); retention matrix |
 | [proposals/PROP-011](proposals/PROP-011-runtime-machine-lifecycle-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Runtime Machine: boot/load/evaluate/checkpoint/resume — typed lifecycle using PROP-006..PROP-010 |
+| [proposals/PROP-012](proposals/PROP-012-compilation-artifact-deployment-model-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | CompiledProgram; 4 compiler stages; SemanticIR; artifact hash; 4 deployment modes; contractable FFI |
 
 ## Core Documents
 
@@ -91,13 +93,18 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Runtime Machine Lifecycle (PROP-011)
 - Runtime Machine Executable Proof Plan (Research Agent track)
 - Runtime Machine Memory Proof (Experiment)
+- Runtime Machine Proof Packet Fixtures (Research Agent track)
 - Compilation and Deployment (compilation-deployment.md)
 - Temporal Lifecycle (temporal-lifecycle.md)
-- Temporal Lifecycle Boundary Fixtures (Research Agent track)
+- Runtime Machine Lifecycle (PROP-011)
+- Compilation Artifact and Deployment Model (PROP-012)
+- Temporal Lifecycle (temporal-lifecycle.md)
 - Axiomatic Contract Model (axiomatic-contract-model.md)
 - Runtime Machine (runtime-machine.md)
-- Bridge Implementation Track (QUEUED — PROP-012)
-- Temporal Contracts DSL Bridge (QUEUED — Research Agent track)
+- Compilation and Deployment (compilation-deployment.md)
+- stdlib v0 (QUEUED — PROP-013)
+- .igapp/ fixture for Add contract (QUEUED — devkit track)
+- FFI Ruby bridge adapter (QUEUED — bridge track)
 
 ## Review Cadence
 

@@ -1,0 +1,238 @@
+{
+  "artifact": "compatibility_reports",
+  "payload": {
+    "blocked_contract_drift": {
+      "checks": [
+        {
+          "actual": "obs/0f1ab1fdd7e5d339",
+          "dimension": "axiom",
+          "expected": "obs/0f1ab1fdd7e5d339",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "obs/f0a9581038271dfe",
+          "dimension": "runtime",
+          "expected": "obs/f0a9581038271dfe",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "dimension": "backend",
+          "expected": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:910974674acfe32e2a9120c18500838b20c374766d6a43ddced0b21c0bd29410",
+          "dimension": "contract",
+          "expected": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "outcome": "blocked",
+          "severity": "critical"
+        },
+        {
+          "actual": "2026-05-05T10:42:00Z",
+          "dimension": "temporal",
+          "expected": "2026-05-05T10:42:00Z",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "memory-snapshot/ea301039df9545a4",
+          "dimension": "snapshot",
+          "expected": "memory-snapshot/ea301039df9545a4",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "seq=19",
+          "dimension": "replay",
+          "expected": "seq>=14",
+          "outcome": "compatible",
+          "severity": "info"
+        }
+      ],
+      "image_id": "image/42b496c5bb948910",
+      "intent": "exact_replay",
+      "report_id": "compat/43fb3b94863a0ac6",
+      "reproducibility": "blocked",
+      "resume_status": "blocked"
+    },
+    "blocked_empty_backend_resume": {
+      "checks": [
+        {
+          "actual": "obs/0f1ab1fdd7e5d339",
+          "dimension": "axiom",
+          "expected": "obs/0f1ab1fdd7e5d339",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "obs/f0a9581038271dfe",
+          "dimension": "runtime",
+          "expected": "obs/f0a9581038271dfe",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "dimension": "backend",
+          "expected": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "dimension": "contract",
+          "expected": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "2026-05-05T10:42:00Z",
+          "dimension": "temporal",
+          "expected": "2026-05-05T10:42:00Z",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": null,
+          "dimension": "snapshot",
+          "expected": "memory-snapshot/ea301039df9545a4",
+          "outcome": "blocked",
+          "severity": "critical"
+        },
+        {
+          "actual": "seq=8",
+          "dimension": "replay",
+          "expected": "seq>=14",
+          "outcome": "blocked",
+          "severity": "critical"
+        }
+      ],
+      "image_id": "image/42b496c5bb948910",
+      "intent": "exact_replay",
+      "report_id": "compat/c5772eda73c3717d",
+      "reproducibility": "blocked",
+      "resume_status": "blocked"
+    },
+    "downgraded_runtime_drift": {
+      "checks": [
+        {
+          "actual": "obs/0f1ab1fdd7e5d339",
+          "dimension": "axiom",
+          "expected": "obs/0f1ab1fdd7e5d339",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "obs/7b6d8c5eab8e9e5d",
+          "dimension": "runtime",
+          "expected": "obs/f0a9581038271dfe",
+          "outcome": "downgrade",
+          "severity": "warning"
+        },
+        {
+          "actual": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "dimension": "backend",
+          "expected": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "dimension": "contract",
+          "expected": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "2026-05-05T10:42:00Z",
+          "dimension": "temporal",
+          "expected": "2026-05-05T10:42:00Z",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "memory-snapshot/ea301039df9545a4",
+          "dimension": "snapshot",
+          "expected": "memory-snapshot/ea301039df9545a4",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "seq=21",
+          "dimension": "replay",
+          "expected": "seq>=14",
+          "outcome": "compatible",
+          "severity": "info"
+        }
+      ],
+      "image_id": "image/42b496c5bb948910",
+      "intent": "exact_replay",
+      "report_id": "compat/6a1e89a8e4ecbdd2",
+      "reproducibility": "downgraded",
+      "resume_status": "downgraded"
+    },
+    "trusted_resume": {
+      "checks": [
+        {
+          "actual": "obs/0f1ab1fdd7e5d339",
+          "dimension": "axiom",
+          "expected": "obs/0f1ab1fdd7e5d339",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "obs/f0a9581038271dfe",
+          "dimension": "runtime",
+          "expected": "obs/f0a9581038271dfe",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "dimension": "backend",
+          "expected": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "dimension": "contract",
+          "expected": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "2026-05-05T10:42:00Z",
+          "dimension": "temporal",
+          "expected": "2026-05-05T10:42:00Z",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "memory-snapshot/ea301039df9545a4",
+          "dimension": "snapshot",
+          "expected": "memory-snapshot/ea301039df9545a4",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "seq=19",
+          "dimension": "replay",
+          "expected": "seq>=14",
+          "outcome": "compatible",
+          "severity": "info"
+        }
+      ],
+      "image_id": "image/42b496c5bb948910",
+      "intent": "exact_replay",
+      "report_id": "compat/70a40ebebea32d78",
+      "reproducibility": "reproducible_within_memory_harness",
+      "resume_status": "trusted"
+    }
+  },
+  "schema_version": "runtime-machine-proof-packet-fixtures-v0"
+}

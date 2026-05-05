@@ -1,0 +1,202 @@
+{
+  "artifact": "semantic_image",
+  "payload": {
+    "checkpoint_receipt": {
+      "id": "obs/c3baf74390e640f1",
+      "kind": "receipt_observation",
+      "links": [
+        {
+          "ref": "obs/0f1ab1fdd7e5d339",
+          "rel": "observed_under",
+          "required": true
+        },
+        {
+          "ref": "obs/f0a9581038271dfe",
+          "rel": "observed_under",
+          "required": true
+        },
+        {
+          "ref": "obs/d0d7aec5d08f78b6",
+          "rel": "observed_under",
+          "required": true
+        },
+        {
+          "ref": "obs/f8e0bea5b62934c8",
+          "rel": "produced_in",
+          "required": true
+        },
+        {
+          "ref": "obs/761dc9a3d81d047e",
+          "rel": "caused_by",
+          "required": true
+        }
+      ],
+      "payload": {
+        "image_id": "image/42b496c5bb948910",
+        "semantic_image_ref": "obs/761dc9a3d81d047e",
+        "status": "ok",
+        "transition": "checkpoint"
+      },
+      "payload_hash": "sha256:c244a2480c9725b56aaa2df347024ebf6806446eb862068047a6ccb0869a991b",
+      "subject": "runtime-machine/runtime-machine/memory-proof-a/checkpoint",
+      "temporal": {
+        "as_of": "2026-05-05T10:42:00Z",
+        "lifecycle": "checkpoint"
+      }
+    },
+    "semantic_image": {
+      "axiom_descriptor_ref": "obs/0f1ab1fdd7e5d339",
+      "backend_descriptor_hash": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+      "backend_descriptor_ref": "obs/d0d7aec5d08f78b6",
+      "checkpoint": {
+        "as_of": "2026-05-05T10:42:00Z",
+        "checkpoint_id": "checkpoint/d90c3f93a824c5fd",
+        "created_at": "2026-05-05T10:42:15Z",
+        "seq_id": 14,
+        "snapshot_hash": "sha256:ea301039df9545a47627170cf08bd696c7dde3a044bfe8018fb44fe5f70fbc0c",
+        "snapshot_ref": "memory-snapshot/ea301039df9545a4"
+      },
+      "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+      "content_hash": "sha256:42b496c5bb94891022c3095d179a69e6fc2f83aeff8291407fb4bda66855cb85",
+      "contract_descriptor_ref": "obs/f92eff59d0521787",
+      "execution_environment_ref": "obs/f8e0bea5b62934c8",
+      "image_id": "image/42b496c5bb948910",
+      "observation_count": 14,
+      "observation_hash": "sha256:a7989bd100dbeba04208e889bc8171a5440fc535280512d0b404c8ab54e3b3bc",
+      "produced_at": "2026-05-05T10:42:15Z",
+      "receipt_refs": [
+        "obs/0f1ab1fdd7e5d339",
+        "obs/f0a9581038271dfe",
+        "obs/d0d7aec5d08f78b6",
+        "obs/f8e0bea5b62934c8",
+        "obs/fa982bdd7552e82b",
+        "obs/3496e2114d28a3da",
+        "obs/bd05c4aa4da75eab",
+        "obs/2b7f74c345bf82ae",
+        "obs/7a0fc60564032104",
+        "obs/f92eff59d0521787",
+        "obs/b1e5c67368e0da3f",
+        "obs/c94eaec412eec236",
+        "obs/95160c7effd51aa5",
+        "obs/484f6e8102336584"
+      ],
+      "replay_cursor": {
+        "anchor": "seq_id",
+        "inclusive": false,
+        "position": 14
+      },
+      "runtime_contract_ref": "obs/f0a9581038271dfe",
+      "session_id": "session/a",
+      "temporal_horizon": {
+        "as_of": "2026-05-05T10:42:00Z",
+        "fact_scope": {
+          "order_id": "order/o-1",
+          "technician_id": "tech/t-17"
+        },
+        "rule_version": "toy_dispatch@1"
+      },
+      "value_hashes": [
+        "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0"
+      ],
+      "value_refs": [
+        "obs/95160c7effd51aa5"
+      ]
+    },
+    "semantic_image_packet": {
+      "id": "obs/761dc9a3d81d047e",
+      "kind": "platform_observation",
+      "links": [
+        {
+          "ref": "obs/0f1ab1fdd7e5d339",
+          "rel": "observed_under",
+          "required": true
+        },
+        {
+          "ref": "obs/f0a9581038271dfe",
+          "rel": "observed_under",
+          "required": true
+        },
+        {
+          "ref": "obs/d0d7aec5d08f78b6",
+          "rel": "observed_under",
+          "required": true
+        },
+        {
+          "ref": "obs/f8e0bea5b62934c8",
+          "rel": "produced_in",
+          "required": true
+        },
+        {
+          "ref": "obs/95160c7effd51aa5",
+          "rel": "caused_by",
+          "required": true
+        }
+      ],
+      "payload": {
+        "axiom_descriptor_ref": "obs/0f1ab1fdd7e5d339",
+        "backend_descriptor_hash": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+        "backend_descriptor_ref": "obs/d0d7aec5d08f78b6",
+        "checkpoint": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "checkpoint_id": "checkpoint/d90c3f93a824c5fd",
+          "created_at": "2026-05-05T10:42:15Z",
+          "seq_id": 14,
+          "snapshot_hash": "sha256:ea301039df9545a47627170cf08bd696c7dde3a044bfe8018fb44fe5f70fbc0c",
+          "snapshot_ref": "memory-snapshot/ea301039df9545a4"
+        },
+        "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+        "content_hash": "sha256:42b496c5bb94891022c3095d179a69e6fc2f83aeff8291407fb4bda66855cb85",
+        "contract_descriptor_ref": "obs/f92eff59d0521787",
+        "execution_environment_ref": "obs/f8e0bea5b62934c8",
+        "image_id": "image/42b496c5bb948910",
+        "observation_count": 14,
+        "observation_hash": "sha256:a7989bd100dbeba04208e889bc8171a5440fc535280512d0b404c8ab54e3b3bc",
+        "produced_at": "2026-05-05T10:42:15Z",
+        "receipt_refs": [
+          "obs/0f1ab1fdd7e5d339",
+          "obs/f0a9581038271dfe",
+          "obs/d0d7aec5d08f78b6",
+          "obs/f8e0bea5b62934c8",
+          "obs/fa982bdd7552e82b",
+          "obs/3496e2114d28a3da",
+          "obs/bd05c4aa4da75eab",
+          "obs/2b7f74c345bf82ae",
+          "obs/7a0fc60564032104",
+          "obs/f92eff59d0521787",
+          "obs/b1e5c67368e0da3f",
+          "obs/c94eaec412eec236",
+          "obs/95160c7effd51aa5",
+          "obs/484f6e8102336584"
+        ],
+        "replay_cursor": {
+          "anchor": "seq_id",
+          "inclusive": false,
+          "position": 14
+        },
+        "runtime_contract_ref": "obs/f0a9581038271dfe",
+        "session_id": "session/a",
+        "temporal_horizon": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "fact_scope": {
+            "order_id": "order/o-1",
+            "technician_id": "tech/t-17"
+          },
+          "rule_version": "toy_dispatch@1"
+        },
+        "value_hashes": [
+          "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0"
+        ],
+        "value_refs": [
+          "obs/95160c7effd51aa5"
+        ]
+      },
+      "payload_hash": "sha256:a6f3c8fbebb8899f9784ad541ab2275836c5316c5db7828ffdcdf5c88204d246",
+      "subject": "semantic-image/session/a",
+      "temporal": {
+        "as_of": "2026-05-05T10:42:00Z",
+        "lifecycle": "checkpoint"
+      }
+    }
+  },
+  "schema_version": "runtime-machine-proof-packet-fixtures-v0"
+}
