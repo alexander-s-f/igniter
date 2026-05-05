@@ -446,9 +446,25 @@ module Igniter
       # Explicit app-boundary command application.
       # Applies only ready CommandOperationPlan data through Durable Model APIs.
       def apply_command(plan, key: nil, history_class: nil, audit: false,
-                        activity_history_class: CommandActivity)
+                        activity_history_class: CommandActivity,
+                        policy_decision: nil, require_policy: false)
         unless plan.is_a?(CommandOperationPlan)
           raise ArgumentError, "apply_command expects Igniter::DurableModel::CommandOperationPlan"
+        end
+
+        decision = policy_decision
+        if decision && !decision.is_a?(CommandPolicyDecision)
+          raise ArgumentError,
+                "policy_decision must be Igniter::DurableModel::CommandPolicyDecision"
+        end
+        decision ||= command_policy_decision(plan) if require_policy
+
+        if decision && !decision.allowed?
+          return rejected_command_apply_receipt(plan,
+            errors: policy_decision_errors(decision),
+            warnings: decision.warnings,
+            audit: audit,
+            activity_history_class: activity_history_class)
         end
 
         unless plan.ready?
@@ -487,6 +503,54 @@ module Igniter
             audit: audit,
             activity_history_class: activity_history_class)
         end
+      end
+
+      # Summarize app-owned policy/capability checks for a command plan.
+      # This is metadata-only and never mutates storage or evaluates in Ledger.
+      def command_policy_decision(plan, actor: nil, capabilities: [],
+                                  approvals: [], metadata: {}, policy: nil)
+        unless plan.is_a?(CommandOperationPlan)
+          raise ArgumentError, "command_policy_decision expects Igniter::DurableModel::CommandOperationPlan"
+        end
+
+        base_policy = policy_for_plan(plan)
+        merged_policy = merge_policy(base_policy, policy)
+        required = Array(merged_policy[:requires]).map { |value| token(value) }
+        granted = Array(capabilities).map { |value| token(value) }
+        missing = required - granted
+        review = !!merged_policy[:review]
+        errors = Array(plan.errors)
+        warnings = Array(plan.warnings)
+
+        status = if !plan.ready?
+          :denied
+        elsif missing.any?
+          errors += [plan_error(:missing_capabilities,
+            "Missing required command capabilities: #{missing.inspect}")]
+          :denied
+        elsif review && !approval_matches?(plan, approvals)
+          warnings += [plan_error(:review_required,
+            "Command requires app-local review approval")]
+          :review_required
+        else
+          :allowed
+        end
+
+        CommandPolicyDecision.new(
+          status: status,
+          owner: plan.owner,
+          command: plan.command,
+          subject_key: plan.subject_key,
+          operation: plan.operation,
+          actor: actor,
+          required_capabilities: required,
+          granted_capabilities: granted,
+          missing_capabilities: missing,
+          review_required: review,
+          errors: errors,
+          warnings: warnings,
+          metadata: metadata
+        )
       end
 
       # Register a projection descriptor — metadata-only, no execution.
@@ -829,6 +893,7 @@ module Igniter
       def command_descriptor(schema_class, command_name, attrs)
         data = attrs.to_h.transform_keys(&:to_sym)
         operation = token(data[:operation] || :none)
+        policy = normalized_command_policy(data)
         descriptor = data.merge(
           schema_version: 1,
           kind:           :command,
@@ -840,6 +905,7 @@ module Igniter
           mutation_intent: data[:mutation_intent] || operation
         )
         descriptor[:changes] = data[:changes] if data.key?(:changes)
+        descriptor[:policy] = policy if policy
         descriptor
       end
 
@@ -877,7 +943,8 @@ module Igniter
             target_shape: token(data[:target_shape]),
             boundary: token(data[:boundary]),
             mutation_intent: token(data[:mutation_intent]),
-            changes: normalize_value(data[:changes] || {})
+            changes: normalize_value(data[:changes] || {}),
+            policy: normalized_command_policy(data)
           }.compact
         end
       end
@@ -1118,6 +1185,66 @@ module Igniter
         }
       end
 
+      def policy_for_plan(plan)
+        schema_class = @schema_by_store[token(plan.owner)]
+        return {} unless schema_class&.respond_to?(:_commands)
+
+        attrs = descriptor_entry(schema_class._commands, plan.command)
+        normalized_command_policy(attrs || {}) || {}
+      end
+
+      def merge_policy(base_policy, explicit_policy)
+        base = base_policy || {}
+        explicit = normalized_command_policy(explicit_policy || {}) || {}
+        requires = (Array(base[:requires]) + Array(explicit[:requires]))
+          .map { |value| token(value) }
+          .uniq
+        review = if explicit.key?(:review)
+          explicit[:review]
+        else
+          base[:review]
+        end
+
+        { requires: requires, review: !!review }
+      end
+
+      def normalized_command_policy(attrs)
+        data = attrs.to_h.transform_keys(&:to_sym)
+        nested = data[:policy].is_a?(Hash) ? data[:policy].transform_keys(&:to_sym) : {}
+        has_requires = nested.key?(:requires) || data.key?(:requires)
+        has_review = nested.key?(:review) || data.key?(:review)
+        return nil unless has_requires || has_review
+
+        requires = nested.key?(:requires) ? nested[:requires] : data[:requires]
+        review = nested.key?(:review) ? nested[:review] : data[:review]
+        {
+          requires: Array(requires).map { |value| token(value) }.uniq,
+          review: !!review
+        }
+      end
+
+      def approval_matches?(plan, approvals)
+        Array(approvals).any? do |raw|
+          approval = normalize_value(raw)
+          next false unless approval.is_a?(Hash)
+
+          owner_matches = !approval.key?(:owner) || token(approval[:owner]) == plan.owner
+          owner_matches &&
+            token(approval[:command]) == plan.command &&
+            approval[:subject_key] == plan.subject_key
+        end
+      end
+
+      def policy_decision_errors(decision)
+        return decision.errors if decision.errors.any?
+
+        if decision.review_required?
+          [plan_error(:review_required, "Command policy review is required")]
+        else
+          [plan_error(:policy_denied, "Command policy denied apply")]
+        end
+      end
+
       def apply_record_update_command(plan, audit:, activity_history_class:)
         schema_class = registered_record_schema_for(plan.owner)
         unless schema_class
@@ -1241,12 +1368,14 @@ module Igniter
         )
       end
 
-      def rejected_command_apply_receipt(plan, errors: [], audit:,
-                                         activity_history_class:)
-        all_errors = Array(plan.errors) + Array(errors)
+      def rejected_command_apply_receipt(plan, errors: [], warnings: [],
+                                         audit:, activity_history_class:)
+        all_errors = (Array(plan.errors) + Array(errors)).uniq
+        all_warnings = (Array(plan.warnings) + Array(warnings)).uniq
         activity_recorded = record_apply_activity(plan,
           status: :rejected,
           errors: all_errors,
+          warnings: all_warnings,
           audit: audit,
           activity_history_class: activity_history_class)
         CommandApplyReceipt.new(
@@ -1259,12 +1388,12 @@ module Igniter
           mutation_intent: :none,
           activity_recorded: activity_recorded,
           errors: all_errors,
-          warnings: plan.warnings
+          warnings: all_warnings
         )
       end
 
       def record_apply_activity(plan, status:, audit:, activity_history_class:,
-                                errors: plan.errors)
+                                errors: plan.errors, warnings: plan.warnings)
         return false unless audit
 
         event = CommandActivityEvent.new(
@@ -1277,7 +1406,7 @@ module Igniter
           plan_status: plan.status,
           target: plan.target,
           errors: errors,
-          warnings: plan.warnings,
+          warnings: warnings,
           metadata: plan.metadata
         )
         append_command_activity(event, history_class: activity_history_class)

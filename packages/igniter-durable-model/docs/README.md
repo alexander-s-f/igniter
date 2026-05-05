@@ -25,6 +25,7 @@ alias.
 | [tracks/durable-model-command-activity-projection-v0.md](tracks/durable-model-command-activity-projection-v0.md) | Completed app-safe command activity projection without persistence |
 | [tracks/durable-model-command-activity-history-v0.md](tracks/durable-model-command-activity-history-v0.md) | Completed explicit app-safe command activity history persistence |
 | [tracks/durable-model-command-apply-boundary-v0.md](tracks/durable-model-command-apply-boundary-v0.md) | Completed explicit app-boundary command application without Ledger-side execution |
+| [tracks/durable-model-command-policy-gate-v0.md](tracks/durable-model-command-policy-gate-v0.md) | Completed explicit app-owned policy/capability gate before command application |
 | [tracks/companion-ledger-client-remote-boundary-v0.md](tracks/companion-ledger-client-remote-boundary-v0.md) | Track for accepting `LedgerClient` as Companion's preferred remote Ledger boundary |
 | [tracks/companion-ledger-client-scope-query-boundary-v0.md](tracks/companion-ledger-client-scope-query-boundary-v0.md) | Proposed next track for remote Companion scopes over `LedgerClient#query` |
 | [tracks/companion-ledger-client-scope-subscriptions-v0.md](tracks/companion-ledger-client-scope-subscriptions-v0.md) | Proposed next track for remote Companion `on_scope` over Ledger Client events |

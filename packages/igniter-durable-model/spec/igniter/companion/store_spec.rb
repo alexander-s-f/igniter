@@ -36,7 +36,14 @@ class CommandedReminder
 
   command :complete,
     operation: :record_update,
-    changes: { status: :done }
+    changes: { status: :done },
+    policy: { requires: [:reminder_complete], review: false }
+
+  command :review_complete,
+    operation: :record_update,
+    changes: { status: :done },
+    requires: [:reminder_complete],
+    review: true
 
   command :draft,
     operation: :record_append,
@@ -362,7 +369,12 @@ RSpec.describe Igniter::Companion::Store do
         target_shape: :store,
         boundary: :app,
         mutation_intent: :record_update,
-        changes: { status: :done }
+        changes: { status: :done },
+        policy: { requires: [:reminder_complete], review: false }
+      )
+      expect(commands[:commanded_reminders][:review_complete]).to include(
+        operation: :record_update,
+        policy: { requires: [:reminder_complete], review: true }
       )
       expect(effects[:commanded_reminders][:complete]).to include(
         store_op: :store_write,
@@ -381,7 +393,8 @@ RSpec.describe Igniter::Companion::Store do
 
       expect(s._commands[:commanded_reminders][:complete]).to include(
         operation: :record_update,
-        changes: { status: :done }
+        changes: { status: :done },
+        policy: { requires: [:reminder_complete], review: false }
       )
       expect(s._effects[:commanded_reminders][:complete]).to include(
         store_op: :store_write,
@@ -549,6 +562,29 @@ RSpec.describe Igniter::Companion::Store do
       expect(receipt.to_h).not_to have_key(:causation)
       expect(s.read(CommandedReminder, key: "r1").status).to eq(:done)
       expect(audit.last.status).to eq(:applied)
+    ensure
+      s&.close
+    end
+
+    it "checks client-backed command policy decisions before app-boundary apply" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+      intent = s.command_intent(CommandedReminder, :complete, key: "r1")
+      plan = s.command_operation_plan(intent)
+      denied = s.command_policy_decision(plan, actor: "user-1", capabilities: [])
+      allowed = s.command_policy_decision(plan,
+        actor: "user-1",
+        capabilities: [:reminder_complete])
+
+      expect(denied).to be_denied
+      expect(denied.missing_capabilities).to eq([:reminder_complete])
+      expect(allowed).to be_allowed
+      expect(s.apply_command(plan, policy_decision: denied).status).to eq(:rejected)
+      expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+      expect(s.apply_command(plan, policy_decision: allowed).status).to eq(:applied)
+      expect(s.read(CommandedReminder, key: "r1").status).to eq(:done)
     ensure
       s&.close
     end
@@ -1921,6 +1957,115 @@ RSpec.describe Igniter::Companion::Store do
         expect(audit.size).to eq(1)
         expect(audit.first.status).to eq(:rejected)
         expect(audit.first.errors).to include(include(code: :record_not_found))
+      ensure
+        s&.close
+      end
+
+      it "builds app-safe command policy decisions without mutation" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :complete, key: "r1")
+        plan = s.command_operation_plan(intent)
+        decision = s.command_policy_decision(plan,
+          actor: "user-1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-1" })
+
+        expect(decision).to be_frozen
+        expect(decision).to be_allowed
+        expect(decision[:status]).to eq(:allowed)
+        expect(decision.to_h).to include(
+          schema_version: 1,
+          kind: :command_policy_decision,
+          status: :allowed,
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          operation: :record_update,
+          actor: "user-1",
+          required_capabilities: [:reminder_complete],
+          granted_capabilities: [:reminder_complete],
+          missing_capabilities: [],
+          review_required: false,
+          errors: [],
+          warnings: [],
+          metadata: { request_id: "req-1" },
+          execution_boundary: :app
+        )
+        expect(decision.to_h).not_to have_key(:fact_id)
+        expect(decision.to_h).not_to have_key(:value_hash)
+        expect(decision.to_h).not_to have_key(:causation)
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+      ensure
+        s&.close
+      end
+
+      it "denies missing capabilities and apply refuses without mutation" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :complete, key: "r1")
+        plan = s.command_operation_plan(intent)
+        decision = s.command_policy_decision(plan, actor: "user-1", capabilities: [])
+        receipt = s.apply_command(plan, policy_decision: decision, audit: true)
+        audit = s.replay(Igniter::DurableModel::CommandActivity, partition: :commanded_reminders)
+
+        expect(decision).to be_denied
+        expect(decision.missing_capabilities).to eq([:reminder_complete])
+        expect(receipt.to_h).to include(
+          status: :rejected,
+          mutation_intent: :none,
+          activity_recorded: true
+        )
+        expect(receipt.errors).to include(include(code: :missing_capabilities))
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+        expect(audit.first.status).to eq(:rejected)
+        expect(audit.first.errors).to include(include(code: :missing_capabilities))
+      ensure
+        s&.close
+      end
+
+      it "requires review approval when command policy asks for review" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :review_complete, key: "r1")
+        plan = s.command_operation_plan(intent)
+        pending = s.command_policy_decision(plan,
+          actor: "user-1",
+          capabilities: [:reminder_complete])
+        approved = s.command_policy_decision(plan,
+          actor: "user-1",
+          capabilities: [:reminder_complete],
+          approvals: [{ command: :review_complete, subject_key: "r1", actor: "manager-1" }])
+
+        expect(pending).to be_review_required
+        expect(pending.warnings).to include(include(code: :review_required))
+        expect(approved).to be_allowed
+        expect(s.apply_command(plan, policy_decision: pending).status).to eq(:rejected)
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+        expect(s.apply_command(plan, policy_decision: approved).status).to eq(:applied)
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:done)
+      ensure
+        s&.close
+      end
+
+      it "can require an implicit policy decision during apply" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :complete, key: "r1")
+        plan = s.command_operation_plan(intent)
+        receipt = s.apply_command(plan, require_policy: true)
+
+        expect(receipt.status).to eq(:rejected)
+        expect(receipt.errors).to include(include(code: :missing_capabilities))
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
       ensure
         s&.close
       end

@@ -8,6 +8,7 @@ require "igniter/durable_model/receipts"
 require "igniter/durable_model/command_intent"
 require "igniter/durable_model/command_operation_plan"
 require "igniter/durable_model/command_activity_event"
+require "igniter/durable_model/command_policy_decision"
 require "igniter/durable_model/store"
 require_relative "../spec_helper"
 
@@ -72,6 +73,7 @@ RSpec.describe Igniter::DurableModel do
     expect(described_class::CommandIntent).to equal(Igniter::Companion::CommandIntent)
     expect(described_class::CommandOperationPlan).to equal(Igniter::Companion::CommandOperationPlan)
     expect(described_class::CommandActivityEvent).to equal(Igniter::Companion::CommandActivityEvent)
+    expect(described_class::CommandPolicyDecision).to equal(Igniter::Companion::CommandPolicyDecision)
   end
 
   it "supports register/write/read/scope through DurableModel::Store" do
