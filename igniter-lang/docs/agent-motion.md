@@ -136,7 +136,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-executable-proof-plan-v0.md` | done | runtime machine memory proof implementation |
+| `[Igniter-Lang Research Agent]` | `experiments/runtime_machine_memory_proof/` | done | runtime machine proof packet fixtures |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-009-semantic-image-resume-compatibility-v0.md` | done | temporal lifecycle / retention semantics |
 
 ## Current Meta Thesis
@@ -223,6 +223,17 @@ The first proof may claim reproducibility inside the proof harness only when
 snapshot/cursor evidence and compatibility checks pass. It must not claim
 durable restart from process memory.
 
+[S] Runtime Machine memory proof is now executable as a standalone experiment:
+
+```text
+igniter-lang/experiments/runtime_machine_memory_proof/
+  runtime_machine_memory_proof.rb
+```
+
+It proves trusted in-harness resume and blocks empty memory backend resume. It
+also exposes an important compatibility distinction: TBackend capability/content
+compatibility must not be accidentally tied to runtime descriptor links.
+
 [D] `T` has a lifecycle. Igniter-Lang must not imply that all temporal
 observations live forever:
 
@@ -238,6 +249,18 @@ T.compacted -> summary / baseline cursor
 Future work should model flush, retention, semantic GC, preserve roots, and
 boundary compaction as language-visible lifecycle semantics. Igniter Ledger is
 a possible persistence backend, not the definition of `T`.
+
+[D] Compilation should first be defined by its artifact contract, not by parser
+implementation:
+
+```text
+source -> Semantic IR -> CompiledProgram -> RuntimeMachine.load(...)
+```
+
+The primary artifact is a semantic deployment bundle. Native/LLVM output is a
+future backend that still links RuntimeMachine semantics. Host language access
+must enter through contractable FFI: typed, capability-gated, observable, and
+receipt/failure-producing.
 
 [D] Spark CRM technician dispatch is the current practical pressure case for
 temporal lifecycle semantics. The product split is:
@@ -336,7 +359,8 @@ igniter-lang/docs/
     PROP-007-conformance-verification-v0.md          [done]
     PROP-005-verification-observation-extension-v0.md [queued]
 
-  experiments/                   <- approved experiment plans (none yet)
+  experiments/
+    runtime_machine_memory_proof/ [done - standalone harness, no package edits]
   bridge/                        <- bridge notes to Igniter platform (none yet)
 ```
 
@@ -368,6 +392,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-package-mapping-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-lifecycle-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-executable-proof-plan-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | experiments/runtime_machine_memory_proof/ | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-implementation-plan-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-application-scenarios-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-boundary-fixtures-v0.md | done |

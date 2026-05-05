@@ -26,6 +26,12 @@ implementation detail of the current Igniter platform.
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 | [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
 
+## Active Experiments
+
+| Experiment | Status | Purpose |
+|------------|--------|---------|
+| [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-memory-proof-implementation-v0: standalone stdlib proof of :memory TBackend boot/load/evaluate/checkpoint/resume on a toy CORE contract |
+
 ## Active Proposals
 
 See [proposals/README.md](proposals/README.md) for the full index.
@@ -57,6 +63,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [temporal-lifecycle.md](temporal-lifecycle.md) | Meta thesis: lifecycle classes for T, flush, semantic GC, retention, and boundary compaction |
 | [axiomatic-contract-model.md](axiomatic-contract-model.md) | Meta thesis: language, runtime, distributed execution, and time as contract boundaries |
 | [runtime-machine.md](runtime-machine.md) | Meta thesis: Runtime Machine lifecycle, TBackend, semantic image, and resume model |
+| [compilation-deployment.md](compilation-deployment.md) | Meta thesis: compilation artifacts, deployment modes, native backend path, and contractable FFI |
 
 ## Research Vectors
 
@@ -83,6 +90,8 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Temporal Lifecycle and Retention Semantics (PROP-010)
 - Runtime Machine Lifecycle (PROP-011)
 - Runtime Machine Executable Proof Plan (Research Agent track)
+- Runtime Machine Memory Proof (Experiment)
+- Compilation and Deployment (compilation-deployment.md)
 - Temporal Lifecycle (temporal-lifecycle.md)
 - Temporal Lifecycle Boundary Fixtures (Research Agent track)
 - Axiomatic Contract Model (axiomatic-contract-model.md)
