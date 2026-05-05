@@ -200,6 +200,9 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   descriptors during schema registration.
 - Ledger metadata snapshots expose commands by owner/name, but Ledger does not
   execute app commands.
+- Command descriptors may carry normalized app policy metadata:
+  `policy.requires` and `policy.review`. Ledger stores this descriptor metadata
+  for introspection, but does not evaluate capabilities or approvals.
 - `Store#command_intent` turns command metadata into a pure
   `kind: :command_intent` object for app-boundary previews/projections.
 - Command intents carry `execution_allowed: false`; they do not write, append,
@@ -220,6 +223,10 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   returns `CommandActivityReceipt`.
 - `CommandActivityReceipt` intentionally omits fact ids, value hashes, and
   causation; it records audit status, not command execution.
+- `Store#command_policy_decision` checks a command plan against app-local
+  required capabilities and review approvals. It returns an app-safe
+  `CommandPolicyDecision` with allowed/denied/review_required status and does
+  not mutate storage or write audit history.
 - `Store#apply_command` is the explicit app-owned command application boundary.
   It accepts ready `CommandOperationPlan` values and lowers supported operations
   through Durable Model `write`/`append`, not through Ledger-side command
@@ -246,6 +253,7 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   activity never mutates the target record or planned business history.
 - Applying commands is still app-owned behavior. Ledger stores descriptors and
   facts, but does not run command callbacks or decide policy/capability.
+  `CommandPolicyDecision` is a summary, not an authorization token.
 
 `projections`
 

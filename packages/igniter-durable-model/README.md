@@ -154,7 +154,10 @@ intent = store.command_intent(Reminder, :complete, key: "r1")
 plan = store.command_operation_plan(intent)
 event = store.command_activity_event(plan)
 store.append_command_activity(event)
-store.apply_command(plan, audit: true)
+decision = store.command_policy_decision(plan,
+  actor: "user-1",
+  capabilities: [:reminder_complete])
+store.apply_command(plan, policy_decision: decision, audit: true)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -166,8 +169,8 @@ plain `replay`, `replay(partition:)`, `scope`, `on_scope`, declared
 one-to-many relation auto-wire, typed `resolve`, `_relations`,
 projection descriptor registration, command/effect descriptor registration,
 `_projections`, `_commands`, `_effects`, read-only `_scatters`,
-`apply_command`, `causation_chain`, `lineage`, `metadata_snapshot`, and
-`descriptor_snapshot`.
+`command_policy_decision`, `apply_command`, `causation_chain`, `lineage`,
+`metadata_snapshot`, and `descriptor_snapshot`.
 Partition replay lowers through the Ledger replay filter and uses Ledger
 partition indexes when served by a Ledger protocol interpreter. Relation support
 is v0 and lowers supported one-to-many declarations to Ledger relation
@@ -179,18 +182,20 @@ Provenance support is read-only and compact: Durable Model exposes
 `causation_chain`/`lineage`, while Ledger Client `fact_ref` returns metadata
 only and does not expose arbitrary `fact_by_id` reads.
 
-Command support has seven layers: descriptor metadata (`_commands`/`_effects`),
+Command support has eight layers: descriptor metadata (`_commands`/`_effects`),
 pure `CommandIntent` objects, dry-run `CommandOperationPlan` previews, app-safe
 `CommandActivityEvent` summaries, explicit `CommandActivity` audit history
-append, explicit `Store#apply_command`, and future policy/capability guarded
-application. `Store#command_intent`, `Store#command_operation_plan`, and
-`Store#command_activity_event` build data only. `Store#append_command_activity`
-is the explicit audit persistence step; it writes only the app-safe summary and
-returns `CommandActivityReceipt`. `Store#apply_command` is the explicit
-app-owned application boundary; it applies ready plans through existing
-Durable Model `write`/`append` APIs, can optionally record applied/rejected
-activity, returns `CommandApplyReceipt`, and still does not expose fact
-ids/value hashes or ask Ledger to execute commands.
+append, explicit `CommandPolicyDecision`, explicit `Store#apply_command`, and
+future app security infrastructure. `Store#command_intent`,
+`Store#command_operation_plan`, and `Store#command_activity_event` build data
+only. `Store#append_command_activity` is the explicit audit persistence step;
+it writes only the app-safe summary and returns `CommandActivityReceipt`.
+`Store#command_policy_decision` summarizes app-owned capability/review metadata
+without mutating storage. `Store#apply_command` is the explicit app-owned
+application boundary; it can require or accept a policy decision, applies ready
+allowed plans through existing Durable Model `write`/`append` APIs, can
+optionally record applied/rejected activity, returns `CommandApplyReceipt`, and
+still does not expose fact ids/value hashes or ask Ledger to execute commands.
 
 ### Normalized receipts
 
