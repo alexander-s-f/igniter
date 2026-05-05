@@ -46,6 +46,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [agent-motion.md](agent-motion.md) | Current multi-agent movement and handoff routing |
 | [temporal-positioning.md](temporal-positioning.md) | Meta thesis: time, contracts, projections, and language positioning |
 | [axiomatic-contract-model.md](axiomatic-contract-model.md) | Meta thesis: language, runtime, distributed execution, and time as contract boundaries |
+| [runtime-machine.md](runtime-machine.md) | Meta thesis: Runtime Machine lifecycle, TBackend, semantic image, and resume model |
 
 ## Research Vectors
 
@@ -72,6 +73,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Runtime Contracts and Execution Environments (Research Agent track)
 - Bridge Runtime Evidence (Research Agent track)
 - Bridge Package Mapping (Research Agent track)
+- Runtime Machine (lifecycle, TBackend, semantic image, resume)
 
 ## Review Cadence
 
