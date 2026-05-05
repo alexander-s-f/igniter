@@ -42,6 +42,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-008](proposals/PROP-008-tbackend-contract-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | TBackend[T]: read/append/replay/snapshot/compact/subscribe; reproducible resume; adapter classes |
 | [proposals/PROP-009](proposals/PROP-009-semantic-image-resume-compatibility-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | SemanticImage; CompatibilityReport; ResumeStatus: trusted/provisional/downgraded/blocked |
 | [proposals/PROP-010](proposals/PROP-010-temporal-lifecycle-retention-semantics-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | 6 lifecycle classes; flush; semantic GC roots; 5 downgrade rules (DR-1..DR-5); retention matrix |
+| [proposals/PROP-011](proposals/PROP-011-runtime-machine-lifecycle-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Runtime Machine: boot/load/evaluate/checkpoint/resume — typed lifecycle using PROP-006..PROP-010 |
 
 ## Core Documents
 
@@ -78,12 +79,12 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - TBackend Contract (PROP-008)
 - Semantic Image and Resume Compatibility (PROP-009)
 - Temporal Lifecycle and Retention Semantics (PROP-010)
+- Runtime Machine Lifecycle (PROP-011)
 - Temporal Lifecycle (temporal-lifecycle.md)
-- Temporal Lifecycle Application Scenarios (Research Agent track)
 - Axiomatic Contract Model (axiomatic-contract-model.md)
 - Runtime Machine (runtime-machine.md)
-- Temporal Contracts and Projections (QUEUED — Research Agent track)
-- Runtime Machine Lifecycle (QUEUED — PROP-011)
+- Bridge Implementation Track (QUEUED — PROP-012)
+- Temporal Contracts DSL Bridge (QUEUED — Research Agent track)
 
 ## Review Cadence
 
