@@ -136,8 +136,8 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/temporal-contracts-and-projections-v0.md` | done | bridge-observation-envelope-v0 with projection horizon |
-| `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-004-type-system-v0.md` | done | PROP-005 Bridge Observation Envelope v0 |
+| `[Igniter-Lang Research Agent]` | `tracks/runtime-contracts-and-execution-environments-v0.md` | done | bridge-observation-envelope-v0 with runtime evidence |
+| `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-005-bridge-observation-envelope-v0.md` | done | PROP-004b Axiom Layer Type Signatures |
 
 ## Current Meta Thesis
 
@@ -154,6 +154,18 @@ contract + explicit time + projection/slice
 Future temporal work should treat `as_of`, replay cursor, rule version,
 valid-time, transaction-time, lifecycle stage, and projection horizon as
 observable semantic inputs, not ambient implementation details.
+
+[D] Runtime is also a contract-addressable semantic boundary. Results should be
+read under:
+
+```text
+LanguageContract + RuntimeContract + UserContract + TemporalCtx
+  -> result | observations | failures | receipts
+```
+
+Future bridge work should expose runtime guarantees, execution environment,
+cache/invalidation status, capability executor receipts, and distributed
+composition evidence instead of treating them as platform side effects.
 
 ---
 
@@ -200,7 +212,8 @@ igniter-lang/docs/
     semantic-domain-reconciliation-v0.md [done]
     track-errata-application-v0.md       [done]
     temporal-contracts-and-projections-v0.md [done]
-    bridge-observation-envelope-v0.md    [queued - include temporal projection horizon]
+    runtime-contracts-and-execution-environments-v0.md [done]
+    bridge-observation-envelope-v0.md    [queued - include projection/runtime evidence]
 
   proposals/                     <- formal design proposals
     README.md                                        [index]
@@ -209,7 +222,7 @@ igniter-lang/docs/
     PROP-002-contract-composition-algebra-v0.md      [done]
     PROP-003-grammar-fragment-classification-v0.md   [done]
     PROP-004-type-system-v0.md                       [done]
-    PROP-005-bridge-observation-envelope-v0.md       [queued]
+    PROP-005-bridge-observation-envelope-v0.md       [done]
 
   experiments/                   <- approved experiment plans (none yet)
   bridge/                        <- bridge notes to Igniter platform (none yet)
@@ -238,9 +251,11 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/semantic-domain-reconciliation-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/track-errata-application-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-contracts-and-projections-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-contracts-and-execution-environments-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-002 composition algebra | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-003 grammar fragment classification | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-004 type system | done |
+| 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-005 bridge observation envelope | done |

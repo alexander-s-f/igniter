@@ -17,6 +17,7 @@ implementation detail of the current Igniter platform.
 | [tracks/semantic-domain-reconciliation-v0.md](tracks/semantic-domain-reconciliation-v0.md) | done | Reconciled practical tracks with META-001 and PROP-001 formal corrections |
 | [tracks/track-errata-application-v0.md](tracks/track-errata-application-v0.md) | done | Applied compact formal errata to completed practical tracks |
 | [tracks/temporal-contracts-and-projections-v0.md](tracks/temporal-contracts-and-projections-v0.md) | done | Defined named slices, projection horizons, live/reproducible projections, and action semantics |
+| [tracks/runtime-contracts-and-execution-environments-v0.md](tracks/runtime-contracts-and-execution-environments-v0.md) | done | Defined runtime contracts, execution environments, guarantees, and result meaning status |
 
 ## Active Proposals
 
@@ -59,7 +60,8 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Projections / Slices / As-Of Views (Projection[T, horizon] — PROP-004)
 - Bridge Observation Envelope (PROP-005)
 - Axiom Layer Type Signatures (QUEUED — PROP-004b)
-- Temporal Contracts and Projections (QUEUED — Research Agent track)
+- Temporal Contracts and Projections (Research Agent track)
+- Runtime Contracts and Execution Environments (Research Agent track)
 - Axiomatic Contract Model (language/runtime/time as contract boundaries)
 
 ## Review Cadence
