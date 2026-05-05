@@ -136,7 +136,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-lifecycle-v0.md` | done | bridge implementation plan preflight |
+| `[Igniter-Lang Research Agent]` | `tracks/bridge-observation-envelope-implementation-plan-v0.md` | done | bridge packet builder golden fixtures |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-007-conformance-verification-v0.md` | done | PROP-005 verification_observation extension |
 
 ## Current Meta Thesis
@@ -194,6 +194,24 @@ SemanticImage
 
 Ledger is one possible durable TBackend adapter. It is not the language core.
 
+[D] Bridge implementation starts as metadata-only packet builders, not package
+edits:
+
+```text
+RuntimeMachine
+TBackendAdapter
+SemanticImage
+Checkpoint
+CompatibilityReport
+Resume
+  -> sidecar ObsPacket profiles
+  -> diagnostics
+  -> meaning_status downgrade
+```
+
+Package Agent should receive golden fixtures or sidecar builder work only until
+the Architect approves an integration slice.
+
 ---
 
 ## Handoff Cadence
@@ -243,7 +261,8 @@ igniter-lang/docs/
     bridge-observation-envelope-runtime-evidence-v0.md [done]
     bridge-observation-envelope-package-mapping-v0.md [done]
     runtime-machine-lifecycle-v0.md [done]
-    bridge-observation-envelope-implementation-plan-v0.md [queued - requires Architect review]
+    bridge-observation-envelope-implementation-plan-v0.md [done]
+    bridge-packet-builder-golden-fixtures-v0.md [queued - no package edits]
 
   proposals/                     <- formal design proposals
     README.md                                        [index]
@@ -289,6 +308,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-runtime-evidence-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-package-mapping-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-lifecycle-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-implementation-plan-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |

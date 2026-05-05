@@ -23,6 +23,7 @@ design decision or formal specification.
 | [PROP-006-runtime-contract-specification-v0.md](PROP-006-runtime-contract-specification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | RuntimeContract: scheduler, clock, cache, storage, capability, distributed ESCAPE; conformance levels |
 | [PROP-007-conformance-verification-v0.md](PROP-007-conformance-verification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Verification protocol: 5 check suites, warning/failure rules, trust levels; agent trust decision |
 | [PROP-008-tbackend-contract-v0.md](PROP-008-tbackend-contract-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | TBackend[T]: read, append, replay, snapshot, compact, subscribe; reproducible resume; adapter classes |
+| [PROP-009-semantic-image-resume-compatibility-v0.md](PROP-009-semantic-image-resume-compatibility-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | SemanticImage, CompatibilityReport, ResumeStatus: trusted/provisional/downgraded/blocked rules |
 
 ---
 
@@ -31,7 +32,7 @@ design decision or formal specification.
 | ID | Title | Depends On | Priority |
 |----|-------|------------|----------|
 | PROP-005.1 | Add :verification_observation to ObsKind | PROP-005, PROP-007 | medium |
-| PROP-009 | Runtime Machine Lifecycle v0 | PROP-006, PROP-008 | high |
+| PROP-010 | Runtime Machine Lifecycle v0 | PROP-006, PROP-008, PROP-009 | high |
 
 ---
 

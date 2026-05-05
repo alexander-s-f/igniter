@@ -21,6 +21,7 @@ implementation detail of the current Igniter platform.
 | [tracks/bridge-observation-envelope-runtime-evidence-v0.md](tracks/bridge-observation-envelope-runtime-evidence-v0.md) | done | Extended bridge vocabulary with runtime evidence, meaning status, and runtime links |
 | [tracks/bridge-observation-envelope-package-mapping-v0.md](tracks/bridge-observation-envelope-package-mapping-v0.md) | done | Mapped current package facts, projections, pins, decisions, and runtime session packets to bridge profiles |
 | [tracks/runtime-machine-lifecycle-v0.md](tracks/runtime-machine-lifecycle-v0.md) | done | Defined Runtime Machine boot/load/evaluate/checkpoint/resume lifecycle, semantic image, TBackend adapters, compatibility, and CORE/ESCAPE boundary |
+| [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 
 ## Active Proposals
 
@@ -38,6 +39,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-006](proposals/PROP-006-runtime-contract-specification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | RuntimeContract: scheduler, clock, cache, storage, capability, distributed ESCAPE; conformance |
 | [proposals/PROP-007](proposals/PROP-007-conformance-verification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Conformance verification: 5 check suites, trust levels, agent trust decision procedure |
 | [proposals/PROP-008](proposals/PROP-008-tbackend-contract-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | TBackend[T]: read/append/replay/snapshot/compact/subscribe; reproducible resume; adapter classes |
+| [proposals/PROP-009](proposals/PROP-009-semantic-image-resume-compatibility-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | SemanticImage; CompatibilityReport; ResumeStatus: trusted/provisional/downgraded/blocked |
 
 ## Core Documents
 
@@ -71,10 +73,12 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Runtime Contract Specification (PROP-006)
 - Conformance Verification (PROP-007)
 - TBackend Contract (PROP-008)
+- Semantic Image and Resume Compatibility (PROP-009)
 - Axiomatic Contract Model (axiomatic-contract-model.md)
 - Runtime Machine (runtime-machine.md)
+- Bridge Observation Envelope Implementation Plan (Research Agent track)
 - Temporal Contracts and Projections (QUEUED — Research Agent track)
-- Runtime Machine Lifecycle (QUEUED — PROP-009)
+- Runtime Machine Lifecycle (QUEUED — PROP-010)
 
 ## Review Cadence
 
