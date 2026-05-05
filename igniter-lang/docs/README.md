@@ -18,6 +18,7 @@ implementation detail of the current Igniter platform.
 | [tracks/track-errata-application-v0.md](tracks/track-errata-application-v0.md) | done | Applied compact formal errata to completed practical tracks |
 | [tracks/temporal-contracts-and-projections-v0.md](tracks/temporal-contracts-and-projections-v0.md) | done | Defined named slices, projection horizons, live/reproducible projections, and action semantics |
 | [tracks/runtime-contracts-and-execution-environments-v0.md](tracks/runtime-contracts-and-execution-environments-v0.md) | done | Defined runtime contracts, execution environments, guarantees, and result meaning status |
+| [tracks/bridge-observation-envelope-runtime-evidence-v0.md](tracks/bridge-observation-envelope-runtime-evidence-v0.md) | done | Extended bridge vocabulary with runtime evidence, meaning status, and runtime links |
 
 ## Active Proposals
 
@@ -31,6 +32,8 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-003](proposals/PROP-003-grammar-fragment-classification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Fragment classification: CORE / ESCAPE / OOF; Pass 0 compiler; DSL keyword mapping |
 | [proposals/PROP-004](proposals/PROP-004-type-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Structural types, temporal capabilities, Projection[T,horizon], Obs[kind,T], soundness |
 | [proposals/PROP-005](proposals/PROP-005-bridge-observation-envelope-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Formal envelope: ObsPacket[kind,T], Identity/Provenance/Policy, Option[T] payload, package mappings |
+| [proposals/PROP-004b](proposals/PROP-004b-axiom-layer-type-signatures-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Three-tier axiom stack: language built-ins, runtime contracts, platform observations |
+| [proposals/PROP-006](proposals/PROP-006-runtime-contract-specification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | RuntimeContract: scheduler, clock, cache, storage, capability, distributed ESCAPE; conformance |
 
 ## Core Documents
 
@@ -59,10 +62,11 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Temporal Contract Semantics (PROP-004 + temporal-positioning.md)
 - Projections / Slices / As-Of Views (Projection[T, horizon] — PROP-004)
 - Bridge Observation Envelope (PROP-005)
-- Axiom Layer Type Signatures (QUEUED — PROP-004b)
-- Temporal Contracts and Projections (Research Agent track)
-- Runtime Contracts and Execution Environments (Research Agent track)
-- Axiomatic Contract Model (language/runtime/time as contract boundaries)
+- Axiom Layer Type Signatures (PROP-004b)
+- Runtime Contract Specification (PROP-006)
+- Axiomatic Contract Model (axiomatic-contract-model.md)
+- Temporal Contracts and Projections (QUEUED — Research Agent track)
+- Conformance Verification (QUEUED — PROP-007)
 
 ## Review Cadence
 
