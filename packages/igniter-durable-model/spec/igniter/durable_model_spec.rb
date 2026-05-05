@@ -4,6 +4,7 @@ require "igniter/durable_model"
 require "igniter/durable_model/record"
 require "igniter/durable_model/history"
 require "igniter/durable_model/receipts"
+require "igniter/durable_model/command_intent"
 require "igniter/durable_model/store"
 require_relative "../spec_helper"
 
@@ -62,6 +63,7 @@ RSpec.describe Igniter::DurableModel do
     expect(described_class::Store).to equal(Igniter::Companion::Store)
     expect(described_class::WriteReceipt).to equal(Igniter::Companion::WriteReceipt)
     expect(described_class::AppendReceipt).to equal(Igniter::Companion::AppendReceipt)
+    expect(described_class::CommandIntent).to equal(Igniter::Companion::CommandIntent)
   end
 
   it "supports register/write/read/scope through DurableModel::Store" do

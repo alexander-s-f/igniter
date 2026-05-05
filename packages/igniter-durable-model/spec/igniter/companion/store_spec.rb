@@ -37,6 +37,24 @@ class CommandedReminder
   command :complete,
     operation: :record_update,
     changes: { status: :done }
+
+  command :draft,
+    operation: :record_append,
+    changes: { status: :open }
+
+  command :audit,
+    operation: :history_append,
+    event: { event: :audited }
+end
+
+class StringCommandReminder
+  include Igniter::Companion::Record
+  store_name :string_command_reminders
+
+  field :title
+  command "complete",
+    "operation" => "record_update",
+    "changes" => { "status" => "done" }
 end
 
 # ── Store specs ───────────────────────────────────────────────────────────────
@@ -367,6 +385,33 @@ RSpec.describe Igniter::Companion::Store do
         write_kind: :update
       )
       expect(s).not_to respond_to(:complete)
+    ensure
+      s&.close
+    end
+
+    it "builds client-backed command intents without writing records" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+
+      intent = s.command_intent(CommandedReminder, :complete,
+        key: "r1",
+        params: { completed_by: "user-1" })
+
+      expect(intent).to be_a(Igniter::DurableModel::CommandIntent)
+      expect(intent.to_h).to include(
+        kind: :command_intent,
+        owner: :commanded_reminders,
+        command: :complete,
+        subject_key: "r1",
+        operation: :record_update,
+        target_shape: :store,
+        boundary: :app,
+        changes: { status: :done },
+        params: { completed_by: "user-1" },
+        execution_allowed: false
+      )
+      expect(intent.effect).to include(store_op: :store_write, write_kind: :update, lowers_to: :store_t)
+      expect(s.read(CommandedReminder, key: "r1")).to be_nil
     ensure
       s&.close
     end
@@ -1232,6 +1277,103 @@ RSpec.describe Igniter::Companion::Store do
           write_kind: :update,
           lowers_to: :store_t,
           boundary: :app,
+          source_operation: :record_update
+        )
+      ensure
+        s&.close
+      end
+
+      it "builds embedded command intents from command and effect metadata" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :complete,
+          key: "r1",
+          params: { completed_by: "user-1" },
+          metadata: { request_id: "req-1" })
+
+        expect(intent).to be_frozen
+        expect(intent[:owner]).to eq(:commanded_reminders)
+        expect(intent.to_h).to include(
+          schema_version: 1,
+          kind: :command_intent,
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          operation: :record_update,
+          target_shape: :store,
+          boundary: :app,
+          changes: { status: :done },
+          params: { completed_by: "user-1" },
+          metadata: { request_id: "req-1" },
+          execution_allowed: false
+        )
+        expect(intent.effect).to include(
+          store_op: :store_write,
+          write_kind: :update,
+          lowers_to: :store_t,
+          source_operation: :record_update
+        )
+        expect(intent.to_activity_event).to include(
+          kind: :command_intent,
+          owner: :commanded_reminders,
+          command: :complete,
+          status: :intended
+        )
+        expect(s.read(CommandedReminder, key: "r1")).to be_nil
+      ensure
+        s&.close
+      end
+
+      it "requires key for record_update command intents" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        expect { s.command_intent(CommandedReminder, :complete) }
+          .to raise_error(ArgumentError, /requires key/)
+      ensure
+        s&.close
+      end
+
+      it "raises clearly for unknown command intents" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        expect { s.command_intent(CommandedReminder, :missing, key: "r1") }
+          .to raise_error(ArgumentError, /Unknown command :missing/)
+      ensure
+        s&.close
+      end
+
+      it "allows record_append and history_append intents without keys" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        append_intent = s.command_intent(CommandedReminder, :draft)
+        history_intent = s.command_intent(CommandedReminder, :audit, params: { actor: "user-1" })
+
+        expect(append_intent.subject_key).to be_nil
+        expect(append_intent.effect).to include(store_op: :store_write, write_kind: :insert)
+        expect(history_intent.subject_key).to be_nil
+        expect(history_intent.operation).to eq(:history_append)
+        expect(history_intent.effect).to include(store_op: :store_append, write_kind: :append)
+        expect(history_intent.event).to eq(event: :audited)
+      ensure
+        s&.close
+      end
+
+      it "normalizes string command metadata keys in command intents" do
+        s = described_class.new
+        s.register(StringCommandReminder)
+
+        intent = s.command_intent(StringCommandReminder, :complete, key: "r1")
+
+        expect(intent.command).to eq(:complete)
+        expect(intent.operation).to eq(:record_update)
+        expect(intent.changes).to eq(status: "done")
+        expect(intent.effect).to include(
+          store_op: :store_write,
+          write_kind: :update,
           source_operation: :record_update
         )
       ensure

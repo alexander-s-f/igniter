@@ -200,6 +200,10 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   descriptors during schema registration.
 - Ledger metadata snapshots expose commands by owner/name, but Ledger does not
   execute app commands.
+- `Store#command_intent` turns command metadata into a pure
+  `kind: :command_intent` object for app-boundary previews/projections.
+- Command intents carry `execution_allowed: false`; they do not write, append,
+  publish, or call app callbacks.
 
 `effects`
 
@@ -209,6 +213,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   still happen in app-owned code, not inside Ledger.
 - Durable Model mirrors effects into Ledger `kind: :effect` descriptors during
   schema registration.
+- Command intents embed the derived effect metadata so apps can decide how to
+  project or apply the intent later.
 
 `projections`
 

@@ -9,6 +9,7 @@ module Igniter
     Store = DurableModel::Store
     WriteReceipt = DurableModel::WriteReceipt
     AppendReceipt = DurableModel::AppendReceipt
+    CommandIntent = DurableModel::CommandIntent
 
     def self.from_manifest(manifest, store: nil)
       DurableModel.from_manifest(manifest, store: store)

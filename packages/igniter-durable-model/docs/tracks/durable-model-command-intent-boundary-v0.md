@@ -1,6 +1,6 @@
 # Track: Durable Model Command Intent Boundary v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target packages: `packages/igniter-durable-model`, `packages/igniter-ledger`, `packages/igniter-ledger-client`
@@ -295,3 +295,7 @@ Status: done | partial | blocked
 - This slice creates the missing middle object between command descriptors and
   future app-side application.
 - Keep it boring and explicit: intent is data, not action.
+- `CommandIntent` is immutable, hash-readable, and carries
+  `execution_allowed: false`.
+- `Store#command_intent` works in embedded and client-backed modes without
+  touching Ledger or producing facts.

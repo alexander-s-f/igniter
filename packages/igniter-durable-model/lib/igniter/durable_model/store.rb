@@ -351,6 +351,34 @@ module Igniter
         @inner.schema_graph.effect_snapshot
       end
 
+      # Build a pure app-boundary command intent from Record command metadata.
+      # This does not execute commands, write facts, append history, or touch Ledger.
+      def command_intent(schema_class, command_name, key: nil, params: {}, metadata: {})
+        command_key = command_name.to_sym
+        command_attrs = command_attrs_for(schema_class, command_key)
+        effect_attrs = effect_attrs_for(schema_class, command_key)
+        operation = token(command_attrs[:operation] || :none)
+
+        if operation == :record_update && key.nil?
+          raise ArgumentError,
+                "command_intent requires key: for record_update command=#{command_key.inspect}"
+        end
+
+        CommandIntent.new(
+          owner: schema_class.store_name,
+          command: command_key,
+          subject_key: key,
+          operation: operation,
+          target_shape: command_attrs[:target_shape] || target_shape_for(operation),
+          effect: intent_effect(effect_attrs),
+          boundary: command_attrs[:boundary] || effect_attrs[:boundary] || :app,
+          changes: command_attrs[:changes] || {},
+          event: command_attrs[:event],
+          params: params,
+          metadata: metadata
+        )
+      end
+
       # Register a projection descriptor — metadata-only, no execution.
       # Records which stores and relations a cross-record projection reads,
       # making this visible to the store engine via SchemaGraph.
@@ -767,6 +795,50 @@ module Igniter
             owner_acc[token(name)] = yield(data)
           end
         end
+      end
+
+      def command_attrs_for(schema_class, command_key)
+        unless schema_class.respond_to?(:_commands)
+          raise ArgumentError, "#{schema_class} does not declare commands"
+        end
+
+        attrs = descriptor_entry(schema_class._commands, command_key)
+        return attrs.to_h.transform_keys(&:to_sym) if attrs
+
+        raise ArgumentError,
+              "Unknown command #{command_key.inspect} for store=#{schema_class.store_name.inspect}"
+      end
+
+      def effect_attrs_for(schema_class, command_key)
+        command_attrs = command_attrs_for(schema_class, command_key)
+        return none_effect(command_attrs[:operation]) unless schema_class.respond_to?(:_effects)
+
+        attrs = descriptor_entry(schema_class._effects, command_key)
+        return attrs.to_h.transform_keys(&:to_sym) if attrs
+
+        none_effect(command_attrs[:operation])
+      end
+
+      def none_effect(operation)
+        {
+          store_op: :none,
+          write_kind: :none,
+          lowers_to: :none,
+          source_operation: token(operation || :none)
+        }
+      end
+
+      def intent_effect(effect_attrs)
+        {
+          store_op: token(effect_attrs[:store_op] || :none),
+          write_kind: token(effect_attrs[:write_kind] || :none),
+          lowers_to: token(effect_attrs[:lowers_to] || :none),
+          source_operation: token(effect_attrs[:source_operation])
+        }.compact
+      end
+
+      def descriptor_entry(entries, key)
+        entries[key] || entries[key.to_s]
       end
     end
   end

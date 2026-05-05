@@ -68,7 +68,8 @@ module Igniter
         # Metadata-only — no store-side execution.
         def _effects
           @_effects ||= _commands.transform_values do |attrs|
-            op = attrs[:operation]
+            data = attrs.to_h.transform_keys(&:to_sym)
+            op = data[:operation].is_a?(String) ? data[:operation].to_sym : data[:operation]
             EFFECT_KIND_MAP.fetch(op, EFFECT_KIND_MAP[:__unknown__]).merge(source_operation: op)
           end
         end

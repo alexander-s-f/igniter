@@ -139,6 +139,7 @@ store.write(Reminder, key: "r1", title: "Buy milk", status: :open)
 store.read(Reminder, key: "r1")
 store._commands
 store._effects
+store.command_intent(Reminder, :complete, key: "r1")
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -160,6 +161,12 @@ embedded Ledger engine path и явно поднимает `NotImplementedError`
 support read-only и compact: Durable Model экспонирует
 `causation_chain`/`lineage`, а Ledger Client `fact_ref` возвращает только
 metadata и не открывает произвольный `fact_by_id`.
+
+Command support состоит из трёх слоёв: descriptor metadata
+(`_commands`/`_effects`), pure `CommandIntent` objects и будущая app-boundary
+application/projection. `Store#command_intent` строит только данные и всегда
+несёт `execution_allowed: false`; он не пишет records, не append-ит histories,
+не публикует events и не просит Ledger исполнять commands.
 
 ### Нормализованные receipts
 
