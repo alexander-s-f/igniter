@@ -803,6 +803,62 @@ module Igniter
         )
       end
 
+      # Explicitly persist a command-flow view pin decision into app-owned history.
+      def append_command_flow_decision(pin,
+                                       history_class: CommandFlowDecision,
+                                       metadata: {})
+        unless pin.is_a?(CommandFlowViewPin)
+          raise ArgumentError, "append_command_flow_decision expects Igniter::DurableModel::CommandFlowViewPin"
+        end
+
+        register(history_class)
+        merged_metadata = command_flow_decision_metadata(pin, metadata)
+        decision_receipt_id = "cfd_#{SecureRandom.hex(8)}"
+        append(history_class, **command_flow_decision_payload(
+          pin,
+          metadata: merged_metadata
+        ))
+
+        CommandFlowDecisionReceipt.new(
+          receipt_id: pin.receipt[:receipt_id],
+          decision_receipt_id: decision_receipt_id,
+          owner: pin.owner,
+          view_name: pin.name,
+          action: pin.action,
+          actor: pin.actor,
+          meaning_status: pin.meaning_status,
+          errors: pin.errors,
+          warnings: pin.warnings,
+          metadata: merged_metadata,
+          store_fact_exposed: pin.store_fact_exposed,
+          value_hash_exposed: pin.value_hash_exposed
+        )
+      end
+
+      # Replay app-owned decision history for command-flow operational views.
+      def command_flow_decisions(owner:, view_name: nil, action: nil,
+                                 actor: nil, status: nil,
+                                 meaning_status: nil, receipt_id: nil,
+                                 since: nil, as_of: nil, limit: nil,
+                                 history_class: CommandFlowDecision)
+        decisions = replay(history_class,
+          partition: token(owner),
+          since: temporal_value(since),
+          as_of: temporal_value(as_of))
+        filtered = decisions.select do |decision|
+          command_flow_decision_matches?(
+            decision,
+            view_name: view_name,
+            action: action,
+            actor: actor,
+            status: status,
+            meaning_status: meaning_status,
+            receipt_id: receipt_id
+          )
+        end
+        limit ? filtered.first(limit) : filtered
+      end
+
       # Summarize app-owned policy/capability checks for a command plan.
       # This is metadata-only and never mutates storage or evaluates in Ledger.
       def command_policy_decision(plan, actor: nil, capabilities: [],
@@ -1806,6 +1862,47 @@ module Igniter
           generated_at: generated_at,
           metadata: metadata
         }
+      end
+
+      def command_flow_decision_payload(pin, metadata:)
+        {
+          owner: pin.owner,
+          view_name: pin.name,
+          action: pin.action,
+          actor: pin.actor,
+          status: pin.status,
+          meaning_status: pin.meaning_status,
+          receipt_id: pin.receipt[:receipt_id],
+          horizon: pin.horizon,
+          capabilities: pin.capabilities,
+          missing_capabilities: pin.missing_capabilities,
+          view_status: pin.view&.status,
+          monitor_status: pin.view&.monitor&.status,
+          summary: pin.view&.summary || {},
+          errors: pin.errors,
+          warnings: pin.warnings,
+          metadata: metadata,
+          store_fact_exposed: pin.store_fact_exposed,
+          value_hash_exposed: pin.value_hash_exposed
+        }
+      end
+
+      def command_flow_decision_metadata(pin, metadata)
+        pin.metadata.merge(normalize_value(metadata || {}))
+      end
+
+      def command_flow_decision_matches?(decision, view_name:, action:, actor:,
+                                         status:, meaning_status:, receipt_id:)
+        view_matches = view_name.nil? || decision.view_name == token(view_name)
+        action_matches = action.nil? || decision.action == token(action)
+        actor_matches = actor.nil? || decision.actor == actor
+        status_matches = status.nil? || decision.status == token(status)
+        meaning_matches = meaning_status.nil? ||
+                          decision.meaning_status == token(meaning_status)
+        receipt_matches = receipt_id.nil? || decision.receipt_id == receipt_id
+
+        view_matches && action_matches && actor_matches && status_matches &&
+          meaning_matches && receipt_matches
       end
 
       def normalize_command_flow_view_horizon(horizon)

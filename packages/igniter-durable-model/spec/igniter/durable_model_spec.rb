@@ -4,6 +4,7 @@ require "igniter/durable_model"
 require "igniter/durable_model/record"
 require "igniter/durable_model/history"
 require "igniter/durable_model/command_activity"
+require "igniter/durable_model/command_flow_decision"
 require "igniter/durable_model/receipts"
 require "igniter/durable_model/command_intent"
 require "igniter/durable_model/command_operation_plan"
@@ -72,10 +73,12 @@ RSpec.describe Igniter::DurableModel do
     expect(described_class::Record).to equal(Igniter::Companion::Record)
     expect(described_class::History).to equal(Igniter::Companion::History)
     expect(described_class::CommandActivity).to equal(Igniter::Companion::CommandActivity)
+    expect(described_class::CommandFlowDecision).to equal(Igniter::Companion::CommandFlowDecision)
     expect(described_class::Store).to equal(Igniter::Companion::Store)
     expect(described_class::WriteReceipt).to equal(Igniter::Companion::WriteReceipt)
     expect(described_class::AppendReceipt).to equal(Igniter::Companion::AppendReceipt)
     expect(described_class::CommandActivityReceipt).to equal(Igniter::Companion::CommandActivityReceipt)
+    expect(described_class::CommandFlowDecisionReceipt).to equal(Igniter::Companion::CommandFlowDecisionReceipt)
     expect(described_class::CommandApplyReceipt).to equal(Igniter::Companion::CommandApplyReceipt)
     expect(described_class::CommandIntent).to equal(Igniter::Companion::CommandIntent)
     expect(described_class::CommandOperationPlan).to equal(Igniter::Companion::CommandOperationPlan)
@@ -88,6 +91,30 @@ RSpec.describe Igniter::DurableModel do
     expect(described_class::CommandFlowViewDescriptor).to equal(Igniter::Companion::CommandFlowViewDescriptor)
     expect(described_class::CommandFlowView).to equal(Igniter::Companion::CommandFlowView)
     expect(described_class::CommandFlowViewPin).to equal(Igniter::Companion::CommandFlowViewPin)
+  end
+
+  it "defines command flow decision history shape" do
+    fields = described_class::CommandFlowDecision._fields
+
+    expect(described_class::CommandFlowDecision.store_name).to eq(:command_flow_decisions)
+    expect(described_class::CommandFlowDecision._partition_key).to eq(:owner)
+    expect(fields).to include(
+      owner: include(default: nil),
+      view_name: include(default: nil),
+      action: include(default: nil),
+      status: include(default: nil),
+      meaning_status: include(default: nil),
+      receipt_id: include(default: nil),
+      horizon: include(default: {}),
+      capabilities: include(default: []),
+      missing_capabilities: include(default: []),
+      summary: include(default: {}),
+      errors: include(default: []),
+      warnings: include(default: []),
+      metadata: include(default: {}),
+      store_fact_exposed: include(default: false),
+      value_hash_exposed: include(default: false)
+    )
   end
 
   it "supports register/write/read/scope through DurableModel::Store" do

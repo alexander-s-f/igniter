@@ -1,6 +1,6 @@
 # Track: Durable Model Command Flow Decision History v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -267,3 +267,25 @@ Please keep this slice as explicit audit persistence:
 
 This slice should make operational decisions replayable without turning views,
 pins, or decisions into a workflow engine.
+
+## Final Notes
+
+Implemented as explicit app-owned audit persistence:
+
+- Added built-in `CommandFlowDecision` history with `history_name:
+  :command_flow_decisions` and `partition_key :owner`.
+- Added `CommandFlowDecisionReceipt` with app-safe serialization and app-local
+  decision receipt ids.
+- Added `Igniter::Companion` aliases for `CommandFlowDecision` and
+  `CommandFlowDecisionReceipt`.
+- Added `Store#append_command_flow_decision` for explicit persistence of pinned
+  and blocked `CommandFlowViewPin` decisions.
+- Added `Store#command_flow_decisions` for owner-partition replay with
+  view/action/actor/status/meaning/receipt and temporal filters.
+- Pinning remains non-persistent unless append is explicitly called.
+- Decision history remains separate from `CommandActivity`; append does not
+  mutate records, execute commands, append command activity, or add Ledger
+  protocol operations.
+- Covered embedded and client-backed stores, metadata merge, filters, temporal
+  windows, limit, blocked decisions, malformed input, app-safe receipts, and
+  compatibility aliases.

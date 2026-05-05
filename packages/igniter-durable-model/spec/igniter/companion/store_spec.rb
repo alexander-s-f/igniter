@@ -798,6 +798,45 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "appends and replays client-backed command flow decisions" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.register_command_flow_view(:client_decision_health,
+        owner: :commanded_reminders,
+        action_policy: {
+          inspect: true,
+          required_capabilities: [:dispatch_review]
+        })
+      pin = s.pin_command_flow_view(:client_decision_health,
+        action: :inspect,
+        actor: "dispatcher-1",
+        capabilities: [:dispatch_review],
+        metadata: { request_id: "client-pin" })
+
+      receipt = s.append_command_flow_decision(pin,
+        metadata: { persisted_by: :client_spec })
+      decisions = s.command_flow_decisions(
+        owner: :commanded_reminders,
+        view_name: :client_decision_health,
+        action: :inspect,
+        actor: "dispatcher-1",
+        status: :pinned,
+        receipt_id: pin.receipt[:receipt_id]
+      )
+
+      expect(receipt).to be_appended
+      expect(receipt.receipt_id).to eq(pin.receipt[:receipt_id])
+      expect(receipt.decision_receipt_id).to start_with("cfd_")
+      expect(decisions.size).to eq(1)
+      expect(decisions.first).to be_a(Igniter::DurableModel::CommandFlowDecision)
+      expect(decisions.first.metadata).to include(
+        request_id: "client-pin",
+        persisted_by: :client_spec
+      )
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -3433,6 +3472,155 @@ RSpec.describe Igniter::Companion::Store do
           .to raise_error(ArgumentError, /Unknown command flow view/)
         expect { s.pin_command_flow_view(:missing, action: nil) }
           .to raise_error(ArgumentError, /action: is required/)
+      ensure
+        s&.close
+      end
+
+      it "appends pinned command flow decisions explicitly" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+        s.register_command_flow_view(:decision_health,
+          owner: :commanded_reminders,
+          command: :complete,
+          action_policy: {
+            mutate: :requires_pinned_horizon,
+            required_capabilities: [:dispatch_review]
+          },
+          rules: [{
+            name: :denials,
+            metric: :status_count,
+            status: :policy_denied,
+            op: :>=,
+            value: 1,
+            severity: :warning
+          }])
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          capabilities: [],
+          mode: :apply,
+          audit: true)
+        before_activity = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete
+        ).size
+        pin = s.pin_command_flow_view(:decision_health,
+          action: :mutate,
+          actor: "dispatcher-1",
+          capabilities: [:dispatch_review],
+          metadata: { request_id: "pin-decision", source: :pin })
+
+        expect(s.command_flow_decisions(owner: :commanded_reminders)).to eq([])
+        receipt = s.append_command_flow_decision(pin,
+          metadata: { source: :append, reviewer: "lead-1" })
+        after_activity = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete
+        ).size
+        record = s.read(CommandedReminder, key: "r1")
+        decisions = s.command_flow_decisions(
+          owner: :commanded_reminders,
+          view_name: :decision_health,
+          action: :mutate,
+          actor: "dispatcher-1",
+          status: :pinned,
+          meaning_status: :reproducible,
+          receipt_id: pin.receipt[:receipt_id]
+        )
+
+        expect(receipt).to be_frozen
+        expect(receipt).to be_appended
+        expect(receipt[:kind]).to eq(:command_flow_decision_receipt)
+        expect(receipt.receipt_id).to eq(pin.receipt[:receipt_id])
+        expect(receipt.decision_receipt_id).to start_with("cfd_")
+        expect(receipt.to_h).not_to have_key(:fact_id)
+        expect(receipt.to_h).not_to have_key(:value_hash)
+        expect(receipt.to_h).not_to have_key(:causation)
+        expect(decisions.size).to eq(1)
+        expect(decisions.first).to be_a(Igniter::DurableModel::CommandFlowDecision)
+        expect(decisions.first.to_h).to include(
+          owner: :commanded_reminders,
+          view_name: :decision_health,
+          action: :mutate,
+          actor: "dispatcher-1",
+          status: :pinned,
+          meaning_status: :reproducible,
+          receipt_id: pin.receipt[:receipt_id],
+          view_status: :warning,
+          monitor_status: :warning,
+          store_fact_exposed: false,
+          value_hash_exposed: false
+        )
+        expect(decisions.first.metadata).to include(
+          request_id: "pin-decision",
+          source: :append,
+          reviewer: "lead-1"
+        )
+        expect(decisions.first.summary[:total]).to eq(1)
+        expect(record.status).to eq(:open)
+        expect(after_activity).to eq(before_activity)
+      ensure
+        s&.close
+      end
+
+      it "appends blocked command flow decisions" do
+        s = described_class.new
+        s.register_command_flow_view(:blocked_decision_health,
+          owner: :commanded_reminders,
+          action_policy: { execute: :forbidden })
+        pin = s.pin_command_flow_view(:blocked_decision_health,
+          action: :execute,
+          actor: "dispatcher-1")
+
+        receipt = s.append_command_flow_decision(pin)
+        decisions = s.command_flow_decisions(
+          owner: :commanded_reminders,
+          status: :blocked,
+          meaning_status: :unknown
+        )
+
+        expect(receipt).to be_appended
+        expect(decisions.size).to eq(1)
+        expect(decisions.first.status).to eq(:blocked)
+        expect(decisions.first.errors.map { |error| error[:code] })
+          .to include(:action_forbidden)
+      ensure
+        s&.close
+      end
+
+      it "filters command flow decisions by temporal window and limit" do
+        s = described_class.new
+        s.register_command_flow_view(:first_decision_health,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        s.register_command_flow_view(:second_decision_health,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        first_pin = s.pin_command_flow_view(:first_decision_health, action: :inspect)
+        second_pin = s.pin_command_flow_view(:second_decision_health, action: :inspect)
+        since = Time.now.utc - 60
+
+        s.append_command_flow_decision(first_pin)
+        s.append_command_flow_decision(second_pin)
+
+        decisions = s.command_flow_decisions(
+          owner: :commanded_reminders,
+          since: since,
+          as_of: Time.now.utc + 60,
+          limit: 1
+        )
+
+        expect(decisions.size).to eq(1)
+        expect(decisions.first.view_name).to eq(:first_decision_health)
+      ensure
+        s&.close
+      end
+
+      it "raises for malformed command flow decision append input" do
+        s = described_class.new
+
+        expect { s.append_command_flow_decision(Object.new) }
+          .to raise_error(ArgumentError, /CommandFlowViewPin/)
       ensure
         s&.close
       end

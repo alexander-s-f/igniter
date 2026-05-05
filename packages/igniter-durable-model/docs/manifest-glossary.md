@@ -304,6 +304,24 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Pinning is still read-model behavior: no business record mutation, command
   execution, command activity append, durable pin registry, scheduler,
   notification delivery, or Ledger protocol operation happens.
+- `CommandFlowDecision` is a built-in app-owned History stream for persisted
+  command-flow view decisions. It uses `history_name: :command_flow_decisions`
+  and partitions by `owner`.
+- `Store#append_command_flow_decision` explicitly persists a
+  `CommandFlowViewPin` as one `CommandFlowDecision` entry. Pinning itself
+  remains non-persistent unless this API is called.
+- `CommandFlowDecisionReceipt` is an app-safe append receipt with app-local
+  `decision_receipt_id`, original pin `receipt_id`, decision metadata, and no
+  Ledger fact id, value hash, or causation exposure.
+- `Store#command_flow_decisions` replays decision history by owner partition and
+  filters by view name, action, actor, status, meaning status, receipt id, and
+  temporal window.
+- Command-flow decision history is separate from `CommandActivity`: decisions
+  describe human/agent/app decisions made from operational views, while command
+  activity describes command attempts.
+- Decision append persists pinned and blocked decisions, merges explicit
+  metadata over pin metadata, and still does not mutate business records,
+  execute commands, append command activity, or add Ledger protocol operations.
 
 `effects`
 

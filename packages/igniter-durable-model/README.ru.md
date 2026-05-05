@@ -188,6 +188,13 @@ store.command_flow_view(:reminder_flow_health)
 store.pin_command_flow_view(:reminder_flow_health,
   action: :mutate,
   capabilities: [:dispatch_review])
+pin = store.pin_command_flow_view(:reminder_flow_health,
+  action: :inspect,
+  capabilities: [:dispatch_review])
+store.append_command_flow_decision(pin)
+store.command_flow_decisions(
+  owner: :reminders,
+  view_name: :reminder_flow_health)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -202,9 +209,10 @@ registration, command/effect descriptor registration, `_projections`,
 `apply_command`, `command_lifecycle`, `command_lifecycle_events`,
 `command_flow`, `command_flow_slice`, `command_flow_summary`,
 `command_flow_monitor`, `register_command_flow_view`, `_command_flow_views`,
-`command_flow_view`, `pin_command_flow_view`, `metadata_snapshot` и
-`descriptor_snapshot`, а также `causation_chain` и `lineage`. Partition replay
-проходит через Ledger replay
+`command_flow_view`, `pin_command_flow_view`,
+`append_command_flow_decision`, `command_flow_decisions`,
+`metadata_snapshot` и `descriptor_snapshot`, а также `causation_chain` и
+`lineage`. Partition replay проходит через Ledger replay
 filter и использует Ledger partition indexes, когда запрос обслуживает Ledger
 protocol interpreter. Relation support в v0 понижает
 поддержанные one-to-many декларации в Ledger relation descriptors. Projection,
@@ -227,8 +235,11 @@ slices. `CommandFlowViewDescriptor` и `CommandFlowView` добавляют name
 operational views, которые связывают filters, horizon defaults, monitor rules и
 advisory action policy для dashboards и agents. `CommandFlowViewPin`
 превращает named view в explicit app-owned pinned decision evidence с
-reproducible horizon и stable app-local receipt shape. Будущая app security
-infrastructure остаётся вне этого пакета.
+reproducible horizon и stable app-local receipt shape.
+`CommandFlowDecision` и `CommandFlowDecisionReceipt` добавляют explicit
+app-owned decision history для сохранения pinned или blocked decisions только
+по явному запросу. Будущая app security infrastructure остаётся вне этого
+пакета.
 `Store#command_intent`,
 `Store#command_operation_plan` и
 `Store#command_activity_event` строят только данные. `Store#append_command_activity`
@@ -265,6 +276,13 @@ mode не указан явно.
 проверяет advisory action policy/capabilities и возвращает
 `CommandFlowViewPin` evidence с compact app-local receipt. Blocked actions
 возвращают structured errors и ничего не исполняют.
+`Store#append_command_flow_decision` явно сохраняет pinned или blocked decision
+evidence в `CommandFlowDecision` history и возвращает app-safe
+`CommandFlowDecisionReceipt`. `Store#command_flow_decisions` replay-ит эту
+history по owner partition с view/action/actor/status/meaning/receipt и
+temporal filters. Decision history отделена от `CommandActivity` и не мутирует
+records, не исполняет commands, не append-ит command activity и не добавляет
+Ledger protocol surface.
 
 ### Нормализованные receipts
 

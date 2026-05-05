@@ -29,6 +29,7 @@ module Igniter
 
       def method_missing(method, *args, &block)
         return @record.public_send(method, *args, &block) if @record.respond_to?(method)
+
         super
       end
 
@@ -65,6 +66,7 @@ module Igniter
 
       def method_missing(method, *args, &block)
         return @event.public_send(method, *args, &block) if @event.respond_to?(method)
+
         super
       end
 
@@ -97,9 +99,9 @@ module Igniter
         @command = token(command)
         @subject_key = subject_key
         @activity_status = token(activity_status)
-        @store_fact_exposed = !!store_fact_exposed
-        @value_hash_exposed = !!value_hash_exposed
-        @execution_allowed = !!execution_allowed
+        @store_fact_exposed = store_fact_exposed ? true : false
+        @value_hash_exposed = value_hash_exposed ? true : false
+        @execution_allowed = execution_allowed ? true : false
         freeze
       end
 
@@ -130,6 +132,88 @@ module Igniter
       end
     end
 
+    # App-safe receipt for explicit command-flow decision history persistence.
+    # It intentionally does not expose fact ids, value hashes, or causation.
+    class CommandFlowDecisionReceipt
+      attr_reader :schema_version, :kind, :status, :receipt_id,
+                  :decision_receipt_id, :owner, :view_name, :action, :actor,
+                  :meaning_status, :errors, :warnings, :metadata,
+                  :generated_at, :store_fact_exposed, :value_hash_exposed
+
+      def initialize(receipt_id:, decision_receipt_id:, owner:, view_name:,
+                     action:, actor:, meaning_status:, status: :appended,
+                     errors: [], warnings: [], metadata: {},
+                     generated_at: Time.now.utc, schema_version: 1,
+                     kind: :command_flow_decision_receipt,
+                     store_fact_exposed: false, value_hash_exposed: false)
+        @schema_version = schema_version
+        @kind = token(kind)
+        @status = token(status)
+        @receipt_id = receipt_id
+        @decision_receipt_id = decision_receipt_id
+        @owner = token(owner)
+        @view_name = token(view_name)
+        @action = token(action)
+        @actor = actor
+        @meaning_status = token(meaning_status)
+        @errors = Array(errors).map { |entry| normalize_value(entry) }.freeze
+        @warnings = Array(warnings).map { |entry| normalize_value(entry) }.freeze
+        @metadata = normalize_value(metadata || {})
+        @generated_at = generated_at
+        @store_fact_exposed = store_fact_exposed ? true : false
+        @value_hash_exposed = value_hash_exposed ? true : false
+        freeze
+      end
+
+      def appended? = status == :appended
+
+      def rejected? = status == :rejected
+
+      def [](key)
+        to_h[key.to_sym]
+      end
+
+      def to_h
+        {
+          schema_version: schema_version,
+          kind: kind,
+          status: status,
+          receipt_id: receipt_id,
+          decision_receipt_id: decision_receipt_id,
+          owner: owner,
+          view_name: view_name,
+          action: action,
+          actor: actor,
+          meaning_status: meaning_status,
+          errors: errors,
+          warnings: warnings,
+          metadata: metadata,
+          generated_at: generated_at,
+          store_fact_exposed: store_fact_exposed,
+          value_hash_exposed: value_hash_exposed
+        }
+      end
+
+      private
+
+      def normalize_value(value)
+        case value
+        when Hash
+          value.each_with_object({}) do |(key, entry), acc|
+            acc[token(key)] = normalize_value(entry)
+          end.freeze
+        when Array
+          value.map { |entry| normalize_value(entry) }.freeze
+        else
+          value
+        end
+      end
+
+      def token(value)
+        value.is_a?(String) ? value.to_sym : value
+      end
+    end
+
     # App-boundary receipt for explicit command application.
     # It reports command outcome without exposing Ledger storage internals.
     class CommandApplyReceipt
@@ -153,9 +237,9 @@ module Igniter
         @operation = token(operation)
         @target = normalize_value(target)
         @mutation_intent = token(mutation_intent)
-        @activity_recorded = !!activity_recorded
-        @store_fact_exposed = !!store_fact_exposed
-        @value_hash_exposed = !!value_hash_exposed
+        @activity_recorded = activity_recorded ? true : false
+        @store_fact_exposed = store_fact_exposed ? true : false
+        @value_hash_exposed = value_hash_exposed ? true : false
         @execution_boundary = token(execution_boundary)
         @errors = Array(errors).map { |entry| normalize_value(entry) }.freeze
         @warnings = Array(warnings).map { |entry| normalize_value(entry) }.freeze

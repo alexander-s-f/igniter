@@ -7,10 +7,12 @@ module Igniter
     Record = DurableModel::Record
     History = DurableModel::History
     CommandActivity = DurableModel::CommandActivity
+    CommandFlowDecision = DurableModel::CommandFlowDecision
     Store = DurableModel::Store
     WriteReceipt = DurableModel::WriteReceipt
     AppendReceipt = DurableModel::AppendReceipt
     CommandActivityReceipt = DurableModel::CommandActivityReceipt
+    CommandFlowDecisionReceipt = DurableModel::CommandFlowDecisionReceipt
     CommandApplyReceipt = DurableModel::CommandApplyReceipt
     CommandIntent = DurableModel::CommandIntent
     CommandOperationPlan = DurableModel::CommandOperationPlan
