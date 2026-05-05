@@ -137,7 +137,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
 | `[Igniter-Lang Research Agent]` | `tracks/bridge-observation-envelope-implementation-plan-v0.md` | done | bridge packet builder golden fixtures |
-| `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-007-conformance-verification-v0.md` | done | PROP-005 verification_observation extension |
+| `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-009-semantic-image-resume-compatibility-v0.md` | done | temporal lifecycle / retention semantics |
 
 ## Current Meta Thesis
 
@@ -211,6 +211,22 @@ Resume
 
 Package Agent should receive golden fixtures or sidecar builder work only until
 the Architect approves an integration slice.
+
+[D] `T` has a lifecycle. Igniter-Lang must not imply that all temporal
+observations live forever:
+
+```text
+T.local -> flush
+T.session -> SemanticImage / checkpoint
+T.window -> boundary / snapshot
+T.durable -> app fact / receipt
+T.audit -> preserve
+T.compacted -> summary / baseline cursor
+```
+
+Future work should model flush, retention, semantic GC, preserve roots, and
+boundary compaction as language-visible lifecycle semantics. Igniter Ledger is
+a possible persistence backend, not the definition of `T`.
 
 ---
 

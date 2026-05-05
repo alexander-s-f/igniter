@@ -49,6 +49,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [research-process.md](research-process.md) | Research lifecycle, document rotation, handoff protocol |
 | [agent-motion.md](agent-motion.md) | Current multi-agent movement and handoff routing |
 | [temporal-positioning.md](temporal-positioning.md) | Meta thesis: time, contracts, projections, and language positioning |
+| [temporal-lifecycle.md](temporal-lifecycle.md) | Meta thesis: lifecycle classes for T, flush, semantic GC, retention, and boundary compaction |
 | [axiomatic-contract-model.md](axiomatic-contract-model.md) | Meta thesis: language, runtime, distributed execution, and time as contract boundaries |
 | [runtime-machine.md](runtime-machine.md) | Meta thesis: Runtime Machine lifecycle, TBackend, semantic image, and resume model |
 
@@ -74,6 +75,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Conformance Verification (PROP-007)
 - TBackend Contract (PROP-008)
 - Semantic Image and Resume Compatibility (PROP-009)
+- Temporal Lifecycle (temporal-lifecycle.md)
 - Axiomatic Contract Model (axiomatic-contract-model.md)
 - Runtime Machine (runtime-machine.md)
 - Bridge Observation Envelope Implementation Plan (Research Agent track)
