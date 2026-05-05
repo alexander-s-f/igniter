@@ -255,6 +255,14 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   and `generated_at` records when the slice object was created.
 - Slice items group by `metadata[:request_id]` when present and omit raw fact
   ids, value hashes, causation, command values, and provider payloads.
+- `Store#command_flow_monitor` evaluates explicit plain-data rules against a
+  `CommandFlowSlice` and returns `CommandFlowMonitorResult`.
+- Monitor rules support total/status/command/actor/subject/request metrics,
+  ratios, comparison operators, and info/warning/critical severity. Matched
+  rules become app-safe observations/alerts; no scheduling or delivery happens.
+- `CommandFlowMonitorResult` folds status to `:critical` for critical alerts,
+  `:warning` for warning alerts, and `:ok` otherwise. Matched `:info` alerts do
+  not worsen the overall status.
 
 `effects`
 
@@ -278,6 +286,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   app-boundary objects together and keeps preview non-mutating.
 - Command flow slices are read models, not aggregate tables. They read retained
   activity history and fold status for dashboards/agents.
+- Command flow monitors are deterministic read-model evaluations, not
+  schedulers, notifications, descriptor registries, or policy gates.
 - Applying commands is still app-owned behavior. Ledger stores descriptors and
   facts, but does not run command callbacks or decide policy/capability.
   `CommandPolicyDecision` is a summary, not an authorization token.

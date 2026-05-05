@@ -19,6 +19,7 @@ module Igniter
     CommandLifecycle = DurableModel::CommandLifecycle
     CommandFlow = DurableModel::CommandFlow
     CommandFlowSlice = DurableModel::CommandFlowSlice
+    CommandFlowMonitorResult = DurableModel::CommandFlowMonitorResult
 
     def self.from_manifest(manifest, store: nil)
       DurableModel.from_manifest(manifest, store: store)

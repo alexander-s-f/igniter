@@ -171,6 +171,15 @@ store.command_flow_slice(
   owner: :reminders,
   status: :applied,
   since: Time.utc(2026, 1, 1))
+store.command_flow_monitor(
+  owner: :reminders,
+  rules: [{
+    name: :denials,
+    metric: :status_count,
+    status: :policy_denied,
+    op: :>,
+    value: 0
+  }])
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -184,8 +193,8 @@ projection descriptor registration, command/effect descriptor registration,
 `_projections`, `_commands`, `_effects`, read-only `_scatters`,
 `command_policy_decision`, `apply_command`, `command_lifecycle`,
 `command_lifecycle_events`, `command_flow`, `command_flow_slice`,
-`command_flow_summary`, `causation_chain`, `lineage`, `metadata_snapshot`, and
-`descriptor_snapshot`.
+`command_flow_summary`, `command_flow_monitor`, `causation_chain`, `lineage`,
+`metadata_snapshot`, and `descriptor_snapshot`.
 Partition replay lowers through the Ledger replay filter and uses Ledger
 partition indexes when served by a Ledger protocol interpreter. Relation support
 is v0 and lowers supported one-to-many declarations to Ledger relation
@@ -197,12 +206,13 @@ Provenance support is read-only and compact: Durable Model exposes
 `causation_chain`/`lineage`, while Ledger Client `fact_ref` returns metadata
 only and does not expose arbitrary `fact_by_id` reads.
 
-Command support has eleven layers: descriptor metadata (`_commands`/`_effects`),
+Command support has twelve layers: descriptor metadata (`_commands`/`_effects`),
 pure `CommandIntent` objects, dry-run `CommandOperationPlan` previews, app-safe
 `CommandActivityEvent` summaries, explicit `CommandActivity` audit history
 append, explicit `CommandPolicyDecision`, explicit `Store#apply_command`, and
 `CommandLifecycle` read models, plus transparent `CommandFlow` orchestration.
-`CommandFlowSlice` adds temporal operational read models over command activity.
+`CommandFlowSlice` adds temporal operational read models over command activity;
+`CommandFlowMonitorResult` adds deterministic rule evaluation over those slices.
 Future app security infrastructure remains outside this package.
 `Store#command_intent`, `Store#command_operation_plan`, and
 `Store#command_activity_event` build data only.
@@ -224,6 +234,10 @@ does not mutate in preview mode, and only applies through `mode: :apply`.
 temporal horizon (`since:` inclusive lower bound, `as_of:` inclusive observation
 horizon), folds requests into app-safe slice items, and exposes counts for
 dashboards and agents without raw Ledger facts or command values.
+`Store#command_flow_monitor` evaluates explicit plain-data rules against a
+slice and returns an app-safe `CommandFlowMonitorResult` with observations,
+alerts, and `:ok`/`:warning`/`:critical` status. It does not schedule, notify,
+mutate, or add Ledger-side monitor runtime.
 
 ### Normalized receipts
 

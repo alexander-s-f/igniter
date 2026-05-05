@@ -690,6 +690,46 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "evaluates client-backed command flow monitors over history" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+      s.write(CommandedReminder, key: "r2", id: "r2", title: "Pay bills", status: :open)
+
+      s.command_flow(CommandedReminder, :complete,
+        key: "r1",
+        actor: "user-1",
+        capabilities: [:reminder_complete],
+        metadata: { request_id: "req-client-monitor-1" },
+        mode: :apply,
+        audit: true)
+      s.command_flow(CommandedReminder, :complete,
+        key: "r2",
+        actor: "user-2",
+        capabilities: [],
+        metadata: { request_id: "req-client-monitor-2" },
+        mode: :apply,
+        audit: true)
+
+      result = s.command_flow_monitor(
+        owner: :commanded_reminders,
+        rules: [{
+          name: :denials,
+          metric: :status_count,
+          status: :policy_denied,
+          op: :>=,
+          value: 1,
+          severity: :warning
+        }]
+      )
+
+      expect(result).to be_warning
+      expect(result.alerts.size).to eq(1)
+      expect(result.alerts.first).to include(name: :denials, actual: 1)
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -2721,6 +2761,278 @@ RSpec.describe Igniter::Companion::Store do
         )
         expect(slice.items.first[:errors]).to eq([])
         expect(slice.items.first[:warnings]).to eq([])
+      ensure
+        s&.close
+      end
+
+      it "returns ok command flow monitor results when rules are empty" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-monitor-empty" },
+          audit: true)
+        result = s.command_flow_monitor(owner: :commanded_reminders, name: :daily)
+
+        expect(result).to be_frozen
+        expect(result).to be_a(Igniter::DurableModel::CommandFlowMonitorResult)
+        expect(result).to be_ok
+        expect(result).not_to be_triggered
+        expect(result[:name]).to eq(:daily)
+        expect(result.rules).to eq([])
+        expect(result.observations).to eq([])
+        expect(result.alerts).to eq([])
+        expect(result.summary).to include(total: 1)
+        expect(result.to_h).not_to have_key(:fact_id)
+        expect(result.to_h).not_to have_key(:causation)
+      ensure
+        s&.close
+      end
+
+      it "evaluates all command flow monitor metrics" do
+        s = described_class.new
+        slice = Igniter::DurableModel::CommandFlowSlice.new(
+          owner: :commanded_reminders,
+          filters: {},
+          items: [
+            {
+              owner: :commanded_reminders,
+              command: :complete,
+              actor: "user-1",
+              subject_key: "r1",
+              request_id: "req-1",
+              status: :applied
+            },
+            {
+              owner: :commanded_reminders,
+              command: :complete,
+              actor: "user-1",
+              subject_key: "r2",
+              request_id: "req-2",
+              status: :policy_denied
+            },
+            {
+              owner: :commanded_reminders,
+              command: :review_complete,
+              actor: "user-2",
+              subject_key: "r2",
+              request_id: "req-3",
+              status: :review_required
+            }
+          ])
+
+        result = s.command_flow_monitor(
+          owner: :commanded_reminders,
+          slice: slice,
+          rules: [
+            { name: :total, metric: :total, op: :==, value: 3, severity: :info },
+            { name: :status_count, metric: :status_count, status: :policy_denied, op: :==, value: 1, severity: :info },
+            { name: :status_ratio, metric: :status_ratio, status: :policy_denied, op: :>, value: 0.3, severity: :info },
+            { name: :command_count, metric: :command_count, command: :complete, op: :==, value: 2, severity: :info },
+            { name: :actor_count, metric: :actor_count, actor: "user-1", op: :==, value: 2, severity: :info },
+            { name: :subject_count, metric: :subject_count, op: :==, value: 2, severity: :info },
+            { name: :request_count, metric: :request_count, op: :==, value: 3, severity: :info }
+          ])
+
+        expect(result).to be_ok
+        expect(result).to be_triggered
+        expect(result.alerts.map { |alert| alert[:name] }).to eq(
+          %i[total status_count status_ratio command_count actor_count subject_count request_count]
+        )
+        expect(result.observations.map { |entry| entry[:matched] }).to all(be true)
+      ensure
+        s&.close
+      end
+
+      it "supports all command flow monitor operators" do
+        s = described_class.new
+        slice = Igniter::DurableModel::CommandFlowSlice.new(
+          owner: :commanded_reminders,
+          filters: {},
+          items: [
+            { command: :complete, status: :applied },
+            { command: :complete, status: :applied }
+          ])
+
+        result = s.command_flow_monitor(
+          owner: :commanded_reminders,
+          slice: slice,
+          rules: [
+            { name: :gt, metric: :total, op: :>, value: 1, severity: :info },
+            { name: :gte, metric: :total, op: :>=, value: 2, severity: :info },
+            { name: :lt, metric: :total, op: :<, value: 3, severity: :info },
+            { name: :lte, metric: :total, op: :<=, value: 2, severity: :info },
+            { name: :eq, metric: :total, op: :==, value: 2, severity: :info },
+            { name: :neq, metric: :total, op: :!=, value: 3, severity: :info }
+          ])
+
+        expect(result.status).to eq(:ok)
+        expect(result.alerts.map { |alert| alert[:name] }).to eq(%i[gt gte lt lte eq neq])
+      ensure
+        s&.close
+      end
+
+      it "folds command flow monitor severity to warning and critical" do
+        s = described_class.new
+        slice = Igniter::DurableModel::CommandFlowSlice.new(
+          owner: :commanded_reminders,
+          filters: {},
+          items: [
+            { command: :complete, status: :policy_denied },
+            { command: :complete, status: :review_required }
+          ])
+        warning = s.command_flow_monitor(
+          owner: :commanded_reminders,
+          slice: slice,
+          rules: [{
+            name: :denial_rate,
+            metric: :status_ratio,
+            status: :policy_denied,
+            op: :>=,
+            value: 0.5,
+            severity: :warning
+          }])
+        critical = s.command_flow_monitor(
+          owner: :commanded_reminders,
+          slice: slice,
+          rules: [
+            {
+              name: :denial_rate,
+              metric: :status_ratio,
+              status: :policy_denied,
+              op: :>=,
+              value: 0.5,
+              severity: :warning
+            },
+            {
+              name: :review_backlog,
+              metric: :status_count,
+              status: :review_required,
+              op: :>=,
+              value: 1,
+              severity: :critical
+            }
+          ])
+
+        expect(warning).to be_warning
+        expect(critical).to be_critical
+      ensure
+        s&.close
+      end
+
+      it "raises clear errors for invalid command flow monitor rules" do
+        s = described_class.new
+
+        expect do
+          s.command_flow_monitor(owner: :commanded_reminders,
+            rules: [{ name: :bad, metric: :mystery, op: :>, value: 1 }])
+        end.to raise_error(ArgumentError, /metric/)
+        expect do
+          s.command_flow_monitor(owner: :commanded_reminders,
+            rules: [{ name: :bad, metric: :total, op: :between, value: 1 }])
+        end.to raise_error(ArgumentError, /operator/)
+        expect do
+          s.command_flow_monitor(owner: :commanded_reminders,
+            rules: [{ name: :bad, metric: :total, op: :>, value: 1, severity: :panic }])
+        end.to raise_error(ArgumentError, /severity/)
+        expect do
+          s.command_flow_monitor(owner: :commanded_reminders,
+            rules: [{ name: :missing_status, metric: :status_count, op: :>, value: 1 }])
+        end.to raise_error(ArgumentError, /requires status/)
+      ensure
+        s&.close
+      end
+
+      it "uses provided command flow monitor slices without replaying history" do
+        s = described_class.new
+        slice = Igniter::DurableModel::CommandFlowSlice.new(
+          owner: :provided,
+          filters: { status: :applied },
+          items: [{ command: :complete, status: :applied, actor: "user-1" }])
+
+        result = s.command_flow_monitor(
+          owner: :commanded_reminders,
+          slice: slice,
+          rules: [{
+            name: :provided_total,
+            metric: :total,
+            op: :==,
+            value: 1,
+            severity: :warning
+          }]
+        )
+
+        expect(result.owner).to eq(:commanded_reminders)
+        expect(result.slice[:owner]).to eq(:provided)
+        expect(result).to be_warning
+        expect(result.alerts.first[:actual]).to eq(1)
+      ensure
+        s&.close
+      end
+
+      it "evaluates command flow monitors over embedded command history" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+        s.write(CommandedReminder, key: "r2", id: "r2", title: "Pay bills", status: :open)
+
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          actor: "user-1",
+          capabilities: [:reminder_complete],
+          metadata: { request_id: "req-monitor-applied" },
+          mode: :apply,
+          audit: true)
+        s.command_flow(CommandedReminder, :complete,
+          key: "r2",
+          actor: "user-2",
+          capabilities: [],
+          metadata: { request_id: "req-monitor-denied" },
+          mode: :apply,
+          audit: true)
+
+        result = s.command_flow_monitor(
+          owner: :commanded_reminders,
+          command: :complete,
+          rules: [
+            {
+              name: :denials,
+              metric: :status_count,
+              status: :policy_denied,
+              op: :>=,
+              value: 1,
+              severity: :warning,
+              message: "policy denials observed",
+              metadata: { dashboard: :ops }
+            },
+            {
+              name: :too_many,
+              metric: :total,
+              op: :>,
+              value: 5,
+              severity: :critical
+            }
+          ])
+
+        expect(result).to be_warning
+        expect(result.summary[:total]).to eq(2)
+        expect(result.observations.size).to eq(2)
+        expect(result.alerts.size).to eq(1)
+        expect(result.alerts.first).to include(
+          name: :denials,
+          metric: :status_count,
+          expected: 1,
+          actual: 1,
+          matched: true,
+          severity: :warning,
+          message: "policy denials observed",
+          metadata: { dashboard: :ops }
+        )
+        expect(result.to_h).not_to have_key(:fact_id)
+        expect(result.to_h).not_to have_key(:causation)
       ensure
         s&.close
       end

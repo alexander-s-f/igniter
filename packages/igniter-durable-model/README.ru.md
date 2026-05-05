@@ -160,6 +160,15 @@ store.command_flow_slice(
   owner: :reminders,
   status: :applied,
   since: Time.utc(2026, 1, 1))
+store.command_flow_monitor(
+  owner: :reminders,
+  rules: [{
+    name: :denials,
+    metric: :status_count,
+    status: :policy_denied,
+    op: :>,
+    value: 0
+  }])
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -173,10 +182,10 @@ registration, command/effect descriptor registration, `_projections`,
 `_commands`, `_effects`, read-only `_scatters`, `command_policy_decision`,
 `apply_command`, `command_lifecycle`, `command_lifecycle_events`,
 `command_flow`, `command_flow_slice`, `command_flow_summary`,
-`metadata_snapshot` и `descriptor_snapshot`, а также `causation_chain` и
-`lineage`. Partition replay проходит через Ledger replay filter и использует
-Ledger partition indexes, когда запрос обслуживает Ledger protocol interpreter.
-Relation support в v0 понижает
+`command_flow_monitor`, `metadata_snapshot` и `descriptor_snapshot`, а также
+`causation_chain` и `lineage`. Partition replay проходит через Ledger replay
+filter и использует Ledger partition indexes, когда запрос обслуживает Ledger
+protocol interpreter. Relation support в v0 понижает
 поддержанные one-to-many декларации в Ledger relation descriptors. Projection,
 command и effect support — metadata-only: Ledger хранит descriptors, но не
 исполняет app commands или callbacks. Прямой `register_scatter` пока требует
@@ -185,14 +194,16 @@ support read-only и compact: Durable Model экспонирует
 `causation_chain`/`lineage`, а Ledger Client `fact_ref` возвращает только
 metadata и не открывает произвольный `fact_by_id`.
 
-Command support состоит из одиннадцати слоёв: descriptor metadata
+Command support состоит из двенадцати слоёв: descriptor metadata
 (`_commands`/`_effects`), pure `CommandIntent` objects, dry-run
 `CommandOperationPlan` previews, app-safe `CommandActivityEvent` summaries,
 explicit `CommandActivity` audit history append, explicit
 `CommandPolicyDecision`, explicit `Store#apply_command` и `CommandLifecycle`
 read models, плюс transparent `CommandFlow` orchestration. `CommandFlowSlice`
-добавляет temporal operational read models поверх command activity. Будущая app
-security infrastructure остаётся вне этого пакета. `Store#command_intent`,
+добавляет temporal operational read models поверх command activity;
+`CommandFlowMonitorResult` добавляет deterministic rule evaluation поверх этих
+slices. Будущая app security infrastructure остаётся вне этого пакета.
+`Store#command_intent`,
 `Store#command_operation_plan` и
 `Store#command_activity_event` строят только данные. `Store#append_command_activity`
 — явный шаг audit persistence: он пишет только app-safe summary и возвращает
@@ -212,7 +223,11 @@ orchestrator поверх тех же объектов. Он по умолчан
 `CommandActivity` history по явному temporal horizon (`since:` inclusive lower
 bound, `as_of:` inclusive observation horizon), сворачивает requests в app-safe
 slice items и отдаёт counts для dashboards и agents без raw Ledger facts или
-command values.
+command values. `Store#command_flow_monitor` оценивает explicit plain-data
+rules поверх slice и возвращает app-safe `CommandFlowMonitorResult` с
+observations, alerts и статусом `:ok`/`:warning`/`:critical`. Он не планирует
+задачи, не отправляет notifications, не мутирует storage и не добавляет
+Ledger-side monitor runtime.
 
 ### Нормализованные receipts
 

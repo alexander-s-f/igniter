@@ -1,6 +1,6 @@
 # Track: Durable Model Command Flow Monitors v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -297,3 +297,18 @@ Please keep this slice narrow and compositional:
 
 This slice should turn temporal command slices into operational signal, while
 remaining deterministic, app-owned, and safe for agents to inspect.
+
+## Final Notes
+
+- `CommandFlowMonitorResult` is an app-safe monitor report over
+  `CommandFlowSlice`, not durable monitor state.
+- `Store#command_flow_monitor` accepts either a provided `slice:` or builds one
+  through `command_flow_slice(...)`; it never mutates storage or appends
+  activity.
+- Rules remain plain data hashes. Supported metrics are `:total`,
+  `:status_count`, `:status_ratio`, `:command_count`, `:actor_count`,
+  `:subject_count`, and `:request_count`.
+- Supported severities are `:info`, `:warning`, and `:critical`; info alerts do
+  not worsen the overall status.
+- No scheduler, notification delivery, descriptor registry, or Ledger protocol
+  operation was added.

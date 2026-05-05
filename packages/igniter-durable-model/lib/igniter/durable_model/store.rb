@@ -648,6 +648,43 @@ module Igniter
         command_flow_slice(...).summary
       end
 
+      # Deterministic monitor evaluation over a command-flow slice.
+      def command_flow_monitor(owner:, name: nil, command: nil, subject_key: nil,
+                               request_id: nil, actor: nil, status: nil,
+                               since: nil, as_of: nil, limit: nil, rules: [],
+                               slice: nil, history_class: CommandActivity)
+        monitor_slice = slice || command_flow_slice(
+          owner: owner,
+          command: command,
+          subject_key: subject_key,
+          request_id: request_id,
+          actor: actor,
+          status: status,
+          since: since,
+          as_of: as_of,
+          limit: limit,
+          history_class: history_class
+        )
+        normalized_rules = Array(rules).map { |rule| normalize_monitor_rule(rule) }
+        observations = normalized_rules.map { |rule| command_flow_monitor_observation(rule, monitor_slice) }
+        alerts = observations.select { |observation| observation[:matched] }
+        monitor_status = command_flow_monitor_status(alerts)
+
+        CommandFlowMonitorResult.new(
+          name: name,
+          owner: owner,
+          filters: monitor_slice.filters,
+          since: monitor_slice.since,
+          as_of: monitor_slice.as_of,
+          status: monitor_status,
+          rules: normalized_rules,
+          observations: observations,
+          alerts: alerts,
+          summary: monitor_slice.summary,
+          slice: monitor_slice
+        )
+      end
+
       # Summarize app-owned policy/capability checks for a command plan.
       # This is metadata-only and never mutates storage or evaluates in Ledger.
       def command_policy_decision(plan, actor: nil, capabilities: [],
@@ -1413,6 +1450,107 @@ module Igniter
         return nil if value.nil?
 
         value.respond_to?(:to_f) ? value.to_f : value
+      end
+
+      MONITOR_METRICS = %i[
+        total status_count status_ratio command_count actor_count
+        subject_count request_count
+      ].freeze
+
+      MONITOR_OPERATORS = %i[> >= < <= == !=].freeze
+
+      MONITOR_SEVERITIES = %i[info warning critical].freeze
+
+      def normalize_monitor_rule(rule)
+        data = normalize_value(rule || {})
+        metric = token(data[:metric])
+        op = token(data[:op])
+        severity = token(data[:severity] || :warning)
+
+        raise ArgumentError, "Unknown command_flow_monitor metric: #{metric.inspect}" unless MONITOR_METRICS.include?(metric)
+        raise ArgumentError, "Unknown command_flow_monitor operator: #{op.inspect}" unless MONITOR_OPERATORS.include?(op)
+        raise ArgumentError, "Unknown command_flow_monitor severity: #{severity.inspect}" unless MONITOR_SEVERITIES.include?(severity)
+        raise ArgumentError, "command_flow_monitor rule requires name" unless data[:name]
+        raise ArgumentError, "command_flow_monitor rule requires value" unless data.key?(:value)
+
+        {
+          name: token(data[:name]),
+          metric: metric,
+          op: op,
+          value: data[:value],
+          status: data.key?(:status) ? token(data[:status]) : nil,
+          command: data.key?(:command) ? token(data[:command]) : nil,
+          actor: data[:actor],
+          severity: severity,
+          message: data[:message],
+          metadata: normalize_value(data[:metadata] || {})
+        }.compact
+      end
+
+      def command_flow_monitor_observation(rule, slice)
+        actual = command_flow_monitor_metric(rule, slice)
+        matched = command_flow_monitor_compare(actual, rule[:op], rule[:value])
+        {
+          name: rule[:name],
+          metric: rule[:metric],
+          op: rule[:op],
+          expected: rule[:value],
+          actual: actual,
+          matched: matched,
+          severity: rule[:severity],
+          message: rule[:message],
+          metadata: rule[:metadata]
+        }.compact
+      end
+
+      def command_flow_monitor_metric(rule, slice)
+        case rule[:metric]
+        when :total
+          slice.size
+        when :status_count
+          slice.status_counts.fetch(required_monitor_rule_field(rule, :status), 0)
+        when :status_ratio
+          return 0.0 if slice.size.zero?
+
+          slice.status_counts.fetch(required_monitor_rule_field(rule, :status), 0).to_f / slice.size
+        when :command_count
+          slice.command_counts.fetch(required_monitor_rule_field(rule, :command), 0)
+        when :actor_count
+          slice.actor_counts.fetch(required_monitor_rule_field(rule, :actor), 0)
+        when :subject_count
+          slice.subject_count
+        when :request_count
+          slice.request_count
+        else
+          raise ArgumentError, "Unknown command_flow_monitor metric: #{rule[:metric].inspect}"
+        end
+      end
+
+      def required_monitor_rule_field(rule, key)
+        return rule[key] if rule.key?(key)
+
+        raise ArgumentError,
+              "command_flow_monitor metric=#{rule[:metric].inspect} requires #{key}:"
+      end
+
+      def command_flow_monitor_compare(actual, op, expected)
+        case op
+        when :> then actual > expected
+        when :>= then actual >= expected
+        when :< then actual < expected
+        when :<= then actual <= expected
+        when :== then actual == expected
+        when :!= then actual != expected
+        else
+          raise ArgumentError, "Unknown command_flow_monitor operator: #{op.inspect}"
+        end
+      end
+
+      def command_flow_monitor_status(alerts)
+        return :critical if alerts.any? { |alert| alert[:severity] == :critical }
+        return :warning if alerts.any? { |alert| alert[:severity] == :warning }
+
+        :ok
       end
 
       def ensure_command_flow_request_id(metadata)
