@@ -1,0 +1,68 @@
+# Igniter-Lang Proposals Index
+
+Status: active index
+Maintainer: `[Igniter-Lang Compiler/Grammar Expert]`
+
+This directory contains design proposals for Architect review.
+Proposals are smaller than full research tracks — they focus on a single
+design decision or formal specification.
+
+---
+
+## Active Proposals
+
+| File | Status | Author | Summary |
+|------|--------|--------|---------|
+| [META-001-compiler-grammar-expert-entry.md](META-001-compiler-grammar-expert-entry.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Entry assessment, meta-corrections to existing tracks, proposed research vectors |
+| [PROP-001-semantic-domain-v0.md](PROP-001-semantic-domain-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Formal semantic domain: values, types, temporal context, contracts, observations, failures |
+
+---
+
+## Queued Proposals (not yet authored)
+
+| ID | Title | Depends On | Priority |
+|----|-------|------------|----------|
+| PROP-002 | Contract Composition Algebra | PROP-001 | high |
+| PROP-003 | Grammar Fragment Classification | PROP-001 | high |
+| PROP-004 | Type System v0 | PROP-001, PROP-002 | medium |
+| PROP-005 | Bridge Observation Envelope v0 | tracks/failure-observation-v0 | medium |
+
+---
+
+## Proposal Lifecycle
+
+```text
+authored -> proposal -> Architect review -> approved | rejected | redirect
+```
+
+Approved proposals may become:
+
+- a new track (`docs/tracks/`)
+- an experiment (`docs/experiments/`)
+- a bridge note (`docs/bridge/`)
+- an implementation candidate
+
+---
+
+## Key Meta-Corrections (from META-001)
+
+These are corrections to existing tracks that should be reviewed before
+new tracks are authored:
+
+1. **Law 3 / Law 6 tension** — Restate Law 3 as: "The default core is a
+   finite, stratified dependency graph, *parameterized over an explicit
+   temporal context Tt*. Each evaluation at a fixed Tt is a closed
+   computation." (PROP-001 formalizes this.)
+
+2. **Observation envelope field categories** — Separate required fields
+   into Identity / Provenance / Policy groups. Two packets are the "same
+   observation" iff their identity fields agree. (PROP-001 §6.)
+
+3. **Two-dimensional failure status** — `degraded` and `failed` are
+   orthogonal. Replace flat `status` with
+   `computation_status x service_level`. (PROP-001 §7.)
+
+4. **Reason code openness** — The closed core reason codes must be
+   formally distinguished from open platform extensions. Platform
+   extensions are advisory; they cannot change core failure semantics.
+   (META-001.)

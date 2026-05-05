@@ -15,12 +15,28 @@ implementation detail of the current Igniter platform.
 | [tracks/observable-spine-v0.md](tracks/observable-spine-v0.md) | proposal | Completed minimal observation envelope and packet-kind spine |
 | [tracks/failure-observation-v0.md](tracks/failure-observation-v0.md) | proposal | Completed structured failure packet model over the observation spine |
 
+## Active Proposals
+
+See [proposals/README.md](proposals/README.md) for the full index.
+
+| Proposal | Status | Author | Summary |
+|----------|--------|--------|---------|
+| [proposals/META-001](proposals/META-001-compiler-grammar-expert-entry.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Entry assessment + meta-corrections to existing tracks |
+| [proposals/PROP-001](proposals/PROP-001-semantic-domain-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Formal semantic domain: V, T, Tt, C, Expr, O, F |
+
 ## Core Documents
 
 | File | Purpose |
 |------|---------|
 | [ecosystem-split-proposal.md](ecosystem-split-proposal.md) | Defines the Igniter vs Igniter-Lang split |
 | [research-process.md](research-process.md) | Research lifecycle, document rotation, handoff protocol |
+
+## Active Proposals
+
+| Proposal | Status | Purpose |
+|----------|--------|---------|
+| [proposals/META-001-compiler-grammar-expert-entry.md](proposals/META-001-compiler-grammar-expert-entry.md) | proposal | Compiler/grammar expert entry assessment and correction notes |
+| [proposals/PROP-001-semantic-domain-v0.md](proposals/PROP-001-semantic-domain-v0.md) | research | Next slice prompt for the first formal semantic domain |
 
 ## Research Vectors
 
@@ -31,6 +47,10 @@ implementation detail of the current Igniter platform.
 - Persistence / Temporal Semantics
 - Contract Synthesis
 - Igniter Bridge
+- Formal Semantic Domain (NEW — PROP-001)
+- Contract Composition Algebra (QUEUED — PROP-002)
+- Grammar Fragment Classification (QUEUED — PROP-003)
+- Type System v0 (QUEUED — PROP-004)
 
 ## Review Cadence
 
