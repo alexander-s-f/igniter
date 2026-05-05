@@ -26,6 +26,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/META-001](proposals/META-001-compiler-grammar-expert-entry.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Entry assessment + meta-corrections to existing tracks |
 | [proposals/PROP-001](proposals/PROP-001-semantic-domain-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Formal semantic domain: V, T, Tt, C, Expr, O, F |
 | [proposals/PROP-002](proposals/PROP-002-contract-composition-algebra-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Contract composition: >>, \|\|, branch, over, embed — algebraic laws + closure theorem |
+| [proposals/PROP-003](proposals/PROP-003-grammar-fragment-classification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Fragment classification: CORE / ESCAPE / OOF; Pass 0 compiler; DSL keyword mapping |
 
 ## Core Documents
 
@@ -44,10 +45,11 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Persistence / Temporal Semantics
 - Contract Synthesis
 - Igniter Bridge
-- Formal Semantic Domain (NEW — PROP-001)
-- Contract Composition Algebra (ACTIVE — PROP-002)
-- Grammar Fragment Classification (QUEUED — PROP-003)
+- Formal Semantic Domain (PROP-001)
+- Contract Composition Algebra (PROP-002)
+- Grammar Fragment Classification (PROP-003)
 - Type System v0 (QUEUED — PROP-004)
+- Bridge Observation Envelope (QUEUED — PROP-005)
 
 ## Review Cadence
 
