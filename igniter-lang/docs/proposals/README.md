@@ -25,6 +25,7 @@ design decision or formal specification.
 | [PROP-007-conformance-verification-v0.md](PROP-007-conformance-verification-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Verification protocol: 5 check suites, warning/failure rules, trust levels; agent trust decision |
 | [PROP-008-tbackend-contract-v0.md](PROP-008-tbackend-contract-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | TBackend[T]: read, append, replay, snapshot, compact, subscribe; reproducible resume; adapter classes |
 | [PROP-009-semantic-image-resume-compatibility-v0.md](PROP-009-semantic-image-resume-compatibility-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | SemanticImage, CompatibilityReport, ResumeStatus: trusted/provisional/downgraded/blocked rules |
+| [PROP-009.1-resume-ordering-errata.md](PROP-009.1-resume-ordering-errata.md) | errata | `[Igniter-Lang Compiler/Grammar Expert]` | Clarifies CompatibilityReport as evaluation gate (after Boot+Verification); GATE-1 invariant |
 | [PROP-010-temporal-lifecycle-retention-semantics-v0.md](PROP-010-temporal-lifecycle-retention-semantics-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | 6 lifecycle classes, flush semantics, semantic GC roots, 5 downgrade rules, lifecycle matrix |
 | [PROP-011-runtime-machine-lifecycle-v0.md](PROP-011-runtime-machine-lifecycle-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Runtime Machine: 5 typed lifecycle steps (boot/load/evaluate/checkpoint/resume) using PROP-006..010 |
 
@@ -35,6 +36,7 @@ design decision or formal specification.
 | ID | Title | Depends On | Priority |
 |----|-------|------------|----------|
 | PROP-012 | Bridge Implementation Track v0 | PROP-001..PROP-011 | high |
+| — | memory-tbackend-lifecycle-golden-fixtures-v0 | PROP-008..PROP-011 | high (track) |
 
 ---
 

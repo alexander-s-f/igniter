@@ -21,8 +21,10 @@ implementation detail of the current Igniter platform.
 | [tracks/bridge-observation-envelope-runtime-evidence-v0.md](tracks/bridge-observation-envelope-runtime-evidence-v0.md) | done | Extended bridge vocabulary with runtime evidence, meaning status, and runtime links |
 | [tracks/bridge-observation-envelope-package-mapping-v0.md](tracks/bridge-observation-envelope-package-mapping-v0.md) | done | Mapped current package facts, projections, pins, decisions, and runtime session packets to bridge profiles |
 | [tracks/runtime-machine-lifecycle-v0.md](tracks/runtime-machine-lifecycle-v0.md) | done | Defined Runtime Machine boot/load/evaluate/checkpoint/resume lifecycle, semantic image, TBackend adapters, compatibility, and CORE/ESCAPE boundary |
+| [tracks/runtime-machine-executable-proof-plan-v0.md](tracks/runtime-machine-executable-proof-plan-v0.md) | done | Planned the minimal executable proof for :memory TBackend boot/load/evaluate/checkpoint/resume on a toy CORE contract |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
+| [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
 
 ## Active Proposals
 
@@ -80,7 +82,9 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Semantic Image and Resume Compatibility (PROP-009)
 - Temporal Lifecycle and Retention Semantics (PROP-010)
 - Runtime Machine Lifecycle (PROP-011)
+- Runtime Machine Executable Proof Plan (Research Agent track)
 - Temporal Lifecycle (temporal-lifecycle.md)
+- Temporal Lifecycle Boundary Fixtures (Research Agent track)
 - Axiomatic Contract Model (axiomatic-contract-model.md)
 - Runtime Machine (runtime-machine.md)
 - Bridge Implementation Track (QUEUED — PROP-012)

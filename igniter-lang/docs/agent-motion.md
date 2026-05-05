@@ -136,7 +136,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/temporal-lifecycle-application-scenarios-v0.md` | done | temporal lifecycle boundary fixtures |
+| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-executable-proof-plan-v0.md` | done | runtime machine memory proof implementation |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-009-semantic-image-resume-compatibility-v0.md` | done | temporal lifecycle / retention semantics |
 
 ## Current Meta Thesis
@@ -212,6 +212,17 @@ Resume
 Package Agent should receive golden fixtures or sidecar builder work only until
 the Architect approves an integration slice.
 
+[D] Runtime Machine executable proof starts as a standalone `:memory`
+TBackend harness:
+
+```text
+boot -> load -> evaluate -> checkpoint -> resume -> re-evaluate
+```
+
+The first proof may claim reproducibility inside the proof harness only when
+snapshot/cursor evidence and compatibility checks pass. It must not claim
+durable restart from process memory.
+
 [D] `T` has a lifecycle. Igniter-Lang must not imply that all temporal
 observations live forever:
 
@@ -241,6 +252,21 @@ pinned dispatch decision
 
 Raw telemetry should close into AvailabilitySnapshot, RouteSegmentSnapshot,
 DailyTechnicianBoundary, OrderBoundary, and audit receipts before compaction.
+
+[D] Boundary fixtures now define the concrete coverage chain for Spark
+dispatch:
+
+```text
+GeoSignal stream
+  -> RouteSegmentSnapshot
+  -> AvailabilitySnapshot
+  -> DailyTechnicianBoundary
+  -> compacted stubs
+  -> DispatchDecision audit trail
+```
+
+Future bridge fixture work should preserve the distinction between
+reproducible decision meaning and exact raw telemetry replay.
 
 ---
 
@@ -291,10 +317,11 @@ igniter-lang/docs/
     bridge-observation-envelope-runtime-evidence-v0.md [done]
     bridge-observation-envelope-package-mapping-v0.md [done]
     runtime-machine-lifecycle-v0.md [done]
+    runtime-machine-executable-proof-plan-v0.md [done]
     bridge-observation-envelope-implementation-plan-v0.md [done]
     bridge-packet-builder-golden-fixtures-v0.md [queued - no package edits]
     temporal-lifecycle-application-scenarios-v0.md [done]
-    temporal-lifecycle-boundary-fixtures-v0.md [queued - no package edits]
+    temporal-lifecycle-boundary-fixtures-v0.md [done]
 
   proposals/                     <- formal design proposals
     README.md                                        [index]
@@ -340,8 +367,10 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-runtime-evidence-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-package-mapping-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-lifecycle-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-executable-proof-plan-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-implementation-plan-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-application-scenarios-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-boundary-fixtures-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |
