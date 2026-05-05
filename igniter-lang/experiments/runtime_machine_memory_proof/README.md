@@ -2,7 +2,7 @@
 
 Status: done
 Slice state: done on 2026-05-05
-Slice name: `runtime-machine-proof-packet-builder-check-v0`
+Slice name: `runtime-machine-proof-sidecar-builder-profiles-v0`
 Owner: `[Igniter-Lang Research Agent]`
 Supervisor: `[Architect Supervisor / Codex]`
 
@@ -134,6 +134,45 @@ The checker validates:
 - negative evidence for ambient time and missing proof links
 - result summary equality and trusted evidence status
 
+## Sidecar Builder Profiles
+
+Build candidate artifacts from standalone sidecar profiles and check them
+against the golden fixtures:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb
+```
+
+Write a candidate directory and check it:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb --candidate /tmp/runtime_machine_sidecar_candidate
+```
+
+Write a candidate directory without running the checker:
+
+```bash
+ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb --write-candidate <dir>
+```
+
+Expected summary:
+
+```text
+PASS runtime_machine_proof_sidecar_builder_profiles
+candidate_dir: <dir>
+proof_capture: ok
+write_candidate: ok
+packet_builder_check: ok
+```
+
+Profile builders:
+
+- `ObsPacketsProfile`
+- `SemanticImageProfile`
+- `CompatibilityReportsProfile`
+- `NegativeEvidenceProfile`
+- `ResultSummaryProfile`
+
 ## What It Proves
 
 [D] A minimal Runtime Machine can make lifecycle continuity executable without
@@ -154,11 +193,16 @@ content, and CompatibilityReport decisions without scraping PASS text.
 [D] The packet builder check is now a machine-readable gate for future
 sidecar-builder candidates.
 
+[D] Sidecar builder profiles can now emit a candidate fixture directory that
+passes the structural checker without touching package code.
+
 ## Files
 
 - `runtime_machine_memory_proof.rb` - executable harness.
 - `packet_builder_check.rb` - structural checker for golden or candidate
   fixture directories.
+- `sidecar_builder_profiles.rb` - standalone sidecar profile builder that emits
+  candidate fixture directories.
 - `fixtures/*.golden.json` - structural golden artifacts generated from the
   harness.
 
@@ -166,7 +210,7 @@ sidecar-builder candidates.
 
 ```text
 [Igniter-Lang Research Agent]
-Track: runtime-machine-proof-packet-builder-check-v0
+Track: runtime-machine-proof-sidecar-builder-profiles-v0
 Artifact: igniter-lang/experiments/runtime_machine_memory_proof/
 Status: done
 
@@ -182,6 +226,8 @@ Status: done
   negative evidence, and result summary artifacts.
 - `packet_builder_check.rb` validates structural fixture contracts and optional
   candidate fixture directories.
+- `sidecar_builder_profiles.rb` emits candidate artifact directories from
+  standalone profile builders and checks them against golden fixtures.
 
 [R] Recommendations:
 - Use this experiment as the next golden fixture source for sidecar packet
@@ -193,6 +239,8 @@ Status: done
   not the human PASS summary.
 - Make future sidecar builders emit the same artifact set first, then let this
   checker reject drift before any package integration.
+- Keep sidecar profiles as research-local adapters until the bridge packet
+  schema is approved.
 
 [S] Signals:
 - Runtime Machine semantics are now executable at toy scale.
@@ -201,6 +249,8 @@ Status: done
 - Fixture validation now has categories granular enough to tell whether drift
   came from packet identity, SemanticImage, CompatibilityReport, or summary
   behavior.
+- Candidate artifact emission now has a clean seam before package integration:
+  proof output -> profile builders -> candidate JSON -> structural checker.
 
 [Q] Open Questions:
 - Should this harness later move under an approved experiment runner?
@@ -209,9 +259,11 @@ Status: done
 - Should future fixtures split full packet logs from selected packet profiles?
 - Should the checker eventually produce JSON diagnostics in addition to the
   compact PASS/FAIL text?
+- Should sidecar profiles eventually accept external packet-builder output, or
+  stay only as the memory proof candidate generator?
 
 [Next] Proposed next slice:
-- `runtime-machine-proof-sidecar-builder-profiles-v0`
-  Build standalone sidecar builder profiles that emit candidate artifacts for
-  this checker.
+- `runtime-machine-proof-sidecar-profile-modes-v0`
+  Define selected-profile vs full-log comparison modes before package bridge
+  work begins.
 ```
