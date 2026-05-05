@@ -589,6 +589,47 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "projects client-backed command lifecycle from activity history" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+      intent = s.command_intent(CommandedReminder, :complete,
+        key: "r1",
+        metadata: { request_id: "req-1" })
+      plan = s.command_operation_plan(intent)
+      policy = s.command_policy_decision(plan,
+        actor: "user-1",
+        capabilities: [:reminder_complete])
+      s.apply_command(plan, policy_decision: policy, audit: true)
+
+      lifecycle = s.command_lifecycle(
+        owner: :commanded_reminders,
+        command: :complete,
+        subject_key: "r1",
+        request_id: "req-1"
+      )
+
+      expect(lifecycle).to be_a(Igniter::DurableModel::CommandLifecycle)
+      expect(lifecycle).to be_applied
+      expect(lifecycle.to_h).to include(
+        status: :applied,
+        owner: :commanded_reminders,
+        command: :complete,
+        subject_key: "r1",
+        request_id: "req-1",
+        actor: "user-1",
+        policy_status: :allowed,
+        apply_status: :applied,
+        store_fact_exposed: false,
+        value_hash_exposed: false
+      )
+      expect(lifecycle.to_h).not_to have_key(:fact_id)
+      expect(lifecycle.latest_activity).not_to have_key(:value)
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -2066,6 +2107,180 @@ RSpec.describe Igniter::Companion::Store do
         expect(receipt.status).to eq(:rejected)
         expect(receipt.errors).to include(include(code: :missing_capabilities))
         expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+      ensure
+        s&.close
+      end
+
+      it "returns unknown command lifecycle when no activity matches" do
+        s = described_class.new
+
+        lifecycle = s.command_lifecycle(
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "missing",
+          request_id: "req-missing"
+        )
+
+        expect(lifecycle).to be_frozen
+        expect(lifecycle.status).to eq(:unknown)
+        expect(lifecycle.to_h).to include(
+          schema_version: 1,
+          kind: :command_lifecycle,
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "missing",
+          request_id: "req-missing",
+          activity_statuses: [],
+          errors: [],
+          warnings: [],
+          execution_boundary: :app,
+          store_fact_exposed: false,
+          value_hash_exposed: false
+        )
+        expect(lifecycle.latest_activity).to be_nil
+      ensure
+        s&.close
+      end
+
+      it "folds planned command lifecycle from explicit activity history" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :complete,
+          key: "r1",
+          metadata: { request_id: "req-1" })
+        plan = s.command_operation_plan(intent)
+        s.append_command_activity(s.command_activity_event(plan))
+        lifecycle = s.command_lifecycle(
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          request_id: "req-1"
+        )
+
+        expect(lifecycle.status).to eq(:planned)
+        expect(lifecycle.activity_statuses).to eq([:planned])
+        expect(lifecycle.plan_status).to eq(:ready)
+        expect(lifecycle.latest_activity).not_to have_key(:fact_id)
+        expect(lifecycle.latest_activity).not_to have_key(:value_hash)
+      ensure
+        s&.close
+      end
+
+      it "folds policy denied lifecycle and aggregates policy errors" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :complete,
+          key: "r1",
+          metadata: { request_id: "req-denied" })
+        plan = s.command_operation_plan(intent)
+        decision = s.command_policy_decision(plan, actor: "user-1", capabilities: [])
+        s.apply_command(plan, policy_decision: decision, audit: true)
+        lifecycle = s.command_lifecycle(
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          request_id: "req-denied"
+        )
+
+        expect(lifecycle.status).to eq(:policy_denied)
+        expect(lifecycle).to be_rejected
+        expect(lifecycle.policy_status).to eq(:denied)
+        expect(lifecycle.apply_status).to eq(:rejected)
+        expect(lifecycle.errors).to include(include(code: :missing_capabilities))
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+      ensure
+        s&.close
+      end
+
+      it "folds review required lifecycle from rejected apply activity" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :review_complete,
+          key: "r1",
+          metadata: { request_id: "req-review" })
+        plan = s.command_operation_plan(intent)
+        decision = s.command_policy_decision(plan,
+          actor: "user-1",
+          capabilities: [:reminder_complete])
+        s.apply_command(plan, policy_decision: decision, audit: true)
+        lifecycle = s.command_lifecycle(
+          owner: :commanded_reminders,
+          command: :review_complete,
+          subject_key: "r1",
+          request_id: "req-review"
+        )
+
+        expect(lifecycle.status).to eq(:review_required)
+        expect(lifecycle).to be_review_required
+        expect(lifecycle.policy_status).to eq(:review_required)
+        expect(lifecycle.warnings).to include(include(code: :review_required))
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+      ensure
+        s&.close
+      end
+
+      it "folds generic rejected lifecycle from invalid command activity" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :complete,
+          key: "missing",
+          metadata: { request_id: "req-invalid" })
+        plan = s.command_operation_plan(intent)
+        s.apply_command(plan, audit: true)
+        lifecycle = s.command_lifecycle(
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "missing",
+          request_id: "req-invalid"
+        )
+
+        expect(lifecycle.status).to eq(:rejected)
+        expect(lifecycle.errors).to include(include(code: :record_not_found))
+      ensure
+        s&.close
+      end
+
+      it "folds applied lifecycle and exposes a filtered typed timeline" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :complete,
+          key: "r1",
+          metadata: { request_id: "req-apply" })
+        plan = s.command_operation_plan(intent)
+        policy = s.command_policy_decision(plan,
+          actor: "user-1",
+          capabilities: [:reminder_complete])
+        s.append_command_activity(s.command_activity_event(plan))
+        s.apply_command(plan, policy_decision: policy, audit: true)
+        lifecycle = s.command_lifecycle(
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          request_id: "req-apply"
+        )
+        timeline = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          request_id: "req-apply"
+        )
+
+        expect(lifecycle.status).to eq(:applied)
+        expect(lifecycle.activity_statuses).to eq(%i[planned applied])
+        expect(lifecycle.actor).to eq("user-1")
+        expect(lifecycle.latest_activity).to include(status: :applied)
+        expect(timeline.map(&:status)).to eq(%i[planned applied])
+        expect(timeline).to all(be_a(Igniter::DurableModel::CommandActivity))
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:done)
       ensure
         s&.close
       end

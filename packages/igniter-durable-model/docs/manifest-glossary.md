@@ -234,6 +234,13 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - `CommandApplyReceipt` reports applied/rejected status, mutation intent,
   target, warnings, errors, and whether activity was recorded. It intentionally
   omits fact ids, value hashes, causation, and the raw activity receipt.
+- `Store#command_lifecycle` folds matching `CommandActivity` history into an
+  app-safe `CommandLifecycle` read model for UI and agents. It returns
+  `:unknown`, `:intended`, `:planned`, `:policy_denied`, `:review_required`,
+  `:rejected`, or `:applied` without mutating storage, evaluating policy, or
+  exposing raw receipts/fact ids/value hashes.
+- `Store#command_lifecycle_events` returns the typed filtered
+  `CommandActivity` timeline for apps that need the full activity history.
 
 `effects`
 
@@ -251,6 +258,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   status, target, errors, and warnings for app-facing surfaces.
 - Command activity history is separate from effect application. Recording audit
   activity never mutates the target record or planned business history.
+- Lifecycle projection is separate from command application. It only reads
+  already-recorded activity and folds status deterministically.
 - Applying commands is still app-owned behavior. Ledger stores descriptors and
   facts, but does not run command callbacks or decide policy/capability.
   `CommandPolicyDecision` is a summary, not an authorization token.

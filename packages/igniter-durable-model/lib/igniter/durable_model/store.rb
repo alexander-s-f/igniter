@@ -463,6 +463,7 @@ module Igniter
           return rejected_command_apply_receipt(plan,
             errors: policy_decision_errors(decision),
             warnings: decision.warnings,
+            policy_decision: decision,
             audit: audit,
             activity_history_class: activity_history_class)
         end
@@ -477,17 +478,20 @@ module Igniter
         when :record_update
           apply_record_update_command(plan,
             audit: audit,
-            activity_history_class: activity_history_class)
+            activity_history_class: activity_history_class,
+            policy_decision: decision)
         when :record_append
           apply_record_append_command(plan,
             key: key,
             audit: audit,
-            activity_history_class: activity_history_class)
+            activity_history_class: activity_history_class,
+            policy_decision: decision)
         when :history_append
           apply_history_append_command(plan,
             history_class: history_class,
             audit: audit,
-            activity_history_class: activity_history_class)
+            activity_history_class: activity_history_class,
+            policy_decision: decision)
         when :none
           applied_command_receipt(plan,
             target: plan.target,
@@ -495,13 +499,47 @@ module Igniter
             activity_recorded: record_apply_activity(plan,
               status: :applied,
               audit: audit,
-              activity_history_class: activity_history_class))
+              activity_history_class: activity_history_class,
+              policy_decision: decision))
         else
           rejected_command_apply_receipt(plan,
             errors: [plan_error(:unsupported_operation,
               "Unsupported command operation: #{plan.operation.inspect}")],
             audit: audit,
             activity_history_class: activity_history_class)
+        end
+      end
+
+      # Collapse CommandActivity history for one command attempt into an
+      # app-safe lifecycle read model.
+      def command_lifecycle(owner:, command:, subject_key: nil, request_id: nil,
+                            history_class: CommandActivity)
+        events = command_lifecycle_events(
+          owner: owner,
+          command: command,
+          subject_key: subject_key,
+          request_id: request_id,
+          history_class: history_class
+        )
+        build_command_lifecycle(
+          events,
+          owner: owner,
+          command: command,
+          subject_key: subject_key,
+          request_id: request_id
+        )
+      end
+
+      # Return the typed CommandActivity timeline used by command_lifecycle.
+      def command_lifecycle_events(owner:, command: nil, subject_key: nil,
+                                   request_id: nil,
+                                   history_class: CommandActivity)
+        replay(history_class, partition: token(owner)).select do |event|
+          command_matches = command.nil? || event.command == token(command)
+          subject_matches = subject_key.nil? || event.subject_key == subject_key
+          request_matches = request_id.nil? || event.metadata[:request_id] == request_id
+
+          command_matches && subject_matches && request_matches
         end
       end
 
@@ -1245,7 +1283,105 @@ module Igniter
         end
       end
 
-      def apply_record_update_command(plan, audit:, activity_history_class:)
+      def build_command_lifecycle(events, owner:, command:, subject_key:, request_id:)
+        latest = events.last
+        return unknown_command_lifecycle(owner, command, subject_key, request_id) unless latest
+
+        errors = events.flat_map { |event| Array(event.errors) }.uniq
+        warnings = events.flat_map { |event| Array(event.warnings) }.uniq
+        activity_statuses = events.map(&:status)
+        lifecycle_status = command_lifecycle_status(latest)
+        metadata = latest.metadata
+
+        CommandLifecycle.new(
+          status: lifecycle_status,
+          owner: latest.owner,
+          command: latest.command,
+          subject_key: latest.subject_key,
+          request_id: request_id || metadata[:request_id],
+          actor: metadata[:actor],
+          operation: latest.operation,
+          target: latest.target,
+          intent_status: latest.intent_status,
+          plan_status: latest.plan_status,
+          policy_status: lifecycle_policy_status(latest),
+          apply_status: lifecycle_apply_status(latest),
+          activity_statuses: activity_statuses,
+          errors: errors,
+          warnings: warnings,
+          metadata: metadata,
+          latest_activity: latest.to_h,
+          store_fact_exposed: false,
+          value_hash_exposed: false
+        )
+      end
+
+      def unknown_command_lifecycle(owner, command, subject_key, request_id)
+        CommandLifecycle.new(
+          status: :unknown,
+          owner: owner,
+          command: command,
+          subject_key: subject_key,
+          request_id: request_id,
+          activity_statuses: [],
+          errors: [],
+          warnings: [],
+          metadata: {},
+          latest_activity: nil
+        )
+      end
+
+      def command_lifecycle_status(activity)
+        return :applied if activity.status == :applied
+        return :review_required if activity.status == :rejected && review_error?(activity)
+        return :policy_denied if activity.status == :rejected && policy_error?(activity)
+        return :rejected if activity.status == :rejected
+        return :planned if activity.status == :planned
+        return :intended if activity.status == :intended
+
+        token(activity.status) || :unknown
+      end
+
+      def lifecycle_policy_status(activity)
+        return activity.metadata[:policy_status] if activity.metadata[:policy_status]
+        return :review_required if review_error?(activity)
+        return :denied if policy_error?(activity)
+
+        nil
+      end
+
+      def lifecycle_apply_status(activity)
+        return nil unless activity.metadata[:lifecycle_stage] == :apply
+
+        activity.status
+      end
+
+      def review_error?(activity)
+        activity_errors(activity).any? { |error| error[:code] == :review_required }
+      end
+
+      def policy_error?(activity)
+        activity_errors(activity).any? do |error|
+          %i[missing_capabilities policy_denied].include?(error[:code])
+        end
+      end
+
+      def activity_errors(activity)
+        Array(activity.errors).select { |error| error.is_a?(Hash) }
+      end
+
+      def apply_activity_metadata(plan, policy_decision)
+        metadata = plan.metadata.merge(lifecycle_stage: :apply)
+        return metadata unless policy_decision
+
+        metadata.merge(
+          actor: policy_decision.actor,
+          policy_status: policy_decision.status
+        ).compact
+      end
+
+      def apply_record_update_command(plan, audit:, activity_history_class:,
+                                      policy_decision:)
         schema_class = registered_record_schema_for(plan.owner)
         unless schema_class
           return rejected_command_apply_receipt(plan,
@@ -1270,10 +1406,12 @@ module Igniter
           activity_recorded: record_apply_activity(plan,
             status: :applied,
             audit: audit,
-            activity_history_class: activity_history_class))
+            activity_history_class: activity_history_class,
+            policy_decision: policy_decision))
       end
 
-      def apply_record_append_command(plan, key:, audit:, activity_history_class:)
+      def apply_record_append_command(plan, key:, audit:, activity_history_class:,
+                                      policy_decision:)
         schema_class = registered_record_schema_for(plan.owner)
         unless schema_class
           return rejected_command_apply_receipt(plan,
@@ -1299,11 +1437,13 @@ module Igniter
           activity_recorded: record_apply_activity(plan,
             status: :applied,
             audit: audit,
-            activity_history_class: activity_history_class))
+            activity_history_class: activity_history_class,
+            policy_decision: policy_decision))
       end
 
       def apply_history_append_command(plan, history_class:, audit:,
-                                       activity_history_class:)
+                                       activity_history_class:,
+                                       policy_decision:)
         target_name = plan.target.is_a?(Hash) ? plan.target[:name] : nil
         resolved_history_class = history_class || registered_history_schema_for(target_name)
         unless resolved_history_class
@@ -1322,7 +1462,8 @@ module Igniter
           activity_recorded: record_apply_activity(plan,
             status: :applied,
             audit: audit,
-            activity_history_class: activity_history_class))
+            activity_history_class: activity_history_class,
+            policy_decision: policy_decision))
       end
 
       def registered_record_schema_for(store_name)
@@ -1369,7 +1510,8 @@ module Igniter
       end
 
       def rejected_command_apply_receipt(plan, errors: [], warnings: [],
-                                         audit:, activity_history_class:)
+                                         policy_decision: nil, audit:,
+                                         activity_history_class:)
         all_errors = (Array(plan.errors) + Array(errors)).uniq
         all_warnings = (Array(plan.warnings) + Array(warnings)).uniq
         activity_recorded = record_apply_activity(plan,
@@ -1377,7 +1519,8 @@ module Igniter
           errors: all_errors,
           warnings: all_warnings,
           audit: audit,
-          activity_history_class: activity_history_class)
+          activity_history_class: activity_history_class,
+          policy_decision: policy_decision)
         CommandApplyReceipt.new(
           status: :rejected,
           owner: plan.owner,
@@ -1393,7 +1536,8 @@ module Igniter
       end
 
       def record_apply_activity(plan, status:, audit:, activity_history_class:,
-                                errors: plan.errors, warnings: plan.warnings)
+                                errors: plan.errors, warnings: plan.warnings,
+                                policy_decision: nil)
         return false unless audit
 
         event = CommandActivityEvent.new(
@@ -1407,7 +1551,7 @@ module Igniter
           target: plan.target,
           errors: errors,
           warnings: warnings,
-          metadata: plan.metadata
+          metadata: apply_activity_metadata(plan, policy_decision)
         )
         append_command_activity(event, history_class: activity_history_class)
         true

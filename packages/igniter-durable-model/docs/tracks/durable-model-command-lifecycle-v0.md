@@ -1,6 +1,6 @@
 # Track: Durable Model Command Lifecycle v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -313,3 +313,15 @@ Status: done | partial | blocked
 [R] Risks / next recommendations:
 - ...
 ```
+
+## Final Notes
+
+- `CommandLifecycle` is an app-safe read model over `CommandActivity` history,
+  not an executor or workflow engine.
+- `Store#command_lifecycle_events` returns the typed filtered activity timeline;
+  `Store#command_lifecycle` folds that timeline into a compact status summary.
+- Apply-created audit activity now carries `metadata[:lifecycle_stage] = :apply`
+  and policy actor/status when a policy decision is present.
+- Folding is deterministic: latest applied wins, then review-required rejected,
+  policy-denied rejected, generic rejected, planned, intended, and finally
+  unknown.

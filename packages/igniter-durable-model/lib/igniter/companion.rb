@@ -16,6 +16,7 @@ module Igniter
     CommandOperationPlan = DurableModel::CommandOperationPlan
     CommandActivityEvent = DurableModel::CommandActivityEvent
     CommandPolicyDecision = DurableModel::CommandPolicyDecision
+    CommandLifecycle = DurableModel::CommandLifecycle
 
     def self.from_manifest(manifest, store: nil)
       DurableModel.from_manifest(manifest, store: store)
