@@ -917,6 +917,38 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
+    it "archives and verifies client-backed command flow evidence exports" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.register_command_flow_view(:client_archive_health,
+        owner: :commanded_reminders,
+        action_policy: { inspect: true })
+      export = s.command_flow_evidence_export(
+        view_name: :client_archive_health,
+        action: :inspect,
+        privacy: :summary_only)
+
+      verification = s.verify_command_flow_evidence_export(export)
+      receipt = s.archive_command_flow_evidence_export(export,
+        metadata: { case_id: "client-archive" })
+      archives = s.command_flow_evidence_archives(
+        owner: :commanded_reminders,
+        view_name: :client_archive_health,
+        export_id: export.export_id,
+        content_hash: export.content_hash,
+        privacy: :summary_only
+      )
+
+      expect(verification).to be_valid
+      expect(receipt).to be_archived
+      expect(receipt.archive_receipt_id).to start_with("cfea_")
+      expect(archives.size).to eq(1)
+      expect(archives.first.canonical_json).to eq(export.canonical_json)
+      expect(archives.first.metadata).to include(case_id: "client-archive")
+    ensure
+      s&.close
+    end
+
     it "writes and reads a Record through LedgerClient results" do
       s = client_backed_store
       s.register(Reminder)
@@ -4220,6 +4252,198 @@ RSpec.describe Igniter::Companion::Store do
         expect(after_decisions).to eq(before_decisions)
         expect(after_activity).to eq(before_activity)
         expect(record.status).to eq(before_status)
+      ensure
+        s&.close
+      end
+
+      it "verifies valid and invalid command flow evidence exports" do
+        s = described_class.new
+        s.register_command_flow_view(:verify_export,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        export = s.command_flow_evidence_export(view_name: :verify_export)
+        invalid_export = Igniter::DurableModel::CommandFlowEvidenceExport.new(
+          export_id: export.export_id,
+          profile_kind: export.profile_kind,
+          owner: export.owner,
+          view_name: export.view_name,
+          action: export.action,
+          actor: export.actor,
+          status: export.status,
+          meaning_status: export.meaning_status,
+          privacy: export.privacy,
+          generated_at: export.generated_at,
+          content_hash: export.content_hash,
+          canonical_json: "#{export.canonical_json}\n",
+          profile: export.profile,
+          packets: export.packets,
+          links: export.links,
+          diagnostics: export.diagnostics,
+          redactions: export.redactions,
+          metadata: export.metadata
+        )
+
+        valid = s.verify_command_flow_evidence_export(export,
+          metadata: { checked_by: :spec })
+        invalid = s.verify_command_flow_evidence_export(invalid_export)
+
+        expect(valid).to be_frozen
+        expect(valid).to be_valid
+        expect(valid[:kind]).to eq(:command_flow_evidence_export_verification)
+        expect(valid.expected_hash).to eq(export.content_hash)
+        expect(valid.actual_hash).to eq(export.content_hash)
+        expect(valid.metadata).to eq(checked_by: :spec)
+        expect(invalid).to be_invalid
+        expect(invalid.actual_hash).not_to eq(invalid.expected_hash)
+        expect(invalid.diagnostics.map { |diagnostic| diagnostic[:code] })
+          .to include(:evidence_export_hash_mismatch)
+      ensure
+        s&.close
+      end
+
+      it "archives valid command flow evidence exports explicitly" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+        s.register_command_flow_view(:archive_export,
+          owner: :commanded_reminders,
+          command: :complete,
+          action_policy: { inspect: true })
+        s.command_flow(CommandedReminder, :complete,
+          key: "r1",
+          capabilities: [:reminder_complete],
+          mode: :apply,
+          audit: true)
+        export = s.command_flow_evidence_export(
+          view_name: :archive_export,
+          action: :inspect,
+          actor: "dispatcher-1",
+          privacy: :summary_only,
+          metadata: { source: :export })
+        before_decisions = s.command_flow_decisions(owner: :commanded_reminders).size
+        before_activity = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete
+        ).size
+        before_status = s.read(CommandedReminder, key: "r1").status
+
+        receipt = s.archive_command_flow_evidence_export(export,
+          metadata: { source: :archive, case_id: "dispatch-42" })
+        archives = s.command_flow_evidence_archives(
+          owner: :commanded_reminders,
+          view_name: :archive_export,
+          action: :inspect,
+          actor: "dispatcher-1",
+          export_id: export.export_id,
+          content_hash: export.content_hash,
+          privacy: :summary_only,
+          status: export.status,
+          meaning_status: export.meaning_status
+        )
+        after_decisions = s.command_flow_decisions(owner: :commanded_reminders).size
+        after_activity = s.command_lifecycle_events(
+          owner: :commanded_reminders,
+          command: :complete
+        ).size
+        record = s.read(CommandedReminder, key: "r1")
+
+        expect(receipt).to be_frozen
+        expect(receipt).to be_archived
+        expect(receipt[:kind]).to eq(:command_flow_evidence_archive_receipt)
+        expect(receipt.archive_receipt_id).to start_with("cfea_")
+        expect(receipt.export_id).to eq(export.export_id)
+        expect(receipt.content_hash).to eq(export.content_hash)
+        expect(receipt.metadata).to include(source: :archive, case_id: "dispatch-42")
+        expect(receipt.to_h).not_to have_key(:fact_id)
+        expect(receipt.to_h).not_to have_key(:value_hash)
+        expect(receipt.to_h).not_to have_key(:causation)
+        expect(archives.size).to eq(1)
+        expect(archives.first).to be_a(Igniter::DurableModel::CommandFlowEvidenceArchive)
+        expect(archives.first.to_h).to include(
+          owner: :commanded_reminders,
+          view_name: :archive_export,
+          action: :inspect,
+          actor: "dispatcher-1",
+          export_id: export.export_id,
+          content_hash: export.content_hash,
+          privacy: :summary_only,
+          status: export.status,
+          meaning_status: export.meaning_status,
+          profile_kind: :command_flow_evidence_profile,
+          canonical_json: export.canonical_json,
+          store_fact_exposed: false,
+          value_hash_exposed: false
+        )
+        expect(archives.first.metadata).to include(source: :archive, case_id: "dispatch-42")
+        expect(s.verify_command_flow_evidence_archive(archives.first)).to be_valid
+        expect(after_decisions).to eq(before_decisions)
+        expect(after_activity).to eq(before_activity)
+        expect(record.status).to eq(before_status)
+      ensure
+        s&.close
+      end
+
+      it "rejects invalid command flow evidence exports without archiving" do
+        s = described_class.new
+        s.register_command_flow_view(:invalid_archive_export,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        export = s.command_flow_evidence_export(view_name: :invalid_archive_export)
+        invalid_export = Igniter::DurableModel::CommandFlowEvidenceExport.new(
+          export_id: export.export_id,
+          profile_kind: export.profile_kind,
+          owner: export.owner,
+          view_name: export.view_name,
+          action: export.action,
+          actor: export.actor,
+          status: export.status,
+          meaning_status: export.meaning_status,
+          privacy: export.privacy,
+          generated_at: export.generated_at,
+          content_hash: export.content_hash,
+          canonical_json: "#{export.canonical_json} ",
+          profile: export.profile,
+          packets: export.packets,
+          links: export.links,
+          diagnostics: export.diagnostics,
+          redactions: export.redactions,
+          metadata: export.metadata
+        )
+
+        receipt = s.archive_command_flow_evidence_export(invalid_export)
+
+        expect(receipt).to be_rejected
+        expect(receipt.diagnostics.map { |diagnostic| diagnostic[:code] })
+          .to include(:evidence_export_hash_mismatch)
+        expect(s.command_flow_evidence_archives(owner: :commanded_reminders)).to eq([])
+      ensure
+        s&.close
+      end
+
+      it "filters command flow evidence archives by temporal window and limit" do
+        s = described_class.new
+        s.register_command_flow_view(:first_archive_export,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        s.register_command_flow_view(:second_archive_export,
+          owner: :commanded_reminders,
+          action_policy: { inspect: true })
+        first = s.command_flow_evidence_export(view_name: :first_archive_export)
+        second = s.command_flow_evidence_export(view_name: :second_archive_export)
+        since = Time.now.utc - 60
+
+        s.archive_command_flow_evidence_export(first)
+        s.archive_command_flow_evidence_export(second)
+
+        archives = s.command_flow_evidence_archives(
+          owner: :commanded_reminders,
+          since: since,
+          as_of: Time.now.utc + 60,
+          limit: 1
+        )
+
+        expect(archives.size).to eq(1)
+        expect(archives.first.view_name).to eq(:first_archive_export)
       ensure
         s&.close
       end

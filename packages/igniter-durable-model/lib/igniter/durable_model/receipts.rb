@@ -214,6 +214,86 @@ module Igniter
       end
     end
 
+    # App-safe receipt for explicit evidence export archive persistence.
+    # It intentionally does not expose fact ids, value hashes, or causation.
+    class CommandFlowEvidenceArchiveReceipt
+      attr_reader :schema_version, :kind, :status, :archive_receipt_id,
+                  :export_id, :content_hash, :owner, :view_name, :privacy,
+                  :meaning_status, :diagnostics, :metadata, :generated_at,
+                  :store_fact_exposed, :value_hash_exposed
+
+      def initialize(archive_receipt_id:, export_id:, content_hash:, owner:,
+                     view_name:, privacy:, meaning_status:, status: :archived,
+                     diagnostics: [], metadata: {}, generated_at: Time.now.utc,
+                     schema_version: 1,
+                     kind: :command_flow_evidence_archive_receipt,
+                     store_fact_exposed: false, value_hash_exposed: false)
+        @schema_version = schema_version
+        @kind = token(kind)
+        @status = token(status)
+        @archive_receipt_id = archive_receipt_id
+        @export_id = export_id
+        @content_hash = content_hash
+        @owner = token(owner)
+        @view_name = token(view_name)
+        @privacy = token(privacy)
+        @meaning_status = token(meaning_status)
+        @diagnostics = Array(diagnostics).map { |entry| normalize_value(entry) }.freeze
+        @metadata = normalize_value(metadata || {})
+        @generated_at = generated_at
+        @store_fact_exposed = store_fact_exposed ? true : false
+        @value_hash_exposed = value_hash_exposed ? true : false
+        freeze
+      end
+
+      def archived? = status == :archived
+
+      def rejected? = status == :rejected
+
+      def [](key)
+        to_h[key.to_sym]
+      end
+
+      def to_h
+        {
+          schema_version: schema_version,
+          kind: kind,
+          status: status,
+          archive_receipt_id: archive_receipt_id,
+          export_id: export_id,
+          content_hash: content_hash,
+          owner: owner,
+          view_name: view_name,
+          privacy: privacy,
+          meaning_status: meaning_status,
+          diagnostics: diagnostics,
+          metadata: metadata,
+          generated_at: generated_at,
+          store_fact_exposed: store_fact_exposed,
+          value_hash_exposed: value_hash_exposed
+        }
+      end
+
+      private
+
+      def normalize_value(value)
+        case value
+        when Hash
+          value.each_with_object({}) do |(key, entry), acc|
+            acc[token(key)] = normalize_value(entry)
+          end.freeze
+        when Array
+          value.map { |entry| normalize_value(entry) }.freeze
+        else
+          value
+        end
+      end
+
+      def token(value)
+        value.is_a?(String) ? value.to_sym : value
+      end
+    end
+
     # App-boundary receipt for explicit command application.
     # It reports command outcome without exposing Ledger storage internals.
     class CommandApplyReceipt

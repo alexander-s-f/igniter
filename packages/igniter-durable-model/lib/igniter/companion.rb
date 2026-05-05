@@ -8,11 +8,13 @@ module Igniter
     History = DurableModel::History
     CommandActivity = DurableModel::CommandActivity
     CommandFlowDecision = DurableModel::CommandFlowDecision
+    CommandFlowEvidenceArchive = DurableModel::CommandFlowEvidenceArchive
     Store = DurableModel::Store
     WriteReceipt = DurableModel::WriteReceipt
     AppendReceipt = DurableModel::AppendReceipt
     CommandActivityReceipt = DurableModel::CommandActivityReceipt
     CommandFlowDecisionReceipt = DurableModel::CommandFlowDecisionReceipt
+    CommandFlowEvidenceArchiveReceipt = DurableModel::CommandFlowEvidenceArchiveReceipt
     CommandApplyReceipt = DurableModel::CommandApplyReceipt
     CommandIntent = DurableModel::CommandIntent
     CommandOperationPlan = DurableModel::CommandOperationPlan
@@ -28,6 +30,7 @@ module Igniter
     CommandFlowDecisionReview = DurableModel::CommandFlowDecisionReview
     CommandFlowEvidenceProfile = DurableModel::CommandFlowEvidenceProfile
     CommandFlowEvidenceExport = DurableModel::CommandFlowEvidenceExport
+    CommandFlowEvidenceExportVerification = DurableModel::CommandFlowEvidenceExportVerification
 
     def self.from_manifest(manifest, store: nil)
       DurableModel.from_manifest(manifest, store: store)

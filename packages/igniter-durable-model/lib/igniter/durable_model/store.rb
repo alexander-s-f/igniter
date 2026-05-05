@@ -1055,6 +1055,98 @@ module Igniter
           metadata: metadata)
       end
 
+      # Verify an evidence export without appending anything.
+      def verify_command_flow_evidence_export(export, metadata: {})
+        unless export.is_a?(CommandFlowEvidenceExport)
+          raise ArgumentError, "verify_command_flow_evidence_export expects Igniter::DurableModel::CommandFlowEvidenceExport"
+        end
+
+        command_flow_evidence_verification(
+          export_id: export.export_id,
+          expected_hash: export.content_hash,
+          canonical_json: export.canonical_json,
+          privacy: export.privacy,
+          metadata: metadata
+        )
+      end
+
+      # Verify an archived evidence export without appending anything.
+      def verify_command_flow_evidence_archive(archive, metadata: {})
+        unless archive.is_a?(CommandFlowEvidenceArchive)
+          raise ArgumentError, "verify_command_flow_evidence_archive expects Igniter::DurableModel::CommandFlowEvidenceArchive"
+        end
+
+        command_flow_evidence_verification(
+          export_id: archive.export_id,
+          expected_hash: archive.content_hash,
+          canonical_json: archive.canonical_json,
+          privacy: archive.privacy,
+          metadata: metadata
+        )
+      end
+
+      # Explicitly persist a verified evidence export into app-owned archive history.
+      def archive_command_flow_evidence_export(export,
+                                               history_class: CommandFlowEvidenceArchive,
+                                               metadata: {})
+        unless export.is_a?(CommandFlowEvidenceExport)
+          raise ArgumentError, "archive_command_flow_evidence_export expects Igniter::DurableModel::CommandFlowEvidenceExport"
+        end
+
+        verification = verify_command_flow_evidence_export(export)
+        merged_metadata = export.metadata.merge(normalize_value(metadata || {}))
+        archive_receipt_id = "cfea_#{SecureRandom.hex(8)}"
+        unless verification.valid?
+          return command_flow_evidence_archive_receipt(
+            export,
+            archive_receipt_id: archive_receipt_id,
+            status: :rejected,
+            diagnostics: verification.diagnostics,
+            metadata: merged_metadata
+          )
+        end
+
+        register(history_class)
+        append(history_class, **command_flow_evidence_archive_payload(
+          export,
+          metadata: merged_metadata
+        ))
+        command_flow_evidence_archive_receipt(
+          export,
+          archive_receipt_id: archive_receipt_id,
+          status: :archived,
+          diagnostics: export.diagnostics,
+          metadata: merged_metadata
+        )
+      end
+
+      # Replay app-owned evidence export archives by owner partition.
+      def command_flow_evidence_archives(owner:, view_name: nil, action: nil,
+                                         actor: nil, export_id: nil,
+                                         content_hash: nil, privacy: nil,
+                                         status: nil, meaning_status: nil,
+                                         since: nil, as_of: nil, limit: nil,
+                                         history_class: CommandFlowEvidenceArchive)
+        archives = replay(history_class,
+          partition: token(owner),
+          since: temporal_value(since),
+          as_of: temporal_value(as_of))
+        filtered = archives.select do |archive|
+          command_flow_evidence_archive_matches?(
+            archive,
+            view_name: view_name,
+            action: action,
+            actor: actor,
+            export_id: export_id,
+            content_hash: content_hash,
+            privacy: privacy,
+            status: status,
+            meaning_status: meaning_status
+          )
+        end
+        limit ? filtered.first(limit) : filtered
+      end
+
       # Summarize app-owned policy/capability checks for a command plan.
       # This is metadata-only and never mutates storage or evaluates in Ledger.
       def command_policy_decision(plan, actor: nil, capabilities: [],
@@ -2635,6 +2727,89 @@ module Igniter
         else
           value
         end
+      end
+
+      def command_flow_evidence_verification(export_id:, expected_hash:,
+                                             canonical_json:, privacy:,
+                                             metadata:)
+        actual_hash = Digest::SHA256.hexdigest(canonical_json.to_s)
+        valid = actual_hash == expected_hash
+        diagnostics = []
+        unless valid
+          diagnostics << {
+            code: :evidence_export_hash_mismatch,
+            severity: :critical,
+            message: "Evidence export content hash does not match canonical JSON"
+          }
+        end
+
+        CommandFlowEvidenceExportVerification.new(
+          status: valid ? :valid : :invalid,
+          export_id: export_id,
+          expected_hash: expected_hash,
+          actual_hash: actual_hash,
+          privacy: privacy,
+          diagnostics: diagnostics,
+          metadata: metadata
+        )
+      end
+
+      def command_flow_evidence_archive_payload(export, metadata:)
+        {
+          owner: export.owner,
+          view_name: export.view_name,
+          action: export.action,
+          actor: export.actor,
+          export_id: export.export_id,
+          content_hash: export.content_hash,
+          privacy: export.privacy,
+          status: export.status,
+          meaning_status: export.meaning_status,
+          profile_kind: export.profile_kind,
+          canonical_json: export.canonical_json,
+          diagnostics: export.diagnostics,
+          redactions: export.redactions,
+          metadata: metadata,
+          store_fact_exposed: export.store_fact_exposed,
+          value_hash_exposed: export.value_hash_exposed
+        }
+      end
+
+      def command_flow_evidence_archive_receipt(export, archive_receipt_id:,
+                                                status:, diagnostics:,
+                                                metadata:)
+        CommandFlowEvidenceArchiveReceipt.new(
+          archive_receipt_id: archive_receipt_id,
+          export_id: export.export_id,
+          content_hash: export.content_hash,
+          owner: export.owner,
+          view_name: export.view_name,
+          privacy: export.privacy,
+          meaning_status: export.meaning_status,
+          status: status,
+          diagnostics: diagnostics,
+          metadata: metadata,
+          store_fact_exposed: export.store_fact_exposed,
+          value_hash_exposed: export.value_hash_exposed
+        )
+      end
+
+      def command_flow_evidence_archive_matches?(archive, view_name:, action:,
+                                                 actor:, export_id:,
+                                                 content_hash:, privacy:,
+                                                 status:, meaning_status:)
+        view_matches = view_name.nil? || archive.view_name == token(view_name)
+        action_matches = action.nil? || archive.action == token(action)
+        actor_matches = actor.nil? || archive.actor == actor
+        export_matches = export_id.nil? || archive.export_id == export_id
+        hash_matches = content_hash.nil? || archive.content_hash == content_hash
+        privacy_matches = privacy.nil? || archive.privacy == token(privacy)
+        status_matches = status.nil? || archive.status == token(status)
+        meaning_matches = meaning_status.nil? ||
+                          archive.meaning_status == token(meaning_status)
+
+        view_matches && action_matches && actor_matches && export_matches &&
+          hash_matches && privacy_matches && status_matches && meaning_matches
       end
 
       def normalize_command_flow_view_horizon(horizon)

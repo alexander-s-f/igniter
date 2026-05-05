@@ -220,6 +220,16 @@ store.command_flow_evidence_export(
   view_name: :reminder_flow_health,
   action: :inspect,
   privacy: :summary_only)
+export = store.command_flow_evidence_export(
+  view_name: :reminder_flow_health,
+  action: :inspect,
+  privacy: :summary_only)
+store.verify_command_flow_evidence_export(export)
+store.archive_command_flow_evidence_export(export,
+  metadata: { case_id: "ops-1" })
+store.command_flow_evidence_archives(
+  owner: :reminders,
+  view_name: :reminder_flow_health)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -238,8 +248,9 @@ registration, command/effect descriptor registration, `_projections`,
 `append_command_flow_decision`, `command_flow_decisions`,
 `command_flow_decision_review`, `command_flow_evidence_profile`,
 `command_flow_evidence_export`, `export_command_flow_evidence_profile`,
-`metadata_snapshot` и `descriptor_snapshot`, а также `causation_chain` и
-`lineage`. Partition replay проходит через Ledger replay
+`verify_command_flow_evidence_export`, `archive_command_flow_evidence_export`,
+`command_flow_evidence_archives`, `metadata_snapshot` и `descriptor_snapshot`,
+а также `causation_chain` и `lineage`. Partition replay проходит через Ledger replay
 filter и использует Ledger partition indexes, когда запрос обслуживает Ledger
 protocol interpreter. Relation support в v0 понижает
 поддержанные one-to-many декларации в Ledger relation descriptors. Projection,
@@ -272,7 +283,10 @@ decision entries, package-local packet candidates и logical links для UI,
 agents, exports и future bridge code. `CommandFlowEvidenceExport` добавляет
 deterministic package-local canonicalization, content hashes, export ids,
 privacy redactions и diagnostics для evidence profiles. Будущая app security
-infrastructure остаётся вне этого пакета.
+infrastructure остаётся вне этого пакета. `CommandFlowEvidenceArchive`,
+`CommandFlowEvidenceArchiveReceipt` и
+`CommandFlowEvidenceExportVerification` добавляют explicit archive persistence
+и hash verification для evidence exports.
 `Store#command_intent`,
 `Store#command_operation_plan` и
 `Store#command_activity_event` строят только данные. `Store#append_command_activity`
@@ -332,6 +346,14 @@ re-evaluation; `Store#command_flow_evidence_export` строит и экспор
 `:hash_payloads` privacy policies, записывают redactions/diagnostics и дают
 package-local v0 canonical JSON плюс SHA256 content hashes и `cfe_...` export
 ids.
+`Store#verify_command_flow_evidence_export` и
+`Store#verify_command_flow_evidence_archive` пересчитывают SHA256 поверх
+canonical JSON и возвращают app-safe verification results.
+`Store#archive_command_flow_evidence_export` явно сохраняет только verified
+exports в `CommandFlowEvidenceArchive` history; invalid exports возвращают
+rejected archive receipt и не append-ятся. `Store#command_flow_evidence_archives`
+replay-ит archive history по owner с view/action/actor/export/hash/privacy/
+status/meaning и temporal filters.
 
 ### Нормализованные receipts
 

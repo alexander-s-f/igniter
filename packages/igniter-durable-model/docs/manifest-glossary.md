@@ -357,6 +357,25 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Evidence exports do not persist exports automatically, append decisions,
   append command activity, mutate records, execute commands, add endpoints, or
   add Ledger protocol operations.
+- `Store#verify_command_flow_evidence_export` and
+  `Store#verify_command_flow_evidence_archive` recompute SHA256 over canonical
+  JSON and return `CommandFlowEvidenceExportVerification`.
+- `Store#archive_command_flow_evidence_export` explicitly persists a verified
+  `CommandFlowEvidenceExport` into `CommandFlowEvidenceArchive` history.
+  Invalid exports return a rejected app-safe receipt and are not appended.
+- `CommandFlowEvidenceArchive` partitions by owner and stores app-safe archive
+  identity: owner, view, action, actor, export id, content hash, privacy,
+  status, meaning status, profile kind, canonical JSON, diagnostics,
+  redactions, and metadata.
+- `CommandFlowEvidenceArchiveReceipt` records app-local archive receipt ids and
+  never exposes Ledger fact ids, value hashes, or causation internals.
+- `Store#command_flow_evidence_archives` replays archives by owner and filters
+  by view, action, actor, export id, content hash, privacy, status, meaning
+  status, and temporal window.
+- Evidence archive is explicit only: no export is archived automatically, and
+  archive/verification do not rebuild profiles, append decisions, append command
+  activity, mutate records, execute commands, add endpoints, or add Ledger
+  protocol operations.
 - Command-flow decision history is separate from `CommandActivity`: decisions
   describe human/agent/app decisions made from operational views, while command
   activity describes command attempts.

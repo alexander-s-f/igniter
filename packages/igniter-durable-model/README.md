@@ -231,6 +231,16 @@ store.command_flow_evidence_export(
   view_name: :reminder_flow_health,
   action: :inspect,
   privacy: :summary_only)
+export = store.command_flow_evidence_export(
+  view_name: :reminder_flow_health,
+  action: :inspect,
+  privacy: :summary_only)
+store.verify_command_flow_evidence_export(export)
+store.archive_command_flow_evidence_export(export,
+  metadata: { case_id: "ops-1" })
+store.command_flow_evidence_archives(
+  owner: :reminders,
+  view_name: :reminder_flow_health)
 
 store.register(TrackerLog)
 store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
@@ -249,7 +259,9 @@ projection descriptor registration, command/effect descriptor registration,
 `pin_command_flow_view`, `append_command_flow_decision`,
 `command_flow_decisions`, `command_flow_decision_review`,
 `command_flow_evidence_profile`, `command_flow_evidence_export`,
-`export_command_flow_evidence_profile`, `causation_chain`, `lineage`,
+`export_command_flow_evidence_profile`,
+`verify_command_flow_evidence_export`, `archive_command_flow_evidence_export`,
+`command_flow_evidence_archives`, `causation_chain`, `lineage`,
 `metadata_snapshot`, and `descriptor_snapshot`.
 Partition replay lowers through the Ledger replay filter and uses Ledger
 partition indexes when served by a Ledger protocol interpreter. Relation support
@@ -284,6 +296,9 @@ agents, exports, and future bridge code.
 `CommandFlowEvidenceExport` adds deterministic package-local canonicalization,
 content hashes, export ids, privacy redactions, and diagnostics for evidence
 profiles.
+`CommandFlowEvidenceArchive`, `CommandFlowEvidenceArchiveReceipt`, and
+`CommandFlowEvidenceExportVerification` add explicit archive persistence and
+hash verification for evidence exports.
 Future app security infrastructure remains outside this package.
 `Store#command_intent`, `Store#command_operation_plan`, and
 `Store#command_activity_event` build data only.
@@ -343,6 +358,13 @@ read-only call. Exports support `:app_safe`, `:summary_only`, and
 `:hash_payloads` privacy policies, record redactions/diagnostics, and provide
 package-local v0 canonical JSON plus SHA256 content hashes and `cfe_...`
 export ids.
+`Store#verify_command_flow_evidence_export` and
+`Store#verify_command_flow_evidence_archive` recompute SHA256 over canonical
+JSON and return app-safe verification results. `Store#archive_command_flow_evidence_export`
+explicitly persists only verified exports into `CommandFlowEvidenceArchive`
+history; invalid exports return a rejected archive receipt and are not appended.
+`Store#command_flow_evidence_archives` replays archive history by owner with
+view/action/actor/export/hash/privacy/status/meaning and temporal filters.
 
 ### Normalized receipts
 

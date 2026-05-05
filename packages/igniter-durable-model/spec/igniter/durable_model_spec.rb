@@ -5,6 +5,7 @@ require "igniter/durable_model/record"
 require "igniter/durable_model/history"
 require "igniter/durable_model/command_activity"
 require "igniter/durable_model/command_flow_decision"
+require "igniter/durable_model/command_flow_evidence_archive"
 require "igniter/durable_model/receipts"
 require "igniter/durable_model/command_intent"
 require "igniter/durable_model/command_operation_plan"
@@ -20,6 +21,7 @@ require "igniter/durable_model/command_flow_view_pin"
 require "igniter/durable_model/command_flow_decision_review"
 require "igniter/durable_model/command_flow_evidence_profile"
 require "igniter/durable_model/command_flow_evidence_export"
+require "igniter/durable_model/command_flow_evidence_export_verification"
 require "igniter/durable_model/store"
 require_relative "../spec_helper"
 
@@ -77,11 +79,13 @@ RSpec.describe Igniter::DurableModel do
     expect(described_class::History).to equal(Igniter::Companion::History)
     expect(described_class::CommandActivity).to equal(Igniter::Companion::CommandActivity)
     expect(described_class::CommandFlowDecision).to equal(Igniter::Companion::CommandFlowDecision)
+    expect(described_class::CommandFlowEvidenceArchive).to equal(Igniter::Companion::CommandFlowEvidenceArchive)
     expect(described_class::Store).to equal(Igniter::Companion::Store)
     expect(described_class::WriteReceipt).to equal(Igniter::Companion::WriteReceipt)
     expect(described_class::AppendReceipt).to equal(Igniter::Companion::AppendReceipt)
     expect(described_class::CommandActivityReceipt).to equal(Igniter::Companion::CommandActivityReceipt)
     expect(described_class::CommandFlowDecisionReceipt).to equal(Igniter::Companion::CommandFlowDecisionReceipt)
+    expect(described_class::CommandFlowEvidenceArchiveReceipt).to equal(Igniter::Companion::CommandFlowEvidenceArchiveReceipt)
     expect(described_class::CommandApplyReceipt).to equal(Igniter::Companion::CommandApplyReceipt)
     expect(described_class::CommandIntent).to equal(Igniter::Companion::CommandIntent)
     expect(described_class::CommandOperationPlan).to equal(Igniter::Companion::CommandOperationPlan)
@@ -97,6 +101,30 @@ RSpec.describe Igniter::DurableModel do
     expect(described_class::CommandFlowDecisionReview).to equal(Igniter::Companion::CommandFlowDecisionReview)
     expect(described_class::CommandFlowEvidenceProfile).to equal(Igniter::Companion::CommandFlowEvidenceProfile)
     expect(described_class::CommandFlowEvidenceExport).to equal(Igniter::Companion::CommandFlowEvidenceExport)
+    expect(described_class::CommandFlowEvidenceExportVerification).to equal(Igniter::Companion::CommandFlowEvidenceExportVerification)
+  end
+
+  it "defines command flow evidence archive history shape" do
+    fields = described_class::CommandFlowEvidenceArchive._fields
+
+    expect(described_class::CommandFlowEvidenceArchive.store_name).to eq(:command_flow_evidence_archives)
+    expect(described_class::CommandFlowEvidenceArchive._partition_key).to eq(:owner)
+    expect(fields).to include(
+      owner: include(default: nil),
+      view_name: include(default: nil),
+      export_id: include(default: nil),
+      content_hash: include(default: nil),
+      privacy: include(default: nil),
+      status: include(default: nil),
+      meaning_status: include(default: nil),
+      profile_kind: include(default: nil),
+      canonical_json: include(default: nil),
+      diagnostics: include(default: []),
+      redactions: include(default: []),
+      metadata: include(default: {}),
+      store_fact_exposed: include(default: false),
+      value_hash_exposed: include(default: false)
+    )
   end
 
   it "defines command flow decision history shape" do
