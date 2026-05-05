@@ -1,6 +1,6 @@
 # Track: Durable Model Client Projection Descriptor v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target packages: `packages/igniter-durable-model`, `packages/igniter-ledger-client`, `packages/igniter-ledger`
@@ -302,6 +302,12 @@ Status: done | partial | blocked
 
 ## Final Notes
 
+- Ledger projection descriptors now accept both legacy `source` and Durable
+  Model `reads` forms, preserving `relations`, `consumer_hint`, and `reactive`.
+- Client-backed Durable Model now supports metadata-only `register_projection`
+  and `_projections`.
+- Client-backed `_scatters` is read-only metadata from the Ledger snapshot;
+  `register_scatter` remains unsupported because it carries Ruby callables.
 - This slice should make projection metadata travel over the same controlled
   Ledger Client boundary as records, histories, scopes, subscriptions, replay,
   and relations.

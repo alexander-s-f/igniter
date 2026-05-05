@@ -31,6 +31,7 @@ module Igniter
         @registered     = Set.new
         @schema_by_store = {}
         @relations_by_name = {}
+        @projections_by_name = {}
         if client
           raise ArgumentError, "client: cannot be combined with backend/path/address/transport options" if backend != :memory || path || address || transport != :tcp
 
@@ -329,7 +330,7 @@ module Igniter
 
       # Returns a compact snapshot of all registered scatter rules.
       def _scatters
-        raise unsupported_client_mode!("scatter snapshots") if client_backed?
+        return normalize_scatter_snapshot(metadata_snapshot[:scatters]) if client_backed?
 
         @inner.schema_graph.scatter_snapshot
       end
@@ -338,15 +339,35 @@ module Igniter
       # Records which stores and relations a cross-record projection reads,
       # making this visible to the store engine via SchemaGraph.
       def register_projection(name, reads:, relations: [], consumer_hint: :contract_node, reactive: false)
-        raise unsupported_client_mode!("projection registration") if client_backed?
+        projection = projection_snapshot_entry(
+          name: name,
+          reads: Array(reads).map(&:to_sym),
+          relations: Array(relations).map(&:to_sym),
+          consumer_hint: consumer_hint,
+          reactive: reactive
+        )
+        @projections_by_name[name.to_sym] = projection
+
+        if client_backed?
+          @inner.register_descriptor(
+            schema_version: 1,
+            kind:           :projection,
+            name:           name,
+            reads:          projection[:reads],
+            relations:      projection[:relations],
+            consumer_hint:  projection[:consumer_hint],
+            reactive:       projection[:reactive]
+          )
+          return self
+        end
 
         @inner.register_projection(
           Igniter::Store::ProjectionPath.new(
             name:          name,
-            reads:         Array(reads).map(&:to_sym),
-            relations:     Array(relations).map(&:to_sym),
-            consumer_hint: consumer_hint,
-            reactive:      reactive
+            reads:         projection[:reads],
+            relations:     projection[:relations],
+            consumer_hint: projection[:consumer_hint],
+            reactive:      projection[:reactive]
           )
         )
         self
@@ -354,7 +375,12 @@ module Igniter
 
       # Returns a compact snapshot of all registered projection descriptors.
       def _projections
-        raise unsupported_client_mode!("projection snapshots") if client_backed?
+        if client_backed?
+          remote = normalize_projection_snapshot(metadata_snapshot[:projections])
+          return remote unless remote.empty?
+
+          return @projections_by_name.dup
+        end
 
         @inner.schema_graph.projection_snapshot
       end
@@ -485,6 +511,52 @@ module Igniter
 
       def unsupported_client_mode!(feature)
         NotImplementedError.new("client-backed Durable Model store does not support #{feature} in v0")
+      end
+
+      def projection_snapshot_entry(name:, reads:, relations:, consumer_hint:, reactive:)
+        {
+          name: name.to_sym,
+          reads: reads,
+          relations: relations,
+          consumer_hint: consumer_hint.to_sym,
+          reactive: !!reactive,
+          store_count: reads.size,
+          relation_count: relations.size
+        }
+      end
+
+      def normalize_projection_snapshot(snapshot)
+        return {} unless snapshot
+
+        snapshot.to_h.each_with_object({}) do |(name, raw), acc|
+          data = raw.to_h.transform_keys(&:to_sym)
+          reads = Array(data[:reads]).map(&:to_sym)
+          relations = Array(data[:relations]).map(&:to_sym)
+          acc[name.to_sym] = projection_snapshot_entry(
+            name: data[:name] || name,
+            reads: reads,
+            relations: relations,
+            consumer_hint: data[:consumer_hint] || :protocol_client,
+            reactive: data[:reactive]
+          )
+        end
+      end
+
+      def normalize_scatter_snapshot(snapshot)
+        Array(snapshot).map do |raw|
+          data = raw.to_h.transform_keys(&:to_sym)
+          {
+            index: data[:index],
+            source_store: token(data[:source_store]),
+            partition_by: token(data[:partition_by]),
+            target_store: token(data[:target_store]),
+            has_rule: data.fetch(:has_rule, true)
+          }.compact
+        end
+      end
+
+      def token(value)
+        value.is_a?(String) ? value.to_sym : value
       end
 
       def result_fact_id(result)

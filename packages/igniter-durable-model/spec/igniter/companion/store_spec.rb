@@ -562,6 +562,60 @@ RSpec.describe Igniter::Companion::Store do
     ensure
       s&.close
     end
+
+    it "supports client-backed projection descriptor registration and snapshots" do
+      s = client_backed_store
+
+      s.register_projection(:tracker_dashboard,
+        reads: [:trackers, :tracker_logs],
+        relations: [:logs_by_tracker],
+        consumer_hint: :contract_node,
+        reactive: true)
+
+      projection = s._projections[:tracker_dashboard]
+      expect(projection).to include(
+        name: :tracker_dashboard,
+        reads: [:trackers, :tracker_logs],
+        relations: [:logs_by_tracker],
+        consumer_hint: :contract_node,
+        reactive: true,
+        store_count: 2,
+        relation_count: 1
+      )
+    ensure
+      s&.close
+    end
+
+    it "returns client-backed scatter metadata from the remote snapshot" do
+      s = client_backed_store
+      s.register(BlogPost)
+      s.register(BlogComment)
+
+      scatters = s._scatters
+
+      expect(scatters).not_to be_empty
+      expect(scatters).to include(include(
+        source_store: :blog_comments,
+        partition_by: :post_id,
+        target_store: :__rel_comments_by_post,
+        has_rule: true
+      ))
+    ensure
+      s&.close
+    end
+
+    it "keeps client-backed register_scatter unsupported" do
+      s = client_backed_store
+
+      expect do
+        s.register_scatter(Reminder,
+          partition_by: :status,
+          target_store: :status_index,
+          rule: ->(_partition, _existing, _fact) { {} })
+      end.to raise_error(NotImplementedError, /scatter registration/)
+    ensure
+      s&.close
+    end
   end
 
   # ── Manifest-generated classes ─────────────────────────────────────────────

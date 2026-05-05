@@ -5,26 +5,30 @@ module Igniter
     module Protocol
       module Handlers
         class ProjectionHandler
-          REQUIRED = %i[name source].freeze
-
           def initialize(store) = @store = store
 
           def call(descriptor)
-            missing = REQUIRED.select { |f| descriptor[f].nil? }
-            return Receipt.rejection("Missing required fields: #{missing.join(", ")}", kind: :projection) if missing.any?
+            return Receipt.rejection("Missing required fields: name", kind: :projection) if descriptor[:name].nil?
+            if descriptor[:reads].nil? && descriptor[:source].nil?
+              return Receipt.rejection("Missing required fields: reads or source", kind: :projection)
+            end
 
             name    = descriptor[:name].to_sym
             source  = descriptor[:source]
-            reads   = source.is_a?(Array) ? source.map(&:to_sym) : [source.to_sym]
+            reads   = descriptor[:reads] || source
+            reads   = Array(reads).map(&:to_sym)
+            relations = Array(descriptor[:relations]).map(&:to_sym)
+            consumer_hint = (descriptor[:consumer_hint] || :protocol_client).to_sym
             mode    = descriptor.fetch(:mode, :on_demand)
+            reactive = descriptor.key?(:reactive) ? !!descriptor[:reactive] : mode == :materialized
 
             @store.register_projection(
               ProjectionPath.new(
                 name:          name,
                 reads:         reads,
-                relations:     [],
-                consumer_hint: :protocol_client,
-                reactive:      mode == :materialized
+                relations:     relations,
+                consumer_hint: consumer_hint,
+                reactive:      reactive
               )
             )
 

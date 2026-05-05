@@ -305,6 +305,57 @@ RSpec.describe "OP1 — Descriptor Packet Import" do
       expect(r.accepted?).to be true
       expect(r.name).to eq(:open_task_counts)
     end
+
+    it "accepts Durable Model projection descriptors with reads and relations" do
+      r = proto.register_projection(
+        schema_version: 1,
+        kind: :projection,
+        name: :tracker_dashboard,
+        reads: [:trackers, :tracker_logs],
+        relations: [:logs_by_tracker],
+        consumer_hint: :contract_node,
+        reactive: true
+      )
+
+      snapshot = proto.metadata_snapshot[:projections]
+      expect(r.accepted?).to be true
+      expect(snapshot[:tracker_dashboard]).to include(
+        reads: [:trackers, :tracker_logs],
+        relations: [:logs_by_tracker],
+        consumer_hint: :contract_node,
+        reactive: true,
+        store_count: 2,
+        relation_count: 1
+      )
+    end
+
+    it "keeps mode: :materialized as the reactive default" do
+      proto.register_projection(
+        schema_version: 1, kind: :projection,
+        name: :materialized_counts,
+        source: :tasks,
+        mode: :materialized
+      )
+
+      expect(proto.metadata_snapshot[:projections][:materialized_counts][:reactive]).to be true
+    end
+
+    it "lets explicit reactive override mode" do
+      proto.register_projection(
+        schema_version: 1, kind: :projection,
+        name: :manual_projection,
+        source: :tasks,
+        mode: :materialized,
+        reactive: false
+      )
+
+      expect(proto.metadata_snapshot[:projections][:manual_projection][:reactive]).to be false
+    end
+
+    it "rejects projection descriptors with no reads or source" do
+      r = proto.register_projection(schema_version: 1, kind: :projection, name: :empty_projection)
+      expect(r.rejected?).to be true
+    end
   end
 
   # ------------------------------------------------------------------ derivation descriptor (metadata only)

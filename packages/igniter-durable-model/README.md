@@ -156,12 +156,14 @@ store.replay(TrackerLog)
 Client-backed mode currently supports `register`, `write`, `read`, `append`,
 plain `replay`, `replay(partition:)`, `scope`, `on_scope`, declared
 one-to-many relation auto-wire, typed `resolve`, `_relations`,
+projection descriptor registration, `_projections`, read-only `_scatters`,
 `metadata_snapshot`, and `descriptor_snapshot`. Partition replay lowers through
 the Ledger replay filter and uses Ledger partition indexes when served by a
 Ledger protocol interpreter. Relation support is v0 and lowers supported
-one-to-many declarations to Ledger relation descriptors. Projection/scatter
-direct registration/snapshots and causation chains still require the embedded
-Ledger engine path and raise `NotImplementedError` in client-backed v0.
+one-to-many declarations to Ledger relation descriptors. Projection support is
+metadata-only; no remote projection execution is promised. Direct
+`register_scatter` and causation chains still require the embedded Ledger engine
+path and raise `NotImplementedError` in client-backed v0.
 
 ### Normalized receipts
 

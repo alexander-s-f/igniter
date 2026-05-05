@@ -144,13 +144,14 @@ store.replay(TrackerLog)
 
 В client-backed v0 поддержаны `register`, `write`, `read`, `append`, обычный
 `replay`, `replay(partition:)`, `scope`, `on_scope`, declared one-to-many
-relation auto-wire, typed `resolve`, `_relations`, `metadata_snapshot` и
+relation auto-wire, typed `resolve`, `_relations`, projection descriptor
+registration, `_projections`, read-only `_scatters`, `metadata_snapshot` и
 `descriptor_snapshot`. Partition replay проходит через Ledger replay filter и
 использует Ledger partition indexes, когда запрос обслуживает Ledger protocol
 interpreter. Relation support в v0 понижает поддержанные one-to-many декларации
-в Ledger relation descriptors. Прямые projection/scatter registration/snapshots
-и causation chains пока требуют embedded Ledger engine path и явно поднимают
-`NotImplementedError`.
+в Ledger relation descriptors. Projection support — metadata-only; remote
+projection execution не обещается. Прямой `register_scatter` и causation chains
+пока требуют embedded Ledger engine path и явно поднимают `NotImplementedError`.
 
 ### Нормализованные receipts
 
