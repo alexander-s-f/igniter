@@ -8,42 +8,43 @@ Supervisor: `[Architect Supervisor / Codex]`
 
 ## Compact State
 
-Igniter-Lang has moved from pure theory into a small but executable devkit.
-The current fixed point is:
+Igniter-Lang now has a stable theory-to-devkit spine:
 
 ```text
-semantic theory
-  -> CompiledProgram / SemanticIR artifact contract
+Epistemic Contract Language thesis
+  -> SemanticIR / CompiledProgram artifact contract
+  -> stdlib + bounded fold/aggregate model
+  -> source syntax boundary + module grammar kernel
+  -> source fixtures
+  -> minimal parser to ParsedProgram JSON
   -> hand-authored .igapp fixtures
   -> RuntimeMachine memory proof
   -> golden packet artifacts
-  -> structural checker
-  -> sidecar profile modes for future bridge/package candidates
+  -> external candidate selected_profile gate
+  -> Ruby FFI contractable proof + receipt fixtures
 ```
 
-The language remains a separate ecosystem from Igniter platform packages. The
-platform may consume selected concepts later, but package integration is not the
-source of truth for the language.
+The language remains a separate ecosystem from Igniter platform packages.
+Igniter Ledger may become one TBackend adapter; it is not the language core.
 
 ---
 
 ## Current Center
 
-[D] The center of the toolchain is `SemanticIR`, emitted as a
-`CompiledProgram`.
+[D] `SemanticIR` remains the stable center of the toolchain.
 
 ```text
-source
-  -> parse
-  -> classify CORE / ESCAPE / OOF
-  -> typecheck
+.ig source
+  -> ParsedProgram
+  -> ClassifiedProgram
+  -> TypedProgram
   -> SemanticIR
   -> CompiledProgram (.igapp, .igc.json, .igc.pack, native later)
   -> RuntimeMachine.load(...)
 ```
 
-[D] Runtime semantics are owned by `RuntimeMachine`, not by the compiled
-artifact:
+[D] Runtime semantics are owned by `RuntimeMachine`, not by parser output or
+native backend code:
 
 ```text
 boot -> load -> evaluate -> checkpoint -> resume
@@ -53,13 +54,102 @@ boot -> load -> evaluate -> checkpoint -> resume
 lifecycle, effects, FFI, and provenance anchors. `RuntimeMachine` verifies,
 executes, emits observations, checkpoints, and resumes.
 
-[D] `TBackend` is the temporal substrate for language runtime state. Igniter
-Ledger can become one adapter, but Igniter-Lang does not depend on Ledger as
-its core persistence model.
+---
+
+## Newly Closed Since Previous Fixed Point
+
+[S] `PROP-013` closes the bounded collection gap:
+
+- `Collection[T]`, `Option[T]`, `Result[T, E]`
+- `fold`, `map`, `filter`, `group_by`, `count`, `sum`, `avg`, `min`, `max`
+- `now(ctx)` instead of ambient clocks
+- `TR-1`: bounded collections make fold/map/filter CORE-terminating
+- aggregate observations require `aggregated_from` evidence links
+
+[S] `PROP-014` defines the minimal source-to-`SemanticIR` boundary:
+
+- source forms for `Add` and `AvailabilityProjection`
+- `ParsedProgram` JSON shape
+- parse/classify/type/IR stage boundaries
+- explicit OOF rejection rules
+- `.igapp` fixtures as compiler acceptance targets
+
+[S] `PROP-015` adds the minimum grammar/module layer:
+
+- pure non-recursive `def` blocks
+- structural `TypeDecl`
+- one-file-one-module v0 module system
+- explicit imports only
+- full v0 BNF sufficient for the current fixture pair
+
+[S] `runtime-model-spec-questions-v0.md` records language identity decisions:
+
+- immutable bindings, not variables
+- lexical scoping
+- value semantics
+- region-style evaluation memory
+- semantic GC through TBackend lifecycle
+- structural DAG parallelism
+- staged self-hosting path
+
+[S] External candidate admission is executable:
+
+```text
+external_candidate_fixture/raw_candidate.json
+  -> external_candidate_normalizer.rb
+  -> selected_profile candidate artifacts
+  -> packet_builder_check.rb --profile-mode selected_profile
+```
+
+[S] Ruby FFI now has contractable proof and receipt/failure fixtures:
+
+```text
+FFIRequirement
+  -> intent_observation
+  -> CapabilityGate
+  -> host call
+  -> receipt_observation | failure_observation
+```
+
+The executable fixture set covers read success, write/audit success,
+capability denied, and host error. It still needs normalized-equivalence rules
+before package-derived FFI packets may differ from the golden fixture shape.
+
+[S] The source parser harness has started:
+
+```text
+igniter-lang/experiments/parser/igniter_lang_parser.rb
+  source/add.ig -> ParsedProgram JSON
+  source/availability_projection.ig -> ParsedProgram JSON
+```
+
+This proves parse viability for the current source fixtures only. It does not
+yet classify, typecheck, lower to `SemanticIR`, or compare to `.igapp`.
 
 ---
 
-## What Is Now Proven
+## Current Source And Artifact Fixtures
+
+Source fixtures:
+
+```text
+igniter-lang/source/add.ig
+igniter-lang/source/availability_projection.ig
+```
+
+Artifact fixtures:
+
+```text
+igniter-lang/fixtures/add.igapp/
+igniter-lang/fixtures/availability_projection.igapp/
+```
+
+[D] These source files are acceptance targets for a future parser/compiler
+frontend. They are not a final syntax promise beyond the v0 source boundary.
+
+---
+
+## What Is Executable
 
 The standalone memory proof validates:
 
@@ -71,48 +161,25 @@ The standalone memory proof validates:
 - same-value-without-evidence is provisional, not trusted
 - evidence links are required for meaning, not only value hashes
 
-The proof now exports structural golden artifacts:
+The packet checker validates:
 
-```text
-fixtures/manifest.json
-fixtures/obs_packets.golden.json
-fixtures/semantic_image.golden.json
-fixtures/compatibility_reports.golden.json
-fixtures/negative_evidence.golden.json
-fixtures/result_summary.golden.json
-```
+- manifest hashes
+- artifact headers
+- ObsPacket identity
+- SemanticImage content
+- CompatibilityReport decisions
+- negative evidence
+- result summary
 
-The checker validates packet identity, payload hashes, SemanticImage content,
-CompatibilityReport decisions, negative evidence, and result summary shape.
+The external candidate normalizer validates a raw external candidate and emits
+a `selected_profile` candidate directory that passes the checker.
 
-The sidecar builder profiles define two candidate modes:
+The FFI receipt fixture checker validates descriptors, scenario packets,
+required links, lifecycle expectations, capability denial before host call, and
+host-error failure shape.
 
-```text
-full_log
-  -> full proof regression with complete session packet logs
-
-selected_profile
-  -> smaller bridge-admission surface:
-     selected packets + result hash + SemanticImage + CompatibilityReport
-```
-
----
-
-## Artifact Fixtures
-
-Current hand-authored artifacts:
-
-```text
-igniter-lang/fixtures/add.igapp/
-  -> CORE Add contract fixture
-
-igniter-lang/fixtures/availability_projection.igapp/
-  -> Spark CRM pressure fixture for temporal/window projection semantics
-```
-
-`CompiledProgram.load_igapp` exists in the experiment sidecar and can load these
-artifact directories into the memory-proof model. This is still devkit code, not
-the final compiler/runtime implementation.
+The parser experiment currently parses both source fixtures to `ParsedProgram`
+JSON without parse errors.
 
 ---
 
@@ -131,7 +198,7 @@ Every result is:
   constrained by lifecycle, capability, and effect declarations
 ```
 
-The unique vector is not "another general-purpose language". It is:
+The unique vector is:
 
 ```text
 business meaning as typed, temporal, observable, evidence-linked computation
@@ -143,15 +210,15 @@ business meaning as typed, temporal, observable, evidence-linked computation
 
 - Time is a language dimension, not an ambient runtime clock.
 - Observation is the unit of trust, not a raw function result.
-- CORE/ESCAPE/OOF is a trust boundary and future trust calculus.
+- Equal value hashes are insufficient without evidence links.
+- CORE/ESCAPE/OOF is a trust boundary.
+- CORE computation is finite, bounded, immutable, and structurally parallel.
+- ESCAPE must be declared, capability-gated, and receipt/failure-producing.
 - SemanticImage is the cross-session continuity primitive.
 - CompatibilityReport decides resume status: trusted, provisional, downgraded,
   or blocked.
-- Equal value hashes are insufficient without evidence links.
-- Native/LLVM is a later backend; it must still link or preserve RuntimeMachine
-  semantics.
-- Host-language calls enter through contractable FFI: typed, capability-gated,
-  observable, and receipt/failure-producing.
+- Lifecycle belongs to language semantics; TBackend enforces retention.
+- Native/LLVM is a later backend and must preserve RuntimeMachine semantics.
 
 ---
 
@@ -160,14 +227,14 @@ business meaning as typed, temporal, observable, evidence-linked computation
 Critical:
 
 - no real parser/compiler frontend yet
-- stdlib is not formally typed enough for v1
-- fold/aggregate primitives are missing
-- ESCAPE composition and capability delegation are under-specified
+- parser exists only as a partial devkit; no fixture comparison/classification
+  yet
 
 High:
 
+- normalized-equivalence checker profile for real external and FFI candidates
 - schema evolution and contract migration need a CompatibilityReport dimension
-- FFI Ruby bridge needs a proof track
+- ESCAPE composition and capability delegation remain under-specified
 - `.igapp` schema and artifact hashing need a stricter validator
 
 Medium:
@@ -176,46 +243,57 @@ Medium:
 - privacy propagation through contract composition
 - file-backed TBackend proof after memory proof remains stable
 
+Deferred:
+
+- pattern matching, generics, traits
+- native backend and self-hosting beyond the staged plan
+
 ---
 
 ## Recommended Next Round
 
-Give agents work from this fixed point:
-
 1. Compiler/Grammar Expert:
-   `PROP-013: Stdlib and Fold/Aggregate v0`
+   `source-fixture-parsed-surface-checker-v0`
 
-   Close the immediate expressiveness gap while preserving termination and
-   explicit time.
-
-2. Compiler/Grammar Expert:
-   `PROP-014: Source Syntax to SemanticIR Boundary v0`
-
-   Define minimal source syntax and parser boundary without overbuilding a
+   Compare parsed source surfaces for `source/add.ig` and
+   `source/availability_projection.ig` against the existing `.igapp` contract
+   and SemanticIR surfaces. This should still be devkit/proof work, not a full
    compiler.
 
-3. Research Agent:
-   `runtime-machine-proof-external-candidate-adapter-v0`
+2. Research Agent:
+   `runtime-machine-ffi-ruby-intent-and-delegation-v0`
 
-   Define how an external bridge/package candidate maps into the
-   `selected_profile` artifact contract.
+   Add explicit `intent_observation` and capability delegation semantics around
+   the FFI receipt fixtures before any package adapter integration.
 
-4. Research Agent:
-   `ffi-ruby-contractable-proof-v0`
+3. Compiler/Grammar Expert:
+   `escape-capability-algebra-v0`
 
-   Prove Ruby host calls as ESCAPE contracts with capabilities, receipts,
-   failures, lifecycle, and evidence links.
+   Formalize ESCAPE composition, capability overlap, delegation, revocation, and
+   resource serialization before package bridge work depends on it.
+
+4. Later:
+   `runtime-machine-normalized-equivalence-profile-v0`
+
+   Define where external/package candidates may substitute refs or host
+   descriptors while preserving result meaning, evidence links, SemanticImage
+   rules, CompatibilityReport decisions, and FFI receipt/failure semantics.
 
 5. Later:
+   `contract-schema-evolution-v0`
+
+   Add schema version/migration dimensions to CompatibilityReport.
+
+6. Later:
    `file-tbackend-proof-v0`
 
-   Only after the memory proof and artifact fixtures remain stable.
+   Only after memory proof, source fixtures, and FFI fixtures remain stable.
 
 ---
 
 ## Verification Commands
 
-Current fixed point was checked with:
+Current executable checks:
 
 ```bash
 ruby igniter-lang/experiments/runtime_machine_memory_proof/runtime_machine_memory_proof.rb
@@ -223,6 +301,10 @@ ruby igniter-lang/experiments/runtime_machine_memory_proof/runtime_machine_memor
 ruby igniter-lang/experiments/runtime_machine_memory_proof/packet_builder_check.rb
 ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb
 ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb --profile-mode selected_profile --candidate /private/tmp/igniter_lang_sidecar_selected_check
+ruby igniter-lang/experiments/runtime_machine_memory_proof/external_candidate_normalizer.rb
+ruby igniter-lang/experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb
+ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/add.ig
+ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/availability_projection.ig
 ```
 
-All passed on 2026-05-05.
+All passed on 2026-05-05 during Architect review.

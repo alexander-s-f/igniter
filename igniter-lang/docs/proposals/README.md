@@ -39,9 +39,12 @@ design decision or formal specification.
 
 | ID | Title | Depends On | Priority |
 |----|-------|------------|----------|
-| PROP-016 | Pattern Matching and Generics v0 | PROP-015 | medium |
-| — | ffi-ruby-contractable-proof-v0 | PROP-012, PROP-013 | high (bridge track) |
-| — | runtime-machine-proof-external-candidate-adapter-v0 | PROP-008, PROP-012 | high (research) |
+| PROP-016 | ESCAPE Capability Algebra v0 | PROP-003, PROP-012, FFI proof | high |
+| PROP-017 | Contract Schema Evolution and Migration v0 | PROP-009, PROP-012 | high |
+| PROP-018 | Pattern Matching and Generics v0 | PROP-015, PROP-016 | medium |
+| — | source-fixture-parsed-surface-checker-v0 | PROP-014, PROP-015 | high (devkit track) |
+| — | runtime-machine-ffi-ruby-intent-and-delegation-v0 | FFI receipt fixtures, PROP-012 | high (research track) |
+| — | runtime-machine-normalized-equivalence-profile-v0 | selected_profile, FFI receipt fixtures | medium (research track) |
 
 ---
 

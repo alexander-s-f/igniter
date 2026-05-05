@@ -30,6 +30,8 @@ implementation detail of the current Igniter platform.
 | [tracks/runtime-machine-external-candidate-normalizer-fixtures-v0.md](tracks/runtime-machine-external-candidate-normalizer-fixtures-v0.md) | done | Added a standalone raw external candidate normalizer fixture that emits selected-profile artifacts and passes the checker |
 | [tracks/add-igapp-devkit-fixture-v0.md](tracks/add-igapp-devkit-fixture-v0.md) | done | Defined the first hand-authored `.igapp/` artifact and RuntimeMachine load/evaluate/checkpoint proof target |
 | [tracks/ffi-ruby-contractable-proof-v0.md](tracks/ffi-ruby-contractable-proof-v0.md) | done | Proved Ruby host calls as ESCAPE contracts: FFIRequirement, CapabilityGate, call discipline (intent→check→call→receipt/failure), evidence links |
+| [tracks/runtime-machine-ffi-ruby-receipt-fixtures-v0.md](tracks/runtime-machine-ffi-ruby-receipt-fixtures-v0.md) | done | Added executable FFI read/write/failure golden receipt fixtures and checker coverage |
+| [tracks/source-fixture-parser-acceptance-harness-v0.md](tracks/source-fixture-parser-acceptance-harness-v0.md) | partial | Started source fixture parser harness: `.ig` source fixtures parse to ParsedProgram JSON; `.igapp` comparison still pending |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 | [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
@@ -38,7 +40,9 @@ implementation detail of the current Igniter platform.
 
 | Experiment | Status | Purpose |
 |------------|--------|---------|
-| [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-external-candidate-normalizer-fixtures-v0: standalone memory proof, golden fixtures, checker, sidecar profiles, profile modes, and external candidate normalizer |
+| [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-ffi-ruby-receipt-fixtures-v0: standalone memory proof, golden fixtures, checker, sidecar profiles, profile modes, external candidate normalizer, and FFI receipt fixtures |
+| [../experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb](../experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb) | done | FFI Ruby receipt/failure fixture generator and checker |
+| [../experiments/parser/igniter_lang_parser.rb](../experiments/parser/igniter_lang_parser.rb) | partial | Minimal recursive-descent parser for PROP-014/015 source fixtures; emits ParsedProgram JSON |
 
 ## Active Proposals
 
@@ -77,6 +81,8 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [runtime-machine.md](runtime-machine.md) | Meta thesis: Runtime Machine lifecycle, TBackend, semantic image, and resume model |
 | [compilation-deployment.md](compilation-deployment.md) | Meta thesis: compilation artifacts, deployment modes, native backend path, and contractable FFI |
 | [current-status.md](current-status.md) | Compact fixed point for the current round: theory, devkit proof, fixtures, gaps, and next slices |
+| [language-position-report.md](language-position-report.md) | Meta thesis: language position, ECL paradigm, 7 blind spots, 7 insights, strategic assessment |
+| [runtime-model-spec-questions-v0.md](runtime-model-spec-questions-v0.md) | Forward spec: variables (single-assignment), scoping (lexical 3-level), memory (value semantics/region), GC (evaluation+semantic), parallelism (structural DAG), self-hosting (Stage 0→5) |
 
 ## Research Vectors
 
@@ -123,9 +129,33 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - stdlib v0 (PROP-013: Collection, Option, Result, fold, temporal primitives)
 - Source Syntax to SemanticIR Boundary (PROP-014: minimal grammar kernel)
 - Grammar and Module System (PROP-015: def, TypeDecl, module/import, full v0 BNF)
-- Pattern Matching and Generics (QUEUED — PROP-016)
-- FFI Ruby bridge adapter (QUEUED — bridge track)
+- Parser Acceptance Harness (DONE — add.ig + availability_projection.ig → ParsedProgram, 61 specs)
+- FFI Ruby Contractable Proof (DONE — CapabilityGate + call discipline, 36 specs)
+- ESCAPE Capability Algebra (QUEUED — PROP-016)
+- Contract Schema Evolution and Migration (QUEUED — PROP-017)
+- Pattern Matching and Generics (QUEUED — PROP-018)
 - Runtime Machine FFI Ruby Receipt Fixtures (QUEUED — research track)
+
+## Experiments and Source Files
+
+```text
+igniter-lang/experiments/parser/
+  igniter_lang_parser.rb     <- Lexer + recursive-descent Parser (PROP-014/015 grammar kernel)
+
+igniter-lang/experiments/runtime_machine_memory_proof/
+  ffi_ruby_proof.rb          <- FFIRequirement, CapabilityGate, FFIAdapter (PROP-012 §FFI)
+
+igniter-lang/source/
+  add.ig                     <- canonical CORE source (module Lang.Examples.Add)
+  availability_projection.ig <- ESCAPE source with window/defs/TBackend reads
+
+spec/igniter/
+  parser_acceptance_spec.rb     <- 61 acceptance tests (ParsedProgram -> fixture compare path)
+  ffi_ruby_contractable_spec.rb <- 36 FFI call-discipline tests
+  add_igapp_devkit_spec.rb      <- 32 Add devkit tests
+  availability_projection_igapp_spec.rb <- 29 window lifecycle tests
+Total: 158 examples, 0 failures
+```
 
 ## Review Cadence
 

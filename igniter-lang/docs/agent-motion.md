@@ -136,8 +136,8 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-external-candidate-normalizer-fixtures-v0.md` | done | runtime machine FFI Ruby receipt fixtures |
-| `[Igniter-Lang Compiler/Grammar Expert]` | `language-position-report.md` + `proposals/PROP-012-compilation-artifact-deployment-model-v0.md` | done | PROP-013 stdlib/fold or PROP-014 source-to-SemanticIR boundary |
+| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-ffi-ruby-receipt-fixtures-v0.md` | done | runtime-machine-ffi-ruby-intent-and-delegation-v0 |
+| `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/source-fixture-parser-acceptance-harness-v0.md` | partial | source-fixture-parsed-surface-checker-v0 or ESCAPE capability algebra |
 
 ## Current Meta Thesis
 
@@ -317,6 +317,64 @@ external_candidate_fixture/raw_candidate.json
 The generated `external_ref_map.json` and `adapter_diagnostics.json` are
 human-review aids, not trusted admission evidence in v0.
 
+[S] Stdlib, source boundary, and grammar kernel are now specified:
+
+```text
+PROP-013 -> bounded collections, fold/map/filter/group_by, Option, Result
+PROP-014 -> source syntax boundary to ParsedProgram/ClassifiedProgram/TypedProgram/SemanticIR
+PROP-015 -> def, TypeDecl, module/import, v0 BNF, source fixtures
+```
+
+The source fixture pair is now:
+
+```text
+igniter-lang/source/add.ig
+igniter-lang/source/availability_projection.ig
+```
+
+Future parser work should target these fixtures first and compare toward the
+existing `.igapp/` artifacts before claiming compiler progress.
+
+[S] Minimal parser experiment has started:
+
+```text
+igniter-lang/experiments/parser/igniter_lang_parser.rb
+  -> ParsedProgram JSON
+```
+
+It parses both source fixtures without parse errors, but it does not yet
+classify, typecheck, lower to SemanticIR, or compare parsed surfaces to
+`.igapp` fixtures.
+
+[S] FFI receipt fixtures are now executable:
+
+```text
+ffi_ruby_receipt_fixtures.rb
+  -> descriptors
+  -> read_success
+  -> write_audit_success
+  -> capability_denied
+  -> host_error
+```
+
+Future bridge/package work should treat these as the FFI admission fixture
+surface until intent/delegation and normalized-equivalence rules are approved.
+
+[D] Runtime model identity decisions are now captured:
+
+```text
+immutable bindings
+lexical scope
+value semantics
+region-style evaluation memory
+semantic GC through TBackend lifecycle
+structural DAG parallelism
+staged self-hosting
+```
+
+These decisions should be treated as language semantics, not runtime
+implementation preferences.
+
 [D] `T` has a lifecycle. Igniter-Lang must not imply that all temporal
 observations live forever:
 
@@ -430,8 +488,10 @@ igniter-lang/docs/
     runtime-machine-proof-sidecar-profile-modes-v0.md [done]
     runtime-machine-external-candidate-and-ffi-proof-v0.md [done]
     runtime-machine-external-candidate-normalizer-fixtures-v0.md [done]
+    ffi-ruby-contractable-proof-v0.md [done]
+    runtime-machine-ffi-ruby-receipt-fixtures-v0.md [done]
+    source-fixture-parser-acceptance-harness-v0.md [partial]
     bridge-observation-envelope-implementation-plan-v0.md [done]
-    bridge-packet-builder-golden-fixtures-v0.md [queued - no package edits]
     temporal-lifecycle-application-scenarios-v0.md [done]
     temporal-lifecycle-boundary-fixtures-v0.md [done]
 
@@ -446,10 +506,22 @@ igniter-lang/docs/
     PROP-004b-axiom-layer-type-signatures-v0.md      [done]
     PROP-006-runtime-contract-specification-v0.md    [done]
     PROP-007-conformance-verification-v0.md          [done]
-    PROP-005-verification-observation-extension-v0.md [queued]
+    PROP-008-tbackend-contract-v0.md                 [done]
+    PROP-009-semantic-image-resume-compatibility-v0.md [done]
+    PROP-010-temporal-lifecycle-retention-semantics-v0.md [done]
+    PROP-011-runtime-machine-lifecycle-v0.md         [done]
+    PROP-012-compilation-artifact-deployment-model-v0.md [done]
+    PROP-013-stdlib-fold-aggregate-v0.md             [done]
+    PROP-014-source-syntax-semanticir-boundary-v0.md [done]
+    PROP-015-grammar-module-system-v0.md             [done]
+
+  source/
+    add.ig [source fixture]
+    availability_projection.ig [source fixture]
 
   experiments/
-    runtime_machine_memory_proof/ [done - standalone harness + golden fixtures + checker + profiles + modes + external normalizer]
+    runtime_machine_memory_proof/ [done - standalone harness + golden fixtures + checker + profiles + modes + external normalizer + FFI receipt fixtures]
+    parser/ [partial - minimal source fixture parser to ParsedProgram JSON]
   bridge/                        <- bridge notes to Igniter platform (none yet)
 ```
 
@@ -488,6 +560,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-proof-sidecar-profile-modes-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-external-candidate-and-ffi-proof-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-external-candidate-normalizer-fixtures-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-ffi-ruby-receipt-fixtures-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/bridge-observation-envelope-implementation-plan-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-application-scenarios-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-boundary-fixtures-v0.md | done |
