@@ -81,6 +81,21 @@ ObservationPacket {
 }
 ```
 
+## Formal Errata
+
+[D] `PROP-001` replaces flat failure status with a two-dimensional model:
+
+```text
+computation_status: :ok | :failed | :rejected | :blocked
+service_level:      :nominal | :degraded
+```
+
+The flat statuses in this slice remain compatibility shorthand:
+`failed/rejected/blocked` map to `service_level: :nominal`; `degraded` maps to
+`computation_status: :ok, service_level: :degraded`. Reason-code families are
+closed core semantics; package-specific codes belong in advisory platform
+extensions such as `platform_code`.
+
 Required failure semantics:
 
 - `status` distinguishes fault shape:

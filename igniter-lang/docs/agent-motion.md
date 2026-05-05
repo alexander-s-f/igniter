@@ -136,7 +136,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/failure-observation-v0.md` | done | bridge-observation-envelope-v0 |
+| `[Igniter-Lang Research Agent]` | `tracks/track-errata-application-v0.md` | done | bridge-observation-envelope-v0 after PROP-002 review |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `proposals/PROP-001-semantic-domain-v0.md` | done | PROP-002 |
 
 ---
@@ -181,7 +181,9 @@ igniter-lang/docs/
     observable-contract-language-v0.md   [done]
     observable-spine-v0.md               [done]
     failure-observation-v0.md            [done]
-    bridge-observation-envelope-v0.md    [queued - Research Agent]
+    semantic-domain-reconciliation-v0.md [done]
+    track-errata-application-v0.md       [done]
+    bridge-observation-envelope-v0.md    [queued - after PROP-002 review]
 
   proposals/                     <- formal design proposals
     README.md                                        [index]
@@ -216,6 +218,8 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/observable-contract-language-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/observable-spine-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/failure-observation-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/semantic-domain-reconciliation-v0.md | done |
+| 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/track-errata-application-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |

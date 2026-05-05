@@ -49,6 +49,22 @@ This makes Igniter-Lang a semantic research ecosystem, not a new skin over the
 current Ruby DSL. The current platform proves useful pressure; the language
 track decides which semantics deserve first-class status.
 
+## Formal Errata
+
+[D] `PROP-001` is now the formal anchor for this practical slice.
+
+Law 3 should be read as:
+
+```text
+The default core is a finite, stratified dependency graph parameterized over an
+explicit temporal context Tt. Each evaluation at a fixed Tt is a closed
+computation.
+```
+
+Law 5 should be read through `eval(G, Tt, inputs)`: changed results require a
+changed graph, temporal context, input set, or referenced observation. The
+original ten laws remain practical design language, not formal axioms.
+
 ## Proposed Laws
 
 1. **Result-orientation law.** Observable meaning is rooted in declared outputs.

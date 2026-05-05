@@ -122,6 +122,21 @@ ObservationPacket {
 }
 ```
 
+## Formal Errata
+
+[D] `PROP-001` separates required envelope fields by formal role:
+
+| Group | Fields | Formal role |
+|-------|--------|-------------|
+| Identity | `observation_id`, `space`, `kind`, `subject` | Determines same observation |
+| Provenance | `producer`, `observed_at`, `content_hash` | Determines lineage/re-emission |
+| Policy | `privacy`, `links`, `capabilities` | Determines allowed interpretation/use |
+
+Same identity plus different provenance means re-emission or refreshed
+evidence. Same payload plus different identity means a different observation.
+Observation packets are semantic evidence values (`O` in `PROP-001`), not the
+whole contract denotation.
+
 Required fields:
 
 | Field | Why required |
