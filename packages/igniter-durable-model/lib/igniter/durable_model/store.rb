@@ -379,6 +379,35 @@ module Igniter
         )
       end
 
+      # Build a dry-run operation plan for a CommandIntent.
+      # Planning may read current state for previews, but never mutates storage.
+      def command_operation_plan(intent)
+        unless intent.is_a?(CommandIntent)
+          raise ArgumentError, "command_operation_plan expects Igniter::DurableModel::CommandIntent"
+        end
+
+        case intent.operation
+        when :record_update
+          plan_record_update(intent)
+        when :record_append
+          plan_record_append(intent)
+        when :history_append
+          plan_history_append(intent)
+        when :none
+          build_command_plan(intent,
+            status: :ready,
+            target: { shape: :none },
+            value: nil,
+            event: nil)
+        else
+          build_command_plan(intent,
+            status: :invalid,
+            target: { shape: :none },
+            errors: [plan_error(:unsupported_operation,
+              "Unsupported command operation: #{intent.operation.inspect}")])
+        end
+      end
+
       # Register a projection descriptor — metadata-only, no execution.
       # Records which stores and relations a cross-record projection reads,
       # making this visible to the store engine via SchemaGraph.
@@ -839,6 +868,118 @@ module Igniter
 
       def descriptor_entry(entries, key)
         entries[key] || entries[key.to_s]
+      end
+
+      def plan_record_update(intent)
+        return plan_missing_key(intent) if intent.subject_key.nil?
+
+        schema_class = schema_for_intent(intent)
+        return plan_missing_schema(intent) unless schema_class
+
+        record = read(schema_class, key: intent.subject_key)
+        unless record
+          return build_command_plan(intent,
+            status: :invalid,
+            target: store_target(intent),
+            errors: [plan_error(:record_not_found,
+              "No record found for owner=#{intent.owner.inspect} key=#{intent.subject_key.inspect}")])
+        end
+
+        value = record.to_h
+          .merge(intent.changes)
+          .merge(plan_hash_param(intent, :changes))
+        build_command_plan(intent,
+          status: :ready,
+          target: store_target(intent),
+          value: value)
+      end
+
+      def plan_record_append(intent)
+        schema_class = schema_for_intent(intent)
+        return plan_missing_schema(intent) unless schema_class
+
+        value = intent.changes.merge(plan_hash_param(intent, :attributes))
+        build_command_plan(intent,
+          status: :ready,
+          target: store_target(intent),
+          value: value)
+      end
+
+      def plan_history_append(intent)
+        history_name, warnings = history_target_for(intent)
+        event = plan_event(intent)
+        build_command_plan(intent,
+          status: :ready,
+          target: { shape: :history, name: history_name, key: nil },
+          event: event,
+          warnings: warnings)
+      end
+
+      def plan_missing_key(intent)
+        build_command_plan(intent,
+          status: :invalid,
+          target: store_target(intent),
+          errors: [plan_error(:missing_key,
+            "record_update command plan requires subject_key")])
+      end
+
+      def plan_missing_schema(intent)
+        build_command_plan(intent,
+          status: :invalid,
+          target: { shape: intent.target_shape, name: intent.owner, key: intent.subject_key },
+          errors: [plan_error(:schema_not_registered,
+            "No schema registered for owner=#{intent.owner.inspect}")])
+      end
+
+      def build_command_plan(intent, status:, target:, value: nil, event: nil,
+                             errors: [], warnings: [])
+        CommandOperationPlan.new(
+          owner: intent.owner,
+          command: intent.command,
+          subject_key: intent.subject_key,
+          operation: intent.operation,
+          status: status,
+          target: target,
+          value: value,
+          event: event,
+          effect: intent.effect,
+          errors: errors,
+          warnings: warnings,
+          metadata: intent.metadata
+        )
+      end
+
+      def store_target(intent)
+        { shape: :store, name: intent.owner, key: intent.subject_key }
+      end
+
+      def schema_for_intent(intent)
+        @schema_by_store[token(intent.owner)]
+      end
+
+      def plan_hash_param(intent, key)
+        value = intent.params[key]
+        value.is_a?(Hash) ? value : {}
+      end
+
+      def history_target_for(intent)
+        event = intent.event.is_a?(Hash) ? intent.event : {}
+        explicit = intent.metadata[:history] || intent.metadata[:history_name] ||
+                   intent.metadata[:target_history] || event[:history] ||
+                   event[:history_name]
+        return [token(explicit), []] if explicit
+
+        [intent.owner, [plan_error(:history_target_inferred,
+          "No explicit history target; using owner=#{intent.owner.inspect}")]]
+      end
+
+      def plan_event(intent)
+        base = intent.event.is_a?(Hash) ? intent.event : {}
+        base.merge(intent.params)
+      end
+
+      def plan_error(code, message)
+        { code: code, message: message }
       end
     end
   end

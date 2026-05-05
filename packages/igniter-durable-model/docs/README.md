@@ -21,7 +21,7 @@ alias.
 | [tracks/durable-model-client-provenance-introspection-v0.md](tracks/durable-model-client-provenance-introspection-v0.md) | Completed read-only provenance/lineage protocol and client-backed causation chains |
 | [tracks/durable-model-command-effect-descriptor-parity-v0.md](tracks/durable-model-command-effect-descriptor-parity-v0.md) | Completed metadata-only command/effect descriptors through Ledger metadata |
 | [tracks/durable-model-command-intent-boundary-v0.md](tracks/durable-model-command-intent-boundary-v0.md) | Completed pure command intent objects at the app boundary |
-| [tracks/durable-model-command-operation-plan-v0.md](tracks/durable-model-command-operation-plan-v0.md) | Proposed track for non-mutating command operation planning and dry-run validation |
+| [tracks/durable-model-command-operation-plan-v0.md](tracks/durable-model-command-operation-plan-v0.md) | Completed non-mutating command operation planning and dry-run validation |
 | [tracks/companion-ledger-client-remote-boundary-v0.md](tracks/companion-ledger-client-remote-boundary-v0.md) | Track for accepting `LedgerClient` as Companion's preferred remote Ledger boundary |
 | [tracks/companion-ledger-client-scope-query-boundary-v0.md](tracks/companion-ledger-client-scope-query-boundary-v0.md) | Proposed next track for remote Companion scopes over `LedgerClient#query` |
 | [tracks/companion-ledger-client-scope-subscriptions-v0.md](tracks/companion-ledger-client-scope-subscriptions-v0.md) | Proposed next track for remote Companion `on_scope` over Ledger Client events |

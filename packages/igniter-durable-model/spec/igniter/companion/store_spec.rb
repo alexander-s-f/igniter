@@ -45,6 +45,9 @@ class CommandedReminder
   command :audit,
     operation: :history_append,
     event: { event: :audited }
+
+  command :noop,
+    operation: :none
 end
 
 class StringCommandReminder
@@ -412,6 +415,34 @@ RSpec.describe Igniter::Companion::Store do
       )
       expect(intent.effect).to include(store_op: :store_write, write_kind: :update, lowers_to: :store_t)
       expect(s.read(CommandedReminder, key: "r1")).to be_nil
+    ensure
+      s&.close
+    end
+
+    it "builds client-backed command operation plans without writing records" do
+      s = client_backed_store
+      s.register(CommandedReminder)
+      s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+      intent = s.command_intent(CommandedReminder, :complete,
+        key: "r1",
+        params: { changes: { title: "Buy oat milk" } })
+      plan = s.command_operation_plan(intent)
+
+      expect(plan).to be_a(Igniter::DurableModel::CommandOperationPlan)
+      expect(plan).to be_ready
+      expect(plan.to_h).to include(
+        kind: :command_operation_plan,
+        owner: :commanded_reminders,
+        command: :complete,
+        subject_key: "r1",
+        operation: :record_update,
+        status: :ready,
+        target: { shape: :store, name: :commanded_reminders, key: "r1" },
+        value: { id: "r1", title: "Buy oat milk", status: :done },
+        execution_allowed: false
+      )
+      expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
     ensure
       s&.close
     end
@@ -1376,6 +1407,116 @@ RSpec.describe Igniter::Companion::Store do
           write_kind: :update,
           source_operation: :record_update
         )
+      ensure
+        s&.close
+      end
+
+      it "builds embedded record_update operation plans without writing" do
+        s = described_class.new
+        s.register(CommandedReminder)
+        s.write(CommandedReminder, key: "r1", id: "r1", title: "Buy milk", status: :open)
+
+        intent = s.command_intent(CommandedReminder, :complete,
+          key: "r1",
+          params: { changes: { title: "Buy oat milk" } },
+          metadata: { request_id: "req-1" })
+        plan = s.command_operation_plan(intent)
+
+        expect(plan).to be_frozen
+        expect(plan).to be_ready
+        expect(plan[:owner]).to eq(:commanded_reminders)
+        expect(plan.to_h).to include(
+          schema_version: 1,
+          kind: :command_operation_plan,
+          owner: :commanded_reminders,
+          command: :complete,
+          subject_key: "r1",
+          operation: :record_update,
+          status: :ready,
+          target: { shape: :store, name: :commanded_reminders, key: "r1" },
+          value: { id: "r1", title: "Buy oat milk", status: :done },
+          metadata: { request_id: "req-1" },
+          execution_allowed: false
+        )
+        expect(plan.effect).to include(store_op: :store_write, write_kind: :update)
+        expect(s.read(CommandedReminder, key: "r1").status).to eq(:open)
+      ensure
+        s&.close
+      end
+
+      it "returns invalid operation plans when record_update target is missing" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :complete, key: "missing")
+        plan = s.command_operation_plan(intent)
+
+        expect(plan).to be_invalid
+        expect(plan.value).to be_nil
+        expect(plan.errors).to include(include(code: :record_not_found))
+      ensure
+        s&.close
+      end
+
+      it "builds record_append operation plans without generating keys" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :draft,
+          params: { attributes: { title: "Draft" } })
+        plan = s.command_operation_plan(intent)
+
+        expect(plan).to be_ready
+        expect(plan.target).to eq(shape: :store, name: :commanded_reminders, key: nil)
+        expect(plan.value).to eq(status: :open, title: "Draft")
+        expect(plan.subject_key).to be_nil
+      ensure
+        s&.close
+      end
+
+      it "builds history_append operation plans with inferred target warnings" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :audit, params: { actor: "user-1" })
+        plan = s.command_operation_plan(intent)
+
+        expect(plan).to be_ready
+        expect(plan.target).to eq(shape: :history, name: :commanded_reminders, key: nil)
+        expect(plan.event).to eq(event: :audited, actor: "user-1")
+        expect(plan.warnings).to include(include(code: :history_target_inferred))
+      ensure
+        s&.close
+      end
+
+      it "uses explicit history targets for history_append operation plans" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :audit,
+          params: { actor: "user-1" },
+          metadata: { history: :command_audits })
+        plan = s.command_operation_plan(intent)
+
+        expect(plan).to be_ready
+        expect(plan.target).to eq(shape: :history, name: :command_audits, key: nil)
+        expect(plan.warnings).to be_empty
+      ensure
+        s&.close
+      end
+
+      it "builds ready none operation plans with no mutation target" do
+        s = described_class.new
+        s.register(CommandedReminder)
+
+        intent = s.command_intent(CommandedReminder, :noop)
+        plan = s.command_operation_plan(intent)
+
+        expect(plan).to be_ready
+        expect(plan.target).to eq(shape: :none)
+        expect(plan.value).to be_nil
+        expect(plan.event).to be_nil
+        expect(plan.execution_allowed).to be false
       ensure
         s&.close
       end

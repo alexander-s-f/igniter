@@ -204,6 +204,11 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   `kind: :command_intent` object for app-boundary previews/projections.
 - Command intents carry `execution_allowed: false`; they do not write, append,
   publish, or call app callbacks.
+- `Store#command_operation_plan` turns a command intent into a dry-run
+  `kind: :command_operation_plan` preview with target/value/event shape,
+  validation status, errors, and warnings.
+- Operation plans carry `execution_allowed: false`; future app-boundary
+  apply/audit remains a separate layer.
 
 `effects`
 
@@ -215,6 +220,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   schema registration.
 - Command intents embed the derived effect metadata so apps can decide how to
   project or apply the intent later.
+- Operation plans also embed effect metadata so previews can show the intended
+  store/history operation without mutating storage.
 
 `projections`
 

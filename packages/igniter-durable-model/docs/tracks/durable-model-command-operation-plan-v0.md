@@ -1,6 +1,6 @@
 # Track: Durable Model Command Operation Plan v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -311,3 +311,7 @@ Status: done | partial | blocked
 - This is the dry-run bridge between command intent and future explicit
   app-boundary application.
 - Keep planning useful, boring, and non-mutating.
+- `CommandOperationPlan` is immutable, hash-readable, and carries
+  `execution_allowed: false`.
+- `Store#command_operation_plan` covers `record_update`, `record_append`,
+  `history_append`, and `none` without producing facts.
