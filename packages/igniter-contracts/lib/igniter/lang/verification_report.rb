@@ -10,6 +10,7 @@ module Igniter
                   :metadata,
                   :metadata_manifest,
                   :diagnostic_payloads,
+                  :receipt_payloads,
                   :schema_compatibility_diagnostics
 
       def self.from_compilation_report(report)
@@ -37,6 +38,7 @@ module Igniter
         findings: [],
         metadata: {},
         diagnostic_payloads: [],
+        receipt_payloads: [],
         schema_compatibility_diagnostics: []
       )
         @profile_fingerprint = profile_fingerprint
@@ -46,6 +48,7 @@ module Igniter
         @metadata_manifest = MetadataManifest.from_operations(operations)
         @descriptors = metadata_manifest.descriptors
         @diagnostic_payloads = normalize_diagnostic_payloads(diagnostic_payloads)
+        @receipt_payloads = normalize_receipt_payloads(receipt_payloads)
         @schema_compatibility_diagnostics = normalize_schema_compatibility_diagnostics(
           schema_compatibility_diagnostics
         )
@@ -67,6 +70,7 @@ module Igniter
           descriptors: descriptors,
           metadata_manifest: metadata_manifest.to_h,
           diagnostic_payloads: diagnostic_payloads.map(&:to_h),
+          receipt_payloads: receipt_payloads.map(&:to_h),
           schema_compatibility_diagnostics: schema_compatibility_diagnostics.map(&:to_h),
           findings: findings,
           metadata: metadata
@@ -80,6 +84,14 @@ module Igniter
           next entry if entry.is_a?(DiagnosticPayload)
 
           DiagnosticPayload.new(**entry.to_h.transform_keys(&:to_sym))
+        end.freeze
+      end
+
+      def normalize_receipt_payloads(entries)
+        entries.map do |entry|
+          next entry if entry.is_a?(ReceiptPayload)
+
+          ReceiptPayload.new(**entry.to_h.transform_keys(&:to_sym))
         end.freeze
       end
 

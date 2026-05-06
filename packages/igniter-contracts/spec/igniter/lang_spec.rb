@@ -24,6 +24,10 @@ RSpec.describe Igniter::Lang do
     expect(described_class::DiagnosticPayload).to be(Igniter::Lang::DiagnosticPayload)
   end
 
+  it "loads generic receipt payloads through the lang entrypoint" do
+    expect(described_class::ReceiptPayload).to be(Igniter::Lang::ReceiptPayload)
+  end
+
   it "builds immutable serializable type descriptors" do
     history = described_class::History[String]
     bi_history = described_class::BiHistory[Integer]
@@ -234,5 +238,33 @@ RSpec.describe Igniter::Lang do
     expect(report).to be_ok
     expect(report.diagnostic_payloads).to eq([diagnostic])
     expect(report.to_h.fetch(:diagnostic_payloads)).to eq([diagnostic.to_h])
+  end
+
+  it "serializes optional generic receipt payloads without changing report validity" do
+    receipt = described_class::ReceiptPayload.new(
+      receipt_id: "operation_request/fixture/req-001",
+      profile: "operation_request_receipt_v0",
+      payload: {
+        request_status: "pending",
+        side_effects_performed: false
+      },
+      evidence_links: {
+        operation_intent_ref: "obs/operation-intent-001"
+      },
+      redaction_policy: {
+        profile: "operation_receipt_public_metadata_v0",
+        raw_ref_export: false,
+        hash_source_refs: true
+      }
+    )
+    report = described_class::VerificationReport.new(
+      profile_fingerprint: "profile:fingerprint",
+      operations: [],
+      receipt_payloads: [receipt]
+    )
+
+    expect(report).to be_ok
+    expect(report.receipt_payloads).to eq([receipt])
+    expect(report.to_h.fetch(:receipt_payloads)).to eq([receipt.to_h])
   end
 end
