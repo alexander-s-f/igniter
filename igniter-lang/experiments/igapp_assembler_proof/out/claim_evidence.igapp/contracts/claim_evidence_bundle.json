@@ -1,0 +1,63 @@
+{
+  "artifact_hash": "sha256:c85dcd02ef05fedde91e23161821be7970fda0bd6ce876c72db70b76e8fc8403",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:evidence"
+      ],
+      "expression": {
+        "field": "target_ref",
+        "kind": "field_access",
+        "object": {
+          "kind": "ref",
+          "name": "evidence"
+        },
+        "type_tag": "String"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "linked_claim_ref",
+      "node_id": "node_linked_claim_ref",
+      "obs_kind": "value_observation",
+      "type_tag": "String"
+    }
+  ],
+  "contract_id": "ClaimEvidenceBundle",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "claim",
+      "required": true,
+      "type_tag": "Claim"
+    },
+    {
+      "lifecycle": "local",
+      "name": "evidence",
+      "required": true,
+      "type_tag": "EvidenceLink"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "ClaimEvidenceBundle",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "linked_claim_ref",
+      "required": true,
+      "type_tag": "String"
+    }
+  ],
+  "source_contract_ref": "contract/ClaimEvidenceBundle/sha256:9223b4be6577dc58217eb6cd",
+  "type_signature": {
+    "inputs": {
+      "claim": "Claim",
+      "evidence": "EvidenceLink"
+    },
+    "outputs": {
+      "linked_claim_ref": "String"
+    }
+  }
+}

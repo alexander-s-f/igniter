@@ -1,8 +1,12 @@
 # Ch8: Stdlib
 
 Source PROP: PROP-013, PROP-013 errata v0.1
-Status: accepted (spec); pending proof (stdlib_execution_proof not yet run — Slice C)
-Proof: experiments/runtime_machine_memory_proof/ — operator lookup stub only
+Status: ✅ PASS (kernel)
+Proof: experiments/stdlib_execution_kernel_stage1/ — PASS (12 cases):
+  integer/float/decimal.add, fold, map, filter, count, or_else (Some + None),
+  numeric.add rejected (pre-resolution boundary enforced),
+  RuntimeMachine igapp-style evaluate with stdlib.integer.add
+Note: stdlib not yet connected to the full RuntimeMachine evaluate path via .igapp/ (pending Slice A)
 
 ---
 

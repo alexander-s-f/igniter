@@ -1,0 +1,152 @@
+{
+  "checks": [
+    {
+      "name": "assembler.positive.add",
+      "ok": true
+    },
+    {
+      "name": "assembler.positive.claim_evidence",
+      "ok": true
+    },
+    {
+      "name": "assembler.positive.evidence_linked_alert",
+      "ok": true
+    },
+    {
+      "name": "assembler.negative.unresolved_symbol_refused",
+      "ok": true
+    },
+    {
+      "name": "assembler.negative.evidence_less_alert_refused",
+      "ok": true
+    },
+    {
+      "name": "assembler.negative.confidence_bool_refused",
+      "ok": true
+    },
+    {
+      "name": "assembler.deterministic_output",
+      "ok": true
+    },
+    {
+      "name": "runtime.load_assembled_add",
+      "ok": true
+    },
+    {
+      "name": "runtime.evaluate_assembled_add",
+      "ok": true
+    },
+    {
+      "name": "runtime.compatibility_report_trusted",
+      "ok": true
+    }
+  ],
+  "deterministic_output": true,
+  "negative": [
+    {
+      "case": "negative_unresolved_symbol",
+      "pass_result": "oof",
+      "reason": "negative_unresolved_symbol: pass_result=oof",
+      "status": "refused",
+      "wrote_igapp": false
+    },
+    {
+      "case": "negative_evidence_less_alert",
+      "pass_result": "oof",
+      "reason": "negative_evidence_less_alert: pass_result=oof",
+      "status": "refused",
+      "wrote_igapp": false
+    },
+    {
+      "case": "negative_confidence_bool",
+      "pass_result": "oof",
+      "reason": "negative_confidence_bool: pass_result=oof",
+      "status": "refused",
+      "wrote_igapp": false
+    }
+  ],
+  "positive": [
+    {
+      "artifact_hash": "sha256:8f86f769e6fa3e76ae267f71ce54493198a7794590e10a78554c251f0e072a42",
+      "case": "add",
+      "compilation_report_ref": "compilation_report/e9664d5446df4e46",
+      "contracts": [
+        "Add"
+      ],
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "contracts/add.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir.json",
+        "semantic_ir_program.json"
+      ],
+      "igapp_dir": "experiments/igapp_assembler_proof/out/add.igapp",
+      "program_id": "semanticir/e9664d5446df4e46",
+      "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+      "status": "assembled"
+    },
+    {
+      "artifact_hash": "sha256:c85dcd02ef05fedde91e23161821be7970fda0bd6ce876c72db70b76e8fc8403",
+      "case": "claim_evidence",
+      "compilation_report_ref": "compilation_report/3996d52ebb40381b",
+      "contracts": [
+        "ClaimEvidenceBundle"
+      ],
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "contracts/claim_evidence_bundle.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir.json",
+        "semantic_ir_program.json"
+      ],
+      "igapp_dir": "experiments/igapp_assembler_proof/out/claim_evidence.igapp",
+      "program_id": "semanticir/3996d52ebb40381b",
+      "semantic_ir_ref": "semanticir/3996d52ebb40381b",
+      "status": "assembled"
+    },
+    {
+      "artifact_hash": "sha256:5b02b916763639d8f9cf3b25cd1221f2243f0b90f55d93a3ac81a5b0dbc2d333",
+      "case": "evidence_linked_alert",
+      "compilation_report_ref": "compilation_report/37008b8855a287cc",
+      "contracts": [
+        "EvidenceLinkedAlertGate"
+      ],
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "contracts/evidence_linked_alert_gate.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir.json",
+        "semantic_ir_program.json"
+      ],
+      "igapp_dir": "experiments/igapp_assembler_proof/out/evidence_linked_alert.igapp",
+      "program_id": "semanticir/37008b8855a287cc",
+      "semantic_ir_ref": "semanticir/37008b8855a287cc",
+      "status": "assembled"
+    }
+  ],
+  "proof": "igapp-assembler-proof-stage1-v0",
+  "runtime": {
+    "checkpoint_status": "ok",
+    "compatibility_report_status": "trusted",
+    "evaluate_status": "ok",
+    "load_status": "loaded",
+    "schema_decision": "trusted",
+    "sum": 42
+  },
+  "status": "PASS"
+}

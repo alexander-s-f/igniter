@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/37008b8855a287cc",
+  "semantic_ir_ref": "semanticir/37008b8855a287cc",
+  "source_hash": "sha256:37008b8855a287cc80f267feaaa86789c8d7c7b3ac15579933b38c7f235ac6d5",
+  "source_path": "experiments/source_to_semanticir_fixture/evidence_linked_alert.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

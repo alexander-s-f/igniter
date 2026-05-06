@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/37008b8855a287cc",
+  "contracts": [
+    "EvidenceLinkedAlertGate"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "EvidenceLinkedAlertGate"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/37008b8855a287cc",
+  "semantic_ir_ref": "semanticir/37008b8855a287cc",
+  "source_hash": "sha256:37008b8855a287cc80f267feaaa86789c8d7c7b3ac15579933b38c7f235ac6d5",
+  "source_path": "experiments/source_to_semanticir_fixture/evidence_linked_alert.ig"
+}

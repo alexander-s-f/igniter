@@ -1,0 +1,29 @@
+{
+  "artifact_hash": "sha256:c85dcd02ef05fedde91e23161821be7970fda0bd6ce876c72db70b76e8fc8403",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/3996d52ebb40381b",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_refs": {
+    "ClaimEvidenceBundle": "contract/ClaimEvidenceBundle/sha256:9223b4be6577dc58217eb6cd"
+  },
+  "contracts": [
+    "ClaimEvidenceBundle"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/3996d52ebb40381b",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/3996d52ebb40381b",
+  "source_hash": "sha256:3996d52ebb40381bf7ab347c5f7edc9a2c0c3493dddc96529b3506bb90d82162",
+  "source_path": "experiments/source_to_semanticir_fixture/claim_evidence.ig",
+  "warnings": []
+}

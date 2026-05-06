@@ -1,0 +1,79 @@
+{
+  "compilation_report_ref": "compilation_report/3996d52ebb40381b",
+  "contracts": [
+    {
+      "contract_name": "ClaimEvidenceBundle",
+      "contract_ref": "contract/ClaimEvidenceBundle/sha256:9223b4be6577dc58217eb6cd",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "claim",
+          "type": {
+            "name": "Claim",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "evidence",
+          "type": {
+            "name": "EvidenceLink",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "nodes": [
+        {
+          "deps": [
+            "evidence"
+          ],
+          "expr": {
+            "field": "target_ref",
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "evidence",
+              "resolved_type": {
+                "name": "EvidenceLink",
+                "params": []
+              }
+            },
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "linked_claim_ref",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "linked_claim_ref",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "Fixture.SourceToSemanticIR.ClaimEvidence",
+  "program_id": "semanticir/3996d52ebb40381b",
+  "source_hash": "sha256:3996d52ebb40381bf7ab347c5f7edc9a2c0c3493dddc96529b3506bb90d82162",
+  "source_path": "experiments/source_to_semanticir_fixture/claim_evidence.ig"
+}

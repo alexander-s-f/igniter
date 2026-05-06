@@ -35,66 +35,65 @@ Classifier             PROP-018/020      experiments/classifier_pass_proof/  ✅
                                          OOF negatives → all PASS
 
 SemanticIR Emitter     PROP-019 +        experiments/source_to_              ✅ PASS
-(canonical envelope)   PROP-019.1        semanticir_fixture/                  ⚠️  needs
-                       (errata)          add, claim_evidence,                PROP-019.1
-                                         evidence_linked_alert → PASS        migration
+(canonical envelope)   PROP-019.1        semanticir_fixture/                  ✅ golden check
+                       (errata)          --check-golden PASS:                  PASS
+                                         canonical + compilation_reports +     negative
+                                         negative_semanticir_absent            .semantic_ir.json
+                                         all PASS                              absent ✓
 
 TypeChecker            PROP-021          experiments/typechecker_proof/       ✅ PASS
-                                         9 cases: add, claim_evidence,         ⚠️ self-contained
-                                         evidence_linked_alert,                  gap: reads from
-                                         OOF negatives blocked                   two golden dirs
+                                         9 cases: add, claim_evidence,         ⚠️ gap: uses
+                                         evidence_linked_alert,                  classifier_pass
+                                         OOF negatives blocked                   _proof/golden;
+                                                                                no standalone
+                                                                                boundary fixture
 
 .igapp/ Assembler      PROP-012 +        no experiment yet                   🔴 BLOCKED
-                       PROP-019.1                                              waiting on
-                       (A1-A6 criteria)                                        Slice 0
+                       PROP-019.1                                              Slice A
+                       (A1-A6 criteria)                                        now unblocked
 
 RuntimeMachine Load    PROP-011          experiments/runtime_machine_        ✅ proven
                                          memory_proof/
                                          load → evaluate → checkpoint →
                                          resume → trusted
 
-Stdlib execution       PROP-013          no experiment yet                   🔴 not started
-                                         numeric.add, fold, map,
-                                         filter, count, or_else missing
+Stdlib execution       PROP-013          experiments/stdlib_execution_       ✅ PASS
+                                         kernel_stage1/
+                                         integer/float/decimal.add,
+                                         fold, map, filter, count,
+                                         or_else; numeric.add rejected
 ──────────────────────────────────────────────────────────────────────────────────────
 STAGE 1 CLOSED:   NO
-Active blocker:   PROP-019.1 golden migration → .igapp/ Assembler (Slice 0 → Slice A)
-Parallel gaps:    TypeChecker self-contained gap (Slice B — does not block assembler)
-                  Stdlib execution kernel (Slice C — independent)
+Active blocker:   .igapp/ Assembler — Slice A (no remaining prerequisite)
+Parallel gaps:    TypeChecker standalone boundary fixture — Slice B
 ```
 
 ---
 
-## Active Blocker: PROP-019.1 Migration Gate
+## Active Blocker: .igapp/ Assembler (Slice A)
 
-The `.igapp/` assembler must NOT start until:
+Slice 0 is complete: `source_to_semanticir_fixture --check-golden PASS`.
+The assembler is now the only blocking step.
 
 ```text
-1. source_to_semanticir_fixture golden files migrated:
-   - oof_log removed from SemanticIRProgram (top-level + ContractIR)
-   - compilation_report_ref added to SemanticIRProgram
-   - companion *.compilation_report.json created per fixture
-   - negative fixtures: *.semantic_ir.json → removed;
-     only *.compilation_report.json with pass_result: "oof"
-
-2. source_to_semanticir_fixture.rb PASSES on migrated files.
-
-3. stdlib.numeric.add → stdlib.integer.add resolved in golden SemanticIR.
-
-Gate: source_to_semanticir_fixture.rb PASS on migrated files → Slice A unlocked.
+Slice A requirements:
+  Input:  CompilationReport (pass_result: "ok") + SemanticIRProgram
+          (from source_to_semanticir_fixture golden files — already migrated)
+  Output: .igapp/ directory per PROP-019.1 §Part 7 (A1..A6)
+  Negative: assembler given pass_result: "oof" → refuses, exit != 0
+  Done when: RuntimeMachine.load(assembled_add.igapp) → trusted CompatibilityReport
 ```
 
-**TypeChecker self-contained gap** (separate from assembler blocker):
+**TypeChecker standalone boundary gap** (Slice B — does not block assembler):
 
 ```text
-typechecker_proof.rb currently reads:
-  inputs:  classifier_pass_proof/golden/*.classified.json
-           source_to_semanticir_fixture/golden/*.parsed_ast.json
-  outputs: typechecker_proof/golden/*.typed.json
+typechecker_proof.rb reads ClassifiedProgram from classifier_pass_proof/golden/
+as an external input. There is no standalone boundary fixture or runner that
+accepts only a ClassifiedProgram and produces a TypedProgram independently.
 
-Missing: a standalone ClassifiedProgram → TypedProgram pipeline experiment
-where the TypeChecker receives only ClassifiedProgram and produces TypedProgram.
-This gap does not block the assembler, but must be closed before Stage 1 closes.
+Missing: experiments/typechecker_boundary/ (or equivalent) that proves
+ClassifiedProgram → TypedProgram as a self-contained pipeline step.
+This must be closed before Stage 1 fully closes.
 ```
 
 ---
@@ -102,28 +101,29 @@ This gap does not block the assembler, but must be closed before Stage 1 closes.
 ## Next 3 Slices
 
 ```text
-Slice 0 — Research Agent [PREREQUISITE]
-  Migrate source_to_semanticir_fixture golden files to PROP-019.1 shape.
-  Done when: source_to_semanticir_fixture.rb PASS on migrated files.
+Slice 0 — ✅ CLOSED
+  source_to_semanticir_fixture --check-golden PASS.
+  Negative cases: *.semantic_ir.json absent. CompilationReport artifacts present.
 
-Slice A — Research Agent [blocked on Slice 0]
+Slice A — Research Agent [NOW UNBLOCKED — active]
   Implement experiments/igapp_assembler_proof/igapp_assembler_proof.rb
-  Input:  CompilationReport + SemanticIRProgram (from migrated golden files)
+  Input:  CompilationReport + SemanticIRProgram (from golden files — migrated)
   Output: .igapp/ directory per PROP-019.1 §Part 7 (criteria A1..A6)
   Negative: assembler given pass_result:"oof" → refuses, exit != 0
   Done when: RuntimeMachine.load(assembled_add.igapp) → trusted CompatibilityReport
 
-Slice B — split ownership [parallel with Slice A]
-  [Research Agent]: typechecker standalone pipeline experiment
-    Input:  ClassifiedProgram JSON only (not mixed golden dirs)
-    Output: TypedProgram JSON
-    Closes: TypeChecker self-contained gap
-    Note: typechecker_proof.rb already PASS; this makes it pipeline-proper.
-  Done when: TypedProgram produced from ClassifiedProgram alone; all negatives blocked.
+Slice B — Research Agent [parallel with Slice A]
+  Standalone TypeChecker boundary fixture.
+  Input:  ClassifiedProgram JSON only (from classifier_pass_proof/golden/)
+  Output: TypedProgram JSON as a standalone pipeline step
+  Closes: TypeChecker standalone boundary gap
+  Note:   typechecker_proof.rb is already PASS; Slice B makes it pipeline-proper.
+  Done when: ClassifiedProgram → TypedProgram proven without external parsed_ast input.
 
-Slice C — Research Agent [parallel, independent]
-  stdlib_execution_proof: numeric.add, fold, map, filter, count, or_else
-  Done when: RuntimeMachine evaluates add.igapp with stdlib operators.
+Slice C — ✅ CLOSED
+  stdlib_execution_kernel_stage1 PASS.
+  Proven: integer/float/decimal.add, fold, map, filter, count, or_else.
+  Proven: stdlib.numeric.add rejected at runtime (pre-resolution boundary enforced).
 ```
 
 ---
@@ -131,7 +131,7 @@ Slice C — Research Agent [parallel, independent]
 ## Agent Routing
 
 ```text
-[Research Agent]            → Slice 0 (golden migration) → Slice A (assembler) → Slice B (typechecker standalone) → Slice C (stdlib)
+[Research Agent]            → Slice A (assembler — now unblocked) → Slice B (typechecker boundary)
 [Compiler/Grammar Expert]  → spec reviews only (PROP-021 already written)
 [Igniter-Lang Meta Expert] → this file, meta-proposals, governance only
 
@@ -142,9 +142,8 @@ Do not start:
   ❌ playground expansion
 
 Do start:
-  ✅ Slice 0 migration (top priority)
-  ✅ Slice B TypeChecker (parallel)
-  ✅ Slice C stdlib (parallel)
+  ✅ Slice A assembler (top priority — unblocked)
+  ✅ Slice B typechecker boundary (parallel)
 ```
 
 ---

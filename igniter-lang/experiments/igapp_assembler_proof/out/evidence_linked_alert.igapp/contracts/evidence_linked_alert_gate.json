@@ -1,0 +1,126 @@
+{
+  "artifact_hash": "sha256:5b02b916763639d8f9cf3b25cd1221f2243f0b90f55d93a3ac81a5b0dbc2d333",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:alert"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "field": "signal_count",
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "alert"
+            },
+            "type_tag": "Integer"
+          },
+          {
+            "kind": "literal",
+            "type_tag": "Integer",
+            "value": 0
+          }
+        ],
+        "operator": "stdlib.integer.gt"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "signal_present",
+      "node_id": "node_signal_present",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:alert"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "field": "claim_count",
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "alert"
+            },
+            "type_tag": "Integer"
+          },
+          {
+            "kind": "literal",
+            "type_tag": "Integer",
+            "value": 0
+          }
+        ],
+        "operator": "stdlib.integer.gt"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "claim_present",
+      "node_id": "node_claim_present",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:signal_present",
+        "input:claim_present"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "signal_present"
+          },
+          {
+            "kind": "ref",
+            "name": "claim_present"
+          }
+        ],
+        "operator": "stdlib.bool.and"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "allowed",
+      "node_id": "node_allowed",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    }
+  ],
+  "contract_id": "EvidenceLinkedAlertGate",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "alert",
+      "required": true,
+      "type_tag": "EvidenceLinkedAlertInput"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "EvidenceLinkedAlertGate",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "allowed",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "source_contract_ref": "contract/EvidenceLinkedAlertGate/sha256:8664a19fd8ce3a68b162b0e5",
+  "type_signature": {
+    "inputs": {
+      "alert": "EvidenceLinkedAlertInput"
+    },
+    "outputs": {
+      "allowed": "Bool"
+    }
+  }
+}

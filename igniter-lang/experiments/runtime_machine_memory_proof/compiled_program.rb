@@ -237,7 +237,7 @@ module RuntimeMachineMemoryProof
 
     def apply_operator(op, operands)
       case op
-      when "add", "stdlib.numeric.add" then operands.reduce(:+)
+      when "add", "stdlib.numeric.add", "stdlib.integer.add", "stdlib.float.add", "stdlib.decimal.add" then operands.reduce(:+)
       when "sub"            then operands.reduce(:-)
       when "mul"            then operands.reduce(:*)
       when "div"            then operands.reduce(:/)
