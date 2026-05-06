@@ -4,6 +4,7 @@ Status: active scoreboard
 Maintained by: `[Igniter-Lang Meta Expert]`
 Last updated: 2026-05-06
 Policy: `META-EXPERT-003-stage1-implementation-governance-v0.md`
+Language spec: `docs/language-spec.md` → `docs/spec/ch1..ch9`
 
 > Full historical status preserved in:
 > `docs/archive/snapshots/2026-05-06-stage1-pre-crystallization/current-status.md`
