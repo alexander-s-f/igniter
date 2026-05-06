@@ -1,6 +1,6 @@
 -- polymorphic_add.ig
--- Parser/type-system pressure fixture for bounded polymorphic Add.
--- Not a current parser acceptance fixture yet.
+-- Parser acceptance fixture for bounded polymorphic Add.
+-- Still parser-only: no trait coherence, typechecking, or SemanticIR claim.
 
 module Lang.Examples.PolymorphicAdd
 

@@ -631,5 +631,6 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-006 runtime contract specification | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-007 conformance verification | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/polymorphic-add-parser-pressure-map-v0 | done |
+| 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/polymorphic-add-classifier-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/bridge-agent-entry-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-bridge-v0.md | done |

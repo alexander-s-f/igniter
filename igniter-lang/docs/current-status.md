@@ -116,13 +116,14 @@ observation checks plus PROP-017 `schema_check`.
 ```text
 source/add.ig
 source/availability_projection.ig
+source/polymorphic_add.ig
   -> experiments/parser/igniter_lang_parser.rb
   -> ParsedProgram JSON with parse_errors: []
 ```
 
-This proves the PROP-014/015 source kernel is parseable for the two current
-accepted source fixtures. It does not prove classification, typechecking,
-lowering, or `.igapp` equivalence.
+This proves the PROP-014/015 source kernel plus the PROP-016 polymorphic
+surface fixture are parseable. It does not prove classification, typechecking,
+trait coherence, monomorphization, lowering, or `.igapp` equivalence.
 
 [S] `.igapp` devkit fixtures exist for:
 
@@ -196,10 +197,10 @@ It does not prove a general migration DSL or TBackend history rewrite.
 
 ---
 
-## Pressure-Only Fixtures
+## Parser-Accepted Pressure Fixtures
 
-[S] `source/polymorphic_add.ig` is intentionally a pressure fixture, not a
-parser-accepted fixture today.
+[S] `source/polymorphic_add.ig` is now parser-accepted and still semantic
+pressure only.
 
 It pins the desired PROP-016 surface:
 
@@ -211,12 +212,12 @@ contract_shape AddShape[T]
 contract Add[T: Additive] implements AddShape[T]
 ```
 
-Current parser status:
+Current status:
 
-- `polymorphic_add.ig` is expected to fail until the parser accepts trait,
-  impl, `using`, `contract_shape`, generic contract headers, and `implements`.
-- `polymorphic_add.parsed_program.expected.json` is the future acceptance
+- `polymorphic_add.ig` parses with `parse_errors: []`.
+- `polymorphic_add.parsed_program.expected.json` is the accepted ParsedProgram
   target.
+- output uses `grammar_version: polymorphic-v0`.
 - monomorphization, trait coherence, impl resolution, and implements checks
   belong to classification/type/IR work, not parser work.
 
@@ -237,7 +238,6 @@ Critical:
 
 - no complete parser -> classifier -> typechecker -> SemanticIR compiler path
 - no parsed-source-to-`.igapp` surface checker yet
-- `polymorphic_add.ig` is not parser-accepted yet
 - no PROP-016 classifier/type/monomorphization proof
 
 High:
@@ -268,22 +268,19 @@ Deferred:
 
 ## Next 3 Recommended Tracks
 
-1. `[Igniter-Lang Research Agent]`
-   `polymorphic-add-parser-acceptance-v0`
+1. `[Igniter-Lang Compiler/Grammar Expert]`
+   `polymorphic-add-classifier-v0`
 
-   Implement the bounded parser delta from the pressure map: lexer `_`, trait,
-   impl `using`, `contract_shape`, generic contract header, and `implements`.
-   Compare `polymorphic_add.ig` to
-   `polymorphic_add.parsed_program.expected.json`; keep existing accepted
-   parser fixtures green.
+   Define ClassifiedProgram extension for trait, impl, contract_shape, generic
+   contract, and syntax-level coherence diagnostics. Keep monomorphization out
+   until typed lowering.
 
 2. `[Igniter-Lang Compiler/Grammar Expert]`
-   `polymorphic-add-classifier-and-monomorphizer-v0`
+   `polymorphic-add-monomorphizer-v0`
 
-   Define ClassifiedProgram/TypedProgram handling for trait/impl/shape nodes,
-   coherence checks, impl resolution, implements checks, and monomorphic
-   `Add[Integer]` / `Add[Float]` SemanticIR emission. Preserve the invariant:
-   no type variables or unresolved overloads in SemanticIR.
+   Define TypedProgram monomorphization: type substitution, implements checks,
+   concrete `Add[Integer]` / `Add[Float]` nodes, and SemanticIR emission with
+   no type variables or unresolved overloads.
 
 3. `[Igniter-Lang Compiler/Grammar Expert]`
    `migration-replacement-image-formalization-v0`
@@ -306,8 +303,5 @@ ruby igniter-lang/experiments/runtime_machine_memory_proof/external_candidate_no
 ruby igniter-lang/experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/add.ig
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/availability_projection.ig
+ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/polymorphic_add.ig
 ```
-
-As of this checkpoint, `polymorphic_add.ig` should not be added to parser
-acceptance as a passing fixture until `polymorphic-add-parser-acceptance-v0`
-lands.

@@ -11,7 +11,8 @@ require "json"
 # Grammar (subset):
 #   SourceFile   := ModuleDecl? ImportDecl* TopDecl*
 #   TopDecl      := ContractDecl | TypeDecl | FunctionDecl
-#   ContractDecl := "contract" Name "{" BodyDecl* "}"
+#                 | TraitDecl | ImplDecl | ContractShapeDecl
+#   ContractDecl := "contract" Name TypeParams? Implements? "{" BodyDecl* "}"
 #   BodyDecl     := EscapeDecl | InputDecl | ReadDecl | ComputeDecl
 #                 | SnapshotDecl | WindowDecl | OutputDecl
 #   FunctionDecl := "def" Name "(" Params? ")" "->" TypeRef "{" Body "}"
@@ -38,9 +39,9 @@ module IgniterLang
   # Lexer
   # ---------------------------------------------------------------------------
   KEYWORDS = %w[
-    module import contract type def
+    module import contract contract_shape type def trait impl
     input output compute read snapshot window escape
-    from lifecycle
+    from lifecycle using implements
     if else let
     true false nil
     and or not
@@ -258,6 +259,7 @@ module IgniterLang
 
     def parse
       program = { "kind" => "source_file", "module" => nil, "imports" => [],
+                  "traits" => [], "impls" => [], "contract_shapes" => [],
                   "contracts" => [], "types" => [], "functions" => [],
                   "parse_errors" => [] }
 
@@ -277,9 +279,12 @@ module IgniterLang
       until peek_type?(:eof)
         decl = parse_top_decl
         case decl&.fetch("kind")
-        when "contract" then program["contracts"] << decl
-        when "type"     then program["types"]     << decl
-        when "function" then program["functions"] << decl
+        when "trait"          then program["traits"]          << decl
+        when "impl"           then program["impls"]           << decl
+        when "contract_shape" then program["contract_shapes"] << decl
+        when "contract"       then program["contracts"]       << decl
+        when "type"           then program["types"]           << decl
+        when "function"       then program["functions"]       << decl
         end
       end
 
@@ -366,9 +371,12 @@ module IgniterLang
     def parse_top_decl
       tok = peek
       case tok.value
-      when "contract" then advance; parse_contract_decl
-      when "type"     then advance; parse_type_decl
-      when "def"      then advance; parse_function_decl
+      when "trait"          then advance; parse_trait_decl
+      when "impl"           then advance; parse_impl_decl
+      when "contract_shape" then advance; parse_contract_shape_decl
+      when "contract"       then advance; parse_contract_decl
+      when "type"           then advance; parse_type_decl
+      when "def"            then advance; parse_function_decl
       else
         @errors << { "message" => "Unexpected token: #{tok.value}", "line" => tok.line }
         advance
@@ -378,13 +386,68 @@ module IgniterLang
 
     def parse_contract_decl
       name = name_token!(%i[ident])
+      type_params = peek_type?(:lbracket) ? parse_contract_type_params : []
+      implements = peek_kw?("implements") ? parse_implements_clause : nil
       expect_type!(:lbrace)
       body = []
       until peek_type?(:rbrace) || peek_type?(:eof)
         body << parse_body_decl
       end
       expect_type!(:rbrace)
-      { "kind" => "contract", "name" => name, "body" => body.compact }
+      node = { "kind" => "contract", "name" => name, "type_params" => type_params }
+      node["implements"] = implements if implements
+      node["body"] = body.compact
+      node
+    end
+
+    def parse_trait_decl
+      name = name_token!(%i[ident])
+      type_params = peek_type?(:lbracket) ? parse_simple_type_params : []
+      expect_type!(:lbrace)
+      methods = []
+      until peek_type?(:rbrace) || peek_type?(:eof)
+        expect_kw!("def")
+        methods << parse_trait_method
+      end
+      expect_type!(:rbrace)
+      { "kind" => "trait", "name" => name, "type_params" => type_params, "methods" => methods }
+    end
+
+    def parse_trait_method
+      name = name_token!(%i[ident])
+      params = parse_params
+      expect_type!(:arrow)
+      return_type = parse_type_ref
+      { "kind" => "trait_method", "name" => name, "params" => params, "return_type" => return_type }
+    end
+
+    def parse_impl_decl
+      trait_ref = parse_type_ref_node
+      expect_kw!("using")
+      {
+        "kind" => "impl",
+        "trait_ref" => trait_ref,
+        "using" => { "kind" => "qualified_ref", "name" => parse_qualified_ref }
+      }
+    end
+
+    def parse_contract_shape_decl
+      name = name_token!(%i[ident])
+      type_params = peek_type?(:lbracket) ? parse_simple_type_params : []
+      expect_type!(:lbrace)
+      body = []
+      until peek_type?(:rbrace) || peek_type?(:eof)
+        tok = peek
+        case tok.value
+        when "input"  then advance; body << parse_input_decl
+        when "output" then advance; body << parse_output_decl
+        else
+          @errors << { "message" => "Unknown contract_shape declaration: #{tok.value}", "line" => tok.line }
+          advance
+        end
+      end
+      expect_type!(:rbrace)
+      { "kind" => "contract_shape", "name" => name, "type_params" => type_params, "body" => body.compact }
     end
 
     def parse_body_decl
@@ -489,6 +552,15 @@ module IgniterLang
 
     def parse_function_decl
       name = name_token!(%i[ident])
+      params = parse_params
+      expect_type!(:arrow)
+      return_type = parse_type_ref
+      body = parse_block_body
+      { "kind" => "function", "name" => name, "params" => params,
+        "return_type" => return_type, "body" => body }
+    end
+
+    def parse_params
       expect_type!(:lparen)
       params = []
       until peek_type?(:rparen) || peek_type?(:eof)
@@ -499,11 +571,7 @@ module IgniterLang
         advance if peek_type?(:comma)
       end
       expect_type!(:rparen)
-      expect_type!(:arrow)
-      return_type = parse_type_ref
-      body = parse_block_body
-      { "kind" => "function", "name" => name, "params" => params,
-        "return_type" => return_type, "body" => body }
+      params
     end
 
     def parse_block_body
@@ -533,6 +601,72 @@ module IgniterLang
     end
 
     # ---- TypeRef -----------------------------------------------------------
+
+    def parse_simple_type_params
+      expect_type!(:lbracket)
+      params = []
+      until peek_type?(:rbracket) || peek_type?(:eof)
+        params << name_token!(%i[ident])
+        advance if peek_type?(:comma)
+      end
+      expect_type!(:rbracket)
+      params
+    end
+
+    def parse_contract_type_params
+      expect_type!(:lbracket)
+      params = []
+      until peek_type?(:rbracket) || peek_type?(:eof)
+        name = name_token!(%i[ident])
+        bounds = peek_type?(:colon) ? (advance; parse_type_param_bounds(name)) : []
+        params << { "name" => name, "bounds" => bounds }
+        advance if peek_type?(:comma)
+      end
+      expect_type!(:rbracket)
+      params
+    end
+
+    def parse_type_param_bounds(param_name)
+      bounds = []
+      loop do
+        trait_ref = parse_type_ref_node(default_type_args: [param_name])
+        bounds << { "trait_ref" => trait_ref }
+        break unless peek_value?("&")
+
+        advance
+      end
+      bounds
+    end
+
+    def parse_implements_clause
+      expect_kw!("implements")
+      parse_type_ref_node
+    end
+
+    def parse_type_ref_node(default_type_args: [])
+      name = name_token!(%i[ident keyword])
+      type_args = []
+      if peek_type?(:lbracket)
+        advance
+        until peek_type?(:rbracket) || peek_type?(:eof)
+          type_args << parse_type_ref
+          advance if peek_type?(:comma)
+        end
+        expect_type!(:rbracket)
+      elsif default_type_args.any?
+        type_args = default_type_args
+      end
+      { "name" => name, "type_args" => type_args }
+    end
+
+    def parse_qualified_ref
+      parts = [name_token!(%i[ident keyword])]
+      while peek_type?(:dot)
+        advance
+        parts << name_token!(%i[ident keyword])
+      end
+      parts.join(".")
+    end
 
     def parse_type_ref
       name = name_token!(%i[ident keyword])
@@ -825,14 +959,26 @@ module IgniterLang
         "kind"            => "parsed_program",
         "source_path"     => @source_path,
         "source_hash"     => @source_hash,
-        "grammar_version" => "0.1.0",
+        "grammar_version" => grammar_version,
         "module"          => @ast["module"],
         "imports"         => @ast["imports"],
+        "traits"          => @ast["traits"],
+        "impls"           => @ast["impls"],
+        "contract_shapes" => @ast["contract_shapes"],
         "contracts"       => @ast["contracts"],
         "types"           => @ast["types"],
         "functions"       => @ast["functions"],
         "parse_errors"    => @errors
       }
+    end
+
+    def grammar_version
+      return "polymorphic-v0" if @ast.fetch("traits", []).any? ||
+                                 @ast.fetch("impls", []).any? ||
+                                 @ast.fetch("contract_shapes", []).any? ||
+                                 @ast.fetch("contracts", []).any? { |contract| contract.fetch("type_params", []).any? }
+
+      "0.1.0"
     end
   end
 end

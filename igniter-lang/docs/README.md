@@ -37,6 +37,8 @@ implementation detail of the current Igniter platform.
 | [tracks/source-fixture-parser-acceptance-harness-v0.md](tracks/source-fixture-parser-acceptance-harness-v0.md) | partial | Started source fixture parser harness: `.ig` source fixtures parse to ParsedProgram JSON; `.igapp` comparison still pending |
 | [tracks/polymorphic-add-devkit-fixture-v0.md](tracks/polymorphic-add-devkit-fixture-v0.md) | done | Added polymorphic Add pressure fixture with expected ParsedProgram shape, specialization rules, and no runtime overloads |
 | [tracks/polymorphic-add-parser-pressure-map-v0.md](tracks/polymorphic-add-parser-pressure-map-v0.md) | done | Grammar/parser delta map for PROP-016 surface: trait, impl, contract_shape, generic contract header; separated parser vs semantic vs monomorphization work |
+| [tracks/polymorphic-add-classifier-v0.md](tracks/polymorphic-add-classifier-v0.md) | done | ClassifiedProgram/TypedProgram/SemanticIR boundary for PROP-016: trait env, impl coherence, T substitution, implements check, monomorphization, Add[String] rejection |
+| [tracks/polymorphic-add-parser-acceptance-v0.md](tracks/polymorphic-add-parser-acceptance-v0.md) | done | Added parser acceptance for polymorphic_add.ig: trait, impl using, contract_shape, generic contract header, and implements |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 | [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
@@ -47,7 +49,7 @@ implementation detail of the current Igniter platform.
 |------------|--------|---------|
 | [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-migration-replacement-image-v0: standalone memory proof, golden fixtures, checker, sidecar profiles, FFI receipt fixtures, PROP-017 schema checks, migration evidence, replacement SemanticImage, and trusted post-migration report |
 | [../experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb](../experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb) | done | FFI Ruby receipt/failure fixture generator and checker |
-| [../experiments/parser/igniter_lang_parser.rb](../experiments/parser/igniter_lang_parser.rb) | partial | Minimal recursive-descent parser for PROP-014/015 source fixtures; emits ParsedProgram JSON |
+| [../experiments/parser/igniter_lang_parser.rb](../experiments/parser/igniter_lang_parser.rb) | partial | Minimal recursive-descent parser for PROP-014/015 plus PROP-016 pressure surface; emits ParsedProgram JSON for add, availability_projection, and polymorphic_add |
 
 ## Active Proposals
 
@@ -149,6 +151,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - stdlib v0 (PROP-013: Collection, Option, Result, fold, temporal primitives)
 - Source Syntax to SemanticIR Boundary (PROP-014: minimal grammar kernel)
 - Grammar and Module System (PROP-015: def, TypeDecl, module/import, full v0 BNF)
+- Polymorphic Add Parser Acceptance (DONE — polymorphic_add.ig -> ParsedProgram)
 - Parser Acceptance Harness (DONE — add.ig + availability_projection.ig → ParsedProgram, 61 specs)
 - Polymorphic Add Devkit Fixture (DONE — trait/impl/contract_shape pressure fixture, monomorphic SemanticIR specializations, no unresolved RuntimeMachine overloads)
 - FFI Ruby Contractable Proof (DONE — CapabilityGate + call discipline, 36 specs)

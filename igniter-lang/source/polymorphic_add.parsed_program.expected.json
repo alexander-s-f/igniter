@@ -1,8 +1,8 @@
 {
   "kind": "parsed_program",
   "source_path": "igniter-lang/source/polymorphic_add.ig",
-  "source_hash": "sha256:1d56d5e61f84c607a74945e5e3485b83f060603a51c0b5f3f58e55d1206948d0",
-  "grammar_version": "polymorphic-pressure-v0",
+  "source_hash": "sha256:49ae94eca6a4b50da2910af861d204d7a778a6c298dca8948ff60e79c249ee34",
+  "grammar_version": "polymorphic-v0",
   "module": "Lang.Examples.PolymorphicAdd",
   "imports": [],
   "traits": [
