@@ -640,6 +640,102 @@ Status: done
 - Dependent types.
 - Arbitrary refinement predicates as CORE.
 
+---
+
+## Errata v0.1 — Stage 2 type constructors reserved (2026-05-06)
+
+_Source: META-EXPERT-005 (archaeology), META-EXPERT-006-language-model-revision-v0.md (Q1, Q3, Q4 resolved)._
+
+### E1 — `History[T]` and `BiHistory[T]` as first-class type constructors (Stage 2)
+
+PROP-004 v0 declares `History[T]` and `BiHistory[T]` as **storage types**
+(temporal capability markers on `Store`). This was correct for Stage 1.
+
+Stage 2 promotes them to **first-class type constructors** with operations:
+
+```
+History[T]     -- temporal container; carries a time-indexed sequence of T values
+BiHistory[T]   -- bitemporal container; two-axis: valid time × transaction time
+
+-- Subtyping chain (Stage 2):
+T  ⊑  History[T]  ⊑  BiHistory[T]
+```
+
+**Operations (Stage 2, specified in PROP-022)**:
+
+```
+history[T].[t]                  →  T        -- point access at time t
+history[T].avg[period]          →  T        -- requires Numeric[T]
+history[T].rollup(:grain)       →  History[T]
+history[T].history_until(t)     →  History[T]
+bi_history[T].[vt: t1, tt: t2] →  T        -- bitemporal point access
+```
+
+The formal unification (Stage 2):
+```
+History[T]  ≡  OLAPPoint[T, {time: DateTime}]
+```
+
+### E2 — `OLAPPoint[T, Dims]` reserved as Stage 2 type constructor
+
+A multi-dimensional generalisation of `History[T]`. Not in scope for Stage 1.
+
+```
+OLAPPoint[T, Dims]   -- value of type T at a point in dimension space Dims
+
+-- Type rules (Stage 2, specified in PROP-024):
+OLAPPoint[T, D][d: v]  →  OLAPPoint[T, D - {d}]   -- slice reduces dims by 1
+OLAPPoint[T, {}]       →  T                         -- fully resolved = scalar
+```
+
+Stage 1 compilers must reject `OLAPPoint` type expressions as OOF.
+
+### E3 — `~T` probabilistic lift reserved as Stage 2
+
+```
+~T   -- probabilistic lift: a value of type T carrying confidence metadata
+     -- { value: T, confidence: Float, lo: T?, hi: T? }
+
+-- Subtyping: T is a subtype of ~T (exact is a special case of approximate)
+T  ⊑  ~T
+```
+
+Stage 2 specified in PROP-026 (future). Stage 1 compilers must reject `~T`
+type expressions as OOF.
+
+### E4 — Minimal trait set (Stage 2)
+
+PROP-016 specifies the full polymorphism/trait system. This errata records
+the four minimal traits required to type the Stage 2 primitives:
+
+```
+trait Numeric   { add, sub, mul, div, neg, compare }
+trait Temporal  { as_of, at, rollup, history_until }
+trait Foldable  { fold, map, filter, count, first, last }
+trait Observable { to_obs_packet }
+
+-- Implementations (Stage 2):
+impl Numeric  for Integer, Float, Decimal[N]
+impl Temporal for History[T], BiHistory[T], OLAPPoint[T, Dims]
+impl Foldable for Collection[T], History[T], OLAPPoint[T, Dims]
+impl Observable for all contract output types
+```
+
+### E5 — Unit types as refinement types (Stage 2, via existing machinery)
+
+Physical unit types are refinement types expressed via the existing `T where φ`
+syntax (already in PROP-004 §Refinement Types):
+
+```
+type Kelvin          = Float where value >= 0.0
+type Meter           = Float
+type Second          = Float where value >= 0.0
+type MeterPerSecond  = Float  -- semantic alias; full unit algebra in Stage 3
+```
+
+Full dimensional unit algebra (compile-time dimensional analysis) is Stage 3.
+Stage 2 allows unit aliases as named refinement types only.
+
 [Next] Proposed next slices:
 - PROP-005: Bridge Observation Envelope v0
   (now has formal type grounding: typed packets, Obs[kind, T], Option payload)

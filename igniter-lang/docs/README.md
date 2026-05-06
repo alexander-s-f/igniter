@@ -2,6 +2,15 @@
 
 Status: active research index
 
+## Navigation
+
+```
+Start here (language reference)  → language-spec.md
+Formal design decisions          → proposals/README.md  (PROP-001..025+)
+Strategic governance             → meta-proposals/README.md  (META-EXPERT-001..006+)
+Stage 1 progress + scoreboard   → current-status.md
+```
+
 ## Claim
 
 Igniter-Lang should be explored as a separate language ecosystem, not as an

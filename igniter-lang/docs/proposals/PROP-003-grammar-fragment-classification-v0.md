@@ -479,6 +479,72 @@ Status: done
 - Runtime fragment detection.
 - Grammar-first (syntax-first) classification.
 
+---
+
+## Errata v0.1 — stream T surface form (2026-05-06)
+
+_Source: META-EXPERT-006-language-model-revision-v0.md (Q2 resolved)._
+
+### E1 — `stream T` is ESCAPE by definition
+
+`stream_collection` was listed in the v0 escape vocabulary as a name only.
+This errata formalises the classification rule:
+
+```
+stream name: Type
+```
+
+**Classification**: always ESCAPE. Reasoning: a stream is an unbounded external
+source. Unbounded access to external data cannot be CORE (CORE requires bounded,
+decidably-terminating evaluation).
+
+**Escape vocabulary entry** (replaces the implicit `stream_collection` entry):
+
+```
+stream_input     ← replaces stream_collection in the escape vocabulary
+                    capability: the runtime must hold a stream handle
+                    propagation: ESCAPE propagates to the containing contract
+```
+
+### E2 — `fold_stream` reduces ESCAPE stream to CORE-safe value
+
+The bounded reduction rule:
+
+```
+fold_stream(s: stream T, init: A, fn: (A, T) -> A) @window_bounded  →  A
+fold_stream(s: stream T, init: A, fn: (A, T) -> A) @count_bounded(n) →  A
+```
+
+**Classification of the fold_stream expression**: CORE if and only if:
+1. The accumulator function `fn` is CORE (no ESCAPE inside the lambda)
+2. The annotation `@window_bounded` or `@count_bounded(n)` is present
+3. `n` is a statically-known Integer literal (for `@count_bounded`)
+
+Without an explicit bounding annotation, `fold_stream` is OOF:
+
+```
+OOF-S1: fold_stream without @window_bounded or @count_bounded
+         → compile error: "unbounded stream fold is not CORE"
+```
+
+### E3 — Window declaration is ESCAPE metadata, not CORE construct
+
+```
+window "sensor[device_id]" {
+  kind:     :count | :calendar | :session
+  size:     Integer            -- for :count
+  period:   Duration           -- for :calendar
+  on_close: :snapshot | :emit
+}
+```
+
+The `window` declaration is ESCAPE metadata attached to a `stream_input`.
+It does not produce a value itself — it parameterises how the runtime
+delivers bounded batches from the stream.
+
+**Classification**: the window declaration is not evaluated by the CORE engine.
+It is an ESCAPE lifecycle annotation processed by the stream capability handler.
+
 [Next] Proposed next slices:
 - PROP-004: Type System v0
   (type checking as Pass 1; structural types, refinement types, subtyping

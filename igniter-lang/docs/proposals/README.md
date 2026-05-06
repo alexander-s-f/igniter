@@ -34,21 +34,27 @@ design decision or formal specification.
 | [PROP-015-grammar-module-system-v0.md](PROP-015-grammar-module-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | def blocks (pure/non-recursive); TypeDecl (structural); module/import; full v0 BNF; complete source for both fixtures |
 | [PROP-016-polymorphism-traits-contract-shapes-v0.md](PROP-016-polymorphism-traits-contract-shapes-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Generic contracts; traits (compile-time, not OO); impl coherence; contract_shape; implements (structural); monomorphization; compile-time overload; no unresolved overloads in SemanticIR |
 | [PROP-017-schema-evolution-contract-migration-v0.md](PROP-017-schema-evolution-contract-migration-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | SemVer versioning; schema_fingerprint; 5 safe/7 breaking changes; CompatibilityReport schema_check (4th dim); MigrationDecl (ESCAPE+audit receipt+replaces link); OOF-S1..S5 |
+| [PROP-018-source-to-semanticir-minimal-pipeline-v0.md](PROP-018-source-to-semanticir-minimal-pipeline-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Minimal pipeline proof: source.ig → parser → classifier → SemanticIR; fixture structure; pipeline smoke test |
+| [PROP-019-canonical-semanticir-envelope-v0.md](PROP-019-canonical-semanticir-envelope-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Canonical SemanticIRProgram envelope; CompilationReport; .igapp/ layout; OOF rejection gate |
+| [PROP-019.1-semanticir-envelope-errata-v0.md](PROP-019.1-semanticir-envelope-errata-v0.md) | errata | `[Igniter-Lang Compiler/Grammar Expert]` | Removes oof_log from clean envelope; adds compilation_report_ref; assembler acceptance criteria |
+| [PROP-020-classifier-pass-v0-formalization.md](PROP-020-classifier-pass-v0-formalization.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Classifier pass: CORE/ESCAPE/OOF marking, propagation rules, proven in experiments/ |
+| [PROP-021-typechecker-pass-v0-formalization.md](PROP-021-typechecker-pass-v0-formalization.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | TypeChecker: structural resolution, trait checking, monomorphization, narrow v0 scope |
+| [PROP-022-history-type-constructor-v0.md](PROP-022-history-type-constructor-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | **Stage 2**: History[T]/BiHistory[T] as first-class type constructors; temporal operations; unification with OLAPPoint |
+| [PROP-023-stream-input-surface-v0.md](PROP-023-stream-input-surface-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | **Stage 2**: stream T as ESCAPE input; window declaration; fold_stream bounded reduction; KPN/ω-transducer grounding |
+| [PROP-024-olap-point-primitive-v0.md](PROP-024-olap-point-primitive-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | **Stage 2**: OLAPPoint[T,Dims] as first-class primitive; olap_point declaration; cluster scatter-gather |
+| [PROP-025-invariant-severity-levels-v0.md](PROP-025-invariant-severity-levels-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | **Stage 2**: invariant severity :error/:warn/:soft/:metric; label; overridable_with |
 
 ---
 
 ## Queued Proposals (not yet authored)
 
-| ID | Title | Depends On | Priority |
-|----|-------|------------|----------|
-| PROP-017 | Schema Evolution and Contract Migration v0 | PROP-016 | high |
-| PROP-018 | Higher-Kinded Types and Associated Types v0 | PROP-016 | medium |
-| — | ffi-ruby-contractable-proof-v0 | PROP-012, PROP-013 | done (track+spec) |
-| — | runtime-machine-proof-external-candidate-adapter-v0 | PROP-008, PROP-012 | high (research) |
-| PROP-018 | Pattern Matching and Generics v0 | PROP-015, PROP-016 | medium |
-| — | source-fixture-parsed-surface-checker-v0 | PROP-014, PROP-015 | high (devkit track) |
-| — | runtime-machine-ffi-ruby-intent-and-delegation-v0 | FFI receipt fixtures, PROP-012 | high (research track) |
-| — | runtime-machine-normalized-equivalence-profile-v0 | selected_profile, FFI receipt fixtures | medium (research track) |
+| ID | Title | Depends On | Stage | Priority |
+|----|-------|------------|-------|----------|
+| PROP-026 | Probabilistic types ~T (ProbLog subset) | PROP-022, PROP-025 | 2 | medium |
+| PROP-027 | Deadline contracts + WCET analysis | PROP-003, PROP-016 | 3 | medium |
+| PROP-028 | Full unit algebra (dimensional type checking) | PROP-004 errata E5 | 3 | medium |
+| PROP-029 | Plastic Runtime Cells (ownership + migration) | PROP-006, PROP-012 | 3 | medium |
+| PROP-030 | Rule synthesis via LP (goal-directed) | PROP-022, PROP-025 | 4 | low |
 
 ---
 
