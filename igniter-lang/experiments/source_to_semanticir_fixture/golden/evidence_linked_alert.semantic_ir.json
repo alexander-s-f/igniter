@@ -1,0 +1,175 @@
+{
+  "kind": "semantic_ir_fixture_program",
+  "program_id": "source_to_semanticir/6a575f5911f49913",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:37008b8855a287cc80f267feaaa86789c8d7c7b3ac15579933b38c7f235ac6d5",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/evidence_linked_alert.ig",
+  "module": "Fixture.SourceToSemanticIR.Alert",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/EvidenceLinkedAlertGate/sha256:5bee51bf66c23930589bead6",
+      "contract_name": "EvidenceLinkedAlertGate",
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "name": "alert",
+          "type": {
+            "name": "EvidenceLinkedAlertInput",
+            "params": [],
+            "shape_ref": "type/EvidenceLinkedAlertInput"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "allowed",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "source": "allowed",
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "compute",
+          "name": "signal_present",
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.integer.gt",
+            "args": [
+              {
+                "kind": "field_access",
+                "object": {
+                  "kind": "ref",
+                  "name": "alert",
+                  "resolved_type": {
+                    "name": "EvidenceLinkedAlertInput",
+                    "params": [],
+                    "shape_ref": "type/EvidenceLinkedAlertInput"
+                  }
+                },
+                "field": "signal_count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "literal",
+                "value": 0,
+                "type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "alert"
+          ],
+          "fragment": "core"
+        },
+        {
+          "kind": "compute",
+          "name": "claim_present",
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.integer.gt",
+            "args": [
+              {
+                "kind": "field_access",
+                "object": {
+                  "kind": "ref",
+                  "name": "alert",
+                  "resolved_type": {
+                    "name": "EvidenceLinkedAlertInput",
+                    "params": [],
+                    "shape_ref": "type/EvidenceLinkedAlertInput"
+                  }
+                },
+                "field": "claim_count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "literal",
+                "value": 0,
+                "type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "alert"
+          ],
+          "fragment": "core"
+        },
+        {
+          "kind": "compute",
+          "name": "allowed",
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.bool.and",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "signal_present",
+                "resolved_type": {
+                  "name": "Bool",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "claim_present",
+                "resolved_type": {
+                  "name": "Bool",
+                  "params": []
+                }
+              }
+            ],
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "signal_present",
+            "claim_present"
+          ],
+          "fragment": "core"
+        }
+      ],
+      "escape_boundaries": [],
+      "oof_log": []
+    }
+  ],
+  "oof_log": []
+}

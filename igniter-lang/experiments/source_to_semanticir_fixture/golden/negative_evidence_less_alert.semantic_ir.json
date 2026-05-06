@@ -1,0 +1,189 @@
+{
+  "kind": "semantic_ir_fixture_program",
+  "program_id": "source_to_semanticir/f578b0667d45ebd5",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:b2b44c799dba43f705081edaeff37532773abca340bf22e6d55cc9b6c8cd1779",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_evidence_less_alert.ig",
+  "module": "Fixture.SourceToSemanticIR.NegativeAlert",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/BadEvidenceLessAlertGate/sha256:5a22bcfdceff18a0de6bc328",
+      "contract_name": "BadEvidenceLessAlertGate",
+      "fragment_class": "oof",
+      "inputs": [
+        {
+          "name": "alert",
+          "type": {
+            "name": "EvidenceLinkedAlertInput",
+            "params": [],
+            "shape_ref": "type/EvidenceLinkedAlertInput"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "allowed",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "source": "allowed",
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "compute",
+          "name": "signal_present",
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.integer.gt",
+            "args": [
+              {
+                "kind": "field_access",
+                "object": {
+                  "kind": "ref",
+                  "name": "alert",
+                  "resolved_type": {
+                    "name": "EvidenceLinkedAlertInput",
+                    "params": [],
+                    "shape_ref": "type/EvidenceLinkedAlertInput"
+                  }
+                },
+                "field": "signal_count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "literal",
+                "value": 0,
+                "type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "alert"
+          ],
+          "fragment": "core"
+        },
+        {
+          "kind": "compute",
+          "name": "claim_present",
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.integer.gt",
+            "args": [
+              {
+                "kind": "field_access",
+                "object": {
+                  "kind": "ref",
+                  "name": "alert",
+                  "resolved_type": {
+                    "name": "EvidenceLinkedAlertInput",
+                    "params": [],
+                    "shape_ref": "type/EvidenceLinkedAlertInput"
+                  }
+                },
+                "field": "claim_count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "literal",
+                "value": 0,
+                "type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "alert"
+          ],
+          "fragment": "core"
+        },
+        {
+          "kind": "compute",
+          "name": "allowed",
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.bool.and",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "signal_present",
+                "resolved_type": {
+                  "name": "Bool",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "claim_present",
+                "resolved_type": {
+                  "name": "Bool",
+                  "params": []
+                }
+              }
+            ],
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "signal_present",
+            "claim_present"
+          ],
+          "fragment": "core"
+        }
+      ],
+      "escape_boundaries": [],
+      "oof_log": [
+        {
+          "rule": "OOF-OS2",
+          "message": "EvidenceLinkedAlert requires non-empty signal_refs and claim_refs",
+          "node": "BadEvidenceLessAlertGate",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "oof_log": [
+    {
+      "rule": "OOF-OS2",
+      "message": "EvidenceLinkedAlert requires non-empty signal_refs and claim_refs",
+      "node": "BadEvidenceLessAlertGate",
+      "line": null
+    }
+  ]
+}

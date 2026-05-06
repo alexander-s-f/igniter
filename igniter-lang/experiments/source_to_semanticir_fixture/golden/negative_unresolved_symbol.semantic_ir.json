@@ -1,0 +1,94 @@
+{
+  "kind": "semantic_ir_fixture_program",
+  "program_id": "source_to_semanticir/37753e052c63f4e0",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+  "module": "Fixture.SourceToSemanticIR.Negative",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/BadUnresolvedSymbol/sha256:f9a78673e7e1b1aa175e7e3c",
+      "contract_name": "BadUnresolvedSymbol",
+      "fragment_class": "oof",
+      "inputs": [
+        {
+          "name": "a",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "sum",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "source": "sum",
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "compute",
+          "name": "sum",
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.integer.add",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "a",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "missing_b",
+                "resolved_type": {
+                  "name": "Unknown",
+                  "params": []
+                }
+              }
+            ],
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": [
+            "a",
+            "missing_b"
+          ],
+          "fragment": "core"
+        }
+      ],
+      "escape_boundaries": [],
+      "oof_log": [
+        {
+          "rule": "OOF-P1",
+          "message": "Unresolved symbol: missing_b",
+          "node": "sum",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "oof_log": [
+    {
+      "rule": "OOF-P1",
+      "message": "Unresolved symbol: missing_b",
+      "node": "sum",
+      "line": null
+    }
+  ]
+}

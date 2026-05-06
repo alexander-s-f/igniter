@@ -1,0 +1,63 @@
+{
+  "kind": "parsed_program",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_confidence_bool.ig",
+  "source_hash": "sha256:680812baba31f3da2c96544557873cb47f662bbcc7f1e1b76756919a8f64db93",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.SourceToSemanticIR.NegativeConfidence",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "BadConfidenceAsBool",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "confidence",
+          "type_annotation": "ConfidenceAssessment"
+        },
+        {
+          "kind": "compute",
+          "name": "allowed",
+          "expr": {
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "confidence"
+            },
+            "field": "confidence_label"
+          }
+        },
+        {
+          "kind": "output",
+          "name": "allowed",
+          "type_annotation": "Bool"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "kind": "type",
+      "name": "ConfidenceAssessment",
+      "fields": [
+        {
+          "name": "assessment_id",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "confidence_label",
+          "type_annotation": "ConfidenceLabel",
+          "optional": false
+        }
+      ]
+    }
+  ],
+  "functions": [],
+  "pipelines": [],
+  "parse_errors": []
+}

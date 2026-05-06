@@ -1,0 +1,87 @@
+{
+  "kind": "semantic_ir_fixture_program",
+  "program_id": "source_to_semanticir/343a845d10dd722f",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+  "module": "Fixture.SourceToSemanticIR.Add",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/Add/sha256:17fa3aeb47ed50b7f9692358",
+      "contract_name": "Add",
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "name": "a",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "name": "b",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "sum",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "source": "sum",
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "compute",
+          "name": "sum",
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.integer.add",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "a",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "b",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": [
+            "a",
+            "b"
+          ],
+          "fragment": "core"
+        }
+      ],
+      "escape_boundaries": [],
+      "oof_log": []
+    }
+  ],
+  "oof_log": []
+}

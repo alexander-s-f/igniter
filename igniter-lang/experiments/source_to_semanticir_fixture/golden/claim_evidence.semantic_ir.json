@@ -1,0 +1,79 @@
+{
+  "kind": "semantic_ir_fixture_program",
+  "program_id": "source_to_semanticir/5f35d197b2a97df0",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:3996d52ebb40381bf7ab347c5f7edc9a2c0c3493dddc96529b3506bb90d82162",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/claim_evidence.ig",
+  "module": "Fixture.SourceToSemanticIR.ClaimEvidence",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/ClaimEvidenceBundle/sha256:e9f6d2ab6731a26eb75dbc2d",
+      "contract_name": "ClaimEvidenceBundle",
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "name": "claim",
+          "type": {
+            "name": "Claim",
+            "params": [],
+            "shape_ref": "type/Claim"
+          }
+        },
+        {
+          "name": "evidence",
+          "type": {
+            "name": "EvidenceLink",
+            "params": [],
+            "shape_ref": "type/EvidenceLink"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "linked_claim_ref",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "source": "linked_claim_ref",
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "compute",
+          "name": "linked_claim_ref",
+          "expr": {
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "evidence",
+              "resolved_type": {
+                "name": "EvidenceLink",
+                "params": [],
+                "shape_ref": "type/EvidenceLink"
+              }
+            },
+            "field": "target_ref",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": [
+            "evidence"
+          ],
+          "fragment": "core"
+        }
+      ],
+      "escape_boundaries": [],
+      "oof_log": []
+    }
+  ],
+  "oof_log": []
+}

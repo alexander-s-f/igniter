@@ -1,0 +1,85 @@
+{
+  "kind": "semantic_ir_fixture_program",
+  "program_id": "source_to_semanticir/bef3ae44537183f8",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:680812baba31f3da2c96544557873cb47f662bbcc7f1e1b76756919a8f64db93",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_confidence_bool.ig",
+  "module": "Fixture.SourceToSemanticIR.NegativeConfidence",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/BadConfidenceAsBool/sha256:26b8d5d6139a0485b944f499",
+      "contract_name": "BadConfidenceAsBool",
+      "fragment_class": "oof",
+      "inputs": [
+        {
+          "name": "confidence",
+          "type": {
+            "name": "ConfidenceAssessment",
+            "params": [],
+            "shape_ref": "type/ConfidenceAssessment"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "allowed",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "source": "allowed",
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "compute",
+          "name": "allowed",
+          "expr": {
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "confidence",
+              "resolved_type": {
+                "name": "ConfidenceAssessment",
+                "params": [],
+                "shape_ref": "type/ConfidenceAssessment"
+              }
+            },
+            "field": "confidence_label",
+            "resolved_type": {
+              "name": "ConfidenceLabel",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "ConfidenceLabel",
+            "params": []
+          },
+          "deps": [
+            "confidence"
+          ],
+          "fragment": "core"
+        }
+      ],
+      "escape_boundaries": [],
+      "oof_log": [
+        {
+          "rule": "OOF-CE4",
+          "message": "ConfidenceLabel cannot be used as Bool",
+          "node": "allowed",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "oof_log": [
+    {
+      "rule": "OOF-CE4",
+      "message": "ConfidenceLabel cannot be used as Bool",
+      "node": "allowed",
+      "line": null
+    }
+  ]
+}

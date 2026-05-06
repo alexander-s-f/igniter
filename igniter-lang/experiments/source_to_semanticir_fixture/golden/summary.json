@@ -1,0 +1,14 @@
+{
+  "kind": "source_to_semanticir_fixture_summary",
+  "positive_contracts": [
+    "Add",
+    "ClaimEvidenceBundle",
+    "EvidenceLinkedAlertGate"
+  ],
+  "negative_rules": {
+    "negative_unresolved_symbol": "OOF-P1",
+    "negative_evidence_less_alert": "OOF-OS2",
+    "negative_confidence_bool": "OOF-CE4"
+  },
+  "golden_dir": "igniter-lang/experiments/source_to_semanticir_fixture/golden"
+}

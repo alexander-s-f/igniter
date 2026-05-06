@@ -1,0 +1,50 @@
+{
+  "kind": "parsed_program",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+  "source_hash": "sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.SourceToSemanticIR.Negative",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "BadUnresolvedSymbol",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "a",
+          "type_annotation": "Integer"
+        },
+        {
+          "kind": "compute",
+          "name": "sum",
+          "expr": {
+            "kind": "binary_op",
+            "op": "+",
+            "left": {
+              "kind": "ref",
+              "name": "a"
+            },
+            "right": {
+              "kind": "ref",
+              "name": "missing_b"
+            }
+          }
+        },
+        {
+          "kind": "output",
+          "name": "sum",
+          "type_annotation": "Integer"
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "parse_errors": []
+}
