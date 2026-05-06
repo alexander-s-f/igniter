@@ -193,6 +193,9 @@ runtime:
 - `History`, `BiHistory`, `OLAPPoint`, and `Forecast` are immutable
   definition-time descriptors that can be attached as operation metadata.
 - `VerificationReport` is read-only and follows current compilation findings.
+  Its `metadata` hash can carry generic report-only sections such as
+  `diagnostics`, `receipts`, `model_validity_reports`,
+  `scenario_comparison_reports`, and `review_receipts`.
 - `MetadataManifest` reports declared `type:`, `return_type:`, `deadline:`,
   and `wcet:` metadata.
 - `DiagnosticPayload` is a generic report-only carrier for metadata-only
@@ -208,6 +211,9 @@ runtime:
 Metadata manifest fields are declared, not enforced. `return_type`, `deadline`,
 and `wcet` appear in reports with `enforced: false`; they do not add runtime
 checks, warnings, deadline monitoring, or `ExecutionResult` changes.
+Verification metadata carrier sections are opaque serializable hashes. When
+present, they get report-only semantics, default to `raw_ref_export: false`,
+and reject raw refs.
 Generic diagnostic payloads are serialized through `VerificationReport` as
 `diagnostic_payloads`; generic receipt payloads use `receipt_payloads`. Neither
 surface authorizes package adapters, real data export, provider bridges,
