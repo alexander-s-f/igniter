@@ -74,11 +74,19 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-016](proposals/PROP-016-polymorphism-traits-contract-shapes-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Generic contracts; traits (compile-time); impl coherence; contract_shape; implements structural; monomorphization; compile-time overload only; no unresolved overloads in SemanticIR |
 | [proposals/PROP-017](proposals/PROP-017-schema-evolution-contract-migration-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | SemVer; schema_fingerprint; 5 safe/7 breaking changes; schema_check (4th CompatibilityReport dim); MigrationDecl ESCAPE+audit+replaces; OOF-S1..S5 |
 
+## Active Bridge Notes
+
+| Bridge Note | Status | Purpose |
+|-------------|--------|---------|
+| [bridge/README.md](bridge/README.md) | active index | Bridge Agent landing pad for approved language-to-platform requests |
+| [bridge/bridge-agent-entry-v0.md](bridge/bridge-agent-entry-v0.md) | research | Initializes Bridge Agent presence and records current bridge pressure before package integration |
+
 ## Core Documents
 
 | File | Purpose |
 |------|---------|
 | [../roles/README.md](../roles/README.md) | Role passports and neighbor map for Igniter-Lang agents |
+| [bridge/README.md](bridge/README.md) | Bridge note index and Bridge Agent rules |
 | [ecosystem-split-proposal.md](ecosystem-split-proposal.md) | Defines the Igniter vs Igniter-Lang split |
 | [research-process.md](research-process.md) | Research lifecycle, document rotation, handoff protocol |
 | [agent-motion.md](agent-motion.md) | Current multi-agent movement and handoff routing |

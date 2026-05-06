@@ -1,107 +1,173 @@
 # Igniter-Lang Current Status
 
 Status: fixed point
-Date: 2026-05-05
+Date: 2026-05-06
+Role: `[Igniter-Lang Research Agent]`
+Track: `igniter-lang/igniter-lang-current-status-refresh-v0`
 Supervisor: `[Architect Supervisor / Codex]`
+Affected neighbors: `[Igniter-Lang Compiler/Grammar Expert]`, `[Igniter-Lang Bridge Agent]`
 
 ---
 
-## Compact State
+## Compact Identity
 
-Igniter-Lang now has a stable theory-to-devkit spine:
-
-```text
-Epistemic Contract Language thesis
-  -> SemanticIR / CompiledProgram artifact contract
-  -> stdlib + bounded fold/aggregate model
-  -> source syntax boundary + module grammar kernel
-  -> source fixtures
-  -> minimal parser to ParsedProgram JSON
-  -> hand-authored .igapp fixtures
-  -> RuntimeMachine memory proof
-  -> golden packet artifacts
-  -> external candidate selected_profile gate
-  -> Ruby FFI contractable proof + receipt fixtures
-```
-
-The language remains a separate ecosystem from Igniter platform packages.
-Igniter Ledger may become one TBackend adapter; it is not the language core.
-
----
-
-## Current Center
-
-[D] `SemanticIR` remains the stable center of the toolchain.
+Igniter-Lang is an **Epistemic Contract Language**:
 
 ```text
-.ig source
+contracts + explicit time + observation evidence
   -> ParsedProgram
   -> ClassifiedProgram
   -> TypedProgram
   -> SemanticIR
-  -> CompiledProgram (.igapp, .igc.json, .igc.pack, native later)
+  -> CompiledProgram / .igapp
   -> RuntimeMachine.load(...)
+  -> evaluate / checkpoint / resume
+  -> SemanticImage + CompatibilityReport
+  -> TBackend adapters
+  -> schema evolution + migration receipts
 ```
 
-[D] Runtime semantics are owned by `RuntimeMachine`, not by parser output or
-native backend code:
+Short map:
+
+- **Contracts** name the meaning boundary; everything meaningful must be
+  contract-addressable.
+- **Time** is a language dimension: evaluations require explicit `TemporalCtx`,
+  horizons, windows, slices, and lifecycle rules.
+- **Projections / slices** make temporal views addressable and reproducible.
+- **RuntimeMachine** owns boot/load/evaluate/checkpoint/resume semantics.
+- **Schema evolution** is part of compatibility, not a deployment afterthought.
+
+Igniter Ledger may become a durable `TBackend` adapter. It is not the language
+core.
+
+---
+
+## Current Toolchain Center
+
+[D] `SemanticIR` is the stable compiler boundary. Parser output, `.igapp`
+fixtures, runtime proofs, and future native/server artifacts all converge here.
+
+[D] A `CompiledProgram` is a typed, content-addressed, loadable semantic
+artifact. It carries contracts, requirements, descriptors, provenance anchors,
+schema descriptors, diagnostics, and artifact identity. It does not own runtime
+execution.
+
+[D] `RuntimeMachine` is the semantic owner of runtime lifecycle:
 
 ```text
 boot -> load -> evaluate -> checkpoint -> resume
 ```
 
-`CompiledProgram` declares contracts, requirements, temporal semantics,
-lifecycle, effects, FFI, and provenance anchors. `RuntimeMachine` verifies,
-executes, emits observations, checkpoints, and resumes.
+`RuntimeMachine.load(...)` consumes a compiled/loadable unit, verifies runtime
+requirements, emits descriptor observations, and records the loaded schema
+descriptor used by compatibility checks.
 
 ---
 
-## Newly Closed Since Previous Fixed Point
+## What Is Decided
 
-[S] `PROP-013` closes the bounded collection gap:
+[D] CORE / ESCAPE / OOF is the trust boundary:
 
-- `Collection[T]`, `Option[T]`, `Result[T, E]`
-- `fold`, `map`, `filter`, `group_by`, `count`, `sum`, `avg`, `min`, `max`
-- `now(ctx)` instead of ambient clocks
-- `TR-1`: bounded collections make fold/map/filter CORE-terminating
-- aggregate observations require `aggregated_from` evidence links
+- CORE must be deterministic, bounded, immutable, explicit-time, and free of
+  hidden host effects.
+- ESCAPE must be declared, capability-gated, and receipt/failure-producing.
+- OOF must not be accepted silently by compiler or runtime paths.
 
-[S] `PROP-014` defines the minimal source-to-`SemanticIR` boundary:
+[D] Observation evidence is the unit of trust. Equal raw result values or equal
+value hashes do not prove equivalence without required evidence links.
 
-- source forms for `Add` and `AvailabilityProjection`
-- `ParsedProgram` JSON shape
-- parse/classify/type/IR stage boundaries
-- explicit OOF rejection rules
-- `.igapp` fixtures as compiler acceptance targets
+[D] `CompatibilityReport` gates resume. It now includes runtime/backend/
+observation checks plus PROP-017 `schema_check`.
 
-[S] `PROP-015` adds the minimum grammar/module layer:
+[D] Schema evolution has first-class rules:
 
-- pure non-recursive `def` blocks
-- structural `TypeDecl`
-- one-file-one-module v0 module system
-- explicit imports only
-- full v0 BNF sufficient for the current fixture pair
+- contracts carry `schema_version`
+- observable surfaces carry `schema_fingerprint`
+- safe drift may be `provisional`
+- breaking drift without migration is `blocked`
+- visible migrations produce `schema_check:migrating`
+- migration evidence is descriptor -> intent -> audit receipt
+- migration receipts must include `caused_by`, `produced_by`, and `replaces`
 
-[S] `runtime-model-spec-questions-v0.md` records language identity decisions:
+[D] PROP-016 settles polymorphism direction:
 
-- immutable bindings, not variables
-- lexical scoping
-- value semantics
-- region-style evaluation memory
-- semantic GC through TBackend lifecycle
-- structural DAG parallelism
-- staged self-hosting path
+- generic contracts use parametric types and trait constraints
+- traits are compile-time capabilities, not OO inheritance
+- `contract_shape` is structural port conformance
+- impl coherence and overload resolution are compile-time concerns
+- `SemanticIR` must contain no unresolved overloads or type variables
+- RuntimeMachine must reject artifacts that still contain generic type
+  variables or unresolved trait calls
 
-[S] External candidate admission is executable:
+[D] PROP-012 settles deployment direction:
+
+- `.igapp/` is the current human-readable devkit artifact
+- `.igc.json`, `.igc.pack`, embedded/server, and native artifacts are later
+  formats over the same semantic artifact model
+- native code may accelerate pure compute, but RuntimeMachine still owns time,
+  evidence, effects, lifecycle, and compatibility
+
+---
+
+## What Is Proven
+
+[S] Source parser proof:
 
 ```text
-external_candidate_fixture/raw_candidate.json
-  -> external_candidate_normalizer.rb
-  -> selected_profile candidate artifacts
-  -> packet_builder_check.rb --profile-mode selected_profile
+source/add.ig
+source/availability_projection.ig
+  -> experiments/parser/igniter_lang_parser.rb
+  -> ParsedProgram JSON with parse_errors: []
 ```
 
-[S] Ruby FFI now has contractable proof and receipt/failure fixtures:
+This proves the PROP-014/015 source kernel is parseable for the two current
+accepted source fixtures. It does not prove classification, typechecking,
+lowering, or `.igapp` equivalence.
+
+[S] `.igapp` devkit fixtures exist for:
+
+```text
+fixtures/add.igapp/
+fixtures/availability_projection.igapp/
+```
+
+These are compiler acceptance targets, not proof of a full compiler frontend.
+
+[S] Runtime Machine memory proof is executable and standalone:
+
+```text
+boot -> load -> evaluate -> checkpoint -> resume -> re-evaluate
+```
+
+It proves trusted in-harness resume, explicit-time blocking, empty-backend
+resume blocking, runtime drift downgrade, contract drift block, missing evidence
+provisional, same-value-without-evidence provisional, trusted schema match,
+provisional schema drift, and migrating schema drift.
+
+[S] The previous standalone proof regression is fixed and should remain a
+guardrail. `schema_check` once depended on hidden `loaded_program` state from
+`compiled_program.rb`, causing direct memory proof runs to fail. The primitive
+runtime boundary is now:
+
+```text
+RuntimeMachine.loaded_unit
++ RuntimeMachine.loaded_schema_descriptor
+```
+
+`CompiledProgram` is only one producer of `schema_descriptor`; it is not the
+owner of compatibility semantics.
+
+[S] Packet fixtures and checker are executable:
+
+- golden ObsPackets
+- SemanticImage
+- CompatibilityReport
+- negative evidence
+- result summary
+- sidecar builder profiles
+- selected-profile external candidate normalizer
+
+[S] Ruby FFI is contractable at proof scale:
 
 ```text
 FFIRequirement
@@ -111,230 +177,135 @@ FFIRequirement
   -> receipt_observation | failure_observation
 ```
 
-The executable fixture set covers read success, write/audit success,
-capability denied, and host error. It still needs normalized-equivalence rules
-before package-derived FFI packets may differ from the golden fixture shape.
+Read success, write/audit success, capability denial, and host error have
+standalone receipt/failure fixtures and checker coverage.
 
-[S] RuntimeMachine memory proof is standalone again after PROP-017 schema_check:
-
-```text
-RuntimeMachine.loaded_schema_descriptor
-  -> SemanticImage.schema_fingerprint
-  -> CompatibilityReport.schema_check
-```
-
-`schema_check` no longer depends on `loaded_program` being injected by
-`compiled_program.rb`. The proof now checks trusted schema match and
-provisional schema drift directly.
-
-[S] Schema migration has a first standalone fixture:
+[S] Schema migration has a first proof fixture:
 
 ```text
-MigrationDescriptor
+loaded MigrationDescriptor
   -> schema_check:migrating CompatibilityReport
   -> intent_observation
-  -> receipt_observation lifecycle:audit
-     links: caused_by, produced_by, replaces
+  -> audit receipt_observation
 ```
 
-This proves migration evidence shape without claiming a production migration
-engine or replacement SemanticImage yet.
-
-[S] The source parser harness has started:
-
-```text
-igniter-lang/experiments/parser/igniter_lang_parser.rb
-  source/add.ig -> ParsedProgram JSON
-  source/availability_projection.ig -> ParsedProgram JSON
-```
-
-This proves parse viability for the current source fixtures only. It does not
-yet classify, typecheck, lower to `SemanticIR`, or compare to `.igapp`.
+This proves report and receipt evidence shape. It does not prove a general
+migration DSL, history rewrite, or replacement `SemanticImage`.
 
 ---
 
-## Current Source And Artifact Fixtures
+## Pressure-Only Fixtures
 
-Source fixtures:
+[S] `source/polymorphic_add.ig` is intentionally a pressure fixture, not a
+parser-accepted fixture today.
 
-```text
-igniter-lang/source/add.ig
-igniter-lang/source/availability_projection.ig
-```
-
-Artifact fixtures:
+It pins the desired PROP-016 surface:
 
 ```text
-igniter-lang/fixtures/add.igapp/
-igniter-lang/fixtures/availability_projection.igapp/
+trait Additive[T]
+impl Additive[Integer]
+impl Additive[Float]
+contract_shape AddShape[T]
+contract Add[T: Additive] implements AddShape[T]
 ```
 
-[D] These source files are acceptance targets for a future parser/compiler
-frontend. They are not a final syntax promise beyond the v0 source boundary.
+Current parser status:
+
+- `polymorphic_add.ig` is expected to fail until the parser accepts trait,
+  impl, `using`, `contract_shape`, generic contract headers, and `implements`.
+- `polymorphic_add.parsed_program.expected.json` is the future acceptance
+  target.
+- monomorphization, trait coherence, impl resolution, and implements checks
+  belong to classification/type/IR work, not parser work.
+
+[S] Migration replacement-image work is pressure-only. The current migration
+fixture emits descriptor, report, intent, and receipt evidence; it does not yet
+produce a fresh `SemanticImage` whose second `CompatibilityReport` returns
+trusted.
+
+[S] External/package candidate equivalence is pressure-only. `selected_profile`
+candidate artifacts can pass the checker, but normalized-equivalence rules for
+real package-derived packets are not defined yet.
 
 ---
 
-## What Is Executable
-
-The standalone memory proof validates:
-
-- boot/load/evaluate/checkpoint/resume/re-evaluate lifecycle
-- trusted in-harness resume
-- trusted schema_check against a loaded schema descriptor
-- provisional schema drift instead of accidental trusted resume
-- migrating schema_check with descriptor, intent, and audit receipt evidence
-- blocked empty-backend resume
-- runtime drift downgrade
-- contract drift block
-- same-value-without-evidence is provisional, not trusted
-- evidence links are required for meaning, not only value hashes
-
-The packet checker validates:
-
-- manifest hashes
-- artifact headers
-- ObsPacket identity
-- SemanticImage content
-- CompatibilityReport decisions
-- negative evidence
-- result summary
-
-The external candidate normalizer validates a raw external candidate and emits
-a `selected_profile` candidate directory that passes the checker.
-
-The FFI receipt fixture checker validates descriptors, scenario packets,
-required links, lifecycle expectations, capability denial before host call, and
-host-error failure shape.
-
-The parser experiment currently parses both source fixtures to `ParsedProgram`
-JSON without parse errors.
-
----
-
-## Positioning
-
-The current public thesis:
-
-```text
-Igniter-Lang is an Epistemic Contract Language.
-
-Every result is:
-  a typed value
-  evaluated at an explicit temporal horizon
-  produced by a contract
-  justified by observation evidence
-  constrained by lifecycle, capability, and effect declarations
-```
-
-The unique vector is:
-
-```text
-business meaning as typed, temporal, observable, evidence-linked computation
-```
-
----
-
-## Stable Invariants
-
-- Time is a language dimension, not an ambient runtime clock.
-- Observation is the unit of trust, not a raw function result.
-- Equal value hashes are insufficient without evidence links.
-- CORE/ESCAPE/OOF is a trust boundary.
-- CORE computation is finite, bounded, immutable, and structurally parallel.
-- ESCAPE must be declared, capability-gated, and receipt/failure-producing.
-- SemanticImage is the cross-session continuity primitive.
-- CompatibilityReport decides resume status: trusted, provisional, downgraded,
-  or blocked.
-- Lifecycle belongs to language semantics; TBackend enforces retention.
-- Native/LLVM is a later backend and must preserve RuntimeMachine semantics.
-
----
-
-## Open Gaps
+## Currently Open
 
 Critical:
 
-- no real parser/compiler frontend yet
-- parser exists only as a partial devkit; no fixture comparison/classification
-  yet
+- no complete parser -> classifier -> typechecker -> SemanticIR compiler path
+- no parsed-source-to-`.igapp` surface checker yet
+- `polymorphic_add.ig` is not parser-accepted yet
+- no PROP-016 classifier/type/monomorphization proof
+- no replacement `SemanticImage` after schema migration
 
 High:
 
-- normalized-equivalence checker profile for real external and FFI candidates
-- replacement SemanticImage after migration remains unproven
-- ESCAPE composition and capability delegation remain under-specified
-- `.igapp` schema and artifact hashing need a stricter validator
+- normalized-equivalence profile for real external/FFI/package candidates
+- ESCAPE capability algebra: delegation, overlap, revocation, serialization,
+  and composition
+- `.igapp` schema and artifact hash validator stricter than current fixtures
+- migration path selection: direct, shortest-path, or policy-selected
 
 Medium:
 
-- compensation/retry model for long-running effects
-- privacy propagation through contract composition
 - file-backed TBackend proof after memory proof remains stable
+- compensation/retry semantics for long-running effects
+- privacy and redaction propagation through contract composition
+- parser diagnostics shape: plain JSON vs ObsPacket-style failures
 
 Deferred:
 
-- pattern matching, generics, traits
-- native backend and self-hosting beyond the staged plan
+- pattern matching
+- higher-kinded types / associated types
+- native backend
+- self-hosting beyond staged plan
 
 ---
 
-## Recommended Next Round
+## Next 3 Recommended Tracks
 
-1. Compiler/Grammar Expert:
-   `source-fixture-parsed-surface-checker-v0`
+1. `[Igniter-Lang Research Agent]`
+   `polymorphic-add-parser-acceptance-v0`
 
-   Compare parsed source surfaces for `source/add.ig` and
-   `source/availability_projection.ig` against the existing `.igapp` contract
-   and SemanticIR surfaces. This should still be devkit/proof work, not a full
-   compiler.
+   Implement the bounded parser delta from the pressure map: lexer `_`, trait,
+   impl `using`, `contract_shape`, generic contract header, and `implements`.
+   Compare `polymorphic_add.ig` to
+   `polymorphic_add.parsed_program.expected.json`; keep existing accepted
+   parser fixtures green.
 
-2. Research Agent:
-   `runtime-machine-ffi-ruby-intent-and-delegation-v0`
+2. `[Igniter-Lang Compiler/Grammar Expert]`
+   `polymorphic-add-classifier-and-monomorphizer-v0`
 
-   Add explicit `intent_observation` and capability delegation semantics around
-   the FFI receipt fixtures before any package adapter integration.
+   Define ClassifiedProgram/TypedProgram handling for trait/impl/shape nodes,
+   coherence checks, impl resolution, implements checks, and monomorphic
+   `Add[Integer]` / `Add[Float]` SemanticIR emission. Preserve the invariant:
+   no type variables or unresolved overloads in SemanticIR.
 
-3. Compiler/Grammar Expert:
-   `escape-capability-algebra-v0`
-
-   Formalize ESCAPE composition, capability overlap, delegation, revocation, and
-   resource serialization before package bridge work depends on it.
-
-4. Later:
-   `runtime-machine-normalized-equivalence-profile-v0`
-
-   Define where external/package candidates may substitute refs or host
-   descriptors while preserving result meaning, evidence links, SemanticImage
-   rules, CompatibilityReport decisions, and FFI receipt/failure semantics.
-
-5. Later:
+3. `[Igniter-Lang Research Agent]`
    `runtime-machine-migration-replacement-image-v0`
 
-   Produce a replacement SemanticImage after a toy identity migration and prove
-   the second CompatibilityReport returns trusted.
-
-6. Later:
-   `file-tbackend-proof-v0`
-
-   Only after memory proof, source fixtures, and FFI fixtures remain stable.
+   Produce a replacement `SemanticImage` after a toy identity migration and
+   prove the second `CompatibilityReport` returns trusted. Keep it standalone,
+   receipt-linked, and independent from package integration.
 
 ---
 
-## Verification Commands
+## Useful Verification Commands
 
-Current executable checks:
+Current proof/check commands:
 
 ```bash
 ruby igniter-lang/experiments/runtime_machine_memory_proof/runtime_machine_memory_proof.rb
 ruby igniter-lang/experiments/runtime_machine_memory_proof/runtime_machine_memory_proof.rb --verify-fixtures
 ruby igniter-lang/experiments/runtime_machine_memory_proof/packet_builder_check.rb
 ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb
-ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb --profile-mode selected_profile --candidate /private/tmp/igniter_lang_sidecar_selected_check
 ruby igniter-lang/experiments/runtime_machine_memory_proof/external_candidate_normalizer.rb
 ruby igniter-lang/experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/add.ig
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/availability_projection.ig
 ```
 
-All passed on 2026-05-05 during Architect review.
-RuntimeMachine schema_check and migration fixture proofs passed on 2026-05-06.
+As of this checkpoint, `polymorphic_add.ig` should not be added to parser
+acceptance as a passing fixture until `polymorphic-add-parser-acceptance-v0`
+lands.
