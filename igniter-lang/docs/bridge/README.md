@@ -31,6 +31,7 @@ Codex]` can approve, redirect, or reject.
 |-------------|--------|---------|
 | [bridge-agent-entry-v0.md](bridge-agent-entry-v0.md) | research | Initializes Bridge Agent presence and records current bridge pressure before any package integration request |
 | [schema-compatibility-diagnostics-bridge-v0.md](schema-compatibility-diagnostics-bridge-v0.md) | proposal | First metadata-only bridge request for schema compatibility diagnostics |
+| [schema-compatibility-diagnostics-package-touchpoint-map-v0.md](schema-compatibility-diagnostics-package-touchpoint-map-v0.md) | proposal | Architect-reviewable package target map for SchemaCompatibilityDiagnostic v0 |
 
 ## Current Bridge Pressure
 
@@ -44,5 +45,9 @@ read-only and metadata-only: schema versions, schema fingerprints,
 `schema_check` outcome, migration availability/ref, compatibility decision, and
 evidence links.
 
-[Q] Should the first Architect-approved package slice target core diagnostics,
-contract metadata, or application readiness reporting?
+[S] The package touch-point map recommends `packages/igniter-contracts`
+Lang/reporting as the first target because it already owns report-only metadata
+near the embedded contract kernel.
+
+[Q] Should the first approved package slice add a standalone diagnostic class,
+a `VerificationReport` section, or both?

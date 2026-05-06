@@ -39,6 +39,7 @@ implementation detail of the current Igniter platform.
 | [tracks/polymorphic-add-parser-pressure-map-v0.md](tracks/polymorphic-add-parser-pressure-map-v0.md) | done | Grammar/parser delta map for PROP-016 surface: trait, impl, contract_shape, generic contract header; separated parser vs semantic vs monomorphization work |
 | [tracks/polymorphic-add-classifier-v0.md](tracks/polymorphic-add-classifier-v0.md) | done | ClassifiedProgram/TypedProgram/SemanticIR boundary for PROP-016: trait env, impl coherence, T substitution, implements check, monomorphization, Add[String] rejection |
 | [tracks/migration-replacement-image-formalization-v0.md](tracks/migration-replacement-image-formalization-v0.md) | done | Formal replacement SemanticImage field spec, link rels (replaces/caused_by), lifecycle, trust rules, multi-hop one-image-per-hop, and 7 OOF-MR rules |
+| [tracks/specialization-request-source-v0.md](tracks/specialization-request-source-v0.md) | done | Resolves Q-1: explicit build manifest (Option A) selected for v0; Options B/C rejected; manifest shape, OOF-SP1–7, artifact_hash impact, and proof targets M-1–6 defined |
 | [tracks/polymorphic-add-parser-acceptance-v0.md](tracks/polymorphic-add-parser-acceptance-v0.md) | done | Added parser acceptance for polymorphic_add.ig: trait, impl using, contract_shape, generic contract header, and implements |
 | [tracks/polymorphic-add-classifier-proof-v0.md](tracks/polymorphic-add-classifier-proof-v0.md) | done | Added stdlib-only classifier/type proof for polymorphic Add with Add[Integer]/Add[Float] accepted and Add[String] OOF-TY1 |
 | [tracks/polymorphic-add-semanticir-emission-proof-v0.md](tracks/polymorphic-add-semanticir-emission-proof-v0.md) | done | Added SemanticIR emission proof for monomorphic Add[Integer]/Add[Float] with no generic ContractIR or unresolved trait calls |
@@ -91,6 +92,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [bridge/README.md](bridge/README.md) | active index | Bridge Agent landing pad for approved language-to-platform requests |
 | [bridge/bridge-agent-entry-v0.md](bridge/bridge-agent-entry-v0.md) | research | Initializes Bridge Agent presence and records current bridge pressure before package integration |
 | [bridge/schema-compatibility-diagnostics-bridge-v0.md](bridge/schema-compatibility-diagnostics-bridge-v0.md) | proposal | First metadata-only bridge request for schema compatibility diagnostics |
+| [bridge/schema-compatibility-diagnostics-package-touchpoint-map-v0.md](bridge/schema-compatibility-diagnostics-package-touchpoint-map-v0.md) | proposal | Architect-reviewable package target map for SchemaCompatibilityDiagnostic v0 |
 
 ## Core Documents
 
