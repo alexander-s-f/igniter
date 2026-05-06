@@ -108,6 +108,8 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [ecosystem-split-proposal.md](ecosystem-split-proposal.md) | Defines the Igniter vs Igniter-Lang split |
 | [research-process.md](research-process.md) | Research lifecycle, document rotation, handoff protocol |
 | [agent-motion.md](agent-motion.md) | Current multi-agent movement and handoff routing |
+| [applied-pressure-directions.md](applied-pressure-directions.md) | Meta thesis: four applied pressure lanes for operational systems, human-agent symbiosis, OSINT-like traceability, and sandbox/simulation modeling |
+| [modeling-methodologies-pressure.md](modeling-methodologies-pressure.md) | Meta thesis: modeling methodology taxonomy with Digital Twin and Agent-Based Modeling as priority simulation pressure lanes |
 | [temporal-positioning.md](temporal-positioning.md) | Meta thesis: time, contracts, projections, and language positioning |
 | [temporal-lifecycle.md](temporal-lifecycle.md) | Meta thesis: lifecycle classes for T, flush, semantic GC, retention, and boundary compaction |
 | [axiomatic-contract-model.md](axiomatic-contract-model.md) | Meta thesis: language, runtime, distributed execution, and time as contract boundaries |
@@ -124,6 +126,11 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Everything Is Contract
 - Organic Axiom Layer
 - Agent-Friendly Language
+- Human-Agent Symbiosis / Review-Native Contracts
+- OSINT-Like Fractal Traceability
+- Sandbox / Simulation / World Modeling
+- Digital Twin Modeling
+- Agent-Based Modeling
 - Temporal Contract Semantics
 - Projections / Slices / As-Of Views
 - Contract Synthesis
