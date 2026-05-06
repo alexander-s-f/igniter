@@ -39,6 +39,7 @@ Codex]` can approve, redirect, or reject.
 | [lead-boundary-diagnostics-retention-bridge-profile-v0.md](lead-boundary-diagnostics-retention-bridge-profile-v0.md) | proposal | Metadata-only lead boundary diagnostics, rollup, Decimal, idempotency, and retention receipt profiles |
 | [model-validity-and-scenario-comparison-bridge-profile-v0.md](model-validity-and-scenario-comparison-bridge-profile-v0.md) | proposal | Metadata-only simulation run diagnostics, model validity, scenario comparison, assumption diff, and review-only strategy profiles |
 | [human-agent-review-approval-bridge-profile-v0.md](human-agent-review-approval-bridge-profile-v0.md) | proposal | Metadata-only human-agent proposal, review, meaning diff, correction, verification, and acceptance receipt profiles |
+| [osint-claim-factcheck-correction-bridge-profile-v0.md](osint-claim-factcheck-correction-bridge-profile-v0.md) | proposal | Metadata-only OSINT-like source observation, claim trace, evidence, confidence, contradiction, fact-check snapshot, analyst decision, citation/redaction, and correction profiles |
 
 ## Current Bridge Pressure
 
@@ -88,6 +89,12 @@ semantics.
 review projection, meaning diff, human correction, runtime verification, and
 scoped acceptance, with agent prose explicitly excluded from artifact-of-record
 status.
+
+[S] OSINT-like claim/fact-check correction now has generic report-only profiles
+for source observations, claim traces, evidence links, confidence assessments,
+contradictions, snapshots, analyst decisions, citation/redaction policies, and
+correction receipts. Repeated claims remain non-independent evidence, and
+confidence remains not-truth.
 
 [Q] Should generic package diagnostics be named
 `ProjectionDiagnostic`/`PipelineDiagnostic`, or remain plain
