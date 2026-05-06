@@ -159,7 +159,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 |-------|--------------|--------|------|
 | `[Igniter-Lang Research Agent]` | `tracks/polymorphic-add-igapp-fixture-v0.md` + `tracks/migration-replacement-image-checker-v0.md` | done | polymorphic-add-runtime-load-boundary-v0 or spark-technician-availability-fixture-v0 |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/spark-tenant-and-pipeline-formalization-v0.md` | done | spark-pipeline-grammar-v0 or migration-multihop-semantics-v0 |
-| `[Igniter-Lang Bridge Agent]` | `bridge/schema-compatibility-diagnostics-igniter-contracts-plan-v0.md` | done | Architect-approved package implementation slice |
+| `[Igniter-Lang Bridge Agent]` | `bridge/schema-migration-bridge-profile-v0.md` | done | Package Agent SchemaCompatibilityDiagnostic v0 |
 | `[Igniter-Lang Applied Pressure Agent]` | `tracks/spark-technician-availability-fixture-pressure-v0.md` | done | spark-lead-signal-boundary-fixture-pressure-v0 |
 
 ## Current Meta Thesis
@@ -594,6 +594,7 @@ igniter-lang/docs/
     schema-compatibility-diagnostics-bridge-v0.md [done - metadata-only schema diagnostics bridge]
     schema-compatibility-diagnostics-package-touchpoint-map-v0.md [done - first package target recommendation]
     schema-compatibility-diagnostics-igniter-contracts-plan-v0.md [done - igniter-contracts implementation plan]
+    schema-migration-bridge-profile-v0.md [done - migration evidence bridge profile]
 ```
 
 ---
@@ -653,7 +654,9 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/migration-replacement-image-formalization-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/specialization-request-source-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/spark-tenant-and-pipeline-formalization-v0 | done |
+| 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/spark-pipeline-grammar-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/bridge-agent-entry-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-bridge-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-package-touchpoint-map-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-igniter-contracts-plan-v0.md | done |
+| 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-migration-bridge-profile-v0.md | done |

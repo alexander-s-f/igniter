@@ -33,6 +33,7 @@ Codex]` can approve, redirect, or reject.
 | [schema-compatibility-diagnostics-bridge-v0.md](schema-compatibility-diagnostics-bridge-v0.md) | proposal | First metadata-only bridge request for schema compatibility diagnostics |
 | [schema-compatibility-diagnostics-package-touchpoint-map-v0.md](schema-compatibility-diagnostics-package-touchpoint-map-v0.md) | proposal | Architect-reviewable package target map for SchemaCompatibilityDiagnostic v0 |
 | [schema-compatibility-diagnostics-igniter-contracts-plan-v0.md](schema-compatibility-diagnostics-igniter-contracts-plan-v0.md) | proposal | Architect-approved implementation plan for SchemaCompatibilityDiagnostic v0 in igniter-contracts |
+| [schema-migration-bridge-profile-v0.md](schema-migration-bridge-profile-v0.md) | proposal | Single-hop migration evidence profile for SchemaCompatibilityDiagnostic v0 |
 
 ## Current Bridge Pressure
 
@@ -54,5 +55,10 @@ near the embedded contract kernel.
 `Igniter::Lang::SchemaCompatibilityDiagnostic` plus an optional
 `VerificationReport` section.
 
-[Q] Should serialized decision values remain symbols in v0 or become strings
-for future wire compatibility?
+[S] The migration bridge profile carries P-1 through P-10 into package
+metadata: `migration_chain: []`, no `supersedes`, required `replaces`,
+`caused_by`, `produced_by`, `produced_in`, and OOF-MR3 blocked
+wrong-fingerprint diagnostics.
+
+[Q] Should Package Agent reject invalid migration profile input, or serialize
+it as blocked diagnostic evidence?

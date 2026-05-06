@@ -42,16 +42,20 @@ implementation detail of the current Igniter platform.
 | [tracks/migration-replacement-image-checker-v0.md](tracks/migration-replacement-image-checker-v0.md) | done | Updated RuntimeMachine proof/checker for replacement image P-1..P-10, migration_chain [], no supersedes, and OOF-MR3 negative |
 | [tracks/specialization-request-source-v0.md](tracks/specialization-request-source-v0.md) | done | Resolves Q-1: explicit build manifest (Option A) selected for v0; Options B/C rejected; manifest shape, OOF-SP1–7, artifact_hash impact, and proof targets M-1–6 defined |
 | [tracks/spark-tenant-and-pipeline-formalization-v0.md](tracks/spark-tenant-and-pipeline-formalization-v0.md) | done | Resolves CG-1/2/3: fail-fast pipelines as Result.flat_map+StepObservation; TenantScope as typed value; ScopedFactRead; CardinalityBound; 8 OOF-PL/TS/CB rules; RA-1/RA-2 fixture targets |
+| [tracks/spark-pipeline-grammar-v0.md](tracks/spark-pipeline-grammar-v0.md) | done | Grammar delta: pipeline/step/scoped_by/cardinality/tenant_free keywords; ParsedProgram node shapes; SemanticIR lowering; 7 OOF-PG rules; RA availability fixture target |
 | [tracks/polymorphic-add-parser-acceptance-v0.md](tracks/polymorphic-add-parser-acceptance-v0.md) | done | Added parser acceptance for polymorphic_add.ig: trait, impl using, contract_shape, generic contract header, and implements |
 | [tracks/polymorphic-add-classifier-proof-v0.md](tracks/polymorphic-add-classifier-proof-v0.md) | done | Added stdlib-only classifier/type proof for polymorphic Add with Add[Integer]/Add[Float] accepted and Add[String] OOF-TY1 |
 | [tracks/polymorphic-add-semanticir-emission-proof-v0.md](tracks/polymorphic-add-semanticir-emission-proof-v0.md) | done | Added SemanticIR emission proof for monomorphic Add[Integer]/Add[Float] with no generic ContractIR or unresolved trait calls |
 | [tracks/polymorphic-add-igapp-fixture-v0.md](tracks/polymorphic-add-igapp-fixture-v0.md) | done | Packaged polymorphic Add into a .igapp fixture with explicit specialization manifest and monomorphic ContractIRs only |
+| [tracks/polymorphic-add-runtime-load-boundary-v0.md](tracks/polymorphic-add-runtime-load-boundary-v0.md) | blocked | Probed current RuntimeMachine load boundary: .igapp parses/validates but load_program blocks on descriptor-ref shape and evaluator lacks stdlib.numeric.add |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 | [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
 | [tracks/spark-crm-applied-language-pressure-v0.md](tracks/spark-crm-applied-language-pressure-v0.md) | done | Created the first broad applied pressure map for Spark CRM dispatch, vendor lead intake, streams, diagnostics, schema drift, and neighbor proof/formal/bridge requests |
 | [tracks/spark-crm-real-business-candidate-map-v0.md](tracks/spark-crm-real-business-candidate-map-v0.md) | done | Mapped sanitized real Spark CRM business processes into Igniter-Lang implementation candidates without public secrets, endpoints, provider URLs, or infrastructure details |
 | [tracks/spark-technician-availability-fixture-pressure-v0.md](tracks/spark-technician-availability-fixture-pressure-v0.md) | done | Specified the first concrete Spark technician availability fixture with synthetic facts, expected observations, result table, why-not reasons, and tenant/time/status negative cases |
+| [tracks/spark-lead-signal-boundary-pressure-v0.md](tracks/spark-lead-signal-boundary-pressure-v0.md) | done | Specified the second Spark operational fixture for normalized lead signals, idempotency, hourly rollups, Decimal bid totals, retention receipts, duplicate handling, and late-signal boundary pressure |
+| [tracks/spark-technician-availability-fixture-v0.md](tracks/spark-technician-availability-fixture-v0.md) | done | Added executable synthetic Spark technician availability fixture with TenantScope, ScopedFactRead, StepObservation, snapshot, why-not reasons, and blocked negatives |
 
 ## Active Experiments
 
@@ -62,6 +66,8 @@ implementation detail of the current Igniter platform.
 | [../experiments/parser/igniter_lang_parser.rb](../experiments/parser/igniter_lang_parser.rb) | partial | Minimal recursive-descent parser for PROP-014/015 plus PROP-016 pressure surface; emits ParsedProgram JSON for add, availability_projection, and polymorphic_add |
 | [../experiments/polymorphic_add_classifier_proof/polymorphic_add_classifier_proof.rb](../experiments/polymorphic_add_classifier_proof/polymorphic_add_classifier_proof.rb) | done | Standalone classifier/type proof over polymorphic_add ParsedProgram; stops before SemanticIR |
 | [../experiments/polymorphic_add_semanticir_emission_proof/polymorphic_add_semanticir_emission_proof.rb](../experiments/polymorphic_add_semanticir_emission_proof/polymorphic_add_semanticir_emission_proof.rb) | done | Standalone SemanticIR emission proof for monomorphic polymorphic Add specializations |
+| [../experiments/polymorphic_add_runtime_load_boundary_proof/polymorphic_add_runtime_load_boundary_proof.rb](../experiments/polymorphic_add_runtime_load_boundary_proof/polymorphic_add_runtime_load_boundary_proof.rb) | blocked | Boundary probe for polymorphic_add.igapp against current CompiledProgram and RuntimeMachine load_program |
+| [../experiments/spark_technician_availability_fixture/spark_technician_availability_fixture.rb](../experiments/spark_technician_availability_fixture/spark_technician_availability_fixture.rb) | done | Executable synthetic Spark technician availability fixture with positive snapshot and tenant/time/status negative cases |
 
 ## Active Proposals
 
@@ -98,6 +104,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [bridge/schema-compatibility-diagnostics-bridge-v0.md](bridge/schema-compatibility-diagnostics-bridge-v0.md) | proposal | First metadata-only bridge request for schema compatibility diagnostics |
 | [bridge/schema-compatibility-diagnostics-package-touchpoint-map-v0.md](bridge/schema-compatibility-diagnostics-package-touchpoint-map-v0.md) | proposal | Architect-reviewable package target map for SchemaCompatibilityDiagnostic v0 |
 | [bridge/schema-compatibility-diagnostics-igniter-contracts-plan-v0.md](bridge/schema-compatibility-diagnostics-igniter-contracts-plan-v0.md) | proposal | Architect-approved implementation plan for SchemaCompatibilityDiagnostic v0 in igniter-contracts |
+| [bridge/schema-migration-bridge-profile-v0.md](bridge/schema-migration-bridge-profile-v0.md) | proposal | Single-hop migration evidence profile for SchemaCompatibilityDiagnostic v0 |
 
 ## Core Documents
 
@@ -178,6 +185,8 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Polymorphic Add Classifier Proof (DONE — TraitEnv/ImplEnv/ShapeEnv -> TypedProgram, Add[String] OOF-TY1)
 - Polymorphic Add SemanticIR Emission Proof (DONE — Add[Integer]/Add[Float] ContractIR shapes, no unresolved trait calls)
 - Polymorphic Add .igapp Fixture (DONE — explicit specialization manifest, generic metadata only, monomorphic loadable contracts)
+- Polymorphic Add Runtime Load Boundary (BLOCKED — load_program descriptor refs shape; next operator blocker stdlib.numeric.add)
+- Spark Technician Availability Fixture (DONE — synthetic TenantScope/ScopedFactRead/PipelineStep proof with why-not reasons)
 - Parser Acceptance Harness (DONE — add.ig + availability_projection.ig → ParsedProgram, 61 specs)
 - Polymorphic Add Devkit Fixture (DONE — trait/impl/contract_shape pressure fixture, monomorphic SemanticIR specializations, no unresolved RuntimeMachine overloads)
 - FFI Ruby Contractable Proof (DONE — CapabilityGate + call discipline, 36 specs)
