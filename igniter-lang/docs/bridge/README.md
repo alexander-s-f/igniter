@@ -38,6 +38,7 @@ Codex]` can approve, redirect, or reject.
 | [operation-diagnostics-and-receipts-bridge-profile-v0.md](operation-diagnostics-and-receipts-bridge-profile-v0.md) | proposal | Generic metadata-only operation action diagnostics and receipt profiles before package work |
 | [lead-boundary-diagnostics-retention-bridge-profile-v0.md](lead-boundary-diagnostics-retention-bridge-profile-v0.md) | proposal | Metadata-only lead boundary diagnostics, rollup, Decimal, idempotency, and retention receipt profiles |
 | [model-validity-and-scenario-comparison-bridge-profile-v0.md](model-validity-and-scenario-comparison-bridge-profile-v0.md) | proposal | Metadata-only simulation run diagnostics, model validity, scenario comparison, assumption diff, and review-only strategy profiles |
+| [human-agent-review-approval-bridge-profile-v0.md](human-agent-review-approval-bridge-profile-v0.md) | proposal | Metadata-only human-agent proposal, review, meaning diff, correction, verification, and acceptance receipt profiles |
 
 ## Current Bridge Pressure
 
@@ -82,6 +83,11 @@ dry-run/execution receipts.
 model validity, scenario comparison, run diagnostics, assumption/parameter
 diffs, and review-only strategy candidates with explicit non-authorization
 semantics.
+
+[S] Human-agent review now has generic report-only profiles for proposal,
+review projection, meaning diff, human correction, runtime verification, and
+scoped acceptance, with agent prose explicitly excluded from artifact-of-record
+status.
 
 [Q] Should generic package diagnostics be named
 `ProjectionDiagnostic`/`PipelineDiagnostic`, or remain plain
