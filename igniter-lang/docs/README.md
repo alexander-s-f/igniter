@@ -1,127 +1,99 @@
-# Igniter-Lang — Stage 1 Working Surface
+# Igniter-Lang — Documentation
 
-Status: crystallized — Stage 1 focus
+Stage 1 status: **CLOSED** (2026-05-06) — [META-EXPERT-007](meta-proposals/META-EXPERT-007-stage1-close-governance-v0.md)
+Stage 2 status: pending governance opening (META-EXPERT-008 not yet written)
 Maintained by: `[Igniter-Lang Meta Expert]`
 Last updated: 2026-05-06
-
-> **This is the active working surface.** Full historical research is preserved in
-> `docs/archive/snapshots/2026-05-06-stage1-pre-crystallization/`.
 
 ---
 
 ## Navigation
 
 ```
-Language reference (compact)     → language-spec.md
-Formal design decisions          → proposals/README.md  (PROP-001..025)
-Stage 1 status + blockers        → current-status.md
-Strategic governance             → meta-proposals/README.md
-Historical research              → archive/snapshots/2026-05-06-stage1-pre-crystallization/
+Language reference             → language-spec.md
+Stage 1 spec (frozen)          → spec/  (ch1–ch9)
+Stage 1 scoreboard             → current-status.md
+Stage 2 active proposals       → proposals/README.md  (PROP-022..025, new from PROP-026)
+Accepted Stage 1 PROPs         → proposals/accepted/  (read-only)
+Governance                     → meta-proposals/README.md
+Stage 1 close snapshot         → archive/snapshots/2026-05-06-stage1-close/
+Pre-crystallization archive    → archive/snapshots/2026-05-06-stage1-pre-crystallization/
 ```
 
 ---
 
-## Where We Are Now (Stage 1)
+## Stage 1 — CLOSED
 
-Goal: `source.ig → parser → classifier → typechecker → SemanticIR → .igapp/ → RuntimeMachine trusted`
+Goal was: `source.ig → parser → classifier → typechecker → SemanticIR → .igapp/ → RuntimeMachine trusted`
 
 ```
-Pass               Status    Blocker / Next Action
-───────────────────────────────────────────────────────────────────
-Parser             ✅ partial   OOF rejection at parse time (gap)
-Classifier         ✅ PASS
-SemanticIR Emitter ✅ PASS      ⚠️ golden files need PROP-019.1 migration
-TypeChecker        🟡 next      PROP-021 authored; proof pending
-.igapp/ Assembler  🔴 BLOCKED   waiting on golden file migration (Slice 0)
-RuntimeMachine     ✅ proven    load/evaluate/checkpoint/resume
-Stdlib execution   🔴 pending   numeric.add, fold, map, filter not yet connected
-───────────────────────────────────────────────────────────────────
-STAGE 1 CLOSED:  NO
-Active blocker:  PROP-019.1 golden migration → Assembler unblocked
+Pass               Status      Experiment
+─────────────────────────────────────────────────────────────────────────────────
+Parser             ✅ partial  experiments/parser/ (61 specs; OOF parse gap — non-blocking)
+Classifier         ✅ PASS     experiments/classifier_pass_proof/
+SemanticIR Emitter ✅ PASS     experiments/source_to_semanticir_fixture/ --check-golden
+TypeChecker        ✅ PASS     experiments/typechecker_proof/ (incl. boundary fixture)
+.igapp/ Assembler  ✅ PASS     experiments/igapp_assembler_proof/ (A1-A6 + runtime eval)
+RuntimeMachine     ✅ proven   experiments/runtime_machine_memory_proof/
+Stdlib execution   ✅ PASS     experiments/stdlib_execution_kernel_stage1/
+─────────────────────────────────────────────────────────────────────────────────
+STAGE 1 CLOSED:   YES — CLOSE WITH DEFERRED GAP (2026-05-06)
+Close evidence:   experiments/stage1_close_candidate/stage1_close_candidate.json
+Deferred gaps:    Parser OOF hardening | production compiler pkg | runtime eval surface
 ```
 
-**Next 3 slices**:
-- **Slice 0**: Migrate golden files to PROP-019.1 shape `[Research Agent]`
-- **Slice A**: `igapp_assembler_proof` `[Research Agent]` ← blocked on Slice 0
-- **Slice B**: TypeChecker narrow proof `[Research Agent]` (parallel with Slice A)
+### Run the full Stage 1 proof suite
 
-See `current-status.md` for full scoreboard and migration gate criteria.
+```bash
+ruby igniter-lang/experiments/stage1_close_candidate/stage1_close_candidate.rb
+```
+
+### Run individual experiments
+
+```bash
+ruby igniter-lang/experiments/classifier_pass_proof/classifier_pass_proof.rb
+ruby igniter-lang/experiments/typechecker_proof/typechecker_proof.rb
+ruby igniter-lang/experiments/source_to_semanticir_fixture/source_to_semanticir_fixture.rb --check-golden
+ruby igniter-lang/experiments/igapp_assembler_proof/igapp_assembler_proof.rb
+ruby igniter-lang/experiments/stdlib_execution_kernel_stage1/stdlib_execution_kernel_stage1.rb
+```
 
 ---
 
-## Core Stage 1 Documents
+## Stage 2 — Not Yet Open
 
-### Canonical PROPs (Stage 1 pipeline)
+Stage 2 governance opens after META-EXPERT-008 is authored.
+
+Active intake baseline (authors of Stage 2 PROPs, start from PROP-026):
 
 | PROP | Topic |
 |------|-------|
-| [PROP-003](proposals/PROP-003-grammar-fragment-classification-v0.md) | CORE/ESCAPE/OOF classification |
-| [PROP-004](proposals/PROP-004-type-system-v0.md) | Type system v0 |
-| [PROP-013](proposals/PROP-013-stdlib-fold-aggregate-v0.md) | Stdlib: fold, map, filter, avg |
-| [PROP-014](proposals/PROP-014-source-syntax-semanticir-boundary-v0.md) | Source syntax → SemanticIR boundary |
-| [PROP-015](proposals/PROP-015-grammar-module-system-v0.md) | Module system + full BNF |
-| [PROP-016](proposals/PROP-016-polymorphism-traits-contract-shapes-v0.md) | Polymorphism, traits |
-| [PROP-018](proposals/PROP-018-source-to-semanticir-minimal-pipeline-v0.md) | Minimal pipeline proof plan |
-| [PROP-019.1](proposals/PROP-019.1-semanticir-envelope-errata-v0.md) | SemanticIR envelope (canonical, errata) |
-| [PROP-020](proposals/PROP-020-classifier-pass-v0-formalization.md) | Classifier pass |
-| [PROP-021](proposals/PROP-021-typechecker-pass-v0-formalization.md) | TypeChecker narrow |
+| [PROP-022](proposals/PROP-022-history-type-constructor-v0.md) | History[T] / BiHistory[T] |
+| [PROP-023](proposals/PROP-023-stream-input-surface-v0.md) | stream T / fold_stream |
+| [PROP-024](proposals/PROP-024-olap-point-primitive-v0.md) | OLAPPoint[T, Dims] |
+| [PROP-025](proposals/PROP-025-invariant-severity-levels-v0.md) | Invariant severity levels |
 
-### Active experiments
+Do not implement Stage 2 PROPs until META-EXPERT-008 is written and approved.
 
-```
-igniter-lang/experiments/parser/                       → Parser (61 specs)
-igniter-lang/experiments/classifier_pass_proof/        → Classifier PASS
-igniter-lang/experiments/source_to_semanticir_fixture/ → SemanticIR Emitter PASS ⚠️ migration needed
-igniter-lang/experiments/runtime_machine_memory_proof/ → RuntimeMachine load/eval PASS
-```
+---
 
-### Stage 1 governance
+## Governance
 
 | Document | Purpose |
 |----------|---------|
-| [current-status.md](current-status.md) | Scoreboard, blocker state, next slices |
-| [meta-proposals/META-EXPERT-003](meta-proposals/META-EXPERT-003-stage1-implementation-governance-v0.md) | Stage 1 policy |
-| [meta-proposals/META-EXPERT-004](meta-proposals/META-EXPERT-004-stage1-scoreboard-reconciliation-v0.md) | Scoreboard reconciliation |
-
----
-
-## Stage 2 Spec (authored, not yet implemented)
-
-These PROPs are formally authored and will be implemented after Stage 1 closes.
-Do not expand or implement during Stage 1.
-
-| PROP | Topic | Deferred reason |
-|------|-------|----------------|
-| [PROP-022](proposals/PROP-022-history-type-constructor-v0.md) | History[T] / BiHistory[T] | Stage 1 first |
-| [PROP-023](proposals/PROP-023-stream-input-surface-v0.md) | stream T / fold_stream | Stage 1 first |
-| [PROP-024](proposals/PROP-024-olap-point-primitive-v0.md) | OLAPPoint[T, Dims] | Stage 1 first |
-| [PROP-025](proposals/PROP-025-invariant-severity-levels-v0.md) | Invariant severity | Stage 1 first |
-
-Stage 3+ ideas: see [language-spec.md §12](language-spec.md) and
-[META-EXPERT-006](meta-proposals/META-EXPERT-006-language-model-revision-v0.md).
-
----
-
-## Verification Commands
-
-```bash
-# Parser
-ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/add.ig
-ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/availability_projection.ig
-
-# Classifier
-ruby igniter-lang/experiments/classifier_pass_proof/classifier_pass_proof.rb
-
-# SemanticIR Emitter (run after golden file migration)
-ruby igniter-lang/experiments/source_to_semanticir_fixture/source_to_semanticir_fixture.rb
-```
+| [current-status.md](current-status.md) | Scoreboard (Stage 1 closed state) |
+| [meta-proposals/META-EXPERT-007](meta-proposals/META-EXPERT-007-stage1-close-governance-v0.md) | Stage 1 close verdict |
+| [meta-proposals/META-EXPERT-007.1](meta-proposals/META-EXPERT-007.1-stage1-close-snapshot-plan-v0.md) | Post-close doc transition plan |
+| [meta-proposals/META-EXPERT-003](meta-proposals/META-EXPERT-003-stage1-implementation-governance-v0.md) | Stage 1 policy (historical) |
 
 ---
 
 ## Archive
 
-Historical research, tracks, pressure fixtures, bridge profiles from pre-crystallization:
+```
+docs/archive/snapshots/2026-05-06-stage1-close/
+  Full documentation state at Stage 1 close (proposals, spec, meta-proposals, status)
 
-→ `docs/archive/snapshots/2026-05-06-stage1-pre-crystallization/`
-
-Contains: 131 files (87 tracks, 25 proposals, 15 bridge, 7 meta-proposals, full current-status).
+docs/archive/snapshots/2026-05-06-stage1-pre-crystallization/
+  Pre-crystallization research archive (131 files: tracks, proposals, bridge, meta-proposals)
+```
