@@ -116,15 +116,13 @@ module IgappAssemblerProof
       contracts = semantic_ir.fetch("contracts").map { |contract| contract_file(contract) }
       contract_ids = contracts.map { |contract| contract.fetch("contract_id") }.sort
       fragment_class = contracts.map { |contract| contract.fetch("fragment_class") }.uniq == ["core"] ? "core" : "mixed"
-      compatibility_semantic_ir = compatibility_semantic_ir(report, semantic_ir, contracts)
-      requirements = requirements_for(compatibility_semantic_ir)
+      requirements = requirements_for
       classified_ast = classified_ast_for(report, semantic_ir, contract_ids, fragment_class)
       diagnostics = { "diagnostics" => report.fetch("diagnostics") }
       compatibility_metadata = compatibility_metadata_for(report, semantic_ir)
 
       artifact_material = {
         "semantic_ir_program" => semantic_ir,
-        "compatibility_semantic_ir" => compatibility_semantic_ir,
         "contracts" => contracts,
         "compilation_report" => report,
         "requirements" => requirements,
@@ -134,7 +132,6 @@ module IgappAssemblerProof
       }
       artifact_hash = Canonical.hash(artifact_material)
       contracts = contracts.map { |contract| contract.merge("artifact_hash" => artifact_hash) }
-      compatibility_semantic_ir = compatibility_semantic_ir.merge("artifact_hash" => artifact_hash)
 
       manifest = {
         "kind" => "igapp_manifest",
@@ -165,7 +162,6 @@ module IgappAssemblerProof
         "case" => case_name,
         "manifest" => manifest,
         "semantic_ir_program" => semantic_ir,
-        "semantic_ir" => compatibility_semantic_ir,
         "contracts" => contracts,
         "compilation_report" => report,
         "requirements" => requirements,
@@ -173,63 +169,6 @@ module IgappAssemblerProof
         "classified_ast" => classified_ast,
         "projections" => { "projections" => [] },
         "compatibility_metadata" => compatibility_metadata
-      }
-    end
-
-    def compatibility_semantic_ir(report, semantic_ir, contracts)
-      contract_summaries = contracts.map do |contract|
-        {
-          "contract_id" => contract.fetch("contract_id"),
-          "name" => contract.fetch("name"),
-          "fragment_class" => contract.fetch("fragment_class"),
-          "escape_set" => contract.fetch("escape_set"),
-          "input_ports" => contract.fetch("input_ports").map { |port| "#{port.fetch("name")}:#{port.fetch("type_tag")}" },
-          "output_ports" => contract.fetch("output_ports").map { |port| "#{port.fetch("name")}:#{port.fetch("type_tag")}" },
-          "compute_nodes" => contract.fetch("compute_nodes").map { |node| node.fetch("node_id") },
-          "lifecycle" => contract.fetch("lifecycle")
-        }
-      end
-
-      {
-        "program_id" => semantic_ir.fetch("program_id"),
-        "axiom_version" => "1.0.0",
-        "grammar_version" => semantic_ir.fetch("grammar_version"),
-        "source_hash" => semantic_ir.fetch("source_hash"),
-        "semantic_ir_ref" => report.fetch("semantic_ir_ref"),
-        "compilation_report_ref" => semantic_ir.fetch("compilation_report_ref"),
-        "contracts" => contract_summaries,
-        "dependency_graph" => dependency_graph(contracts),
-        "evaluation_targets" => contracts.flat_map do |contract|
-          contract.fetch("output_ports").map do |port|
-            {
-              "name" => port.fetch("name"),
-              "contract_id" => contract.fetch("contract_id"),
-              "output_ports" => [port.fetch("name")],
-              "as_projection" => nil
-            }
-          end
-        end,
-        "temporal_requirements" => {
-          "requires_as_of" => true,
-          "requires_replay" => false,
-          "requires_snapshot" => false,
-          "min_consistency" => "strong",
-          "windows" => [],
-          "slices" => []
-        },
-        "lifecycle_requirements" => {
-          "min_lifecycle" => "local",
-          "has_audit" => false,
-          "has_window" => false
-        },
-        "capability_requirements" => {
-          "required_caps" => [],
-          "effect_kinds" => []
-        },
-        "effect_declarations" => [],
-        "ffi_requirements" => [],
-        "projection_descriptors" => [],
-        "boundary_descriptors" => []
       }
     end
 
@@ -312,30 +251,25 @@ module IgappAssemblerProof
       "#{type.fetch("name")}[#{params.map { |param| type_name(param) }.join(",")}]"
     end
 
-    def dependency_graph(contracts)
-      nodes = []
-      edges = []
-      contracts.each do |contract|
-        contract.fetch("input_ports").each { |port| nodes << "input:#{port.fetch("name")}" }
-        contract.fetch("compute_nodes").each do |node|
-          nodes << node.fetch("node_id")
-          node.fetch("dependencies").each do |dep|
-            edges << { "from" => dep, "to" => node.fetch("node_id"), "kind" => "data" }
-          end
-        end
-        contract.fetch("output_ports").each do |port|
-          nodes << "output:#{port.fetch("name")}"
-          edges << { "from" => "node_#{port.fetch("name")}", "to" => "output:#{port.fetch("name")}", "kind" => "data" }
-        end
-      end
-      { "nodes" => nodes.uniq.sort, "edges" => edges.sort_by { |edge| [edge.fetch("from"), edge.fetch("to")] } }
-    end
-
-    def requirements_for(semantic_ir)
+    def requirements_for
       {
-        "temporal" => semantic_ir.fetch("temporal_requirements"),
-        "lifecycle" => semantic_ir.fetch("lifecycle_requirements"),
-        "capabilities" => semantic_ir.fetch("capability_requirements"),
+        "temporal" => {
+          "requires_as_of" => true,
+          "requires_replay" => false,
+          "requires_snapshot" => false,
+          "min_consistency" => "strong",
+          "windows" => [],
+          "slices" => []
+        },
+        "lifecycle" => {
+          "min_lifecycle" => "local",
+          "has_audit" => false,
+          "has_window" => false
+        },
+        "capabilities" => {
+          "required_caps" => [],
+          "effect_kinds" => []
+        },
         "effects" => [],
         "ffi" => [],
         "required_tbackend_caps" => {
@@ -373,12 +307,12 @@ module IgappAssemblerProof
         "format_version" => "0.1.0",
         "canonical_semantic_ir_ref" => semantic_ir.fetch("program_id"),
         "compilation_report_ref" => report.fetch("program_id"),
-        "loader_shape" => "runtime_machine_memory_proof.compat_v0",
+        "loader_shape" => "runtime_machine_memory_proof.prop0191_direct_v0",
         "canonical_artifact" => "semantic_ir_program.json",
-        "runtime_compatibility_artifact" => "semantic_ir.json",
+        "runtime_compatibility_artifact" => nil,
         "notes" => [
           "semantic_ir_program.json preserves PROP-019.1 envelope",
-          "semantic_ir.json is a compatibility view for the existing proof RuntimeMachine loader"
+          "RuntimeMachine proof loader reads semantic_ir_program.json directly"
         ]
       }
     end
@@ -390,7 +324,6 @@ module IgappAssemblerProof
 
       write_json(target / "manifest.json", artifact.fetch("manifest"))
       write_json(target / "semantic_ir_program.json", artifact.fetch("semantic_ir_program"))
-      write_json(target / "semantic_ir.json", artifact.fetch("semantic_ir"))
       write_json(target / "compilation_report.json", artifact.fetch("compilation_report"))
       write_json(target / "requirements.json", artifact.fetch("requirements"))
       write_json(target / "diagnostics.json", artifact.fetch("diagnostics"))
@@ -451,6 +384,8 @@ module IgappAssemblerProof
 
       {
         "load_status" => load.fetch(:status),
+        "loaded_semantic_ir_program" => !program.semantic_ir_program.nil?,
+        "legacy_semantic_ir_json_present" => File.exist?(File.join(path, "semantic_ir.json")),
         "evaluate_status" => eval.fetch(:status),
         "sum" => eval.fetch(:outputs).fetch("sum"),
         "checkpoint_status" => checkpoint.fetch(:status),
@@ -515,6 +450,8 @@ module IgappAssemblerProof
         check("assembler.negative.evidence_less_alert_refused", refused?(negative, "negative_evidence_less_alert")),
         check("assembler.negative.confidence_bool_refused", refused?(negative, "negative_confidence_bool")),
         check("assembler.deterministic_output", deterministic),
+        check("assembler.no_legacy_semantic_ir_json", positive.all? { |item| !item.fetch("files").include?("semantic_ir.json") }),
+        check("runtime.load_direct_prop0191", runtime.fetch("loaded_semantic_ir_program") == true && runtime.fetch("legacy_semantic_ir_json_present") == false),
         check("runtime.load_assembled_add", runtime.fetch("load_status") == "loaded"),
         check("runtime.evaluate_assembled_add", runtime.fetch("sum", nil) == 42),
         check("runtime.compatibility_report_trusted", runtime.fetch("compatibility_report_status", nil) == "trusted")

@@ -1,0 +1,552 @@
+{
+  "kind": "stage1_close_candidate",
+  "format_version": "0.1.0",
+  "track": "stage1-close-candidate-proof-v0",
+  "status": "PASS",
+  "stage_order": [
+    "classifier",
+    "typechecker",
+    "semanticir",
+    "stdlib_kernel",
+    "igapp_assembler"
+  ],
+  "stages": [
+    {
+      "id": "classifier",
+      "label": "Classifier proof",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/classifier_pass_proof/classifier_pass_proof.rb",
+        "--check-golden"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "classified.add",
+          "status": "PASS"
+        },
+        {
+          "name": "classified.claim_evidence",
+          "status": "PASS"
+        },
+        {
+          "name": "classified.evidence_linked_alert",
+          "status": "PASS"
+        },
+        {
+          "name": "core.add_propagates",
+          "status": "PASS"
+        },
+        {
+          "name": "core.claim_evidence_propagates",
+          "status": "PASS"
+        },
+        {
+          "name": "core.evidence_linked_alert_propagates",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.unresolved_symbol",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.evidence_less_alert",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.confidence_bool",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.not_emitted",
+          "status": "PASS"
+        },
+        {
+          "name": "golden.classified_outputs",
+          "status": "PASS"
+        },
+        {
+          "name": "check.golden_classified_equal",
+          "status": "PASS"
+        },
+        {
+          "name": "check.canonical_classified_all",
+          "status": "PASS"
+        },
+        {
+          "name": "check.deterministic_generation",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "classified.add: ok",
+        "classified.claim_evidence: ok",
+        "classified.evidence_linked_alert: ok",
+        "core.add_propagates: ok",
+        "core.claim_evidence_propagates: ok",
+        "core.evidence_linked_alert_propagates: ok",
+        "negative.unresolved_symbol: ok",
+        "negative.evidence_less_alert: ok",
+        "negative.confidence_bool: ok",
+        "semanticir.not_emitted: ok",
+        "golden.classified_outputs: ok",
+        "check.golden_classified_equal: ok",
+        "check.canonical_classified_all: ok",
+        "check.deterministic_generation: ok",
+        "golden.dir: igniter-lang/experiments/classifier_pass_proof/golden",
+        "PASS classifier_pass_golden_check"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "typechecker",
+      "label": "TypeChecker boundary proof",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/typechecker_proof/typechecker_proof.rb",
+        "--check-golden"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "typed.add",
+          "status": "PASS"
+        },
+        {
+          "name": "typed.claim_evidence",
+          "status": "PASS"
+        },
+        {
+          "name": "typed.evidence_linked_alert",
+          "status": "PASS"
+        },
+        {
+          "name": "typed.accepted_no_unresolved_types",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.unresolved_symbol_blocked",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.evidence_less_alert_blocked",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.confidence_bool_blocked",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.not_emitted",
+          "status": "PASS"
+        },
+        {
+          "name": "boundary.classified_inputs_present",
+          "status": "PASS"
+        },
+        {
+          "name": "boundary.classified_program_input_only",
+          "status": "PASS"
+        },
+        {
+          "name": "golden.typed_outputs",
+          "status": "PASS"
+        },
+        {
+          "name": "check.golden_typed_equal",
+          "status": "PASS"
+        },
+        {
+          "name": "check.canonical_typed_all",
+          "status": "PASS"
+        },
+        {
+          "name": "check.deterministic_generation",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "typed.add: ok",
+        "typed.claim_evidence: ok",
+        "typed.evidence_linked_alert: ok",
+        "typed.accepted_no_unresolved_types: ok",
+        "negative.unresolved_symbol_blocked: ok",
+        "negative.evidence_less_alert_blocked: ok",
+        "negative.confidence_bool_blocked: ok",
+        "semanticir.not_emitted: ok",
+        "boundary.classified_inputs_present: ok",
+        "boundary.classified_program_input_only: ok",
+        "golden.typed_outputs: ok",
+        "check.golden_typed_equal: ok",
+        "check.canonical_typed_all: ok",
+        "check.deterministic_generation: ok",
+        "classified.dir: igniter-lang/experiments/typechecker_proof/classified",
+        "golden.dir: igniter-lang/experiments/typechecker_proof/golden",
+        "PASS typechecker_golden_check"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "semanticir",
+      "label": "SemanticIR fixture proof",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/source_to_semanticir_fixture/source_to_semanticir_fixture.rb",
+        "--check-golden"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "parse.add",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.envelope.add",
+          "status": "PASS"
+        },
+        {
+          "name": "report.add",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.add",
+          "status": "PASS"
+        },
+        {
+          "name": "parse.claim_evidence",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.envelope.claim_evidence",
+          "status": "PASS"
+        },
+        {
+          "name": "report.claim_evidence",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.claim_evidence",
+          "status": "PASS"
+        },
+        {
+          "name": "parse.evidence_linked_alert",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.envelope.evidence_linked_alert",
+          "status": "PASS"
+        },
+        {
+          "name": "report.evidence_linked_alert",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.evidence_linked_alert",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.unresolved_symbol",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.evidence_less_alert",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.confidence_bool",
+          "status": "PASS"
+        },
+        {
+          "name": "stdlib.monomorphic_ops",
+          "status": "PASS"
+        },
+        {
+          "name": "golden.ast_outputs",
+          "status": "PASS"
+        },
+        {
+          "name": "golden.semanticir_outputs",
+          "status": "PASS"
+        },
+        {
+          "name": "golden.compilation_report_outputs",
+          "status": "PASS"
+        },
+        {
+          "name": "check.golden_semanticir_equal",
+          "status": "PASS"
+        },
+        {
+          "name": "check.golden_compilation_report_equal",
+          "status": "PASS"
+        },
+        {
+          "name": "check.golden_ast_equal",
+          "status": "PASS"
+        },
+        {
+          "name": "check.summary_equal",
+          "status": "PASS"
+        },
+        {
+          "name": "check.canonical_all",
+          "status": "PASS"
+        },
+        {
+          "name": "check.compilation_reports_all",
+          "status": "PASS"
+        },
+        {
+          "name": "check.negative_semanticir_absent",
+          "status": "PASS"
+        },
+        {
+          "name": "check.deterministic_generation",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "parse.add: ok",
+        "semanticir.envelope.add: ok",
+        "report.add: ok",
+        "semanticir.add: ok",
+        "parse.claim_evidence: ok",
+        "semanticir.envelope.claim_evidence: ok",
+        "report.claim_evidence: ok",
+        "semanticir.claim_evidence: ok",
+        "parse.evidence_linked_alert: ok",
+        "semanticir.envelope.evidence_linked_alert: ok",
+        "report.evidence_linked_alert: ok",
+        "semanticir.evidence_linked_alert: ok",
+        "negative.unresolved_symbol: ok",
+        "negative.evidence_less_alert: ok",
+        "negative.confidence_bool: ok",
+        "stdlib.monomorphic_ops: ok",
+        "golden.ast_outputs: ok",
+        "golden.semanticir_outputs: ok",
+        "golden.compilation_report_outputs: ok",
+        "check.golden_semanticir_equal: ok",
+        "check.golden_compilation_report_equal: ok",
+        "check.golden_ast_equal: ok",
+        "check.summary_equal: ok",
+        "check.canonical_all: ok",
+        "check.compilation_reports_all: ok",
+        "check.negative_semanticir_absent: ok",
+        "check.deterministic_generation: ok",
+        "golden.dir: igniter-lang/experiments/source_to_semanticir_fixture/golden",
+        "PASS source_to_semanticir_fixture_golden_check"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "stdlib_kernel",
+      "label": "Stdlib execution kernel proof",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/stdlib_execution_kernel_stage1/stdlib_execution_kernel_stage1.rb"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "kernel.integer_add",
+          "status": "PASS"
+        },
+        {
+          "name": "kernel.float_add",
+          "status": "PASS"
+        },
+        {
+          "name": "kernel.decimal_add_exact",
+          "status": "PASS"
+        },
+        {
+          "name": "kernel.fold",
+          "status": "PASS"
+        },
+        {
+          "name": "kernel.map",
+          "status": "PASS"
+        },
+        {
+          "name": "kernel.filter",
+          "status": "PASS"
+        },
+        {
+          "name": "kernel.count",
+          "status": "PASS"
+        },
+        {
+          "name": "kernel.or_else_some",
+          "status": "PASS"
+        },
+        {
+          "name": "kernel.or_else_none",
+          "status": "PASS"
+        },
+        {
+          "name": "kernel.numeric_add_rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.add_igapp_style_integer_add",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.add_igapp_style_rejects_numeric_add",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "kernel.integer_add: ok",
+        "kernel.float_add: ok",
+        "kernel.decimal_add_exact: ok",
+        "kernel.fold: ok",
+        "kernel.map: ok",
+        "kernel.filter: ok",
+        "kernel.count: ok",
+        "kernel.or_else_some: ok",
+        "kernel.or_else_none: ok",
+        "kernel.numeric_add_rejected: ok",
+        "runtime.add_igapp_style_integer_add: ok",
+        "runtime.add_igapp_style_rejects_numeric_add: ok",
+        "{",
+        "  \"proof\": \"stdlib-execution-kernel-stage1-v0\",",
+        "  \"status\": \"PASS\",",
+        "  \"runtime_operator_boundary\": {",
+        "    \"pre_resolution\": [",
+        "      \"stdlib.numeric.add\"",
+        "    ],",
+        "    \"executable\": [",
+        "      \"stdlib.integer.add\",",
+        "      \"stdlib.float.add\",",
+        "      \"stdlib.decimal.add\"",
+        "    ]",
+        "  },",
+        "  \"stage2_deferred\": [",
+        "    \"History[T]\",",
+        "    \"stream T\",",
+        "    \"OLAPPoint[T, Dims]\"",
+        "  ]",
+        "}"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "igapp_assembler",
+      "label": ".igapp assembler and direct runtime loader proof",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/igapp_assembler_proof/igapp_assembler_proof.rb"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "assembler.positive.add",
+          "status": "PASS"
+        },
+        {
+          "name": "assembler.positive.claim_evidence",
+          "status": "PASS"
+        },
+        {
+          "name": "assembler.positive.evidence_linked_alert",
+          "status": "PASS"
+        },
+        {
+          "name": "assembler.negative.unresolved_symbol_refused",
+          "status": "PASS"
+        },
+        {
+          "name": "assembler.negative.evidence_less_alert_refused",
+          "status": "PASS"
+        },
+        {
+          "name": "assembler.negative.confidence_bool_refused",
+          "status": "PASS"
+        },
+        {
+          "name": "assembler.deterministic_output",
+          "status": "PASS"
+        },
+        {
+          "name": "assembler.no_legacy_semantic_ir_json",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.load_direct_prop0191",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.load_assembled_add",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.evaluate_assembled_add",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.compatibility_report_trusted",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "PASS igapp_assembler_proof",
+        "assembler.positive.add: ok",
+        "assembler.positive.claim_evidence: ok",
+        "assembler.positive.evidence_linked_alert: ok",
+        "assembler.negative.unresolved_symbol_refused: ok",
+        "assembler.negative.evidence_less_alert_refused: ok",
+        "assembler.negative.confidence_bool_refused: ok",
+        "assembler.deterministic_output: ok",
+        "assembler.no_legacy_semantic_ir_json: ok",
+        "runtime.load_direct_prop0191: ok",
+        "runtime.load_assembled_add: ok",
+        "runtime.evaluate_assembled_add: ok",
+        "runtime.compatibility_report_trusted: ok",
+        "runtime.load_status: loaded",
+        "runtime.compatibility_report_status: trusted",
+        "out: experiments/igapp_assembler_proof/out"
+      ],
+      "stderr": []
+    }
+  ],
+  "remaining_known_gaps": [
+    {
+      "id": "parser_oof_rejection_gap",
+      "status": "open",
+      "summary": "Parser OOF rejection is not fully hardened; OOF is currently caught by classifier/typechecker proofs."
+    },
+    {
+      "id": "production_compiler_assembly",
+      "status": "open",
+      "summary": "Assembler and RuntimeMachine loading are proof-local experiments, not a production compiler package."
+    },
+    {
+      "id": "runtime_eval_surface",
+      "status": "open",
+      "summary": "Assembled Add evaluates end-to-end; non-add Stage 1 fixtures still need direct runtime eval support for field_access, integer.gt, and bool.and."
+    }
+  ],
+  "closed_candidate_signals": [
+    {
+      "id": "direct_prop0191_runtime_loader",
+      "status": "closed_in_proof",
+      "summary": "igapp_assembler_proof reports runtime.load_direct_prop0191: ok and no legacy semantic_ir.json output."
+    },
+    {
+      "id": "typechecker_self_contained_boundary",
+      "status": "closed_in_proof",
+      "summary": "typechecker_proof reads its own ClassifiedProgram fixture directory by default."
+    },
+    {
+      "id": "stdlib_stage1_kernel",
+      "status": "closed_in_proof",
+      "summary": "Stage 1 stdlib kernel proof covers monomorphic add plus bounded collection/option operators."
+    }
+  ]
+}

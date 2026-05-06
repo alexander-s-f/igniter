@@ -29,6 +29,14 @@
       "ok": true
     },
     {
+      "name": "assembler.no_legacy_semantic_ir_json",
+      "ok": true
+    },
+    {
+      "name": "runtime.load_direct_prop0191",
+      "ok": true
+    },
+    {
       "name": "runtime.load_assembled_add",
       "ok": true
     },
@@ -67,7 +75,7 @@
   ],
   "positive": [
     {
-      "artifact_hash": "sha256:8f86f769e6fa3e76ae267f71ce54493198a7794590e10a78554c251f0e072a42",
+      "artifact_hash": "sha256:6963987bf8692e3d3e68eca5df688d680efb1694dd5bf8d5217b310cc5957b6b",
       "case": "add",
       "compilation_report_ref": "compilation_report/e9664d5446df4e46",
       "contracts": [
@@ -82,7 +90,6 @@
         "manifest.json",
         "projections.json",
         "requirements.json",
-        "semantic_ir.json",
         "semantic_ir_program.json"
       ],
       "igapp_dir": "experiments/igapp_assembler_proof/out/add.igapp",
@@ -91,7 +98,7 @@
       "status": "assembled"
     },
     {
-      "artifact_hash": "sha256:c85dcd02ef05fedde91e23161821be7970fda0bd6ce876c72db70b76e8fc8403",
+      "artifact_hash": "sha256:df6368fb63309f8486c3a9a2289a6b7d852465240293afa3ccd710fb3f48b652",
       "case": "claim_evidence",
       "compilation_report_ref": "compilation_report/3996d52ebb40381b",
       "contracts": [
@@ -106,7 +113,6 @@
         "manifest.json",
         "projections.json",
         "requirements.json",
-        "semantic_ir.json",
         "semantic_ir_program.json"
       ],
       "igapp_dir": "experiments/igapp_assembler_proof/out/claim_evidence.igapp",
@@ -115,7 +121,7 @@
       "status": "assembled"
     },
     {
-      "artifact_hash": "sha256:5b02b916763639d8f9cf3b25cd1221f2243f0b90f55d93a3ac81a5b0dbc2d333",
+      "artifact_hash": "sha256:0d9f88192ce79d3a7565471259619c73e709d2b6c644ff620168ba13d342ac6c",
       "case": "evidence_linked_alert",
       "compilation_report_ref": "compilation_report/37008b8855a287cc",
       "contracts": [
@@ -130,7 +136,6 @@
         "manifest.json",
         "projections.json",
         "requirements.json",
-        "semantic_ir.json",
         "semantic_ir_program.json"
       ],
       "igapp_dir": "experiments/igapp_assembler_proof/out/evidence_linked_alert.igapp",
@@ -144,7 +149,9 @@
     "checkpoint_status": "ok",
     "compatibility_report_status": "trusted",
     "evaluate_status": "ok",
+    "legacy_semantic_ir_json_present": false,
     "load_status": "loaded",
+    "loaded_semantic_ir_program": true,
     "schema_decision": "trusted",
     "sum": 42
   },

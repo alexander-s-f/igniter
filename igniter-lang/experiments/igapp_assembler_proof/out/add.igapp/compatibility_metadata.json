@@ -4,10 +4,10 @@
   "compilation_report_ref": "compilation_report/e9664d5446df4e46",
   "format_version": "0.1.0",
   "kind": "igapp_compatibility_metadata",
-  "loader_shape": "runtime_machine_memory_proof.compat_v0",
+  "loader_shape": "runtime_machine_memory_proof.prop0191_direct_v0",
   "notes": [
     "semantic_ir_program.json preserves PROP-019.1 envelope",
-    "semantic_ir.json is a compatibility view for the existing proof RuntimeMachine loader"
+    "RuntimeMachine proof loader reads semantic_ir_program.json directly"
   ],
-  "runtime_compatibility_artifact": "semantic_ir.json"
+  "runtime_compatibility_artifact": null
 }

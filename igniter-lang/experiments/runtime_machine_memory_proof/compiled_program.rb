@@ -16,7 +16,7 @@ require_relative "../runtime_machine_memory_proof/runtime_machine_memory_proof"
 module RuntimeMachineMemoryProof
   class CompiledProgram
     attr_reader :program_id, :artifact_hash, :language_version, :format
-    attr_reader :manifest, :specialization_manifest
+    attr_reader :manifest, :compilation_report, :semantic_ir_program, :specialization_manifest
     attr_reader :contracts, :semantic_ir, :classified_ast
     attr_reader :requirements, :diagnostics, :schema_descriptor
 
@@ -25,7 +25,9 @@ module RuntimeMachineMemoryProof
       raise ArgumentError, "Not a directory: #{path}" unless dir.directory?
 
       manifest        = load_json(dir / "manifest.json")
-      semantic_ir     = load_json(dir / "semantic_ir.json")
+      compilation_report = load_json_if_present(dir / "compilation_report.json")
+      semantic_ir_program = load_json_if_present(dir / "semantic_ir_program.json")
+      semantic_ir     = semantic_ir_program ? nil : load_json(dir / "semantic_ir.json")
       classified_ast  = load_json(dir / "classified_ast.json")
       requirements    = load_json(dir / "requirements.json")
       diagnostics     = load_json(dir / "diagnostics.json")
@@ -44,6 +46,8 @@ module RuntimeMachineMemoryProof
 
       new(
         manifest:       manifest,
+        compilation_report: compilation_report,
+        semantic_ir_program: semantic_ir_program,
         semantic_ir:    semantic_ir,
         classified_ast: classified_ast,
         requirements:   requirements,
@@ -59,19 +63,28 @@ module RuntimeMachineMemoryProof
       raise ArgumentError, "Failed to load #{path}: #{e.message}"
     end
 
+    def self.load_json_if_present(path)
+      return nil unless path.exist?
+
+      load_json(path)
+    end
+
     def initialize(manifest:, semantic_ir:, classified_ast:, requirements:, diagnostics:, contracts:,
+                   compilation_report: nil, semantic_ir_program: nil,
                    specialization_manifest: nil)
       @manifest         = manifest
       @program_id       = manifest.fetch("program_id")
       @artifact_hash    = manifest.fetch("artifact_hash")
       @language_version = manifest.fetch("language_version")
       @format           = manifest.fetch("format")
+      @compilation_report = compilation_report
+      @semantic_ir_program = semantic_ir_program
       @specialization_manifest = specialization_manifest
-      @semantic_ir      = semantic_ir
       @classified_ast   = classified_ast
       @requirements     = requirements
       @diagnostics      = diagnostics
       @contracts        = contracts
+      @semantic_ir      = semantic_ir || build_semantic_ir_summary(semantic_ir_program, contracts)
 
       # PROP-017: schema descriptor — built from manifest + contracts
       @schema_descriptor = build_schema_descriptor(manifest)
@@ -117,6 +130,7 @@ module RuntimeMachineMemoryProof
       errors = []
       errors << "diagnostics is non-empty: #{diagnostics["diagnostics"]}" unless diagnostics.fetch("diagnostics", []).empty?
       errors << "oof_count > 0" if oof_count > 0
+      validate_prop0191_artifacts(errors)
       validate_manifest_contracts(errors)
       validate_specialization_manifest(errors)
       validate_metadata_only_templates(errors)
@@ -168,6 +182,68 @@ module RuntimeMachineMemoryProof
     end
 
     private
+
+    def build_semantic_ir_summary(program, contracts)
+      return nil unless program
+
+      {
+        "program_id" => program.fetch("program_id"),
+        "axiom_version" => "1.0.0",
+        "grammar_version" => program.fetch("grammar_version"),
+        "source_hash" => program.fetch("source_hash"),
+        "semantic_ir_ref" => program.fetch("program_id"),
+        "compilation_report_ref" => program.fetch("compilation_report_ref"),
+        "contracts" => contracts.values.map do |contract|
+          {
+            "contract_id" => contract.fetch("contract_id"),
+            "name" => contract.fetch("name"),
+            "fragment_class" => contract.fetch("fragment_class"),
+            "escape_set" => contract.fetch("escape_set", []),
+            "input_ports" => contract.fetch("input_ports", []).map { |port| "#{port.fetch("name")}:#{port.fetch("type_tag")}" },
+            "output_ports" => contract.fetch("output_ports", []).map { |port| "#{port.fetch("name")}:#{port.fetch("type_tag")}" },
+            "compute_nodes" => contract.fetch("compute_nodes", []).map { |node| node.fetch("node_id") },
+            "lifecycle" => contract.fetch("lifecycle")
+          }
+        end.sort_by { |contract| contract.fetch("contract_id") },
+        "dependency_graph" => dependency_graph_from_contracts(contracts),
+        "evaluation_targets" => contracts.values.flat_map do |contract|
+          contract.fetch("output_ports", []).map do |port|
+            {
+              "name" => port.fetch("name"),
+              "contract_id" => contract.fetch("contract_id"),
+              "output_ports" => [port.fetch("name")],
+              "as_projection" => nil
+            }
+          end
+        end,
+        "temporal_requirements" => requirements.fetch("temporal", {}),
+        "lifecycle_requirements" => requirements.fetch("lifecycle", {}),
+        "capability_requirements" => requirements.fetch("capabilities", {}),
+        "effect_declarations" => requirements.fetch("effects", []),
+        "ffi_requirements" => requirements.fetch("ffi", []),
+        "projection_descriptors" => [],
+        "boundary_descriptors" => []
+      }
+    end
+
+    def dependency_graph_from_contracts(contracts)
+      nodes = []
+      edges = []
+      contracts.values.each do |contract|
+        contract.fetch("input_ports", []).each { |port| nodes << "input:#{port.fetch("name")}" }
+        contract.fetch("compute_nodes", []).each do |node|
+          nodes << node.fetch("node_id")
+          node.fetch("dependencies", []).each do |dep|
+            edges << { "from" => dep, "to" => node.fetch("node_id"), "kind" => "data" }
+          end
+        end
+        contract.fetch("output_ports", []).each do |port|
+          nodes << "output:#{port.fetch("name")}"
+          edges << { "from" => "node_#{port.fetch("name")}", "to" => "output:#{port.fetch("name")}", "kind" => "data" }
+        end
+      end
+      { "nodes" => nodes.uniq.sort, "edges" => edges.sort_by { |edge| [edge.fetch("from"), edge.fetch("to")] } }
+    end
 
     # PROP-017: Build schema descriptor from manifest + loaded contracts.
     # schema_fingerprint covers ONLY the observable surface (ports + type_env + trait_bounds).
@@ -292,6 +368,29 @@ module RuntimeMachineMemoryProof
       errors << "semantic_ir.contracts does not match contract files"
     end
 
+    def validate_prop0191_artifacts(errors)
+      return unless semantic_ir_program
+
+      errors << "compilation_report.json missing for PROP-019.1 artifact" unless compilation_report
+      errors << "semantic_ir_program.kind is not semantic_ir_program" unless semantic_ir_program.fetch("kind", nil) == "semantic_ir_program"
+      errors << "manifest.semantic_ir_ref does not match semantic_ir_program.program_id" unless manifest.fetch("semantic_ir_ref", nil) == semantic_ir_program.fetch("program_id")
+      errors << "manifest.compilation_report_ref does not match semantic_ir_program.compilation_report_ref" unless manifest.fetch("compilation_report_ref", nil) == semantic_ir_program.fetch("compilation_report_ref")
+
+      if compilation_report
+        errors << "compilation_report.pass_result is not ok" unless compilation_report.fetch("pass_result", nil) == "ok"
+        errors << "compilation_report.semantic_ir_ref does not match semantic_ir_program.program_id" unless compilation_report.fetch("semantic_ir_ref", nil) == semantic_ir_program.fetch("program_id")
+        errors << "semantic_ir_program.compilation_report_ref does not match compilation_report.program_id" unless semantic_ir_program.fetch("compilation_report_ref") == compilation_report.fetch("program_id")
+      end
+
+      semantic_contract_ids = semantic_ir_program.fetch("contracts", []).map { |contract| contract.fetch("contract_name") }.sort
+      contract_ids = contracts.keys.sort
+      errors << "semantic_ir_program.contracts does not match contract files" unless semantic_contract_ids == contract_ids
+
+      if semantic_ir_program.fetch("contracts", []).any? { |contract| contract.fetch("fragment_class", nil) == "oof" }
+        errors << "semantic_ir_program contains OOF contract"
+      end
+    end
+
     def validate_specialization_manifest(errors)
       return unless manifest.key?("specialization_manifest_ref")
 
@@ -335,6 +434,16 @@ module RuntimeMachineMemoryProof
   class RuntimeMachine
     def load_program(program)
       return failure("runtime.invalid_transition", "load requires booted machine") unless %w[booted loaded].include?(@state)
+
+      begin
+        program.validate! if program.respond_to?(:validate!)
+      rescue => e
+        return failure(
+          "runtime.load_validation_failed",
+          "load artifact validation failed",
+          context: { error: "#{e.class}: #{e.message}" }
+        )
+      end
 
       # Validate requirements against backend
       caps = @backend.describe.fetch(:capabilities)
