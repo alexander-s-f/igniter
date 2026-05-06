@@ -9,6 +9,7 @@ module Igniter
                   :descriptors,
                   :metadata,
                   :metadata_manifest,
+                  :diagnostic_payloads,
                   :schema_compatibility_diagnostics
 
       def self.from_compilation_report(report)
@@ -30,13 +31,21 @@ module Igniter
         )
       end
 
-      def initialize(profile_fingerprint:, operations:, findings: [], metadata: {}, schema_compatibility_diagnostics: [])
+      def initialize(
+        profile_fingerprint:,
+        operations:,
+        findings: [],
+        metadata: {},
+        diagnostic_payloads: [],
+        schema_compatibility_diagnostics: []
+      )
         @profile_fingerprint = profile_fingerprint
         @operations = operations.freeze
         @findings = findings.freeze
         @metadata = metadata.transform_keys(&:to_sym).freeze
         @metadata_manifest = MetadataManifest.from_operations(operations)
         @descriptors = metadata_manifest.descriptors
+        @diagnostic_payloads = normalize_diagnostic_payloads(diagnostic_payloads)
         @schema_compatibility_diagnostics = normalize_schema_compatibility_diagnostics(
           schema_compatibility_diagnostics
         )
@@ -57,6 +66,7 @@ module Igniter
           profile_fingerprint: profile_fingerprint,
           descriptors: descriptors,
           metadata_manifest: metadata_manifest.to_h,
+          diagnostic_payloads: diagnostic_payloads.map(&:to_h),
           schema_compatibility_diagnostics: schema_compatibility_diagnostics.map(&:to_h),
           findings: findings,
           metadata: metadata
@@ -64,6 +74,14 @@ module Igniter
       end
 
       private
+
+      def normalize_diagnostic_payloads(entries)
+        entries.map do |entry|
+          next entry if entry.is_a?(DiagnosticPayload)
+
+          DiagnosticPayload.new(**entry.to_h.transform_keys(&:to_sym))
+        end.freeze
+      end
 
       def normalize_schema_compatibility_diagnostics(entries)
         entries.map do |entry|

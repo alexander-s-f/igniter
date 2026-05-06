@@ -195,6 +195,9 @@ runtime:
 - `VerificationReport` is read-only and follows current compilation findings.
 - `MetadataManifest` reports declared `type:`, `return_type:`, `deadline:`,
   and `wcet:` metadata.
+- `DiagnosticPayload` is a generic report-only carrier for metadata-only
+  diagnostic hashes from projection, pipeline, availability, or future
+  operation profiles. It includes a redaction policy and rejects raw refs in v0.
 - `SchemaCompatibilityDiagnostic` is an immutable report-only compatibility
   value object with required evidence links and an optional single-hop
   `migration_profile`.
@@ -202,6 +205,9 @@ runtime:
 Metadata manifest fields are declared, not enforced. `return_type`, `deadline`,
 and `wcet` appear in reports with `enforced: false`; they do not add runtime
 checks, warnings, deadline monitoring, or `ExecutionResult` changes.
+Generic diagnostic payloads are serialized through `VerificationReport` as
+`diagnostic_payloads`; they do not authorize package adapters, real data
+export, readiness checks, Ledger integration, or runtime enforcement.
 Schema compatibility diagnostics follow the same boundary:
 `report_only: true`, `runtime_enforced: false`, and no migration execution.
 The optional migration profile only serializes evidence, including blocked

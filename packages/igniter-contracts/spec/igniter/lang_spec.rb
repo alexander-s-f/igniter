@@ -20,6 +20,10 @@ RSpec.describe Igniter::Lang do
     expect(described_class::SchemaCompatibilityDiagnostic).to be(Igniter::Lang::SchemaCompatibilityDiagnostic)
   end
 
+  it "loads generic diagnostic payloads through the lang entrypoint" do
+    expect(described_class::DiagnosticPayload).to be(Igniter::Lang::DiagnosticPayload)
+  end
+
   it "builds immutable serializable type descriptors" do
     history = described_class::History[String]
     bi_history = described_class::BiHistory[Integer]
@@ -198,5 +202,37 @@ RSpec.describe Igniter::Lang do
     expect(report).to be_ok
     expect(report.schema_compatibility_diagnostics).to eq([diagnostic])
     expect(report.to_h.fetch(:schema_compatibility_diagnostics)).to eq([diagnostic.to_h])
+  end
+
+  it "serializes optional generic diagnostic payloads without changing report validity" do
+    diagnostic = described_class::DiagnosticPayload.new(
+      diagnostic_id: "diagnostic:pipeline:1",
+      profile: "pipeline_diagnostic_v0",
+      status: :blocked,
+      decision: :blocked,
+      payload: {
+        pipeline: {
+          failed_step: "read_scoped_facts",
+          failure_kind: "tenant_scope_mismatch"
+        }
+      },
+      evidence_links: {
+        trace_ref: "obs/pipeline-trace-negative"
+      },
+      redaction_policy: {
+        profile: "public_metadata_v0",
+        raw_ref_export: false,
+        hash_source_refs: true
+      }
+    )
+    report = described_class::VerificationReport.new(
+      profile_fingerprint: "profile:fingerprint",
+      operations: [],
+      diagnostic_payloads: [diagnostic]
+    )
+
+    expect(report).to be_ok
+    expect(report.diagnostic_payloads).to eq([diagnostic])
+    expect(report.to_h.fetch(:diagnostic_payloads)).to eq([diagnostic.to_h])
   end
 end
