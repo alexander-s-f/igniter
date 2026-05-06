@@ -1,0 +1,26 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/35eaa55abcef5f11",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d",
+  "source_path": "experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+  "pass_result": "oof",
+  "stages": {
+    "parse": "ok",
+    "classify": "oof",
+    "typecheck": "skipped",
+    "emit": "skipped"
+  },
+  "diagnostics": [
+    {
+      "rule": "OOF-P1",
+      "severity": "error",
+      "message": "Unresolved symbol: missing_b",
+      "node": "sum",
+      "path": null,
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

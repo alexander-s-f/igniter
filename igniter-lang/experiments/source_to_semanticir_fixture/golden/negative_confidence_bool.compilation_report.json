@@ -1,0 +1,26 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/680812baba31f3da",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:680812baba31f3da2c96544557873cb47f662bbcc7f1e1b76756919a8f64db93",
+  "source_path": "experiments/source_to_semanticir_fixture/negative_confidence_bool.ig",
+  "pass_result": "oof",
+  "stages": {
+    "parse": "ok",
+    "classify": "oof",
+    "typecheck": "skipped",
+    "emit": "skipped"
+  },
+  "diagnostics": [
+    {
+      "rule": "OOF-CE4",
+      "severity": "error",
+      "message": "ConfidenceLabel cannot be used as Bool",
+      "node": "allowed",
+      "path": null,
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

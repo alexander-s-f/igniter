@@ -6,6 +6,7 @@
   "source_hash": "sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d",
   "grammar_version": "0.1.0",
   "module": "Fixture.SourceToSemanticIR.Negative",
+  "type_declarations": [],
   "contracts": [
     {
       "kind": "classified_contract",
@@ -46,7 +47,19 @@
           "missing_refs": [
             "missing_b"
           ],
-          "expr_kind": "binary_op"
+          "expr_kind": "binary_op",
+          "expr": {
+            "kind": "binary_op",
+            "op": "+",
+            "left": {
+              "kind": "ref",
+              "name": "a"
+            },
+            "right": {
+              "kind": "ref",
+              "name": "missing_b"
+            }
+          }
         },
         {
           "decl_id": "output:sum",

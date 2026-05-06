@@ -9,14 +9,12 @@ require "pathname"
 module TypecheckerProof
   ROOT = File.expand_path("../../..", __dir__)
   CLASSIFIED_DIR = File.expand_path("../classifier_pass_proof/golden", __dir__)
-  PARSED_DIR = File.expand_path("../source_to_semanticir_fixture/golden", __dir__)
   GOLDEN_DIR = File.join(__dir__, "golden")
   TYPECHECKER_VERSION = "typed-pass-executable-proof-v0"
 
   CASES = {
     "add" => {
       classified: "add.classified.json",
-      parsed: "add.parsed_ast.json",
       expected_contract: "Add",
       expected_status: "accepted",
       expected_rules: [],
@@ -24,7 +22,6 @@ module TypecheckerProof
     },
     "claim_evidence" => {
       classified: "claim_evidence.classified.json",
-      parsed: "claim_evidence.parsed_ast.json",
       expected_contract: "ClaimEvidenceBundle",
       expected_status: "accepted",
       expected_rules: [],
@@ -32,7 +29,6 @@ module TypecheckerProof
     },
     "evidence_linked_alert" => {
       classified: "evidence_linked_alert.classified.json",
-      parsed: "evidence_linked_alert.parsed_ast.json",
       expected_contract: "EvidenceLinkedAlertGate",
       expected_status: "accepted",
       expected_rules: [],
@@ -40,21 +36,18 @@ module TypecheckerProof
     },
     "negative_unresolved_symbol" => {
       classified: "negative_unresolved_symbol.classified.json",
-      parsed: "negative_unresolved_symbol.parsed_ast.json",
       expected_contract: "BadUnresolvedSymbol",
       expected_status: "blocked",
       expected_rules: ["OOF-P1"]
     },
     "negative_evidence_less_alert" => {
       classified: "negative_evidence_less_alert.classified.json",
-      parsed: "negative_evidence_less_alert.parsed_ast.json",
       expected_contract: "BadEvidenceLessAlertGate",
       expected_status: "blocked",
       expected_rules: ["OOF-OS2"]
     },
     "negative_confidence_bool" => {
       classified: "negative_confidence_bool.classified.json",
-      parsed: "negative_confidence_bool.parsed_ast.json",
       expected_contract: "BadConfidenceAsBool",
       expected_status: "blocked",
       expected_rules: ["OOF-CE4"]
@@ -62,11 +55,10 @@ module TypecheckerProof
   }.freeze
 
   class TypecheckerPass
-    def typecheck(classified_program, parsed_program)
-      @type_shapes = type_shapes(parsed_program)
-      parsed_contracts = parsed_program.fetch("contracts").to_h { |contract| [contract.fetch("name"), contract] }
+    def typecheck(classified_program)
+      @type_shapes = type_shapes(classified_program)
       typed_contracts = classified_program.fetch("contracts").map do |contract|
-        typecheck_contract(contract, parsed_contracts.fetch(contract.fetch("name")))
+        typecheck_contract(contract)
       end
 
       {
@@ -96,20 +88,19 @@ module TypecheckerProof
       "typed_pass/#{Digest::SHA256.hexdigest(seed)[0, 16]}"
     end
 
-    def type_shapes(parsed_program)
-      parsed_program.fetch("types").each_with_object({}) do |type, shapes|
+    def type_shapes(classified_program)
+      classified_program.fetch("type_declarations").each_with_object({}) do |type, shapes|
         shapes[type.fetch("name")] = type.fetch("fields", []).each_with_object({}) do |field, fields|
           fields[field.fetch("name")] = type_ir(normalize_type(field.fetch("type_annotation")))
         end
       end
     end
 
-    def typecheck_contract(classified_contract, parsed_contract)
+    def typecheck_contract(classified_contract)
       declared_oofs = classified_contract.fetch("oof_log")
       type_errors = declared_oofs.dup
       symbol_types = {}
       typed_decls = []
-      body_by_key = parsed_contract.fetch("body").to_h { |node| [[node.fetch("kind"), node.fetch("name")], node] }
 
       classified_contract.fetch("declarations").each do |decl|
         case decl.fetch("kind")
@@ -118,8 +109,7 @@ module TypecheckerProof
           symbol_types[decl.fetch("name")] = type
           typed_decls << typed_decl(decl, type, nil, [])
         when "compute"
-          expr_node = body_by_key.fetch(["compute", decl.fetch("name")]).fetch("expr")
-          typed_expr = infer_expr(expr_node, symbol_types, type_errors, decl.fetch("name"))
+          typed_expr = infer_expr(decl.fetch("expr"), symbol_types, type_errors, decl.fetch("name"))
           symbol_types[decl.fetch("name")] = typed_expr.fetch("resolved_type")
           typed_decls << typed_decl(decl, typed_expr.fetch("resolved_type"), typed_expr, typed_expr.fetch("deps"))
         when "output"
@@ -298,9 +288,8 @@ module TypecheckerProof
     typechecker = TypecheckerPass.new
     CASES.each_with_object({}) do |(case_id, config), outputs|
       classified = read_json(File.join(CLASSIFIED_DIR, config.fetch(:classified)))
-      parsed = read_json(File.join(PARSED_DIR, config.fetch(:parsed)))
-      typed = typechecker.typecheck(classified, parsed)
-      outputs[case_id] = { classified: classified, parsed: parsed, typed: typed, config: config }
+      typed = typechecker.typecheck(classified)
+      outputs[case_id] = { classified: classified, typed: typed, config: config }
     end
   end
 

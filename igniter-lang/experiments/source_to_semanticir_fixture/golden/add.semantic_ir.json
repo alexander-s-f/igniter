@@ -6,6 +6,7 @@
   "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
   "source_path": "experiments/source_to_semanticir_fixture/add.ig",
   "module": "Fixture.SourceToSemanticIR.Add",
+  "compilation_report_ref": "compilation_report/e9664d5446df4e46",
   "contracts": [
     {
       "kind": "contract_ir",
@@ -83,9 +84,7 @@
           "fragment": "core"
         }
       ],
-      "escape_boundaries": [],
-      "oof_log": []
+      "escape_boundaries": []
     }
-  ],
-  "oof_log": []
+  ]
 }

@@ -6,6 +6,65 @@
   "source_hash": "sha256:3996d52ebb40381bf7ab347c5f7edc9a2c0c3493dddc96529b3506bb90d82162",
   "grammar_version": "0.1.0",
   "module": "Fixture.SourceToSemanticIR.ClaimEvidence",
+  "type_declarations": [
+    {
+      "kind": "type",
+      "name": "Claim",
+      "fields": [
+        {
+          "name": "claim_id",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "subject_ref",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "predicate",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "object_value",
+          "type_annotation": "String",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "kind": "type",
+      "name": "EvidenceLink",
+      "fields": [
+        {
+          "name": "link_id",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "source_ref",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "target_ref",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "relation",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "strength",
+          "type_annotation": "String",
+          "optional": false
+        }
+      ]
+    }
+  ],
   "contracts": [
     {
       "kind": "classified_contract",
@@ -57,7 +116,15 @@
             "evidence"
           ],
           "missing_refs": [],
-          "expr_kind": "field_access"
+          "expr_kind": "field_access",
+          "expr": {
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "evidence"
+            },
+            "field": "target_ref"
+          }
         },
         {
           "decl_id": "output:linked_claim_ref",

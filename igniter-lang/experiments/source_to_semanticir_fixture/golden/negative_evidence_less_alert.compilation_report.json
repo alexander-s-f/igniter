@@ -1,0 +1,26 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/b2b44c799dba43f7",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:b2b44c799dba43f705081edaeff37532773abca340bf22e6d55cc9b6c8cd1779",
+  "source_path": "experiments/source_to_semanticir_fixture/negative_evidence_less_alert.ig",
+  "pass_result": "oof",
+  "stages": {
+    "parse": "ok",
+    "classify": "oof",
+    "typecheck": "skipped",
+    "emit": "skipped"
+  },
+  "diagnostics": [
+    {
+      "rule": "OOF-OS2",
+      "severity": "error",
+      "message": "EvidenceLinkedAlert requires non-empty signal_refs and claim_refs",
+      "node": "BadEvidenceLessAlertGate",
+      "path": null,
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

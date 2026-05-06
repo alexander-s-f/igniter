@@ -6,6 +6,34 @@
   "source_hash": "sha256:37008b8855a287cc80f267feaaa86789c8d7c7b3ac15579933b38c7f235ac6d5",
   "grammar_version": "0.1.0",
   "module": "Fixture.SourceToSemanticIR.Alert",
+  "type_declarations": [
+    {
+      "kind": "type",
+      "name": "EvidenceLinkedAlertInput",
+      "fields": [
+        {
+          "name": "signal_count",
+          "type_annotation": "Integer",
+          "optional": false
+        },
+        {
+          "name": "claim_count",
+          "type_annotation": "Integer",
+          "optional": false
+        },
+        {
+          "name": "valid_until",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "confidence_label",
+          "type_annotation": "ConfidenceLabel",
+          "optional": false
+        }
+      ]
+    }
+  ],
   "contracts": [
     {
       "kind": "classified_contract",
@@ -53,7 +81,24 @@
             "alert"
           ],
           "missing_refs": [],
-          "expr_kind": "binary_op"
+          "expr_kind": "binary_op",
+          "expr": {
+            "kind": "binary_op",
+            "op": ">",
+            "left": {
+              "kind": "field_access",
+              "object": {
+                "kind": "ref",
+                "name": "alert"
+              },
+              "field": "signal_count"
+            },
+            "right": {
+              "kind": "literal",
+              "value": 0,
+              "type_tag": "Integer"
+            }
+          }
         },
         {
           "decl_id": "compute:claim_present",
@@ -64,7 +109,24 @@
             "alert"
           ],
           "missing_refs": [],
-          "expr_kind": "binary_op"
+          "expr_kind": "binary_op",
+          "expr": {
+            "kind": "binary_op",
+            "op": ">",
+            "left": {
+              "kind": "field_access",
+              "object": {
+                "kind": "ref",
+                "name": "alert"
+              },
+              "field": "claim_count"
+            },
+            "right": {
+              "kind": "literal",
+              "value": 0,
+              "type_tag": "Integer"
+            }
+          }
         },
         {
           "decl_id": "compute:allowed",
@@ -76,7 +138,19 @@
             "claim_present"
           ],
           "missing_refs": [],
-          "expr_kind": "binary_op"
+          "expr_kind": "binary_op",
+          "expr": {
+            "kind": "binary_op",
+            "op": "&&",
+            "left": {
+              "kind": "ref",
+              "name": "signal_present"
+            },
+            "right": {
+              "kind": "ref",
+              "name": "claim_present"
+            }
+          }
         },
         {
           "decl_id": "output:allowed",

@@ -1,0 +1,17 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/3996d52ebb40381b",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:3996d52ebb40381bf7ab347c5f7edc9a2c0c3493dddc96529b3506bb90d82162",
+  "source_path": "experiments/source_to_semanticir_fixture/claim_evidence.ig",
+  "pass_result": "ok",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "ok",
+    "emit": "ok"
+  },
+  "diagnostics": [],
+  "semantic_ir_ref": "semanticir/3996d52ebb40381b"
+}

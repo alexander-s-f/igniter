@@ -1,6 +1,6 @@
 {
   "kind": "source_to_semanticir_fixture_summary",
-  "prop019_compliant": true,
+  "prop0191_compliant": true,
   "canonical_envelope": {
     "kind": "semantic_ir_program",
     "format_version": "0.1.0",
@@ -14,9 +14,13 @@
       "inputs",
       "outputs",
       "nodes",
-      "escape_boundaries",
-      "oof_log"
+      "escape_boundaries"
     ]
+  },
+  "compilation_report": {
+    "kind": "compilation_report",
+    "always_emitted": true,
+    "negative_semantic_ir_emitted": false
   },
   "positive_contracts": [
     "Add",

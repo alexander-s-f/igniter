@@ -6,6 +6,7 @@
   "source_hash": "sha256:3996d52ebb40381bf7ab347c5f7edc9a2c0c3493dddc96529b3506bb90d82162",
   "source_path": "experiments/source_to_semanticir_fixture/claim_evidence.ig",
   "module": "Fixture.SourceToSemanticIR.ClaimEvidence",
+  "compilation_report_ref": "compilation_report/3996d52ebb40381b",
   "contracts": [
     {
       "kind": "contract_ir",
@@ -72,9 +73,7 @@
           "fragment": "core"
         }
       ],
-      "escape_boundaries": [],
-      "oof_log": []
+      "escape_boundaries": []
     }
-  ],
-  "oof_log": []
+  ]
 }

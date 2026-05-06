@@ -1,0 +1,17 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/e9664d5446df4e46",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+  "source_path": "experiments/source_to_semanticir_fixture/add.ig",
+  "pass_result": "ok",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "ok",
+    "emit": "ok"
+  },
+  "diagnostics": [],
+  "semantic_ir_ref": "semanticir/e9664d5446df4e46"
+}

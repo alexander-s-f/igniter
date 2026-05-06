@@ -85,7 +85,19 @@ module SourceToSemanticIRFixture
       semantic_contracts = parsed_program.fetch("contracts").map do |contract|
         compile_contract(parsed_program, contract, sample_input)
       end
+      diagnostics = dedupe_oofs(semantic_contracts.flat_map { |contract| contract.fetch("diagnostics") })
+      semantic_ir = diagnostics.empty? ? semantic_ir_program(parsed_program, semantic_contracts) : nil
 
+      {
+        "semantic_ir" => semantic_ir,
+        "compilation_report" => compilation_report(parsed_program, diagnostics, semantic_ir)
+      }
+    end
+
+    private
+
+    def semantic_ir_program(parsed_program, contracts)
+      report_id = compilation_report_id(parsed_program)
       {
         "kind" => "semantic_ir_program",
         "format_version" => FORMAT_VERSION,
@@ -94,15 +106,38 @@ module SourceToSemanticIRFixture
         "source_hash" => parsed_program.fetch("source_hash"),
         "source_path" => source_path(parsed_program),
         "module" => parsed_program.fetch("module"),
-        "contracts" => semantic_contracts,
-        "oof_log" => dedupe_oofs(semantic_contracts.flat_map { |contract| contract.fetch("oof_log") })
+        "compilation_report_ref" => report_id,
+        "contracts" => contracts.map { |contract| contract.reject { |key, _value| key == "diagnostics" } }
       }
     end
 
-    private
+    def compilation_report(parsed_program, diagnostics, semantic_ir)
+      ok = diagnostics.empty?
+      {
+        "kind" => "compilation_report",
+        "format_version" => FORMAT_VERSION,
+        "program_id" => compilation_report_id(parsed_program),
+        "grammar_version" => parsed_program.fetch("grammar_version"),
+        "source_hash" => parsed_program.fetch("source_hash"),
+        "source_path" => source_path(parsed_program),
+        "pass_result" => ok ? "ok" : "oof",
+        "stages" => {
+          "parse" => "ok",
+          "classify" => ok ? "ok" : "oof",
+          "typecheck" => ok ? "ok" : "skipped",
+          "emit" => ok ? "ok" : "skipped"
+        },
+        "diagnostics" => diagnostics.map { |entry| diagnostic(entry) },
+        "semantic_ir_ref" => semantic_ir&.fetch("program_id")
+      }
+    end
 
     def program_id(parsed_program)
       "semanticir/#{parsed_program.fetch("source_hash").delete_prefix("sha256:")[0, 16]}"
+    end
+
+    def compilation_report_id(parsed_program)
+      "compilation_report/#{parsed_program.fetch("source_hash").delete_prefix("sha256:")[0, 16]}"
     end
 
     def source_path(parsed_program)
@@ -175,14 +210,14 @@ module SourceToSemanticIRFixture
         "outputs" => outputs,
         "nodes" => nodes,
         "escape_boundaries" => [],
-        "oof_log" => diagnostics
+        "diagnostics" => diagnostics
       }
       contract_ir["contract_ref"] = contract_ref(contract_ir)
       contract_ir
     end
 
     def contract_ref(contract_ir)
-      body = contract_ir.reject { |key, _value| key == "contract_ref" || key == "oof_log" }
+      body = contract_ir.reject { |key, _value| key == "contract_ref" || key == "diagnostics" }
       "contract/#{contract_ir.fetch("contract_name")}/sha256:#{Digest::SHA256.hexdigest(canonical_json(body))[0, 24]}"
     end
 
@@ -384,6 +419,17 @@ module SourceToSemanticIRFixture
     def oof(rule, message, node_name)
       { "rule" => rule, "message" => message, "node" => node_name, "line" => nil }
     end
+
+    def diagnostic(entry)
+      {
+        "rule" => entry.fetch("rule"),
+        "severity" => "error",
+        "message" => entry.fetch("message"),
+        "node" => entry.fetch("node"),
+        "path" => nil,
+        "line" => entry.fetch("line")
+      }
+    end
   end
 
   module_function
@@ -413,15 +459,26 @@ module SourceToSemanticIRFixture
     compiler = TinyCompiler.new
     CASES.each_with_object({}) do |(case_id, config), outputs|
       parsed = parse_case(config.fetch(:source))
-      semantic_ir = compiler.compile(parsed, sample_input: config.fetch(:sample_input))
-      outputs[case_id] = { parsed: parsed, semantic_ir: semantic_ir, config: config }
+      result = compiler.compile(parsed, sample_input: config.fetch(:sample_input))
+      outputs[case_id] = {
+        parsed: parsed,
+        semantic_ir: result.fetch("semantic_ir"),
+        compilation_report: result.fetch("compilation_report"),
+        config: config
+      }
     end
   end
 
   def write_outputs(outputs, summary)
     outputs.each do |case_id, result|
       write_json(File.join(GOLDEN_DIR, "#{case_id}.parsed_ast.json"), result.fetch(:parsed))
-      write_json(File.join(GOLDEN_DIR, "#{case_id}.semantic_ir.json"), result.fetch(:semantic_ir))
+      semantic_ir_path = File.join(GOLDEN_DIR, "#{case_id}.semantic_ir.json")
+      if result.fetch(:semantic_ir)
+        write_json(semantic_ir_path, result.fetch(:semantic_ir))
+      else
+        FileUtils.rm_f(semantic_ir_path)
+      end
+      write_json(File.join(GOLDEN_DIR, "#{case_id}.compilation_report.json"), result.fetch(:compilation_report))
     end
     write_json(File.join(GOLDEN_DIR, "summary.json"), summary)
   end
@@ -429,14 +486,19 @@ module SourceToSemanticIRFixture
   def build_summary
     {
       "kind" => "source_to_semanticir_fixture_summary",
-      "prop019_compliant" => true,
+      "prop0191_compliant" => true,
       "canonical_envelope" => {
         "kind" => "semantic_ir_program",
         "format_version" => FORMAT_VERSION,
         "contract_keys" => %w[
           kind contract_ref contract_name specialization_of type_args
-          fragment_class inputs outputs nodes escape_boundaries oof_log
+          fragment_class inputs outputs nodes escape_boundaries
         ]
+      },
+      "compilation_report" => {
+        "kind" => "compilation_report",
+        "always_emitted" => true,
+        "negative_semantic_ir_emitted" => false
       },
       "positive_contracts" => %w[Add ClaimEvidenceBundle EvidenceLinkedAlertGate],
       "negative_rules" => {
@@ -465,18 +527,23 @@ module SourceToSemanticIRFixture
     {
       "parse.add" => parsed_ok?(outputs, "add"),
       "semanticir.envelope.add" => canonical_program?(outputs.fetch("add").fetch(:semantic_ir)),
+      "report.add" => compilation_report_ok?(outputs, "add", "ok"),
       "semanticir.add" => contract_ok?(outputs, "add", "Add", "stdlib.integer.add", "Integer"),
       "parse.claim_evidence" => parsed_ok?(outputs, "claim_evidence"),
       "semanticir.envelope.claim_evidence" => canonical_program?(outputs.fetch("claim_evidence").fetch(:semantic_ir)),
+      "report.claim_evidence" => compilation_report_ok?(outputs, "claim_evidence", "ok"),
       "semanticir.claim_evidence" => contract_ok?(outputs, "claim_evidence", "ClaimEvidenceBundle", nil, "String"),
       "parse.evidence_linked_alert" => parsed_ok?(outputs, "evidence_linked_alert"),
       "semanticir.envelope.evidence_linked_alert" => canonical_program?(outputs.fetch("evidence_linked_alert").fetch(:semantic_ir)),
+      "report.evidence_linked_alert" => compilation_report_ok?(outputs, "evidence_linked_alert", "ok"),
       "semanticir.evidence_linked_alert" => alert_gate_ok?(outputs),
-      "negative.unresolved_symbol" => rule_present?(outputs, "negative_unresolved_symbol", "OOF-P1"),
-      "negative.evidence_less_alert" => rule_present?(outputs, "negative_evidence_less_alert", "OOF-OS2"),
-      "negative.confidence_bool" => rule_present?(outputs, "negative_confidence_bool", "OOF-CE4"),
+      "negative.unresolved_symbol" => negative_report_only?(outputs, "negative_unresolved_symbol", "OOF-P1"),
+      "negative.evidence_less_alert" => negative_report_only?(outputs, "negative_evidence_less_alert", "OOF-OS2"),
+      "negative.confidence_bool" => negative_report_only?(outputs, "negative_confidence_bool", "OOF-CE4"),
+      "stdlib.monomorphic_ops" => monomorphic_ops?(outputs),
       "golden.ast_outputs" => golden_count(".parsed_ast.json", 6),
-      "golden.semanticir_outputs" => golden_count(".semantic_ir.json", 6)
+      "golden.semanticir_outputs" => golden_count(".semantic_ir.json", 3),
+      "golden.compilation_report_outputs" => golden_count(".compilation_report.json", 6)
     }
   end
 
@@ -488,7 +555,6 @@ module SourceToSemanticIRFixture
     contract = only_contract(outputs, case_id)
     return false unless contract.fetch("contract_name") == contract_name
     return false unless contract.fetch("fragment_class") == "core"
-    return false unless contract.fetch("oof_log").empty?
     return false unless contract.fetch("outputs").any? { |out| out.fetch("type").fetch("name") == output_type }
 
     return true unless required_operator
@@ -500,14 +566,54 @@ module SourceToSemanticIRFixture
     contract = only_contract(outputs, "evidence_linked_alert")
     operators = contract.fetch("nodes").map { |node| node.fetch("expr").fetch("fn", nil) }
     contract.fetch("fragment_class") == "core" &&
-      contract.fetch("oof_log").empty? &&
       operators.include?("stdlib.integer.gt") &&
       operators.include?("stdlib.bool.and")
   end
 
+  def compilation_report_ok?(outputs, case_id, expected_result)
+    report = outputs.fetch(case_id).fetch(:compilation_report)
+    semantic_ir = outputs.fetch(case_id).fetch(:semantic_ir)
+    report.fetch("kind") == "compilation_report" &&
+      report.fetch("pass_result") == expected_result &&
+      report.fetch("semantic_ir_ref") == semantic_ir&.fetch("program_id") &&
+      report.fetch("stages").fetch("emit") == (expected_result == "ok" ? "ok" : "skipped")
+  end
+
+  def negative_report_only?(outputs, case_id, expected_rule)
+    report = outputs.fetch(case_id).fetch(:compilation_report)
+    outputs.fetch(case_id).fetch(:semantic_ir).nil? &&
+      compilation_report_ok?(outputs, case_id, "oof") &&
+      report.fetch("diagnostics").any? { |entry| entry.fetch("rule") == expected_rule }
+  end
+
+  def monomorphic_ops?(outputs)
+    ops = outputs.values.filter_map { |result| result.fetch(:semantic_ir) }.flat_map do |program|
+      program.fetch("contracts").flat_map do |contract|
+        contract.fetch("nodes").flat_map { |node| expr_fns(node.fetch("expr")) }
+      end
+    end
+    !ops.include?("stdlib.numeric.add") &&
+      ops.all? { |op| !op.start_with?("stdlib.numeric.") }
+  end
+
+  def expr_fns(expr)
+    case expr.fetch("kind")
+    when "call"
+      [expr.fetch("fn")] + expr.fetch("args").flat_map { |arg| expr_fns(arg) }
+    when "field_access"
+      expr_fns(expr.fetch("object"))
+    else
+      []
+    end
+  end
+
   def build_golden_checks(outputs, summary)
     semantic_equal = outputs.all? do |case_id, result|
-      golden_equal?(File.join(GOLDEN_DIR, "#{case_id}.semantic_ir.json"), result.fetch(:semantic_ir))
+      path = File.join(GOLDEN_DIR, "#{case_id}.semantic_ir.json")
+      result.fetch(:semantic_ir) ? golden_equal?(path, result.fetch(:semantic_ir)) : !File.exist?(path)
+    end
+    reports_equal = outputs.all? do |case_id, result|
+      golden_equal?(File.join(GOLDEN_DIR, "#{case_id}.compilation_report.json"), result.fetch(:compilation_report))
     end
     ast_equal = outputs.all? do |case_id, result|
       golden_equal?(File.join(GOLDEN_DIR, "#{case_id}.parsed_ast.json"), result.fetch(:parsed))
@@ -515,9 +621,16 @@ module SourceToSemanticIRFixture
 
     {
       "check.golden_semanticir_equal" => semantic_equal,
+      "check.golden_compilation_report_equal" => reports_equal,
       "check.golden_ast_equal" => ast_equal,
       "check.summary_equal" => golden_equal?(File.join(GOLDEN_DIR, "summary.json"), summary),
-      "check.canonical_all" => outputs.values.all? { |result| canonical_program?(result.fetch(:semantic_ir)) },
+      "check.canonical_all" => outputs.values.all? { |result|
+        result.fetch(:semantic_ir).nil? || canonical_program?(result.fetch(:semantic_ir))
+      },
+      "check.compilation_reports_all" => outputs.values.all? { |result| canonical_report?(result.fetch(:compilation_report)) },
+      "check.negative_semanticir_absent" => outputs.all? { |case_id, result|
+        result.fetch(:semantic_ir) || !File.exist?(File.join(GOLDEN_DIR, "#{case_id}.semantic_ir.json"))
+      },
       "check.deterministic_generation" => deterministic_outputs?
     }
   end
@@ -530,24 +643,52 @@ module SourceToSemanticIRFixture
     return false unless program.fetch("source_hash").match?(/\Asha256:[0-9a-f]{64}\z/)
     return false if program.fetch("source_path").start_with?("igniter-lang/")
     return false unless program.key?("module")
+    return false unless program.fetch("compilation_report_ref").match?(/\Acompilation_report\/[0-9a-f]{16}\z/)
     return false unless program.fetch("contracts").is_a?(Array)
     return false if program.key?("axiom_version")
+    return false if program.key?("oof_log")
 
     program.fetch("contracts").all? { |contract| canonical_contract?(contract) }
   rescue KeyError
     false
   end
 
+  def canonical_report?(report)
+    return false unless report.fetch("kind") == "compilation_report"
+    return false unless report.fetch("format_version") == FORMAT_VERSION
+    return false unless report.fetch("program_id").match?(/\Acompilation_report\/[0-9a-f]{16}\z/)
+    return false unless report.fetch("source_hash").match?(/\Asha256:[0-9a-f]{64}\z/)
+    return false if report.fetch("source_path").start_with?("igniter-lang/")
+    return false unless %w[ok oof error].include?(report.fetch("pass_result"))
+
+    stages = report.fetch("stages")
+    return false unless %w[parse classify typecheck emit].all? { |stage| stages.key?(stage) }
+    return false unless report.fetch("diagnostics").all? { |diagnostic| canonical_diagnostic?(diagnostic) }
+
+    if report.fetch("pass_result") == "ok"
+      report.fetch("semantic_ir_ref").is_a?(String)
+    else
+      report.fetch("semantic_ir_ref").nil?
+    end
+  rescue KeyError
+    false
+  end
+
+  def canonical_diagnostic?(diagnostic)
+    %w[rule severity message node path line].all? { |key| diagnostic.key?(key) } &&
+      diagnostic.fetch("severity") == "error"
+  end
+
   def canonical_contract?(contract)
     required = %w[
       kind contract_ref contract_name specialization_of type_args fragment_class
-      inputs outputs nodes escape_boundaries oof_log
+      inputs outputs nodes escape_boundaries
     ]
     return false unless required.all? { |key| contract.key?(key) }
     return false unless contract.fetch("kind") == "contract_ir"
     return false unless contract.fetch("contract_ref").match?(/\Acontract\/#{Regexp.escape(contract.fetch("contract_name"))}\/sha256:[0-9a-f]{24}\z/)
     return false unless contract.fetch("type_args").is_a?(Hash)
-    return false if %w[contract_id name escape_set input_ports compute_nodes output_ports dependency_graph
+    return false if %w[contract_id name escape_set input_ports compute_nodes output_ports dependency_graph oof_log diagnostics
                        evaluation_targets temporal_requirements lifecycle_requirements capability_requirements
                        effect_declarations ffi_requirements projection_descriptors boundary_descriptors].any? { |key| contract.key?(key) }
     return false unless contract.fetch("inputs").all? { |port| canonical_port?(port) }
@@ -613,6 +754,7 @@ module SourceToSemanticIRFixture
     second = build_outputs
     CASES.keys.all? do |case_id|
       render_json(first.fetch(case_id).fetch(:semantic_ir)) == render_json(second.fetch(case_id).fetch(:semantic_ir)) &&
+        render_json(first.fetch(case_id).fetch(:compilation_report)) == render_json(second.fetch(case_id).fetch(:compilation_report)) &&
         render_json(first.fetch(case_id).fetch(:parsed)) == render_json(second.fetch(case_id).fetch(:parsed))
     end
   end

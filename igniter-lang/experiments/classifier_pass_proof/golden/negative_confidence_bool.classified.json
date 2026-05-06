@@ -6,6 +6,24 @@
   "source_hash": "sha256:680812baba31f3da2c96544557873cb47f662bbcc7f1e1b76756919a8f64db93",
   "grammar_version": "0.1.0",
   "module": "Fixture.SourceToSemanticIR.NegativeConfidence",
+  "type_declarations": [
+    {
+      "kind": "type",
+      "name": "ConfidenceAssessment",
+      "fields": [
+        {
+          "name": "assessment_id",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "confidence_label",
+          "type_annotation": "ConfidenceLabel",
+          "optional": false
+        }
+      ]
+    }
+  ],
   "contracts": [
     {
       "kind": "classified_contract",
@@ -43,7 +61,15 @@
             "confidence"
           ],
           "missing_refs": [],
-          "expr_kind": "field_access"
+          "expr_kind": "field_access",
+          "expr": {
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "confidence"
+            },
+            "field": "confidence_label"
+          }
         },
         {
           "decl_id": "output:allowed",

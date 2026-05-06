@@ -105,10 +105,27 @@ module ClassifierPassProof
         "source_hash" => parsed_program.fetch("source_hash"),
         "grammar_version" => parsed_program.fetch("grammar_version"),
         "module" => parsed_program.fetch("module"),
+        "type_declarations" => type_declarations(parsed_program),
         "contracts" => contracts,
         "oof_log" => contracts.flat_map { |contract| contract.fetch("oof_log") },
         "semantic_ir_ref" => nil
       }
+    end
+
+    def type_declarations(parsed_program)
+      parsed_program.fetch("types", []).map do |type|
+        {
+          "kind" => "type",
+          "name" => type.fetch("name"),
+          "fields" => type.fetch("fields", []).map do |field|
+            {
+              "name" => field.fetch("name"),
+              "type_annotation" => normalize_type(field.fetch("type_annotation")),
+              "optional" => field.fetch("optional", false)
+            }
+          end
+        }
+      end
     end
 
     private
@@ -189,7 +206,10 @@ module ClassifierPassProof
         "missing_refs" => missing
       }
       result["type_annotation"] = normalize_type(node["type_annotation"]) if node.key?("type_annotation")
-      result["expr_kind"] = node.fetch("expr").fetch("kind") if node.key?("expr")
+      if node.key?("expr")
+        result["expr_kind"] = node.fetch("expr").fetch("kind")
+        result["expr"] = node.fetch("expr")
+      end
       result
     end
 
@@ -373,6 +393,7 @@ module ClassifierPassProof
     return false unless program.fetch("kind") == "classified_program"
     return false unless program.fetch("classifier_version") == CLASSIFIER_VERSION
     return false unless program.fetch("semantic_ir_ref").nil?
+    return false unless program.fetch("type_declarations").all? { |type| type.key?("name") && type.key?("fields") }
 
     program.fetch("contracts").all? do |contract|
       %w[kind contract_id name fragment_class symbols declarations dependency_graph oof_log].all? { |key| contract.key?(key) }
