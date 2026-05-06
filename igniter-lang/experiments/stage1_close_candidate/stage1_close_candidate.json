@@ -490,6 +490,14 @@
           "status": "PASS"
         },
         {
+          "name": "runtime.evaluate_assembled_claim_evidence",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.evaluate_assembled_evidence_linked_alert",
+          "status": "PASS"
+        },
+        {
           "name": "runtime.compatibility_report_trusted",
           "status": "PASS"
         }
@@ -507,9 +515,18 @@
         "runtime.load_direct_prop0191: ok",
         "runtime.load_assembled_add: ok",
         "runtime.evaluate_assembled_add: ok",
+        "runtime.evaluate_assembled_claim_evidence: ok",
+        "runtime.evaluate_assembled_evidence_linked_alert: ok",
         "runtime.compatibility_report_trusted: ok",
-        "runtime.load_status: loaded",
-        "runtime.compatibility_report_status: trusted",
+        "runtime.add.load_status: loaded",
+        "runtime.add.output_value: 42",
+        "runtime.add.compatibility_report_status: trusted",
+        "runtime.claim_evidence.load_status: loaded",
+        "runtime.claim_evidence.output_value: claim/synthetic/vendor-status",
+        "runtime.claim_evidence.compatibility_report_status: trusted",
+        "runtime.evidence_linked_alert.load_status: loaded",
+        "runtime.evidence_linked_alert.output_value: true",
+        "runtime.evidence_linked_alert.compatibility_report_status: trusted",
         "out: experiments/igapp_assembler_proof/out"
       ],
       "stderr": []
@@ -525,11 +542,6 @@
       "id": "production_compiler_assembly",
       "status": "open",
       "summary": "Assembler and RuntimeMachine loading are proof-local experiments, not a production compiler package."
-    },
-    {
-      "id": "runtime_eval_surface",
-      "status": "open",
-      "summary": "Assembled Add evaluates end-to-end; non-add Stage 1 fixtures still need direct runtime eval support for field_access, integer.gt, and bool.and."
     }
   ],
   "closed_candidate_signals": [
@@ -547,6 +559,11 @@
       "id": "stdlib_stage1_kernel",
       "status": "closed_in_proof",
       "summary": "Stage 1 stdlib kernel proof covers monomorphic add plus bounded collection/option operators."
+    },
+    {
+      "id": "runtime_eval_surface",
+      "status": "closed_in_proof",
+      "summary": "igapp_assembler_proof evaluates assembled Add, ClaimEvidenceBundle, and EvidenceLinkedAlertGate with trusted CompatibilityReports."
     }
   ]
 }

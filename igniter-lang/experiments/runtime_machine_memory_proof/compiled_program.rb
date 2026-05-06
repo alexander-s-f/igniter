@@ -295,6 +295,15 @@ module RuntimeMachineMemoryProof
       when "apply"
         operands = expr.fetch("operands").map { |op| eval_expr(op, values, backend: backend, as_of: as_of) }
         apply_operator(expr.fetch("operator"), operands)
+      when "field_access"
+        object = eval_expr(expr.fetch("object"), values, backend: backend, as_of: as_of)
+        field = expr.fetch("field")
+        unless object.respond_to?(:fetch)
+          raise ArgumentError, "field_access requires object value for #{field}"
+        end
+        object.fetch(field) { object.fetch(field.to_sym) }
+      when "literal"
+        expr.fetch("value")
       when "ref"
         values.fetch(expr.fetch("name"))
       when "tbackend_read"
@@ -314,6 +323,11 @@ module RuntimeMachineMemoryProof
     def apply_operator(op, operands)
       case op
       when "add", "stdlib.numeric.add", "stdlib.integer.add", "stdlib.float.add", "stdlib.decimal.add" then operands.reduce(:+)
+      when "stdlib.integer.gt"
+        raise ArgumentError, "stdlib.integer.gt expects 2 operands" unless operands.length == 2
+        operands.fetch(0) > operands.fetch(1)
+      when "stdlib.bool.and"
+        operands.all? { |operand| operand == true }
       when "sub"            then operands.reduce(:-)
       when "mul"            then operands.reduce(:*)
       when "div"            then operands.reduce(:/)

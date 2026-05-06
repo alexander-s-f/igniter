@@ -94,11 +94,6 @@ module Stage1CloseCandidate
         "id" => "production_compiler_assembly",
         "status" => "open",
         "summary" => "Assembler and RuntimeMachine loading are proof-local experiments, not a production compiler package."
-      },
-      {
-        "id" => "runtime_eval_surface",
-        "status" => "open",
-        "summary" => "Assembled Add evaluates end-to-end; non-add Stage 1 fixtures still need direct runtime eval support for field_access, integer.gt, and bool.and."
       }
     ]
   end
@@ -119,6 +114,11 @@ module Stage1CloseCandidate
         "id" => "stdlib_stage1_kernel",
         "status" => "closed_in_proof",
         "summary" => "Stage 1 stdlib kernel proof covers monomorphic add plus bounded collection/option operators."
+      },
+      {
+        "id" => "runtime_eval_surface",
+        "status" => "closed_in_proof",
+        "summary" => "igapp_assembler_proof evaluates assembled Add, ClaimEvidenceBundle, and EvidenceLinkedAlertGate with trusted CompatibilityReports."
       }
     ]
   end

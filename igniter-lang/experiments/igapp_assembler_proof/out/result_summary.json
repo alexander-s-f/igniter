@@ -45,6 +45,14 @@
       "ok": true
     },
     {
+      "name": "runtime.evaluate_assembled_claim_evidence",
+      "ok": true
+    },
+    {
+      "name": "runtime.evaluate_assembled_evidence_linked_alert",
+      "ok": true
+    },
+    {
       "name": "runtime.compatibility_report_trusted",
       "ok": true
     }
@@ -146,14 +154,42 @@
   ],
   "proof": "igapp-assembler-proof-stage1-v0",
   "runtime": {
-    "checkpoint_status": "ok",
-    "compatibility_report_status": "trusted",
-    "evaluate_status": "ok",
-    "legacy_semantic_ir_json_present": false,
-    "load_status": "loaded",
-    "loaded_semantic_ir_program": true,
-    "schema_decision": "trusted",
-    "sum": 42
+    "add": {
+      "checkpoint_status": "ok",
+      "compatibility_report_status": "trusted",
+      "evaluate_status": "ok",
+      "expected_output": 42,
+      "legacy_semantic_ir_json_present": false,
+      "load_status": "loaded",
+      "loaded_semantic_ir_program": true,
+      "output_name": "sum",
+      "output_value": 42,
+      "schema_decision": "trusted"
+    },
+    "claim_evidence": {
+      "checkpoint_status": "ok",
+      "compatibility_report_status": "trusted",
+      "evaluate_status": "ok",
+      "expected_output": "claim/synthetic/vendor-status",
+      "legacy_semantic_ir_json_present": false,
+      "load_status": "loaded",
+      "loaded_semantic_ir_program": true,
+      "output_name": "linked_claim_ref",
+      "output_value": "claim/synthetic/vendor-status",
+      "schema_decision": "trusted"
+    },
+    "evidence_linked_alert": {
+      "checkpoint_status": "ok",
+      "compatibility_report_status": "trusted",
+      "evaluate_status": "ok",
+      "expected_output": true,
+      "legacy_semantic_ir_json_present": false,
+      "load_status": "loaded",
+      "loaded_semantic_ir_program": true,
+      "output_name": "allowed",
+      "output_value": true,
+      "schema_decision": "trusted"
+    }
   },
   "status": "PASS"
 }

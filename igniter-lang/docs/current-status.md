@@ -65,9 +65,11 @@ Stdlib execution       PROP-013          experiments/stdlib_execution_       ✅
                                          fold, map, filter, count,
                                          or_else; numeric.add rejected
 ──────────────────────────────────────────────────────────────────────────────────────
-STAGE 1 CLOSED:   NO
-Remaining gap:    OOF rejection at parse time (parser — no slice assigned)
-All proofs:       Parser(partial) Classifier Emitter TypeChecker Assembler RuntimeMachine Stdlib
+STAGE 1 CLOSED:   YES — CLOSE WITH DEFERRED GAP
+                  Effective: 2026-05-06
+                  Verdict: META-EXPERT-007-stage1-close-governance-v0
+Deferred gaps:    Parser OOF hardening | production compiler pkg | runtime eval surface
+All proofs:       Classifier Emitter TypeChecker Assembler RuntimeMachine Stdlib ✅
 ```
 
 ---

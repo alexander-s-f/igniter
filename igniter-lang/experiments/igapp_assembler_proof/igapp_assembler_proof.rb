@@ -15,6 +15,50 @@ module IgappAssemblerProof
   PROOF_AS_OF = RuntimeMachineMemoryProof::PROOF_AS_OF
   POSITIVE_CASES = %w[add claim_evidence evidence_linked_alert].freeze
   NEGATIVE_CASES = %w[negative_unresolved_symbol negative_evidence_less_alert negative_confidence_bool].freeze
+  RUNTIME_EVAL_CASES = {
+    "add" => {
+      "path" => OUT_DIR / "add.igapp",
+      "contract_id" => "Add",
+      "inputs" => { "a" => 19, "b" => 23 },
+      "output_name" => "sum",
+      "expected_output" => 42
+    },
+    "claim_evidence" => {
+      "path" => OUT_DIR / "claim_evidence.igapp",
+      "contract_id" => "ClaimEvidenceBundle",
+      "inputs" => {
+        "claim" => {
+          "claim_id" => "claim/synthetic/vendor-status",
+          "subject_ref" => "vendor/synthetic",
+          "predicate" => "status",
+          "object_value" => "degraded"
+        },
+        "evidence" => {
+          "link_id" => "evidence-link/synthetic/direct-source",
+          "source_ref" => "source-observation/synthetic/direct-online",
+          "target_ref" => "claim/synthetic/vendor-status",
+          "relation" => "supports",
+          "strength" => "direct"
+        }
+      },
+      "output_name" => "linked_claim_ref",
+      "expected_output" => "claim/synthetic/vendor-status"
+    },
+    "evidence_linked_alert" => {
+      "path" => OUT_DIR / "evidence_linked_alert.igapp",
+      "contract_id" => "EvidenceLinkedAlertGate",
+      "inputs" => {
+        "alert" => {
+          "signal_count" => 1,
+          "claim_count" => 1,
+          "valid_until" => "2026-05-06T12:00:00Z",
+          "confidence_label" => "medium"
+        }
+      },
+      "output_name" => "allowed",
+      "expected_output" => true
+    }
+  }.freeze
 
   class AssemblyRefused < StandardError; end
 
@@ -366,28 +410,32 @@ module IgappAssemblerProof
   module RuntimeProof
     module_function
 
-    def load_and_resume_add(path)
+    def load_evaluate_checkpoint_resume(config)
+      path = config.fetch("path")
       program = RuntimeMachineMemoryProof::CompiledProgram.load_igapp(path)
       program.validate!
       backend = RuntimeMachineMemoryProof::MemoryTBackend.new
       machine = RuntimeMachineMemoryProof::RuntimeMachine.new(
-        machine_id: "runtime-machine/igapp-assembler-proof",
-        session_id: "session/igapp-assembler-proof",
+        machine_id: "runtime-machine/igapp-assembler-proof/#{config.fetch("contract_id")}",
+        session_id: "session/igapp-assembler-proof/#{config.fetch("contract_id")}",
         backend: backend
       )
       machine.boot
       load = machine.load_program(program)
-      eval = machine.evaluate_program("Add", { "a" => 19, "b" => 23 }, as_of: PROOF_AS_OF)
+      eval = machine.evaluate_program(config.fetch("contract_id"), config.fetch("inputs"), as_of: PROOF_AS_OF)
       checkpoint = machine.checkpoint(horizon: { as_of: PROOF_AS_OF, rule_version: "igapp-assembler-proof-stage1-v0" })
       resume = machine.resume(image: checkpoint.fetch(:semantic_image), requested_as_of: PROOF_AS_OF)
       schema_check = resume.fetch(:report).fetch("checks").find { |check| check.fetch("dimension") == "schema" }
+      output_name = config.fetch("output_name")
 
       {
         "load_status" => load.fetch(:status),
         "loaded_semantic_ir_program" => !program.semantic_ir_program.nil?,
         "legacy_semantic_ir_json_present" => File.exist?(File.join(path, "semantic_ir.json")),
         "evaluate_status" => eval.fetch(:status),
-        "sum" => eval.fetch(:outputs).fetch("sum"),
+        "output_name" => output_name,
+        "output_value" => eval.fetch(:outputs).fetch(output_name),
+        "expected_output" => config.fetch("expected_output"),
         "checkpoint_status" => checkpoint.fetch(:status),
         "compatibility_report_status" => resume.fetch(:status),
         "schema_decision" => schema_check.fetch("decision")
@@ -397,6 +445,10 @@ module IgappAssemblerProof
         "load_status" => "blocked",
         "error" => "#{e.class}: #{e.message}"
       }
+    end
+
+    def all_cases
+      RUNTIME_EVAL_CASES.transform_values { |config| load_evaluate_checkpoint_resume(config) }
     end
   end
 
@@ -410,7 +462,7 @@ module IgappAssemblerProof
       positive = POSITIVE_CASES.map { |case_name| assembler.assemble_case(case_name) }
       negative = NEGATIVE_CASES.map { |case_name| assembler.refuse_case(case_name) }
       deterministic = deterministic?(assembler)
-      runtime = RuntimeProof.load_and_resume_add(OUT_DIR / "add.igapp")
+      runtime = RuntimeProof.all_cases
       checks = checks(positive, negative, deterministic, runtime)
       summary = {
         "proof" => "igapp-assembler-proof-stage1-v0",
@@ -451,11 +503,28 @@ module IgappAssemblerProof
         check("assembler.negative.confidence_bool_refused", refused?(negative, "negative_confidence_bool")),
         check("assembler.deterministic_output", deterministic),
         check("assembler.no_legacy_semantic_ir_json", positive.all? { |item| !item.fetch("files").include?("semantic_ir.json") }),
-        check("runtime.load_direct_prop0191", runtime.fetch("loaded_semantic_ir_program") == true && runtime.fetch("legacy_semantic_ir_json_present") == false),
-        check("runtime.load_assembled_add", runtime.fetch("load_status") == "loaded"),
-        check("runtime.evaluate_assembled_add", runtime.fetch("sum", nil) == 42),
-        check("runtime.compatibility_report_trusted", runtime.fetch("compatibility_report_status", nil) == "trusted")
+        check("runtime.load_direct_prop0191", runtime.values.all? { |result| direct_prop0191_loaded?(result) }),
+        check("runtime.load_assembled_add", runtime_loaded?(runtime, "add")),
+        check("runtime.evaluate_assembled_add", runtime_output?(runtime, "add")),
+        check("runtime.evaluate_assembled_claim_evidence", runtime_output?(runtime, "claim_evidence")),
+        check("runtime.evaluate_assembled_evidence_linked_alert", runtime_output?(runtime, "evidence_linked_alert")),
+        check("runtime.compatibility_report_trusted", runtime.values.all? { |result| result.fetch("compatibility_report_status", nil) == "trusted" })
       ]
+    end
+
+    def direct_prop0191_loaded?(result)
+      result.fetch("loaded_semantic_ir_program", false) == true &&
+        result.fetch("legacy_semantic_ir_json_present", true) == false
+    end
+
+    def runtime_loaded?(runtime, case_id)
+      runtime.fetch(case_id).fetch("load_status") == "loaded"
+    end
+
+    def runtime_output?(runtime, case_id)
+      result = runtime.fetch(case_id)
+      result.fetch("evaluate_status", nil) == "ok" &&
+        result.fetch("output_value", :missing) == result.fetch("expected_output", :expected_missing)
     end
 
     def refused?(negative, case_name)
@@ -475,8 +544,11 @@ module IgappAssemblerProof
       summary.fetch("checks").each do |check|
         puts "#{check.fetch("name")}: #{check.fetch("ok") ? "ok" : "FAIL"}"
       end
-      puts "runtime.load_status: #{summary.dig("runtime", "load_status")}"
-      puts "runtime.compatibility_report_status: #{summary.dig("runtime", "compatibility_report_status") || "not_available"}"
+      summary.fetch("runtime").each do |case_id, result|
+        puts "runtime.#{case_id}.load_status: #{result.fetch("load_status", "missing")}"
+        puts "runtime.#{case_id}.output_value: #{result.fetch("output_value", "missing")}"
+        puts "runtime.#{case_id}.compatibility_report_status: #{result.fetch("compatibility_report_status", "not_available")}"
+      end
       puts "out: #{OUT_DIR.relative_path_from(ROOT)}"
     end
   end

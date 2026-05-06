@@ -78,6 +78,10 @@ igapp_assembler
 [S] The direct PROP-019.1 runtime loader is already closed in proof:
 `igapp_assembler_proof` reports `runtime.load_direct_prop0191: ok`.
 
+[S] The Stage 1 runtime eval surface is now closed in proof:
+`igapp_assembler_proof` evaluates assembled Add, ClaimEvidenceBundle, and
+EvidenceLinkedAlertGate with trusted CompatibilityReports.
+
 ## Remaining Known Gaps
 
 [Q] `parser_oof_rejection_gap`: parser OOF rejection is not fully hardened.
@@ -85,10 +89,6 @@ OOF is currently caught by classifier/typechecker proofs.
 
 [Q] `production_compiler_assembly`: assembler and RuntimeMachine loading remain
 proof-local experiments, not a production compiler package.
-
-[Q] `runtime_eval_surface`: assembled Add evaluates end-to-end; non-add Stage 1
-fixtures still need direct runtime evaluation support for `field_access`,
-`stdlib.integer.gt`, and `stdlib.bool.and`.
 
 ## Rejected
 

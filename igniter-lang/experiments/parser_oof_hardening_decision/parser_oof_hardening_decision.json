@@ -1,0 +1,118 @@
+{
+  "kind": "parser_oof_hardening_decision",
+  "format_version": "0.1.0",
+  "track": "parser-oof-hardening-decision-fixture-v0",
+  "status": "PASS",
+  "matrix": [
+    {
+      "case_id": "negative_unresolved_symbol",
+      "construct": "compute references missing symbol `missing_b`",
+      "expected_rule": "OOF-P1",
+      "parser_behavior": "accepts",
+      "parser_errors": [],
+      "later_pass_behavior": {
+        "compilation_report_pass_result": "oof",
+        "stages": {
+          "parse": "ok",
+          "classify": "oof",
+          "typecheck": "skipped",
+          "emit": "skipped"
+        },
+        "diagnostic_rules": [
+          "OOF-P1"
+        ],
+        "typed_contract_status": "blocked",
+        "typed_rules": [
+          "OOF-P1"
+        ],
+        "semantic_ir_ref": null
+      },
+      "stage1_risk": "low: unresolved symbol is semantic; classifier/typechecker block before SemanticIR",
+      "recommendation": "safe_to_defer_to_grammar_hardening"
+    },
+    {
+      "case_id": "negative_evidence_less_alert",
+      "construct": "EvidenceLinkedAlert gate has no admitted evidence signal/claim refs",
+      "expected_rule": "OOF-OS2",
+      "parser_behavior": "accepts",
+      "parser_errors": [],
+      "later_pass_behavior": {
+        "compilation_report_pass_result": "oof",
+        "stages": {
+          "parse": "ok",
+          "classify": "oof",
+          "typecheck": "skipped",
+          "emit": "skipped"
+        },
+        "diagnostic_rules": [
+          "OOF-OS2"
+        ],
+        "typed_contract_status": "blocked",
+        "typed_rules": [
+          "OOF-OS2"
+        ],
+        "semantic_ir_ref": null
+      },
+      "stage1_risk": "low: observation/evidence sufficiency is semantic; classifier blocks before SemanticIR",
+      "recommendation": "safe_to_defer_to_grammar_hardening"
+    },
+    {
+      "case_id": "negative_confidence_bool",
+      "construct": "ConfidenceLabel field is used as Bool output",
+      "expected_rule": "OOF-CE4",
+      "parser_behavior": "accepts",
+      "parser_errors": [],
+      "later_pass_behavior": {
+        "compilation_report_pass_result": "oof",
+        "stages": {
+          "parse": "ok",
+          "classify": "oof",
+          "typecheck": "skipped",
+          "emit": "skipped"
+        },
+        "diagnostic_rules": [
+          "OOF-CE4"
+        ],
+        "typed_contract_status": "blocked",
+        "typed_rules": [
+          "OOF-CE4"
+        ],
+        "semantic_ir_ref": null
+      },
+      "stage1_risk": "low: type/trust boundary violation is blocked before SemanticIR",
+      "recommendation": "safe_to_defer_to_grammar_hardening"
+    },
+    {
+      "case_id": "invalid_syntax_missing_colon",
+      "construct": "input declaration missing ':' between name and type",
+      "expected_rule": null,
+      "parser_behavior": "rejects",
+      "parser_errors": [
+        {
+          "message": "IgniterLang::ParseError: Expected colon, got ident(Integer)",
+          "line": null
+        }
+      ],
+      "later_pass_behavior": "not_run",
+      "stage1_risk": "none: syntax-invalid input is rejected by parser",
+      "recommendation": "already_rejected_by_parser"
+    }
+  ],
+  "fixture_checks": {
+    "parse_accepts_but_later_oof": true,
+    "parse_rejects_syntax_invalid": true,
+    "classify_or_typecheck_blocks_semantic_oof": true
+  },
+  "recommendation": {
+    "must_fix_before_stage1_close": [],
+    "safe_to_defer_to_grammar_hardening": [
+      "OOF-P1 unresolved symbol",
+      "OOF-OS2 evidence-linked alert without admitted evidence",
+      "OOF-CE4 ConfidenceLabel used as Bool"
+    ],
+    "stage2_grammar_governance_item": [
+      "Decide whether parser should remain syntax-only or reject selected semantic OOF earlier for developer UX."
+    ],
+    "meta_expert_recommendation": "Do not block Stage 1 close on these semantic OOF cases; they are already blocked before SemanticIR/.igapp/RuntimeMachine trust. Track parser OOF hardening as grammar governance, not a close blocker."
+  }
+}

@@ -112,10 +112,10 @@ was preserved.
 
 ## Remaining Stage 1 Close Gaps
 
-[Q] Runtime evaluation still supports only the add path for assembled PROP-019.1
-fixtures. `claim_evidence` and `evidence_linked_alert` load, but evaluating them
-requires canonical `field_access`, `stdlib.integer.gt`, and `stdlib.bool.and`
-support.
+[D] Follow-up track `runtime-eval-surface-stage1-fixtures-v0` closed the
+proof-local eval gap for assembled Stage 1 fixtures: `field_access`,
+`stdlib.integer.gt`, and `stdlib.bool.and` now evaluate through the direct
+PROP-019.1 loader path.
 
 [Q] `CompiledProgram#apply_operator` still accepts historical `"add"` and
 `"stdlib.numeric.add"` for older proof fixtures. The final stdlib registry
@@ -148,8 +148,8 @@ docs/tracks/prop0191-direct-runtime-loader-v0.md
 
 ## Next
 
-[Next] Add direct evaluation support for the remaining Stage 1 SemanticIR
-expression forms: `field_access`, `stdlib.integer.gt`, and `stdlib.bool.and`.
-
 [Next] Replace the mixed historical operator table with a canonical stdlib
 registry that rejects `stdlib.numeric.add` at RuntimeMachine execution time.
+
+[Next] Extract proof-local assembler/runtime behavior into the production
+compiler and package boundary once Stage 1 governance accepts the proof shape.
