@@ -38,10 +38,15 @@ implementation detail of the current Igniter platform.
 | [tracks/polymorphic-add-devkit-fixture-v0.md](tracks/polymorphic-add-devkit-fixture-v0.md) | done | Added polymorphic Add pressure fixture with expected ParsedProgram shape, specialization rules, and no runtime overloads |
 | [tracks/polymorphic-add-parser-pressure-map-v0.md](tracks/polymorphic-add-parser-pressure-map-v0.md) | done | Grammar/parser delta map for PROP-016 surface: trait, impl, contract_shape, generic contract header; separated parser vs semantic vs monomorphization work |
 | [tracks/polymorphic-add-classifier-v0.md](tracks/polymorphic-add-classifier-v0.md) | done | ClassifiedProgram/TypedProgram/SemanticIR boundary for PROP-016: trait env, impl coherence, T substitution, implements check, monomorphization, Add[String] rejection |
+| [tracks/migration-replacement-image-formalization-v0.md](tracks/migration-replacement-image-formalization-v0.md) | done | Formal replacement SemanticImage field spec, link rels (replaces/caused_by), lifecycle, trust rules, multi-hop one-image-per-hop, and 7 OOF-MR rules |
 | [tracks/polymorphic-add-parser-acceptance-v0.md](tracks/polymorphic-add-parser-acceptance-v0.md) | done | Added parser acceptance for polymorphic_add.ig: trait, impl using, contract_shape, generic contract header, and implements |
+| [tracks/polymorphic-add-classifier-proof-v0.md](tracks/polymorphic-add-classifier-proof-v0.md) | done | Added stdlib-only classifier/type proof for polymorphic Add with Add[Integer]/Add[Float] accepted and Add[String] OOF-TY1 |
+| [tracks/polymorphic-add-semanticir-emission-proof-v0.md](tracks/polymorphic-add-semanticir-emission-proof-v0.md) | done | Added SemanticIR emission proof for monomorphic Add[Integer]/Add[Float] with no generic ContractIR or unresolved trait calls |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 | [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
+| [tracks/spark-crm-applied-language-pressure-v0.md](tracks/spark-crm-applied-language-pressure-v0.md) | done | Created the first broad applied pressure map for Spark CRM dispatch, vendor lead intake, streams, diagnostics, schema drift, and neighbor proof/formal/bridge requests |
+| [tracks/spark-crm-real-business-candidate-map-v0.md](tracks/spark-crm-real-business-candidate-map-v0.md) | done | Mapped sanitized real Spark CRM business processes into Igniter-Lang implementation candidates without public secrets, endpoints, provider URLs, or infrastructure details |
 
 ## Active Experiments
 
@@ -50,6 +55,8 @@ implementation detail of the current Igniter platform.
 | [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-migration-replacement-image-v0: standalone memory proof, golden fixtures, checker, sidecar profiles, FFI receipt fixtures, PROP-017 schema checks, migration evidence, replacement SemanticImage, and trusted post-migration report |
 | [../experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb](../experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb) | done | FFI Ruby receipt/failure fixture generator and checker |
 | [../experiments/parser/igniter_lang_parser.rb](../experiments/parser/igniter_lang_parser.rb) | partial | Minimal recursive-descent parser for PROP-014/015 plus PROP-016 pressure surface; emits ParsedProgram JSON for add, availability_projection, and polymorphic_add |
+| [../experiments/polymorphic_add_classifier_proof/polymorphic_add_classifier_proof.rb](../experiments/polymorphic_add_classifier_proof/polymorphic_add_classifier_proof.rb) | done | Standalone classifier/type proof over polymorphic_add ParsedProgram; stops before SemanticIR |
+| [../experiments/polymorphic_add_semanticir_emission_proof/polymorphic_add_semanticir_emission_proof.rb](../experiments/polymorphic_add_semanticir_emission_proof/polymorphic_add_semanticir_emission_proof.rb) | done | Standalone SemanticIR emission proof for monomorphic polymorphic Add specializations |
 
 ## Active Proposals
 
@@ -152,6 +159,8 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Source Syntax to SemanticIR Boundary (PROP-014: minimal grammar kernel)
 - Grammar and Module System (PROP-015: def, TypeDecl, module/import, full v0 BNF)
 - Polymorphic Add Parser Acceptance (DONE — polymorphic_add.ig -> ParsedProgram)
+- Polymorphic Add Classifier Proof (DONE — TraitEnv/ImplEnv/ShapeEnv -> TypedProgram, Add[String] OOF-TY1)
+- Polymorphic Add SemanticIR Emission Proof (DONE — Add[Integer]/Add[Float] ContractIR shapes, no unresolved trait calls)
 - Parser Acceptance Harness (DONE — add.ig + availability_projection.ig → ParsedProgram, 61 specs)
 - Polymorphic Add Devkit Fixture (DONE — trait/impl/contract_shape pressure fixture, monomorphic SemanticIR specializations, no unresolved RuntimeMachine overloads)
 - FFI Ruby Contractable Proof (DONE — CapabilityGate + call discipline, 36 specs)
