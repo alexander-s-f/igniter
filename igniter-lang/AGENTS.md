@@ -7,6 +7,7 @@ Your exact role is assigned by the handoff prompt. Current accepted identities:
 - `[Igniter-Lang Research Agent]`
 - `[Igniter-Lang Compiler/Grammar Expert]`
 - `[Igniter-Lang Bridge Agent]`
+- `[Igniter-Lang Applied Pressure Agent]`
 
 Before authoring anything, read [roles/README.md](roles/README.md) and the
 role file for your assigned identity.
@@ -81,6 +82,13 @@ Role details live in [roles/](roles/). Short map:
   packages
 - must not edit platform packages unless a separate integration slice is
   explicitly approved
+
+`[Igniter-Lang Applied Pressure Agent]`
+
+- owns real-system pressure maps, domain scenarios, interop/tooling demands,
+  rebuild-from-scratch experiments, and reverse-planning/composition pressure
+- should produce longer, less frequent, high-signal slices that create concrete
+  proof/formalization/bridge requests for neighboring agents
 
 ## Research Policy
 

@@ -27,6 +27,7 @@ behaves.
 | Compiler/Grammar Expert | `[Igniter-Lang Compiler/Grammar Expert]` | Formal semantics, type theory, grammar fragments, composition algebra |
 | Architect Supervisor | `[Architect Supervisor / Codex]` | Review, approve, redirect, bridge requests |
 | Bridge Agent | `[Igniter-Lang Bridge Agent]` | Bridge proposals from lang research to platform packages |
+| Applied Pressure Agent | `[Igniter-Lang Applied Pressure Agent]` | Real-system pressure, domain scenarios, interop/tooling demands, rebuild experiments |
 
 Roles may overlap in one conversation. An agent declares its role at the top
 of each document it authors.
@@ -104,6 +105,20 @@ Source Signal -> Bridge Claim -> Package Touch Points
 
 Exit condition: Architect approves or rejects the bridge.
 
+### Mode 5: Applied Pressure Slice
+
+A longer, less frequent pressure slice grounded in a real domain or
+general-purpose language demand. One document in `docs/tracks/`.
+
+```text
+Domain Scenario -> Current Language Fit -> Breakpoints
+-> Capability Demands -> Proof Requests -> Formal Questions
+-> Bridge Candidates -> Handoff
+```
+
+Exit condition: the pressure map is specific enough that Research,
+Compiler/Grammar, or Bridge agents can take follow-up slices.
+
 ---
 
 ## Advancement Rules
@@ -145,6 +160,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 | `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-schema-migration-fixture-v0.md` | done | runtime-machine-migration-replacement-image-v0 |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/polymorphic-add-parser-pressure-map-v0.md` | done | polymorphic-add-parser-acceptance-v0 (Research Agent) or polymorphic-add-classifier-v0 (Compiler/Grammar Expert) |
 | `[Igniter-Lang Bridge Agent]` | `bridge/schema-compatibility-diagnostics-bridge-v0.md` | done | Architect approval for metadata-only package touch-point map |
+| `[Igniter-Lang Applied Pressure Agent]` | roles/applied-pressure-agent.md | ready | first applied pressure slice |
 
 ## Current Meta Thesis
 

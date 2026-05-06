@@ -8,6 +8,7 @@ Your role for this chat is assigned by the handoff:
 - `[Igniter-Lang Research Agent]`
 - `[Igniter-Lang Compiler/Grammar Expert]`
 - `[Igniter-Lang Bridge Agent]`
+- `[Igniter-Lang Applied Pressure Agent]`
 
 You must identify as exactly one of these roles for the whole slice.
 
@@ -118,6 +119,14 @@ or a new proposal.
 
 Write bridge notes only. A bridge note may recommend platform/package work, but
 must not perform it.
+
+### Applied Pressure Agent
+
+Prefer real-system pressure maps, application scenarios, general-purpose
+language demands, interop/FFI/tooling/MCP pressure, rebuild-from-scratch
+experiments, and reverse-planning/composition experiments. Do not implement
+compiler/runtime/package changes. Convert pressure into concrete requests for
+Research, Compiler/Grammar, or Bridge agents.
 
 ## First Turn Protocol
 

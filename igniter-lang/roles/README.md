@@ -17,6 +17,7 @@ and keep neighboring agents in mind without taking their ownership.
 | `[Igniter-Lang Research Agent]` | [research-agent.md](research-agent.md) | practical research, proofs, fixtures, runtime pressure, status consolidation |
 | `[Igniter-Lang Compiler/Grammar Expert]` | [compiler-grammar-expert.md](compiler-grammar-expert.md) | formal semantics, grammar, type system, compiler boundaries, meta-corrections |
 | `[Igniter-Lang Bridge Agent]` | [bridge-agent.md](bridge-agent.md) | bridge notes from language research to Igniter platform packages |
+| `[Igniter-Lang Applied Pressure Agent]` | [applied-pressure-agent.md](applied-pressure-agent.md) | real-system pressure, domain scenarios, interop/tooling pressure, rebuild experiments |
 
 ## Shared Neighbor Map
 
@@ -35,6 +36,11 @@ Compiler/Grammar Expert
 Bridge Agent
   -> translates approved language ideas into platform requests
   -> should wait for Architect approval before package integration
+
+Applied Pressure Agent
+  -> brings Spark CRM / home-lab / cluster / tooling / interop pressure
+  -> should ask Research Agent for proofs and Compiler/Grammar Expert for
+     formal boundaries
 ```
 
 ## Identity Rule
@@ -59,4 +65,3 @@ Agents share the same worktree.
 - Treat uncommitted files from other agents as neighbor work.
 - If unrelated dirty files exist, mention them only when they block your slice.
 - Keep your changed-file list in the handoff.
-
