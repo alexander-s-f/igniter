@@ -1,0 +1,114 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/703b156045dc946a",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+  "source_hash": "sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.SourceToSemanticIR.Negative",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.SourceToSemanticIR.Negative.BadUnresolvedSymbol",
+      "name": "BadUnresolvedSymbol",
+      "fragment_class": "oof",
+      "symbols": [
+        {
+          "name": "a",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "sum",
+          "kind": "compute",
+          "fragment_class": "oof"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:a",
+          "kind": "input",
+          "name": "a",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        },
+        {
+          "decl_id": "compute:sum",
+          "kind": "compute",
+          "name": "sum",
+          "fragment_class": "oof",
+          "deps": [
+            "a",
+            "missing_b"
+          ],
+          "missing_refs": [
+            "missing_b"
+          ],
+          "expr_kind": "binary_op",
+          "expr": {
+            "kind": "binary_op",
+            "op": "+",
+            "left": {
+              "kind": "ref",
+              "name": "a"
+            },
+            "right": {
+              "kind": "ref",
+              "name": "missing_b"
+            }
+          }
+        },
+        {
+          "decl_id": "output:sum",
+          "kind": "output",
+          "name": "sum",
+          "fragment_class": "oof",
+          "deps": [
+            "sum"
+          ],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:a",
+          "compute:sum",
+          "output:sum"
+        ],
+        "edges": [
+          {
+            "from": "input:a",
+            "to": "compute:sum",
+            "kind": "symbol"
+          },
+          {
+            "from": "compute:sum",
+            "to": "output:sum",
+            "kind": "symbol"
+          }
+        ]
+      },
+      "oof_log": [
+        {
+          "rule": "OOF-P1",
+          "message": "Unresolved symbol: missing_b",
+          "node": "sum",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "oof_log": [
+    {
+      "rule": "OOF-P1",
+      "message": "Unresolved symbol: missing_b",
+      "node": "sum",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

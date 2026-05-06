@@ -8,7 +8,7 @@ require "pathname"
 
 module TypecheckerProof
   ROOT = File.expand_path("../../..", __dir__)
-  CLASSIFIED_DIR = File.expand_path("../classifier_pass_proof/golden", __dir__)
+  DEFAULT_CLASSIFIED_DIR = File.join(__dir__, "classified")
   GOLDEN_DIR = File.join(__dir__, "golden")
   TYPECHECKER_VERSION = "typed-pass-executable-proof-v0"
 
@@ -267,14 +267,16 @@ module TypecheckerProof
 
   module_function
 
-  def run(mode: :write)
+  def run(mode: :write, classified_dir: DEFAULT_CLASSIFIED_DIR)
     FileUtils.mkdir_p(GOLDEN_DIR)
-    outputs = build_outputs
+    classified_dir = File.expand_path(classified_dir)
+    outputs = build_outputs(classified_dir: classified_dir)
     write_outputs(outputs) if mode == :write
 
-    checks = build_checks(outputs)
-    checks = checks.merge(build_golden_checks(outputs)) if mode == :check_golden
+    checks = build_checks(outputs, classified_dir: classified_dir)
+    checks = checks.merge(build_golden_checks(outputs, classified_dir: classified_dir)) if mode == :check_golden
     checks.each { |label, ok| puts "#{label}: #{ok ? "ok" : "FAIL"}" }
+    puts "classified.dir: #{rel(classified_dir)}"
     puts "golden.dir: #{rel(GOLDEN_DIR)}"
 
     if checks.all? { |_label, ok| ok }
@@ -284,10 +286,10 @@ module TypecheckerProof
     end
   end
 
-  def build_outputs
+  def build_outputs(classified_dir:)
     typechecker = TypecheckerPass.new
     CASES.each_with_object({}) do |(case_id, config), outputs|
-      classified = read_json(File.join(CLASSIFIED_DIR, config.fetch(:classified)))
+      classified = read_json(File.join(classified_dir, config.fetch(:classified)))
       typed = typechecker.typecheck(classified)
       outputs[case_id] = { classified: classified, typed: typed, config: config }
     end
@@ -299,7 +301,7 @@ module TypecheckerProof
     end
   end
 
-  def build_checks(outputs)
+  def build_checks(outputs, classified_dir:)
     {
       "typed.add" => accepted_with_outputs?(outputs, "add"),
       "typed.claim_evidence" => accepted_with_outputs?(outputs, "claim_evidence"),
@@ -309,6 +311,8 @@ module TypecheckerProof
       "negative.evidence_less_alert_blocked" => blocked_with_rules?(outputs, "negative_evidence_less_alert"),
       "negative.confidence_bool_blocked" => blocked_with_rules?(outputs, "negative_confidence_bool"),
       "semanticir.not_emitted" => outputs.values.all? { |result| result.fetch(:typed).fetch("semantic_ir_ref").nil? },
+      "boundary.classified_inputs_present" => classified_inputs_present?(classified_dir),
+      "boundary.classified_program_input_only" => classified_program_input_only?(outputs),
       "golden.typed_outputs" => Dir[File.join(GOLDEN_DIR, "*.typed.json")].length == CASES.length
     }
   end
@@ -340,13 +344,13 @@ module TypecheckerProof
     contract.fetch("status") == "blocked" && actual_rules == result.fetch(:config).fetch(:expected_rules)
   end
 
-  def build_golden_checks(outputs)
+  def build_golden_checks(outputs, classified_dir:)
     {
       "check.golden_typed_equal" => outputs.all? do |case_id, result|
         golden_equal?(File.join(GOLDEN_DIR, "#{case_id}.typed.json"), result.fetch(:typed))
       end,
       "check.canonical_typed_all" => outputs.values.all? { |result| canonical_typed?(result.fetch(:typed)) },
-      "check.deterministic_generation" => deterministic_outputs?
+      "check.deterministic_generation" => deterministic_outputs?(classified_dir: classified_dir)
     }
   end
 
@@ -362,9 +366,24 @@ module TypecheckerProof
     false
   end
 
-  def deterministic_outputs?
-    first = build_outputs
-    second = build_outputs
+  def classified_inputs_present?(classified_dir)
+    CASES.values.all? do |config|
+      File.exist?(File.join(classified_dir, config.fetch(:classified)))
+    end
+  end
+
+  def classified_program_input_only?(outputs)
+    outputs.values.all? do |result|
+      classified = result.fetch(:classified)
+      classified.fetch("kind") == "classified_program" &&
+        classified.key?("contracts") &&
+        classified.key?("type_declarations")
+    end
+  end
+
+  def deterministic_outputs?(classified_dir:)
+    first = build_outputs(classified_dir: classified_dir)
+    second = build_outputs(classified_dir: classified_dir)
     CASES.keys.all? do |case_id|
       render_json(first.fetch(case_id).fetch(:typed)) == render_json(second.fetch(case_id).fetch(:typed))
     end
@@ -399,5 +418,11 @@ end
 
 if $PROGRAM_NAME == __FILE__
   mode = ARGV.include?("--check-golden") ? :check_golden : :write
-  TypecheckerProof.run(mode: mode)
+  classified_dir = TypecheckerProof::DEFAULT_CLASSIFIED_DIR
+  if (index = ARGV.index("--classified-dir"))
+    classified_dir = ARGV.fetch(index + 1) do
+      abort("--classified-dir requires a path")
+    end
+  end
+  TypecheckerProof.run(mode: mode, classified_dir: classified_dir)
 end

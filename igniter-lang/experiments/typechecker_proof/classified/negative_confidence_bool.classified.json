@@ -1,0 +1,124 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/fe25576d9dacb93c",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_confidence_bool.ig",
+  "source_hash": "sha256:680812baba31f3da2c96544557873cb47f662bbcc7f1e1b76756919a8f64db93",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.SourceToSemanticIR.NegativeConfidence",
+  "type_declarations": [
+    {
+      "kind": "type",
+      "name": "ConfidenceAssessment",
+      "fields": [
+        {
+          "name": "assessment_id",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "confidence_label",
+          "type_annotation": "ConfidenceLabel",
+          "optional": false
+        }
+      ]
+    }
+  ],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.SourceToSemanticIR.NegativeConfidence.BadConfidenceAsBool",
+      "name": "BadConfidenceAsBool",
+      "fragment_class": "oof",
+      "symbols": [
+        {
+          "name": "allowed",
+          "kind": "compute",
+          "fragment_class": "core"
+        },
+        {
+          "name": "confidence",
+          "kind": "input",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:confidence",
+          "kind": "input",
+          "name": "confidence",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "ConfidenceAssessment"
+        },
+        {
+          "decl_id": "compute:allowed",
+          "kind": "compute",
+          "name": "allowed",
+          "fragment_class": "core",
+          "deps": [
+            "confidence"
+          ],
+          "missing_refs": [],
+          "expr_kind": "field_access",
+          "expr": {
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "confidence"
+            },
+            "field": "confidence_label"
+          }
+        },
+        {
+          "decl_id": "output:allowed",
+          "kind": "output",
+          "name": "allowed",
+          "fragment_class": "oof",
+          "deps": [
+            "allowed"
+          ],
+          "missing_refs": [],
+          "type_annotation": "Bool"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:confidence",
+          "compute:allowed",
+          "output:allowed"
+        ],
+        "edges": [
+          {
+            "from": "input:confidence",
+            "to": "compute:allowed",
+            "kind": "symbol"
+          },
+          {
+            "from": "compute:allowed",
+            "to": "output:allowed",
+            "kind": "symbol"
+          }
+        ]
+      },
+      "oof_log": [
+        {
+          "rule": "OOF-CE4",
+          "message": "ConfidenceLabel cannot be used as Bool",
+          "node": "allowed",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "oof_log": [
+    {
+      "rule": "OOF-CE4",
+      "message": "ConfidenceLabel cannot be used as Bool",
+      "node": "allowed",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

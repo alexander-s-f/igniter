@@ -1,0 +1,222 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/0d41cb02c2dc2fff",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_evidence_less_alert.ig",
+  "source_hash": "sha256:b2b44c799dba43f705081edaeff37532773abca340bf22e6d55cc9b6c8cd1779",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.SourceToSemanticIR.NegativeAlert",
+  "type_declarations": [
+    {
+      "kind": "type",
+      "name": "EvidenceLinkedAlertInput",
+      "fields": [
+        {
+          "name": "signal_count",
+          "type_annotation": "Integer",
+          "optional": false
+        },
+        {
+          "name": "claim_count",
+          "type_annotation": "Integer",
+          "optional": false
+        },
+        {
+          "name": "valid_until",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "confidence_label",
+          "type_annotation": "ConfidenceLabel",
+          "optional": false
+        }
+      ]
+    }
+  ],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.SourceToSemanticIR.NegativeAlert.BadEvidenceLessAlertGate",
+      "name": "BadEvidenceLessAlertGate",
+      "fragment_class": "oof",
+      "symbols": [
+        {
+          "name": "alert",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "allowed",
+          "kind": "compute",
+          "fragment_class": "core"
+        },
+        {
+          "name": "claim_present",
+          "kind": "compute",
+          "fragment_class": "core"
+        },
+        {
+          "name": "signal_present",
+          "kind": "compute",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:alert",
+          "kind": "input",
+          "name": "alert",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "EvidenceLinkedAlertInput"
+        },
+        {
+          "decl_id": "compute:signal_present",
+          "kind": "compute",
+          "name": "signal_present",
+          "fragment_class": "core",
+          "deps": [
+            "alert"
+          ],
+          "missing_refs": [],
+          "expr_kind": "binary_op",
+          "expr": {
+            "kind": "binary_op",
+            "op": ">",
+            "left": {
+              "kind": "field_access",
+              "object": {
+                "kind": "ref",
+                "name": "alert"
+              },
+              "field": "signal_count"
+            },
+            "right": {
+              "kind": "literal",
+              "value": 0,
+              "type_tag": "Integer"
+            }
+          }
+        },
+        {
+          "decl_id": "compute:claim_present",
+          "kind": "compute",
+          "name": "claim_present",
+          "fragment_class": "core",
+          "deps": [
+            "alert"
+          ],
+          "missing_refs": [],
+          "expr_kind": "binary_op",
+          "expr": {
+            "kind": "binary_op",
+            "op": ">",
+            "left": {
+              "kind": "field_access",
+              "object": {
+                "kind": "ref",
+                "name": "alert"
+              },
+              "field": "claim_count"
+            },
+            "right": {
+              "kind": "literal",
+              "value": 0,
+              "type_tag": "Integer"
+            }
+          }
+        },
+        {
+          "decl_id": "compute:allowed",
+          "kind": "compute",
+          "name": "allowed",
+          "fragment_class": "core",
+          "deps": [
+            "signal_present",
+            "claim_present"
+          ],
+          "missing_refs": [],
+          "expr_kind": "binary_op",
+          "expr": {
+            "kind": "binary_op",
+            "op": "&&",
+            "left": {
+              "kind": "ref",
+              "name": "signal_present"
+            },
+            "right": {
+              "kind": "ref",
+              "name": "claim_present"
+            }
+          }
+        },
+        {
+          "decl_id": "output:allowed",
+          "kind": "output",
+          "name": "allowed",
+          "fragment_class": "core",
+          "deps": [
+            "allowed"
+          ],
+          "missing_refs": [],
+          "type_annotation": "Bool"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:alert",
+          "compute:signal_present",
+          "compute:claim_present",
+          "compute:allowed",
+          "output:allowed"
+        ],
+        "edges": [
+          {
+            "from": "input:alert",
+            "to": "compute:signal_present",
+            "kind": "symbol"
+          },
+          {
+            "from": "input:alert",
+            "to": "compute:claim_present",
+            "kind": "symbol"
+          },
+          {
+            "from": "compute:signal_present",
+            "to": "compute:allowed",
+            "kind": "symbol"
+          },
+          {
+            "from": "compute:claim_present",
+            "to": "compute:allowed",
+            "kind": "symbol"
+          },
+          {
+            "from": "compute:allowed",
+            "to": "output:allowed",
+            "kind": "symbol"
+          }
+        ]
+      },
+      "oof_log": [
+        {
+          "rule": "OOF-OS2",
+          "message": "EvidenceLinkedAlert requires non-empty signal_refs and claim_refs",
+          "node": "BadEvidenceLessAlertGate",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "oof_log": [
+    {
+      "rule": "OOF-OS2",
+      "message": "EvidenceLinkedAlert requires non-empty signal_refs and claim_refs",
+      "node": "BadEvidenceLessAlertGate",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

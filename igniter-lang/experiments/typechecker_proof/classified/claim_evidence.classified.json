@@ -1,0 +1,166 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/7e3876a537d17a7e",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/claim_evidence.ig",
+  "source_hash": "sha256:3996d52ebb40381bf7ab347c5f7edc9a2c0c3493dddc96529b3506bb90d82162",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.SourceToSemanticIR.ClaimEvidence",
+  "type_declarations": [
+    {
+      "kind": "type",
+      "name": "Claim",
+      "fields": [
+        {
+          "name": "claim_id",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "subject_ref",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "predicate",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "object_value",
+          "type_annotation": "String",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "kind": "type",
+      "name": "EvidenceLink",
+      "fields": [
+        {
+          "name": "link_id",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "source_ref",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "target_ref",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "relation",
+          "type_annotation": "String",
+          "optional": false
+        },
+        {
+          "name": "strength",
+          "type_annotation": "String",
+          "optional": false
+        }
+      ]
+    }
+  ],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.SourceToSemanticIR.ClaimEvidence.ClaimEvidenceBundle",
+      "name": "ClaimEvidenceBundle",
+      "fragment_class": "core",
+      "symbols": [
+        {
+          "name": "claim",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "evidence",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "linked_claim_ref",
+          "kind": "compute",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:claim",
+          "kind": "input",
+          "name": "claim",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Claim"
+        },
+        {
+          "decl_id": "input:evidence",
+          "kind": "input",
+          "name": "evidence",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "EvidenceLink"
+        },
+        {
+          "decl_id": "compute:linked_claim_ref",
+          "kind": "compute",
+          "name": "linked_claim_ref",
+          "fragment_class": "core",
+          "deps": [
+            "evidence"
+          ],
+          "missing_refs": [],
+          "expr_kind": "field_access",
+          "expr": {
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "evidence"
+            },
+            "field": "target_ref"
+          }
+        },
+        {
+          "decl_id": "output:linked_claim_ref",
+          "kind": "output",
+          "name": "linked_claim_ref",
+          "fragment_class": "core",
+          "deps": [
+            "linked_claim_ref"
+          ],
+          "missing_refs": [],
+          "type_annotation": "String"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:claim",
+          "input:evidence",
+          "compute:linked_claim_ref",
+          "output:linked_claim_ref"
+        ],
+        "edges": [
+          {
+            "from": "input:evidence",
+            "to": "compute:linked_claim_ref",
+            "kind": "symbol"
+          },
+          {
+            "from": "compute:linked_claim_ref",
+            "to": "output:linked_claim_ref",
+            "kind": "symbol"
+          }
+        ]
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}
