@@ -1,97 +1,69 @@
 {
-  "kind": "semantic_ir",
-  "program_id": "source_to_semanticir/bef3ae44537183f8",
-  "axiom_version": "1.0.0",
+  "kind": "semantic_ir_program",
+  "format_version": "0.1.0",
+  "program_id": "semanticir/680812baba31f3da",
   "grammar_version": "0.1.0",
   "source_hash": "sha256:680812baba31f3da2c96544557873cb47f662bbcc7f1e1b76756919a8f64db93",
+  "source_path": "experiments/source_to_semanticir_fixture/negative_confidence_bool.ig",
+  "module": "Fixture.SourceToSemanticIR.NegativeConfidence",
   "contracts": [
     {
-      "contract_id": "Fixture.SourceToSemanticIR.NegativeConfidence.BadConfidenceAsBool",
-      "name": "BadConfidenceAsBool",
+      "kind": "contract_ir",
+      "contract_ref": "contract/BadConfidenceAsBool/sha256:3c34bf2487fb68438d301ced",
+      "contract_name": "BadConfidenceAsBool",
+      "specialization_of": null,
+      "type_args": {},
       "fragment_class": "oof",
-      "escape_set": [],
-      "input_ports": [
+      "inputs": [
         {
           "name": "confidence",
-          "type_tag": "ConfidenceAssessment",
+          "type": {
+            "name": "ConfidenceAssessment",
+            "params": []
+          },
           "lifecycle": "local"
         }
       ],
-      "compute_nodes": [
+      "outputs": [
         {
-          "node_id": "node_allowed",
           "name": "allowed",
-          "type_tag": "ConfidenceLabel",
-          "lifecycle": "session",
-          "expression": {
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "compute",
+          "name": "allowed",
+          "expr": {
             "kind": "field_access",
             "object": {
               "kind": "ref",
               "name": "confidence",
-              "type_tag": "ConfidenceAssessment"
+              "resolved_type": {
+                "name": "ConfidenceAssessment",
+                "params": []
+              }
             },
             "field": "confidence_label",
-            "type_tag": "ConfidenceLabel"
-          }
-        }
-      ],
-      "output_ports": [
-        {
-          "name": "allowed",
-          "type_tag": "Bool",
-          "lifecycle": "session"
-        }
-      ],
-      "dependency_graph": {
-        "nodes": [
-          "input:confidence",
-          "node_allowed",
-          "output:allowed"
-        ],
-        "edges": [
-          {
-            "from": "input:confidence",
-            "to": "node_allowed",
-            "kind": "data"
+            "resolved_type": {
+              "name": "ConfidenceLabel",
+              "params": []
+            }
           },
-          {
-            "from": "node_allowed",
-            "to": "output:allowed",
-            "kind": "data"
-          }
-        ]
-      },
-      "evaluation_targets": [
-        {
-          "name": "allowed",
-          "contract_id": "Fixture.SourceToSemanticIR.NegativeConfidence.BadConfidenceAsBool",
-          "output_ports": [
-            "allowed"
+          "type": {
+            "name": "ConfidenceLabel",
+            "params": []
+          },
+          "deps": [
+            "confidence"
           ],
-          "as_projection": null
+          "fragment": "core"
         }
       ],
-      "temporal_requirements": {
-        "requires_as_of": true,
-        "requires_replay": false,
-        "requires_snapshot": false,
-        "min_consistency": "strong",
-        "windows": [],
-        "slices": []
-      },
-      "lifecycle_requirements": {
-        "min_lifecycle": "local",
-        "has_audit": false,
-        "has_window": false
-      },
-      "capability_requirements": {
-        "required_caps": [],
-        "effect_kinds": []
-      },
-      "effect_declarations": [],
-      "ffi_requirements": [],
-      "projection_descriptors": [],
-      "boundary_descriptors": [],
       "escape_boundaries": [],
       "oof_log": [
         {

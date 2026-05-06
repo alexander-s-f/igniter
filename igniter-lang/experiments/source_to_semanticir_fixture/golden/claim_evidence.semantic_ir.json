@@ -1,103 +1,77 @@
 {
-  "kind": "semantic_ir",
-  "program_id": "source_to_semanticir/5f35d197b2a97df0",
-  "axiom_version": "1.0.0",
+  "kind": "semantic_ir_program",
+  "format_version": "0.1.0",
+  "program_id": "semanticir/3996d52ebb40381b",
   "grammar_version": "0.1.0",
   "source_hash": "sha256:3996d52ebb40381bf7ab347c5f7edc9a2c0c3493dddc96529b3506bb90d82162",
+  "source_path": "experiments/source_to_semanticir_fixture/claim_evidence.ig",
+  "module": "Fixture.SourceToSemanticIR.ClaimEvidence",
   "contracts": [
     {
-      "contract_id": "Fixture.SourceToSemanticIR.ClaimEvidence.ClaimEvidenceBundle",
-      "name": "ClaimEvidenceBundle",
+      "kind": "contract_ir",
+      "contract_ref": "contract/ClaimEvidenceBundle/sha256:9223b4be6577dc58217eb6cd",
+      "contract_name": "ClaimEvidenceBundle",
+      "specialization_of": null,
+      "type_args": {},
       "fragment_class": "core",
-      "escape_set": [],
-      "input_ports": [
+      "inputs": [
         {
           "name": "claim",
-          "type_tag": "Claim",
+          "type": {
+            "name": "Claim",
+            "params": []
+          },
           "lifecycle": "local"
         },
         {
           "name": "evidence",
-          "type_tag": "EvidenceLink",
+          "type": {
+            "name": "EvidenceLink",
+            "params": []
+          },
           "lifecycle": "local"
         }
       ],
-      "compute_nodes": [
+      "outputs": [
         {
-          "node_id": "node_linked_claim_ref",
           "name": "linked_claim_ref",
-          "type_tag": "String",
-          "lifecycle": "session",
-          "expression": {
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "compute",
+          "name": "linked_claim_ref",
+          "expr": {
             "kind": "field_access",
             "object": {
               "kind": "ref",
               "name": "evidence",
-              "type_tag": "EvidenceLink"
+              "resolved_type": {
+                "name": "EvidenceLink",
+                "params": []
+              }
             },
             "field": "target_ref",
-            "type_tag": "String"
-          }
-        }
-      ],
-      "output_ports": [
-        {
-          "name": "linked_claim_ref",
-          "type_tag": "String",
-          "lifecycle": "session"
-        }
-      ],
-      "dependency_graph": {
-        "nodes": [
-          "input:claim",
-          "input:evidence",
-          "node_linked_claim_ref",
-          "output:linked_claim_ref"
-        ],
-        "edges": [
-          {
-            "from": "input:evidence",
-            "to": "node_linked_claim_ref",
-            "kind": "data"
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
           },
-          {
-            "from": "node_linked_claim_ref",
-            "to": "output:linked_claim_ref",
-            "kind": "data"
-          }
-        ]
-      },
-      "evaluation_targets": [
-        {
-          "name": "linked_claim_ref",
-          "contract_id": "Fixture.SourceToSemanticIR.ClaimEvidence.ClaimEvidenceBundle",
-          "output_ports": [
-            "linked_claim_ref"
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": [
+            "evidence"
           ],
-          "as_projection": null
+          "fragment": "core"
         }
       ],
-      "temporal_requirements": {
-        "requires_as_of": true,
-        "requires_replay": false,
-        "requires_snapshot": false,
-        "min_consistency": "strong",
-        "windows": [],
-        "slices": []
-      },
-      "lifecycle_requirements": {
-        "min_lifecycle": "local",
-        "has_audit": false,
-        "has_window": false
-      },
-      "capability_requirements": {
-        "required_caps": [],
-        "effect_kinds": []
-      },
-      "effect_declarations": [],
-      "ffi_requirements": [],
-      "projection_descriptors": [],
-      "boundary_descriptors": [],
       "escape_boundaries": [],
       "oof_log": []
     }

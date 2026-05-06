@@ -1,25 +1,21 @@
 {
   "kind": "source_to_semanticir_fixture_summary",
+  "prop019_compliant": true,
   "canonical_envelope": {
-    "kind": "semantic_ir",
-    "axiom_version": "1.0.0",
+    "kind": "semantic_ir_program",
+    "format_version": "0.1.0",
     "contract_keys": [
-      "contract_id",
-      "name",
+      "kind",
+      "contract_ref",
+      "contract_name",
+      "specialization_of",
+      "type_args",
       "fragment_class",
-      "escape_set",
-      "input_ports",
-      "compute_nodes",
-      "output_ports",
-      "dependency_graph",
-      "evaluation_targets",
-      "temporal_requirements",
-      "lifecycle_requirements",
-      "capability_requirements",
-      "effect_declarations",
-      "ffi_requirements",
-      "projection_descriptors",
-      "boundary_descriptors"
+      "inputs",
+      "outputs",
+      "nodes",
+      "escape_boundaries",
+      "oof_log"
     ]
   },
   "positive_contracts": [

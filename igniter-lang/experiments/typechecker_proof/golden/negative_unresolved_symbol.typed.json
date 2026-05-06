@@ -1,0 +1,131 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/2ed3fa301cd584b6",
+  "classified_program_id": "classifier_pass/703b156045dc946a",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+  "source_hash": "sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.SourceToSemanticIR.Negative",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Fixture.SourceToSemanticIR.Negative.BadUnresolvedSymbol",
+      "name": "BadUnresolvedSymbol",
+      "status": "blocked",
+      "fragment_class": "oof",
+      "symbols": [
+        {
+          "name": "a",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "sum",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:a",
+          "kind": "input",
+          "name": "a",
+          "fragment_class": "core",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "compute:sum",
+          "kind": "compute",
+          "name": "sum",
+          "fragment_class": "oof",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": [
+            "a",
+            "missing_b"
+          ],
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.integer.add",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "a",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                },
+                "deps": [
+                  "a"
+                ]
+              },
+              {
+                "kind": "ref",
+                "name": "missing_b",
+                "resolved_type": {
+                  "name": "Unknown",
+                  "params": []
+                },
+                "deps": [
+                  "missing_b"
+                ]
+              }
+            ],
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            },
+            "deps": [
+              "a",
+              "missing_b"
+            ]
+          }
+        },
+        {
+          "decl_id": "output:sum",
+          "kind": "output",
+          "name": "sum",
+          "fragment_class": "oof",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": [
+            "sum"
+          ]
+        }
+      ],
+      "type_errors": [
+        {
+          "rule": "OOF-P1",
+          "message": "Unresolved symbol: missing_b",
+          "node": "sum",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "type_errors": [
+    {
+      "rule": "OOF-P1",
+      "message": "Unresolved symbol: missing_b",
+      "node": "sum",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

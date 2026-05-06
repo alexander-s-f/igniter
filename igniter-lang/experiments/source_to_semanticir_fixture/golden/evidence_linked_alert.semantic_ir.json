@@ -1,177 +1,174 @@
 {
-  "kind": "semantic_ir",
-  "program_id": "source_to_semanticir/6a575f5911f49913",
-  "axiom_version": "1.0.0",
+  "kind": "semantic_ir_program",
+  "format_version": "0.1.0",
+  "program_id": "semanticir/37008b8855a287cc",
   "grammar_version": "0.1.0",
   "source_hash": "sha256:37008b8855a287cc80f267feaaa86789c8d7c7b3ac15579933b38c7f235ac6d5",
+  "source_path": "experiments/source_to_semanticir_fixture/evidence_linked_alert.ig",
+  "module": "Fixture.SourceToSemanticIR.Alert",
   "contracts": [
     {
-      "contract_id": "Fixture.SourceToSemanticIR.Alert.EvidenceLinkedAlertGate",
-      "name": "EvidenceLinkedAlertGate",
+      "kind": "contract_ir",
+      "contract_ref": "contract/EvidenceLinkedAlertGate/sha256:8664a19fd8ce3a68b162b0e5",
+      "contract_name": "EvidenceLinkedAlertGate",
+      "specialization_of": null,
+      "type_args": {},
       "fragment_class": "core",
-      "escape_set": [],
-      "input_ports": [
+      "inputs": [
         {
           "name": "alert",
-          "type_tag": "EvidenceLinkedAlertInput",
+          "type": {
+            "name": "EvidenceLinkedAlertInput",
+            "params": []
+          },
           "lifecycle": "local"
         }
       ],
-      "compute_nodes": [
+      "outputs": [
         {
-          "node_id": "node_signal_present",
+          "name": "allowed",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "compute",
           "name": "signal_present",
-          "type_tag": "Bool",
-          "lifecycle": "session",
-          "expression": {
-            "kind": "apply",
-            "operator": "stdlib.integer.gt",
-            "operands": [
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.integer.gt",
+            "args": [
               {
                 "kind": "field_access",
                 "object": {
                   "kind": "ref",
                   "name": "alert",
-                  "type_tag": "EvidenceLinkedAlertInput"
+                  "resolved_type": {
+                    "name": "EvidenceLinkedAlertInput",
+                    "params": []
+                  }
                 },
                 "field": "signal_count",
-                "type_tag": "Integer"
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
               },
               {
                 "kind": "literal",
                 "value": 0,
-                "type_tag": "Integer"
+                "type": "int",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
               }
             ],
-            "type_tag": "Bool"
-          }
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "alert"
+          ],
+          "fragment": "core"
         },
         {
-          "node_id": "node_claim_present",
+          "kind": "compute",
           "name": "claim_present",
-          "type_tag": "Bool",
-          "lifecycle": "session",
-          "expression": {
-            "kind": "apply",
-            "operator": "stdlib.integer.gt",
-            "operands": [
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.integer.gt",
+            "args": [
               {
                 "kind": "field_access",
                 "object": {
                   "kind": "ref",
                   "name": "alert",
-                  "type_tag": "EvidenceLinkedAlertInput"
+                  "resolved_type": {
+                    "name": "EvidenceLinkedAlertInput",
+                    "params": []
+                  }
                 },
                 "field": "claim_count",
-                "type_tag": "Integer"
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
               },
               {
                 "kind": "literal",
                 "value": 0,
-                "type_tag": "Integer"
+                "type": "int",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
               }
             ],
-            "type_tag": "Bool"
-          }
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "alert"
+          ],
+          "fragment": "core"
         },
         {
-          "node_id": "node_allowed",
+          "kind": "compute",
           "name": "allowed",
-          "type_tag": "Bool",
-          "lifecycle": "session",
-          "expression": {
-            "kind": "apply",
-            "operator": "stdlib.bool.and",
-            "operands": [
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.bool.and",
+            "args": [
               {
                 "kind": "ref",
                 "name": "signal_present",
-                "type_tag": "Bool"
+                "resolved_type": {
+                  "name": "Bool",
+                  "params": []
+                }
               },
               {
                 "kind": "ref",
                 "name": "claim_present",
-                "type_tag": "Bool"
+                "resolved_type": {
+                  "name": "Bool",
+                  "params": []
+                }
               }
             ],
-            "type_tag": "Bool"
-          }
-        }
-      ],
-      "output_ports": [
-        {
-          "name": "allowed",
-          "type_tag": "Bool",
-          "lifecycle": "session"
-        }
-      ],
-      "dependency_graph": {
-        "nodes": [
-          "input:alert",
-          "node_signal_present",
-          "node_claim_present",
-          "node_allowed",
-          "output:allowed"
-        ],
-        "edges": [
-          {
-            "from": "input:alert",
-            "to": "node_signal_present",
-            "kind": "data"
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
           },
-          {
-            "from": "input:alert",
-            "to": "node_claim_present",
-            "kind": "data"
+          "type": {
+            "name": "Bool",
+            "params": []
           },
-          {
-            "from": "node_signal_present",
-            "to": "node_allowed",
-            "kind": "data"
-          },
-          {
-            "from": "node_claim_present",
-            "to": "node_allowed",
-            "kind": "data"
-          },
-          {
-            "from": "node_allowed",
-            "to": "output:allowed",
-            "kind": "data"
-          }
-        ]
-      },
-      "evaluation_targets": [
-        {
-          "name": "allowed",
-          "contract_id": "Fixture.SourceToSemanticIR.Alert.EvidenceLinkedAlertGate",
-          "output_ports": [
-            "allowed"
+          "deps": [
+            "signal_present",
+            "claim_present"
           ],
-          "as_projection": null
+          "fragment": "core"
         }
       ],
-      "temporal_requirements": {
-        "requires_as_of": true,
-        "requires_replay": false,
-        "requires_snapshot": false,
-        "min_consistency": "strong",
-        "windows": [],
-        "slices": []
-      },
-      "lifecycle_requirements": {
-        "min_lifecycle": "local",
-        "has_audit": false,
-        "has_window": false
-      },
-      "capability_requirements": {
-        "required_caps": [],
-        "effect_kinds": []
-      },
-      "effect_declarations": [],
-      "ffi_requirements": [],
-      "projection_descriptors": [],
-      "boundary_descriptors": [],
       "escape_boundaries": [],
       "oof_log": []
     }

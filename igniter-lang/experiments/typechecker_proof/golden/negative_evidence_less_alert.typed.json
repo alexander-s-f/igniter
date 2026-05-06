@@ -1,43 +1,97 @@
 {
-  "kind": "semantic_ir_program",
-  "format_version": "0.1.0",
-  "program_id": "semanticir/b2b44c799dba43f7",
-  "grammar_version": "0.1.0",
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/6816fbfa5774cdf2",
+  "classified_program_id": "classifier_pass/0d41cb02c2dc2fff",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_evidence_less_alert.ig",
   "source_hash": "sha256:b2b44c799dba43f705081edaeff37532773abca340bf22e6d55cc9b6c8cd1779",
-  "source_path": "experiments/source_to_semanticir_fixture/negative_evidence_less_alert.ig",
+  "grammar_version": "0.1.0",
   "module": "Fixture.SourceToSemanticIR.NegativeAlert",
+  "type_env": {
+    "EvidenceLinkedAlertInput": {
+      "signal_count": {
+        "name": "Integer",
+        "params": []
+      },
+      "claim_count": {
+        "name": "Integer",
+        "params": []
+      },
+      "valid_until": {
+        "name": "String",
+        "params": []
+      },
+      "confidence_label": {
+        "name": "ConfidenceLabel",
+        "params": []
+      }
+    }
+  },
   "contracts": [
     {
-      "kind": "contract_ir",
-      "contract_ref": "contract/BadEvidenceLessAlertGate/sha256:5dc71779afac47ca67a69435",
-      "contract_name": "BadEvidenceLessAlertGate",
-      "specialization_of": null,
-      "type_args": {},
+      "kind": "typed_contract",
+      "contract_id": "Fixture.SourceToSemanticIR.NegativeAlert.BadEvidenceLessAlertGate",
+      "name": "BadEvidenceLessAlertGate",
+      "status": "blocked",
       "fragment_class": "oof",
-      "inputs": [
+      "symbols": [
         {
           "name": "alert",
           "type": {
             "name": "EvidenceLinkedAlertInput",
             "params": []
           },
-          "lifecycle": "local"
-        }
-      ],
-      "outputs": [
+          "resolved": true
+        },
         {
           "name": "allowed",
           "type": {
             "name": "Bool",
             "params": []
           },
-          "lifecycle": "session"
+          "resolved": true
+        },
+        {
+          "name": "claim_present",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "signal_present",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "resolved": true
         }
       ],
-      "nodes": [
+      "declarations": [
         {
+          "decl_id": "input:alert",
+          "kind": "input",
+          "name": "alert",
+          "fragment_class": "core",
+          "type": {
+            "name": "EvidenceLinkedAlertInput",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "compute:signal_present",
           "kind": "compute",
           "name": "signal_present",
+          "fragment_class": "core",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "alert"
+          ],
           "expr": {
             "kind": "call",
             "fn": "stdlib.integer.gt",
@@ -50,29 +104,45 @@
                   "resolved_type": {
                     "name": "EvidenceLinkedAlertInput",
                     "params": []
-                  }
+                  },
+                  "deps": [
+                    "alert"
+                  ]
                 },
                 "field": "signal_count",
                 "resolved_type": {
                   "name": "Integer",
                   "params": []
-                }
+                },
+                "deps": [
+                  "alert"
+                ]
               },
               {
                 "kind": "literal",
                 "value": 0,
-                "type": "int",
+                "literal_type": "int",
                 "resolved_type": {
                   "name": "Integer",
                   "params": []
-                }
+                },
+                "deps": []
               }
             ],
             "resolved_type": {
               "name": "Bool",
               "params": []
-            }
-          },
+            },
+            "deps": [
+              "alert"
+            ]
+          }
+        },
+        {
+          "decl_id": "compute:claim_present",
+          "kind": "compute",
+          "name": "claim_present",
+          "fragment_class": "core",
           "type": {
             "name": "Bool",
             "params": []
@@ -80,11 +150,6 @@
           "deps": [
             "alert"
           ],
-          "fragment": "core"
-        },
-        {
-          "kind": "compute",
-          "name": "claim_present",
           "expr": {
             "kind": "call",
             "fn": "stdlib.integer.gt",
@@ -97,41 +162,53 @@
                   "resolved_type": {
                     "name": "EvidenceLinkedAlertInput",
                     "params": []
-                  }
+                  },
+                  "deps": [
+                    "alert"
+                  ]
                 },
                 "field": "claim_count",
                 "resolved_type": {
                   "name": "Integer",
                   "params": []
-                }
+                },
+                "deps": [
+                  "alert"
+                ]
               },
               {
                 "kind": "literal",
                 "value": 0,
-                "type": "int",
+                "literal_type": "int",
                 "resolved_type": {
                   "name": "Integer",
                   "params": []
-                }
+                },
+                "deps": []
               }
             ],
             "resolved_type": {
               "name": "Bool",
               "params": []
-            }
-          },
+            },
+            "deps": [
+              "alert"
+            ]
+          }
+        },
+        {
+          "decl_id": "compute:allowed",
+          "kind": "compute",
+          "name": "allowed",
+          "fragment_class": "core",
           "type": {
             "name": "Bool",
             "params": []
           },
           "deps": [
-            "alert"
+            "signal_present",
+            "claim_present"
           ],
-          "fragment": "core"
-        },
-        {
-          "kind": "compute",
-          "name": "allowed",
           "expr": {
             "kind": "call",
             "fn": "stdlib.bool.and",
@@ -142,7 +219,10 @@
                 "resolved_type": {
                   "name": "Bool",
                   "params": []
-                }
+                },
+                "deps": [
+                  "signal_present"
+                ]
               },
               {
                 "kind": "ref",
@@ -150,27 +230,37 @@
                 "resolved_type": {
                   "name": "Bool",
                   "params": []
-                }
+                },
+                "deps": [
+                  "claim_present"
+                ]
               }
             ],
             "resolved_type": {
               "name": "Bool",
               "params": []
-            }
-          },
+            },
+            "deps": [
+              "signal_present",
+              "claim_present"
+            ]
+          }
+        },
+        {
+          "decl_id": "output:allowed",
+          "kind": "output",
+          "name": "allowed",
+          "fragment_class": "core",
           "type": {
             "name": "Bool",
             "params": []
           },
           "deps": [
-            "signal_present",
-            "claim_present"
-          ],
-          "fragment": "core"
+            "allowed"
+          ]
         }
       ],
-      "escape_boundaries": [],
-      "oof_log": [
+      "type_errors": [
         {
           "rule": "OOF-OS2",
           "message": "EvidenceLinkedAlert requires non-empty signal_refs and claim_refs",
@@ -180,12 +270,13 @@
       ]
     }
   ],
-  "oof_log": [
+  "type_errors": [
     {
       "rule": "OOF-OS2",
       "message": "EvidenceLinkedAlert requires non-empty signal_refs and claim_refs",
       "node": "BadEvidenceLessAlertGate",
       "line": null
     }
-  ]
+  ],
+  "semantic_ir_ref": null
 }

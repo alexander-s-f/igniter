@@ -1,0 +1,127 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/67bc1a44a39e7d36",
+  "classified_program_id": "classifier_pass/fe25576d9dacb93c",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_confidence_bool.ig",
+  "source_hash": "sha256:680812baba31f3da2c96544557873cb47f662bbcc7f1e1b76756919a8f64db93",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.SourceToSemanticIR.NegativeConfidence",
+  "type_env": {
+    "ConfidenceAssessment": {
+      "assessment_id": {
+        "name": "String",
+        "params": []
+      },
+      "confidence_label": {
+        "name": "ConfidenceLabel",
+        "params": []
+      }
+    }
+  },
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Fixture.SourceToSemanticIR.NegativeConfidence.BadConfidenceAsBool",
+      "name": "BadConfidenceAsBool",
+      "status": "blocked",
+      "fragment_class": "oof",
+      "symbols": [
+        {
+          "name": "allowed",
+          "type": {
+            "name": "ConfidenceLabel",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "confidence",
+          "type": {
+            "name": "ConfidenceAssessment",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:confidence",
+          "kind": "input",
+          "name": "confidence",
+          "fragment_class": "core",
+          "type": {
+            "name": "ConfidenceAssessment",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "compute:allowed",
+          "kind": "compute",
+          "name": "allowed",
+          "fragment_class": "core",
+          "type": {
+            "name": "ConfidenceLabel",
+            "params": []
+          },
+          "deps": [
+            "confidence"
+          ],
+          "expr": {
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "confidence",
+              "resolved_type": {
+                "name": "ConfidenceAssessment",
+                "params": []
+              },
+              "deps": [
+                "confidence"
+              ]
+            },
+            "field": "confidence_label",
+            "resolved_type": {
+              "name": "ConfidenceLabel",
+              "params": []
+            },
+            "deps": [
+              "confidence"
+            ]
+          }
+        },
+        {
+          "decl_id": "output:allowed",
+          "kind": "output",
+          "name": "allowed",
+          "fragment_class": "oof",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "allowed"
+          ]
+        }
+      ],
+      "type_errors": [
+        {
+          "rule": "OOF-CE4",
+          "message": "ConfidenceLabel cannot be used as Bool",
+          "node": "allowed",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "type_errors": [
+    {
+      "rule": "OOF-CE4",
+      "message": "ConfidenceLabel cannot be used as Bool",
+      "node": "allowed",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

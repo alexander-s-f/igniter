@@ -1,0 +1,162 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/57f84bbe9f34dd8a",
+  "classified_program_id": "classifier_pass/7e3876a537d17a7e",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/claim_evidence.ig",
+  "source_hash": "sha256:3996d52ebb40381bf7ab347c5f7edc9a2c0c3493dddc96529b3506bb90d82162",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.SourceToSemanticIR.ClaimEvidence",
+  "type_env": {
+    "Claim": {
+      "claim_id": {
+        "name": "String",
+        "params": []
+      },
+      "subject_ref": {
+        "name": "String",
+        "params": []
+      },
+      "predicate": {
+        "name": "String",
+        "params": []
+      },
+      "object_value": {
+        "name": "String",
+        "params": []
+      }
+    },
+    "EvidenceLink": {
+      "link_id": {
+        "name": "String",
+        "params": []
+      },
+      "source_ref": {
+        "name": "String",
+        "params": []
+      },
+      "target_ref": {
+        "name": "String",
+        "params": []
+      },
+      "relation": {
+        "name": "String",
+        "params": []
+      },
+      "strength": {
+        "name": "String",
+        "params": []
+      }
+    }
+  },
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Fixture.SourceToSemanticIR.ClaimEvidence.ClaimEvidenceBundle",
+      "name": "ClaimEvidenceBundle",
+      "status": "accepted",
+      "fragment_class": "core",
+      "symbols": [
+        {
+          "name": "claim",
+          "type": {
+            "name": "Claim",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "evidence",
+          "type": {
+            "name": "EvidenceLink",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "linked_claim_ref",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:claim",
+          "kind": "input",
+          "name": "claim",
+          "fragment_class": "core",
+          "type": {
+            "name": "Claim",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "input:evidence",
+          "kind": "input",
+          "name": "evidence",
+          "fragment_class": "core",
+          "type": {
+            "name": "EvidenceLink",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "compute:linked_claim_ref",
+          "kind": "compute",
+          "name": "linked_claim_ref",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": [
+            "evidence"
+          ],
+          "expr": {
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "evidence",
+              "resolved_type": {
+                "name": "EvidenceLink",
+                "params": []
+              },
+              "deps": [
+                "evidence"
+              ]
+            },
+            "field": "target_ref",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            },
+            "deps": [
+              "evidence"
+            ]
+          }
+        },
+        {
+          "decl_id": "output:linked_claim_ref",
+          "kind": "output",
+          "name": "linked_claim_ref",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": [
+            "linked_claim_ref"
+          ]
+        }
+      ],
+      "type_errors": []
+    }
+  ],
+  "type_errors": [],
+  "semantic_ir_ref": null
+}
