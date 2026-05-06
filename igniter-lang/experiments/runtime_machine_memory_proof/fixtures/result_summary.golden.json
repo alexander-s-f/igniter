@@ -71,6 +71,46 @@
         "ok": true
       },
       {
+        "name": "migration.P-1-replacement_migration_receipt_ref",
+        "ok": true
+      },
+      {
+        "name": "migration.P-2-replacement_replaces_image_id",
+        "ok": true
+      },
+      {
+        "name": "migration.P-3-packet_replaces_old_image",
+        "ok": true
+      },
+      {
+        "name": "migration.P-4-packet_caused_by_receipt",
+        "ok": true
+      },
+      {
+        "name": "migration.P-5-packet_no_supersedes",
+        "ok": true
+      },
+      {
+        "name": "migration.P-6-replacement_schema_fingerprint_match",
+        "ok": true
+      },
+      {
+        "name": "migration.P-7-replacement_schema_check_trusted",
+        "ok": true
+      },
+      {
+        "name": "migration.P-8-replacement_report_trusted",
+        "ok": true
+      },
+      {
+        "name": "migration.P-9-single_hop_migration_chain",
+        "ok": true
+      },
+      {
+        "name": "migration.P-10-OOF-MR3_wrong_fingerprint_blocked",
+        "ok": true
+      },
+      {
         "name": "migration.replacement_image_links",
         "ok": true
       },

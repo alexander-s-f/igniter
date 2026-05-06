@@ -32,6 +32,7 @@ Codex]` can approve, redirect, or reject.
 | [bridge-agent-entry-v0.md](bridge-agent-entry-v0.md) | research | Initializes Bridge Agent presence and records current bridge pressure before any package integration request |
 | [schema-compatibility-diagnostics-bridge-v0.md](schema-compatibility-diagnostics-bridge-v0.md) | proposal | First metadata-only bridge request for schema compatibility diagnostics |
 | [schema-compatibility-diagnostics-package-touchpoint-map-v0.md](schema-compatibility-diagnostics-package-touchpoint-map-v0.md) | proposal | Architect-reviewable package target map for SchemaCompatibilityDiagnostic v0 |
+| [schema-compatibility-diagnostics-igniter-contracts-plan-v0.md](schema-compatibility-diagnostics-igniter-contracts-plan-v0.md) | proposal | Architect-approved implementation plan for SchemaCompatibilityDiagnostic v0 in igniter-contracts |
 
 ## Current Bridge Pressure
 
@@ -49,5 +50,9 @@ evidence links.
 Lang/reporting as the first target because it already owns report-only metadata
 near the embedded contract kernel.
 
-[Q] Should the first approved package slice add a standalone diagnostic class,
-a `VerificationReport` section, or both?
+[S] The igniter-contracts plan recommends both: a standalone immutable
+`Igniter::Lang::SchemaCompatibilityDiagnostic` plus an optional
+`VerificationReport` section.
+
+[Q] Should serialized decision values remain symbols in v0 or become strings
+for future wire compatibility?

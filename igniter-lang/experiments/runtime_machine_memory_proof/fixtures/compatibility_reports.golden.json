@@ -39,9 +39,9 @@
           "severity": "info"
         },
         {
-          "actual": "memory-snapshot/40f8365967263657",
+          "actual": "memory-snapshot/9fc5d11b73593fd7",
           "dimension": "snapshot",
-          "expected": "memory-snapshot/40f8365967263657",
+          "expected": "memory-snapshot/9fc5d11b73593fd7",
           "outcome": "compatible",
           "severity": "info"
         },
@@ -69,9 +69,9 @@
           "severity": "info"
         }
       ],
-      "image_id": "image/909d7bdda77c50bf",
+      "image_id": "image/11042eb39b958349",
       "intent": "exact_replay",
-      "report_id": "compat/9669849bba6ebf67",
+      "report_id": "compat/171a513b0e07ca02",
       "reproducibility": "blocked",
       "resume_status": "blocked"
     },
@@ -115,7 +115,7 @@
         {
           "actual": null,
           "dimension": "snapshot",
-          "expected": "memory-snapshot/40f8365967263657",
+          "expected": "memory-snapshot/9fc5d11b73593fd7",
           "outcome": "blocked",
           "severity": "critical"
         },
@@ -143,9 +143,84 @@
           "severity": "info"
         }
       ],
-      "image_id": "image/909d7bdda77c50bf",
+      "image_id": "image/11042eb39b958349",
       "intent": "exact_replay",
-      "report_id": "compat/70c2dc505b21597e",
+      "report_id": "compat/82a34f7ffc8e8069",
+      "reproducibility": "blocked",
+      "resume_status": "blocked"
+    },
+    "blocked_migration_replacement_wrong_fingerprint": {
+      "checks": [
+        {
+          "actual": "obs/0f1ab1fdd7e5d339",
+          "dimension": "axiom",
+          "expected": "obs/0f1ab1fdd7e5d339",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "obs/f0a9581038271dfe",
+          "dimension": "runtime",
+          "expected": "obs/f0a9581038271dfe",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "dimension": "backend",
+          "expected": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "dimension": "contract",
+          "expected": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "2026-05-05T10:42:00Z",
+          "dimension": "temporal",
+          "expected": "2026-05-05T10:42:00Z",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "memory-snapshot/9fc5d11b73593fd7",
+          "dimension": "snapshot",
+          "expected": "memory-snapshot/9fc5d11b73593fd7",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "seq=27",
+          "dimension": "replay",
+          "expected": "seq>=14",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:6377c6b59eb055c396a2a713cf249b7a2d47add4d41d2623ef80317b51d1d6ea",
+          "change_class": "replacement_fingerprint_mismatch",
+          "decision": "blocked",
+          "dimension": "schema",
+          "expected": "sha256:forged_wrong_schema_fingerprint",
+          "fingerprint_match": false,
+          "migration_available": false,
+          "migration_ref": null,
+          "oof_code": "OOF-MR3",
+          "outcome": "blocked",
+          "schema_version": {
+            "from": "0.1.0",
+            "to": "0.1.0"
+          },
+          "severity": "critical"
+        }
+      ],
+      "image_id": "image/717953f94921fc6e",
+      "intent": "exact_replay",
+      "report_id": "compat/3be927e07a1b823b",
       "reproducibility": "blocked",
       "resume_status": "blocked"
     },
@@ -187,9 +262,9 @@
           "severity": "info"
         },
         {
-          "actual": "memory-snapshot/40f8365967263657",
+          "actual": "memory-snapshot/9fc5d11b73593fd7",
           "dimension": "snapshot",
-          "expected": "memory-snapshot/40f8365967263657",
+          "expected": "memory-snapshot/9fc5d11b73593fd7",
           "outcome": "compatible",
           "severity": "info"
         },
@@ -217,9 +292,9 @@
           "severity": "info"
         }
       ],
-      "image_id": "image/909d7bdda77c50bf",
+      "image_id": "image/11042eb39b958349",
       "intent": "exact_replay",
-      "report_id": "compat/9c8f77941eca9a2d",
+      "report_id": "compat/88b09808d3347345",
       "reproducibility": "downgraded",
       "resume_status": "downgraded"
     },
@@ -261,9 +336,9 @@
           "severity": "info"
         },
         {
-          "actual": "memory-snapshot/40f8365967263657",
+          "actual": "memory-snapshot/9fc5d11b73593fd7",
           "dimension": "snapshot",
-          "expected": "memory-snapshot/40f8365967263657",
+          "expected": "memory-snapshot/9fc5d11b73593fd7",
           "outcome": "compatible",
           "severity": "info"
         },
@@ -291,9 +366,9 @@
           "severity": "warning"
         }
       ],
-      "image_id": "image/909d7bdda77c50bf",
+      "image_id": "image/11042eb39b958349",
       "intent": "exact_replay",
-      "report_id": "compat/2d873378ccf779a4",
+      "report_id": "compat/b396e93d233762ca",
       "reproducibility": "migrating",
       "resume_status": "migrating"
     },
@@ -335,9 +410,9 @@
           "severity": "info"
         },
         {
-          "actual": "memory-snapshot/40f8365967263657",
+          "actual": "memory-snapshot/9fc5d11b73593fd7",
           "dimension": "snapshot",
-          "expected": "memory-snapshot/40f8365967263657",
+          "expected": "memory-snapshot/9fc5d11b73593fd7",
           "outcome": "compatible",
           "severity": "info"
         },
@@ -365,9 +440,9 @@
           "severity": "warning"
         }
       ],
-      "image_id": "image/909d7bdda77c50bf",
+      "image_id": "image/11042eb39b958349",
       "intent": "exact_replay",
-      "report_id": "compat/3f2afdf86dfc10e4",
+      "report_id": "compat/ddd58d70b5dfb222",
       "reproducibility": "provisional",
       "resume_status": "provisional"
     },
@@ -409,9 +484,9 @@
           "severity": "info"
         },
         {
-          "actual": "memory-snapshot/40f8365967263657",
+          "actual": "memory-snapshot/9fc5d11b73593fd7",
           "dimension": "snapshot",
-          "expected": "memory-snapshot/40f8365967263657",
+          "expected": "memory-snapshot/9fc5d11b73593fd7",
           "outcome": "compatible",
           "severity": "info"
         },
@@ -439,9 +514,9 @@
           "severity": "info"
         }
       ],
-      "image_id": "image/585c23b97dc6a8e6",
+      "image_id": "image/815bf133fd8edb34",
       "intent": "exact_replay",
-      "report_id": "compat/6bcf6fc97d7956e3",
+      "report_id": "compat/affdb1131f91529e",
       "reproducibility": "reproducible_within_memory_harness",
       "resume_status": "trusted"
     },
@@ -483,9 +558,9 @@
           "severity": "info"
         },
         {
-          "actual": "memory-snapshot/40f8365967263657",
+          "actual": "memory-snapshot/9fc5d11b73593fd7",
           "dimension": "snapshot",
-          "expected": "memory-snapshot/40f8365967263657",
+          "expected": "memory-snapshot/9fc5d11b73593fd7",
           "outcome": "compatible",
           "severity": "info"
         },
@@ -513,9 +588,9 @@
           "severity": "info"
         }
       ],
-      "image_id": "image/909d7bdda77c50bf",
+      "image_id": "image/11042eb39b958349",
       "intent": "exact_replay",
-      "report_id": "compat/d7e7edde392b3878",
+      "report_id": "compat/a9c52ea1eaf8d40e",
       "reproducibility": "reproducible_within_memory_harness",
       "resume_status": "trusted"
     }

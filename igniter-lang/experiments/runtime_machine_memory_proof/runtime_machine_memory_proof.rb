@@ -450,7 +450,8 @@ module RuntimeMachineMemoryProof
       @backend.append(fragment, idempotency_key: fragment.id)
 
       @loaded_schema_descriptor = schema_descriptor_for(contract)
-      migration_descriptor_refs = emit_migration_descriptors(@loaded_schema_descriptor.fetch("migrations", []))
+      migration_descriptor_refs_by_id = emit_migration_descriptors(@loaded_schema_descriptor.fetch("migrations", []))
+      migration_descriptor_refs = migration_descriptor_refs_by_id.values
       @loaded_unit = {
         unit_id: "loaded-unit/#{Canonical.short_hash(contract.descriptor_payload)}",
         contract_descriptor_ref: descriptor.id,
@@ -459,7 +460,8 @@ module RuntimeMachineMemoryProof
         fragment_class: "CORE",
         schema_version: @loaded_schema_descriptor.fetch("schema_version"),
         schema_fingerprint: @loaded_schema_descriptor.fetch("schema_fingerprint"),
-        migration_descriptor_refs: migration_descriptor_refs
+        migration_descriptor_refs: migration_descriptor_refs,
+        migration_descriptor_refs_by_id: migration_descriptor_refs_by_id
       }
       @contract = contract
 
@@ -534,6 +536,8 @@ module RuntimeMachineMemoryProof
 
       observation_ids = @backend.entries.map { |entry| entry.fetch(:packet).id }
       receipt_id = migration_receipt.id
+      migration_id = migration_receipt.payload.fetch("migration_id")
+      migration_descriptor_ref = @loaded_unit.fetch(:migration_descriptor_refs_by_id, {}).fetch(migration_id, migration_id)
       schema_descriptor = schema_descriptor()
       image_base = old_image.merge(
         "session_id" => @session_id,
@@ -547,13 +551,7 @@ module RuntimeMachineMemoryProof
         "schema_fingerprint" => schema_descriptor.fetch("schema_fingerprint"),
         "migration_receipt_ref" => receipt_id,
         "replaces_image_id" => old_image.fetch("image_id"),
-        "migration_chain" => {
-          "old_image_id" => old_image.fetch("image_id"),
-          "migration_receipt_ref" => receipt_id,
-          "migration_id" => migration_receipt.payload.fetch("migration_id"),
-          "from_version" => migration_receipt.payload.fetch("from_version"),
-          "to_version" => migration_receipt.payload.fetch("to_version")
-        }
+        "migration_chain" => []
       ).reject { |key, _| %w[image_id content_hash].include?(key) }
       image_id = "image/#{Canonical.short_hash(image_base)}"
       replacement_image = image_base.merge(
@@ -565,9 +563,10 @@ module RuntimeMachineMemoryProof
         kind: "platform_observation",
         subject: "semantic-image/#{@session_id}/replacement",
         payload: replacement_image,
-        temporal: { as_of: as_of, lifecycle: "audit" },
+        temporal: { as_of: as_of, lifecycle: "session" },
         links: evidence_links +
           [link("caused_by", receipt_id)] +
+          [link("produced_by", migration_descriptor_ref)] +
           [link("replaces", old_image.fetch("image_id"))]
       )
       @backend.append(image_packet)
@@ -785,7 +784,7 @@ module RuntimeMachineMemoryProof
     end
 
     def emit_migration_descriptors(migrations)
-      migrations.map do |migration|
+      migrations.each_with_object({}) do |migration, out|
         packet = packet(
           kind: "descriptor_observation",
           subject: migration.fetch("migration_id"),
@@ -798,7 +797,7 @@ module RuntimeMachineMemoryProof
           links: evidence_links
         )
         @backend.append(packet, idempotency_key: packet.id)
-        packet.id
+        out[migration.fetch("migration_id")] = packet.id
       end
     end
 
@@ -990,6 +989,41 @@ module RuntimeMachineMemoryProof
       match = image_fingerprint == current_fingerprint
       migrations = current_schema&.fetch("migrations", []) || []
       migration = nil
+      replacement_oof = replacement_image_oof
+
+      if replacement_oof
+        return {
+          dimension:           "schema",
+          outcome:             "blocked",
+          expected:            image_fingerprint,
+          actual:              current_fingerprint,
+          severity:            "critical",
+          schema_version:      { from: image_ver, to: current_version },
+          fingerprint_match:   match,
+          change_class:        "replacement_image_malformed",
+          migration_available: false,
+          migration_ref:       nil,
+          decision:            "blocked",
+          oof_code:            replacement_oof
+        }
+      end
+
+      if replacement_image? && !match
+        return {
+          dimension:           "schema",
+          outcome:             "blocked",
+          expected:            image_fingerprint,
+          actual:              current_fingerprint,
+          severity:            "critical",
+          schema_version:      { from: image_ver, to: current_version },
+          fingerprint_match:   false,
+          change_class:        "replacement_fingerprint_mismatch",
+          migration_available: false,
+          migration_ref:       nil,
+          decision:            "blocked",
+          oof_code:            "OOF-MR3"
+        }
+      end
 
       if match
         outcome      = "compatible"
@@ -1032,6 +1066,21 @@ module RuntimeMachineMemoryProof
         migration_ref:       migration&.fetch("migration_id", nil),
         decision:            match ? "trusted" : decision
       }
+    end
+
+    def replacement_image?
+      @image.key?("replaces_image_id") || @image.key?("migration_receipt_ref")
+    end
+
+    def replacement_image_oof
+      return nil unless replacement_image?
+
+      return "OOF-MR1" unless @image.fetch("replaces_image_id", nil).is_a?(String)
+      return "OOF-MR1" unless @image.fetch("migration_receipt_ref", nil).is_a?(String)
+      return "OOF-MR1" unless @image.fetch("migration_chain", nil).is_a?(Array)
+      return "OOF-MR2" if @image.key?("fragment_report")
+
+      nil
     end
 
     def resume_status(checks)
@@ -1190,6 +1239,7 @@ module RuntimeMachineMemoryProof
         downgraded_runtime_drift: negative_reports.fetch("runtime_drift"),
         blocked_contract_drift: negative_reports.fetch("contract_drift"),
         provisional_schema_drift: negative_reports.fetch("schema_drift"),
+        blocked_migration_replacement_wrong_fingerprint: negative_reports.fetch("migration_replacement_wrong_fingerprint"),
         migrating_schema_drift: migration_fixture.fetch(:report),
         trusted_after_migration_replacement: migration_fixture.fetch(:replacement_report)
       }
@@ -1531,6 +1581,12 @@ module RuntimeMachineMemoryProof
         requested_as_of: PROOF_AS_OF
       )
       replacement_schema_check = replacement_resume.fetch(:report).fetch("checks").find { |item| item.fetch("dimension") == "schema" }
+      forged_replacement = forged_replacement_image_wrong_fingerprint(replacement_image.fetch(:semantic_image))
+      forged_resume = machine.resume(
+        image: forged_replacement,
+        requested_as_of: PROOF_AS_OF
+      )
+      forged_schema_check = forged_resume.fetch(:report).fetch("checks").find { |item| item.fetch("dimension") == "schema" }
 
       check(
         "migration.schema_check_migrating",
@@ -1548,10 +1604,61 @@ module RuntimeMachineMemoryProof
           receipt_links.include?("produced_by")
       )
       check(
+        "migration.P-1-replacement_migration_receipt_ref",
+        replacement_image.fetch(:semantic_image).fetch("migration_receipt_ref") == migration_receipt.fetch(:receipt).id
+      )
+      check(
+        "migration.P-2-replacement_replaces_image_id",
+        replacement_image.fetch(:semantic_image).fetch("replaces_image_id") == @golden.fetch(:semantic_image).fetch("image_id")
+      )
+      check(
+        "migration.P-3-packet_replaces_old_image",
+        replacement_image.fetch(:packet).links.any? do |link|
+          link.fetch("rel") == "replaces" &&
+            link.fetch("ref") == @golden.fetch(:semantic_image).fetch("image_id")
+        end
+      )
+      check(
+        "migration.P-4-packet_caused_by_receipt",
+        replacement_image.fetch(:packet).links.any? do |link|
+          link.fetch("rel") == "caused_by" &&
+            link.fetch("ref") == migration_receipt.fetch(:receipt).id
+        end
+      )
+      check(
+        "migration.P-5-packet_no_supersedes",
+        !replacement_links.include?("supersedes")
+      )
+      check(
+        "migration.P-6-replacement_schema_fingerprint_match",
+        replacement_image.fetch(:semantic_image).fetch("schema_fingerprint") ==
+          machine.loaded_schema_descriptor.fetch("schema_fingerprint")
+      )
+      check(
+        "migration.P-7-replacement_schema_check_trusted",
+        replacement_schema_check.fetch("decision") == "trusted"
+      )
+      check(
+        "migration.P-8-replacement_report_trusted",
+        replacement_resume.fetch(:status) == "trusted"
+      )
+      check(
+        "migration.P-9-single_hop_migration_chain",
+        replacement_image.fetch(:semantic_image).fetch("migration_chain") == []
+      )
+      check(
+        "migration.P-10-OOF-MR3_wrong_fingerprint_blocked",
+        forged_resume.fetch(:status) == "blocked" &&
+          forged_schema_check.fetch("decision") == "blocked" &&
+          forged_schema_check.fetch("oof_code") == "OOF-MR3"
+      )
+      check(
         "migration.replacement_image_links",
         replacement_image.fetch(:status) == "ok" &&
           replacement_links.include?("replaces") &&
           replacement_links.include?("caused_by") &&
+          replacement_links.include?("produced_by") &&
+          replacement_links.include?("produced_in") &&
           replacement_image.fetch(:semantic_image).fetch("migration_receipt_ref") == migration_receipt.fetch(:receipt).id &&
           replacement_image.fetch(:semantic_image).fetch("replaces_image_id") == @golden.fetch(:semantic_image).fetch("image_id")
       )
@@ -1571,6 +1678,8 @@ module RuntimeMachineMemoryProof
           replacement_schema_check.fetch("actual") == replacement_image.fetch(:semantic_image).fetch("schema_fingerprint")
       )
 
+      @negative_reports["migration_replacement_wrong_fingerprint"] = forged_resume.fetch(:report)
+
       {
         report: resume.fetch(:report),
         packet: resume.fetch(:packet),
@@ -1582,6 +1691,19 @@ module RuntimeMachineMemoryProof
         replacement_report: replacement_resume.fetch(:report),
         replacement_report_packet: replacement_resume.fetch(:packet)
       }
+    end
+
+    def forged_replacement_image_wrong_fingerprint(image)
+      image_base = image.merge(
+        "schema_fingerprint" => "sha256:forged_wrong_schema_fingerprint"
+      ).reject { |key, _| %w[image_id content_hash].include?(key) }
+      image_id = "image/#{Canonical.short_hash(image_base)}"
+      Canonical.normalize(
+        image_base.merge(
+          "image_id" => image_id,
+          "content_hash" => Canonical.hash(image_base)
+        )
+      )
     end
 
     def run_negative_value_without_evidence
