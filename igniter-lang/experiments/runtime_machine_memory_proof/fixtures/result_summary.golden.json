@@ -19,7 +19,15 @@
         "ok": true
       },
       {
+        "name": "golden.semantic_image_schema_descriptor",
+        "ok": true
+      },
+      {
         "name": "golden.resume",
+        "ok": true
+      },
+      {
+        "name": "golden.schema_check_trusted",
         "ok": true
       },
       {
@@ -44,6 +52,10 @@
       },
       {
         "name": "negative.contract_drift_blocked",
+        "ok": true
+      },
+      {
+        "name": "negative.schema_drift_provisional",
         "ok": true
       },
       {

@@ -56,13 +56,16 @@ golden.boot: ok
 golden.load: ok
 golden.evaluate: ok
 golden.checkpoint: ok
+golden.semantic_image_schema_descriptor: ok
 golden.resume: ok
+golden.schema_check_trusted: ok
 golden.same_result_hash: ok
 golden.evidence_links: ok
 negative.ambient_time_blocked: ok
 negative.empty_backend_resume_blocked: ok
 negative.runtime_drift_downgraded: ok
 negative.contract_drift_blocked: ok
+negative.schema_drift_provisional: ok
 negative.same_value_without_evidence: ok
 negative.evidence_missing_provisional: ok
 ```
@@ -329,6 +332,13 @@ package edits.
 capability denial, and host error as ObsPacket fixtures with checker
 expectations.
 
+[D] PROP-017 schema checks are owned by a RuntimeMachine-loaded
+`loaded_schema_descriptor`, not by a hidden `loaded_program` dependency.
+`CompiledProgram` may provide that descriptor, but the standalone proof also
+loads one from the toy contract. SemanticImage now stores a real
+`schema_fingerprint`, and CompatibilityReport schema drift can return
+`provisional` without being mislabeled as trusted.
+
 ## Files
 
 - `runtime_machine_memory_proof.rb` - executable harness.
@@ -374,6 +384,9 @@ Status: done
   selected-profile artifacts and checks them against golden fixtures.
 - `ffi_ruby_receipt_fixtures.rb` emits and checks Ruby FFI read success,
   write/audit success, capability denied, and host error packets.
+- `RuntimeMachine` schema checks compare `SemanticImage.schema_fingerprint`
+  against the loaded unit's schema descriptor; `loaded_program` remains a
+  CompiledProgram integration detail.
 
 [R] Recommendations:
 - Use this experiment as the next golden fixture source for sidecar packet

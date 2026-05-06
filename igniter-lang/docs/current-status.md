@@ -115,6 +115,18 @@ The executable fixture set covers read success, write/audit success,
 capability denied, and host error. It still needs normalized-equivalence rules
 before package-derived FFI packets may differ from the golden fixture shape.
 
+[S] RuntimeMachine memory proof is standalone again after PROP-017 schema_check:
+
+```text
+RuntimeMachine.loaded_schema_descriptor
+  -> SemanticImage.schema_fingerprint
+  -> CompatibilityReport.schema_check
+```
+
+`schema_check` no longer depends on `loaded_program` being injected by
+`compiled_program.rb`. The proof now checks trusted schema match and
+provisional schema drift directly.
+
 [S] The source parser harness has started:
 
 ```text
@@ -155,6 +167,8 @@ The standalone memory proof validates:
 
 - boot/load/evaluate/checkpoint/resume/re-evaluate lifecycle
 - trusted in-harness resume
+- trusted schema_check against a loaded schema descriptor
+- provisional schema drift instead of accidental trusted resume
 - blocked empty-backend resume
 - runtime drift downgrade
 - contract drift block
@@ -233,7 +247,7 @@ Critical:
 High:
 
 - normalized-equivalence checker profile for real external and FFI candidates
-- schema evolution and contract migration need a CompatibilityReport dimension
+- schema migration execution still needs a fixture beyond schema_check
 - ESCAPE composition and capability delegation remain under-specified
 - `.igapp` schema and artifact hashing need a stricter validator
 
@@ -280,9 +294,10 @@ Deferred:
    rules, CompatibilityReport decisions, and FFI receipt/failure semantics.
 
 5. Later:
-   `contract-schema-evolution-v0`
+   `runtime-machine-schema-migration-fixture-v0`
 
-   Add schema version/migration dimensions to CompatibilityReport.
+   Add a tiny migration descriptor/receipt fixture for schema_check:migrating
+   without package integration.
 
 6. Later:
    `file-tbackend-proof-v0`
@@ -308,3 +323,4 @@ ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/
 ```
 
 All passed on 2026-05-05 during Architect review.
+RuntimeMachine schema_check standalone proof passed on 2026-05-06.

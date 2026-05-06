@@ -2,7 +2,7 @@
   "artifact": "semantic_image",
   "payload": {
     "checkpoint_receipt": {
-      "id": "obs/c3baf74390e640f1",
+      "id": "obs/466e9021e5209ba3",
       "kind": "receipt_observation",
       "links": [
         {
@@ -26,18 +26,18 @@
           "required": true
         },
         {
-          "ref": "obs/761dc9a3d81d047e",
+          "ref": "obs/34bbffff3b8e25b2",
           "rel": "caused_by",
           "required": true
         }
       ],
       "payload": {
-        "image_id": "image/42b496c5bb948910",
-        "semantic_image_ref": "obs/761dc9a3d81d047e",
+        "image_id": "image/c93d896b231b899f",
+        "semantic_image_ref": "obs/34bbffff3b8e25b2",
         "status": "ok",
         "transition": "checkpoint"
       },
-      "payload_hash": "sha256:c244a2480c9725b56aaa2df347024ebf6806446eb862068047a6ccb0869a991b",
+      "payload_hash": "sha256:286cde2a6fa2d67a27bb897e920e95fe1556c729b259f8359857353784f674d7",
       "subject": "runtime-machine/runtime-machine/memory-proof-a/checkpoint",
       "temporal": {
         "as_of": "2026-05-05T10:42:00Z",
@@ -50,19 +50,19 @@
       "backend_descriptor_ref": "obs/d0d7aec5d08f78b6",
       "checkpoint": {
         "as_of": "2026-05-05T10:42:00Z",
-        "checkpoint_id": "checkpoint/d90c3f93a824c5fd",
+        "checkpoint_id": "checkpoint/f29c49fcb0d64c90",
         "created_at": "2026-05-05T10:42:15Z",
         "seq_id": 14,
-        "snapshot_hash": "sha256:ea301039df9545a47627170cf08bd696c7dde3a044bfe8018fb44fe5f70fbc0c",
-        "snapshot_ref": "memory-snapshot/ea301039df9545a4"
+        "snapshot_hash": "sha256:5a921ca56988a6857289770b31aac4d8b8b3dbff1d1c5dd43d78e2bebe5b5eeb",
+        "snapshot_ref": "memory-snapshot/5a921ca56988a685"
       },
       "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
-      "content_hash": "sha256:42b496c5bb94891022c3095d179a69e6fc2f83aeff8291407fb4bda66855cb85",
+      "content_hash": "sha256:c93d896b231b899f452c777fabb258c14560440a4ef2fd58ff2779f826297e01",
       "contract_descriptor_ref": "obs/f92eff59d0521787",
       "execution_environment_ref": "obs/f8e0bea5b62934c8",
-      "image_id": "image/42b496c5bb948910",
+      "image_id": "image/c93d896b231b899f",
       "observation_count": 14,
-      "observation_hash": "sha256:a7989bd100dbeba04208e889bc8171a5440fc535280512d0b404c8ab54e3b3bc",
+      "observation_hash": "sha256:09f3c71f5ed8666e1300cafe3d6c45e54bc19abc5eed276d58c812057afbcfee",
       "produced_at": "2026-05-05T10:42:15Z",
       "receipt_refs": [
         "obs/0f1ab1fdd7e5d339",
@@ -76,7 +76,7 @@
         "obs/7a0fc60564032104",
         "obs/f92eff59d0521787",
         "obs/b1e5c67368e0da3f",
-        "obs/c94eaec412eec236",
+        "obs/4f3364213606f0ec",
         "obs/95160c7effd51aa5",
         "obs/484f6e8102336584"
       ],
@@ -86,6 +86,8 @@
         "position": 14
       },
       "runtime_contract_ref": "obs/f0a9581038271dfe",
+      "schema_fingerprint": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
+      "schema_version": "0.0.0",
       "session_id": "session/a",
       "temporal_horizon": {
         "as_of": "2026-05-05T10:42:00Z",
@@ -103,7 +105,7 @@
       ]
     },
     "semantic_image_packet": {
-      "id": "obs/761dc9a3d81d047e",
+      "id": "obs/34bbffff3b8e25b2",
       "kind": "platform_observation",
       "links": [
         {
@@ -138,19 +140,19 @@
         "backend_descriptor_ref": "obs/d0d7aec5d08f78b6",
         "checkpoint": {
           "as_of": "2026-05-05T10:42:00Z",
-          "checkpoint_id": "checkpoint/d90c3f93a824c5fd",
+          "checkpoint_id": "checkpoint/f29c49fcb0d64c90",
           "created_at": "2026-05-05T10:42:15Z",
           "seq_id": 14,
-          "snapshot_hash": "sha256:ea301039df9545a47627170cf08bd696c7dde3a044bfe8018fb44fe5f70fbc0c",
-          "snapshot_ref": "memory-snapshot/ea301039df9545a4"
+          "snapshot_hash": "sha256:5a921ca56988a6857289770b31aac4d8b8b3dbff1d1c5dd43d78e2bebe5b5eeb",
+          "snapshot_ref": "memory-snapshot/5a921ca56988a685"
         },
         "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
-        "content_hash": "sha256:42b496c5bb94891022c3095d179a69e6fc2f83aeff8291407fb4bda66855cb85",
+        "content_hash": "sha256:c93d896b231b899f452c777fabb258c14560440a4ef2fd58ff2779f826297e01",
         "contract_descriptor_ref": "obs/f92eff59d0521787",
         "execution_environment_ref": "obs/f8e0bea5b62934c8",
-        "image_id": "image/42b496c5bb948910",
+        "image_id": "image/c93d896b231b899f",
         "observation_count": 14,
-        "observation_hash": "sha256:a7989bd100dbeba04208e889bc8171a5440fc535280512d0b404c8ab54e3b3bc",
+        "observation_hash": "sha256:09f3c71f5ed8666e1300cafe3d6c45e54bc19abc5eed276d58c812057afbcfee",
         "produced_at": "2026-05-05T10:42:15Z",
         "receipt_refs": [
           "obs/0f1ab1fdd7e5d339",
@@ -164,7 +166,7 @@
           "obs/7a0fc60564032104",
           "obs/f92eff59d0521787",
           "obs/b1e5c67368e0da3f",
-          "obs/c94eaec412eec236",
+          "obs/4f3364213606f0ec",
           "obs/95160c7effd51aa5",
           "obs/484f6e8102336584"
         ],
@@ -174,6 +176,8 @@
           "position": 14
         },
         "runtime_contract_ref": "obs/f0a9581038271dfe",
+        "schema_fingerprint": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
+        "schema_version": "0.0.0",
         "session_id": "session/a",
         "temporal_horizon": {
           "as_of": "2026-05-05T10:42:00Z",
@@ -190,7 +194,7 @@
           "obs/95160c7effd51aa5"
         ]
       },
-      "payload_hash": "sha256:a6f3c8fbebb8899f9784ad541ab2275836c5316c5db7828ffdcdf5c88204d246",
+      "payload_hash": "sha256:e847eac39c63e1f9b2dc71529f42f7e8ae8167c67d407cd7a4dbbe0d5245cd71",
       "subject": "semantic-image/session/a",
       "temporal": {
         "as_of": "2026-05-05T10:42:00Z",

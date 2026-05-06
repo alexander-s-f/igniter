@@ -343,6 +343,7 @@ module RuntimeMachineMemoryProof
       @backend.append(load_receipt)
 
       @loaded_program = program
+      @loaded_schema_descriptor = Canonical.normalize(program.schema_descriptor)
       # Use contract_descriptor_ref (singular) for compat with existing checkpoint method
       first_ref = descriptor_refs.values.first
       @loaded_unit = {
@@ -352,7 +353,9 @@ module RuntimeMachineMemoryProof
         contract_descriptor_ref:  first_ref,
         contract_descriptor_refs: descriptor_refs,
         compiled_graph_hash:      program.artifact_hash,
-        fragment_class:           program.fragment_class
+        fragment_class:           program.fragment_class,
+        schema_version:           @loaded_schema_descriptor.fetch("schema_version"),
+        schema_fingerprint:       @loaded_schema_descriptor.fetch("schema_fingerprint")
       }
 
       @state = "loaded"

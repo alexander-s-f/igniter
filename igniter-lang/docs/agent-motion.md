@@ -31,6 +31,10 @@ behaves.
 Roles may overlap in one conversation. An agent declares its role at the top
 of each document it authors.
 
+Role passports live in `igniter-lang/roles/`. A working slice must use exactly
+one role identity. Neighbor roles can be listed as affected parties, but the
+agent should not speak as multiple roles in one handoff.
+
 ---
 
 ## Entry Protocol
@@ -39,11 +43,12 @@ When an agent enters the workspace:
 
 ```text
 1. Read igniter-lang/AGENTS.md              — identity + write boundary
-2. Read igniter-lang/docs/README.md         — current research index
-3. Read igniter-lang/docs/agent-motion.md   — this document
-4. Read the most recent completed track     — current semantic horizon
-5. Read the most recent proposal            — current formal horizon
-6. Declare role + entry point in first authored document
+2. Read igniter-lang/roles/README.md        — active roles + neighbor map
+3. Read the assigned role file              — ownership + start path
+4. Read igniter-lang/docs/README.md         — current research index
+5. Read igniter-lang/docs/agent-motion.md   — this document
+6. Read slice-specific tracks/proposals only
+7. Declare role + entry point in first authored document
 ```
 
 An agent must NOT:
@@ -52,6 +57,7 @@ An agent must NOT:
 - Edit package code (`packages/`, `lib/`, `examples/`)
 - Author a grammar or parser before semantics are stable
 - Open a new track when a queued proposal covers the same ground
+- Stage, unstage, restore, remove, clean, or otherwise manage unrelated files
 
 ---
 
@@ -136,7 +142,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/polymorphic-add-devkit-fixture-v0.md` | done | polymorphic-add-parser-pressure-check-v0 |
+| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-schema-check-standalone-fix-v0.md` | done | runtime-machine-schema-migration-fixture-v0 |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/source-fixture-parser-acceptance-harness-v0.md` | partial | source-fixture-parsed-surface-checker-v0 or ESCAPE capability algebra |
 
 ## Current Meta Thesis
@@ -387,6 +393,19 @@ as expected future ParsedProgram shape only. RuntimeMachine must still receive
 monomorphic SemanticIR specializations such as `Add[Integer]` and `Add[Float]`;
 no unresolved overload survives load.
 
+[S] RuntimeMachine schema_check is standalone again:
+
+```text
+loaded_unit
+loaded_schema_descriptor
+  -> SemanticImage.schema_fingerprint
+  -> CompatibilityReport.schema_check
+```
+
+`CompiledProgram` may supply the schema descriptor, but RuntimeMachine does not
+depend on `loaded_program` for schema compatibility. The memory proof now checks
+trusted schema match and provisional schema drift directly.
+
 [D] `T` has a lifecycle. Igniter-Lang must not imply that all temporal
 observations live forever:
 
@@ -502,6 +521,7 @@ igniter-lang/docs/
     runtime-machine-external-candidate-normalizer-fixtures-v0.md [done]
     ffi-ruby-contractable-proof-v0.md [done]
     runtime-machine-ffi-ruby-receipt-fixtures-v0.md [done]
+    runtime-machine-schema-check-standalone-fix-v0.md [done]
     source-fixture-parser-acceptance-harness-v0.md [partial]
     polymorphic-add-devkit-fixture-v0.md [done]
     bridge-observation-envelope-implementation-plan-v0.md [done]
@@ -580,6 +600,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-application-scenarios-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-boundary-fixtures-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/polymorphic-add-devkit-fixture-v0.md | done |
+| 2026-05-06 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-schema-check-standalone-fix-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |

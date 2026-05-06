@@ -255,8 +255,9 @@ module RuntimeMachineMemoryProof
   class ToyDispatchContract
     attr_reader :compiled_graph_hash
 
-    def initialize(graph_version: "toy-dispatch-contract-v0")
+    def initialize(graph_version: "toy-dispatch-contract-v0", schema_version: "0.0.0")
       @graph_version = graph_version
+      @schema_version = schema_version
       @compiled_graph_hash = Canonical.hash(descriptor_payload)
     end
 
@@ -276,6 +277,35 @@ module RuntimeMachineMemoryProof
         ],
         output: "DispatchCandidate"
       }
+    end
+
+    def schema_descriptor
+      @schema_descriptor ||= begin
+        surface = {
+          schema_version: @schema_version,
+          port_surface: [
+            { dir: "in", name: "order_id", type_tag: "String", lifecycle: "local", required: true },
+            { dir: "in", name: "technician_id", type_tag: "String", lifecycle: "local", required: true },
+            { dir: "out", name: "dispatch_candidate", type_tag: "DispatchCandidate", lifecycle: "session" }
+          ],
+          type_env: ["DispatchCandidate", "String"],
+          trait_bounds: []
+        }
+        Canonical.normalize(
+          surface.merge(
+            schema_fingerprint: Canonical.hash(surface),
+            migrations: []
+          )
+        )
+      end
+    end
+
+    def schema_version
+      schema_descriptor.fetch("schema_version")
+    end
+
+    def schema_fingerprint
+      schema_descriptor.fetch("schema_fingerprint")
     end
 
     def evaluate(order:, profile:, schedule_slot:, off_schedule:, inputs:)
@@ -300,6 +330,7 @@ module RuntimeMachineMemoryProof
 
   class RuntimeMachine
     attr_reader :machine_id, :session_id, :backend, :state, :loaded_unit
+    attr_reader :loaded_schema_descriptor
     attr_reader :axiom_descriptor_ref, :runtime_contract_ref
     attr_reader :execution_environment_ref, :tbackend_descriptor_ref
     attr_reader :last_value_packet, :last_result_hash
@@ -311,6 +342,7 @@ module RuntimeMachineMemoryProof
       @runtime_version = runtime_version
       @state = "unbooted"
       @loaded_unit = nil
+      @loaded_schema_descriptor = nil
       @contract = nil
       @last_value_packet = nil
       @last_result_hash = nil
@@ -416,12 +448,15 @@ module RuntimeMachineMemoryProof
       )
       @backend.append(fragment, idempotency_key: fragment.id)
 
+      @loaded_schema_descriptor = schema_descriptor_for(contract)
       @loaded_unit = {
         unit_id: "loaded-unit/#{Canonical.short_hash(contract.descriptor_payload)}",
         contract_descriptor_ref: descriptor.id,
         fragment_descriptor_ref: fragment.id,
         compiled_graph_hash: contract.compiled_graph_hash,
-        fragment_class: "CORE"
+        fragment_class: "CORE",
+        schema_version: @loaded_schema_descriptor.fetch("schema_version"),
+        schema_fingerprint: @loaded_schema_descriptor.fetch("schema_fingerprint")
       }
       @contract = contract
 
@@ -529,8 +564,8 @@ module RuntimeMachineMemoryProof
         },
         temporal_horizon: horizon,
         # PROP-017: schema evolution fields
-        schema_version:     (@loaded_program&.schema_version     || "0.0.0"),
-        schema_fingerprint: (@loaded_program&.schema_fingerprint || "sha256:unknown")
+        schema_version: schema_descriptor.fetch("schema_version"),
+        schema_fingerprint: schema_descriptor.fetch("schema_fingerprint")
       }
       image_id = "image/#{Canonical.short_hash(image_base)}"
       semantic_image = image_base.merge(
@@ -626,6 +661,26 @@ module RuntimeMachineMemoryProof
     end
 
     private
+
+    def schema_descriptor
+      @loaded_schema_descriptor || default_schema_descriptor
+    end
+
+    def schema_descriptor_for(unit)
+      if unit.respond_to?(:schema_descriptor)
+        Canonical.normalize(unit.schema_descriptor)
+      else
+        default_schema_descriptor
+      end
+    end
+
+    def default_schema_descriptor
+      {
+        "schema_version" => "0.0.0",
+        "schema_fingerprint" => "sha256:unknown",
+        "migrations" => []
+      }
+    end
 
     def packet(kind:, subject:, payload:, temporal:, links:)
       ObsPacket.new(
@@ -785,8 +840,8 @@ module RuntimeMachineMemoryProof
       end
     end
 
-    # PROP-017: schema_check — 4th CompatibilityReport dimension
-    # Compares image.schema_fingerprint with the currently loaded program.
+    # PROP-017: schema_check — 4th CompatibilityReport dimension.
+    # Compares image.schema_fingerprint with the loaded unit schema descriptor.
     def schema_check
       image_ver         = @image.fetch("schema_version", "0.0.0")
       image_fingerprint = @image.fetch("schema_fingerprint", nil)
@@ -808,9 +863,9 @@ module RuntimeMachineMemoryProof
         }
       end
 
-      current_program     = @machine.loaded_program
-      current_version     = current_program&.schema_version     || "0.0.0"
-      current_fingerprint = current_program&.schema_fingerprint || nil
+      current_schema = @machine.loaded_schema_descriptor
+      current_version = current_schema&.fetch("schema_version", "0.0.0") || "0.0.0"
+      current_fingerprint = current_schema&.fetch("schema_fingerprint", nil)
 
       match = image_fingerprint == current_fingerprint
 
@@ -831,7 +886,7 @@ module RuntimeMachineMemoryProof
         end
 
         # Check if a migration is available
-        migrations = current_program&.schema_descriptor&.fetch("migrations", []) || []
+        migrations = current_schema&.fetch("migrations", []) || []
         migration  = migrations.find { |m|
           m["from_version"] == image_ver && m["to_version"] == current_version
         }
@@ -860,7 +915,9 @@ module RuntimeMachineMemoryProof
     def resume_status(checks)
       outcomes = checks.map { |check| check.fetch(:outcome) }
       return "blocked" if outcomes.include?("blocked")
+      return "migrating" if outcomes.include?("migrating")
       return "downgraded" if outcomes.include?("downgrade")
+      return "provisional" if outcomes.include?("provisional")
 
       "trusted"
     end
@@ -990,7 +1047,8 @@ module RuntimeMachineMemoryProof
         trusted_resume: golden.fetch(:compatibility_report),
         blocked_empty_backend_resume: negative_reports.fetch("empty_backend_resume"),
         downgraded_runtime_drift: negative_reports.fetch("runtime_drift"),
-        blocked_contract_drift: negative_reports.fetch("contract_drift")
+        blocked_contract_drift: negative_reports.fetch("contract_drift"),
+        provisional_schema_drift: negative_reports.fetch("schema_drift")
       }
     end
 
@@ -1088,6 +1146,7 @@ module RuntimeMachineMemoryProof
       run_negative_empty_backend_resume
       run_negative_runtime_drift
       run_negative_contract_drift
+      run_negative_schema_drift
       run_negative_value_without_evidence
       @artifacts = FixtureArtifacts.build(
         golden: @golden,
@@ -1128,6 +1187,12 @@ module RuntimeMachineMemoryProof
 
       checkpoint = machine_a.checkpoint(horizon: Fixture.horizon)
       check("golden.checkpoint", checkpoint.fetch(:status) == "ok")
+      check(
+        "golden.semantic_image_schema_descriptor",
+        checkpoint.fetch(:semantic_image).fetch("schema_fingerprint") ==
+          machine_a.loaded_schema_descriptor.fetch("schema_fingerprint") &&
+          checkpoint.fetch(:semantic_image).fetch("schema_fingerprint") != "sha256:unknown"
+      )
 
       restored_backend = backend.restore(checkpoint.fetch(:snapshot).fetch(:snapshot_ref))
       machine_b = RuntimeMachine.new(
@@ -1142,6 +1207,13 @@ module RuntimeMachineMemoryProof
         requested_as_of: PROOF_AS_OF
       )
       check("golden.resume", resume.fetch(:status) == "trusted")
+      schema_check = resume.fetch(:report).fetch("checks").find { |item| item.fetch("dimension") == "schema" }
+      check(
+        "golden.schema_check_trusted",
+        schema_check.fetch("decision") == "trusted" &&
+          schema_check.fetch("fingerprint_match") == true &&
+          schema_check.fetch("actual") == checkpoint.fetch(:semantic_image).fetch("schema_fingerprint")
+      )
 
       eval_b = machine_b.evaluate(
         order_id: "order/o-1",
@@ -1250,6 +1322,32 @@ module RuntimeMachineMemoryProof
 
       @negative_reports["contract_drift"] = resume.fetch(:report)
       check("negative.contract_drift_blocked", resume.fetch(:status) == "blocked")
+    end
+
+    def run_negative_schema_drift
+      backend = @golden.fetch(:backend).restore(
+        @golden.fetch(:semantic_image).fetch("checkpoint").fetch("snapshot_ref")
+      )
+      machine = RuntimeMachine.new(
+        machine_id: "runtime-machine/negative-schema-drift",
+        session_id: "session/negative-schema-drift",
+        backend: backend
+      )
+      machine.boot
+      machine.load(ToyDispatchContract.new(schema_version: "0.1.0"))
+      resume = machine.resume(
+        image: @golden.fetch(:semantic_image),
+        requested_as_of: PROOF_AS_OF
+      )
+      schema_check = resume.fetch(:report).fetch("checks").find { |item| item.fetch("dimension") == "schema" }
+
+      @negative_reports["schema_drift"] = resume.fetch(:report)
+      check(
+        "negative.schema_drift_provisional",
+        resume.fetch(:status) == "provisional" &&
+          schema_check.fetch("decision") == "provisional" &&
+          schema_check.fetch("fingerprint_match") == false
+      )
     end
 
     def run_negative_value_without_evidence
