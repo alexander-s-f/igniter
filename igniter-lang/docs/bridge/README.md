@@ -35,6 +35,7 @@ Codex]` can approve, redirect, or reject.
 | [schema-compatibility-diagnostics-igniter-contracts-plan-v0.md](schema-compatibility-diagnostics-igniter-contracts-plan-v0.md) | proposal | Architect-approved implementation plan for SchemaCompatibilityDiagnostic v0 in igniter-contracts |
 | [schema-migration-bridge-profile-v0.md](schema-migration-bridge-profile-v0.md) | proposal | Single-hop migration evidence profile for SchemaCompatibilityDiagnostic v0 |
 | [spark-availability-diagnostics-bridge-profile-v0.md](spark-availability-diagnostics-bridge-profile-v0.md) | proposal | Metadata-only diagnostics profile for the executable Spark availability fixture |
+| [operation-diagnostics-and-receipts-bridge-profile-v0.md](operation-diagnostics-and-receipts-bridge-profile-v0.md) | proposal | Generic metadata-only operation action diagnostics and receipt profiles before package work |
 
 ## Current Bridge Pressure
 
@@ -65,6 +66,10 @@ wrong-fingerprint diagnostics.
 fixture to report-only diagnostics: tenant scope source, scoped reads,
 cardinality bounds, slot reason counts, source refs, failure step/kind, and
 redaction policy.
+
+[S] Operation diagnostics now have generic report-only profiles for action
+policy, request receipts, execution receipts, duplicate pending/idempotent
+no-op receipts, and optional external bridge receipts.
 
 [Q] Should generic package diagnostics be named
 `ProjectionDiagnostic`/`PipelineDiagnostic`, or remain plain
