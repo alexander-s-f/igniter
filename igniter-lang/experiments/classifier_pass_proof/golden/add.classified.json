@@ -1,0 +1,105 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/e1bf58d2732ffcb0",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+  "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.SourceToSemanticIR.Add",
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.SourceToSemanticIR.Add.Add",
+      "name": "Add",
+      "fragment_class": "core",
+      "symbols": [
+        {
+          "name": "a",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "b",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "sum",
+          "kind": "compute",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:a",
+          "kind": "input",
+          "name": "a",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        },
+        {
+          "decl_id": "input:b",
+          "kind": "input",
+          "name": "b",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        },
+        {
+          "decl_id": "compute:sum",
+          "kind": "compute",
+          "name": "sum",
+          "fragment_class": "core",
+          "deps": [
+            "a",
+            "b"
+          ],
+          "missing_refs": [],
+          "expr_kind": "binary_op"
+        },
+        {
+          "decl_id": "output:sum",
+          "kind": "output",
+          "name": "sum",
+          "fragment_class": "core",
+          "deps": [
+            "sum"
+          ],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:a",
+          "input:b",
+          "compute:sum",
+          "output:sum"
+        ],
+        "edges": [
+          {
+            "from": "input:a",
+            "to": "compute:sum",
+            "kind": "symbol"
+          },
+          {
+            "from": "input:b",
+            "to": "compute:sum",
+            "kind": "symbol"
+          },
+          {
+            "from": "compute:sum",
+            "to": "output:sum",
+            "kind": "symbol"
+          }
+        ]
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}

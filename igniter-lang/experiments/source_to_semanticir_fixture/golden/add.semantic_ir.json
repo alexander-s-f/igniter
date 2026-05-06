@@ -1,84 +1,115 @@
 {
-  "kind": "semantic_ir_fixture_program",
+  "kind": "semantic_ir",
   "program_id": "source_to_semanticir/343a845d10dd722f",
+  "axiom_version": "1.0.0",
   "grammar_version": "0.1.0",
   "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
-  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
-  "module": "Fixture.SourceToSemanticIR.Add",
   "contracts": [
     {
-      "kind": "contract_ir",
-      "contract_ref": "contract/Add/sha256:17fa3aeb47ed50b7f9692358",
-      "contract_name": "Add",
+      "contract_id": "Fixture.SourceToSemanticIR.Add.Add",
+      "name": "Add",
       "fragment_class": "core",
-      "inputs": [
+      "escape_set": [],
+      "input_ports": [
         {
           "name": "a",
-          "type": {
-            "name": "Integer",
-            "params": []
-          }
+          "type_tag": "Integer",
+          "lifecycle": "local"
         },
         {
           "name": "b",
-          "type": {
-            "name": "Integer",
-            "params": []
-          }
+          "type_tag": "Integer",
+          "lifecycle": "local"
         }
       ],
-      "outputs": [
+      "compute_nodes": [
         {
+          "node_id": "node_sum",
           "name": "sum",
-          "type": {
-            "name": "Integer",
-            "params": []
-          },
-          "source": "sum",
-          "lifecycle": "session"
-        }
-      ],
-      "nodes": [
-        {
-          "kind": "compute",
-          "name": "sum",
-          "expr": {
-            "kind": "call",
-            "fn": "stdlib.integer.add",
-            "args": [
+          "type_tag": "Integer",
+          "lifecycle": "session",
+          "expression": {
+            "kind": "apply",
+            "operator": "stdlib.integer.add",
+            "operands": [
               {
                 "kind": "ref",
                 "name": "a",
-                "resolved_type": {
-                  "name": "Integer",
-                  "params": []
-                }
+                "type_tag": "Integer"
               },
               {
                 "kind": "ref",
                 "name": "b",
-                "resolved_type": {
-                  "name": "Integer",
-                  "params": []
-                }
+                "type_tag": "Integer"
               }
             ],
-            "resolved_type": {
-              "name": "Integer",
-              "params": []
-            }
-          },
-          "type": {
-            "name": "Integer",
-            "params": []
-          },
-          "deps": [
-            "a",
-            "b"
-          ],
-          "fragment": "core"
+            "type_tag": "Integer"
+          }
         }
       ],
+      "output_ports": [
+        {
+          "name": "sum",
+          "type_tag": "Integer",
+          "lifecycle": "session"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:a",
+          "input:b",
+          "node_sum",
+          "output:sum"
+        ],
+        "edges": [
+          {
+            "from": "input:a",
+            "to": "node_sum",
+            "kind": "data"
+          },
+          {
+            "from": "input:b",
+            "to": "node_sum",
+            "kind": "data"
+          },
+          {
+            "from": "node_sum",
+            "to": "output:sum",
+            "kind": "data"
+          }
+        ]
+      },
+      "evaluation_targets": [
+        {
+          "name": "sum",
+          "contract_id": "Fixture.SourceToSemanticIR.Add.Add",
+          "output_ports": [
+            "sum"
+          ],
+          "as_projection": null
+        }
+      ],
+      "temporal_requirements": {
+        "requires_as_of": true,
+        "requires_replay": false,
+        "requires_snapshot": false,
+        "min_consistency": "strong",
+        "windows": [],
+        "slices": []
+      },
+      "lifecycle_requirements": {
+        "min_lifecycle": "local",
+        "has_audit": false,
+        "has_window": false
+      },
+      "capability_requirements": {
+        "required_caps": [],
+        "effect_kinds": []
+      },
+      "effect_declarations": [],
+      "ffi_requirements": [],
+      "projection_descriptors": [],
+      "boundary_descriptors": [],
       "escape_boundaries": [],
       "oof_log": []
     }

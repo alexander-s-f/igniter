@@ -1,5 +1,27 @@
 {
   "kind": "source_to_semanticir_fixture_summary",
+  "canonical_envelope": {
+    "kind": "semantic_ir",
+    "axiom_version": "1.0.0",
+    "contract_keys": [
+      "contract_id",
+      "name",
+      "fragment_class",
+      "escape_set",
+      "input_ports",
+      "compute_nodes",
+      "output_ports",
+      "dependency_graph",
+      "evaluation_targets",
+      "temporal_requirements",
+      "lifecycle_requirements",
+      "capability_requirements",
+      "effect_declarations",
+      "ffi_requirements",
+      "projection_descriptors",
+      "boundary_descriptors"
+    ]
+  },
   "positive_contracts": [
     "Add",
     "ClaimEvidenceBundle",
@@ -10,5 +32,9 @@
     "negative_evidence_less_alert": "OOF-OS2",
     "negative_confidence_bool": "OOF-CE4"
   },
+  "checker_modes": [
+    "default writes regenerated golden output and runs semantic checks",
+    "--check-golden verifies canonical shape and deterministic golden equality"
+  ],
   "golden_dir": "igniter-lang/experiments/source_to_semanticir_fixture/golden"
 }
