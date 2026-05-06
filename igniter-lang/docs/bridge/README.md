@@ -41,6 +41,7 @@ Codex]` can approve, redirect, or reject.
 | [human-agent-review-approval-bridge-profile-v0.md](human-agent-review-approval-bridge-profile-v0.md) | proposal | Metadata-only human-agent proposal, review, meaning diff, correction, verification, and acceptance receipt profiles |
 | [osint-claim-factcheck-correction-bridge-profile-v0.md](osint-claim-factcheck-correction-bridge-profile-v0.md) | proposal | Metadata-only OSINT-like source observation, claim trace, evidence, confidence, contradiction, fact-check snapshot, analyst decision, citation/redaction, and correction profiles |
 | [osint-product-bridge-profiles-v0.md](osint-product-bridge-profiles-v0.md) | proposal | Metadata-only personal OSINT assistant product profiles for watchlists, daily briefs, evidence-linked alerts, reputation drift, source reliability, claim timelines, audit reports, and safe action policy |
+| [semanticir-verification-report-bridge-v0.md](semanticir-verification-report-bridge-v0.md) | proposal | Report-only bridge for compiled SemanticIR artifact hashes, classifier/typecheck diagnostics, OOF findings, and runtime proof receipts into VerificationReport metadata |
 
 ## Current Bridge Pressure
 
@@ -101,6 +102,11 @@ confidence remains not-truth.
 aligned with `VerificationReport` `custom_sections.osint_product_profiles` and
 `carrier_manifest` semantics. No real ingestion, runtime, external actions, UI,
 or package edits are authorized.
+
+[S] SemanticIR proof results now have a report-only bridge into
+`VerificationReport` metadata through
+`custom_sections.semanticir_verification_profiles`, while `metadata_manifest`
+stays focused on package operation declarations.
 
 [Q] Should generic package diagnostics be named
 `ProjectionDiagnostic`/`PipelineDiagnostic`, or remain plain
