@@ -399,4 +399,130 @@ ruby igniter-lang/experiments/spark_technician_availability_fixture/spark_techni
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/add.ig
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/availability_projection.ig
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/polymorphic_add.ig
+ruby igniter-lang/experiments/classifier_pass_proof/classifier_pass_proof.rb
+ruby igniter-lang/experiments/source_to_semanticir_fixture/source_to_semanticir_fixture.rb
 ```
+
+---
+
+## Stage 1 Progress
+
+_Maintained by `[Igniter-Lang Meta Expert]`. Updated in-place; do not create
+new track documents for progress entries. See
+`META-EXPERT-003-stage1-implementation-governance-v0.md` for policy._
+
+```text
+Stage 1 goal: source.ig → compiler → .igapp/ → RuntimeMachine trusted
+```
+
+### Scoreboard — 2026-05-06
+
+```text
+Pass                   PROP              Experiment                    Status
+──────────────────────────────────────────────────────────────────────────────
+Parser                 PROP-014/015      experiments/parser/           ✅ partial
+                                         add.ig, availability.ig,       [gap] OOF
+                                         polymorphic_add.ig → ok        rejection at
+                                                                         parse time
+
+Classifier             PROP-018/020      experiments/classifier_       ✅ PASS
+(CORE/ESCAPE/OOF)                        pass_proof/
+                                         add, claim_evidence,
+                                         evidence_linked_alert,
+                                         OOF negatives → all PASS
+
+SemanticIR Emitter     PROP-019 +        experiments/source_to_        ✅ PASS
+(canonical envelope)   PROP-019.1        semanticir_fixture/            ⚠️  needs
+                       (errata)          add, claim_evidence,           PROP-019.1
+                                         evidence_linked_alert → PASS   migration:
+                                                                         oof_log →
+                                                                         remove;
+                                                                         negative
+                                                                         fixtures →
+                                                                         compilation_
+                                                                         report.json
+                                                                         only
+
+TypeChecker            needed: narrow    no proof yet                  🟡 next
+                       PROP (PROP-021    structural types: partial        proof
+                       candidate)        trait resolution: missing
+                                         monomorphization: missing
+                                         lifecycle types: deferred
+
+.igapp/ Assembler      PROP-012 +        no experiment yet             🔴 blocked
+                       PROP-019.1                                        BLOCKED until
+                       (A1-A6 criteria)                                  PROP-019.1
+                                                                         migration
+                                                                         complete
+
+RuntimeMachine Load    PROP-011          experiments/runtime_          ✅ proven
+                                         machine_memory_proof/
+                                         load → evaluate →
+                                         checkpoint → resume → trusted
+
+Stdlib execution       PROP-013          no experiment yet             🔴 not started
+                                         numeric.add, fold, map,
+                                         filter, count, first,
+                                         or_else missing
+──────────────────────────────────────────────────────────────────────────────
+STAGE 1 CLOSED:   NO
+Blockers:         PROP-019.1 migration → TypeChecker proof → .igapp/ Assembler
+                  Stdlib execution kernel
+```
+
+### PROP-019.1 Migration: "Do Not Start Assembler Before"
+
+The `.igapp/` assembler experiment must NOT start until:
+
+```text
+1. source_to_semanticir_fixture golden files are migrated:
+   - oof_log removed from SemanticIRProgram (top-level and ContractIR)
+   - compilation_report_ref added to SemanticIRProgram
+   - companion *.compilation_report.json created per fixture
+   - negative case fixtures: *.semantic_ir.json removed;
+     only *.compilation_report.json with pass_result: "oof" retained
+
+2. source_to_semanticir_fixture.rb passes after migration.
+   (Validates that the migrated golden files are internally consistent.)
+
+3. stdlib.numeric.add → stdlib.integer.add resolved in golden SemanticIR.
+   (Polymorphic operator names must be monomorphic before SemanticIR emission.)
+
+Gate: source_to_semanticir_fixture.rb PASS on migrated golden files.
+Then: proceed to igapp_assembler_proof.
+```
+
+### Revised Next 3 Slices
+
+```text
+Slice 0 (prerequisite — Research Agent):
+  Migrate source_to_semanticir_fixture golden files to PROP-019.1 shape.
+  - Remove oof_log from SemanticIRProgram fixtures.
+  - Add compilation_report_ref.
+  - Create *.compilation_report.json companions.
+  - Rename negative fixtures: *.semantic_ir.json → *.compilation_report.json.
+  - Re-run fixture.rb → PASS.
+  Done: source_to_semanticir_fixture PASS on migrated golden files.
+
+Slice A (.igapp/ Assembler — Research Agent):
+  Implement experiments/igapp_assembler_proof/igapp_assembler_proof.rb.
+  Input: CompilationReport + SemanticIRProgram (from migrated golden files).
+  Output: .igapp/ directory per PROP-019.1 §Part 7 (A1..A6).
+  Negative: assembler given pass_result: "oof" → refuses, exit != 0.
+  Done: RuntimeMachine.load(assembled_add.igapp) → trusted CompatibilityReport.
+  Prerequisite: Slice 0 complete.
+
+Slice B (TypeChecker narrow — split ownership):
+  [Compiler/Grammar Expert]: PROP-021 TypeChecker narrow spec.
+    Scope: annotation-driven resolution, trait constraint check,
+           monomorphization (Add[Integer], Add[Float]), OOF-P1 for
+           unresolved overloads. Not full PROP-004 — narrow only.
+  [Research Agent]: typechecker_proof.rb after PROP-021.
+    Input: ClassifiedProgram JSON (from classifier golden files).
+    Output: TypedProgram JSON with resolved types, no unresolved T.
+    Negatives: Add[String] → OOF-TY1; unresolved overload → OOF-P1.
+  Done: TypedProgram shape matches PROP-021 spec, all negatives blocked.
+```
+
+_Slice C (Stdlib execution) proceeds in parallel with Slice A/B.
+Research Agent may start stdlib_execution_proof independently._

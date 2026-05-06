@@ -33,6 +33,7 @@ bridge/           → integration: carry it to platform packages
 | [META-EXPERT-001-strategic-analysis-report.md](META-EXPERT-001-strategic-analysis-report.md) | done | Full specification analysis: paradigm positioning, gap analysis, 5-domain coverage, top-10 recommendations |
 | [META-EXPERT-002-compiler-frontier-prioritization-v0.md](META-EXPERT-002-compiler-frontier-prioritization-v0.md) | done | Compiler frontier: Stage 1 milestone, P-1..P-5 priorities, deferral list, PROP-018/019 requests |
 | [META-EXPERT-003-stage1-implementation-governance-v0.md](META-EXPERT-003-stage1-implementation-governance-v0.md) | done | Stage 1 scoreboard, agent routing policy, done criteria per pass, next 3 slices |
+| [META-EXPERT-004-stage1-scoreboard-reconciliation-v0.md](META-EXPERT-004-stage1-scoreboard-reconciliation-v0.md) | done | Reconciles PROP-019.1 errata: oof_log removed, golden file migration gate, assembler unblock path |
 
 ## Write Rules
 
