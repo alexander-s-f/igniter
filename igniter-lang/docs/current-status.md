@@ -215,6 +215,48 @@ The chain proves `Add[Integer]` and `Add[Float]` acceptance, `Add[String]`
 rejection before SemanticIR, no type variables in emitted ContractIRs, no
 unresolved trait calls, and no generic loadable `Add` contract.
 
+[S] `polymorphic_add.igapp` has now been probed at the RuntimeMachine load
+boundary:
+
+```text
+CompiledProgram.load_igapp -> ok
+RuntimeMachine.load_program -> blocked by descriptor-ref shape drift
+direct evaluate -> blocked by missing stdlib.numeric.add operator support
+```
+
+This is a useful blocker, not a conceptual failure. The fixture preserves the
+core invariant: only `Add[Integer]` and `Add[Float]` are executable, while
+generic `Add` remains metadata-only.
+
+[S] Spark technician availability now has an executable synthetic fixture:
+
+```text
+TenantScope
+  + ScopedFactRead
+  + StepObservation / PipelineTrace
+  + AvailabilityProjection
+  + AvailabilitySnapshot
+  -> positive 4 available / 3 blocked slots
+  -> blocked negative cases with no trusted snapshot
+```
+
+Negative cases cover wrong tenant, invalid time window, inactive technician,
+and schedule status mismatch.
+
+[S] Spark pipeline grammar is specified as source-surface pressure:
+
+```text
+pipeline / step / scoped_by / cardinality / tenant_free
+  -> Result.flat_map + StepObservation
+  -> ScopedTBackendReadNode
+```
+
+It remains grammar/semantic specification until parser/classifier proof lands.
+
+[S] Schema migration bridge profile is ready for package work. It keeps
+single-hop migration evidence report-only and preserves P-1..P-10, including
+`migration_chain: []`, no `supersedes`, and blocked `OOF-MR3`.
+
 ---
 
 ## Parser-Accepted Pressure Fixtures
@@ -255,6 +297,11 @@ tracks define technician availability, tenant scope, fail-fast pipelines,
 why-not reasons, and candidate fixtures without using real customer data,
 endpoints, tokens, or provider payloads.
 
+[S] The second Spark operational pressure target is now lead-signal boundary:
+normalized lead signals, deterministic idempotency, exact Decimal bid totals,
+hourly rollup, duplicate suppression, retention receipts, and late closed
+boundary handling.
+
 ---
 
 ## Currently Open
@@ -263,8 +310,9 @@ Critical:
 
 - no complete parser -> classifier -> typechecker -> SemanticIR compiler path
 - no parsed-source-to-`.igapp` surface checker yet
-- no RuntimeMachine.load proof for `polymorphic_add.igapp`
-- no executable Spark technician availability fixture yet
+- `polymorphic_add.igapp` RuntimeMachine load is blocked by known loader /
+  operator-table gaps, not by fixture shape
+- no executable Spark lead-signal boundary fixture yet
 
 High:
 
@@ -275,8 +323,9 @@ High:
 - replacement image multi-hop chain proof and TBackend preserve-set policy
 - migration path selection: direct, shortest-path, or policy-selected
 - package implementation of `SchemaCompatibilityDiagnostic` remains pending
-- tenant/pipeline semantics are formalized but not executable in a Spark
-  fixture yet
+- Spark pipeline grammar has no parser/classifier/SemanticIR proof yet
+- Spark availability diagnostics bridge profile is not written yet
+- Decimal / idempotency / retention / late-boundary semantics are pressure-only
 
 Medium:
 
@@ -297,30 +346,38 @@ Deferred:
 ## Next Recommended Tracks
 
 1. `[Igniter-Lang Research Agent]`
-   `polymorphic-add-runtime-load-boundary-v0`
+   `polymorphic-add-runtime-loader-normalization-v0`
 
-   Load or intentionally reject `fixtures/polymorphic_add.igapp/` and document
-   exact loader-normalization requirements for bracketed contract ids and
-   specialization manifests.
+   Patch/prove descriptor-ref normalization, specialization manifest validation,
+   metadata-only generic rejection, and `stdlib.numeric.add` runtime operator
+   support.
 
 2. `[Igniter-Lang Research Agent]`
-   `spark-technician-availability-fixture-v0`
+   `spark-lead-signal-boundary-fixture-v0`
 
-   Implement the first synthetic Spark availability fixture using TenantScope,
-   ScopedFactRead, PipelineStep/StepObservation, why-not reasons, and negative
-   tenant/time/status cases.
+   Implement the second Spark operational fixture: normalized lead signals,
+   idempotency, hourly rollup, exact Decimal totals, duplicate suppression,
+   retention receipts, and late closed-boundary diagnostics.
 
-3. `[Igniter-Lang Bridge Agent]`
-   `schema-migration-bridge-profile-v0`
+3. `[Igniter-Lang Compiler/Grammar Expert]`
+   `spark-pipeline-parser-acceptance-v0`
 
-   Carry the stabilized replacement image payload/link spec into a package
-   bridge profile while keeping multi-hop migration separate.
+   Add parser acceptance for `pipeline`, `step`, `scoped_by`, `cardinality`,
+   and `tenant_free` source examples after the executable availability fixture.
 
-4. `[Package Agent / Companion+Store]`
-   `igniter-contracts-schema-compatibility-diagnostic-v0` (hold until assigned)
+4. `[Igniter-Lang Bridge Agent]`
+   `spark-availability-diagnostics-bridge-profile-v0`
 
-   Implement the already-planned metadata-only `SchemaCompatibilityDiagnostic`
-   under `packages/igniter-contracts`.
+   Map availability fixture observations to metadata-only diagnostics: tenant
+   scope, scoped reads, cardinality, slot reason counts, failure steps, and
+   redaction policy.
+
+5. `[Package Agent / Companion+Store]`
+   `igniter-contracts-schema-compatibility-diagnostic-v0`
+
+   Now ready to assign as a large bounded package slice: report-only
+   `SchemaCompatibilityDiagnostic` with optional single-hop
+   `migration_profile`, no runtime migration execution.
 
 ---
 
@@ -337,6 +394,8 @@ ruby igniter-lang/experiments/runtime_machine_memory_proof/external_candidate_no
 ruby igniter-lang/experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb
 ruby igniter-lang/experiments/polymorphic_add_classifier_proof/polymorphic_add_classifier_proof.rb
 ruby igniter-lang/experiments/polymorphic_add_semanticir_emission_proof/polymorphic_add_semanticir_emission_proof.rb
+ruby igniter-lang/experiments/polymorphic_add_runtime_load_boundary_proof/polymorphic_add_runtime_load_boundary_proof.rb
+ruby igniter-lang/experiments/spark_technician_availability_fixture/spark_technician_availability_fixture.rb
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/add.ig
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/availability_projection.ig
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/polymorphic_add.ig

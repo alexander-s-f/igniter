@@ -34,6 +34,7 @@ Codex]` can approve, redirect, or reject.
 | [schema-compatibility-diagnostics-package-touchpoint-map-v0.md](schema-compatibility-diagnostics-package-touchpoint-map-v0.md) | proposal | Architect-reviewable package target map for SchemaCompatibilityDiagnostic v0 |
 | [schema-compatibility-diagnostics-igniter-contracts-plan-v0.md](schema-compatibility-diagnostics-igniter-contracts-plan-v0.md) | proposal | Architect-approved implementation plan for SchemaCompatibilityDiagnostic v0 in igniter-contracts |
 | [schema-migration-bridge-profile-v0.md](schema-migration-bridge-profile-v0.md) | proposal | Single-hop migration evidence profile for SchemaCompatibilityDiagnostic v0 |
+| [spark-availability-diagnostics-bridge-profile-v0.md](spark-availability-diagnostics-bridge-profile-v0.md) | proposal | Metadata-only diagnostics profile for the executable Spark availability fixture |
 
 ## Current Bridge Pressure
 
@@ -60,5 +61,11 @@ metadata: `migration_chain: []`, no `supersedes`, required `replaces`,
 `caused_by`, `produced_by`, `produced_in`, and OOF-MR3 blocked
 wrong-fingerprint diagnostics.
 
-[Q] Should Package Agent reject invalid migration profile input, or serialize
-it as blocked diagnostic evidence?
+[S] The Spark availability bridge profile maps the executable synthetic
+fixture to report-only diagnostics: tenant scope source, scoped reads,
+cardinality bounds, slot reason counts, source refs, failure step/kind, and
+redaction policy.
+
+[Q] Should generic package diagnostics be named
+`ProjectionDiagnostic`/`PipelineDiagnostic`, or remain plain
+`VerificationReport` payload sections?

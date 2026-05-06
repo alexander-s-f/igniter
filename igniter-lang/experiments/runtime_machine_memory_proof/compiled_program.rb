@@ -16,6 +16,7 @@ require_relative "../runtime_machine_memory_proof/runtime_machine_memory_proof"
 module RuntimeMachineMemoryProof
   class CompiledProgram
     attr_reader :program_id, :artifact_hash, :language_version, :format
+    attr_reader :manifest, :specialization_manifest
     attr_reader :contracts, :semantic_ir, :classified_ast
     attr_reader :requirements, :diagnostics, :schema_descriptor
 
@@ -28,6 +29,9 @@ module RuntimeMachineMemoryProof
       classified_ast  = load_json(dir / "classified_ast.json")
       requirements    = load_json(dir / "requirements.json")
       diagnostics     = load_json(dir / "diagnostics.json")
+      specialization_manifest = if manifest.key?("specialization_manifest_ref")
+                                  load_json(dir / manifest.fetch("specialization_manifest_ref"))
+                                end
 
       contracts = {}
       contracts_dir = dir / "contracts"
@@ -44,6 +48,7 @@ module RuntimeMachineMemoryProof
         classified_ast: classified_ast,
         requirements:   requirements,
         diagnostics:    diagnostics,
+        specialization_manifest: specialization_manifest,
         contracts:      contracts
       )
     end
@@ -54,11 +59,14 @@ module RuntimeMachineMemoryProof
       raise ArgumentError, "Failed to load #{path}: #{e.message}"
     end
 
-    def initialize(manifest:, semantic_ir:, classified_ast:, requirements:, diagnostics:, contracts:)
+    def initialize(manifest:, semantic_ir:, classified_ast:, requirements:, diagnostics:, contracts:,
+                   specialization_manifest: nil)
+      @manifest         = manifest
       @program_id       = manifest.fetch("program_id")
       @artifact_hash    = manifest.fetch("artifact_hash")
       @language_version = manifest.fetch("language_version")
       @format           = manifest.fetch("format")
+      @specialization_manifest = specialization_manifest
       @semantic_ir      = semantic_ir
       @classified_ast   = classified_ast
       @requirements     = requirements
@@ -109,6 +117,9 @@ module RuntimeMachineMemoryProof
       errors = []
       errors << "diagnostics is non-empty: #{diagnostics["diagnostics"]}" unless diagnostics.fetch("diagnostics", []).empty?
       errors << "oof_count > 0" if oof_count > 0
+      validate_manifest_contracts(errors)
+      validate_specialization_manifest(errors)
+      validate_metadata_only_templates(errors)
       raise ValidationError, errors.join("; ") unless errors.empty?
     end
 
@@ -226,7 +237,7 @@ module RuntimeMachineMemoryProof
 
     def apply_operator(op, operands)
       case op
-      when "add"            then operands.reduce(:+)
+      when "add", "stdlib.numeric.add" then operands.reduce(:+)
       when "sub"            then operands.reduce(:-)
       when "mul"            then operands.reduce(:*)
       when "div"            then operands.reduce(:/)
@@ -266,6 +277,51 @@ module RuntimeMachineMemoryProof
         "available_count" => available_count,
         "snapshot_at"     => date
       }
+    end
+
+    def validate_manifest_contracts(errors)
+      manifest_contracts = manifest.fetch("contracts", @contracts.keys)
+      contract_ids = @contracts.keys.sort
+      errors << "manifest.contracts does not match contract files" unless manifest_contracts.sort == contract_ids
+
+      semantic_contract_ids = semantic_ir.fetch("contracts", []).map do |contract|
+        contract.fetch("contract_id")
+      end.sort
+      return if semantic_contract_ids.empty? || semantic_contract_ids == contract_ids
+
+      errors << "semantic_ir.contracts does not match contract files"
+    end
+
+    def validate_specialization_manifest(errors)
+      return unless manifest.key?("specialization_manifest_ref")
+
+      unless specialization_manifest
+        errors << "specialization_manifest_ref is present but manifest was not loaded"
+        return
+      end
+
+      emitted_contract_ids = specialization_manifest.fetch("specializations", []).map do |item|
+        item.fetch("emitted_contract_id")
+      end.sort
+      contract_ids = @contracts.keys.sort
+      errors << "specialization_manifest emitted_contract_id set does not match loadable contracts" unless emitted_contract_ids == contract_ids
+    end
+
+    def validate_metadata_only_templates(errors)
+      metadata_only_templates = manifest.fetch("metadata_only_templates", [])
+      loaded_metadata_templates = metadata_only_templates.select { |contract_id| @contracts.key?(contract_id) }
+      errors << "metadata_only_templates are loadable: #{loaded_metadata_templates.join(", ")}" unless loaded_metadata_templates.empty?
+
+      generic_templates = classified_ast.fetch("generic_templates", [])
+      loadable_templates = generic_templates.select { |template| template.fetch("loadable", true) }
+      errors << "generic_templates must be metadata-only" unless loadable_templates.empty?
+
+      loadable_contracts = classified_ast.fetch("loadable_contracts", nil)
+      return unless loadable_contracts
+
+      return if loadable_contracts.sort == @contracts.keys.sort
+
+      errors << "classified_ast.loadable_contracts does not match contract files"
     end
   end
 
@@ -326,7 +382,12 @@ module RuntimeMachineMemoryProof
       @backend.append(ast_packet, idempotency_key: ast_packet.id)
 
       @loaded_schema_descriptor = Canonical.normalize(program.schema_descriptor)
-      migration_descriptor_refs = emit_migration_descriptors(@loaded_schema_descriptor.fetch("migrations", []))
+      migration_descriptor_refs_by_id = emit_migration_descriptors(@loaded_schema_descriptor.fetch("migrations", []))
+      migration_descriptor_refs = if migration_descriptor_refs_by_id.respond_to?(:values)
+                                    migration_descriptor_refs_by_id.values
+                                  else
+                                    Array(migration_descriptor_refs_by_id)
+                                  end
 
       # Emit LoadReceipt
       load_receipt = packet(
@@ -339,7 +400,8 @@ module RuntimeMachineMemoryProof
           status:           program.oof_count > 0 ? "partial" : "loaded",
           fragment_report:  ast_packet.id,
           descriptors:      descriptor_refs.values + migration_descriptor_refs,
-          migration_descriptor_refs: migration_descriptor_refs
+          migration_descriptor_refs: migration_descriptor_refs,
+          migration_descriptor_refs_by_id: migration_descriptor_refs_by_id
         },
         temporal: { as_of: PROOF_AS_OF, lifecycle: "load" },
         links:    evidence_links
@@ -359,7 +421,8 @@ module RuntimeMachineMemoryProof
         fragment_class:           program.fragment_class,
         schema_version:           @loaded_schema_descriptor.fetch("schema_version"),
         schema_fingerprint:       @loaded_schema_descriptor.fetch("schema_fingerprint"),
-        migration_descriptor_refs: migration_descriptor_refs
+        migration_descriptor_refs:       migration_descriptor_refs,
+        migration_descriptor_refs_by_id: migration_descriptor_refs_by_id
       }
 
       @state = "loaded"

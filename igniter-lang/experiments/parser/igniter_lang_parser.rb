@@ -28,7 +28,7 @@ module IgniterLang
   TOKEN_TYPES = %i[
     keyword ident string_lit int_lit float_lit bool_lit nil_lit
     symbol_lit lbrace rbrace lparen rparen lbracket rbracket
-    dot comma colon double_colon dot_dot_dot arrow fat_arrow
+    dot dot_dot comma colon double_colon dot_dot_dot arrow fat_arrow
     op assign pipe question bang
     newline eof comment
   ].freeze
@@ -42,6 +42,7 @@ module IgniterLang
     module import contract contract_shape type def trait impl
     input output compute read snapshot window escape
     from lifecycle using implements
+    pipeline step scoped_by cardinality schema_version tenant_free
     if else let
     true false nil
     and or not
@@ -169,8 +170,9 @@ module IgniterLang
       when "[" then advance; Token.new(:lbracket, "[", l, c)
       when "]" then advance; Token.new(:rbracket, "]", l, c)
       when "." then
-        if peek(1) == "{"
-          advance; Token.new(:dot, ".", l, c)
+        if peek(1) == "."
+          advance; advance
+          Token.new(:dot_dot, "..", l, c)
         else
           advance; Token.new(:dot, ".", l, c)
         end
@@ -261,6 +263,7 @@ module IgniterLang
       program = { "kind" => "source_file", "module" => nil, "imports" => [],
                   "traits" => [], "impls" => [], "contract_shapes" => [],
                   "contracts" => [], "types" => [], "functions" => [],
+                  "pipelines" => [],
                   "parse_errors" => [] }
 
       # optional module declaration
@@ -285,6 +288,7 @@ module IgniterLang
         when "contract"       then program["contracts"]       << decl
         when "type"           then program["types"]           << decl
         when "function"       then program["functions"]       << decl
+        when "pipeline"       then program["pipelines"]       << decl
         end
       end
 
@@ -377,11 +381,49 @@ module IgniterLang
       when "contract"       then advance; parse_contract_decl
       when "type"           then advance; parse_type_decl
       when "def"            then advance; parse_function_decl
+      when "pipeline"       then advance; parse_pipeline_decl
       else
         @errors << { "message" => "Unexpected token: #{tok.value}", "line" => tok.line }
         advance
         nil
       end
+    end
+
+    def parse_pipeline_decl
+      name = name_token!(%i[ident])
+      expect_type!(:lbracket)
+      in_type  = parse_type_ref
+      expect_type!(:comma)
+      out_type = parse_type_ref
+      expect_type!(:comma)
+      err_type = parse_type_ref
+      expect_type!(:rbracket)
+      expect_type!(:lbrace)
+      steps = []
+      until peek_type?(:rbrace) || peek_type?(:eof)
+        if peek_kw?("step")
+          advance
+          steps << parse_step_decl
+        else
+          tok = peek
+          @errors << { "message" => "Expected 'step', got #{tok.value}", "line" => tok.line }
+          advance
+        end
+      end
+      if steps.empty?
+        @errors << { "message" => "OOF-PG5: pipeline '#{name}' has no steps", "line" => 0 }
+      end
+      expect_type!(:rbrace)
+      { "kind" => "pipeline", "name" => name,
+        "in_type" => in_type, "out_type" => out_type, "err_type" => err_type,
+        "steps" => steps }
+    end
+
+    def parse_step_decl
+      name = name_token!(%i[ident])
+      expect_type!(:colon)
+      ref  = parse_qualified_ref
+      { "kind" => "step", "name" => name, "ref" => ref }
     end
 
     def parse_contract_decl
@@ -496,10 +538,35 @@ module IgniterLang
       type_ref = parse_type_ref
       expect_kw!("from")
       from = expect_type!(:string_lit).value
-      lifecycle = peek_kw?("lifecycle") ? (advance; parse_lifecycle) : nil
+      lifecycle    = peek_kw?("lifecycle")      ? (advance; parse_lifecycle)              : nil
+      scoped_by    = peek_kw?("scoped_by")     ? (advance; name_token!(%i[ident]))       : nil
+      cardinality  = peek_kw?("cardinality")   ? (advance; parse_cardinality_bound)      : nil
+      schema_ver   = peek_kw?("schema_version") ? (advance; expect_type!(:string_lit).value) : nil
+      tenant_free  = peek_kw?("tenant_free")   ? (advance; true)                         : false
+      if tenant_free && scoped_by
+        @errors << { "message" => "OOF-PG3: scoped_by and tenant_free are mutually exclusive on read '#{name}'",
+                     "line" => 0 }
+      end
       node = { "kind" => "read", "name" => name, "type_annotation" => type_ref, "from" => from }
-      node["lifecycle"] = lifecycle if lifecycle
+      node["lifecycle"]     = lifecycle   if lifecycle
+      node["scoped_by"]     = scoped_by   if scoped_by
+      node["cardinality"]   = cardinality if cardinality
+      node["schema_version"] = schema_ver  if schema_ver
+      node["tenant_free"]   = tenant_free
       node
+    end
+
+    def parse_cardinality_bound
+      min_tok = expect_type!(:int_lit)
+      # '..' is now lexed as a single :dot_dot token
+      if peek_type?(:dot_dot)
+        advance
+      else
+        tok = peek
+        @errors << { "message" => "Expected '..' in cardinality, got #{tok&.value}", "line" => tok&.line }
+      end
+      max_tok = expect_type!(:int_lit)
+      { "min" => min_tok.value, "max" => max_tok.value }
     end
 
     def parse_snapshot_decl
@@ -968,11 +1035,19 @@ module IgniterLang
         "contracts"       => @ast["contracts"],
         "types"           => @ast["types"],
         "functions"       => @ast["functions"],
+        "pipelines"       => @ast.fetch("pipelines", []),
         "parse_errors"    => @errors
       }
     end
 
     def grammar_version
+      return "spark-pipeline-v0" if @ast.fetch("pipelines", []).any? ||
+                                    @ast.fetch("contracts", []).any? { |c|
+                                      c.fetch("body", []).any? { |n|
+                                        n.is_a?(Hash) && n["scoped_by"]
+                                      }
+                                    }
+
       return "polymorphic-v0" if @ast.fetch("traits", []).any? ||
                                  @ast.fetch("impls", []).any? ||
                                  @ast.fetch("contract_shapes", []).any? ||

@@ -25,7 +25,7 @@ module PolymorphicAddRuntimeLoadBoundaryProof
     program = RuntimeMachineMemoryProof::CompiledProgram.load_igapp(path)
     validation_error = validate_program(program)
     runtime_load = try_runtime_load(program)
-    direct_eval = try_direct_eval(program)
+    runtime_eval = try_runtime_eval(program)
 
     checks = [
       check("compiled_program.load_igapp", !program.nil?),
@@ -33,15 +33,22 @@ module PolymorphicAddRuntimeLoadBoundaryProof
       check("fixture.loadable_contracts_monomorphic", loadable_contracts_monomorphic?(manifest, program, semantic_ir)),
       check("fixture.generic_add_metadata_only", generic_add_metadata_only?(manifest, classified_ast, program)),
       check("fixture.specialization_manifest_present", specialization_manifest_ok?(manifest, specialization_manifest)),
-      check("runtime.load_program.current_boundary_blocked", runtime_load.fetch(:status) == "blocked"),
-      check("runtime.load_program.blocker_descriptor_refs_shape", runtime_load.fetch(:error).include?("no implicit conversion of Hash into Array")),
-      check("runtime.evaluate_program.next_blocker_stdlib_operator", direct_eval.fetch(:error).include?("Unknown operator: stdlib.numeric.add"))
+      check("runtime.load_program", runtime_load.fetch(:status) == "loaded"),
+      check("runtime.load_program.contracts_loaded", runtime_load.fetch(:descriptor_refs) == LOADABLE_CONTRACTS.sort),
+      check("runtime.evaluate_add_integer", runtime_eval.dig(:add_integer, :outputs, "sum") == 3),
+      check("runtime.evaluate_add_float", runtime_eval.dig(:add_float, :outputs, "sum") == 3.75),
+      check("runtime.reject_generic_add", runtime_eval.dig(:generic_add, :status) == "rejected"),
+      check("runtime.reject_add_string", runtime_eval.dig(:add_string, :status) == "rejected"),
+      check(
+        "runtime.operator_stdlib_numeric_add",
+        runtime_eval.dig(:add_integer, :error).nil? && runtime_eval.dig(:add_float, :error).nil?
+      )
     ]
 
     {
       checks: checks,
       load_result: runtime_load,
-      direct_eval_result: direct_eval,
+      runtime_eval_result: runtime_eval,
       program_contracts: program.contracts.keys.sort
     }
   end
@@ -71,16 +78,47 @@ module PolymorphicAddRuntimeLoadBoundaryProof
     { status: "blocked", error: "#{e.class}: #{e.message}", descriptor_refs: [] }
   end
 
-  def try_direct_eval(program)
-    outputs = program.evaluate_contract(
-      "Lang.Examples.PolymorphicAdd.Add[Integer]",
-      { "a" => 1, "b" => 2 },
-      backend: nil,
-      as_of: PROOF_AS_OF
-    )
-    { status: "ok", error: nil, outputs: outputs }
+  def try_runtime_eval(program)
+    {
+      add_integer: eval_contract(
+        program,
+        "Lang.Examples.PolymorphicAdd.Add[Integer]",
+        { "a" => 1, "b" => 2 }
+      ),
+      add_float: eval_contract(
+        program,
+        "Lang.Examples.PolymorphicAdd.Add[Float]",
+        { "a" => 1.5, "b" => 2.25 }
+      ),
+      generic_add: eval_contract(program, GENERIC_TEMPLATE, { "a" => 1, "b" => 2 }),
+      add_string: eval_contract(
+        program,
+        "Lang.Examples.PolymorphicAdd.Add[String]",
+        { "a" => "a", "b" => "b" }
+      )
+    }
   rescue => e
-    { status: "blocked", error: "#{e.class}: #{e.message}", outputs: {} }
+    {
+      add_integer: { status: "blocked", error: "#{e.class}: #{e.message}", outputs: {} },
+      add_float: { status: "blocked", error: "#{e.class}: #{e.message}", outputs: {} },
+      generic_add: { status: "blocked", error: "#{e.class}: #{e.message}", outputs: {} },
+      add_string: { status: "blocked", error: "#{e.class}: #{e.message}", outputs: {} }
+    }
+  end
+
+  def eval_contract(program, contract_id, inputs)
+    backend = RuntimeMachineMemoryProof::MemoryTBackend.new
+    machine = RuntimeMachineMemoryProof::RuntimeMachine.new(
+      machine_id: "runtime-machine/polymorphic-add-loader-normalization",
+      session_id: "session/polymorphic-add-loader-normalization",
+      backend: backend
+    )
+    machine.boot
+    machine.load_program(program)
+    result = machine.evaluate_program(contract_id, inputs, as_of: PROOF_AS_OF)
+    { status: result.fetch(:status), error: nil, outputs: result.fetch(:outputs) }
+  rescue => e
+    { status: "rejected", error: "#{e.class}: #{e.message}", outputs: {} }
   end
 
   def loadable_contracts_monomorphic?(manifest, program, semantic_ir)
@@ -119,13 +157,16 @@ module PolymorphicAddRuntimeLoadBoundaryProof
 
     def print_result(result)
       ok = result.fetch(:checks).all? { |check| check.fetch(:ok) }
-      puts "#{ok ? "BLOCKED" : "FAIL"} polymorphic_add_runtime_load_boundary_proof"
+      puts "#{ok ? "PASS" : "FAIL"} polymorphic_add_runtime_loader_normalization_proof"
       result.fetch(:checks).each do |check|
         puts "#{check.fetch(:name)}: #{check.fetch(:ok) ? "ok" : "fail"}"
       end
       puts "program.contracts: #{result.fetch(:program_contracts).join(", ")}"
-      puts "runtime.load_program.error: #{result.fetch(:load_result).fetch(:error)}"
-      puts "runtime.evaluate_program.error: #{result.fetch(:direct_eval_result).fetch(:error)}"
+      puts "runtime.load_program.status: #{result.fetch(:load_result).fetch(:status)}"
+      puts "runtime.evaluate_add_integer.sum: #{result.dig(:runtime_eval_result, :add_integer, :outputs, "sum")}"
+      puts "runtime.evaluate_add_float.sum: #{result.dig(:runtime_eval_result, :add_float, :outputs, "sum")}"
+      puts "runtime.reject_generic_add.error: #{result.dig(:runtime_eval_result, :generic_add, :error)}"
+      puts "runtime.reject_add_string.error: #{result.dig(:runtime_eval_result, :add_string, :error)}"
     end
   end
 end

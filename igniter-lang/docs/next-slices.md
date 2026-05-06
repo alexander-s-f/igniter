@@ -8,11 +8,11 @@ Supervisor: `[Architect Supervisor / Codex]`
 
 Recent closed slices:
 
-- `polymorphic-add-igapp-fixture-v0`
-- `migration-replacement-image-checker-v0`
-- `spark-tenant-and-pipeline-formalization-v0`
-- `spark-technician-availability-fixture-pressure-v0`
-- `schema-compatibility-diagnostics-igniter-contracts-plan-v0`
+- `polymorphic-add-runtime-load-boundary-v0`
+- `spark-technician-availability-fixture-v0`
+- `spark-pipeline-grammar-v0`
+- `schema-migration-bridge-profile-v0`
+- `spark-lead-signal-boundary-pressure-v0`
 
 Verification currently green:
 
@@ -22,67 +22,72 @@ polymorphic_add_semanticir_emission_proof.rb
 runtime_machine_memory_proof.rb
 runtime_machine_memory_proof.rb --verify-fixtures
 packet_builder_check.rb
+spark_technician_availability_fixture.rb
 parser add / availability_projection / polymorphic_add
+```
+
+Known useful blocker:
+
+```text
+polymorphic_add_runtime_load_boundary_proof.rb
+  -> CompiledProgram.load_igapp ok
+  -> RuntimeMachine.load_program blocked by descriptor-ref shape drift
+  -> direct evaluation blocked by missing stdlib.numeric.add operator
 ```
 
 ## Recommended Order
 
 ### 1. Research Agent
 
-`polymorphic-add-runtime-load-boundary-v0`
+`polymorphic-add-runtime-loader-normalization-v0`
 
-Prove whether `fixtures/polymorphic_add.igapp/` can be loaded as-is by the
-current RuntimeMachine loader. If not, document the minimal loader
-normalization needed for bracketed contract ids, specialization manifest, and
-generic metadata.
+Patch/prove the current loader boundary discovered by the blocked proof:
+descriptor-ref normalization, specialization manifest validation, metadata-only
+generic rejection, and `stdlib.numeric.add` runtime operator support.
 
 ### 2. Research Agent
 
-`spark-technician-availability-fixture-v0`
+`spark-lead-signal-boundary-fixture-v0`
 
-Turn the Applied Pressure fixture spec into an executable synthetic fixture:
-TenantScope, ScopedFactRead, PipelineStep/StepObservation, AvailabilitySnapshot,
-why-not reasons, and negative tenant/time/status cases.
+Implement the second Spark operational fixture: normalized lead signals,
+deterministic idempotency, hourly rollup, exact Decimal totals, duplicate
+suppression, retention receipts, and late closed-boundary diagnostics.
 
 ### 3. Compiler/Grammar Expert
 
-`spark-pipeline-grammar-v0`
+`spark-pipeline-parser-acceptance-v0`
 
-Define source syntax for pipeline declarations and `scoped_by` reads. Keep
-pipeline semantics as `Result.flat_map + StepObservation`; no new runtime
-composition operator.
+Add parser acceptance for the already-specified pipeline surface:
+`pipeline`, `step`, `scoped_by`, `cardinality`, and `tenant_free`. Keep
+classifier/typechecking proof separate unless it is tiny.
 
 ### 4. Bridge Agent
 
-`schema-migration-bridge-profile-v0`
+`spark-availability-diagnostics-bridge-profile-v0`
 
-Carry the stabilized replacement image payload/link spec into a bridge profile:
-`migration_chain`, no `supersedes`, `replaces`, `caused_by`, `produced_by`,
-`produced_in`, and `OOF-MR3` wrong-fingerprint blocking.
+Map the executable availability fixture to metadata-only diagnostics: tenant
+scope source, scoped reads, cardinality bounds, slot reason counts, source refs,
+failed step, failure kind, and redaction policy.
 
 ### 5. Package Agent
-
-Hold for now unless we explicitly approve package work.
-
-Candidate package slice:
 
 `igniter-contracts-schema-compatibility-diagnostic-v0`
 
 Implement the already-planned metadata-only `SchemaCompatibilityDiagnostic` in
-`packages/igniter-contracts`. This is package work, so it should be assigned
-only after the Architect explicitly switches Package Agent from durable-model
-to `igniter-contracts`.
+`packages/igniter-contracts` with optional single-hop `migration_profile`
+support. This is now ready to assign if the Architect wants Package Agent
+active.
 
 ## Package Agent Decision
 
-[D] Keep Package Agent waiting for the moment.
+[D] Package Agent can move now, but only on the large bounded
+`igniter-contracts-schema-compatibility-diagnostic-v0` slice.
 
 Reason:
 
-- Last durable-model track is done and stable.
-- Igniter-Lang is producing fast-moving bridge semantics.
-- The next package task should be large and clear, not a small cleanup.
-- Best next package task is likely `SchemaCompatibilityDiagnostic v0` in
-  `packages/igniter-contracts`, but it should start after this planning point
-  is accepted.
-
+- Bridge has stabilized the report-only migration profile enough for package
+  implementation.
+- The slice is large enough to be worth Package Agent's context cost.
+- Scope remains safe: diagnostic value object and report serialization only.
+- No migration executor, multi-hop migration, path selection, TBackend rewrite,
+  Ledger integration, or app/runtime enforcement.
