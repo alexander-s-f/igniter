@@ -50,7 +50,6 @@ The assembler writes:
 experiments/igapp_assembler_proof/out/<case>.igapp/
   manifest.json
   semantic_ir_program.json      -- preserved PROP-019.1 SemanticIRProgram
-  semantic_ir.json              -- compatibility view for current proof loader
   compilation_report.json
   compatibility_metadata.json
   classified_ast.json
@@ -62,9 +61,9 @@ experiments/igapp_assembler_proof/out/<case>.igapp/
 
 [D] `semantic_ir_program.json` is the canonical compiler artifact.
 
-[D] `semantic_ir.json` is a temporary loader-compatibility view because the
-current `RuntimeMachineMemoryProof::CompiledProgram.load_igapp` still expects
-the older `.igapp` contract summary shape.
+[D] As of `prop0191-direct-runtime-loader-v0`, the assembler no longer writes
+`semantic_ir.json`; the proof loader consumes `semantic_ir_program.json`
+directly.
 
 [D] `manifest.semantic_ir_ref` must equal
 `CompilationReport.semantic_ir_ref`, and `manifest.compilation_report_ref` must
@@ -91,6 +90,8 @@ assembler.negative.unresolved_symbol_refused: ok
 assembler.negative.evidence_less_alert_refused: ok
 assembler.negative.confidence_bool_refused: ok
 assembler.deterministic_output: ok
+assembler.no_legacy_semantic_ir_json: ok
+runtime.load_direct_prop0191: ok
 runtime.load_assembled_add: ok
 runtime.evaluate_assembled_add: ok
 runtime.compatibility_report_trusted: ok
@@ -124,10 +125,12 @@ This slice added a minimal compatibility hook to the memory proof evaluator:
 the same pure addition path as the old add fixture. This is enough for the
 assembled Add proof, but it is not the final stdlib registry.
 
-## Remaining Runtime-Load Gaps
+Follow-up `prop0191-direct-runtime-loader-v0` removed the proof-local
+`semantic_ir.json` view from assembled output and taught the loader to validate
+`manifest.json`, `compilation_report.json`, `semantic_ir_program.json`, and
+`contracts/*.json` directly.
 
-[Q] The real loader should consume PROP-019.1 `SemanticIRProgram` directly,
-instead of requiring `semantic_ir.json` as a compatibility view.
+## Remaining Runtime-Load Gaps
 
 [Q] `CompiledProgram#apply_operator` still accepts historical `"add"` and
 `"stdlib.numeric.add"` names. A later stdlib registry slice should reject
@@ -158,9 +161,6 @@ docs/tracks/igapp-assembler-proof-stage1-v0.md
 ```
 
 ## Next
-
-[Next] Replace the proof-local compatibility view with a real
-PROP-019.1-aware RuntimeMachine loader.
 
 [Next] Add a tiny assembler contract/schema verifier that checks every emitted
 file hash against `manifest.artifact_hash`.

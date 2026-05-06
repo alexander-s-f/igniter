@@ -679,6 +679,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-019.1-semanticir-envelope-errata-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-021-typechecker-pass-v0-formalization | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-022-igapp-assembler-contract-v0 | done |
+| 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-023-classified-expr-boundary-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/bridge-agent-entry-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-bridge-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-package-touchpoint-map-v0.md | done |

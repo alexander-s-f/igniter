@@ -1,7 +1,7 @@
 # Ch5: Compiler Pipeline
 
 Source PROPs: PROP-018, PROP-019.1
-Status: TypeChecker ✅ PASS; assembler 🔴 blocked on Slice 0; pipeline model accepted
+Status: ✅ PASS — TypeChecker + boundary PASS; Assembler PASS; only parser OOF gap remains (non-blocking)
 
 ---
 
@@ -78,11 +78,10 @@ What the Stage 1 pipeline handles:
 ✅  Collection[T] stdlib (fold, map, filter, avg)
 ✅  OOF rejection: P1 (unresolved), P4 (cycle), CE4 (confidence as bool)
 ✅  TypeChecker pass: annotation-driven resolution, Decimal rules, OOF-TC1..5
+✅  TypeChecker boundary: standalone ClassifiedProgram → TypedProgram (own classified/ dir)
+✅  .igapp/ Assembler: A1-A6 all proven; assembled_add.igapp loads/evaluates → trusted
 
-⚠️  TypeChecker gap: proof reads from two external golden dirs (not standalone yet)
-⏳  OOF rejection at parse time (partial — known gap)
-🔴  Assembler (blocked on Slice 0 golden migration)
-🔴  Stdlib execution (Slice C — not yet connected to RuntimeMachine)
+⚠️  OOF rejection at parse time — non-blocking gap; caught at Classify/TypeCheck stages
 ```
 
 ---

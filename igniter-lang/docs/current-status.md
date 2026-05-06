@@ -42,15 +42,17 @@ SemanticIR Emitter     PROP-019 +        experiments/source_to_              ✅
                                          all PASS                              absent ✓
 
 TypeChecker            PROP-021          experiments/typechecker_proof/       ✅ PASS
-                                         9 cases: add, claim_evidence,         ⚠️ gap: uses
-                                         evidence_linked_alert,                  classifier_pass
-                                         OOF negatives blocked                   _proof/golden;
-                                                                                no standalone
-                                                                                boundary fixture
+(boundary fixture)                        boundary.classified_program_         ✅ boundary
+                                         input_only: ok                         CLOSED
+                                         own classified/ dir; no external       (Slice B)
+                                         golden dir dependency
 
-.igapp/ Assembler      PROP-012 +        no experiment yet                   🔴 BLOCKED
-                       PROP-019.1                                              Slice A
-                       (A1-A6 criteria)                                        now unblocked
+.igapp/ Assembler      PROP-012 +        experiments/igapp_assembler_        ✅ PASS
+(A1-A6)                PROP-019.1        proof/                               A1-A6 all ok
+                       (A1-A6 criteria)  3 positive + 3 negative + runtime    runtime.load:
+                                         load/evaluate/trusted                 loaded
+                                                                               runtime.evaluate:
+                                                                               trusted ✓
 
 RuntimeMachine Load    PROP-011          experiments/runtime_machine_        ✅ proven
                                          memory_proof/
@@ -64,36 +66,22 @@ Stdlib execution       PROP-013          experiments/stdlib_execution_       ✅
                                          or_else; numeric.add rejected
 ──────────────────────────────────────────────────────────────────────────────────────
 STAGE 1 CLOSED:   NO
-Active blocker:   .igapp/ Assembler — Slice A (no remaining prerequisite)
-Parallel gaps:    TypeChecker standalone boundary fixture — Slice B
+Remaining gap:    OOF rejection at parse time (parser — no slice assigned)
+All proofs:       Parser(partial) Classifier Emitter TypeChecker Assembler RuntimeMachine Stdlib
 ```
 
 ---
 
-## Active Blocker: .igapp/ Assembler (Slice A)
+## Stage 1 Remaining Gap
 
-Slice 0 is complete: `source_to_semanticir_fixture --check-golden PASS`.
-The assembler is now the only blocking step.
-
-```text
-Slice A requirements:
-  Input:  CompilationReport (pass_result: "ok") + SemanticIRProgram
-          (from source_to_semanticir_fixture golden files — already migrated)
-  Output: .igapp/ directory per PROP-019.1 §Part 7 (A1..A6)
-  Negative: assembler given pass_result: "oof" → refuses, exit != 0
-  Done when: RuntimeMachine.load(assembled_add.igapp) → trusted CompatibilityReport
-```
-
-**TypeChecker standalone boundary gap** (Slice B — does not block assembler):
+All major proofs are PASS. One minor gap remains:
 
 ```text
-typechecker_proof.rb reads ClassifiedProgram from classifier_pass_proof/golden/
-as an external input. There is no standalone boundary fixture or runner that
-accepts only a ClassifiedProgram and produces a TypedProgram independently.
-
-Missing: experiments/typechecker_boundary/ (or equivalent) that proves
-ClassifiedProgram → TypedProgram as a self-contained pipeline step.
-This must be closed before Stage 1 fully closes.
+OOF rejection at parse time:
+  The parser currently accepts some OOF constructs without error.
+  OOF is caught at Classify (Pass 0) and Type (Pass 1) stages instead.
+  This gap does not block any downstream pass.
+  No slice assigned. Will be addressed as part of full grammar hardening.
 ```
 
 ---
@@ -105,25 +93,24 @@ Slice 0 — ✅ CLOSED
   source_to_semanticir_fixture --check-golden PASS.
   Negative cases: *.semantic_ir.json absent. CompilationReport artifacts present.
 
-Slice A — Research Agent [NOW UNBLOCKED — active]
-  Implement experiments/igapp_assembler_proof/igapp_assembler_proof.rb
-  Input:  CompilationReport + SemanticIRProgram (from golden files — migrated)
-  Output: .igapp/ directory per PROP-019.1 §Part 7 (criteria A1..A6)
-  Negative: assembler given pass_result:"oof" → refuses, exit != 0
-  Done when: RuntimeMachine.load(assembled_add.igapp) → trusted CompatibilityReport
+Slice A — ✅ CLOSED
+  igapp_assembler_proof PASS.
+  3 positive (add, claim_evidence, evidence_linked_alert): assembled → loaded → evaluated → trusted.
+  3 negative (OOF inputs): assembler refuses, exit != 0.
+  RuntimeMachine.load(assembled_add.igapp) → trusted CompatibilityReport ✓
 
-Slice B — Research Agent [parallel with Slice A]
-  Standalone TypeChecker boundary fixture.
-  Input:  ClassifiedProgram JSON only (from classifier_pass_proof/golden/)
-  Output: TypedProgram JSON as a standalone pipeline step
-  Closes: TypeChecker standalone boundary gap
-  Note:   typechecker_proof.rb is already PASS; Slice B makes it pipeline-proper.
-  Done when: ClassifiedProgram → TypedProgram proven without external parsed_ast input.
+Slice B — ✅ CLOSED
+  typechecker_proof boundary fixture PASS.
+  boundary.classified_program_input_only: ok
+  TypeChecker now reads from own classified/ dir; no external golden dependency.
 
 Slice C — ✅ CLOSED
   stdlib_execution_kernel_stage1 PASS.
   Proven: integer/float/decimal.add, fold, map, filter, count, or_else.
   Proven: stdlib.numeric.add rejected at runtime (pre-resolution boundary enforced).
+
+Remaining (non-blocking):
+  Parser OOF rejection at parse time — will be addressed in grammar hardening pass.
 ```
 
 ---
@@ -131,7 +118,7 @@ Slice C — ✅ CLOSED
 ## Agent Routing
 
 ```text
-[Research Agent]            → Slice A (assembler — now unblocked) → Slice B (typechecker boundary)
+[Research Agent]            → all slices CLOSED; await Stage 2 governance
 [Compiler/Grammar Expert]  → spec reviews only (PROP-021 already written)
 [Igniter-Lang Meta Expert] → this file, meta-proposals, governance only
 
@@ -142,8 +129,8 @@ Do not start:
   ❌ playground expansion
 
 Do start:
-  ✅ Slice A assembler (top priority — unblocked)
-  ✅ Slice B typechecker boundary (parallel)
+  ✅ Stage 1 close validation (run all experiments, confirm end-to-end)
+  ✅ After Stage 1 close: open Stage 2 governance (META-EXPERT-007)
 ```
 
 ---
@@ -174,11 +161,17 @@ ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/
 # Classifier
 ruby igniter-lang/experiments/classifier_pass_proof/classifier_pass_proof.rb
 
-# TypeChecker (PASS)
+# TypeChecker (PASS — boundary fixture included)
 ruby igniter-lang/experiments/typechecker_proof/typechecker_proof.rb
 
-# SemanticIR Emitter (run after Slice 0 golden file migration)
-ruby igniter-lang/experiments/source_to_semanticir_fixture/source_to_semanticir_fixture.rb
+# SemanticIR Emitter + golden check
+ruby igniter-lang/experiments/source_to_semanticir_fixture/source_to_semanticir_fixture.rb --check-golden
+
+# .igapp/ Assembler (PASS)
+ruby igniter-lang/experiments/igapp_assembler_proof/igapp_assembler_proof.rb
+
+# Stdlib execution kernel (PASS)
+ruby igniter-lang/experiments/stdlib_execution_kernel_stage1/stdlib_execution_kernel_stage1.rb
 ```
 
 ---

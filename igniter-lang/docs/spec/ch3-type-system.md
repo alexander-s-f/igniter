@@ -1,19 +1,9 @@
 # Ch3: Type System
 
 Source PROPs: PROP-004, PROP-004 errata v0.1, PROP-021
-Status: ✅ PASS ⚠️ self-contained gap
-Proof: experiments/typechecker_proof/ — PASS (9/9 cases: typed.add, claim_evidence, evidence_linked_alert,
-        accepted_no_unresolved_types, unresolved_symbol_blocked, evidence_less_alert_blocked,
-        confidence_bool_blocked, semanticir.not_emitted, golden.typed_outputs)
-
-**Self-contained gap**: typechecker_proof.rb reads from two external golden dirs:
-- `experiments/classifier_pass_proof/golden/` (ClassifiedProgram inputs)
-- `experiments/source_to_semanticir_fixture/golden/` (ParsedProgram inputs)
-
-It is not yet a standalone `ClassifiedProgram → TypedProgram` pipeline step.
-Resolving this gap is Slice B: a standalone `ClassifiedProgram → TypedProgram` experiment
-where the TypeChecker reads only from ClassifiedProgram golden files (not mixed sources).
-Slice B is parallel to Slice A and does not block the assembler.
+Status: ✅ PASS ✅ boundary fixture CLOSED
+Proof: experiments/typechecker_proof/ — PASS (includes `boundary.classified_program_input_only: ok`)
+       TypeChecker now reads from own `classified/` directory; no external golden dir dependency.
 
 ---
 

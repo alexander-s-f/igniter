@@ -3,7 +3,7 @@
 Source PROPs: PROP-019, PROP-019.1
 Status: ✅ PASS — `--check-golden` PASS; negative `*.semantic_ir.json` absent; CompilationReport artifacts present
 Proof: experiments/source_to_semanticir_fixture/ — golden check PASS (canonical + compilation_reports + negative_semanticir_absent)
-Assembler: 🔴 Slice A — no experiment yet (now unblocked)
+Assembler: ✅ PASS — experiments/igapp_assembler_proof/ — A1-A6 all ok; assembled_add.igapp → RuntimeMachine.load → evaluate → trusted
 
 ---
 

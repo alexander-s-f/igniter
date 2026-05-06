@@ -33,18 +33,18 @@ Last updated: 2026-05-06
 | Ch1 Identity | PROP-001 | — | accepted / no proof needed |
 | Ch2 Grammar BNF | PROP-014, PROP-015 | experiments/parser/ (61 specs) | ✅ partial — OOF rejection gap |
 | Ch2 ParsedProgram shape | PROP-014, PROP-018 | experiments/parser/ | ✅ proven |
-| Ch3 Type grammar | PROP-004 | experiments/typechecker_proof/ | ✅ PASS ⚠️ self-contained gap |
+| Ch3 Type grammar | PROP-004 | experiments/typechecker_proof/ | ✅ PASS ✅ boundary fixture CLOSED |
 | Ch3 Decimal typing | PROP-021 | typechecker_proof TC cases | ✅ PASS |
 | Ch4 Classifier pass | PROP-003, PROP-020 | experiments/classifier_pass_proof/ | ✅ PASS |
 | Ch4 OOF rules P1/P2/P4 | PROP-020 | classifier negatives | ✅ PASS |
 | Ch5 Four-stage pipeline | PROP-018, PROP-019.1 | — | accepted |
-| Ch5 TypeChecker pass | PROP-021 | experiments/typechecker_proof/ | ✅ PASS ⚠️ uses classifier_pass_proof/golden as external input; no standalone boundary fixture |
+| Ch5 TypeChecker pass | PROP-021 | experiments/typechecker_proof/ | ✅ PASS ✅ boundary CLOSED (own classified/ dir) |
 | Ch6 SemanticIR envelope | PROP-019.1 | experiments/source_to_semanticir_fixture/ | ✅ PASS ✅ golden check PASS |
 | Ch6 CompilationReport | PROP-019.1 | source_to_semanticir_fixture --check-golden | ✅ PASS |
-| Ch6 Assembler criteria A1–A6 | PROP-019.1 | no experiment yet | 🔴 Slice A (unblocked) |
+| Ch6 Assembler criteria A1–A6 | PROP-019.1 | experiments/igapp_assembler_proof/ | ✅ PASS A1–A6 all ok |
 | Ch7 RuntimeMachine lifecycle | PROP-011 | experiments/runtime_machine_memory_proof/ | ✅ proven |
-| Ch7 CompatibilityReport gate | PROP-009, PROP-009.1 | runtime_machine_memory_proof | ✅ proven |
-| Ch8 Collection[T] ops | PROP-013 | runtime_machine_memory_proof (partial) | 🟡 stdlib not connected |
+| Ch7 CompatibilityReport gate | PROP-009, PROP-009.1 | igapp_assembler_proof runtime.* | ✅ proven (assembled igapp) |
+| Ch8 Collection[T] ops | PROP-013 | stdlib_execution_kernel_stage1 | ✅ PASS |
 | Ch8 fold/map/filter | PROP-013 | experiments/stdlib_execution_kernel_stage1/ | ✅ PASS |
 | Ch9 History[T] | PROP-022 | — | deferred Stage 2 |
 | Ch9 stream T | PROP-023 | — | deferred Stage 2 |
@@ -53,13 +53,23 @@ Last updated: 2026-05-06
 
 ---
 
-## Stage 1 Gaps (implementation-blocked)
+## Coverage Summary
 
 ```
-1. OOF rejection at parse time — parser gap (no slice assigned)
-2. TypeChecker boundary fixture — Slice B: standalone ClassifiedProgram → TypedProgram
-   (typechecker_proof.rb PASS; gap = uses classifier_pass_proof/golden as external CP input)
-3. .igapp/ Assembler — Slice A (Slice 0 complete; assembler now unblocked)
+accepted + PASS   Ch3 (TypeChecker + boundary), Ch4 (classifier), Ch5 (pipeline + TypeChecker + assembler),
+                  Ch6 (SemanticIR + assembler), Ch7 (RuntimeMachine), Ch8 (stdlib kernel)
+accepted partial  Ch2 (OOF parse gap — non-blocking, caught at Classify/TypeCheck)
+deferred          Ch9 (Stage 2: History, stream, OLAPPoint, severity)
+```
+
+---
+
+## Stage 1 Remaining Gap
+
+```
+1. OOF rejection at parse time — parser accepts some OOF without error (non-blocking).
+   Caught at Classify/TypeCheck stages. Will be addressed in grammar hardening.
+   All other Stage 1 proofs: PASS.
 ```
 
 ---
