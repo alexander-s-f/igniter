@@ -216,7 +216,8 @@ present, they require an explicit `redaction_policy`, force
 `raw_ref_export: false`, reject raw refs, and produce a `carrier_manifest` with
 section counts, profile names, and report-only enforcement flags. Future opaque
 sections can be carried under `metadata[:custom_sections]`; OSINT-style
-profiles remain metadata-only custom sections rather than public package API.
+profiles and future compiler-pipeline proof profiles remain metadata-only
+custom sections rather than public package API.
 Generic diagnostic payloads are serialized through `VerificationReport` as
 `diagnostic_payloads`; generic receipt payloads use `receipt_payloads`. Neither
 surface authorizes package adapters, real data export, provider bridges,
