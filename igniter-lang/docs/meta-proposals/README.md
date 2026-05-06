@@ -1,47 +1,80 @@
-# Igniter-Lang Meta Proposals
+# Meta-Proposals Index
 
-Status: active index
-Role: `[Igniter-Lang Meta Expert]`
-Supervisor: `[Architect Supervisor / Codex]`
+Maintained by: `[Igniter-Lang Meta Expert]`
+Status: active governance index
+Last updated: 2026-05-06
 
-## Purpose
+---
 
-Meta-proposals are strategic documents that guide the language development by:
+## Active Governance (Stage 1)
 
-- identifying gaps and blind spots in the current specification
-- prioritizing next work across all operational roles
-- resolving cross-cutting design questions
-- analyzing competitive positioning and paradigm claims
-- producing actionable requests for PROP-* formalization, proofs, and bridges
-
-Meta-proposals do not replace `docs/proposals/` (formal PROP-* documents owned
-by `[Igniter-Lang Compiler/Grammar Expert]`). They inform and direct them.
-
-## Relationship to Other Document Types
-
-```text
-meta-proposals/   → strategic: what to build, why, in what order
-proposals/        → formal: how to build it (grammar, types, semantics)
-tracks/           → practical: proof that it works (fixtures, experiments)
-bridge/           → integration: carry it to platform packages
-```
-
-## Active Meta Proposals
+Documents that govern active Stage 1 work. New agents should read these first.
 
 | Document | Status | Purpose |
 |----------|--------|---------|
-| [META-EXPERT-001-strategic-analysis-report.md](META-EXPERT-001-strategic-analysis-report.md) | done | Full specification analysis: paradigm positioning, gap analysis, 5-domain coverage, top-10 recommendations |
-| [META-EXPERT-002-compiler-frontier-prioritization-v0.md](META-EXPERT-002-compiler-frontier-prioritization-v0.md) | done | Compiler frontier: Stage 1 milestone, P-1..P-5 priorities, deferral list, PROP-018/019 requests |
-| [META-EXPERT-003-stage1-implementation-governance-v0.md](META-EXPERT-003-stage1-implementation-governance-v0.md) | done | Stage 1 scoreboard, agent routing policy, done criteria per pass, next 3 slices |
-| [META-EXPERT-004-stage1-scoreboard-reconciliation-v0.md](META-EXPERT-004-stage1-scoreboard-reconciliation-v0.md) | done | Reconciles PROP-019.1 errata: oof_log removed, golden file migration gate, assembler unblock path |
-| [META-EXPERT-005-project-history-archaeology.md](META-EXPERT-005-project-history-archaeology.md) | done | Full project archaeology: origin story, legacy packages, 12 buried ideas, theoretical foundations (5 formal identities), domain validation (science/robotics/space/medicine), stage map |
-| [META-EXPERT-006-language-model-revision-v0.md](META-EXPERT-006-language-model-revision-v0.md) | proposal | Clean-slate language model revision: History[T]/BiHistory/OLAPPoint/stream T/invariant severity/unit types/deadline contracts; validates all 12 buried ideas; 5 open questions |
+| [META-EXPERT-003](META-EXPERT-003-stage1-implementation-governance-v0.md) | done | Stage 1 scoreboard, agent routing policy, done criteria per pass, next 3 slices |
+| [META-EXPERT-004](META-EXPERT-004-stage1-scoreboard-reconciliation-v0.md) | done | Reconciles PROP-019.1 errata: oof_log removed, golden file migration gate, assembler unblock path |
 
-## Write Rules
+---
 
-- Only `[Igniter-Lang Meta Expert]` or `[Architect Supervisor / Codex]` may
-  author documents here.
-- Each document should identify affected neighbors and requested follow-up
-  actions.
-- Meta-proposals do not create formal language rules — they request them from
-  `[Igniter-Lang Compiler/Grammar Expert]`.
+## Language Model (completed decisions)
+
+Documents that codified the language model revision. Read before authoring new PROPs.
+
+| Document | Status | Purpose |
+|----------|--------|---------|
+| [META-EXPERT-006](META-EXPERT-006-language-model-revision-v0.md) | decision | Clean-slate language model revision: Stage 2 type system (History[T]/BiHistory/OLAPPoint/stream T/invariant severity/unit types); validates all 12 buried ideas; 5 Q&A decisions recorded |
+| [META-EXPERT-005](META-EXPERT-005-project-history-archaeology.md) | done | Full project archaeology: origin story, 12 buried ideas, 5 formal identities, domain validation (science/robotics/space/medicine) |
+
+---
+
+## Strategic Foundation (historical)
+
+Documents that established the overall direction. Do not modify.
+
+| Document | Status | Purpose |
+|----------|--------|---------|
+| [META-EXPERT-001](META-EXPERT-001-strategic-analysis-report.md) | done | Strategic analysis, domain insights, OSINT/agents/science/ERP directions |
+| [META-EXPERT-002](META-EXPERT-002-compiler-frontier-prioritization-v0.md) | done | Compiler frontier: Stage 1 milestone, P-1..P-5 priorities, deferral list |
+
+---
+
+## Write Rules (Stage 1 governance)
+
+```text
+[Meta Expert]    → writes to this directory only
+                 → updates current-status.md scoreboard
+                 → does not start new PROP work during Stage 1
+
+[Research Agent] → reports to current-status.md (not new track docs)
+                 → routes to Meta Expert for blocked decisions
+
+[Compiler Expert]→ writes to proposals/ only
+                 → scope: Stage 1 pipeline PROPs (020, 021 refinement)
+                 → Stage 2 PROPs (022..025) authored, not expanded
+
+Do not:
+  ❌ Start new theoretical research tracks
+  ❌ Expand Stage 2 PROPs before Stage 1 closes
+  ❌ Create new meta-proposals unless a major governance decision is required
+```
+
+---
+
+## Stage 2 PROP Reference (authored, not yet active)
+
+| PROP | Status | Summary |
+|------|--------|---------|
+| PROP-022 | authored | History[T]/BiHistory[T] type constructors |
+| PROP-023 | authored | stream T surface form + fold_stream |
+| PROP-024 | authored | OLAPPoint[T, Dims] primitive |
+| PROP-025 | authored | Invariant severity levels |
+
+Implementation of these PROPs begins **after Stage 1 closes**.
+
+---
+
+## Snapshot Reference
+
+Full pre-crystallization state (all tracks, bridge notes, full current-status):
+→ `docs/archive/snapshots/2026-05-06-stage1-pre-crystallization/meta-proposals/`
