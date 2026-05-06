@@ -36,6 +36,8 @@ Codex]` can approve, redirect, or reject.
 | [schema-migration-bridge-profile-v0.md](schema-migration-bridge-profile-v0.md) | proposal | Single-hop migration evidence profile for SchemaCompatibilityDiagnostic v0 |
 | [spark-availability-diagnostics-bridge-profile-v0.md](spark-availability-diagnostics-bridge-profile-v0.md) | proposal | Metadata-only diagnostics profile for the executable Spark availability fixture |
 | [operation-diagnostics-and-receipts-bridge-profile-v0.md](operation-diagnostics-and-receipts-bridge-profile-v0.md) | proposal | Generic metadata-only operation action diagnostics and receipt profiles before package work |
+| [lead-boundary-diagnostics-retention-bridge-profile-v0.md](lead-boundary-diagnostics-retention-bridge-profile-v0.md) | proposal | Metadata-only lead boundary diagnostics, rollup, Decimal, idempotency, and retention receipt profiles |
+| [model-validity-and-scenario-comparison-bridge-profile-v0.md](model-validity-and-scenario-comparison-bridge-profile-v0.md) | proposal | Metadata-only simulation run diagnostics, model validity, scenario comparison, assumption diff, and review-only strategy profiles |
 
 ## Current Bridge Pressure
 
@@ -70,6 +72,16 @@ redaction policy.
 [S] Operation diagnostics now have generic report-only profiles for action
 policy, request receipts, execution receipts, duplicate pending/idempotent
 no-op receipts, and optional external bridge receipts.
+
+[S] Lead boundary diagnostics now have generic report-only profiles for
+boundary decisions, hourly rollups, duplicate non-admission, Decimal wire
+values, idempotency `identified_by` links, late-boundary blocking, and retention
+dry-run/execution receipts.
+
+[S] Simulation/world-modeling outputs now have generic report-only profiles for
+model validity, scenario comparison, run diagnostics, assumption/parameter
+diffs, and review-only strategy candidates with explicit non-authorization
+semantics.
 
 [Q] Should generic package diagnostics be named
 `ProjectionDiagnostic`/`PipelineDiagnostic`, or remain plain

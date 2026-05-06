@@ -159,7 +159,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 |-------|--------------|--------|------|
 | `[Igniter-Lang Research Agent]` | `tracks/spark-technician-availability-fixture-v0.md` + `tracks/polymorphic-add-runtime-load-boundary-v0.md` | done / blocked-useful | polymorphic-add-runtime-loader-normalization-v0 or spark-lead-signal-boundary-fixture-v0 |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/spark-pipeline-grammar-v0.md` | done | spark-pipeline-parser-acceptance-v0 or decimal-idempotency-retention-formalization-v0 |
-| `[Igniter-Lang Bridge Agent]` | `bridge/operation-diagnostics-and-receipts-bridge-profile-v0.md` | done | Architect-reviewed generic operation diagnostics/receipts carrier plan |
+| `[Igniter-Lang Bridge Agent]` | `bridge/model-validity-and-scenario-comparison-bridge-profile-v0.md` | done | Architect-reviewed generic simulation diagnostics/model validity carrier plan |
 | `[Igniter-Lang Applied Pressure Agent]` | `tracks/spark-lead-signal-boundary-pressure-v0.md` | done | spark-operation-action-lifecycle-pressure-v0 or sandbox-simulation-world-modeling-pressure-v0 |
 
 ## Current Meta Thesis
@@ -597,6 +597,8 @@ igniter-lang/docs/
     schema-migration-bridge-profile-v0.md [done - migration evidence bridge profile]
     spark-availability-diagnostics-bridge-profile-v0.md [done - Spark availability metadata diagnostics profile]
     operation-diagnostics-and-receipts-bridge-profile-v0.md [done - generic operation diagnostics and receipts profile]
+    lead-boundary-diagnostics-retention-bridge-profile-v0.md [done - lead boundary diagnostics and retention receipts profile]
+    model-validity-and-scenario-comparison-bridge-profile-v0.md [done - simulation diagnostics and model validity profiles]
 ```
 
 ---
@@ -659,6 +661,8 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/spark-pipeline-grammar-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/spark-pipeline-parser-acceptance-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/decimal-idempotency-retention-formalization-v0 | done |
+| 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/operation-action-result-types-and-transition-semantics-v0 | done |
+| 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/decimal-grammar-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/bridge-agent-entry-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-bridge-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-package-touchpoint-map-v0.md | done |
@@ -666,3 +670,5 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-migration-bridge-profile-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/spark-availability-diagnostics-bridge-profile-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/operation-diagnostics-and-receipts-bridge-profile-v0.md | done |
+| 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/lead-boundary-diagnostics-retention-bridge-profile-v0.md | done |
+| 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/model-validity-and-scenario-comparison-bridge-profile-v0.md | done |

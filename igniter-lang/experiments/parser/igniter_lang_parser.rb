@@ -739,6 +739,12 @@ module IgniterLang
       name = name_token!(%i[ident keyword])
       if peek_type?(:lbracket)
         advance
+        # Decimal[N]: structured node with integer scale param
+        if name == "Decimal" && peek_type?(:int_lit)
+          scale = advance.value  # Integer
+          expect_type!(:rbracket)
+          return { "kind" => "type_ref", "name" => "Decimal", "params" => [scale] }
+        end
         inner = parse_type_ref
         # handle nested like Result[T, E]
         if peek_type?(:comma)
@@ -1041,6 +1047,19 @@ module IgniterLang
     end
 
     def grammar_version
+      decimal_type_ref = lambda { |n|
+        n.is_a?(Hash) && n["kind"] == "type_ref" && n["name"] == "Decimal"
+      }
+      has_decimal = @ast.fetch("contracts", []).any? { |c|
+        c.fetch("body", []).any? { |node|
+          node.is_a?(Hash) && (
+            decimal_type_ref.call(node["type_annotation"]) ||
+            decimal_type_ref.call(node.fetch("type_annotation", nil))
+          )
+        }
+      } || @ast.fetch("types", []).any? { |t| decimal_type_ref.call(t["alias"]) }
+      return "decimal-v0" if has_decimal
+
       return "spark-pipeline-v0" if @ast.fetch("pipelines", []).any? ||
                                     @ast.fetch("contracts", []).any? { |c|
                                       c.fetch("body", []).any? { |n|
