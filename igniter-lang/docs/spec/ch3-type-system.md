@@ -1,8 +1,17 @@
 # Ch3: Type System
 
 Source PROPs: PROP-004, PROP-004 errata v0.1, PROP-021
-Status: accepted (type grammar, rules); pending proof (typechecker experiment not yet run)
-Proof: experiments/typechecker/ — not yet implemented (Slice B)
+Status: ✅ PASS ⚠️ self-contained gap
+Proof: experiments/typechecker_proof/ — PASS (9/9 cases: typed.add, claim_evidence, evidence_linked_alert,
+        accepted_no_unresolved_types, unresolved_symbol_blocked, evidence_less_alert_blocked,
+        confidence_bool_blocked, semanticir.not_emitted, golden.typed_outputs)
+
+**Self-contained gap**: typechecker_proof.rb reads from two external golden dirs:
+- `experiments/classifier_pass_proof/golden/` (ClassifiedProgram inputs)
+- `experiments/source_to_semanticir_fixture/golden/` (ParsedProgram inputs)
+
+It is not yet a standalone `ClassifiedProgram → TypedProgram` pipeline step.
+Resolving this gap is part of PROP-019.1 golden file migration (Slice 0).
 
 ---
 

@@ -1,7 +1,7 @@
 # Ch5: Compiler Pipeline
 
 Source PROPs: PROP-018, PROP-019.1
-Status: accepted (four-stage model); partial (Slice 0 + TypeChecker proof pending)
+Status: TypeChecker ✅ PASS; assembler 🔴 blocked on Slice 0; pipeline model accepted
 
 ---
 
@@ -77,9 +77,10 @@ What the Stage 1 pipeline handles:
 ✅  module + import declarations
 ✅  Collection[T] stdlib (fold, map, filter, avg)
 ✅  OOF rejection: P1 (unresolved), P4 (cycle), CE4 (confidence as bool)
+✅  TypeChecker pass: annotation-driven resolution, Decimal rules, OOF-TC1..5
 
+⚠️  TypeChecker gap: proof reads from two external golden dirs (not standalone yet)
 ⏳  OOF rejection at parse time (partial — known gap)
-⏳  TypeChecker proof (Slice B — not yet run)
 🔴  Assembler (blocked on Slice 0 golden migration)
 🔴  Stdlib execution (Slice C — not yet connected to RuntimeMachine)
 ```

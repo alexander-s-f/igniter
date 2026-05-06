@@ -33,11 +33,12 @@ Last updated: 2026-05-06
 | Ch1 Identity | PROP-001 | — | accepted / no proof needed |
 | Ch2 Grammar BNF | PROP-014, PROP-015 | experiments/parser/ (61 specs) | ✅ partial — OOF rejection gap |
 | Ch2 ParsedProgram shape | PROP-014, PROP-018 | experiments/parser/ | ✅ proven |
-| Ch3 Type grammar | PROP-004 | experiments/typechecker/ | 🟡 pending proof |
-| Ch3 Decimal typing | PROP-021 | TC-2,TC-5 conformance cases | 🟡 pending proof |
+| Ch3 Type grammar | PROP-004 | experiments/typechecker_proof/ | ✅ PASS ⚠️ self-contained gap |
+| Ch3 Decimal typing | PROP-021 | typechecker_proof TC cases | ✅ PASS |
 | Ch4 Classifier pass | PROP-003, PROP-020 | experiments/classifier_pass_proof/ | ✅ PASS |
 | Ch4 OOF rules P1/P2/P4 | PROP-020 | classifier negatives | ✅ PASS |
 | Ch5 Four-stage pipeline | PROP-018, PROP-019.1 | — | accepted |
+| Ch5 TypeChecker pass | PROP-021 | experiments/typechecker_proof/ | ✅ PASS ⚠️ reads two golden dirs |
 | Ch6 SemanticIR envelope | PROP-019.1 | experiments/source_to_semanticir_fixture/ | ✅ PASS ⚠️ migration needed |
 | Ch6 CompilationReport | PROP-019.1 | source_to_semanticir_fixture | ✅ PASS |
 | Ch6 Assembler criteria A1–A6 | PROP-019.1 | no experiment yet | 🔴 blocked — Slice 0 first |
@@ -56,8 +57,25 @@ Last updated: 2026-05-06
 
 ```
 1. OOF rejection at parse time — parser accepts some OOF source without error
-2. TypeChecker proof — PROP-021 authored; typechecker_proof.rb not yet run
+2. TypeChecker self-contained gap — typechecker_proof reads from two golden dirs
+   (classifier_pass_proof/golden + source_to_semanticir_fixture/golden);
+   not yet a standalone ClassifiedProgram → TypedProgram pipeline step
 3. PROP-019.1 golden file migration — blocks assembler (Slice 0)
 4. igapp_assembler_proof — blocked on Slice 0
 5. stdlib_execution_proof — numeric.add, fold, map, filter not connected to RuntimeMachine
 ```
+
+---
+
+## Proposal Lifecycle
+
+```
+proposal (authored)
+  → verification (experiment proves the spec)
+  → approval (Meta Expert + Architect review)
+  → spec chapter (extracted into docs/spec/chN)
+  → implementation (Ruby Igniter or Igniter-Lang runtime)
+```
+
+During Stage 1: proposals/ is the active working intake.
+After Stage 1 closes: accepted PROPs are frozen (see post-Stage-1 plan below).
