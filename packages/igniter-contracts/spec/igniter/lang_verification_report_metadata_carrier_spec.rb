@@ -4,6 +4,15 @@ require_relative "../spec_helper"
 require "igniter/lang"
 
 RSpec.describe Igniter::Lang::VerificationReport do
+  let(:redaction_policy) do
+    {
+      profile: "public_metadata_v0",
+      redacted_ref_kinds: %i[actor provider customer],
+      raw_ref_export: false,
+      hash_source_refs: true
+    }
+  end
+
   def build_report(metadata)
     described_class.new(
       profile_fingerprint: "profile:fingerprint",
@@ -33,6 +42,7 @@ RSpec.describe Igniter::Lang::VerificationReport do
           }
         }
       ],
+      redaction_policy: redaction_policy,
       receipts: [
         {
           profile: "operation_request_receipt_v0",
@@ -105,7 +115,8 @@ RSpec.describe Igniter::Lang::VerificationReport do
           reviewer_ref: "redacted:reviewer:agent",
           decision: "accepted_for_research"
         }
-      ]
+      ],
+      redaction_policy: redaction_policy
     )
 
     serialized_metadata = report.to_h.fetch(:metadata)
@@ -128,6 +139,7 @@ RSpec.describe Igniter::Lang::VerificationReport do
 
   it "supports explicitly marked custom carrier sections" do
     report = build_report(
+      redaction_policy: redaction_policy,
       custom_sections: {
         future_confidence_reports: [
           {
@@ -155,25 +167,16 @@ RSpec.describe Igniter::Lang::VerificationReport do
                                                                 ])
   end
 
-  it "adds default redaction policy when carrier sections are present" do
-    report = build_report(diagnostics: [])
-
-    expect(report.metadata.fetch(:redaction_policy)).to eq(
-      raw_ref_export: false,
-      hash_source_refs: true,
-      redacted_ref_kinds: []
-    )
+  it "requires explicit redaction policy when carrier sections are present" do
+    expect do
+      build_report(diagnostics: [])
+    end.to raise_error(ArgumentError, /metadata\.redaction_policy is required/)
   end
 
   it "normalizes supplied redaction policy while keeping raw ref export disabled" do
     report = build_report(
       diagnostics: [],
-      redaction_policy: {
-        profile: "public_metadata_v0",
-        redacted_ref_kinds: %i[actor provider customer],
-        raw_ref_export: false,
-        hash_source_refs: true
-      }
+      redaction_policy: redaction_policy
     )
 
     expect(report.metadata.fetch(:redaction_policy)).to include(
@@ -205,7 +208,8 @@ RSpec.describe Igniter::Lang::VerificationReport do
               actor_ref: "raw:actor:tech-17"
             }
           }
-        ]
+        ],
+        redaction_policy: redaction_policy
       )
     end.to raise_error(ArgumentError, /raw refs/)
 
@@ -216,28 +220,30 @@ RSpec.describe Igniter::Lang::VerificationReport do
             profile: "operation_request_receipt_v0",
             raw_source_ref: "provider/session/001"
           }
-        ]
+        ],
+        redaction_policy: redaction_policy
       )
     end.to raise_error(ArgumentError, /raw refs/)
   end
 
   it "rejects malformed known carrier sections" do
     expect do
-      build_report(diagnostics: { profile: "pipeline_diagnostic_v0" })
+      build_report(diagnostics: { profile: "pipeline_diagnostic_v0" }, redaction_policy: redaction_policy)
     end.to raise_error(ArgumentError, /metadata\.diagnostics must be an array/)
 
     expect do
-      build_report(receipts: ["operation_request/fixture/req-001"])
+      build_report(receipts: ["operation_request/fixture/req-001"], redaction_policy: redaction_policy)
     end.to raise_error(ArgumentError, /metadata\.receipts\[0\] must be a hash/)
   end
 
   it "rejects malformed custom carrier sections" do
     expect do
-      build_report(custom_sections: [])
+      build_report(custom_sections: [], redaction_policy: redaction_policy)
     end.to raise_error(ArgumentError, /metadata\.custom_sections must be a hash/)
 
     expect do
       build_report(
+        redaction_policy: redaction_policy,
         custom_sections: {
           diagnostics: []
         }

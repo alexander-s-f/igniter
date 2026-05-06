@@ -114,7 +114,9 @@ module Igniter
         metadata_hash = normalize_hash(value, :metadata)
         return deep_freeze(metadata_hash) unless metadata_carrier?(metadata_hash)
 
-        metadata_hash[:redaction_policy] = normalize_metadata_redaction_policy(metadata_hash[:redaction_policy] || {})
+        raise ArgumentError, "metadata.redaction_policy is required for carrier sections" unless metadata_hash.key?(:redaction_policy)
+
+        metadata_hash[:redaction_policy] = normalize_metadata_redaction_policy(metadata_hash[:redaction_policy])
         metadata_hash[:semantics] = normalize_metadata_semantics(metadata_hash[:semantics] || {})
         reject_metadata_raw_refs!(metadata_hash)
         deep_freeze(metadata_hash)
