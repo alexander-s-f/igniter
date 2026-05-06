@@ -78,6 +78,7 @@ implementation detail of the current Igniter platform.
 | [tracks/personal-osint-assistant-product-fixture-v0.md](tracks/personal-osint-assistant-product-fixture-v0.md) | done | Added executable synthetic personal OSINT assistant product fixture with Watchlist, reliability view, brief, alert, drift, audit-ready report, and safe product negatives |
 | [tracks/osint-logical-inference-contract-pressure-v0.md](tracks/osint-logical-inference-contract-pressure-v0.md) | done | Strengthened OSINT theory with a Prolog-inspired but Datalog-like bounded inference contract layer: ClaimFact, EvidenceFact, InferenceRule, Query, ProofTrace, DerivationReceipt, unsafe negation/search guardrails, and compiler/bridge requests |
 | [tracks/osint-product-real-use-pressure-v0.md](tracks/osint-product-real-use-pressure-v0.md) | done | Pressure-tested the lawful OSINT assistant as a real product and general-purpose language vector across personal knowledge, reputation, vendor/customer/company, Spark vendor/lead signals, and home-lab awareness lanes |
+| [tracks/compiler-first-product-pressure-v0.md](tracks/compiler-first-product-pressure-v0.md) | done | Pressure-tested whether the minimal compiler subset can still deliver value across OSINT daily brief, Spark lead/availability signal, and home-lab awareness alert; found normalized read-only evidence artifacts viable and prioritized missing primitives |
 | [tracks/spark-technician-availability-fixture-v0.md](tracks/spark-technician-availability-fixture-v0.md) | done | Added executable synthetic Spark technician availability fixture with TenantScope, ScopedFactRead, StepObservation, snapshot, why-not reasons, and blocked negatives |
 
 ## Active Experiments
@@ -124,12 +125,14 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/claim-evidence-confidence-typing-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/meaning-diff-and-acceptance-semantics-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/osint-product-types-and-alert-gates-v0 | done |
+| 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-018-source-to-semanticir-minimal-pipeline-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/spark-pipeline-parser-acceptance-v0 | done |
 | [proposals/PROP-013](proposals/PROP-013-stdlib-fold-aggregate-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Collection[T], Option[T], Result[T,E]; fold/map/filter/group_by/avg; TR-1 termination; aggregated_from links |
 | [proposals/PROP-014](proposals/PROP-014-source-syntax-semanticir-boundary-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Minimal syntax kernel; ParsedProgram shape; 4-stage path to SemanticIR; OOF rejection rules; .igapp/ mapping |
 | [proposals/PROP-015](proposals/PROP-015-grammar-module-system-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | def blocks (pure/non-recursive/inlined); TypeDecl (structural records); module/import; full v0 BNF; Add + Availability source files |
 | [proposals/PROP-016](proposals/PROP-016-polymorphism-traits-contract-shapes-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Generic contracts; traits (compile-time); impl coherence; contract_shape; implements structural; monomorphization; compile-time overload only; no unresolved overloads in SemanticIR |
-| [proposals/PROP-017](proposals/PROP-017-schema-evolution-contract-migration-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | SemVer; schema_fingerprint; 5 safe/7 breaking changes; schema_check (4th CompatibilityReport dim); MigrationDecl ESCAPE+audit+replaces; OOF-S1..S5 |
+| [proposals/PROP-017](proposals/PROP-017-schema-evolution-contract-migration-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Schema versioning; CompatibilityReport; MigrationReceipt; replacement SemanticImage; 5 migration strategies |
+| [proposals/PROP-018](proposals/PROP-018-source-to-semanticir-minimal-pipeline-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | v0 source subset; parser AST shape; Pass 0/1 classifier gates; SemanticIR emission; OOF-P/DM/CE/OS/RT/MD unified; 5 conformance cases |
 
 ## Active Bridge Notes
 
@@ -148,6 +151,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [bridge/human-agent-review-approval-bridge-profile-v0.md](bridge/human-agent-review-approval-bridge-profile-v0.md) | proposal | Metadata-only human-agent proposal, review, meaning diff, correction, verification, and acceptance receipt profiles |
 | [bridge/osint-claim-factcheck-correction-bridge-profile-v0.md](bridge/osint-claim-factcheck-correction-bridge-profile-v0.md) | proposal | Metadata-only OSINT-like source observation, claim trace, evidence, confidence, contradiction, fact-check snapshot, analyst decision, citation/redaction, and correction profiles |
 | [bridge/osint-product-bridge-profiles-v0.md](bridge/osint-product-bridge-profiles-v0.md) | proposal | Metadata-only personal OSINT assistant product profiles aligned with VerificationReport custom metadata carrier semantics |
+| [bridge/semanticir-verification-report-bridge-v0.md](bridge/semanticir-verification-report-bridge-v0.md) | proposal | Report-only SemanticIR proof result bridge into VerificationReport metadata and carrier manifest semantics |
 
 ## Core Documents
 
