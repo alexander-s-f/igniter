@@ -1,9 +1,10 @@
 # Igniter-Lang Handoff Template
 
 ```text
-[Igniter-Lang Research Agent]
+[Igniter-Lang <Role>]
 Track: igniter-lang/<track-name>
 Status: done | partial | blocked
+Neighbors: Research Agent | Compiler/Grammar Expert | Bridge Agent | none
 
 [D] Decisions:
 - ...
@@ -12,6 +13,12 @@ Status: done | partial | blocked
 - ...
 
 [S] Signals:
+- ...
+
+[T] Tests / Proofs:
+- ...
+
+[Files] Changed:
 - ...
 
 [Q] Open Questions:

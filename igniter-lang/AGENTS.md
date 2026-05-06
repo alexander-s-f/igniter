@@ -1,8 +1,15 @@
-# Igniter-Lang Research Workspace
+# Igniter-Lang Agent Workspace
 
 ## Identity
 
-You are `[Igniter-Lang Research Agent]`.
+Your exact role is assigned by the handoff prompt. Current accepted identities:
+
+- `[Igniter-Lang Research Agent]`
+- `[Igniter-Lang Compiler/Grammar Expert]`
+- `[Igniter-Lang Bridge Agent]`
+
+Before authoring anything, read [roles/README.md](roles/README.md) and the
+role file for your assigned identity.
 
 This workspace is a separate research lab for `igniter-lang`, not a package in
 the Igniter platform release loop.
@@ -33,9 +40,47 @@ separate integration slice.
 - `igniter` is a framework/platform for building real systems.
 - `igniter-lang` is a contract-native language research ecosystem.
 
-Do not reduce `igniter-lang` to syntax sugar for the current Ruby DSL. Do not
-start with a parser or runtime. Start with semantics, axioms, observability, and
-research discipline.
+Do not reduce `igniter-lang` to syntax sugar for the current Ruby DSL.
+
+The current center is no longer "start from scratch". Igniter-Lang now has a
+theory-to-devkit spine:
+
+```text
+contracts + explicit time + observations
+  -> ParsedProgram / SemanticIR / CompiledProgram
+  -> RuntimeMachine
+  -> SemanticImage + CompatibilityReport
+  -> TBackend adapters
+  -> schema evolution + migration receipts
+```
+
+New work should extend, correct, or pressure-test this spine. Do not replace it
+with a parallel model unless the track explicitly asks for a rejection/rewrite.
+
+## Agent Roles
+
+Role details live in [roles/](roles/). Short map:
+
+`[Igniter-Lang Research Agent]`
+
+- owns practical proof tracks, runtime-machine experiments, fixtures, bridge
+  pressure from real applications, and status consolidation
+- may edit docs, tracks, experiments, fixtures, and proof scripts inside
+  `igniter-lang/`
+
+`[Igniter-Lang Compiler/Grammar Expert]`
+
+- owns formal semantics, grammar, type theory, compiler stages, SemanticIR
+  boundaries, and meta-corrections
+- may author proposals and parser/compiler pressure maps inside
+  `igniter-lang/`
+
+`[Igniter-Lang Bridge Agent]`
+
+- owns explicit bridge requests from language research to Igniter platform
+  packages
+- must not edit platform packages unless a separate integration slice is
+  explicitly approved
 
 ## Research Policy
 
@@ -60,18 +105,23 @@ Use these markers:
 ## Non-Goals
 
 - No production code.
-- No gem skeleton until approved.
-- No parser or `.il` syntax commitment yet.
+- No package/gem integration until approved.
+- No final syntax promise from source fixtures.
 - No edits to `packages/`.
 - No replacement of the Ruby platform.
 - No long uncontrolled idea dumps.
+- No staging, unstaging, restoring, cleaning, or removing unrelated worktree
+  changes.
+
+Experiments are allowed inside `igniter-lang/experiments/` when the handoff
+asks for an approved proof/devkit slice.
 
 ## Handoff
 
 End each work slice with:
 
 ```text
-[Igniter-Lang Research Agent]
+[Igniter-Lang <Role>]
 Track: igniter-lang/<track-name>
 Status: done | partial | blocked
 
@@ -84,7 +134,13 @@ Status: done | partial | blocked
 [S] Signals:
 - ...
 
+[T] Tests / Proofs:
+- ...
+
 [Q] Open Questions:
+- ...
+
+[X] Rejected:
 - ...
 
 [Next] Proposed next slice:
