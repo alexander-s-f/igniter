@@ -3,7 +3,13 @@
 module Igniter
   module Lang
     class VerificationReport
-      attr_reader :profile_fingerprint, :operations, :findings, :descriptors, :metadata, :metadata_manifest
+      attr_reader :profile_fingerprint,
+                  :operations,
+                  :findings,
+                  :descriptors,
+                  :metadata,
+                  :metadata_manifest,
+                  :schema_compatibility_diagnostics
 
       def self.from_compilation_report(report)
         new(
@@ -24,13 +30,16 @@ module Igniter
         )
       end
 
-      def initialize(profile_fingerprint:, operations:, findings: [], metadata: {})
+      def initialize(profile_fingerprint:, operations:, findings: [], metadata: {}, schema_compatibility_diagnostics: [])
         @profile_fingerprint = profile_fingerprint
         @operations = operations.freeze
         @findings = findings.freeze
         @metadata = metadata.transform_keys(&:to_sym).freeze
         @metadata_manifest = MetadataManifest.from_operations(operations)
         @descriptors = metadata_manifest.descriptors
+        @schema_compatibility_diagnostics = normalize_schema_compatibility_diagnostics(
+          schema_compatibility_diagnostics
+        )
         freeze
       end
 
@@ -48,9 +57,20 @@ module Igniter
           profile_fingerprint: profile_fingerprint,
           descriptors: descriptors,
           metadata_manifest: metadata_manifest.to_h,
+          schema_compatibility_diagnostics: schema_compatibility_diagnostics.map(&:to_h),
           findings: findings,
           metadata: metadata
         }
+      end
+
+      private
+
+      def normalize_schema_compatibility_diagnostics(entries)
+        entries.map do |entry|
+          next entry if entry.is_a?(SchemaCompatibilityDiagnostic)
+
+          SchemaCompatibilityDiagnostic.new(**entry.to_h.transform_keys(&:to_sym))
+        end.freeze
       end
     end
   end

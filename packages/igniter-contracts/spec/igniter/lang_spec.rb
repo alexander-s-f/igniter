@@ -16,6 +16,10 @@ RSpec.describe Igniter::Lang do
     expect(result.output(:amount)).to eq(42)
   end
 
+  it "loads schema compatibility diagnostics through the lang entrypoint" do
+    expect(described_class::SchemaCompatibilityDiagnostic).to be(Igniter::Lang::SchemaCompatibilityDiagnostic)
+  end
+
   it "builds immutable serializable type descriptors" do
     history = described_class::History[String]
     bi_history = described_class::BiHistory[Integer]
@@ -166,5 +170,33 @@ RSpec.describe Igniter::Lang do
       runtime_enforced: false
     )
     expect(report.to_h.fetch(:ok)).to eq(false)
+  end
+
+  it "serializes optional schema compatibility diagnostics without changing report validity" do
+    diagnostic = described_class::SchemaCompatibilityDiagnostic.new(
+      diagnostic_id: "diagnostic:1",
+      contract_ref: "contract:pricing",
+      old_schema_version: 1,
+      new_schema_version: 2,
+      old_schema_fingerprint: "schema:fingerprint:old",
+      new_schema_fingerprint: "schema:fingerprint:new",
+      schema_check_outcome: :blocked,
+      migration_available: false,
+      compatibility_decision: :blocked,
+      evidence_links: {
+        compatibility_report_ref: "compatibility-report:1",
+        semantic_image_ref: "semantic-image:1",
+        loaded_schema_descriptor_ref: "schema-descriptor:1"
+      }
+    )
+    report = described_class::VerificationReport.new(
+      profile_fingerprint: "profile:fingerprint",
+      operations: [],
+      schema_compatibility_diagnostics: [diagnostic]
+    )
+
+    expect(report).to be_ok
+    expect(report.schema_compatibility_diagnostics).to eq([diagnostic])
+    expect(report.to_h.fetch(:schema_compatibility_diagnostics)).to eq([diagnostic.to_h])
   end
 end

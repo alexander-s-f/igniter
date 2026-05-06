@@ -195,10 +195,17 @@ runtime:
 - `VerificationReport` is read-only and follows current compilation findings.
 - `MetadataManifest` reports declared `type:`, `return_type:`, `deadline:`,
   and `wcet:` metadata.
+- `SchemaCompatibilityDiagnostic` is an immutable report-only compatibility
+  value object with required evidence links and an optional single-hop
+  `migration_profile`.
 
 Metadata manifest fields are declared, not enforced. `return_type`, `deadline`,
 and `wcet` appear in reports with `enforced: false`; they do not add runtime
 checks, warnings, deadline monitoring, or `ExecutionResult` changes.
+Schema compatibility diagnostics follow the same boundary:
+`report_only: true`, `runtime_enforced: false`, and no migration execution.
+The optional migration profile only serializes evidence, including blocked
+OOF-MR3 wrong-fingerprint cases.
 
 Try the compact proof:
 
