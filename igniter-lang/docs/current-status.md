@@ -127,6 +127,19 @@ RuntimeMachine.loaded_schema_descriptor
 `compiled_program.rb`. The proof now checks trusted schema match and
 provisional schema drift directly.
 
+[S] Schema migration has a first standalone fixture:
+
+```text
+MigrationDescriptor
+  -> schema_check:migrating CompatibilityReport
+  -> intent_observation
+  -> receipt_observation lifecycle:audit
+     links: caused_by, produced_by, replaces
+```
+
+This proves migration evidence shape without claiming a production migration
+engine or replacement SemanticImage yet.
+
 [S] The source parser harness has started:
 
 ```text
@@ -169,6 +182,7 @@ The standalone memory proof validates:
 - trusted in-harness resume
 - trusted schema_check against a loaded schema descriptor
 - provisional schema drift instead of accidental trusted resume
+- migrating schema_check with descriptor, intent, and audit receipt evidence
 - blocked empty-backend resume
 - runtime drift downgrade
 - contract drift block
@@ -247,7 +261,7 @@ Critical:
 High:
 
 - normalized-equivalence checker profile for real external and FFI candidates
-- schema migration execution still needs a fixture beyond schema_check
+- replacement SemanticImage after migration remains unproven
 - ESCAPE composition and capability delegation remain under-specified
 - `.igapp` schema and artifact hashing need a stricter validator
 
@@ -294,10 +308,10 @@ Deferred:
    rules, CompatibilityReport decisions, and FFI receipt/failure semantics.
 
 5. Later:
-   `runtime-machine-schema-migration-fixture-v0`
+   `runtime-machine-migration-replacement-image-v0`
 
-   Add a tiny migration descriptor/receipt fixture for schema_check:migrating
-   without package integration.
+   Produce a replacement SemanticImage after a toy identity migration and prove
+   the second CompatibilityReport returns trusted.
 
 6. Later:
    `file-tbackend-proof-v0`
@@ -323,4 +337,4 @@ ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/
 ```
 
 All passed on 2026-05-05 during Architect review.
-RuntimeMachine schema_check standalone proof passed on 2026-05-06.
+RuntimeMachine schema_check and migration fixture proofs passed on 2026-05-06.

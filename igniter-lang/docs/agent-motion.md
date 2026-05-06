@@ -142,8 +142,8 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-schema-check-standalone-fix-v0.md` | done | runtime-machine-schema-migration-fixture-v0 |
-| `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/source-fixture-parser-acceptance-harness-v0.md` | partial | source-fixture-parsed-surface-checker-v0 or ESCAPE capability algebra |
+| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-schema-migration-fixture-v0.md` | done | runtime-machine-migration-replacement-image-v0 |
+| `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/polymorphic-add-parser-pressure-map-v0.md` | done | polymorphic-add-parser-acceptance-v0 (Research Agent) or polymorphic-add-classifier-v0 (Compiler/Grammar Expert) |
 
 ## Current Meta Thesis
 
@@ -406,6 +406,19 @@ loaded_schema_descriptor
 depend on `loaded_program` for schema compatibility. The memory proof now checks
 trusted schema match and provisional schema drift directly.
 
+[S] RuntimeMachine schema migration has a standalone fixture:
+
+```text
+MigrationDescriptor
+  -> CompatibilityReport schema_check:migrating
+  -> intent_observation
+  -> receipt_observation lifecycle:audit
+     caused_by + produced_by + replaces
+```
+
+This fixture proves migration evidence shape only. Replacement SemanticImage
+production remains the next boundary.
+
 [D] `T` has a lifecycle. Igniter-Lang must not imply that all temporal
 observations live forever:
 
@@ -522,6 +535,7 @@ igniter-lang/docs/
     ffi-ruby-contractable-proof-v0.md [done]
     runtime-machine-ffi-ruby-receipt-fixtures-v0.md [done]
     runtime-machine-schema-check-standalone-fix-v0.md [done]
+    runtime-machine-schema-migration-fixture-v0.md [done]
     source-fixture-parser-acceptance-harness-v0.md [partial]
     polymorphic-add-devkit-fixture-v0.md [done]
     bridge-observation-envelope-implementation-plan-v0.md [done]
@@ -601,6 +615,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/temporal-lifecycle-boundary-fixtures-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Research Agent]` | tracks/polymorphic-add-devkit-fixture-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-schema-check-standalone-fix-v0.md | done |
+| 2026-05-06 | `[Igniter-Lang Research Agent]` | tracks/runtime-machine-schema-migration-fixture-v0.md | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/META-001 entry assessment | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-001 semantic domain v0 | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | docs/agent-motion.md | done |
@@ -611,3 +626,4 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-004b axiom layer type signatures | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-006 runtime contract specification | done |
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-007 conformance verification | done |
+| 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/polymorphic-add-parser-pressure-map-v0 | done |

@@ -136,8 +136,8 @@
           "rule_version": "toy_dispatch@1"
         }
       },
-      "semantic_image_packet": {
-        "id": "obs/34bbffff3b8e25b2",
+      "schema_migration_compatibility_report_packet": {
+        "id": "obs/d5654272cfea21cd",
         "kind": "platform_observation",
         "links": [
           {
@@ -156,109 +156,12 @@
             "required": true
           },
           {
-            "ref": "obs/f8e0bea5b62934c8",
+            "ref": "obs/43e999a9f8b2d32f",
             "rel": "produced_in",
             "required": true
           },
           {
-            "ref": "obs/95160c7effd51aa5",
-            "rel": "caused_by",
-            "required": true
-          }
-        ],
-        "payload": {
-          "axiom_descriptor_ref": "obs/0f1ab1fdd7e5d339",
-          "backend_descriptor_hash": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
-          "backend_descriptor_ref": "obs/d0d7aec5d08f78b6",
-          "checkpoint": {
-            "as_of": "2026-05-05T10:42:00Z",
-            "checkpoint_id": "checkpoint/f29c49fcb0d64c90",
-            "created_at": "2026-05-05T10:42:15Z",
-            "seq_id": 14,
-            "snapshot_hash": "sha256:5a921ca56988a6857289770b31aac4d8b8b3dbff1d1c5dd43d78e2bebe5b5eeb",
-            "snapshot_ref": "memory-snapshot/5a921ca56988a685"
-          },
-          "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
-          "content_hash": "sha256:c93d896b231b899f452c777fabb258c14560440a4ef2fd58ff2779f826297e01",
-          "contract_descriptor_ref": "obs/f92eff59d0521787",
-          "execution_environment_ref": "obs/f8e0bea5b62934c8",
-          "image_id": "image/c93d896b231b899f",
-          "observation_count": 14,
-          "observation_hash": "sha256:09f3c71f5ed8666e1300cafe3d6c45e54bc19abc5eed276d58c812057afbcfee",
-          "produced_at": "2026-05-05T10:42:15Z",
-          "receipt_refs": [
-            "obs/0f1ab1fdd7e5d339",
-            "obs/f0a9581038271dfe",
-            "obs/d0d7aec5d08f78b6",
-            "obs/f8e0bea5b62934c8",
-            "obs/fa982bdd7552e82b",
-            "obs/3496e2114d28a3da",
-            "obs/bd05c4aa4da75eab",
-            "obs/2b7f74c345bf82ae",
-            "obs/7a0fc60564032104",
-            "obs/f92eff59d0521787",
-            "obs/b1e5c67368e0da3f",
-            "obs/4f3364213606f0ec",
-            "obs/95160c7effd51aa5",
-            "obs/484f6e8102336584"
-          ],
-          "replay_cursor": {
-            "anchor": "seq_id",
-            "inclusive": false,
-            "position": 14
-          },
-          "runtime_contract_ref": "obs/f0a9581038271dfe",
-          "schema_fingerprint": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
-          "schema_version": "0.0.0",
-          "session_id": "session/a",
-          "temporal_horizon": {
-            "as_of": "2026-05-05T10:42:00Z",
-            "fact_scope": {
-              "order_id": "order/o-1",
-              "technician_id": "tech/t-17"
-            },
-            "rule_version": "toy_dispatch@1"
-          },
-          "value_hashes": [
-            "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0"
-          ],
-          "value_refs": [
-            "obs/95160c7effd51aa5"
-          ]
-        },
-        "payload_hash": "sha256:e847eac39c63e1f9b2dc71529f42f7e8ae8167c67d407cd7a4dbbe0d5245cd71",
-        "subject": "semantic-image/session/a",
-        "temporal": {
-          "as_of": "2026-05-05T10:42:00Z",
-          "lifecycle": "checkpoint"
-        }
-      },
-      "trusted_compatibility_report_packet": {
-        "id": "obs/0a2428327b9f0c88",
-        "kind": "platform_observation",
-        "links": [
-          {
-            "ref": "obs/0f1ab1fdd7e5d339",
-            "rel": "observed_under",
-            "required": true
-          },
-          {
-            "ref": "obs/f0a9581038271dfe",
-            "rel": "observed_under",
-            "required": true
-          },
-          {
-            "ref": "obs/d0d7aec5d08f78b6",
-            "rel": "observed_under",
-            "required": true
-          },
-          {
-            "ref": "obs/4933f4feffabdaf1",
-            "rel": "produced_in",
-            "required": true
-          },
-          {
-            "ref": "image/c93d896b231b899f",
+            "ref": "image/909d7bdda77c50bf",
             "rel": "caused_by",
             "required": true
           }
@@ -301,9 +204,323 @@
               "severity": "info"
             },
             {
-              "actual": "memory-snapshot/5a921ca56988a685",
+              "actual": "memory-snapshot/40f8365967263657",
               "dimension": "snapshot",
-              "expected": "memory-snapshot/5a921ca56988a685",
+              "expected": "memory-snapshot/40f8365967263657",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "seq=20",
+              "dimension": "replay",
+              "expected": "seq>=14",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "sha256:6377c6b59eb055c396a2a713cf249b7a2d47add4d41d2623ef80317b51d1d6ea",
+              "change_class": "safe",
+              "decision": "migrating",
+              "dimension": "schema",
+              "expected": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
+              "fingerprint_match": false,
+              "migration_available": true,
+              "migration_ref": "migration://toy-dispatch/0.0.0->0.1.0",
+              "outcome": "migrating",
+              "schema_version": {
+                "from": "0.0.0",
+                "to": "0.1.0"
+              },
+              "severity": "warning"
+            }
+          ],
+          "image_id": "image/909d7bdda77c50bf",
+          "intent": "exact_replay",
+          "report_id": "compat/2d873378ccf779a4",
+          "reproducibility": "migrating",
+          "resume_status": "migrating"
+        },
+        "payload_hash": "sha256:d2c55b45fef063e1baa4a10ed14cb2860a630e5643052bca3a4ae4812f2fdc15",
+        "subject": "compatibility-report/session/schema-migration",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "lifecycle": "resume"
+        }
+      },
+      "schema_migration_intent": {
+        "id": "obs/16d53977fe17a744",
+        "kind": "intent_observation",
+        "links": [
+          {
+            "ref": "obs/0f1ab1fdd7e5d339",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f0a9581038271dfe",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/d0d7aec5d08f78b6",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/43e999a9f8b2d32f",
+            "rel": "produced_in",
+            "required": true
+          },
+          {
+            "ref": "image/909d7bdda77c50bf",
+            "rel": "caused_by",
+            "required": true
+          }
+        ],
+        "payload": {
+          "compatibility_report_id": "compat/2d873378ccf779a4",
+          "from_version": "0.0.0",
+          "intent": "schema_migration",
+          "migration_id": "migration://toy-dispatch/0.0.0->0.1.0",
+          "new_schema_fingerprint": "sha256:6377c6b59eb055c396a2a713cf249b7a2d47add4d41d2623ef80317b51d1d6ea",
+          "old_image_id": "image/909d7bdda77c50bf",
+          "old_schema_fingerprint": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
+          "to_version": "0.1.0"
+        },
+        "payload_hash": "sha256:d3b2ad389932fafa4fa3412f45e9a4edc9222a9c92f0e36335657ba679b45486",
+        "subject": "migration://toy-dispatch/0.0.0->0.1.0/intent",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "lifecycle": "local"
+        }
+      },
+      "schema_migration_receipt": {
+        "id": "obs/b6819be7677da55d",
+        "kind": "receipt_observation",
+        "links": [
+          {
+            "ref": "obs/0f1ab1fdd7e5d339",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f0a9581038271dfe",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/d0d7aec5d08f78b6",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/43e999a9f8b2d32f",
+            "rel": "produced_in",
+            "required": true
+          },
+          {
+            "ref": "obs/16d53977fe17a744",
+            "rel": "caused_by",
+            "required": true
+          },
+          {
+            "ref": "migration://toy-dispatch/0.0.0->0.1.0",
+            "rel": "produced_by",
+            "required": true
+          },
+          {
+            "ref": "image/909d7bdda77c50bf",
+            "rel": "replaces",
+            "required": true
+          }
+        ],
+        "payload": {
+          "compatibility_report_id": "compat/2d873378ccf779a4",
+          "from_version": "0.0.0",
+          "migration_id": "migration://toy-dispatch/0.0.0->0.1.0",
+          "new_schema_fingerprint": "sha256:6377c6b59eb055c396a2a713cf249b7a2d47add4d41d2623ef80317b51d1d6ea",
+          "old_image_id": "image/909d7bdda77c50bf",
+          "old_schema_fingerprint": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
+          "status": "migrated",
+          "strategy": "identity_schema_migration",
+          "to_version": "0.1.0",
+          "transition": "schema_migration"
+        },
+        "payload_hash": "sha256:32eb6035feb54ccbea97744e8421dc708e0e3d9e588a75220b00cb25b7052e29",
+        "subject": "migration://toy-dispatch/0.0.0->0.1.0/receipt",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "lifecycle": "audit"
+        }
+      },
+      "semantic_image_packet": {
+        "id": "obs/04256f9f276356f4",
+        "kind": "platform_observation",
+        "links": [
+          {
+            "ref": "obs/0f1ab1fdd7e5d339",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f0a9581038271dfe",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/d0d7aec5d08f78b6",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f8e0bea5b62934c8",
+            "rel": "produced_in",
+            "required": true
+          },
+          {
+            "ref": "obs/95160c7effd51aa5",
+            "rel": "caused_by",
+            "required": true
+          }
+        ],
+        "payload": {
+          "axiom_descriptor_ref": "obs/0f1ab1fdd7e5d339",
+          "backend_descriptor_hash": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "backend_descriptor_ref": "obs/d0d7aec5d08f78b6",
+          "checkpoint": {
+            "as_of": "2026-05-05T10:42:00Z",
+            "checkpoint_id": "checkpoint/9dcfdd7a43e8ff32",
+            "created_at": "2026-05-05T10:42:15Z",
+            "seq_id": 14,
+            "snapshot_hash": "sha256:40f83659672636574e4250cbc3f9635d0ac284b9b9a86cdc2c5c256dcacd5fba",
+            "snapshot_ref": "memory-snapshot/40f8365967263657"
+          },
+          "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "content_hash": "sha256:909d7bdda77c50bfd69fdfc8b40b6faed64609f4273545eaa9c4e767544bd394",
+          "contract_descriptor_ref": "obs/f92eff59d0521787",
+          "execution_environment_ref": "obs/f8e0bea5b62934c8",
+          "image_id": "image/909d7bdda77c50bf",
+          "observation_count": 14,
+          "observation_hash": "sha256:74e0e6f9bff155582bfcf9cc30e8067d1f309dafdc896411a4eba769d082b0f3",
+          "produced_at": "2026-05-05T10:42:15Z",
+          "receipt_refs": [
+            "obs/0f1ab1fdd7e5d339",
+            "obs/f0a9581038271dfe",
+            "obs/d0d7aec5d08f78b6",
+            "obs/f8e0bea5b62934c8",
+            "obs/fa982bdd7552e82b",
+            "obs/3496e2114d28a3da",
+            "obs/bd05c4aa4da75eab",
+            "obs/2b7f74c345bf82ae",
+            "obs/7a0fc60564032104",
+            "obs/f92eff59d0521787",
+            "obs/b1e5c67368e0da3f",
+            "obs/ccef7f02046efd57",
+            "obs/95160c7effd51aa5",
+            "obs/484f6e8102336584"
+          ],
+          "replay_cursor": {
+            "anchor": "seq_id",
+            "inclusive": false,
+            "position": 14
+          },
+          "runtime_contract_ref": "obs/f0a9581038271dfe",
+          "schema_fingerprint": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
+          "schema_version": "0.0.0",
+          "session_id": "session/a",
+          "temporal_horizon": {
+            "as_of": "2026-05-05T10:42:00Z",
+            "fact_scope": {
+              "order_id": "order/o-1",
+              "technician_id": "tech/t-17"
+            },
+            "rule_version": "toy_dispatch@1"
+          },
+          "value_hashes": [
+            "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0"
+          ],
+          "value_refs": [
+            "obs/95160c7effd51aa5"
+          ]
+        },
+        "payload_hash": "sha256:0ce55786928d8722779e7de713f641e019f90ebbb3b85f96be582489ceefba32",
+        "subject": "semantic-image/session/a",
+        "temporal": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "lifecycle": "checkpoint"
+        }
+      },
+      "trusted_compatibility_report_packet": {
+        "id": "obs/fa74caf932b924da",
+        "kind": "platform_observation",
+        "links": [
+          {
+            "ref": "obs/0f1ab1fdd7e5d339",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/f0a9581038271dfe",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/d0d7aec5d08f78b6",
+            "rel": "observed_under",
+            "required": true
+          },
+          {
+            "ref": "obs/4933f4feffabdaf1",
+            "rel": "produced_in",
+            "required": true
+          },
+          {
+            "ref": "image/909d7bdda77c50bf",
+            "rel": "caused_by",
+            "required": true
+          }
+        ],
+        "payload": {
+          "checks": [
+            {
+              "actual": "obs/0f1ab1fdd7e5d339",
+              "dimension": "axiom",
+              "expected": "obs/0f1ab1fdd7e5d339",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "obs/f0a9581038271dfe",
+              "dimension": "runtime",
+              "expected": "obs/f0a9581038271dfe",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+              "dimension": "backend",
+              "expected": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+              "dimension": "contract",
+              "expected": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "2026-05-05T10:42:00Z",
+              "dimension": "temporal",
+              "expected": "2026-05-05T10:42:00Z",
+              "outcome": "compatible",
+              "severity": "info"
+            },
+            {
+              "actual": "memory-snapshot/40f8365967263657",
+              "dimension": "snapshot",
+              "expected": "memory-snapshot/40f8365967263657",
               "outcome": "compatible",
               "severity": "info"
             },
@@ -322,6 +539,7 @@
               "expected": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
               "fingerprint_match": true,
               "migration_available": false,
+              "migration_ref": null,
               "outcome": "compatible",
               "schema_version": {
                 "from": "0.0.0",
@@ -330,13 +548,13 @@
               "severity": "info"
             }
           ],
-          "image_id": "image/c93d896b231b899f",
+          "image_id": "image/909d7bdda77c50bf",
           "intent": "exact_replay",
-          "report_id": "compat/5d9f67e42619a42a",
+          "report_id": "compat/d7e7edde392b3878",
           "reproducibility": "reproducible_within_memory_harness",
           "resume_status": "trusted"
         },
-        "payload_hash": "sha256:08325ac03bf09168453b8d8fba8ac072a89f40d4db6ee5a730346c95e7bfc4dd",
+        "payload_hash": "sha256:1cd3feac375afd9fb11eddd6de0e7709e817312c6c4a1e0e4e93ebbd96a91f76",
         "subject": "compatibility-report/session/b",
         "temporal": {
           "as_of": "2026-05-05T10:42:00Z",
@@ -774,7 +992,7 @@
         },
         {
           "packet": {
-            "id": "obs/4f3364213606f0ec",
+            "id": "obs/ccef7f02046efd57",
             "kind": "receipt_observation",
             "links": [
               {
@@ -809,14 +1027,16 @@
                 "contract_descriptor_ref": "obs/f92eff59d0521787",
                 "fragment_class": "CORE",
                 "fragment_descriptor_ref": "obs/b1e5c67368e0da3f",
+                "migration_descriptor_refs": [],
                 "schema_fingerprint": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
                 "schema_version": "0.0.0",
                 "unit_id": "loaded-unit/7afd133595b173a7"
               },
+              "migration_descriptor_refs": [],
               "status": "ok",
               "transition": "load"
             },
-            "payload_hash": "sha256:123aa6034e61772677466c715c5cfb483126e9c85293919f4c38a16f9867c058",
+            "payload_hash": "sha256:ff077433e6684f7a277cb9e4396f282959e99a1996318c489544beb6250b22e9",
             "subject": "runtime-machine/runtime-machine/memory-proof-a/load",
             "temporal": {
               "as_of": "2026-05-05T10:42:00Z",
@@ -946,7 +1166,7 @@
         },
         {
           "packet": {
-            "id": "obs/34bbffff3b8e25b2",
+            "id": "obs/04256f9f276356f4",
             "kind": "platform_observation",
             "links": [
               {
@@ -981,19 +1201,19 @@
               "backend_descriptor_ref": "obs/d0d7aec5d08f78b6",
               "checkpoint": {
                 "as_of": "2026-05-05T10:42:00Z",
-                "checkpoint_id": "checkpoint/f29c49fcb0d64c90",
+                "checkpoint_id": "checkpoint/9dcfdd7a43e8ff32",
                 "created_at": "2026-05-05T10:42:15Z",
                 "seq_id": 14,
-                "snapshot_hash": "sha256:5a921ca56988a6857289770b31aac4d8b8b3dbff1d1c5dd43d78e2bebe5b5eeb",
-                "snapshot_ref": "memory-snapshot/5a921ca56988a685"
+                "snapshot_hash": "sha256:40f83659672636574e4250cbc3f9635d0ac284b9b9a86cdc2c5c256dcacd5fba",
+                "snapshot_ref": "memory-snapshot/40f8365967263657"
               },
               "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
-              "content_hash": "sha256:c93d896b231b899f452c777fabb258c14560440a4ef2fd58ff2779f826297e01",
+              "content_hash": "sha256:909d7bdda77c50bfd69fdfc8b40b6faed64609f4273545eaa9c4e767544bd394",
               "contract_descriptor_ref": "obs/f92eff59d0521787",
               "execution_environment_ref": "obs/f8e0bea5b62934c8",
-              "image_id": "image/c93d896b231b899f",
+              "image_id": "image/909d7bdda77c50bf",
               "observation_count": 14,
-              "observation_hash": "sha256:09f3c71f5ed8666e1300cafe3d6c45e54bc19abc5eed276d58c812057afbcfee",
+              "observation_hash": "sha256:74e0e6f9bff155582bfcf9cc30e8067d1f309dafdc896411a4eba769d082b0f3",
               "produced_at": "2026-05-05T10:42:15Z",
               "receipt_refs": [
                 "obs/0f1ab1fdd7e5d339",
@@ -1007,7 +1227,7 @@
                 "obs/7a0fc60564032104",
                 "obs/f92eff59d0521787",
                 "obs/b1e5c67368e0da3f",
-                "obs/4f3364213606f0ec",
+                "obs/ccef7f02046efd57",
                 "obs/95160c7effd51aa5",
                 "obs/484f6e8102336584"
               ],
@@ -1035,7 +1255,7 @@
                 "obs/95160c7effd51aa5"
               ]
             },
-            "payload_hash": "sha256:e847eac39c63e1f9b2dc71529f42f7e8ae8167c67d407cd7a4dbbe0d5245cd71",
+            "payload_hash": "sha256:0ce55786928d8722779e7de713f641e019f90ebbb3b85f96be582489ceefba32",
             "subject": "semantic-image/session/a",
             "temporal": {
               "as_of": "2026-05-05T10:42:00Z",
@@ -1047,7 +1267,7 @@
         },
         {
           "packet": {
-            "id": "obs/466e9021e5209ba3",
+            "id": "obs/74a3bf6ee3bbe1bb",
             "kind": "receipt_observation",
             "links": [
               {
@@ -1071,18 +1291,18 @@
                 "required": true
               },
               {
-                "ref": "obs/34bbffff3b8e25b2",
+                "ref": "obs/04256f9f276356f4",
                 "rel": "caused_by",
                 "required": true
               }
             ],
             "payload": {
-              "image_id": "image/c93d896b231b899f",
-              "semantic_image_ref": "obs/34bbffff3b8e25b2",
+              "image_id": "image/909d7bdda77c50bf",
+              "semantic_image_ref": "obs/04256f9f276356f4",
               "status": "ok",
               "transition": "checkpoint"
             },
-            "payload_hash": "sha256:286cde2a6fa2d67a27bb897e920e95fe1556c729b259f8359857353784f674d7",
+            "payload_hash": "sha256:45ce87f7fe08beae0fd0c72b16daf8a6c31a4f85af655bfbab24635321e87bf5",
             "subject": "runtime-machine/runtime-machine/memory-proof-a/checkpoint",
             "temporal": {
               "as_of": "2026-05-05T10:42:00Z",
@@ -1522,7 +1742,7 @@
         },
         {
           "packet": {
-            "id": "obs/4f3364213606f0ec",
+            "id": "obs/ccef7f02046efd57",
             "kind": "receipt_observation",
             "links": [
               {
@@ -1557,14 +1777,16 @@
                 "contract_descriptor_ref": "obs/f92eff59d0521787",
                 "fragment_class": "CORE",
                 "fragment_descriptor_ref": "obs/b1e5c67368e0da3f",
+                "migration_descriptor_refs": [],
                 "schema_fingerprint": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
                 "schema_version": "0.0.0",
                 "unit_id": "loaded-unit/7afd133595b173a7"
               },
+              "migration_descriptor_refs": [],
               "status": "ok",
               "transition": "load"
             },
-            "payload_hash": "sha256:123aa6034e61772677466c715c5cfb483126e9c85293919f4c38a16f9867c058",
+            "payload_hash": "sha256:ff077433e6684f7a277cb9e4396f282959e99a1996318c489544beb6250b22e9",
             "subject": "runtime-machine/runtime-machine/memory-proof-a/load",
             "temporal": {
               "as_of": "2026-05-05T10:42:00Z",
@@ -1871,7 +2093,7 @@
         },
         {
           "packet": {
-            "id": "obs/c7c04ae8b4eec309",
+            "id": "obs/5a142381e7d255d4",
             "kind": "receipt_observation",
             "links": [
               {
@@ -1906,14 +2128,16 @@
                 "contract_descriptor_ref": "obs/9c407a4d09b7c7af",
                 "fragment_class": "CORE",
                 "fragment_descriptor_ref": "obs/c021bbf9807612cd",
+                "migration_descriptor_refs": [],
                 "schema_fingerprint": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
                 "schema_version": "0.0.0",
                 "unit_id": "loaded-unit/7afd133595b173a7"
               },
+              "migration_descriptor_refs": [],
               "status": "ok",
               "transition": "load"
             },
-            "payload_hash": "sha256:e6fdeb9aa8f45cfef82f70b29b9c0aa3939feda4f8a436329c58a8cdb73c79c9",
+            "payload_hash": "sha256:5aa8840624f81917e75e5cb929aa065d0626ca38e26c5c284ffd85525b73cdc1",
             "subject": "runtime-machine/runtime-machine/memory-proof-b/load",
             "temporal": {
               "as_of": "2026-05-05T10:42:00Z",
@@ -1925,7 +2149,7 @@
         },
         {
           "packet": {
-            "id": "obs/0a2428327b9f0c88",
+            "id": "obs/fa74caf932b924da",
             "kind": "platform_observation",
             "links": [
               {
@@ -1949,7 +2173,7 @@
                 "required": true
               },
               {
-                "ref": "image/c93d896b231b899f",
+                "ref": "image/909d7bdda77c50bf",
                 "rel": "caused_by",
                 "required": true
               }
@@ -1992,9 +2216,9 @@
                   "severity": "info"
                 },
                 {
-                  "actual": "memory-snapshot/5a921ca56988a685",
+                  "actual": "memory-snapshot/40f8365967263657",
                   "dimension": "snapshot",
-                  "expected": "memory-snapshot/5a921ca56988a685",
+                  "expected": "memory-snapshot/40f8365967263657",
                   "outcome": "compatible",
                   "severity": "info"
                 },
@@ -2013,6 +2237,7 @@
                   "expected": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
                   "fingerprint_match": true,
                   "migration_available": false,
+                  "migration_ref": null,
                   "outcome": "compatible",
                   "schema_version": {
                     "from": "0.0.0",
@@ -2021,13 +2246,13 @@
                   "severity": "info"
                 }
               ],
-              "image_id": "image/c93d896b231b899f",
+              "image_id": "image/909d7bdda77c50bf",
               "intent": "exact_replay",
-              "report_id": "compat/5d9f67e42619a42a",
+              "report_id": "compat/d7e7edde392b3878",
               "reproducibility": "reproducible_within_memory_harness",
               "resume_status": "trusted"
             },
-            "payload_hash": "sha256:08325ac03bf09168453b8d8fba8ac072a89f40d4db6ee5a730346c95e7bfc4dd",
+            "payload_hash": "sha256:1cd3feac375afd9fb11eddd6de0e7709e817312c6c4a1e0e4e93ebbd96a91f76",
             "subject": "compatibility-report/session/b",
             "temporal": {
               "as_of": "2026-05-05T10:42:00Z",
@@ -2039,7 +2264,7 @@
         },
         {
           "packet": {
-            "id": "obs/b01e1a6a531d41b0",
+            "id": "obs/f4a96f1cedd6c5c7",
             "kind": "receipt_observation",
             "links": [
               {
@@ -2063,17 +2288,17 @@
                 "required": true
               },
               {
-                "ref": "obs/0a2428327b9f0c88",
+                "ref": "obs/fa74caf932b924da",
                 "rel": "caused_by",
                 "required": true
               }
             ],
             "payload": {
-              "image_id": "image/c93d896b231b899f",
+              "image_id": "image/909d7bdda77c50bf",
               "status": "trusted",
               "transition": "resume"
             },
-            "payload_hash": "sha256:1beec0bebb165a8d9f2c93fdb437858477997f6d821496ce52672972b10f5ec3",
+            "payload_hash": "sha256:2e3b4a81d03d9981b972a7994c9fc51b56af37af2b2cabdb7872b0e189877316",
             "subject": "runtime-machine/runtime-machine/memory-proof-b/resume",
             "temporal": {
               "as_of": "2026-05-05T10:42:00Z",

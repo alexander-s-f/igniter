@@ -66,6 +66,9 @@ negative.empty_backend_resume_blocked: ok
 negative.runtime_drift_downgraded: ok
 negative.contract_drift_blocked: ok
 negative.schema_drift_provisional: ok
+migration.schema_check_migrating: ok
+migration.descriptor_loaded: ok
+migration.receipt_links: ok
 negative.same_value_without_evidence: ok
 negative.evidence_missing_provisional: ok
 ```
@@ -339,6 +342,11 @@ loads one from the toy contract. SemanticImage now stores a real
 `schema_fingerprint`, and CompatibilityReport schema drift can return
 `provisional` without being mislabeled as trusted.
 
+[D] Schema migration now has a minimal standalone fixture: a loaded
+`MigrationDescriptor`, a `schema_check:migrating` CompatibilityReport, an
+`intent_observation`, and an audit `receipt_observation` with mandatory
+`caused_by`, `produced_by`, and `replaces` links.
+
 ## Files
 
 - `runtime_machine_memory_proof.rb` - executable harness.
@@ -387,6 +395,8 @@ Status: done
 - `RuntimeMachine` schema checks compare `SemanticImage.schema_fingerprint`
   against the loaded unit's schema descriptor; `loaded_program` remains a
   CompiledProgram integration detail.
+- Schema migration fixture emits a descriptor, intent, and audit receipt
+  locally; it does not claim a production migration engine.
 
 [R] Recommendations:
 - Use this experiment as the next golden fixture source for sidecar packet

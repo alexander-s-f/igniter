@@ -25,6 +25,7 @@ module RuntimeMachineProofPacketBuilderCheck
     descriptor_observation
     failure_observation
     fact_observation
+    intent_observation
     platform_observation
     receipt_observation
     value_observation
@@ -164,6 +165,9 @@ module RuntimeMachineProofPacketBuilderCheck
         resumed_dispatch_candidate_value
         semantic_image_packet
         trusted_compatibility_report_packet
+        schema_migration_compatibility_report_packet
+        schema_migration_intent
+        schema_migration_receipt
       ].each do |name|
         check_packet(selected.fetch(name, {}), "selected.#{name}")
       end
@@ -174,6 +178,19 @@ module RuntimeMachineProofPacketBuilderCheck
       @result.expect(rels.include?("executed_by"), "resumed value packet missing executed_by link")
       @result.expect(rels.include?("produced_in"), "resumed value packet missing produced_in link")
       @result.expect(rels.count("observed_under") >= 3, "resumed value packet missing observed_under links")
+
+      migration_intent = selected.fetch("schema_migration_intent", {})
+      migration_receipt = selected.fetch("schema_migration_receipt", {})
+      @result.expect(migration_intent.fetch("kind", nil) == "intent_observation", "schema migration intent kind mismatch")
+      @result.expect(migration_intent.fetch("temporal", {}).fetch("lifecycle", nil) == "local",
+                     "schema migration intent lifecycle mismatch")
+      @result.expect(migration_receipt.fetch("kind", nil) == "receipt_observation", "schema migration receipt kind mismatch")
+      @result.expect(migration_receipt.fetch("temporal", {}).fetch("lifecycle", nil) == "audit",
+                     "schema migration receipt lifecycle mismatch")
+      migration_rels = link_rels(migration_receipt)
+      @result.expect(migration_rels.include?("replaces"), "schema migration receipt missing replaces link")
+      @result.expect(migration_rels.include?("caused_by"), "schema migration receipt missing caused_by link")
+      @result.expect(migration_rels.include?("produced_by"), "schema migration receipt missing produced_by link")
     end
 
     def check_session_entries(name, entries)
@@ -213,7 +230,9 @@ module RuntimeMachineProofPacketBuilderCheck
         "trusted_resume" => "trusted",
         "blocked_empty_backend_resume" => "blocked",
         "downgraded_runtime_drift" => "downgraded",
-        "blocked_contract_drift" => "blocked"
+        "blocked_contract_drift" => "blocked",
+        "provisional_schema_drift" => "provisional",
+        "migrating_schema_drift" => "migrating"
       }
 
       expected_status.each do |name, status|
@@ -231,6 +250,11 @@ module RuntimeMachineProofPacketBuilderCheck
       empty_backend = reports.fetch("blocked_empty_backend_resume", {}).fetch("checks", [])
       @result.expect(check_outcome(empty_backend, "snapshot") == "blocked", "empty backend should block snapshot")
       @result.expect(check_outcome(empty_backend, "replay") == "blocked", "empty backend should block replay")
+
+      migrating_schema = reports.fetch("migrating_schema_drift", {}).fetch("checks", [])
+      schema_check = migrating_schema.find { |check| check.fetch("dimension", nil) == "schema" } || {}
+      @result.expect(schema_check.fetch("outcome", nil) == "migrating", "schema migration should be migrating")
+      @result.expect(schema_check.fetch("migration_available", nil) == true, "schema migration should be available")
     end
 
     def check_negative_evidence
@@ -343,7 +367,9 @@ module RuntimeMachineProofPacketBuilderCheck
     def derived_resume_status(checks)
       outcomes = checks.map { |check| check.fetch("outcome", nil) }
       return "blocked" if outcomes.include?("blocked")
+      return "migrating" if outcomes.include?("migrating")
       return "downgraded" if outcomes.include?("downgrade")
+      return "provisional" if outcomes.include?("provisional")
 
       "trusted"
     end

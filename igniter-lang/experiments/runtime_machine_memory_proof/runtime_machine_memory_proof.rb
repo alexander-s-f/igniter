@@ -255,9 +255,10 @@ module RuntimeMachineMemoryProof
   class ToyDispatchContract
     attr_reader :compiled_graph_hash
 
-    def initialize(graph_version: "toy-dispatch-contract-v0", schema_version: "0.0.0")
+    def initialize(graph_version: "toy-dispatch-contract-v0", schema_version: "0.0.0", migrations: [])
       @graph_version = graph_version
       @schema_version = schema_version
+      @migrations = Canonical.normalize(migrations)
       @compiled_graph_hash = Canonical.hash(descriptor_payload)
     end
 
@@ -294,7 +295,7 @@ module RuntimeMachineMemoryProof
         Canonical.normalize(
           surface.merge(
             schema_fingerprint: Canonical.hash(surface),
-            migrations: []
+            migrations: @migrations
           )
         )
       end
@@ -449,6 +450,7 @@ module RuntimeMachineMemoryProof
       @backend.append(fragment, idempotency_key: fragment.id)
 
       @loaded_schema_descriptor = schema_descriptor_for(contract)
+      migration_descriptor_refs = emit_migration_descriptors(@loaded_schema_descriptor.fetch("migrations", []))
       @loaded_unit = {
         unit_id: "loaded-unit/#{Canonical.short_hash(contract.descriptor_payload)}",
         contract_descriptor_ref: descriptor.id,
@@ -456,14 +458,20 @@ module RuntimeMachineMemoryProof
         compiled_graph_hash: contract.compiled_graph_hash,
         fragment_class: "CORE",
         schema_version: @loaded_schema_descriptor.fetch("schema_version"),
-        schema_fingerprint: @loaded_schema_descriptor.fetch("schema_fingerprint")
+        schema_fingerprint: @loaded_schema_descriptor.fetch("schema_fingerprint"),
+        migration_descriptor_refs: migration_descriptor_refs
       }
       @contract = contract
 
       receipt = packet(
         kind: "receipt_observation",
         subject: "runtime-machine/#{@machine_id}/load",
-        payload: { transition: "load", status: "ok", loaded_unit: @loaded_unit },
+        payload: {
+          transition: "load",
+          status: "ok",
+          loaded_unit: @loaded_unit,
+          migration_descriptor_refs: migration_descriptor_refs
+        },
         temporal: { as_of: PROOF_AS_OF, lifecycle: "load" },
         links: evidence_links + [link("describes", descriptor.id)]
       )
@@ -471,6 +479,54 @@ module RuntimeMachineMemoryProof
 
       @state = "loaded"
       { status: "ok", loaded_unit: @loaded_unit, receipt: receipt }
+    end
+
+    def emit_schema_migration_receipt(image:, report:, migration:, as_of:)
+      return failure("runtime.invalid_transition", "schema migration receipt requires loaded machine") unless @state == "loaded"
+
+      migration_id = migration.fetch("migration_id")
+      intent = packet(
+        kind: "intent_observation",
+        subject: "#{migration_id}/intent",
+        payload: {
+          intent: "schema_migration",
+          migration_id: migration_id,
+          from_version: migration.fetch("from_version"),
+          to_version: migration.fetch("to_version"),
+          old_image_id: image.fetch("image_id"),
+          old_schema_fingerprint: image.fetch("schema_fingerprint"),
+          new_schema_fingerprint: @loaded_schema_descriptor.fetch("schema_fingerprint"),
+          compatibility_report_id: report.fetch("report_id")
+        },
+        temporal: { as_of: as_of, lifecycle: "local" },
+        links: evidence_links + [link("caused_by", image.fetch("image_id"))]
+      )
+      @backend.append(intent)
+
+      receipt = packet(
+        kind: "receipt_observation",
+        subject: "#{migration_id}/receipt",
+        payload: {
+          transition: "schema_migration",
+          status: "migrated",
+          strategy: migration.fetch("strategy", "identity"),
+          migration_id: migration_id,
+          from_version: migration.fetch("from_version"),
+          to_version: migration.fetch("to_version"),
+          old_image_id: image.fetch("image_id"),
+          old_schema_fingerprint: image.fetch("schema_fingerprint"),
+          new_schema_fingerprint: @loaded_schema_descriptor.fetch("schema_fingerprint"),
+          compatibility_report_id: report.fetch("report_id")
+        },
+        temporal: { as_of: as_of, lifecycle: "audit" },
+        links: evidence_links +
+          [link("caused_by", intent.id)] +
+          [link("produced_by", migration_id)] +
+          [link("replaces", image.fetch("image_id"))]
+      )
+      @backend.append(receipt)
+
+      { status: "ok", intent: intent, receipt: receipt }
     end
 
     def evaluate(order_id:, technician_id:, as_of:, rule_version:)
@@ -682,6 +738,24 @@ module RuntimeMachineMemoryProof
       }
     end
 
+    def emit_migration_descriptors(migrations)
+      migrations.map do |migration|
+        packet = packet(
+          kind: "descriptor_observation",
+          subject: migration.fetch("migration_id"),
+          payload: migration.merge(
+            "descriptor" => "MigrationDescriptor",
+            "receipt_lifecycle" => "audit",
+            "requires_replaces_link" => true
+          ),
+          temporal: { as_of: PROOF_AS_OF, lifecycle: "load" },
+          links: evidence_links
+        )
+        @backend.append(packet, idempotency_key: packet.id)
+        packet.id
+      end
+    end
+
     def packet(kind:, subject:, payload:, temporal:, links:)
       ObsPacket.new(
         kind: kind,
@@ -868,6 +942,8 @@ module RuntimeMachineMemoryProof
       current_fingerprint = current_schema&.fetch("schema_fingerprint", nil)
 
       match = image_fingerprint == current_fingerprint
+      migrations = current_schema&.fetch("migrations", []) || []
+      migration = nil
 
       if match
         outcome      = "compatible"
@@ -886,7 +962,6 @@ module RuntimeMachineMemoryProof
         end
 
         # Check if a migration is available
-        migrations = current_schema&.fetch("migrations", []) || []
         migration  = migrations.find { |m|
           m["from_version"] == image_ver && m["to_version"] == current_version
         }
@@ -907,7 +982,8 @@ module RuntimeMachineMemoryProof
         schema_version:      { from: image_ver, to: current_version },
         fingerprint_match:   match,
         change_class:        match ? "none" : change_class,
-        migration_available: !!(migrations&.any?),
+        migration_available: !migration.nil?,
+        migration_ref:       migration&.fetch("migration_id", nil),
         decision:            match ? "trusted" : decision
       }
     end
@@ -950,6 +1026,18 @@ module RuntimeMachineMemoryProof
         }
       }
     end
+
+    def schema_migration(from_version:, to_version:)
+      {
+        "migration_id" => "migration://toy-dispatch/#{from_version}->#{to_version}",
+        "contract_id" => "toy-dispatch",
+        "from_version" => from_version,
+        "to_version" => to_version,
+        "fragment_class" => "ESCAPE",
+        "strategy" => "identity_schema_migration",
+        "lifecycle" => "audit"
+      }
+    end
   end
 
   module EvidenceVerifier
@@ -975,15 +1063,15 @@ module RuntimeMachineMemoryProof
 
     module_function
 
-    def build(golden:, checks:, negative_reports:, negative_failures:, negative_evidence:)
+    def build(golden:, checks:, negative_reports:, negative_failures:, negative_evidence:, migration_fixture:)
       Canonical.normalize(
         schema_version: SCHEMA_VERSION,
         generated_by: "runtime_machine_memory_proof.rb",
         proof_as_of: PROOF_AS_OF,
         rule_version: RULE_VERSION,
-        obs_packets: obs_packets(golden),
+        obs_packets: obs_packets(golden, migration_fixture),
         semantic_image: semantic_image(golden),
-        compatibility_reports: compatibility_reports(golden, negative_reports),
+        compatibility_reports: compatibility_reports(golden, negative_reports, migration_fixture),
         negative_evidence: negative_evidence.merge(failure_packets: negative_failures),
         result_summary: result_summary(golden, checks)
       )
@@ -1019,7 +1107,7 @@ module RuntimeMachineMemoryProof
       }
     end
 
-    def obs_packets(golden)
+    def obs_packets(golden, migration_fixture)
       {
         sessions: {
           session_a: golden.fetch(:session_a_entries).map { |entry| entry_to_h(entry) },
@@ -1029,7 +1117,10 @@ module RuntimeMachineMemoryProof
           dispatch_candidate_value: golden.fetch(:value_packet).to_h,
           resumed_dispatch_candidate_value: golden.fetch(:resumed_value_packet).to_h,
           semantic_image_packet: golden.fetch(:semantic_image_packet).to_h,
-          trusted_compatibility_report_packet: golden.fetch(:compatibility_packet).to_h
+          trusted_compatibility_report_packet: golden.fetch(:compatibility_packet).to_h,
+          schema_migration_compatibility_report_packet: migration_fixture.fetch(:packet).to_h,
+          schema_migration_intent: migration_fixture.fetch(:intent).to_h,
+          schema_migration_receipt: migration_fixture.fetch(:receipt).to_h
         }
       }
     end
@@ -1042,13 +1133,14 @@ module RuntimeMachineMemoryProof
       }
     end
 
-    def compatibility_reports(golden, negative_reports)
+    def compatibility_reports(golden, negative_reports, migration_fixture)
       {
         trusted_resume: golden.fetch(:compatibility_report),
         blocked_empty_backend_resume: negative_reports.fetch("empty_backend_resume"),
         downgraded_runtime_drift: negative_reports.fetch("runtime_drift"),
         blocked_contract_drift: negative_reports.fetch("contract_drift"),
-        provisional_schema_drift: negative_reports.fetch("schema_drift")
+        provisional_schema_drift: negative_reports.fetch("schema_drift"),
+        migrating_schema_drift: migration_fixture.fetch(:report)
       }
     end
 
@@ -1137,6 +1229,7 @@ module RuntimeMachineMemoryProof
       @negative_reports = {}
       @negative_failures = {}
       @negative_evidence = {}
+      @migration_fixture = nil
     end
 
     def run(print_summary: true)
@@ -1147,13 +1240,15 @@ module RuntimeMachineMemoryProof
       run_negative_runtime_drift
       run_negative_contract_drift
       run_negative_schema_drift
+      @migration_fixture = run_schema_migration_fixture
       run_negative_value_without_evidence
       @artifacts = FixtureArtifacts.build(
         golden: @golden,
         checks: @checks,
         negative_reports: @negative_reports,
         negative_failures: @negative_failures,
-        negative_evidence: @negative_evidence
+        negative_evidence: @negative_evidence,
+        migration_fixture: @migration_fixture
       )
       print_summary_output if @print_summary
       success?
@@ -1348,6 +1443,56 @@ module RuntimeMachineMemoryProof
           schema_check.fetch("decision") == "provisional" &&
           schema_check.fetch("fingerprint_match") == false
       )
+    end
+
+    def run_schema_migration_fixture
+      migration = Fixture.schema_migration(from_version: "0.0.0", to_version: "0.1.0")
+      backend = @golden.fetch(:backend).restore(
+        @golden.fetch(:semantic_image).fetch("checkpoint").fetch("snapshot_ref")
+      )
+      machine = RuntimeMachine.new(
+        machine_id: "runtime-machine/schema-migration",
+        session_id: "session/schema-migration",
+        backend: backend
+      )
+      machine.boot
+      load = machine.load(ToyDispatchContract.new(schema_version: "0.1.0", migrations: [migration]))
+      resume = machine.resume(
+        image: @golden.fetch(:semantic_image),
+        requested_as_of: PROOF_AS_OF
+      )
+      schema_check = resume.fetch(:report).fetch("checks").find { |item| item.fetch("dimension") == "schema" }
+      migration_receipt = machine.emit_schema_migration_receipt(
+        image: @golden.fetch(:semantic_image),
+        report: resume.fetch(:report),
+        migration: migration,
+        as_of: PROOF_AS_OF
+      )
+      receipt_links = migration_receipt.fetch(:receipt).link_rels
+
+      check(
+        "migration.schema_check_migrating",
+        resume.fetch(:status) == "migrating" &&
+          schema_check.fetch("decision") == "migrating" &&
+          schema_check.fetch("migration_available") == true &&
+          schema_check.fetch("migration_ref") == migration.fetch("migration_id")
+      )
+      check("migration.descriptor_loaded", load.fetch(:loaded_unit).fetch(:migration_descriptor_refs).any?)
+      check(
+        "migration.receipt_links",
+        migration_receipt.fetch(:status) == "ok" &&
+          receipt_links.include?("replaces") &&
+          receipt_links.include?("caused_by") &&
+          receipt_links.include?("produced_by")
+      )
+
+      {
+        report: resume.fetch(:report),
+        packet: resume.fetch(:packet),
+        migration: migration,
+        intent: migration_receipt.fetch(:intent),
+        receipt: migration_receipt.fetch(:receipt)
+      }
     end
 
     def run_negative_value_without_evidence

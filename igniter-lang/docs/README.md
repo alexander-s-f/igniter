@@ -32,8 +32,10 @@ implementation detail of the current Igniter platform.
 | [tracks/ffi-ruby-contractable-proof-v0.md](tracks/ffi-ruby-contractable-proof-v0.md) | done | Proved Ruby host calls as ESCAPE contracts: FFIRequirement, CapabilityGate, call discipline (intent→check→call→receipt/failure), evidence links |
 | [tracks/runtime-machine-ffi-ruby-receipt-fixtures-v0.md](tracks/runtime-machine-ffi-ruby-receipt-fixtures-v0.md) | done | Added executable FFI read/write/failure golden receipt fixtures and checker coverage |
 | [tracks/runtime-machine-schema-check-standalone-fix-v0.md](tracks/runtime-machine-schema-check-standalone-fix-v0.md) | done | Restored standalone RuntimeMachine proof by moving schema_check to loaded_schema_descriptor and adding trusted/provisional schema checks |
+| [tracks/runtime-machine-schema-migration-fixture-v0.md](tracks/runtime-machine-schema-migration-fixture-v0.md) | done | Added standalone schema_check:migrating fixture with MigrationDescriptor, intent, and audit receipt evidence |
 | [tracks/source-fixture-parser-acceptance-harness-v0.md](tracks/source-fixture-parser-acceptance-harness-v0.md) | partial | Started source fixture parser harness: `.ig` source fixtures parse to ParsedProgram JSON; `.igapp` comparison still pending |
 | [tracks/polymorphic-add-devkit-fixture-v0.md](tracks/polymorphic-add-devkit-fixture-v0.md) | done | Added polymorphic Add pressure fixture with expected ParsedProgram shape, specialization rules, and no runtime overloads |
+| [tracks/polymorphic-add-parser-pressure-map-v0.md](tracks/polymorphic-add-parser-pressure-map-v0.md) | done | Grammar/parser delta map for PROP-016 surface: trait, impl, contract_shape, generic contract header; separated parser vs semantic vs monomorphization work |
 | [tracks/bridge-observation-envelope-implementation-plan-v0.md](tracks/bridge-observation-envelope-implementation-plan-v0.md) | done | Planned metadata-only packet builders for RuntimeMachine, TBackendAdapter, SemanticImage, Checkpoint, Resume, and CompatibilityReport |
 | [tracks/temporal-lifecycle-application-scenarios-v0.md](tracks/temporal-lifecycle-application-scenarios-v0.md) | done | Pressure-tested temporal lifecycle, retention, flush, semantic GC, boundaries, and reproducibility with Spark CRM technician dispatch |
 | [tracks/temporal-lifecycle-boundary-fixtures-v0.md](tracks/temporal-lifecycle-boundary-fixtures-v0.md) | done | Defined concrete GeoSignal-to-boundary fixtures for snapshots, compacted stubs, audit trails, and downgrade/block cases |
@@ -42,7 +44,7 @@ implementation detail of the current Igniter platform.
 
 | Experiment | Status | Purpose |
 |------------|--------|---------|
-| [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-schema-check-standalone-fix-v0: standalone memory proof, golden fixtures, checker, sidecar profiles, profile modes, external candidate normalizer, FFI receipt fixtures, and PROP-017 schema checks |
+| [../experiments/runtime_machine_memory_proof/README.md](../experiments/runtime_machine_memory_proof/README.md) | done | runtime-machine-schema-migration-fixture-v0: standalone memory proof, golden fixtures, checker, sidecar profiles, profile modes, external candidate normalizer, FFI receipt fixtures, PROP-017 schema checks, and migration evidence |
 | [../experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb](../experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb) | done | FFI Ruby receipt/failure fixture generator and checker |
 | [../experiments/parser/igniter_lang_parser.rb](../experiments/parser/igniter_lang_parser.rb) | partial | Minimal recursive-descent parser for PROP-014/015 source fixtures; emits ParsedProgram JSON |
 
@@ -122,6 +124,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 - Runtime Machine External Candidate and FFI Proof (Research Agent track)
 - Runtime Machine External Candidate Normalizer Fixtures (Research Agent track)
 - Runtime Machine Schema Check Standalone Fix (Research Agent track)
+- Runtime Machine Schema Migration Fixture (Research Agent track)
 - Add.igapp Devkit Fixture (Compiler/Grammar Expert track)
 - Compilation and Deployment (compilation-deployment.md)
 - Temporal Lifecycle (temporal-lifecycle.md)

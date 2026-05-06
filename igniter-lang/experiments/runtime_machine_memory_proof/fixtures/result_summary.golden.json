@@ -59,6 +59,18 @@
         "ok": true
       },
       {
+        "name": "migration.schema_check_migrating",
+        "ok": true
+      },
+      {
+        "name": "migration.descriptor_loaded",
+        "ok": true
+      },
+      {
+        "name": "migration.receipt_links",
+        "ok": true
+      },
+      {
         "name": "negative.same_value_without_evidence",
         "ok": true
       },

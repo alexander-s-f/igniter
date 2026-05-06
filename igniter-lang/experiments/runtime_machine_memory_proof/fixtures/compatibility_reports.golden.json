@@ -39,9 +39,9 @@
           "severity": "info"
         },
         {
-          "actual": "memory-snapshot/5a921ca56988a685",
+          "actual": "memory-snapshot/40f8365967263657",
           "dimension": "snapshot",
-          "expected": "memory-snapshot/5a921ca56988a685",
+          "expected": "memory-snapshot/40f8365967263657",
           "outcome": "compatible",
           "severity": "info"
         },
@@ -60,6 +60,7 @@
           "expected": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
           "fingerprint_match": true,
           "migration_available": false,
+          "migration_ref": null,
           "outcome": "compatible",
           "schema_version": {
             "from": "0.0.0",
@@ -68,9 +69,9 @@
           "severity": "info"
         }
       ],
-      "image_id": "image/c93d896b231b899f",
+      "image_id": "image/909d7bdda77c50bf",
       "intent": "exact_replay",
-      "report_id": "compat/8702c7aedc1ab9c1",
+      "report_id": "compat/9669849bba6ebf67",
       "reproducibility": "blocked",
       "resume_status": "blocked"
     },
@@ -114,7 +115,7 @@
         {
           "actual": null,
           "dimension": "snapshot",
-          "expected": "memory-snapshot/5a921ca56988a685",
+          "expected": "memory-snapshot/40f8365967263657",
           "outcome": "blocked",
           "severity": "critical"
         },
@@ -133,6 +134,7 @@
           "expected": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
           "fingerprint_match": true,
           "migration_available": false,
+          "migration_ref": null,
           "outcome": "compatible",
           "schema_version": {
             "from": "0.0.0",
@@ -141,9 +143,9 @@
           "severity": "info"
         }
       ],
-      "image_id": "image/c93d896b231b899f",
+      "image_id": "image/909d7bdda77c50bf",
       "intent": "exact_replay",
-      "report_id": "compat/c375659264e8342b",
+      "report_id": "compat/70c2dc505b21597e",
       "reproducibility": "blocked",
       "resume_status": "blocked"
     },
@@ -185,9 +187,9 @@
           "severity": "info"
         },
         {
-          "actual": "memory-snapshot/5a921ca56988a685",
+          "actual": "memory-snapshot/40f8365967263657",
           "dimension": "snapshot",
-          "expected": "memory-snapshot/5a921ca56988a685",
+          "expected": "memory-snapshot/40f8365967263657",
           "outcome": "compatible",
           "severity": "info"
         },
@@ -206,6 +208,7 @@
           "expected": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
           "fingerprint_match": true,
           "migration_available": false,
+          "migration_ref": null,
           "outcome": "compatible",
           "schema_version": {
             "from": "0.0.0",
@@ -214,11 +217,85 @@
           "severity": "info"
         }
       ],
-      "image_id": "image/c93d896b231b899f",
+      "image_id": "image/909d7bdda77c50bf",
       "intent": "exact_replay",
-      "report_id": "compat/b45bedceb25a05f7",
+      "report_id": "compat/9c8f77941eca9a2d",
       "reproducibility": "downgraded",
       "resume_status": "downgraded"
+    },
+    "migrating_schema_drift": {
+      "checks": [
+        {
+          "actual": "obs/0f1ab1fdd7e5d339",
+          "dimension": "axiom",
+          "expected": "obs/0f1ab1fdd7e5d339",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "obs/f0a9581038271dfe",
+          "dimension": "runtime",
+          "expected": "obs/f0a9581038271dfe",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "dimension": "backend",
+          "expected": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "dimension": "contract",
+          "expected": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "2026-05-05T10:42:00Z",
+          "dimension": "temporal",
+          "expected": "2026-05-05T10:42:00Z",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "memory-snapshot/40f8365967263657",
+          "dimension": "snapshot",
+          "expected": "memory-snapshot/40f8365967263657",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "seq=20",
+          "dimension": "replay",
+          "expected": "seq>=14",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:6377c6b59eb055c396a2a713cf249b7a2d47add4d41d2623ef80317b51d1d6ea",
+          "change_class": "safe",
+          "decision": "migrating",
+          "dimension": "schema",
+          "expected": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
+          "fingerprint_match": false,
+          "migration_available": true,
+          "migration_ref": "migration://toy-dispatch/0.0.0->0.1.0",
+          "outcome": "migrating",
+          "schema_version": {
+            "from": "0.0.0",
+            "to": "0.1.0"
+          },
+          "severity": "warning"
+        }
+      ],
+      "image_id": "image/909d7bdda77c50bf",
+      "intent": "exact_replay",
+      "report_id": "compat/2d873378ccf779a4",
+      "reproducibility": "migrating",
+      "resume_status": "migrating"
     },
     "provisional_schema_drift": {
       "checks": [
@@ -258,9 +335,9 @@
           "severity": "info"
         },
         {
-          "actual": "memory-snapshot/5a921ca56988a685",
+          "actual": "memory-snapshot/40f8365967263657",
           "dimension": "snapshot",
-          "expected": "memory-snapshot/5a921ca56988a685",
+          "expected": "memory-snapshot/40f8365967263657",
           "outcome": "compatible",
           "severity": "info"
         },
@@ -279,6 +356,7 @@
           "expected": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
           "fingerprint_match": false,
           "migration_available": false,
+          "migration_ref": null,
           "outcome": "provisional",
           "schema_version": {
             "from": "0.0.0",
@@ -287,9 +365,9 @@
           "severity": "warning"
         }
       ],
-      "image_id": "image/c93d896b231b899f",
+      "image_id": "image/909d7bdda77c50bf",
       "intent": "exact_replay",
-      "report_id": "compat/6b55cbcb89c630f5",
+      "report_id": "compat/3f2afdf86dfc10e4",
       "reproducibility": "provisional",
       "resume_status": "provisional"
     },
@@ -331,9 +409,9 @@
           "severity": "info"
         },
         {
-          "actual": "memory-snapshot/5a921ca56988a685",
+          "actual": "memory-snapshot/40f8365967263657",
           "dimension": "snapshot",
-          "expected": "memory-snapshot/5a921ca56988a685",
+          "expected": "memory-snapshot/40f8365967263657",
           "outcome": "compatible",
           "severity": "info"
         },
@@ -352,6 +430,7 @@
           "expected": "sha256:a6ca5c35e469c7ee57b804b9d592cd267ca206901476972c95da4f2d49e680fb",
           "fingerprint_match": true,
           "migration_available": false,
+          "migration_ref": null,
           "outcome": "compatible",
           "schema_version": {
             "from": "0.0.0",
@@ -360,9 +439,9 @@
           "severity": "info"
         }
       ],
-      "image_id": "image/c93d896b231b899f",
+      "image_id": "image/909d7bdda77c50bf",
       "intent": "exact_replay",
-      "report_id": "compat/5d9f67e42619a42a",
+      "report_id": "compat/d7e7edde392b3878",
       "reproducibility": "reproducible_within_memory_harness",
       "resume_status": "trusted"
     }
