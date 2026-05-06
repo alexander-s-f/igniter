@@ -43,6 +43,7 @@ Codex]` can approve, redirect, or reject.
 | [osint-product-bridge-profiles-v0.md](osint-product-bridge-profiles-v0.md) | proposal | Metadata-only personal OSINT assistant product profiles for watchlists, daily briefs, evidence-linked alerts, reputation drift, source reliability, claim timelines, audit reports, and safe action policy |
 | [semanticir-verification-report-bridge-v0.md](semanticir-verification-report-bridge-v0.md) | proposal | Report-only bridge for compiled SemanticIR artifact hashes, classifier/typecheck diagnostics, OOF findings, and runtime proof receipts into VerificationReport metadata |
 | [compiler-pipeline-profile-bridge-v0.md](compiler-pipeline-profile-bridge-v0.md) | proposal | Unified report-only compiler pipeline profile family for ParsedProgram, ClassifiedProgram, TypedProgram, SemanticIR, compiler OOF diagnostics, and RuntimeMachine load receipts |
+| [compiler-pipeline-profile-prop019-alignment-v0.md](compiler-pipeline-profile-prop019-alignment-v0.md) | proposal | PROP-019/019.1 alignment for compiler_pipeline_profiles examples: canonical semantic_ir_program, separated CompilationReport diagnostics, typed profile pending, and historical semanticir_verification_profiles |
 
 ## Current Bridge Pressure
 
@@ -114,6 +115,12 @@ stays focused on package operation declarations.
 SemanticIR, compiler OOF diagnostic, and runtime load receipt profiles. This
 supersedes the narrower `semanticir_verification_profiles` name for new package
 work.
+
+[S] Compiler pipeline profile examples are now aligned to PROP-019 and
+PROP-019.1: `semanticir_program_profile_v0` expects
+`kind: "semantic_ir_program"`, OOF diagnostics live in `CompilationReport`, and
+`typed_program_profile_v0` remains planned/pending until the PROP-021 proof
+lands.
 
 [Q] Should generic package diagnostics be named
 `ProjectionDiagnostic`/`PipelineDiagnostic`, or remain plain

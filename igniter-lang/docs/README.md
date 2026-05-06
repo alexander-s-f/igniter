@@ -128,6 +128,8 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-018-source-to-semanticir-minimal-pipeline-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-019-canonical-semanticir-envelope-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-020-classifier-pass-v0-formalization | done |
+| 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-019.1-semanticir-envelope-errata-v0 | done |
+| 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-021-typechecker-pass-v0-formalization | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/spark-pipeline-parser-acceptance-v0 | done |
 | [proposals/PROP-013](proposals/PROP-013-stdlib-fold-aggregate-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Collection[T], Option[T], Result[T,E]; fold/map/filter/group_by/avg; TR-1 termination; aggregated_from links |
 | [proposals/PROP-014](proposals/PROP-014-source-syntax-semanticir-boundary-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Minimal syntax kernel; ParsedProgram shape; 4-stage path to SemanticIR; OOF rejection rules; .igapp/ mapping |
@@ -136,7 +138,9 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [proposals/PROP-017](proposals/PROP-017-schema-evolution-contract-migration-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Schema versioning; CompatibilityReport; MigrationReceipt; replacement SemanticImage; 5 migration strategies |
 | [proposals/PROP-018](proposals/PROP-018-source-to-semanticir-minimal-pipeline-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | v0 source subset; parser AST shape; Pass 0/1 classifier gates; SemanticIR emission; OOF-P/DM/CE/OS/RT/MD unified; 5 conformance cases |
 | [proposals/PROP-019](proposals/PROP-019-canonical-semanticir-envelope-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Freezes kind:semantic_ir_program; format_version; canonical inputs/outputs/nodes; contract_ref; resolved_type required; _fixture extension key; migration from two divergent shapes; bridge artifact_ref |
+| [proposals/PROP-019.1](proposals/PROP-019.1-semanticir-envelope-errata-v0.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | Errata: OOF->CompilationReport (not SemanticIR); oof_log removed; 4-stage pipeline defined; stdlib monomorphic naming; assembler acceptance criteria A1..A6 |
 | [proposals/PROP-020](proposals/PROP-020-classifier-pass-v0-formalization.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | ParsedProgram->ClassifiedProgram; SymbolTable two-scope; node classification rules; CORE/ESCAPE/OOF propagation; OOF-P1/P2/P4/CE4/OS2; diagnostics path shape; 5 conformance cases |
+| [proposals/PROP-021](proposals/PROP-021-typechecker-pass-v0-formalization.md) | proposal | `[Igniter-Lang Compiler/Grammar Expert]` | ClassifiedProgram->TypedProgram; TypeEnv/ShapeEnv/OperatorEnv; annotation-driven resolution; Decimal scale arithmetic (mul=A+B, add=scales_equal); 7 OOF-TC rules; MonomorphizationPass deferred; 5 conformance cases |
 
 ## Active Bridge Notes
 
@@ -157,6 +161,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [bridge/osint-product-bridge-profiles-v0.md](bridge/osint-product-bridge-profiles-v0.md) | proposal | Metadata-only personal OSINT assistant product profiles aligned with VerificationReport custom metadata carrier semantics |
 | [bridge/semanticir-verification-report-bridge-v0.md](bridge/semanticir-verification-report-bridge-v0.md) | proposal | Report-only SemanticIR proof result bridge into VerificationReport metadata and carrier manifest semantics |
 | [bridge/compiler-pipeline-profile-bridge-v0.md](bridge/compiler-pipeline-profile-bridge-v0.md) | proposal | Unified report-only compiler pipeline profile family aligned with VerificationReport compiler_pipeline_profiles carrier semantics |
+| [bridge/compiler-pipeline-profile-prop019-alignment-v0.md](bridge/compiler-pipeline-profile-prop019-alignment-v0.md) | proposal | PROP-019/019.1-aligned compiler_pipeline_profiles examples with canonical semantic_ir_program and separated CompilationReport diagnostics |
 
 ## Core Documents
 
