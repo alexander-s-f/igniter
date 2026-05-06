@@ -159,7 +159,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 |-------|--------------|--------|------|
 | `[Igniter-Lang Research Agent]` | `tracks/spark-technician-availability-fixture-v0.md` + `tracks/polymorphic-add-runtime-load-boundary-v0.md` | done / blocked-useful | polymorphic-add-runtime-loader-normalization-v0 or spark-lead-signal-boundary-fixture-v0 |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/spark-pipeline-grammar-v0.md` | done | spark-pipeline-parser-acceptance-v0 or decimal-idempotency-retention-formalization-v0 |
-| `[Igniter-Lang Bridge Agent]` | `bridge/osint-claim-factcheck-correction-bridge-profile-v0.md` | done | Architect-reviewed generic claim/fact-check metadata carrier plan |
+| `[Igniter-Lang Bridge Agent]` | `bridge/osint-product-bridge-profiles-v0.md` | done | Architect-reviewed OSINT product metadata carrier adoption plan |
 | `[Igniter-Lang Applied Pressure Agent]` | `tracks/spark-lead-signal-boundary-pressure-v0.md` | done | spark-operation-action-lifecycle-pressure-v0 or sandbox-simulation-world-modeling-pressure-v0 |
 
 ## Current Meta Thesis
@@ -601,6 +601,7 @@ igniter-lang/docs/
     model-validity-and-scenario-comparison-bridge-profile-v0.md [done - simulation diagnostics and model validity profiles]
     human-agent-review-approval-bridge-profile-v0.md [done - human-agent review and acceptance profiles]
     osint-claim-factcheck-correction-bridge-profile-v0.md [done - OSINT-like claim/fact-check correction profiles]
+    osint-product-bridge-profiles-v0.md [done - personal OSINT assistant product profiles]
 ```
 
 ---
@@ -668,6 +669,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/observation-trust-classes-and-simulation-loop-semantics-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/claim-evidence-confidence-typing-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/meaning-diff-and-acceptance-semantics-v0 | done |
+| 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/osint-product-types-and-alert-gates-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/bridge-agent-entry-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-bridge-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-package-touchpoint-map-v0.md | done |
@@ -679,3 +681,4 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/model-validity-and-scenario-comparison-bridge-profile-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/human-agent-review-approval-bridge-profile-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/osint-claim-factcheck-correction-bridge-profile-v0.md | done |
+| 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/osint-product-bridge-profiles-v0.md | done |

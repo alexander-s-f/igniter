@@ -8,6 +8,7 @@ Your exact role is assigned by the handoff prompt. Current accepted identities:
 - `[Igniter-Lang Compiler/Grammar Expert]`
 - `[Igniter-Lang Bridge Agent]`
 - `[Igniter-Lang Applied Pressure Agent]`
+- `[Igniter-Lang Meta Expert]`
 
 Before authoring anything, read [roles/README.md](roles/README.md) and the
 role file for your assigned identity.
@@ -89,6 +90,13 @@ Role details live in [roles/](roles/). Short map:
   rebuild-from-scratch experiments, and reverse-planning/composition pressure
 - should produce longer, less frequent, high-signal slices that create concrete
   proof/formalization/bridge requests for neighboring agents
+
+`[Igniter-Lang Meta Expert]`
+
+- owns strategic analysis, gap identification, priority ordering, and
+  cross-cutting design decisions in `igniter-lang/docs/meta-proposals/`
+- produces meta-proposals that request formal work from operational agents
+- does not write formal PROP-* documents or executable proofs directly
 
 ## Research Policy
 

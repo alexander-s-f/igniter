@@ -40,6 +40,7 @@ Codex]` can approve, redirect, or reject.
 | [model-validity-and-scenario-comparison-bridge-profile-v0.md](model-validity-and-scenario-comparison-bridge-profile-v0.md) | proposal | Metadata-only simulation run diagnostics, model validity, scenario comparison, assumption diff, and review-only strategy profiles |
 | [human-agent-review-approval-bridge-profile-v0.md](human-agent-review-approval-bridge-profile-v0.md) | proposal | Metadata-only human-agent proposal, review, meaning diff, correction, verification, and acceptance receipt profiles |
 | [osint-claim-factcheck-correction-bridge-profile-v0.md](osint-claim-factcheck-correction-bridge-profile-v0.md) | proposal | Metadata-only OSINT-like source observation, claim trace, evidence, confidence, contradiction, fact-check snapshot, analyst decision, citation/redaction, and correction profiles |
+| [osint-product-bridge-profiles-v0.md](osint-product-bridge-profiles-v0.md) | proposal | Metadata-only personal OSINT assistant product profiles for watchlists, daily briefs, evidence-linked alerts, reputation drift, source reliability, claim timelines, audit reports, and safe action policy |
 
 ## Current Bridge Pressure
 
@@ -95,6 +96,11 @@ for source observations, claim traces, evidence links, confidence assessments,
 contradictions, snapshots, analyst decisions, citation/redaction policies, and
 correction receipts. Repeated claims remain non-independent evidence, and
 confidence remains not-truth.
+
+[S] Personal OSINT assistant outputs now have report-only product profiles
+aligned with `VerificationReport` `custom_sections.osint_product_profiles` and
+`carrier_manifest` semantics. No real ingestion, runtime, external actions, UI,
+or package edits are authorized.
 
 [Q] Should generic package diagnostics be named
 `ProjectionDiagnostic`/`PipelineDiagnostic`, or remain plain

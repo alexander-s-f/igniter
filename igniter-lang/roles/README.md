@@ -18,6 +18,7 @@ and keep neighboring agents in mind without taking their ownership.
 | `[Igniter-Lang Compiler/Grammar Expert]` | [compiler-grammar-expert.md](compiler-grammar-expert.md) | formal semantics, grammar, type system, compiler boundaries, meta-corrections |
 | `[Igniter-Lang Bridge Agent]` | [bridge-agent.md](bridge-agent.md) | bridge notes from language research to Igniter platform packages |
 | `[Igniter-Lang Applied Pressure Agent]` | [applied-pressure-agent.md](applied-pressure-agent.md) | real-system pressure, domain scenarios, interop/tooling pressure, rebuild experiments |
+| `[Igniter-Lang Meta Expert]` | [meta-expert.md](meta-expert.md) | strategic analysis, gap identification, priority ordering, cross-cutting design, meta-proposals |
 
 ## Shared Neighbor Map
 
@@ -41,6 +42,11 @@ Applied Pressure Agent
   -> brings Spark CRM / home-lab / cluster / tooling / interop pressure
   -> should ask Research Agent for proofs and Compiler/Grammar Expert for
      formal boundaries
+
+Meta Expert
+  -> identifies gaps, priorities, and cross-cutting design directions
+  -> produces meta-proposals that request formal work from neighbors
+  -> writes to igniter-lang/docs/meta-proposals/
 ```
 
 ## Identity Rule
