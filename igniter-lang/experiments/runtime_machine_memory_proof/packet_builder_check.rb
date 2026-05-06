@@ -168,6 +168,8 @@ module RuntimeMachineProofPacketBuilderCheck
         schema_migration_compatibility_report_packet
         schema_migration_intent
         schema_migration_receipt
+        replacement_semantic_image_packet
+        replacement_trusted_compatibility_report_packet
       ].each do |name|
         check_packet(selected.fetch(name, {}), "selected.#{name}")
       end
@@ -191,6 +193,27 @@ module RuntimeMachineProofPacketBuilderCheck
       @result.expect(migration_rels.include?("replaces"), "schema migration receipt missing replaces link")
       @result.expect(migration_rels.include?("caused_by"), "schema migration receipt missing caused_by link")
       @result.expect(migration_rels.include?("produced_by"), "schema migration receipt missing produced_by link")
+
+      replacement_packet = selected.fetch("replacement_semantic_image_packet", {})
+      replacement_report = selected.fetch("replacement_trusted_compatibility_report_packet", {})
+      replacement_payload = replacement_packet.fetch("payload", {})
+      replacement_rels = link_rels(replacement_packet)
+      @result.expect(replacement_rels.include?("replaces"), "replacement SemanticImage packet missing replaces link")
+      @result.expect(replacement_rels.include?("caused_by"), "replacement SemanticImage packet missing caused_by link")
+      @result.expect(link_refs(replacement_packet, "caused_by").include?(migration_receipt.fetch("id", nil)),
+                     "replacement SemanticImage should be caused by migration receipt")
+      @result.expect(link_refs(replacement_packet, "replaces").include?(migration_receipt.fetch("payload", {}).fetch("old_image_id", nil)),
+                     "replacement SemanticImage should replace old image")
+      @result.expect(replacement_payload.fetch("migration_receipt_ref", nil) == migration_receipt.fetch("id", nil),
+                     "replacement SemanticImage missing migration receipt payload ref")
+      @result.expect(replacement_payload.fetch("replaces_image_id", nil) ==
+                     migration_receipt.fetch("payload", {}).fetch("old_image_id", nil),
+                     "replacement SemanticImage missing old image payload ref")
+      @result.expect(replacement_report.fetch("payload", {}).fetch("resume_status", nil) == "trusted",
+                     "replacement compatibility report should be trusted")
+      @result.expect(replacement_report.fetch("payload", {}).fetch("image_id", nil) ==
+                     replacement_payload.fetch("image_id", nil),
+                     "replacement compatibility report should see replacement image")
     end
 
     def check_session_entries(name, entries)
@@ -206,14 +229,10 @@ module RuntimeMachineProofPacketBuilderCheck
       image = payload.fetch("semantic_image", {})
       image_packet = payload.fetch("semantic_image_packet", {})
       receipt = payload.fetch("checkpoint_receipt", {})
+      replacement_image = payload.fetch("replacement_semantic_image", {})
+      replacement_packet = payload.fetch("replacement_semantic_image_packet", {})
 
-      base = image.reject { |key, _| %w[image_id content_hash].include?(key) }
-      expected_content_hash = Canonical.hash(base)
-      expected_image_id = "image/#{expected_content_hash.split(":").last[0, 16]}"
-
-      @result.expect(image.fetch("content_hash", nil) == expected_content_hash, "semantic image content_hash mismatch")
-      @result.expect(image.fetch("image_id", nil) == expected_image_id, "semantic image image_id mismatch")
-      @result.expect(image_packet.fetch("payload", nil) == image, "semantic image packet payload mismatch")
+      check_semantic_image_identity(image, image_packet, "semantic_image")
       check_packet(image_packet, "semantic_image_packet")
       check_packet(receipt, "checkpoint_receipt")
 
@@ -222,6 +241,29 @@ module RuntimeMachineProofPacketBuilderCheck
       @result.expect(checkpoint.fetch("seq_id", nil) == cursor.fetch("position", nil), "checkpoint seq_id does not match replay cursor")
       @result.expect(receipt.fetch("payload", {}).fetch("semantic_image_ref", nil) == image_packet.fetch("id", nil),
                      "checkpoint receipt does not reference semantic image packet")
+
+      check_semantic_image_identity(replacement_image, replacement_packet, "replacement_semantic_image")
+      check_packet(replacement_packet, "replacement_semantic_image_packet")
+      @result.expect(replacement_image.fetch("image_id", nil) != image.fetch("image_id", nil),
+                     "replacement SemanticImage should have a new image_id")
+      @result.expect(replacement_image.fetch("replaces_image_id", nil) == image.fetch("image_id", nil),
+                     "replacement SemanticImage should reference old image")
+      @result.expect(replacement_image.fetch("migration_receipt_ref", nil).is_a?(String),
+                     "replacement SemanticImage missing migration_receipt_ref")
+      @result.expect(replacement_image.fetch("schema_version", nil) != image.fetch("schema_version", nil),
+                     "replacement SemanticImage should carry the new schema version")
+      @result.expect(replacement_image.fetch("schema_fingerprint", nil) != image.fetch("schema_fingerprint", nil),
+                     "replacement SemanticImage should carry the new schema fingerprint")
+    end
+
+    def check_semantic_image_identity(image, image_packet, path)
+      base = image.reject { |key, _| %w[image_id content_hash].include?(key) }
+      expected_content_hash = Canonical.hash(base)
+      expected_image_id = "image/#{expected_content_hash.split(":").last[0, 16]}"
+
+      @result.expect(image.fetch("content_hash", nil) == expected_content_hash, "#{path} content_hash mismatch")
+      @result.expect(image.fetch("image_id", nil) == expected_image_id, "#{path} image_id mismatch")
+      @result.expect(image_packet.fetch("payload", nil) == image, "#{path} packet payload mismatch")
     end
 
     def check_compatibility_reports
@@ -232,7 +274,8 @@ module RuntimeMachineProofPacketBuilderCheck
         "downgraded_runtime_drift" => "downgraded",
         "blocked_contract_drift" => "blocked",
         "provisional_schema_drift" => "provisional",
-        "migrating_schema_drift" => "migrating"
+        "migrating_schema_drift" => "migrating",
+        "trusted_after_migration_replacement" => "trusted"
       }
 
       expected_status.each do |name, status|
@@ -255,6 +298,15 @@ module RuntimeMachineProofPacketBuilderCheck
       schema_check = migrating_schema.find { |check| check.fetch("dimension", nil) == "schema" } || {}
       @result.expect(schema_check.fetch("outcome", nil) == "migrating", "schema migration should be migrating")
       @result.expect(schema_check.fetch("migration_available", nil) == true, "schema migration should be available")
+
+      replacement = reports.fetch("trusted_after_migration_replacement", {})
+      replacement_schema = replacement.fetch("checks", []).find { |check| check.fetch("dimension", nil) == "schema" } || {}
+      @result.expect(replacement_schema.fetch("decision", nil) == "trusted",
+                     "replacement schema report should be trusted")
+      @result.expect(replacement_schema.fetch("fingerprint_match", nil) == true,
+                     "replacement schema report should match fingerprint")
+      @result.expect(replacement_schema.fetch("outcome", nil) == "compatible",
+                     "replacement schema report should be compatible")
     end
 
     def check_negative_evidence
@@ -362,6 +414,10 @@ module RuntimeMachineProofPacketBuilderCheck
 
     def link_rels(packet)
       packet.fetch("links", []).map { |link| link.fetch("rel", nil) }
+    end
+
+    def link_refs(packet, rel)
+      packet.fetch("links", []).select { |link| link.fetch("rel", nil) == rel }.map { |link| link.fetch("ref", nil) }
     end
 
     def derived_resume_status(checks)

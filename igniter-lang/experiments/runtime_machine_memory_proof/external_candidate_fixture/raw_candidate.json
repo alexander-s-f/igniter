@@ -43,7 +43,7 @@
   },
   "semantic_assertions": {
     "result_hash": "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0",
-    "semantic_image_content_hash": "sha256:42b496c5bb94891022c3095d179a69e6fc2f83aeff8291407fb4bda66855cb85",
+    "semantic_image_content_hash": "sha256:909d7bdda77c50bfd69fdfc8b40b6faed64609f4273545eaa9c4e767544bd394",
     "trusted_resume_status": "trusted",
     "required_links": [
       "read_from",

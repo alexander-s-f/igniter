@@ -529,6 +529,52 @@ module RuntimeMachineMemoryProof
       { status: "ok", intent: intent, receipt: receipt }
     end
 
+    def emit_replacement_semantic_image(old_image:, migration_receipt:, as_of:)
+      return failure("runtime.invalid_transition", "replacement SemanticImage requires loaded machine") unless @state == "loaded"
+
+      observation_ids = @backend.entries.map { |entry| entry.fetch(:packet).id }
+      receipt_id = migration_receipt.id
+      schema_descriptor = schema_descriptor()
+      image_base = old_image.merge(
+        "session_id" => @session_id,
+        "produced_at" => DeterministicClock.at_seq(@backend.last_seq + 1),
+        "execution_environment_ref" => @execution_environment_ref,
+        "contract_descriptor_ref" => @loaded_unit.fetch(:contract_descriptor_ref),
+        "observation_count" => observation_ids.length,
+        "observation_hash" => Canonical.hash(observation_ids),
+        "receipt_refs" => observation_ids.select { |id| id.start_with?("obs/") },
+        "schema_version" => schema_descriptor.fetch("schema_version"),
+        "schema_fingerprint" => schema_descriptor.fetch("schema_fingerprint"),
+        "migration_receipt_ref" => receipt_id,
+        "replaces_image_id" => old_image.fetch("image_id"),
+        "migration_chain" => {
+          "old_image_id" => old_image.fetch("image_id"),
+          "migration_receipt_ref" => receipt_id,
+          "migration_id" => migration_receipt.payload.fetch("migration_id"),
+          "from_version" => migration_receipt.payload.fetch("from_version"),
+          "to_version" => migration_receipt.payload.fetch("to_version")
+        }
+      ).reject { |key, _| %w[image_id content_hash].include?(key) }
+      image_id = "image/#{Canonical.short_hash(image_base)}"
+      replacement_image = image_base.merge(
+        "image_id" => image_id,
+        "content_hash" => Canonical.hash(image_base)
+      )
+
+      image_packet = packet(
+        kind: "platform_observation",
+        subject: "semantic-image/#{@session_id}/replacement",
+        payload: replacement_image,
+        temporal: { as_of: as_of, lifecycle: "audit" },
+        links: evidence_links +
+          [link("caused_by", receipt_id)] +
+          [link("replaces", old_image.fetch("image_id"))]
+      )
+      @backend.append(image_packet)
+
+      { status: "ok", semantic_image: Canonical.normalize(replacement_image), packet: image_packet }
+    end
+
     def evaluate(order_id:, technician_id:, as_of:, rule_version:)
       return failure("temporal.as_of_missing", "evaluate requires explicit as_of") unless as_of
       return failure("runtime.invalid_transition", "evaluate requires loaded machine") unless @state == "loaded"
@@ -1070,7 +1116,7 @@ module RuntimeMachineMemoryProof
         proof_as_of: PROOF_AS_OF,
         rule_version: RULE_VERSION,
         obs_packets: obs_packets(golden, migration_fixture),
-        semantic_image: semantic_image(golden),
+        semantic_image: semantic_image(golden, migration_fixture),
         compatibility_reports: compatibility_reports(golden, negative_reports, migration_fixture),
         negative_evidence: negative_evidence.merge(failure_packets: negative_failures),
         result_summary: result_summary(golden, checks)
@@ -1120,16 +1166,20 @@ module RuntimeMachineMemoryProof
           trusted_compatibility_report_packet: golden.fetch(:compatibility_packet).to_h,
           schema_migration_compatibility_report_packet: migration_fixture.fetch(:packet).to_h,
           schema_migration_intent: migration_fixture.fetch(:intent).to_h,
-          schema_migration_receipt: migration_fixture.fetch(:receipt).to_h
+          schema_migration_receipt: migration_fixture.fetch(:receipt).to_h,
+          replacement_semantic_image_packet: migration_fixture.fetch(:replacement_packet).to_h,
+          replacement_trusted_compatibility_report_packet: migration_fixture.fetch(:replacement_report_packet).to_h
         }
       }
     end
 
-    def semantic_image(golden)
+    def semantic_image(golden, migration_fixture)
       {
         semantic_image: golden.fetch(:semantic_image),
         semantic_image_packet: golden.fetch(:semantic_image_packet).to_h,
-        checkpoint_receipt: golden.fetch(:checkpoint_receipt).to_h
+        checkpoint_receipt: golden.fetch(:checkpoint_receipt).to_h,
+        replacement_semantic_image: migration_fixture.fetch(:replacement_image),
+        replacement_semantic_image_packet: migration_fixture.fetch(:replacement_packet).to_h
       }
     end
 
@@ -1140,7 +1190,8 @@ module RuntimeMachineMemoryProof
         downgraded_runtime_drift: negative_reports.fetch("runtime_drift"),
         blocked_contract_drift: negative_reports.fetch("contract_drift"),
         provisional_schema_drift: negative_reports.fetch("schema_drift"),
-        migrating_schema_drift: migration_fixture.fetch(:report)
+        migrating_schema_drift: migration_fixture.fetch(:report),
+        trusted_after_migration_replacement: migration_fixture.fetch(:replacement_report)
       }
     end
 
@@ -1469,6 +1520,17 @@ module RuntimeMachineMemoryProof
         as_of: PROOF_AS_OF
       )
       receipt_links = migration_receipt.fetch(:receipt).link_rels
+      replacement_image = machine.emit_replacement_semantic_image(
+        old_image: @golden.fetch(:semantic_image),
+        migration_receipt: migration_receipt.fetch(:receipt),
+        as_of: PROOF_AS_OF
+      )
+      replacement_links = replacement_image.fetch(:packet).link_rels
+      replacement_resume = machine.resume(
+        image: replacement_image.fetch(:semantic_image),
+        requested_as_of: PROOF_AS_OF
+      )
+      replacement_schema_check = replacement_resume.fetch(:report).fetch("checks").find { |item| item.fetch("dimension") == "schema" }
 
       check(
         "migration.schema_check_migrating",
@@ -1485,13 +1547,40 @@ module RuntimeMachineMemoryProof
           receipt_links.include?("caused_by") &&
           receipt_links.include?("produced_by")
       )
+      check(
+        "migration.replacement_image_links",
+        replacement_image.fetch(:status) == "ok" &&
+          replacement_links.include?("replaces") &&
+          replacement_links.include?("caused_by") &&
+          replacement_image.fetch(:semantic_image).fetch("migration_receipt_ref") == migration_receipt.fetch(:receipt).id &&
+          replacement_image.fetch(:semantic_image).fetch("replaces_image_id") == @golden.fetch(:semantic_image).fetch("image_id")
+      )
+      check(
+        "migration.replacement_image_schema",
+        replacement_image.fetch(:semantic_image).fetch("image_id") != @golden.fetch(:semantic_image).fetch("image_id") &&
+          replacement_image.fetch(:semantic_image).fetch("schema_version") == "0.1.0" &&
+          replacement_image.fetch(:semantic_image).fetch("schema_fingerprint") ==
+            machine.loaded_schema_descriptor.fetch("schema_fingerprint")
+      )
+      check(
+        "migration.replacement_report_trusted",
+        replacement_resume.fetch(:status) == "trusted" &&
+          replacement_resume.fetch(:report).fetch("image_id") == replacement_image.fetch(:semantic_image).fetch("image_id") &&
+          replacement_schema_check.fetch("decision") == "trusted" &&
+          replacement_schema_check.fetch("fingerprint_match") == true &&
+          replacement_schema_check.fetch("actual") == replacement_image.fetch(:semantic_image).fetch("schema_fingerprint")
+      )
 
       {
         report: resume.fetch(:report),
         packet: resume.fetch(:packet),
         migration: migration,
         intent: migration_receipt.fetch(:intent),
-        receipt: migration_receipt.fetch(:receipt)
+        receipt: migration_receipt.fetch(:receipt),
+        replacement_image: replacement_image.fetch(:semantic_image),
+        replacement_packet: replacement_image.fetch(:packet),
+        replacement_report: replacement_resume.fetch(:report),
+        replacement_report_packet: replacement_resume.fetch(:packet)
       }
     end
 

@@ -2,7 +2,7 @@
   "artifact": "manifest",
   "files": [
     {
-      "content_hash": "sha256:c2266065ec54f2bcc59e2578f50b6640d7eb22cbaebdc79225507627fbbc1f0c",
+      "content_hash": "sha256:f0da20777e506f17e79eed0dbbf6a002eb8c9d8f4cbd28513fb4a4c1239e2e1e",
       "path": "compatibility_reports.golden.json"
     },
     {
@@ -10,15 +10,15 @@
       "path": "negative_evidence.golden.json"
     },
     {
-      "content_hash": "sha256:627a0daa0b2f42686dc5cdc9d816ec670d10073fb818d1b132cbdb1c78eb0149",
+      "content_hash": "sha256:6b537a49d9430f9c81371ae0afb651bd7d1635429366deeeba2c1a87009cc21b",
       "path": "obs_packets.golden.json"
     },
     {
-      "content_hash": "sha256:9c3614cf1fe29cc8bf66c47c8e2c708e02335f5014ddb063d7f39376bdc0cc08",
+      "content_hash": "sha256:1807b2e4d60782c3ee9be033392ab287579f6fb1f0caa1ce0d7590d6746659fe",
       "path": "result_summary.golden.json"
     },
     {
-      "content_hash": "sha256:c2719ac7855fd8c95121b63983ce5a3900a1c9e8b211cad9c36652537def72a1",
+      "content_hash": "sha256:5e132e9f20f530f618656f150d82565e16fc2d45e8923e2c94b6441bcdfd3f41",
       "path": "semantic_image.golden.json"
     }
   ],

@@ -144,7 +144,7 @@ The Architect Supervisor decides which corrections to absorb into canon.
 |-------|--------------|--------|------|
 | `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-schema-migration-fixture-v0.md` | done | runtime-machine-migration-replacement-image-v0 |
 | `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/polymorphic-add-parser-pressure-map-v0.md` | done | polymorphic-add-parser-acceptance-v0 (Research Agent) or polymorphic-add-classifier-v0 (Compiler/Grammar Expert) |
-| `[Igniter-Lang Bridge Agent]` | `bridge/bridge-agent-entry-v0.md` | done | first Architect-approved bridge request |
+| `[Igniter-Lang Bridge Agent]` | `bridge/schema-compatibility-diagnostics-bridge-v0.md` | done | Architect approval for metadata-only package touch-point map |
 
 ## Current Meta Thesis
 
@@ -575,6 +575,7 @@ igniter-lang/docs/
   bridge/                        <- bridge notes to Igniter platform
     README.md [active index]
     bridge-agent-entry-v0.md [done - Bridge Agent presence and pressure map]
+    schema-compatibility-diagnostics-bridge-v0.md [done - metadata-only schema diagnostics bridge]
 ```
 
 ---
@@ -631,3 +632,4 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-05 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-007 conformance verification | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/polymorphic-add-parser-pressure-map-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/bridge-agent-entry-v0.md | done |
+| 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-bridge-v0.md | done |

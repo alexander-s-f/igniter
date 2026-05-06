@@ -347,6 +347,11 @@ loads one from the toy contract. SemanticImage now stores a real
 `intent_observation`, and an audit `receipt_observation` with mandatory
 `caused_by`, `produced_by`, and `replaces` links.
 
+[D] The migration fixture now emits a replacement `SemanticImage` linked to the
+migration receipt and old image, then proves a second `CompatibilityReport`
+returns trusted because the replacement image's schema fingerprint matches the
+loaded schema descriptor.
+
 ## Files
 
 - `runtime_machine_memory_proof.rb` - executable harness.
@@ -395,8 +400,9 @@ Status: done
 - `RuntimeMachine` schema checks compare `SemanticImage.schema_fingerprint`
   against the loaded unit's schema descriptor; `loaded_program` remains a
   CompiledProgram integration detail.
-- Schema migration fixture emits a descriptor, intent, and audit receipt
-  locally; it does not claim a production migration engine.
+- Schema migration fixture emits a descriptor, intent, audit receipt,
+  replacement SemanticImage, and trusted post-migration report locally; it does
+  not claim a production migration engine.
 
 [R] Recommendations:
 - Use this experiment as the next golden fixture source for sidecar packet

@@ -71,6 +71,18 @@
         "ok": true
       },
       {
+        "name": "migration.replacement_image_links",
+        "ok": true
+      },
+      {
+        "name": "migration.replacement_image_schema",
+        "ok": true
+      },
+      {
+        "name": "migration.replacement_report_trusted",
+        "ok": true
+      },
+      {
         "name": "negative.same_value_without_evidence",
         "ok": true
       },

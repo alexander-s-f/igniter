@@ -371,6 +371,80 @@
       "reproducibility": "provisional",
       "resume_status": "provisional"
     },
+    "trusted_after_migration_replacement": {
+      "checks": [
+        {
+          "actual": "obs/0f1ab1fdd7e5d339",
+          "dimension": "axiom",
+          "expected": "obs/0f1ab1fdd7e5d339",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "obs/f0a9581038271dfe",
+          "dimension": "runtime",
+          "expected": "obs/f0a9581038271dfe",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "dimension": "backend",
+          "expected": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "dimension": "contract",
+          "expected": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "2026-05-05T10:42:00Z",
+          "dimension": "temporal",
+          "expected": "2026-05-05T10:42:00Z",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "memory-snapshot/40f8365967263657",
+          "dimension": "snapshot",
+          "expected": "memory-snapshot/40f8365967263657",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "seq=25",
+          "dimension": "replay",
+          "expected": "seq>=14",
+          "outcome": "compatible",
+          "severity": "info"
+        },
+        {
+          "actual": "sha256:6377c6b59eb055c396a2a713cf249b7a2d47add4d41d2623ef80317b51d1d6ea",
+          "change_class": "none",
+          "decision": "trusted",
+          "dimension": "schema",
+          "expected": "sha256:6377c6b59eb055c396a2a713cf249b7a2d47add4d41d2623ef80317b51d1d6ea",
+          "fingerprint_match": true,
+          "migration_available": false,
+          "migration_ref": null,
+          "outcome": "compatible",
+          "schema_version": {
+            "from": "0.1.0",
+            "to": "0.1.0"
+          },
+          "severity": "info"
+        }
+      ],
+      "image_id": "image/585c23b97dc6a8e6",
+      "intent": "exact_replay",
+      "report_id": "compat/6bcf6fc97d7956e3",
+      "reproducibility": "reproducible_within_memory_harness",
+      "resume_status": "trusted"
+    },
     "trusted_resume": {
       "checks": [
         {

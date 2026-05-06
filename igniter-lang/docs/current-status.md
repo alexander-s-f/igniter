@@ -187,10 +187,12 @@ loaded MigrationDescriptor
   -> schema_check:migrating CompatibilityReport
   -> intent_observation
   -> audit receipt_observation
+  -> replacement SemanticImage
+  -> trusted CompatibilityReport
 ```
 
-This proves report and receipt evidence shape. It does not prove a general
-migration DSL, history rewrite, or replacement `SemanticImage`.
+This proves report, receipt, replacement-image, and post-migration trust shape.
+It does not prove a general migration DSL or TBackend history rewrite.
 
 ---
 
@@ -218,10 +220,10 @@ Current parser status:
 - monomorphization, trait coherence, impl resolution, and implements checks
   belong to classification/type/IR work, not parser work.
 
-[S] Migration replacement-image work is pressure-only. The current migration
-fixture emits descriptor, report, intent, and receipt evidence; it does not yet
-produce a fresh `SemanticImage` whose second `CompatibilityReport` returns
-trusted.
+[S] General migration execution remains pressure-only. The current migration
+fixture proves one toy identity replacement image; it does not execute a
+general `MigrationDecl`, rewrite TBackend history, or settle multi-hop
+migration semantics.
 
 [S] External/package candidate equivalence is pressure-only. `selected_profile`
 candidate artifacts can pass the checker, but normalized-equivalence rules for
@@ -237,7 +239,6 @@ Critical:
 - no parsed-source-to-`.igapp` surface checker yet
 - `polymorphic_add.ig` is not parser-accepted yet
 - no PROP-016 classifier/type/monomorphization proof
-- no replacement `SemanticImage` after schema migration
 
 High:
 
@@ -245,6 +246,8 @@ High:
 - ESCAPE capability algebra: delegation, overlap, revocation, serialization,
   and composition
 - `.igapp` schema and artifact hash validator stricter than current fixtures
+- replacement-image formal semantics: fields, link rels, lifecycle, and
+  multi-hop chain policy
 - migration path selection: direct, shortest-path, or policy-selected
 
 Medium:
@@ -282,12 +285,11 @@ Deferred:
    `Add[Integer]` / `Add[Float]` SemanticIR emission. Preserve the invariant:
    no type variables or unresolved overloads in SemanticIR.
 
-3. `[Igniter-Lang Research Agent]`
-   `runtime-machine-migration-replacement-image-v0`
+3. `[Igniter-Lang Compiler/Grammar Expert]`
+   `migration-replacement-image-formalization-v0`
 
-   Produce a replacement `SemanticImage` after a toy identity migration and
-   prove the second `CompatibilityReport` returns trusted. Keep it standalone,
-   receipt-linked, and independent from package integration.
+   Formalize replacement image fields, link rels, lifecycle, and multi-hop
+   semantics before bridge/package integration.
 
 ---
 

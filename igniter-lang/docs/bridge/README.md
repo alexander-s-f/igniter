@@ -30,6 +30,7 @@ Codex]` can approve, redirect, or reject.
 | Bridge Note | Status | Purpose |
 |-------------|--------|---------|
 | [bridge-agent-entry-v0.md](bridge-agent-entry-v0.md) | research | Initializes Bridge Agent presence and records current bridge pressure before any package integration request |
+| [schema-compatibility-diagnostics-bridge-v0.md](schema-compatibility-diagnostics-bridge-v0.md) | proposal | First metadata-only bridge request for schema compatibility diagnostics |
 
 ## Current Bridge Pressure
 
@@ -38,6 +39,10 @@ Runtime evidence, packet profiles, FFI receipts, and schema migration receipts
 have proof-scale artifacts. The next safe bridge motion is to convert approved
 signals into metadata-only sidecar or diagnostics requests.
 
-[Q] Which completed source signal should become the first Architect-reviewed
-platform bridge request: runtime evidence packet builders, FFI receipts, schema
-compatibility diagnostics, or temporal lifecycle boundary packets?
+[S] Schema compatibility diagnostics now have a first bridge request. It stays
+read-only and metadata-only: schema versions, schema fingerprints,
+`schema_check` outcome, migration availability/ref, compatibility decision, and
+evidence links.
+
+[Q] Should the first Architect-approved package slice target core diagnostics,
+contract metadata, or application readiness reporting?

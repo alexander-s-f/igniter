@@ -44,6 +44,206 @@
         "lifecycle": "checkpoint"
       }
     },
+    "replacement_semantic_image": {
+      "axiom_descriptor_ref": "obs/0f1ab1fdd7e5d339",
+      "backend_descriptor_hash": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+      "backend_descriptor_ref": "obs/d0d7aec5d08f78b6",
+      "checkpoint": {
+        "as_of": "2026-05-05T10:42:00Z",
+        "checkpoint_id": "checkpoint/9dcfdd7a43e8ff32",
+        "created_at": "2026-05-05T10:42:15Z",
+        "seq_id": 14,
+        "snapshot_hash": "sha256:40f83659672636574e4250cbc3f9635d0ac284b9b9a86cdc2c5c256dcacd5fba",
+        "snapshot_ref": "memory-snapshot/40f8365967263657"
+      },
+      "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+      "content_hash": "sha256:585c23b97dc6a8e6e4e472147d30122a3f5fe04747fb09096ebf6f73059a3206",
+      "contract_descriptor_ref": "obs/f5f6accfd3ca8031",
+      "execution_environment_ref": "obs/43e999a9f8b2d32f",
+      "image_id": "image/585c23b97dc6a8e6",
+      "migration_chain": {
+        "from_version": "0.0.0",
+        "migration_id": "migration://toy-dispatch/0.0.0->0.1.0",
+        "migration_receipt_ref": "obs/b6819be7677da55d",
+        "old_image_id": "image/909d7bdda77c50bf",
+        "to_version": "0.1.0"
+      },
+      "migration_receipt_ref": "obs/b6819be7677da55d",
+      "observation_count": 24,
+      "observation_hash": "sha256:608cb68389a7fa1d7e1610850f63b6e60342a5a04cef48b65d23d51dadff1765",
+      "produced_at": "2026-05-05T10:42:25Z",
+      "receipt_refs": [
+        "obs/0f1ab1fdd7e5d339",
+        "obs/f0a9581038271dfe",
+        "obs/d0d7aec5d08f78b6",
+        "obs/f8e0bea5b62934c8",
+        "obs/fa982bdd7552e82b",
+        "obs/3496e2114d28a3da",
+        "obs/bd05c4aa4da75eab",
+        "obs/2b7f74c345bf82ae",
+        "obs/7a0fc60564032104",
+        "obs/f92eff59d0521787",
+        "obs/b1e5c67368e0da3f",
+        "obs/ccef7f02046efd57",
+        "obs/95160c7effd51aa5",
+        "obs/484f6e8102336584",
+        "obs/43e999a9f8b2d32f",
+        "obs/be508c6489a3f092",
+        "obs/f5f6accfd3ca8031",
+        "obs/8c4378c2189c6ae4",
+        "obs/8cd456096ed5ab8f",
+        "obs/bcf70264ade6d14e",
+        "obs/d5654272cfea21cd",
+        "obs/a3856a22b8be73da",
+        "obs/16d53977fe17a744",
+        "obs/b6819be7677da55d"
+      ],
+      "replaces_image_id": "image/909d7bdda77c50bf",
+      "replay_cursor": {
+        "anchor": "seq_id",
+        "inclusive": false,
+        "position": 14
+      },
+      "runtime_contract_ref": "obs/f0a9581038271dfe",
+      "schema_fingerprint": "sha256:6377c6b59eb055c396a2a713cf249b7a2d47add4d41d2623ef80317b51d1d6ea",
+      "schema_version": "0.1.0",
+      "session_id": "session/schema-migration",
+      "temporal_horizon": {
+        "as_of": "2026-05-05T10:42:00Z",
+        "fact_scope": {
+          "order_id": "order/o-1",
+          "technician_id": "tech/t-17"
+        },
+        "rule_version": "toy_dispatch@1"
+      },
+      "value_hashes": [
+        "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0"
+      ],
+      "value_refs": [
+        "obs/95160c7effd51aa5"
+      ]
+    },
+    "replacement_semantic_image_packet": {
+      "id": "obs/441836b0b2317f44",
+      "kind": "platform_observation",
+      "links": [
+        {
+          "ref": "obs/0f1ab1fdd7e5d339",
+          "rel": "observed_under",
+          "required": true
+        },
+        {
+          "ref": "obs/f0a9581038271dfe",
+          "rel": "observed_under",
+          "required": true
+        },
+        {
+          "ref": "obs/d0d7aec5d08f78b6",
+          "rel": "observed_under",
+          "required": true
+        },
+        {
+          "ref": "obs/43e999a9f8b2d32f",
+          "rel": "produced_in",
+          "required": true
+        },
+        {
+          "ref": "obs/b6819be7677da55d",
+          "rel": "caused_by",
+          "required": true
+        },
+        {
+          "ref": "image/909d7bdda77c50bf",
+          "rel": "replaces",
+          "required": true
+        }
+      ],
+      "payload": {
+        "axiom_descriptor_ref": "obs/0f1ab1fdd7e5d339",
+        "backend_descriptor_hash": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
+        "backend_descriptor_ref": "obs/d0d7aec5d08f78b6",
+        "checkpoint": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "checkpoint_id": "checkpoint/9dcfdd7a43e8ff32",
+          "created_at": "2026-05-05T10:42:15Z",
+          "seq_id": 14,
+          "snapshot_hash": "sha256:40f83659672636574e4250cbc3f9635d0ac284b9b9a86cdc2c5c256dcacd5fba",
+          "snapshot_ref": "memory-snapshot/40f8365967263657"
+        },
+        "compiled_graph_hash": "sha256:7afd133595b173a7833265159064d88a27ba99949f86ad59978cc2a5bb1b179f",
+        "content_hash": "sha256:585c23b97dc6a8e6e4e472147d30122a3f5fe04747fb09096ebf6f73059a3206",
+        "contract_descriptor_ref": "obs/f5f6accfd3ca8031",
+        "execution_environment_ref": "obs/43e999a9f8b2d32f",
+        "image_id": "image/585c23b97dc6a8e6",
+        "migration_chain": {
+          "from_version": "0.0.0",
+          "migration_id": "migration://toy-dispatch/0.0.0->0.1.0",
+          "migration_receipt_ref": "obs/b6819be7677da55d",
+          "old_image_id": "image/909d7bdda77c50bf",
+          "to_version": "0.1.0"
+        },
+        "migration_receipt_ref": "obs/b6819be7677da55d",
+        "observation_count": 24,
+        "observation_hash": "sha256:608cb68389a7fa1d7e1610850f63b6e60342a5a04cef48b65d23d51dadff1765",
+        "produced_at": "2026-05-05T10:42:25Z",
+        "receipt_refs": [
+          "obs/0f1ab1fdd7e5d339",
+          "obs/f0a9581038271dfe",
+          "obs/d0d7aec5d08f78b6",
+          "obs/f8e0bea5b62934c8",
+          "obs/fa982bdd7552e82b",
+          "obs/3496e2114d28a3da",
+          "obs/bd05c4aa4da75eab",
+          "obs/2b7f74c345bf82ae",
+          "obs/7a0fc60564032104",
+          "obs/f92eff59d0521787",
+          "obs/b1e5c67368e0da3f",
+          "obs/ccef7f02046efd57",
+          "obs/95160c7effd51aa5",
+          "obs/484f6e8102336584",
+          "obs/43e999a9f8b2d32f",
+          "obs/be508c6489a3f092",
+          "obs/f5f6accfd3ca8031",
+          "obs/8c4378c2189c6ae4",
+          "obs/8cd456096ed5ab8f",
+          "obs/bcf70264ade6d14e",
+          "obs/d5654272cfea21cd",
+          "obs/a3856a22b8be73da",
+          "obs/16d53977fe17a744",
+          "obs/b6819be7677da55d"
+        ],
+        "replaces_image_id": "image/909d7bdda77c50bf",
+        "replay_cursor": {
+          "anchor": "seq_id",
+          "inclusive": false,
+          "position": 14
+        },
+        "runtime_contract_ref": "obs/f0a9581038271dfe",
+        "schema_fingerprint": "sha256:6377c6b59eb055c396a2a713cf249b7a2d47add4d41d2623ef80317b51d1d6ea",
+        "schema_version": "0.1.0",
+        "session_id": "session/schema-migration",
+        "temporal_horizon": {
+          "as_of": "2026-05-05T10:42:00Z",
+          "fact_scope": {
+            "order_id": "order/o-1",
+            "technician_id": "tech/t-17"
+          },
+          "rule_version": "toy_dispatch@1"
+        },
+        "value_hashes": [
+          "sha256:4a2e3f8d06077d7ea9af5b538e1e946b97fec4b7d54ea4c23da40675ea1439f0"
+        ],
+        "value_refs": [
+          "obs/95160c7effd51aa5"
+        ]
+      },
+      "payload_hash": "sha256:3a4f325a53d35ca91c9f19aee942e07b80a364b7d620f6ad8cb1380f01ed59f5",
+      "subject": "semantic-image/session/schema-migration/replacement",
+      "temporal": {
+        "as_of": "2026-05-05T10:42:00Z",
+        "lifecycle": "audit"
+      }
+    },
     "semantic_image": {
       "axiom_descriptor_ref": "obs/0f1ab1fdd7e5d339",
       "backend_descriptor_hash": "sha256:4de6a7aa9cab6c5266f2c7549261ebfa5abcff753df77d6249bdb135c39f7d62",
