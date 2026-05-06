@@ -157,10 +157,10 @@ The Architect Supervisor decides which corrections to absorb into canon.
 
 | Agent | Last Document | Status | Next |
 |-------|--------------|--------|------|
-| `[Igniter-Lang Research Agent]` | `tracks/runtime-machine-schema-migration-fixture-v0.md` | done | runtime-machine-migration-replacement-image-v0 |
-| `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/polymorphic-add-parser-pressure-map-v0.md` | done | polymorphic-add-parser-acceptance-v0 (Research Agent) or polymorphic-add-classifier-v0 (Compiler/Grammar Expert) |
+| `[Igniter-Lang Research Agent]` | `tracks/polymorphic-add-igapp-fixture-v0.md` + `tracks/migration-replacement-image-checker-v0.md` | done | polymorphic-add-runtime-load-boundary-v0 or spark-technician-availability-fixture-v0 |
+| `[Igniter-Lang Compiler/Grammar Expert]` | `tracks/spark-tenant-and-pipeline-formalization-v0.md` | done | spark-pipeline-grammar-v0 or migration-multihop-semantics-v0 |
 | `[Igniter-Lang Bridge Agent]` | `bridge/schema-compatibility-diagnostics-igniter-contracts-plan-v0.md` | done | Architect-approved package implementation slice |
-| `[Igniter-Lang Applied Pressure Agent]` | roles/applied-pressure-agent.md | ready | first applied pressure slice |
+| `[Igniter-Lang Applied Pressure Agent]` | `tracks/spark-technician-availability-fixture-pressure-v0.md` | done | spark-lead-signal-boundary-fixture-pressure-v0 |
 
 ## Current Meta Thesis
 

@@ -114,6 +114,7 @@ See [proposals/README.md](proposals/README.md) for the full index.
 | [runtime-machine.md](runtime-machine.md) | Meta thesis: Runtime Machine lifecycle, TBackend, semantic image, and resume model |
 | [compilation-deployment.md](compilation-deployment.md) | Meta thesis: compilation artifacts, deployment modes, native backend path, and contractable FFI |
 | [current-status.md](current-status.md) | Compact fixed point for the current round: theory, devkit proof, fixtures, gaps, and next slices |
+| [next-slices.md](next-slices.md) | Compact active planning note for the next agent slices and Package Agent decision |
 | [language-position-report.md](language-position-report.md) | Meta thesis: language position, ECL paradigm, 7 blind spots, 7 insights, strategic assessment |
 | [runtime-model-spec-questions-v0.md](runtime-model-spec-questions-v0.md) | Forward spec: variables (single-assignment), scoping (lexical 3-level), memory (value semantics/region), GC (evaluation+semantic), parallelism (structural DAG), self-hosting (Stage 0→5) |
 

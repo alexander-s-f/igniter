@@ -5,7 +5,7 @@ Date: 2026-05-06
 Role: `[Igniter-Lang Research Agent]`
 Track: `igniter-lang/igniter-lang-current-status-refresh-v0`
 Supervisor: `[Architect Supervisor / Codex]`
-Affected neighbors: `[Igniter-Lang Compiler/Grammar Expert]`, `[Igniter-Lang Bridge Agent]`
+Affected neighbors: `[Igniter-Lang Compiler/Grammar Expert]`, `[Igniter-Lang Bridge Agent]`, `[Igniter-Lang Applied Pressure Agent]`
 
 ---
 
@@ -130,9 +130,13 @@ trait coherence, monomorphization, lowering, or `.igapp` equivalence.
 ```text
 fixtures/add.igapp/
 fixtures/availability_projection.igapp/
+fixtures/polymorphic_add.igapp/
 ```
 
 These are compiler acceptance targets, not proof of a full compiler frontend.
+`polymorphic_add.igapp` is already monomorphic at the loadable contract layer:
+it contains `Add[Integer]` and `Add[Float]` only, with the generic `Add`
+template preserved as inspection metadata.
 
 [S] Runtime Machine memory proof is executable and standalone:
 
@@ -193,7 +197,23 @@ loaded MigrationDescriptor
 ```
 
 This proves report, receipt, replacement-image, and post-migration trust shape.
-It does not prove a general migration DSL or TBackend history rewrite.
+The replacement image checker now covers P-1..P-10, including
+`migration_chain: []`, no `supersedes` link, and `OOF-MR3` wrong-fingerprint
+blocking. It does not prove a general migration DSL or TBackend history rewrite.
+
+[S] PROP-016 now has an executable devkit chain:
+
+```text
+polymorphic_add.ig
+  -> ParsedProgram
+  -> classifier/type proof
+  -> SemanticIR emission proof
+  -> polymorphic_add.igapp
+```
+
+The chain proves `Add[Integer]` and `Add[Float]` acceptance, `Add[String]`
+rejection before SemanticIR, no type variables in emitted ContractIRs, no
+unresolved trait calls, and no generic loadable `Add` contract.
 
 ---
 
@@ -222,13 +242,18 @@ Current status:
   belong to classification/type/IR work, not parser work.
 
 [S] General migration execution remains pressure-only. The current migration
-fixture proves one toy identity replacement image; it does not execute a
-general `MigrationDecl`, rewrite TBackend history, or settle multi-hop
-migration semantics.
+fixture proves one toy identity replacement image and checker safety; it does
+not execute a general `MigrationDecl`, rewrite TBackend history, or settle
+multi-hop migration semantics.
 
 [S] External/package candidate equivalence is pressure-only. `selected_profile`
 candidate artifacts can pass the checker, but normalized-equivalence rules for
 real package-derived packets are not defined yet.
+
+[S] Spark CRM is now the main applied pressure lane. Current pressure/foundation
+tracks define technician availability, tenant scope, fail-fast pipelines,
+why-not reasons, and candidate fixtures without using real customer data,
+endpoints, tokens, or provider payloads.
 
 ---
 
@@ -238,7 +263,8 @@ Critical:
 
 - no complete parser -> classifier -> typechecker -> SemanticIR compiler path
 - no parsed-source-to-`.igapp` surface checker yet
-- no PROP-016 classifier/type/monomorphization proof
+- no RuntimeMachine.load proof for `polymorphic_add.igapp`
+- no executable Spark technician availability fixture yet
 
 High:
 
@@ -246,9 +272,11 @@ High:
 - ESCAPE capability algebra: delegation, overlap, revocation, serialization,
   and composition
 - `.igapp` schema and artifact hash validator stricter than current fixtures
-- replacement-image formal semantics: fields, link rels, lifecycle, and
-  multi-hop chain policy
+- replacement image multi-hop chain proof and TBackend preserve-set policy
 - migration path selection: direct, shortest-path, or policy-selected
+- package implementation of `SchemaCompatibilityDiagnostic` remains pending
+- tenant/pipeline semantics are formalized but not executable in a Spark
+  fixture yet
 
 Medium:
 
@@ -266,27 +294,33 @@ Deferred:
 
 ---
 
-## Next 3 Recommended Tracks
+## Next Recommended Tracks
 
-1. `[Igniter-Lang Compiler/Grammar Expert]`
-   `polymorphic-add-classifier-v0`
+1. `[Igniter-Lang Research Agent]`
+   `polymorphic-add-runtime-load-boundary-v0`
 
-   Define ClassifiedProgram extension for trait, impl, contract_shape, generic
-   contract, and syntax-level coherence diagnostics. Keep monomorphization out
-   until typed lowering.
+   Load or intentionally reject `fixtures/polymorphic_add.igapp/` and document
+   exact loader-normalization requirements for bracketed contract ids and
+   specialization manifests.
 
-2. `[Igniter-Lang Compiler/Grammar Expert]`
-   `polymorphic-add-monomorphizer-v0`
+2. `[Igniter-Lang Research Agent]`
+   `spark-technician-availability-fixture-v0`
 
-   Define TypedProgram monomorphization: type substitution, implements checks,
-   concrete `Add[Integer]` / `Add[Float]` nodes, and SemanticIR emission with
-   no type variables or unresolved overloads.
+   Implement the first synthetic Spark availability fixture using TenantScope,
+   ScopedFactRead, PipelineStep/StepObservation, why-not reasons, and negative
+   tenant/time/status cases.
 
-3. `[Igniter-Lang Compiler/Grammar Expert]`
-   `migration-replacement-image-formalization-v0`
+3. `[Igniter-Lang Bridge Agent]`
+   `schema-migration-bridge-profile-v0`
 
-   Formalize replacement image fields, link rels, lifecycle, and multi-hop
-   semantics before bridge/package integration.
+   Carry the stabilized replacement image payload/link spec into a package
+   bridge profile while keeping multi-hop migration separate.
+
+4. `[Package Agent / Companion+Store]`
+   `igniter-contracts-schema-compatibility-diagnostic-v0` (hold until assigned)
+
+   Implement the already-planned metadata-only `SchemaCompatibilityDiagnostic`
+   under `packages/igniter-contracts`.
 
 ---
 
@@ -301,6 +335,8 @@ ruby igniter-lang/experiments/runtime_machine_memory_proof/packet_builder_check.
 ruby igniter-lang/experiments/runtime_machine_memory_proof/sidecar_builder_profiles.rb
 ruby igniter-lang/experiments/runtime_machine_memory_proof/external_candidate_normalizer.rb
 ruby igniter-lang/experiments/runtime_machine_memory_proof/ffi_ruby_receipt_fixtures.rb
+ruby igniter-lang/experiments/polymorphic_add_classifier_proof/polymorphic_add_classifier_proof.rb
+ruby igniter-lang/experiments/polymorphic_add_semanticir_emission_proof/polymorphic_add_semanticir_emission_proof.rb
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/add.ig
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/availability_projection.ig
 ruby igniter-lang/experiments/parser/igniter_lang_parser.rb igniter-lang/source/polymorphic_add.ig
