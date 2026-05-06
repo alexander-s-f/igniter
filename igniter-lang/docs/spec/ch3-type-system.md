@@ -11,7 +11,9 @@ Proof: experiments/typechecker_proof/ — PASS (9/9 cases: typed.add, claim_evid
 - `experiments/source_to_semanticir_fixture/golden/` (ParsedProgram inputs)
 
 It is not yet a standalone `ClassifiedProgram → TypedProgram` pipeline step.
-Resolving this gap is part of PROP-019.1 golden file migration (Slice 0).
+Resolving this gap is Slice B: a standalone `ClassifiedProgram → TypedProgram` experiment
+where the TypeChecker reads only from ClassifiedProgram golden files (not mixed sources).
+Slice B is parallel to Slice A and does not block the assembler.
 
 ---
 

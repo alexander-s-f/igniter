@@ -56,13 +56,12 @@ Last updated: 2026-05-06
 ## Stage 1 Gaps (implementation-blocked)
 
 ```
-1. OOF rejection at parse time — parser accepts some OOF source without error
-2. TypeChecker self-contained gap — typechecker_proof reads from two golden dirs
-   (classifier_pass_proof/golden + source_to_semanticir_fixture/golden);
-   not yet a standalone ClassifiedProgram → TypedProgram pipeline step
-3. PROP-019.1 golden file migration — blocks assembler (Slice 0)
-4. igapp_assembler_proof — blocked on Slice 0
-5. stdlib_execution_proof — numeric.add, fold, map, filter not connected to RuntimeMachine
+1. OOF rejection at parse time — parser accepts some OOF source without error (no slice assigned)
+2. TypeChecker self-contained gap — Slice B: standalone ClassifiedProgram → TypedProgram experiment
+   (typechecker_proof.rb is PASS but reads from two external golden dirs, not pipeline-proper)
+3. PROP-019.1 golden file migration — Slice 0 (active blocker for assembler)
+4. igapp_assembler_proof — Slice A (blocked on Slice 0)
+5. stdlib_execution_proof — Slice C (parallel, independent)
 ```
 
 ---

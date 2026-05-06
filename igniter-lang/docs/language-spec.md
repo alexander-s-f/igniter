@@ -28,11 +28,11 @@ Last updated: 2026-05-06
 ## Coverage Summary
 
 ```
-accepted + PASS       Ch4 (classifier), Ch5 typechecker, Ch7 (RuntimeMachine load)
-accepted + PASS ⚠️   Ch3 (typechecker — self-contained gap),
-                      Ch6 (SemanticIR — golden migration needed)
-accepted, partial     Ch2 (OOF parse gap), Ch5 (assembler blocked), Ch8 (stdlib not connected)
-deferred              Ch9 (Stage 2: History, stream, OLAPPoint, severity)
+accepted + PASS           Ch4 (classifier), Ch7 (RuntimeMachine load)
+accepted + PASS ⚠️ gap   Ch3 (TypeChecker PASS, self-contained gap — Slice B),
+                          Ch6 (SemanticIR PASS, golden migration — Slice 0)
+accepted / partial        Ch2 (OOF parse gap), Ch5 (assembler blocked — Slice A), Ch8 (stdlib — Slice C)
+deferred                  Ch9 (Stage 2: History, stream, OLAPPoint, severity)
 ```
 
 ---
@@ -40,12 +40,12 @@ deferred              Ch9 (Stage 2: History, stream, OLAPPoint, severity)
 ## Stage 1 Implementation Gaps
 
 ```
-1.  OOF rejection at parse time (Ch2)         — known parser gap
-2.  TypeChecker self-contained gap (Ch3, Ch5) — typechecker_proof reads from two golden dirs;
-    not yet standalone ClassifiedProgram → TypedProgram step
-3.  Golden file migration (Ch6)               — Slice 0 (active blocker)
+1.  OOF rejection at parse time (Ch2)         — known parser gap (no assigned slice yet)
+2.  TypeChecker self-contained gap (Ch3)      — Slice B: standalone ClassifiedProgram → TypedProgram
+                                                (proof exists; gap = mixed golden dir inputs)
+3.  Golden file migration (Ch6)               — Slice 0 (active blocker for assembler)
 4.  .igapp/ Assembler proof (Ch6)             — Slice A (blocked on Slice 0)
-5.  Stdlib execution proof (Ch8)              — Slice C
+5.  Stdlib execution proof (Ch8)              — Slice C (parallel, independent)
 ```
 
 → See `docs/current-status.md` for scoreboard and next slices.

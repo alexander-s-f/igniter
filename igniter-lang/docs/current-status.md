@@ -58,9 +58,9 @@ Stdlib execution       PROP-013          no experiment yet                   �
                                          filter, count, or_else missing
 ──────────────────────────────────────────────────────────────────────────────────────
 STAGE 1 CLOSED:   NO
-Blockers:         PROP-019.1 migration → .igapp/ Assembler
-                  TypeChecker self-contained gap (reads two golden dirs)
-                  Stdlib execution kernel
+Active blocker:   PROP-019.1 golden migration → .igapp/ Assembler (Slice 0 → Slice A)
+Parallel gaps:    TypeChecker self-contained gap (Slice B — does not block assembler)
+                  Stdlib execution kernel (Slice C — independent)
 ```
 
 ---
