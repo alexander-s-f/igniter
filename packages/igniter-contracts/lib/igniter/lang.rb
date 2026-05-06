@@ -3,6 +3,7 @@
 require_relative "contracts"
 require_relative "lang/types"
 require_relative "lang/metadata_manifest"
+require_relative "lang/metadata_carrier_manifest"
 require_relative "lang/diagnostic_payload"
 require_relative "lang/receipt_payload"
 require_relative "lang/schema_compatibility_diagnostic"

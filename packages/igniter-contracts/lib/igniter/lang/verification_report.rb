@@ -10,6 +10,7 @@ module Igniter
         scenario_comparison_reports
         review_receipts
       ].freeze
+      CUSTOM_METADATA_CARRIER_SECTIONS_KEY = :custom_sections
 
       METADATA_CARRIER_SEMANTICS = {
         report_only: true,
@@ -36,6 +37,7 @@ module Igniter
                   :descriptors,
                   :metadata,
                   :metadata_manifest,
+                  :carrier_manifest,
                   :diagnostic_payloads,
                   :receipt_payloads,
                   :schema_compatibility_diagnostics
@@ -73,6 +75,7 @@ module Igniter
         @findings = findings.freeze
         @metadata = normalize_metadata(metadata)
         @metadata_manifest = MetadataManifest.from_operations(operations)
+        @carrier_manifest = MetadataCarrierManifest.from_metadata(@metadata)
         @descriptors = metadata_manifest.descriptors
         @diagnostic_payloads = normalize_diagnostic_payloads(diagnostic_payloads)
         @receipt_payloads = normalize_receipt_payloads(receipt_payloads)
@@ -96,6 +99,7 @@ module Igniter
           profile_fingerprint: profile_fingerprint,
           descriptors: descriptors,
           metadata_manifest: metadata_manifest.to_h,
+          carrier_manifest: carrier_manifest.to_h,
           diagnostic_payloads: diagnostic_payloads.map(&:to_h),
           receipt_payloads: receipt_payloads.map(&:to_h),
           schema_compatibility_diagnostics: schema_compatibility_diagnostics.map(&:to_h),
@@ -117,7 +121,8 @@ module Igniter
       end
 
       def metadata_carrier?(metadata_hash)
-        METADATA_CARRIER_SECTIONS.any? { |section| metadata_hash.key?(section) }
+        METADATA_CARRIER_SECTIONS.any? { |section| metadata_hash.key?(section) } ||
+          metadata_hash.key?(CUSTOM_METADATA_CARRIER_SECTIONS_KEY)
       end
 
       def normalize_metadata_redaction_policy(value)

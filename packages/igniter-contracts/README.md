@@ -213,7 +213,9 @@ and `wcet` appear in reports with `enforced: false`; they do not add runtime
 checks, warnings, deadline monitoring, or `ExecutionResult` changes.
 Verification metadata carrier sections are opaque serializable hashes. When
 present, they get report-only semantics, default to `raw_ref_export: false`,
-and reject raw refs.
+reject raw refs, and produce a `carrier_manifest` with section counts, profile
+names, and report-only enforcement flags. Future opaque sections can be carried
+under `metadata[:custom_sections]`.
 Generic diagnostic payloads are serialized through `VerificationReport` as
 `diagnostic_payloads`; generic receipt payloads use `receipt_payloads`. Neither
 surface authorizes package adapters, real data export, provider bridges,

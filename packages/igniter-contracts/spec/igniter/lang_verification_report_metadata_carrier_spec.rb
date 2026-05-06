@@ -17,6 +17,8 @@ RSpec.describe Igniter::Lang::VerificationReport do
 
     expect(report.metadata).to eq(source: :compiled_artifact)
     expect(report.metadata).to be_frozen
+    expect(report.carrier_manifest).to be_empty
+    expect(report.to_h.fetch(:carrier_manifest)).to eq(sections: [])
   end
 
   it "carries opaque diagnostic and receipt metadata sections with report-only semantics" do
@@ -58,6 +60,26 @@ RSpec.describe Igniter::Lang::VerificationReport do
       readiness_enforced: false,
       ledger_core: false
     )
+    expect(report.carrier_manifest.to_h.fetch(:sections)).to eq([
+                                                                  {
+                                                                    section_name: :diagnostics,
+                                                                    count: 1,
+                                                                    profile_names: ["projection_diagnostic_v0"],
+                                                                    custom: false,
+                                                                    report_only: true,
+                                                                    runtime_enforced: false,
+                                                                    raw_ref_export: false
+                                                                  },
+                                                                  {
+                                                                    section_name: :receipts,
+                                                                    count: 1,
+                                                                    profile_names: ["operation_request_receipt_v0"],
+                                                                    custom: false,
+                                                                    report_only: true,
+                                                                    runtime_enforced: false,
+                                                                    raw_ref_export: false
+                                                                  }
+                                                                ])
   end
 
   it "carries future model, scenario, and review report sections without public classes" do
@@ -97,6 +119,40 @@ RSpec.describe Igniter::Lang::VerificationReport do
     expect(serialized_metadata.fetch(:review_receipts).first).to include(
       reviewer_ref: "redacted:reviewer:agent"
     )
+    expect(report.carrier_manifest.sections.map { |entry| entry.fetch(:section_name) }).to eq(%i[
+                                                                                                model_validity_reports
+                                                                                                scenario_comparison_reports
+                                                                                                review_receipts
+                                                                                              ])
+  end
+
+  it "supports explicitly marked custom carrier sections" do
+    report = build_report(
+      custom_sections: {
+        future_confidence_reports: [
+          {
+            profile: "confidence_report_v0",
+            subject_ref: "claim/fixture/availability",
+            confidence: "medium"
+          }
+        ]
+      }
+    )
+
+    expect(report.metadata.fetch(:custom_sections).fetch(:future_confidence_reports).first).to include(
+      profile: "confidence_report_v0"
+    )
+    expect(report.carrier_manifest.to_h.fetch(:sections)).to eq([
+                                                                  {
+                                                                    section_name: :future_confidence_reports,
+                                                                    count: 1,
+                                                                    profile_names: ["confidence_report_v0"],
+                                                                    custom: true,
+                                                                    report_only: true,
+                                                                    runtime_enforced: false,
+                                                                    raw_ref_export: false
+                                                                  }
+                                                                ])
   end
 
   it "adds default redaction policy when carrier sections are present" do
@@ -163,5 +219,29 @@ RSpec.describe Igniter::Lang::VerificationReport do
         ]
       )
     end.to raise_error(ArgumentError, /raw refs/)
+  end
+
+  it "rejects malformed known carrier sections" do
+    expect do
+      build_report(diagnostics: { profile: "pipeline_diagnostic_v0" })
+    end.to raise_error(ArgumentError, /metadata\.diagnostics must be an array/)
+
+    expect do
+      build_report(receipts: ["operation_request/fixture/req-001"])
+    end.to raise_error(ArgumentError, /metadata\.receipts\[0\] must be a hash/)
+  end
+
+  it "rejects malformed custom carrier sections" do
+    expect do
+      build_report(custom_sections: [])
+    end.to raise_error(ArgumentError, /metadata\.custom_sections must be a hash/)
+
+    expect do
+      build_report(
+        custom_sections: {
+          diagnostics: []
+        }
+      )
+    end.to raise_error(ArgumentError, /duplicates a known section/)
   end
 end
