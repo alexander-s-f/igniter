@@ -32,6 +32,7 @@ module HistoryTypeProof
   OPTION_ENCODING = TemporalAccessRuntime::Option::ENCODING
   Canonical = TemporalAccessRuntime::Canonical
   MemoryHistoryBackend = TemporalAccessRuntime::MemoryBackend
+  SemanticIRTemporalAccessEvaluator = TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator
 
   class ProofCompiler
     def positive_parsed_program
@@ -390,6 +391,7 @@ module HistoryTypeProof
 
     def initialize(backend)
       @backend = backend
+      @temporal_access = SemanticIRTemporalAccessEvaluator.new(backend)
     end
 
     def load(path)
@@ -429,23 +431,19 @@ module HistoryTypeProof
       raise "evaluate requires explicit as_of" unless inputs["as_of"]
 
       contract = @loaded.fetch("contract")
-      input_node = contract.fetch("nodes").find { |node| node.fetch("kind") == "temporal_input_node" }
       access_node = contract.fetch("nodes").find { |node| node.fetch("kind") == "temporal_access_node" }
-      subject = input_node.fetch("store_ref").gsub("{technician_id}", inputs.fetch("technician_id"))
-      result, observation = @backend.read_as_of(subject, inputs.fetch("as_of"))
+      temporal_inputs = contract.fetch("nodes")
+        .select { |node| node.fetch("kind") == "temporal_input_node" }
+        .to_h { |node| [node.fetch("name"), node] }
+      access_eval = @temporal_access.evaluate(access_node, temporal_inputs: temporal_inputs, inputs: inputs)
       {
         "kind" => "runtime_evaluation",
         "contract_ref" => @loaded.dig("manifest", "entry_contract_ref"),
         "as_of" => inputs.fetch("as_of"),
-        "outputs" => { access_node.fetch("name") => result },
-        "observations" => [observation],
-        "evidence_links" => [
-          {
-            "rel" => "selected_append",
-            "from" => observation.fetch("observation_id"),
-            "to" => observation.fetch("selected_append_ref")
-          }
-        ]
+        "temporal_access_loader" => "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "outputs" => { access_node.fetch("name") => access_eval.fetch("result") },
+        "observations" => [access_eval.fetch("observation")],
+        "evidence_links" => access_eval.fetch("evidence_links")
       }
     end
 
@@ -569,6 +567,8 @@ module HistoryTypeProof
         late_obs.fetch("selected_append_ref") == backend.append_observations.fetch(1).fetch("observation_id"),
       "runtime.output_links_selected_append_observation" => late_eval.fetch("evidence_links").first.fetch("to") ==
         backend.append_observations.fetch(1).fetch("observation_id"),
+      "runtime.temporal_access_node_loader_valid_time" => early_eval.fetch("temporal_access_loader") == "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator" &&
+        early_obs.dig("temporal", "axis") == "valid_time",
       "negative.missing_as_of_oof_h1" => negative_report.fetch("pass_result") == "oof" &&
         negative_report.fetch("semantic_ir_ref").nil? &&
         negative_report.fetch("diagnostics").any? { |diagnostic| diagnostic.fetch("rule") == "OOF-H1" },

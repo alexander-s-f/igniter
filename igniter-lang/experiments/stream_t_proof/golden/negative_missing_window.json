@@ -1,0 +1,26 @@
+{
+  "case_id": "negative_missing_window",
+  "diagnostics": [
+    {
+      "category": "stream_oof",
+      "contract": "IntegerWindowSum",
+      "diagnostic": "stream.window_missing",
+      "message": "stream 'readings' has no window - every stream must declare a window",
+      "node": "readings",
+      "path": "contract:IntegerWindowSum/stream:readings",
+      "rule": "OOF-S2",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "semantic_ir_ref": null,
+  "stages": {
+    "classify": "oof",
+    "emit": "skipped",
+    "parse": "proof_local_sketch",
+    "typecheck": "skipped"
+  }
+}

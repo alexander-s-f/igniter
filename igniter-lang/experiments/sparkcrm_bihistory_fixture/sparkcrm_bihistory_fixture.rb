@@ -46,12 +46,74 @@ module SparkCRMBiHistoryFixture
   Option = TemporalAccessRuntime::Option
   MemoryBiHistoryBackend = TemporalAccessRuntime::MemoryBackend
   AxisTypeError = TemporalAccessRuntime::AxisTypeError
+  SemanticIRTemporalAccessEvaluator = TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator
+
+  TEMPORAL_INPUT_NODES = {
+    "schedule_history" => {
+      "kind" => "temporal_input_node",
+      "name" => "schedule_history",
+      "type" => { "constructor" => "BiHistory", "element_type" => "ScheduleSlotObservation" },
+      "axis" => "bitemporal",
+      "history_ref" => SCHEDULE_HISTORY
+    },
+    "off_schedule_history" => {
+      "kind" => "temporal_input_node",
+      "name" => "off_schedule_history",
+      "type" => { "constructor" => "BiHistory", "element_type" => "OffScheduleObservation" },
+      "axis" => "bitemporal",
+      "history_ref" => OFF_SCHEDULE_HISTORY
+    },
+    "day_off_history" => {
+      "kind" => "temporal_input_node",
+      "name" => "day_off_history",
+      "type" => { "constructor" => "BiHistory", "element_type" => "DayOffConfigVersion" },
+      "axis" => "bitemporal",
+      "history_ref" => DAY_OFF_HISTORY
+    }
+  }.freeze
+
+  TEMPORAL_ACCESS_NODES = {
+    "schedule_at" => {
+      "kind" => "temporal_access_node",
+      "name" => "schedule_at",
+      "source_ref" => "schedule_history",
+      "axis" => "bitemporal",
+      "access" => "point",
+      "valid_time_ref" => "valid_time",
+      "transaction_time_ref" => "known_time",
+      "result_type" => { "constructor" => "Option", "element_type" => "ScheduleSlotObservation" },
+      "evidence_policy" => "link_selected_event_observation"
+    },
+    "off_schedule_at" => {
+      "kind" => "temporal_access_node",
+      "name" => "off_schedule_at",
+      "source_ref" => "off_schedule_history",
+      "axis" => "bitemporal",
+      "access" => "point",
+      "valid_time_ref" => "valid_time",
+      "transaction_time_ref" => "known_time",
+      "result_type" => { "constructor" => "Option", "element_type" => "OffScheduleObservation" },
+      "evidence_policy" => "link_selected_event_observation"
+    },
+    "day_off_config_at" => {
+      "kind" => "temporal_access_node",
+      "name" => "day_off_config_at",
+      "source_ref" => "day_off_history",
+      "axis" => "bitemporal",
+      "access" => "point",
+      "valid_time_ref" => "valid_time",
+      "transaction_time_ref" => "known_time",
+      "result_type" => { "constructor" => "Option", "element_type" => "DayOffConfigVersion" },
+      "evidence_policy" => "link_selected_event_observation"
+    }
+  }.freeze
 
   class Proof
     attr_reader :backend
 
     def initialize
       @backend = MemoryBiHistoryBackend.new
+      @temporal_access = SemanticIRTemporalAccessEvaluator.new(@backend)
       @backend.seed(seed_events)
     end
 
@@ -110,9 +172,13 @@ module SparkCRMBiHistoryFixture
 
     def project_slot(slot, known_time)
       vt = slot.fetch("valid_time")
-      schedule, schedule_obs = backend.bihistory_at(SCHEDULE_HISTORY, vt: vt, tt: known_time, node_name: "schedule_at")
-      off, off_obs = backend.bihistory_at(OFF_SCHEDULE_HISTORY, vt: vt, tt: known_time, node_name: "off_schedule_at")
-      day_off, day_off_obs = backend.bihistory_at(DAY_OFF_HISTORY, vt: vt, tt: known_time, node_name: "day_off_config_at")
+      runtime_inputs = { "valid_time" => vt, "known_time" => known_time }
+      schedule_eval = evaluate_temporal_access("schedule_at", runtime_inputs)
+      off_eval = evaluate_temporal_access("off_schedule_at", runtime_inputs)
+      day_off_eval = evaluate_temporal_access("day_off_config_at", runtime_inputs)
+      schedule = schedule_eval.fetch("result")
+      off = off_eval.fetch("result")
+      day_off = day_off_eval.fetch("result")
       reason, result, source_refs = availability_result(schedule, off, day_off, slot.fetch("slot_local"))
       {
         "slot_local" => slot.fetch("slot_local"),
@@ -125,11 +191,25 @@ module SparkCRMBiHistoryFixture
         "reason" => reason,
         "source_event_refs" => source_refs,
         "access_observation_refs" => [
-          schedule_obs.fetch("observation_id"),
-          off_obs.fetch("observation_id"),
-          day_off_obs.fetch("observation_id")
+          schedule_eval.dig("observation", "observation_id"),
+          off_eval.dig("observation", "observation_id"),
+          day_off_eval.dig("observation", "observation_id")
+        ],
+        "temporal_access_loader" => "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_nodes" => [
+          schedule_eval.fetch("node"),
+          off_eval.fetch("node"),
+          day_off_eval.fetch("node")
         ]
       }
+    end
+
+    def evaluate_temporal_access(node_name, inputs)
+      @temporal_access.evaluate(
+        TEMPORAL_ACCESS_NODES.fetch(node_name),
+        temporal_inputs: TEMPORAL_INPUT_NODES,
+        inputs: inputs
+      )
     end
 
     def availability_result(schedule, off, day_off, slot_local)
@@ -294,6 +374,8 @@ module SparkCRMBiHistoryFixture
         "dispatch.original_explanation_preserved" => dispatch_explanation.fetch("reason") == "busy" &&
           dispatch_explanation.fetch("evidence_refs") == [PLANNED_EVENT] &&
           correction_report.fetch("original_decision_rewritten") == false,
+        "runtime.temporal_access_node_loader_bitemporal" => decision_snapshot.dig("slots", 1, "temporal_access_loader") == "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator" &&
+          decision_snapshot.dig("slots", 1, "temporal_access_nodes").include?("schedule_at"),
         "negative.missing_vt_oof_bt2" => negative_rule?(negatives, "negative_missing_vt", "OOF-BT2"),
         "negative.missing_tt_oof_bt3" => negative_rule?(negatives, "negative_missing_tt", "OOF-BT3"),
         "negative.wrong_axis_type_oof_bt4" => negative_rule?(negatives, "negative_wrong_axis_type", "OOF-BT4"),

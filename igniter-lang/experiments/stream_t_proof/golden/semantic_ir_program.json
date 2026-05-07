@@ -1,0 +1,84 @@
+{
+  "contracts": [
+    {
+      "contract_name": "IntegerWindowSum",
+      "contract_ref": "contract/Fixture.StreamT.IntegerWindowSum@v0",
+      "escape_boundaries": [
+        {
+          "name": "stream_input",
+          "produces": [
+            "stream_window_observation"
+          ],
+          "required_caps": [
+            "stream_input"
+          ]
+        }
+      ],
+      "fragment_class": "escape",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "device_id",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "nodes": [
+        {
+          "escape_capability": "stream_input",
+          "fragment": "escape",
+          "kind": "stream_input_node",
+          "name": "readings",
+          "type": "Integer",
+          "window_ref": "integer_count_window"
+        },
+        {
+          "key": "integer/{device_id}",
+          "kind": "window_decl_node",
+          "on_close": "snapshot",
+          "ref": "integer_count_window",
+          "size": 3,
+          "window_kind": "count"
+        },
+        {
+          "bound": {
+            "kind": "window_bounded",
+            "window_ref": "integer_count_window"
+          },
+          "escape_capability": "stream_input",
+          "fn_ref": "integer_sum_lambda",
+          "init": {
+            "kind": "integer_literal",
+            "value": 0
+          },
+          "kind": "fold_stream_node",
+          "name": "total",
+          "result_fragment": "core",
+          "result_type": {
+            "name": "Integer",
+            "params": []
+          },
+          "stream_ref": "readings"
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "durable",
+          "name": "snapshot",
+          "type": {
+            "name": "IntegerWindowSnapshot",
+            "params": []
+          }
+        }
+      ]
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "program_id": "semanticir/stream_t/bcd96b852717defc",
+  "source_path": "igniter-lang/experiments/stream_t_proof/stream_integer_window.ig",
+  "source_status": "syntax_sketch_parser_not_used_in_this_proof"
+}

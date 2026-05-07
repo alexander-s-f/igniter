@@ -737,6 +737,7 @@
     "negative.wrong_axis_type_oof_bt4": true,
     "option.canonical_none": true,
     "option.canonical_some": true,
+    "runtime.temporal_access_node_loader_bitemporal": true,
     "safety.synthetic_only": true,
     "seed.synthetic_bihistory_events": true
   },
@@ -786,6 +787,12 @@
         },
         "slot_local": "09:00",
         "source_event_refs": [],
+        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_nodes": [
+          "schedule_at",
+          "off_schedule_at",
+          "day_off_config_at"
+        ],
         "valid_time": "2026-05-07T13:00:00Z"
       },
       {
@@ -820,6 +827,12 @@
         "source_event_refs": [
           "hist/schedule/t-17/10/canceled/correction-1510"
         ],
+        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_nodes": [
+          "schedule_at",
+          "off_schedule_at",
+          "day_off_config_at"
+        ],
         "valid_time": "2026-05-07T14:00:00Z"
       },
       {
@@ -846,6 +859,12 @@
         },
         "slot_local": "11:00",
         "source_event_refs": [],
+        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_nodes": [
+          "schedule_at",
+          "off_schedule_at",
+          "day_off_config_at"
+        ],
         "valid_time": "2026-05-07T15:00:00Z"
       },
       {
@@ -878,6 +897,12 @@
         "slot_local": "12:00",
         "source_event_refs": [
           "hist/off_schedule/t-17/12/personal-block"
+        ],
+        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_nodes": [
+          "schedule_at",
+          "off_schedule_at",
+          "day_off_config_at"
         ],
         "valid_time": "2026-05-07T16:00:00Z"
       }
@@ -961,6 +986,12 @@
         },
         "slot_local": "09:00",
         "source_event_refs": [],
+        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_nodes": [
+          "schedule_at",
+          "off_schedule_at",
+          "day_off_config_at"
+        ],
         "valid_time": "2026-05-07T13:00:00Z"
       },
       {
@@ -995,6 +1026,12 @@
         "source_event_refs": [
           "hist/schedule/t-17/10/planned/as-known-1205"
         ],
+        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_nodes": [
+          "schedule_at",
+          "off_schedule_at",
+          "day_off_config_at"
+        ],
         "valid_time": "2026-05-07T14:00:00Z"
       },
       {
@@ -1021,6 +1058,12 @@
         },
         "slot_local": "11:00",
         "source_event_refs": [],
+        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_nodes": [
+          "schedule_at",
+          "off_schedule_at",
+          "day_off_config_at"
+        ],
         "valid_time": "2026-05-07T15:00:00Z"
       },
       {
@@ -1053,6 +1096,12 @@
         "slot_local": "12:00",
         "source_event_refs": [
           "hist/off_schedule/t-17/12/personal-block"
+        ],
+        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_nodes": [
+          "schedule_at",
+          "off_schedule_at",
+          "day_off_config_at"
         ],
         "valid_time": "2026-05-07T16:00:00Z"
       }

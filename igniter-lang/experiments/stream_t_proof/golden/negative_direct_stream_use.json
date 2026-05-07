@@ -1,0 +1,26 @@
+{
+  "case_id": "negative_direct_stream_use",
+  "diagnostics": [
+    {
+      "category": "stream_oof",
+      "contract": "IntegerWindowSum",
+      "diagnostic": "stream.direct_access",
+      "message": "stream 'readings' must be consumed via fold_stream - direct access is OOF",
+      "node": "readings",
+      "path": "contract:IntegerWindowSum/stream:readings",
+      "rule": "OOF-S4",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "semantic_ir_ref": null,
+  "stages": {
+    "classify": "oof",
+    "emit": "skipped",
+    "parse": "proof_local_sketch",
+    "typecheck": "skipped"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "case_id": "negative_unbounded_fold",
+  "diagnostics": [
+    {
+      "category": "stream_oof",
+      "contract": "IntegerWindowSum",
+      "diagnostic": "stream.unbounded_fold",
+      "message": "unbounded stream fold - must declare @window_bounded or @count_bounded",
+      "node": "readings",
+      "path": "contract:IntegerWindowSum/stream:readings",
+      "rule": "OOF-S1",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "semantic_ir_ref": null,
+  "stages": {
+    "classify": "oof",
+    "emit": "skipped",
+    "parse": "proof_local_sketch",
+    "typecheck": "skipped"
+  }
+}

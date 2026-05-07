@@ -1,0 +1,142 @@
+{
+  "contract_ref": "contract/Fixture.StreamT.IntegerWindowSum@v0",
+  "evidence_links": [
+    {
+      "from": "obs/stream_window/22bb660d4cb73fcd",
+      "rel": "consumed_event",
+      "to": "evt/stream/c01f6cb1ac35ffdc"
+    },
+    {
+      "from": "obs/stream_window/22bb660d4cb73fcd",
+      "rel": "consumed_event",
+      "to": "evt/stream/28d6f8021934760e"
+    },
+    {
+      "from": "obs/stream_window/22bb660d4cb73fcd",
+      "rel": "consumed_event",
+      "to": "evt/stream/feaafded4de34461"
+    }
+  ],
+  "fold_result": {
+    "core_fold": true,
+    "event_count": 3,
+    "input_event_refs": [
+      "evt/stream/c01f6cb1ac35ffdc",
+      "evt/stream/28d6f8021934760e",
+      "evt/stream/feaafded4de34461"
+    ],
+    "kind": "fold_stream_result",
+    "materialized_as": "Collection[Integer]",
+    "node": "total",
+    "value": 15
+  },
+  "fold_result_classification": "core",
+  "format_version": "0.1.0",
+  "kind": "stream_runtime_result",
+  "observations": [
+    {
+      "closed": true,
+      "consumed_event_refs": [
+        "evt/stream/c01f6cb1ac35ffdc",
+        "evt/stream/28d6f8021934760e",
+        "evt/stream/feaafded4de34461"
+      ],
+      "event_count": 3,
+      "kind": "stream_window_observation",
+      "lifecycle": "durable",
+      "observation_id": "obs/stream_window/22bb660d4cb73fcd",
+      "on_close": "snapshot",
+      "sequence_range": [
+        1,
+        3
+      ],
+      "source_mode": "finite_replay",
+      "window_kind": "count",
+      "window_ref": "integer_count_window"
+    }
+  ],
+  "output": {
+    "consumed_event_refs": [
+      "evt/stream/c01f6cb1ac35ffdc",
+      "evt/stream/28d6f8021934760e",
+      "evt/stream/feaafded4de34461"
+    ],
+    "count": 3,
+    "device_id": "device/synthetic-stream-1",
+    "kind": "IntegerWindowSnapshot",
+    "total": 15,
+    "window_id": "window/stream/d1a86e46f1032398"
+  },
+  "source_mode": "finite_replay",
+  "status": "ok",
+  "stream_classification": "escape",
+  "trusted_output": true,
+  "window": {
+    "bound": {
+      "kind": "count",
+      "size": 3
+    },
+    "close_reason": "count_bound_reached",
+    "closed": true,
+    "events": [
+      {
+        "event_id": "evt/stream/c01f6cb1ac35ffdc",
+        "kind": "stream_event",
+        "observed_at": "2026-05-07T10:00:00Z",
+        "sequence": 1,
+        "stream_ref": "stream/integer/device-synthetic-stream-1",
+        "value": 4,
+        "value_type": "Integer"
+      },
+      {
+        "event_id": "evt/stream/28d6f8021934760e",
+        "kind": "stream_event",
+        "observed_at": "2026-05-07T10:00:01Z",
+        "sequence": 2,
+        "stream_ref": "stream/integer/device-synthetic-stream-1",
+        "value": 5,
+        "value_type": "Integer"
+      },
+      {
+        "event_id": "evt/stream/feaafded4de34461",
+        "kind": "stream_event",
+        "observed_at": "2026-05-07T10:00:02Z",
+        "sequence": 3,
+        "stream_ref": "stream/integer/device-synthetic-stream-1",
+        "value": 6,
+        "value_type": "Integer"
+      }
+    ],
+    "kind": "stream_window",
+    "observation": {
+      "closed": true,
+      "consumed_event_refs": [
+        "evt/stream/c01f6cb1ac35ffdc",
+        "evt/stream/28d6f8021934760e",
+        "evt/stream/feaafded4de34461"
+      ],
+      "event_count": 3,
+      "kind": "stream_window_observation",
+      "lifecycle": "durable",
+      "observation_id": "obs/stream_window/22bb660d4cb73fcd",
+      "on_close": "snapshot",
+      "sequence_range": [
+        1,
+        3
+      ],
+      "source_mode": "finite_replay",
+      "window_kind": "count",
+      "window_ref": "integer_count_window"
+    },
+    "remaining_event_refs": [
+      "evt/stream/cba985af9fc0a2c7",
+      "evt/stream/2a235f063804ab84"
+    ],
+    "source_mode": "finite_replay",
+    "stream_ref": "readings",
+    "stream_type": "Integer",
+    "window_id": "window/stream/d1a86e46f1032398",
+    "window_kind": "count",
+    "window_ref": "integer_count_window"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "contract_ref": "contract/Fixture.StreamT.IntegerWindowSum@v0",
+  "diagnostics": [
+    {
+      "category": "stream_runtime_pending",
+      "contract": "IntegerWindowSum",
+      "message": "Open live stream is not folded until count window closes",
+      "node": "readings",
+      "path": "contract:IntegerWindowSum/stream:readings",
+      "severity": "info"
+    }
+  ],
+  "fold_result_classification": null,
+  "format_version": "0.1.0",
+  "kind": "stream_runtime_result",
+  "observations": [],
+  "output": null,
+  "source_mode": "open_live",
+  "status": "waiting_for_window_close",
+  "stream_classification": "escape",
+  "trusted_output": false,
+  "window": {
+    "adapter_ref": "adapter/synthetic-live-integer-stream",
+    "close_reason": null,
+    "closed": false,
+    "events": [],
+    "kind": "stream_window",
+    "remaining_event_refs": [],
+    "source_mode": "open_live",
+    "status": "waiting_for_runtime_window_close",
+    "stream_ref": "readings",
+    "stream_type": "Integer",
+    "window_id": "window/open/260c9996f48dbe90",
+    "window_kind": "count",
+    "window_ref": "integer_count_window"
+  }
+}

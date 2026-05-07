@@ -72,6 +72,81 @@ module TemporalAccessRuntime
     end
   end
 
+  class SemanticIRTemporalAccessEvaluator
+    def initialize(backend)
+      @backend = backend
+    end
+
+    def evaluate(access_node, temporal_inputs:, inputs:)
+      raise ArgumentError, "expected temporal_access_node" unless access_node.fetch("kind") == "temporal_access_node"
+      raise ArgumentError, "only point temporal access is supported" unless access_node.fetch("access") == "point"
+
+      input_node = temporal_inputs.fetch(access_node.fetch("source_ref"))
+      axis = normalized_axis(access_node, input_node)
+      case axis
+      when "valid_time"
+        evaluate_valid_time(access_node, input_node, inputs)
+      when "bitemporal"
+        evaluate_bitemporal(access_node, input_node, inputs)
+      else
+        raise ArgumentError, "unsupported temporal axis: #{axis}"
+      end
+    end
+
+    private
+
+    def evaluate_valid_time(access_node, input_node, inputs)
+      time_ref = access_node["time_ref"] || input_node.fetch("as_of_ref")
+      subject = render_ref(input_node.fetch("store_ref"), inputs)
+      result, observation = @backend.read_as_of(subject, inputs.fetch(time_ref))
+      envelope(access_node, "valid_time", result, observation, selected_ref_key: "selected_append_ref", rel: "selected_append")
+    end
+
+    def evaluate_bitemporal(access_node, input_node, inputs)
+      valid_time_ref = access_node.fetch("valid_time_ref")
+      transaction_time_ref = access_node.fetch("transaction_time_ref")
+      history_ref = render_ref(input_node.fetch("history_ref") { input_node.fetch("store_ref") }, inputs)
+      result, observation = @backend.bihistory_at(
+        history_ref,
+        vt: inputs.fetch(valid_time_ref),
+        tt: inputs.fetch(transaction_time_ref),
+        node_name: access_node.fetch("name")
+      )
+      envelope(access_node, "bitemporal", result, observation, selected_ref_key: "selected_event_ref", rel: "selected_event")
+    end
+
+    def envelope(access_node, axis, result, observation, selected_ref_key:, rel:)
+      selected_ref = observation[selected_ref_key]
+      {
+        "kind" => "temporal_access_evaluation",
+        "node" => access_node.fetch("name"),
+        "axis" => axis,
+        "result" => result,
+        "observation" => observation,
+        "evidence_links" => selected_ref ? [
+          {
+            "rel" => rel,
+            "from" => observation.fetch("observation_id"),
+            "to" => selected_ref
+          }
+        ] : []
+      }
+    end
+
+    def normalized_axis(access_node, input_node)
+      axis = access_node["axis"] || input_node["axis"]
+      return "valid_time" if axis == "single"
+
+      axis
+    end
+
+    def render_ref(template, inputs)
+      template.gsub(/\{([^}]+)\}/) do
+        inputs.fetch(Regexp.last_match(1))
+      end
+    end
+  end
+
   class MemoryBackend
     attr_reader :append_observations, :events, :access_observations
 

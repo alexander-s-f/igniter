@@ -52,6 +52,7 @@
     "runtime.evaluate_as_of_2026_05_06": true,
     "runtime.load_history_igapp_trusted": true,
     "runtime.output_links_selected_append_observation": true,
+    "runtime.temporal_access_node_loader_valid_time": true,
     "semanticir.temporal_access_node": true,
     "semanticir.temporal_input_node": true,
     "typechecker.history_at_option_integer": true
@@ -114,7 +115,8 @@
           "kind": "some",
           "value": 7
         }
-      }
+      },
+      "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator"
     },
     "as_of_2026_05_06": {
       "as_of": "2026-05-06T10:00:00Z",
@@ -161,7 +163,8 @@
           "kind": "some",
           "value": 9
         }
-      }
+      },
+      "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator"
     }
   },
   "format_version": "0.1.0",

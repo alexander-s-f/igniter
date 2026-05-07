@@ -6,6 +6,8 @@ require "json"
 require "pathname"
 
 require_relative "diagnostics"
+require_relative "../../lib/igniter_lang/compiler_result"
+require_relative "../../lib/igniter_lang/compilation_report"
 require_relative "../parser/igniter_lang_parser"
 require_relative "../source_to_semanticir_fixture/source_to_semanticir_fixture"
 require_relative "../igapp_assembler_proof/igapp_assembler_proof"
@@ -33,7 +35,10 @@ module ProductionCompilerCLI
 
       sample_input = sample_input_for(parsed)
       compilation = SourceToSemanticIRFixture::TinyCompiler.new.compile(parsed, sample_input: sample_input)
-      report = enrich_report(compilation.fetch("compilation_report"), parsed)
+      report = IgniterLang::CompilationReport.enrich(
+        report: compilation.fetch("compilation_report"),
+        parsed: parsed
+      )
       semantic_ir = compilation.fetch("semantic_ir")
 
       return refusal(report, source_path, out_path) unless report.fetch("pass_result") == "ok"
@@ -51,75 +56,54 @@ module ProductionCompilerCLI
         return refusal(smoke_report, source_path, out_path, status: "runtime_smoke_failed")
       end
 
-      {
-        "kind" => "compiler_result",
-        "format_version" => FORMAT_VERSION,
-        "status" => "ok",
-        "program_id" => semantic_ir.fetch("program_id"),
-        "source_path" => source_path.to_s,
-        "source_hash" => report.fetch("source_hash"),
-        "grammar_version" => report.fetch("grammar_version"),
-        "stages" => report_stages(report, assemble: "ok"),
-        "igapp_path" => out_path.to_s,
-        "compilation_report_ref" => report.fetch("program_id"),
-        "semantic_ir_ref" => report.fetch("semantic_ir_ref"),
-        "contracts" => assembled.fetch("contracts"),
-        "diagnostics" => [],
-        "warnings" => Diagnostics.warnings(report.fetch("diagnostics", [])),
-        "runtime_smoke" => smoke,
-        "report" => report
-      }
+      IgniterLang::CompilerResult.ok(
+        format_version: FORMAT_VERSION,
+        semantic_ir: semantic_ir,
+        source_path: source_path,
+        report: report,
+        igapp_path: out_path,
+        contracts: assembled.fetch("contracts"),
+        runtime_smoke: smoke
+      )
     rescue IgappAssemblerProof::AssemblyRefused => e
-      report = internal_error_report(source_path, "assembler_refused", e)
+      report = IgniterLang::CompilationReport.internal_error(
+        format_version: FORMAT_VERSION,
+        source_path: source_path,
+        rule: "assembler_refused",
+        error: e
+      )
       refusal(report, source_path, out_path, status: "assembler_refused")
     rescue => e
-      report = internal_error_report(source_path, "compiler_error", e)
+      report = IgniterLang::CompilationReport.internal_error(
+        format_version: FORMAT_VERSION,
+        source_path: source_path,
+        rule: "compiler_error",
+        error: e
+      )
       refusal(report, source_path, out_path, status: "error")
     end
 
     private
 
     def parse_failure(parsed, source_path, out_path)
-      report = {
-        "kind" => "compilation_report",
-        "format_version" => FORMAT_VERSION,
-        "program_id" => "compilation_report/parse_error",
-        "grammar_version" => parsed.fetch("grammar_version"),
-        "source_hash" => parsed.fetch("source_hash"),
-        "source_path" => source_path.to_s,
-        "pass_result" => "error",
-        "stages" => {
-          "parse" => "error",
-          "classify" => "skipped",
-          "typecheck" => "skipped",
-          "emit" => "skipped"
-        },
-        "diagnostics" => Diagnostics.from_parse_errors(parsed.fetch("parse_errors")),
-        "semantic_ir_ref" => nil
-      }
+      report = IgniterLang::CompilationReport.parse_failure(
+        format_version: FORMAT_VERSION,
+        parsed: parsed,
+        source_path: source_path
+      )
       refusal(report, source_path, out_path, status: "error")
     end
 
     def refusal(report, source_path, out_path, status: "oof")
       report_path = report_path_for(out_path)
       JSONIO.write(report_path, report)
-      diagnostics = report.fetch("diagnostics", [])
-      {
-        "kind" => "compiler_result",
-        "format_version" => FORMAT_VERSION,
-        "status" => status,
-        "program_id" => report.fetch("semantic_ir_ref", nil),
-        "source_path" => source_path.to_s,
-        "source_hash" => report.fetch("source_hash", nil),
-        "grammar_version" => report.fetch("grammar_version", nil),
-        "stages" => report_stages(report, assemble: "skipped"),
-        "igapp_path" => nil,
-        "contracts" => [],
-        "compilation_report_path" => report_path.to_s,
-        "diagnostics" => Diagnostics.errors(diagnostics),
-        "warnings" => Diagnostics.warnings(diagnostics),
-        "report" => report
-      }
+      IgniterLang::CompilerResult.refusal(
+        format_version: FORMAT_VERSION,
+        status: status,
+        report: report,
+        source_path: source_path,
+        report_path: report_path
+      )
     end
 
     def report_path_for(out_path)
@@ -182,68 +166,11 @@ module ProductionCompilerCLI
     end
 
     def smoke_failure_report(report, smoke, source_path)
-      report.merge(
-        "pass_result" => "error",
-        "source_path" => source_path.to_s,
-        "diagnostics" => report.fetch("diagnostics", []) + Diagnostics.from_runtime_smoke(smoke)
+      IgniterLang::CompilationReport.runtime_smoke_failure(
+        report: report,
+        smoke: smoke,
+        source_path: source_path
       )
-    end
-
-    def internal_error_report(source_path, rule, error)
-      {
-        "kind" => "compilation_report",
-        "format_version" => FORMAT_VERSION,
-        "program_id" => "compilation_report/#{rule}",
-        "grammar_version" => "unknown",
-        "source_hash" => nil,
-        "source_path" => source_path.to_s,
-        "pass_result" => "error",
-        "stages" => {
-          "parse" => "unknown",
-          "classify" => "unknown",
-          "typecheck" => "unknown",
-          "emit" => "unknown"
-        },
-        "diagnostics" => if rule == "assembler_refused"
-                           Diagnostics.from_assembler_refusal(error)
-                         else
-                           Diagnostics.enrich(
-                             [
-                               {
-                                 "rule" => rule,
-                                 "severity" => "error",
-                                 "message" => "#{error.class}: #{error.message}"
-                               }
-                             ],
-                             category: "emitter_error"
-                           )
-                         end,
-        "semantic_ir_ref" => nil
-      }
-    end
-
-    def enrich_report(report, parsed)
-      contract_name = parsed.fetch("contracts", []).fetch(0, {}).fetch("name", nil)
-      category = diagnostic_category_for(report)
-      report.merge(
-        "diagnostics" => Diagnostics.enrich(
-          report.fetch("diagnostics", []),
-          category: category,
-          contract: contract_name
-        )
-      )
-    end
-
-    def diagnostic_category_for(report)
-      stages = report.fetch("stages", {})
-      return "typechecker_oof" if stages.fetch("typecheck", nil) == "oof"
-      return "emitter_error" if stages.fetch("emit", nil) == "error"
-
-      "classifier_oof"
-    end
-
-    def report_stages(report, assemble:)
-      report.fetch("stages").merge("assemble" => assemble)
     end
   end
 
@@ -322,7 +249,7 @@ module ProductionCompilerCLI
     end
 
     def public_result(result)
-      result.reject { |key, _value| key == "report" }
+      IgniterLang::CompilerResult.public_result(result)
     end
   end
 end
