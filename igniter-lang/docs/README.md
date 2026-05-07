@@ -82,12 +82,12 @@ Current priority:
 
 ```text
 Stage 2 proof line
-  -> normalize Option[T] encoding
-  -> make History[T] fixture parser-accepted
-  -> prove SparkCRM BiHistory availability correction
+  -> generalize BiHistory axes in parser/typechecker
+  -> extract temporal_access_node runtime behavior
+  -> prove invariant severity levels
 
 Production compiler line
-  -> extract CLI Diagnostics helper to reusable file
+  -> move extracted CLI Diagnostics helper toward library boundary
   -> continue parser/classifier/typechecker/assembler module extraction
 ```
 
@@ -97,6 +97,7 @@ Current proof commands:
 igniter-lang/bin/igniter-lang compile igniter-lang/experiments/source_to_semanticir_fixture/add.ig --out /tmp/igniter_lang_cli_report_add.igapp
 ruby igniter-lang/experiments/production_compiler_cli/production_compiler_cli_proof.rb
 ruby igniter-lang/experiments/history_type_proof/history_type_proof.rb
+ruby igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixture.rb
 ```
 
 ---

@@ -50,15 +50,16 @@ Production compiler    PROP-027  experiments/production_compiler_cli/    ✅ dia
 Runtime eval surface   —         igapp_assembler_proof/                  ✅ closed_in_proof
                                   Add, ClaimEvidence, EvidenceAlert
 History[T]             PROP-022  experiments/history_type_proof/         ✅ point proof
-                                  History[Integer] + OOF-H1              ⏳ parser gap
-Option[T] encoding     PROP-022  proof/docs mismatch                     ⚠ normalize next
-BiHistory[T]           PROP-022  sparkcrm_bihistory fixture planned      🔵 next proof
+                                  History[Integer] + OOF-H1              ✅ parser accepted
+Option[T] encoding     PROP-022  canonical kind/value shape              ✅ normalized
+BiHistory[T]           PROP-022  experiments/sparkcrm_bihistory_         ✅ fixture proof
+                                  fixture/                               ⏳ axes gap
 Invariant severity     PROP-025  no experiment yet                       🔵 authored
 stream T               PROP-023  no experiment yet                       🔵 authored
 OLAPPoint[T,Dims]      PROP-024  no experiment yet                       🔵 authored
 ──────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  Normalize Option[T] → History parser acceptance → BiHistory fixture
+Active priority:  BiHistory axes generalization → runtime node extraction → invariant severity
 New PROPs:        start from PROP-028
 ```
 
@@ -67,7 +68,7 @@ New PROPs:        start from PROP-028
 ## PROP Canonical Map
 
 ```text
-PROP-022   History[T]                    point proof PASS; parser gap remains
+PROP-022   History[T] / BiHistory[T]     point proof PASS; parser accepted; BiHistory fixture PASS
 PROP-022A  .igapp assembler contract     Stage 1 frozen (accepted/)
 PROP-023   stream T                      Stage 2 authored
 PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
@@ -78,13 +79,16 @@ PROP-027   Production compiler diag.     ✅ CLI diagnostics implemented; packag
 PROP-028+  next available
 ```
 
-## Immediate Normalization
+## Immediate Next
 
 ```text
-Option[T] encoding:
-  history_type_proof currently uses:      { "some": value } / { "none": true }
-  temporal shape doc recommends:          { "kind":"some","value":value } / { "kind":"none" }
-  next action: normalize proof + goldens to the canonical kind/value shape.
+BiHistory axes:
+  sparkcrm_bihistory_fixture proves bitemporal behavior with proof-local stubs.
+  next action: parser/typechecker support for bitemporal axes and OOF-BT reports.
+
+Runtime temporal access:
+  History and BiHistory currently use proof-local runtime evaluation.
+  next action: extract temporal_access_node evaluation toward production RuntimeMachine.
 ```
 
 → Full governance: `meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md`

@@ -37,7 +37,10 @@ assigned track only.
 | `parser-oof-hardening-stage2-proof-v0.md` | done | PROP-026 parser OOF hardening PASS |
 | `production-compiler-cli-wrapper-v0.md` | done | CLI `bin/igniter-lang compile` proof PASS (9 checks) |
 | `production-compiler-module-extraction-map-v0.md` | done | Extraction map for production compiler; no code moved yet |
+| `production-compiler-diagnostics-extraction-v0.md` | done | Diagnostics helper extracted to experiment-local reusable file |
 | `history-type-proof-planning-v0.md` | done | Planning for History[T] proof path |
+| `option-encoding-normalization-v0.md` | done | Canonical `Option[T]` `{kind,value}` shape normalized in History proof |
+| `history-type-parser-acceptance-v0.md` | done | Parser now emits structured TypeRef for generic types including `History[Integer]` |
 | `canonical-stdlib-registry-runtime-v0.md` | done | Runtime-visible stdlib registry direction |
 | `sparkcrm-history-pressure-v0.md` | done | Pressure map for Spark CRM bitemporal scenarios |
 | `sparkcrm-bihistory-fixture-pressure-v0.md` | done | Pressure spec for BiHistory fixture |
@@ -51,9 +54,9 @@ assigned track only.
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `option-encoding-normalization-v0` | Normalize Option[T] to `{kind:"some"/"none"}` in history proofs | Research Agent |
 | `bihistory-parser-typechecker-axes-v0` | Parser/typechecker for BiHistory temporal axes | Compiler/Grammar Expert |
-| `extract-canonical-json-diagnostics-v0` | Extract `CanonicalJSON`, `DiagnosticEntry`, `CompilationReport` into shared modules | Research Agent |
+| `history-temporal-access-runtime-extraction-v0` | Extract proof-local History/BiHistory temporal access into runtime support | Research Agent |
+| `compiler-diagnostics-library-boundary-v0` | Move experiment-local diagnostics toward first reusable library boundary | Research Agent |
 | `invariant-severity-proof-v0` | First proof for PROP-025 severity levels | Research Agent |
 
 ---

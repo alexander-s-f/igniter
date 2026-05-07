@@ -46,7 +46,7 @@ Last updated: 2026-05-07
 | Ch7 CompatibilityReport gate | PROP-009, PROP-009.1 | igapp_assembler_proof runtime.* | ✅ proven (assembled igapp) |
 | Ch8 Collection[T] ops | PROP-013 | stdlib_execution_kernel_stage1 | ✅ PASS |
 | Ch8 fold/map/filter | PROP-013 | experiments/stdlib_execution_kernel_stage1/ | ✅ PASS |
-| Ch9 History[T] | PROP-022 | experiments/history_type_proof/ | ✅ point proof PASS ⏳ parser gap |
+| Ch9 History[T] | PROP-022 | experiments/history_type_proof/ | ✅ point proof PASS ✅ parser accepted |
 | Ch9 BiHistory[T] | PROP-022 | experiments/sparkcrm_bihistory_fixture/ | ✅ fixture PASS ⏳ axes gap |
 | Ch9 stream T | PROP-023 | — | deferred Stage 2 |
 | Ch9 OLAPPoint | PROP-024 | — | deferred Stage 2 |
@@ -69,17 +69,17 @@ Stage 2 partial   Ch9 (History[T] point proof PASS; BiHistory fixture PASS; stre
 
 ```
 Stage 2 open gaps:
-1. History[T] parser acceptance — syntax for history.at / history[t] not yet in grammar
-   (PROP-022; runtime proof PASS; grammar surface deferred)
-2. BiHistory[T] axes — parser/typechecker for bitemporal axes not generalized
+1. BiHistory[T] axes — parser/typechecker for bitemporal axes not generalized
    (sparkcrm_bihistory_fixture PASS; axes generalization pending)
-3. Production compiler package — CLI proof PASS; module extraction not yet done (PROP-027)
-4. Option[T] encoding normalization — history_type_proof uses {some:v}/{none:true};
-   canonical shape is {kind:"some",value:v}/{kind:"none"} (normalize before BiHistory axes)
+2. Runtime temporal access extraction — History/BiHistory runtime behavior is proof-local
+   (History point proof and SparkCRM BiHistory fixture PASS)
+3. Production compiler package — CLI proof PASS; diagnostics extraction started (PROP-027)
 
 Closed post-Stage-1 (no longer gaps):
   OOF syntax rejection — PASS: PROP-026 + parser_oof_hardening_stage2_proof
   Runtime eval surface — closed_in_proof: igapp_assembler_proof (all 3 contracts)
+  Option[T] encoding normalization — PASS: canonical `{kind,value}` shape in history proof
+  History[T] parser acceptance — PASS: structured TypeRef for generic types
 ```
 
 ---
