@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "igniter_lang/compiler_orchestrator"
+require_relative "igniter_lang/version"
 
 module IgniterLang
   module_function

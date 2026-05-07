@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
-require_relative "../../experiments/runtime_machine_memory_proof/compiled_program"
-
 module IgniterLang
   module RuntimeSmoke
-    DEFAULT_AS_OF = RuntimeMachineMemoryProof::PROOF_AS_OF
+    begin
+      require_relative "../../experiments/runtime_machine_memory_proof/compiled_program"
+      PROOF_LOAD_ERROR = nil
+    rescue LoadError => e
+      PROOF_LOAD_ERROR = e
+    end
+
+    DEFAULT_AS_OF = defined?(RuntimeMachineMemoryProof::PROOF_AS_OF) ? RuntimeMachineMemoryProof::PROOF_AS_OF : nil
     DEFAULT_MACHINE_ID = "runtime-machine/production-compiler-cli"
     DEFAULT_SESSION_ID = "session/production-compiler-cli"
     DEFAULT_RULE_VERSION = "production-compiler-cli-wrapper-v0"
@@ -13,6 +18,7 @@ module IgniterLang
 
     def run(out_path:, sample_input:, as_of: DEFAULT_AS_OF, machine_id: DEFAULT_MACHINE_ID,
             session_id: DEFAULT_SESSION_ID, rule_version: DEFAULT_RULE_VERSION)
+      ensure_available!
       program = RuntimeMachineMemoryProof::CompiledProgram.load_igapp(out_path)
       program.validate!
       contract_id = program.contracts.keys.fetch(0)
@@ -56,6 +62,19 @@ module IgniterLang
       return { "a" => 19, "b" => 23 } if contract_id == "Add"
 
       sample_input
+    end
+
+    def available?
+      defined?(RuntimeMachineMemoryProof::CompiledProgram) &&
+        defined?(RuntimeMachineMemoryProof::RuntimeMachine)
+    end
+
+    def ensure_available!
+      return if available?
+
+      message = "IgniterLang::RuntimeSmoke is proof-backed; runtime_machine_memory_proof is unavailable in this package context"
+      message = "#{message}: #{PROOF_LOAD_ERROR.message}" if PROOF_LOAD_ERROR
+      raise LoadError, message
     end
   end
 end
