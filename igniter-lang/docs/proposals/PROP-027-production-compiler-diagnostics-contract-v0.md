@@ -1,4 +1,4 @@
-# PROP-025: Production Compiler Diagnostics Contract v0
+# PROP-027: Production Compiler Diagnostics Contract v0
 
 Role: `[Igniter-Lang Compiler/Grammar Expert]`
 Status: proposal

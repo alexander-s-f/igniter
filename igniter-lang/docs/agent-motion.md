@@ -698,3 +698,22 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/semanticir-verification-report-bridge-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/compiler-pipeline-profile-bridge-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/compiler-pipeline-profile-prop019-alignment-v0.md | done |
+
+---
+
+## Numbering Errata (appended 2026-05-07 by Meta Expert)
+
+The Compiler/Grammar Expert logged two entries with incorrect PROP numbers on 2026-05-07.
+The following table records the correction. Do not renumber entries in the history above.
+
+| Logged as | Correct canonical number | File | Status |
+|-----------|--------------------------|------|--------|
+| `proposals/PROP-024-parser-oof-hardening-spec-v0` | **PROP-026** | `PROP-026-parser-oof-hardening-spec-v0.md` | ✅ PASS (proof) |
+| `proposals/PROP-025-production-compiler-diagnostics-contract-v0` | **PROP-027** | `PROP-027-production-compiler-diagnostics-contract-v0.md` | authored |
+
+Root cause: PROP-024 and PROP-025 were already assigned to OLAPPoint and invariant severity
+(Stage 2 design PROPs). The Compiler Expert was unaware of this assignment at authoring time.
+The files were renamed using `git mv` to PROP-026 and PROP-027.
+
+Future PROP numbering: always check `proposals/README.md` §Queued for next available number.
+Current next available: **PROP-028**.

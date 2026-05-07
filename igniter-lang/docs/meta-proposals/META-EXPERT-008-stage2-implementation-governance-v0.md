@@ -11,7 +11,8 @@ Numbering audit: META-EXPERT-008.1 (canonical PROP map — no file moves needed)
 > `PROP-022A` = .igapp assembler contract (Stage 1, frozen in accepted/).
 > `PROP-023` = stream T (Stage 2). `PROP-023A` = ClassifiedExpr boundary (Stage 1, frozen).
 > `PROP-026` = parser OOF hardening (Stage 2, authored).
-> New Stage 2 proposals start from PROP-027.
+> New Stage 2 proposals start from PROP-028.
+Authored: PROP-026 (parser OOF hardening ✅ PASS), PROP-027 (production compiler diagnostics).
 
 ---
 
@@ -38,7 +39,7 @@ Proven and frozen (do not re-implement):
   ✅ Stdlib kernel: integer/float/decimal.add, fold, map, filter, count, or_else
 
 Deferred from Stage 1:
-  ✅ Parser OOF rejection hardening: closed by parser_oof_hardening_stage2_proof
+  ✅ Parser OOF rejection hardening: ✅ PASS (PROP-026 + parser_oof_hardening_stage2_proof)
   ⏳ Production compiler package (CLI + gem packaging)
   ✅ Runtime eval surface: closed_in_proof (igapp_assembler_proof evaluates all 3 contracts)
 ```
@@ -53,7 +54,8 @@ Pass/Feature           PROP(s)             Experiment                        Sta
 Parser OOF hardening   PROP-026            parser_oof_hardening_             ✅ PASS
                                             stage2_proof/                      syntax-owned OOF
 
-Production compiler    PROP-022A           no package yet                    ⏳ deferred gap
+Production compiler    PROP-027            no package yet                    ⏳ deferred gap
+                       (diagnostics contract  (contract authored; no CLI yet)    (Tier 0 Gap B)
 package                (assembler contract)                                   (from Stage 1)
 
 Runtime eval surface   —                   igapp_assembler_proof/            ✅ closed_in_proof

@@ -69,7 +69,7 @@ Stdlib execution       PROP-013          experiments/stdlib_execution_       ✅
 STAGE 1 CLOSED:   YES — CLOSE WITH DEFERRED GAP
                   Effective: 2026-05-06
                   Verdict: META-EXPERT-007-stage1-close-governance-v0
-Deferred gaps:    production compiler pkg
+Deferred gaps:    Production compiler package (PROP-027 — Tier 0 Gap B)
 Closed post-close: Parser OOF hardening (Stage 2 proof) | runtime eval surface
 All proofs:       Classifier Emitter TypeChecker Assembler RuntimeMachine Stdlib ✅
 ```
@@ -264,7 +264,8 @@ Pass/Feature           PROP(s)       Experiment                        Status
 ──────────────────────────────────────────────────────────────────────────────
 Parser OOF hardening   PROP-026      parser_oof_hardening_             ✅ PASS
                                      stage2_proof/
-Production compiler    PROP-022A     no package yet                    ⏳ deferred gap
+Production compiler    PROP-027      no package yet                    ⏳ deferred gap
+                       (diagnostics  (contract authored; no CLI yet)    (Tier 0 Gap B)
 Runtime eval surface   —             igapp_assembler_proof/            ✅ closed_in_proof
                                      evaluates Add, ClaimEvidenceBundle,  (all 3 contracts)
                                      EvidenceLinkedAlertGate → trusted
@@ -274,9 +275,9 @@ OLAPPoint[T,Dims]      PROP-024      no experiment yet                 🔵 auth
 Invariant severity     PROP-025      no experiment yet                 🔵 authored
 ──────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  Deferred Gap B (production compiler) → Tier 1 proofs
+Active priority:  Gap B production compiler (PROP-027) → Tier 1 proofs (PROP-022, PROP-025)
 Governance:       META-EXPERT-008
-New PROPs:        start from PROP-027
+New PROPs:        start from PROP-028
 ```
 
 → See `meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md` for

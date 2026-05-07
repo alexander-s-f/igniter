@@ -30,6 +30,8 @@ These proposals are the baseline for Stage 2 implementation work.
 | [PROP-010](PROP-010-temporal-lifecycle-retention-semantics-v0.md) | proposal | 6 lifecycle classes, flush semantics, semantic GC roots, downgrade rules |
 | [PROP-016](PROP-016-polymorphism-traits-contract-shapes-v0.md) | proposal | Generic contracts, traits, contract_shape, monomorphization |
 | [PROP-017](PROP-017-schema-evolution-contract-migration-v0.md) | proposal | SemVer versioning, schema_fingerprint, MigrationDecl, OOF-S1..S5 |
+| [PROP-026](PROP-026-parser-oof-hardening-spec-v0.md) | ✅ PASS | Parser OOF hardening — grammar rules, negative parse cases; proof PASS |
+| [PROP-027](PROP-027-production-compiler-diagnostics-contract-v0.md) | proposal | Production compiler diagnostics contract — CLI + diagnostics surface |
 | [PROP-022](PROP-022-history-type-constructor-v0.md) | proposal | **Stage 2**: History[T]/BiHistory[T]; temporal operations; OLAPPoint unification |
 | [PROP-023](PROP-023-stream-input-surface-v0.md) | proposal | **Stage 2**: stream T ESCAPE input; window; fold_stream; KPN grounding |
 | [PROP-024](PROP-024-olap-point-primitive-v0.md) | proposal | **Stage 2**: OLAPPoint[T,Dims]; olap_point declaration; cluster scatter-gather |
@@ -40,15 +42,16 @@ These proposals are the baseline for Stage 2 implementation work.
 
 ## Queued (not yet authored)
 
-New Stage 2+ proposals start from **PROP-027**.
+New Stage 2+ proposals start from **PROP-028**.
+_PROP-026 = parser OOF hardening (✅ PASS). PROP-027 = production compiler diagnostics (authored)._
 
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|
-| PROP-027 | Probabilistic types ~T (ProbLog subset) | PROP-022, PROP-025 | 2 | medium |
-| PROP-028 | Deadline contracts + WCET analysis | PROP-003, PROP-016 | 3 | medium |
-| PROP-029 | Full unit algebra (dimensional type checking) | PROP-004 errata E5 | 3 | medium |
-| PROP-030 | Plastic Runtime Cells (ownership + migration) | PROP-006, PROP-012 | 3 | medium |
-| PROP-031 | Rule synthesis via LP (goal-directed) | PROP-022, PROP-025 | 4 | low |
+| PROP-028 | Probabilistic types ~T (ProbLog subset) | PROP-022, PROP-025 | 2 | medium |
+| PROP-029 | Deadline contracts + WCET analysis | PROP-003, PROP-016 | 3 | medium |
+| PROP-030 | Full unit algebra (dimensional type checking) | PROP-004 errata E5 | 3 | medium |
+| PROP-031 | Plastic Runtime Cells (ownership + migration) | PROP-006, PROP-012 | 3 | medium |
+| PROP-032 | Rule synthesis via LP (goal-directed) | PROP-022, PROP-025 | 4 | low |
 
 ---
 
