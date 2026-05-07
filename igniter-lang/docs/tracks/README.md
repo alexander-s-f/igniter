@@ -27,6 +27,14 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 2 Round 14 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `stage2-close-candidate-v0.md` | done | close candidate runner PASS; JSON status `PASS`, verdict `stage2_close_candidate`, proofs_run=8, surface_checks=7, deferred_gaps=5 |
+| `packages/igniter-ledger/docs/tracks/ledger-tbackend-adapter-descriptor-package-v0.md` | done | package-side metadata-only descriptor implemented; targeted package spec 9 examples, 0 failures |
+| `stage2-round14-status-curation-v0.md` | done | R14 map sync — this track |
+
 ## Stage 2 Round 13 Evidence
 
 | Track | Status | Notes |
@@ -129,10 +137,11 @@ compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `stage2-close-candidate-v0` | Implement close-candidate runner and JSON packet from R13 plan | Research Agent |
+| `stage2-close-decision-v0` | R15 Meta Expert formal close decision over Stage 2 close candidate PASS and deferred gaps | Meta Expert |
+| `stage2-close-json-archive-v0` | Archive or pin exact Stage 2 close candidate JSON snapshot if close decision requires it | Meta Expert |
 | `gem-native-package-boundary-specs-v0` | Add gem-native specs for `require "igniter_lang"`, `IgniterLang.compile`, and installed `igc` outside proof harnesses | Research Agent |
-| `ledger-tbackend-adapter-descriptor-package-v0` | Implement package-side descriptor-only diagnostics object after approval; no RuntimeMachine or Ledger operation binding | Bridge Agent |
 | `runtime-invariant-observation-runtime-machine-boundary-v0` | Decide where production RuntimeMachine emits and persists invariant violation observations | Research Agent |
+| `compatibility-report-descriptor-consumption-v0` | Plan descriptor evidence consumption without adding Ledger reads/writes/runtime binding | Bridge Agent |
 
 ---
 

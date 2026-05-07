@@ -49,12 +49,13 @@ Invariant severity       PROP-025  invariant_severity_proof/ PASS       ✅ proo
 TBackend bridge          PROP-008  tbackend-ledger-bridge-conformance    ✅ docs-only conformance done (R11)
                                    ledger descriptor fixture             ✅ metadata diagnostics PASS (R12)
                                    descriptor package plan               ✅ package plan done (R13)
+                                   package descriptor impl               ✅ 9 specs PASS (R14)
 Parser OOF hardening     PROP-026  parser_oof_hardening_stage2_proof/   ✅ PASS
 Runtime eval surface     —         igapp_assembler_proof/               ✅ closed_in_proof
-Stage 2 close candidate  —         stage2-close-candidate-planning       ✅ R14 runner plan done (R13)
+Stage 2 close candidate  —         stage2_close_candidate/              ✅ PASS verdict stage2_close_candidate (R14)
 ────────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  Stage 2 close candidate runner → gem-native package specs → Ledger descriptor package implementation
+Active priority:  R15 Stage 2 close decision → archive exact close JSON → Stage 3 intake routing
 New PROPs:        start from PROP-028
 ```
 
@@ -109,8 +110,8 @@ PROP-028+  next available
 
 2. Stage 2 close candidate
    ✅ Close candidate plan and JSON schema done (S2-R13-C2-P).
-   Remaining: implement R14 runner at experiments/stage2_close_candidate/
-   and produce stage2_close_candidate.json.
+   ✅ Runner implemented and JSON verdict PASS / stage2_close_candidate (S2-R14-C1-P).
+   Remaining: R15 formal close decision (CLOSE or CLOSE WITH DEFERRED GAPS).
 
 3. Stage 2 invariant runtime observation boundary
    ✅ Stream, OLAP, and invariant_node emitter lowering PASS.
@@ -121,7 +122,9 @@ PROP-028+  next available
    Proof-local adapter registry and shim selected. Ledger conformance is descriptor-first
    (S2-R11-C3-P). Descriptor fixture + diagnostics PASS (S2-R12-C3-P).
    ✅ Package-side descriptor plan done (S2-R13-C3-P).
-   Next package-side implementation should remain metadata-only: no read/write/replay/runtime binding.
+   ✅ Metadata-only package descriptor implementation + targeted specs PASS (S2-R14-C2-P).
+   Remaining: any CompatibilityReport consumption or RuntimeMachine binding requires
+   separate Architect approval; no read/write/replay/runtime binding is closed.
 
 5. Invariant severity parser + typechecker implementation
    ✅ DONE (S2-R10-C4-P). PINV-1..4 (parser) + TINV-1..3 (TypeChecker) implemented.
