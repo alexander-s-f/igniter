@@ -689,6 +689,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-07 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-024-parser-oof-hardening-spec-v0 | done |
 | 2026-05-07 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-027-production-compiler-diagnostics-contract-v0 | done |
 | 2026-05-07 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/extract-canonical-json-diagnostics-v0 | done |
+| 2026-05-07 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/temporal-option-and-bihistory-shape-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/bridge-agent-entry-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-bridge-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-package-touchpoint-map-v0.md | done |
