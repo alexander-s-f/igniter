@@ -148,8 +148,9 @@ docs/tracks/prop0191-direct-runtime-loader-v0.md
 
 ## Next
 
-[Next] Replace the mixed historical operator table with a canonical stdlib
-registry that rejects `stdlib.numeric.add` at RuntimeMachine execution time.
+[D] Follow-up track `canonical-stdlib-registry-runtime-v0` replaced the mixed
+historical operator table with a proof-local canonical stdlib registry that
+rejects `"add"`, `stdlib.numeric.add`, and unknown `stdlib.*` operators.
 
 [Next] Extract proof-local assembler/runtime behavior into the production
 compiler and package boundary once Stage 1 governance accepts the proof shape.

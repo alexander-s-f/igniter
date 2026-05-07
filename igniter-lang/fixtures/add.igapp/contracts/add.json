@@ -23,7 +23,7 @@
       "dependencies": ["input:a", "input:b"],
       "expression": {
         "kind": "apply",
-        "operator": "add",
+        "operator": "stdlib.integer.add",
         "operands": [
           { "kind": "ref", "name": "a" },
           { "kind": "ref", "name": "b" }

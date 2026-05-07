@@ -45,7 +45,7 @@
       ],
       "expression": {
         "kind": "apply",
-        "operator": "stdlib.numeric.add",
+        "operator": "stdlib.float.add",
         "resolved_impl": "Additive[Float]",
         "type_args": [
           "Float"

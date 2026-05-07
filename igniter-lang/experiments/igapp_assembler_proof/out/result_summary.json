@@ -55,6 +55,18 @@
     {
       "name": "runtime.compatibility_report_trusted",
       "ok": true
+    },
+    {
+      "name": "runtime.rejects_legacy_add",
+      "ok": true
+    },
+    {
+      "name": "runtime.rejects_stdlib_numeric_add",
+      "ok": true
+    },
+    {
+      "name": "runtime.rejects_unknown_stdlib_operator",
+      "ok": true
     }
   ],
   "deterministic_output": true,
@@ -190,6 +202,11 @@
       "output_value": true,
       "schema_decision": "trusted"
     }
+  },
+  "runtime_operator_rejections": {
+    "legacy_add": true,
+    "stdlib_numeric_add": true,
+    "unknown_stdlib_operator": true
   },
   "status": "PASS"
 }

@@ -46,6 +46,8 @@ Proof output:
 kernel.integer_add: ok
 kernel.float_add: ok
 kernel.decimal_add_exact: ok
+kernel.integer_gt: ok
+kernel.bool_and: ok
 kernel.fold: ok
 kernel.map: ok
 kernel.filter: ok
@@ -53,8 +55,12 @@ kernel.count: ok
 kernel.or_else_some: ok
 kernel.or_else_none: ok
 kernel.numeric_add_rejected: ok
+kernel.legacy_add_rejected: ok
+kernel.unknown_stdlib_operator_rejected: ok
 runtime.add_igapp_style_integer_add: ok
 runtime.add_igapp_style_rejects_numeric_add: ok
+runtime.add_igapp_style_rejects_legacy_add: ok
+runtime.rejects_unknown_stdlib_operator: ok
 ```
 
 ## What Is Proven
@@ -70,12 +76,13 @@ to keep old overloaded operator names executable.
 
 ## Missing Runtime Hooks
 
-[Q] The existing `runtime_machine_memory_proof/CompiledProgram#apply_operator`
-still accepts `"add"` and `"stdlib.numeric.add"` directly. It needs a canonical
-stdlib registry and should reject pre-resolution overloads at runtime.
+[D] Follow-up track `canonical-stdlib-registry-runtime-v0` closed the
+RuntimeMachine proof gap: `CompiledProgram#apply_operator` now routes stdlib
+calls through a canonical registry and rejects `"add"`,
+`"stdlib.numeric.add"`, and unknown `stdlib.*` operators.
 
-[Q] Existing `fixtures/add.igapp/contracts/add.json` still uses `"operator":
-"add"`. The assembler/load fixture must migrate that to `stdlib.integer.add`.
+[D] `fixtures/add.igapp/contracts/add.json` was migrated to
+`stdlib.integer.add`.
 
 [Q] PROP-019.1 SemanticIR emits `nodes[].expr.kind == "call"` with `fn`, while
 the older RuntimeMachine proof evaluates `compute_nodes[].expression.kind ==

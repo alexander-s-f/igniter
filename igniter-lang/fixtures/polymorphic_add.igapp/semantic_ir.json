@@ -34,7 +34,7 @@
           "lifecycle": "session",
           "expression": {
             "kind": "apply",
-            "operator": "stdlib.numeric.add",
+            "operator": "stdlib.integer.add",
             "resolved_impl": "Additive[Integer]",
             "type_args": [
               "Integer"
@@ -171,7 +171,7 @@
           "lifecycle": "session",
           "expression": {
             "kind": "apply",
-            "operator": "stdlib.numeric.add",
+            "operator": "stdlib.float.add",
             "resolved_impl": "Additive[Float]",
             "type_args": [
               "Float"

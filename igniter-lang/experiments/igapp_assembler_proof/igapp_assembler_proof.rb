@@ -450,6 +450,37 @@ module IgappAssemblerProof
     def all_cases
       RUNTIME_EVAL_CASES.transform_values { |config| load_evaluate_checkpoint_resume(config) }
     end
+
+    def operator_rejection_cases
+      {
+        "legacy_add" => operator_rejected?("add"),
+        "stdlib_numeric_add" => operator_rejected?("stdlib.numeric.add"),
+        "unknown_stdlib_operator" => operator_rejected?("stdlib.integer.mystery")
+      }
+    end
+
+    def operator_rejected?(operator)
+      config = RUNTIME_EVAL_CASES.fetch("add")
+      program = RuntimeMachineMemoryProof::CompiledProgram.load_igapp(config.fetch("path"))
+      expression = program.contracts.fetch(config.fetch("contract_id"))
+        .fetch("compute_nodes")
+        .fetch(0)
+        .fetch("expression")
+      expression["operator"] = operator
+
+      backend = RuntimeMachineMemoryProof::MemoryTBackend.new
+      machine = RuntimeMachineMemoryProof::RuntimeMachine.new(
+        machine_id: "runtime-machine/igapp-assembler-proof/operator-boundary/#{operator}",
+        session_id: "session/igapp-assembler-proof/operator-boundary/#{operator}",
+        backend: backend
+      )
+      machine.boot
+      machine.load_program(program)
+      machine.evaluate_program(config.fetch("contract_id"), config.fetch("inputs"), as_of: PROOF_AS_OF)
+      false
+    rescue ArgumentError
+      true
+    end
   end
 
   module CLI
@@ -463,13 +494,15 @@ module IgappAssemblerProof
       negative = NEGATIVE_CASES.map { |case_name| assembler.refuse_case(case_name) }
       deterministic = deterministic?(assembler)
       runtime = RuntimeProof.all_cases
-      checks = checks(positive, negative, deterministic, runtime)
+      operator_rejections = RuntimeProof.operator_rejection_cases
+      checks = checks(positive, negative, deterministic, runtime, operator_rejections)
       summary = {
         "proof" => "igapp-assembler-proof-stage1-v0",
         "status" => checks.all? { |check| check.fetch("ok") } ? "PASS" : "FAIL",
         "positive" => positive,
         "negative" => negative,
         "runtime" => runtime,
+        "runtime_operator_rejections" => operator_rejections,
         "deterministic_output" => deterministic,
         "checks" => checks
       }
@@ -493,7 +526,7 @@ module IgappAssemblerProof
       end
     end
 
-    def checks(positive, negative, deterministic, runtime)
+    def checks(positive, negative, deterministic, runtime, operator_rejections)
       [
         check("assembler.positive.add", positive.any? { |item| item.fetch("case") == "add" && item.fetch("status") == "assembled" }),
         check("assembler.positive.claim_evidence", positive.any? { |item| item.fetch("case") == "claim_evidence" && item.fetch("status") == "assembled" }),
@@ -508,7 +541,10 @@ module IgappAssemblerProof
         check("runtime.evaluate_assembled_add", runtime_output?(runtime, "add")),
         check("runtime.evaluate_assembled_claim_evidence", runtime_output?(runtime, "claim_evidence")),
         check("runtime.evaluate_assembled_evidence_linked_alert", runtime_output?(runtime, "evidence_linked_alert")),
-        check("runtime.compatibility_report_trusted", runtime.values.all? { |result| result.fetch("compatibility_report_status", nil) == "trusted" })
+        check("runtime.compatibility_report_trusted", runtime.values.all? { |result| result.fetch("compatibility_report_status", nil) == "trusted" }),
+        check("runtime.rejects_legacy_add", operator_rejections.fetch("legacy_add") == true),
+        check("runtime.rejects_stdlib_numeric_add", operator_rejections.fetch("stdlib_numeric_add") == true),
+        check("runtime.rejects_unknown_stdlib_operator", operator_rejections.fetch("unknown_stdlib_operator") == true)
       ]
     end
 

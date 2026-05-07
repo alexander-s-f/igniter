@@ -22,9 +22,11 @@ module StdlibExecutionKernelStage1
   end
 
   class StdlibKernel
+    LEGACY_OPERATORS = ["add"].freeze
     PRE_RESOLUTION_OPERATORS = ["stdlib.numeric.add"].freeze
 
     def call(operator, args)
+      reject_legacy_operator!(operator)
       reject_pre_resolution_operator!(operator)
 
       case operator
@@ -37,6 +39,13 @@ module StdlibExecutionKernelStage1
       when "stdlib.decimal.add"
         require_all!(operator, args, DecimalValue)
         args.reduce { |acc, value| acc + value }
+      when "stdlib.integer.gt"
+        raise ArgumentError, "stdlib.integer.gt expects 2 operands" unless args.length == 2
+        require_all!(operator, args, Integer)
+        args.fetch(0) > args.fetch(1)
+      when "stdlib.bool.and"
+        require_all!(operator, args, TrueClass, FalseClass)
+        args.all? { |arg| arg == true }
       when "fold"
         collection, initial, reducer = args
         Array(collection).reduce(initial) { |acc, item| call(reducer, [acc, item]) }
@@ -58,16 +67,22 @@ module StdlibExecutionKernelStage1
 
     private
 
+    def reject_legacy_operator!(operator)
+      return unless LEGACY_OPERATORS.include?(operator)
+
+      raise ArgumentError, "#{operator} is a legacy operator; runtime requires a monomorphic stdlib operator"
+    end
+
     def reject_pre_resolution_operator!(operator)
       return unless PRE_RESOLUTION_OPERATORS.include?(operator)
 
       raise ArgumentError, "#{operator} is pre-resolution only; runtime requires a monomorphic stdlib operator"
     end
 
-    def require_all!(operator, args, klass)
-      return if args.all? { |arg| arg.is_a?(klass) }
+    def require_all!(operator, args, *klasses)
+      return if args.all? { |arg| klasses.any? { |klass| arg.is_a?(klass) } }
 
-      raise TypeError, "#{operator} expected #{klass}"
+      raise TypeError, "#{operator} expected #{klasses.map(&:to_s).join(" or ")}"
     end
 
     def matches_filter?(item, spec)
@@ -142,6 +157,8 @@ module StdlibExecutionKernelStage1
           [DecimalValue.parse("12.34", scale: 2), DecimalValue.parse("0.66", scale: 2)]
         ).as_json
       )
+      results["kernel.integer_gt"] = assert_equal(true, kernel.call("stdlib.integer.gt", [5, 3]))
+      results["kernel.bool_and"] = assert_equal(false, kernel.call("stdlib.bool.and", [true, true, false]))
       results["kernel.fold"] = assert_equal(10, kernel.call("fold", [[1, 2, 3, 4], 0, "stdlib.integer.add"]))
       results["kernel.map"] = assert_equal(
         [2, 3, 4],
@@ -163,12 +180,24 @@ module StdlibExecutionKernelStage1
       results["kernel.numeric_add_rejected"] = assert_raises(ArgumentError) do
         kernel.call("stdlib.numeric.add", [1, 2])
       end
+      results["kernel.legacy_add_rejected"] = assert_raises(ArgumentError) do
+        kernel.call("add", [1, 2])
+      end
+      results["kernel.unknown_stdlib_operator_rejected"] = assert_raises(ArgumentError) do
+        kernel.call("stdlib.integer.mystery", [1, 2])
+      end
       results["runtime.add_igapp_style_integer_add"] = assert_equal(
         { "sum" => 42 },
         runtime.evaluate_contract(add_contract("stdlib.integer.add"), { "a" => 19, "b" => 23 })
       )
       results["runtime.add_igapp_style_rejects_numeric_add"] = assert_raises(ArgumentError) do
         runtime.evaluate_contract(add_contract("stdlib.numeric.add"), { "a" => 1, "b" => 2 })
+      end
+      results["runtime.add_igapp_style_rejects_legacy_add"] = assert_raises(ArgumentError) do
+        runtime.evaluate_contract(add_contract("add"), { "a" => 1, "b" => 2 })
+      end
+      results["runtime.rejects_unknown_stdlib_operator"] = assert_raises(ArgumentError) do
+        runtime.evaluate_contract(add_contract("stdlib.integer.mystery"), { "a" => 1, "b" => 2 })
       end
 
       emit(results)
@@ -221,8 +250,20 @@ module StdlibExecutionKernelStage1
         "proof" => "stdlib-execution-kernel-stage1-v0",
         "status" => results.values.all? ? "PASS" : "FAIL",
         "runtime_operator_boundary" => {
+          "legacy" => ["add"],
           "pre_resolution" => ["stdlib.numeric.add"],
-          "executable" => ["stdlib.integer.add", "stdlib.float.add", "stdlib.decimal.add"]
+          "executable" => [
+            "stdlib.integer.add",
+            "stdlib.float.add",
+            "stdlib.decimal.add",
+            "stdlib.integer.gt",
+            "stdlib.bool.and",
+            "fold",
+            "map",
+            "filter",
+            "count",
+            "or_else"
+          ]
         },
         "stage2_deferred" => ["History[T]", "stream T", "OLAPPoint[T, Dims]"]
       }

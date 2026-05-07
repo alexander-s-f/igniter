@@ -364,6 +364,14 @@
           "status": "PASS"
         },
         {
+          "name": "kernel.integer_gt",
+          "status": "PASS"
+        },
+        {
+          "name": "kernel.bool_and",
+          "status": "PASS"
+        },
+        {
           "name": "kernel.fold",
           "status": "PASS"
         },
@@ -392,11 +400,27 @@
           "status": "PASS"
         },
         {
+          "name": "kernel.legacy_add_rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "kernel.unknown_stdlib_operator_rejected",
+          "status": "PASS"
+        },
+        {
           "name": "runtime.add_igapp_style_integer_add",
           "status": "PASS"
         },
         {
           "name": "runtime.add_igapp_style_rejects_numeric_add",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.add_igapp_style_rejects_legacy_add",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.rejects_unknown_stdlib_operator",
           "status": "PASS"
         }
       ],
@@ -404,6 +428,8 @@
         "kernel.integer_add: ok",
         "kernel.float_add: ok",
         "kernel.decimal_add_exact: ok",
+        "kernel.integer_gt: ok",
+        "kernel.bool_and: ok",
         "kernel.fold: ok",
         "kernel.map: ok",
         "kernel.filter: ok",
@@ -411,19 +437,33 @@
         "kernel.or_else_some: ok",
         "kernel.or_else_none: ok",
         "kernel.numeric_add_rejected: ok",
+        "kernel.legacy_add_rejected: ok",
+        "kernel.unknown_stdlib_operator_rejected: ok",
         "runtime.add_igapp_style_integer_add: ok",
         "runtime.add_igapp_style_rejects_numeric_add: ok",
+        "runtime.add_igapp_style_rejects_legacy_add: ok",
+        "runtime.rejects_unknown_stdlib_operator: ok",
         "{",
         "  \"proof\": \"stdlib-execution-kernel-stage1-v0\",",
         "  \"status\": \"PASS\",",
         "  \"runtime_operator_boundary\": {",
+        "    \"legacy\": [",
+        "      \"add\"",
+        "    ],",
         "    \"pre_resolution\": [",
         "      \"stdlib.numeric.add\"",
         "    ],",
         "    \"executable\": [",
         "      \"stdlib.integer.add\",",
         "      \"stdlib.float.add\",",
-        "      \"stdlib.decimal.add\"",
+        "      \"stdlib.decimal.add\",",
+        "      \"stdlib.integer.gt\",",
+        "      \"stdlib.bool.and\",",
+        "      \"fold\",",
+        "      \"map\",",
+        "      \"filter\",",
+        "      \"count\",",
+        "      \"or_else\"",
         "    ]",
         "  },",
         "  \"stage2_deferred\": [",
@@ -500,6 +540,18 @@
         {
           "name": "runtime.compatibility_report_trusted",
           "status": "PASS"
+        },
+        {
+          "name": "runtime.rejects_legacy_add",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.rejects_stdlib_numeric_add",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.rejects_unknown_stdlib_operator",
+          "status": "PASS"
         }
       ],
       "stdout": [
@@ -518,6 +570,9 @@
         "runtime.evaluate_assembled_claim_evidence: ok",
         "runtime.evaluate_assembled_evidence_linked_alert: ok",
         "runtime.compatibility_report_trusted: ok",
+        "runtime.rejects_legacy_add: ok",
+        "runtime.rejects_stdlib_numeric_add: ok",
+        "runtime.rejects_unknown_stdlib_operator: ok",
         "runtime.add.load_status: loaded",
         "runtime.add.output_value: 42",
         "runtime.add.compatibility_report_status: trusted",

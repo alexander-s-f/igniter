@@ -45,7 +45,7 @@
       ],
       "expression": {
         "kind": "apply",
-        "operator": "stdlib.numeric.add",
+        "operator": "stdlib.integer.add",
         "resolved_impl": "Additive[Integer]",
         "type_args": [
           "Integer"

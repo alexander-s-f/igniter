@@ -14,6 +14,90 @@ require_relative "../runtime_machine_memory_proof/runtime_machine_memory_proof"
 # =============================================================================
 
 module RuntimeMachineMemoryProof
+  module CanonicalStdlibRegistry
+    PRE_RESOLUTION_OPERATORS = ["stdlib.numeric.add"].freeze
+    EXECUTABLE_OPERATORS = [
+      "stdlib.integer.add",
+      "stdlib.float.add",
+      "stdlib.decimal.add",
+      "stdlib.integer.gt",
+      "stdlib.bool.and",
+      "fold",
+      "map",
+      "filter",
+      "count",
+      "or_else"
+    ].freeze
+
+    module_function
+
+    def registry_operator?(operator)
+      EXECUTABLE_OPERATORS.include?(operator) ||
+        PRE_RESOLUTION_OPERATORS.include?(operator) ||
+        operator.start_with?("stdlib.")
+    end
+
+    def call(operator, operands)
+      reject_pre_resolution_operator!(operator)
+
+      case operator
+      when "stdlib.integer.add"
+        require_all!(operator, operands, Integer)
+        operands.reduce(0, :+)
+      when "stdlib.float.add"
+        require_all!(operator, operands, Float)
+        operands.reduce(0.0, :+)
+      when "stdlib.decimal.add"
+        operands.reduce(:+)
+      when "stdlib.integer.gt"
+        raise ArgumentError, "stdlib.integer.gt expects 2 operands" unless operands.length == 2
+
+        operands.fetch(0) > operands.fetch(1)
+      when "stdlib.bool.and"
+        operands.all? { |operand| operand == true }
+      when "fold"
+        collection, initial, reducer = operands
+        Array(collection).reduce(initial) { |acc, item| call(reducer, [acc, item]) }
+      when "map"
+        collection, spec = operands
+        Array(collection).map { |item| call(spec.fetch("operator"), [item, spec.fetch("arg")]) }
+      when "filter"
+        collection, spec = operands
+        Array(collection).select { |item| matches_filter?(item, spec) }
+      when "count"
+        Array(operands.fetch(0)).length
+      when "or_else"
+        value, fallback = operands
+        value.nil? ? fallback : value
+      else
+        raise ArgumentError, "Unknown stdlib operator: #{operator}"
+      end
+    end
+
+    def reject_pre_resolution_operator!(operator)
+      return unless PRE_RESOLUTION_OPERATORS.include?(operator)
+
+      raise ArgumentError, "#{operator} is pre-resolution only; runtime requires a monomorphic stdlib operator"
+    end
+
+    def require_all!(operator, operands, klass)
+      return if operands.all? { |operand| operand.is_a?(klass) }
+
+      raise TypeError, "#{operator} expected #{klass}"
+    end
+
+    def matches_filter?(item, spec)
+      case spec.fetch("predicate")
+      when "truthy"
+        !!item
+      when "field_equals"
+        item.fetch(spec.fetch("field")) == spec.fetch("value")
+      else
+        raise ArgumentError, "Unknown filter predicate: #{spec.fetch("predicate")}"
+      end
+    end
+  end
+
   class CompiledProgram
     attr_reader :program_id, :artifact_hash, :language_version, :format
     attr_reader :manifest, :compilation_report, :semantic_ir_program, :specialization_manifest
@@ -321,16 +405,10 @@ module RuntimeMachineMemoryProof
     end
 
     def apply_operator(op, operands)
+      return CanonicalStdlibRegistry.call(op, operands) if CanonicalStdlibRegistry.registry_operator?(op)
+
       case op
-      when "add", "stdlib.numeric.add", "stdlib.integer.add", "stdlib.float.add", "stdlib.decimal.add" then operands.reduce(:+)
-      when "stdlib.integer.gt"
-        raise ArgumentError, "stdlib.integer.gt expects 2 operands" unless operands.length == 2
-        operands.fetch(0) > operands.fetch(1)
-      when "stdlib.bool.and"
-        operands.all? { |operand| operand == true }
-      when "sub"            then operands.reduce(:-)
-      when "mul"            then operands.reduce(:*)
-      when "div"            then operands.reduce(:/)
+      when "add"            then raise ArgumentError, "Legacy operator add is not executable; use a monomorphic stdlib operator"
       when "compute_slots"  then compute_slots(*operands)
       when "build_snapshot" then build_snapshot(*operands)
       else raise ArgumentError, "Unknown operator: #{op}"

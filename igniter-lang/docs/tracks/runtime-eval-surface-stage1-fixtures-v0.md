@@ -80,11 +80,13 @@ closed: runtime_eval_surface
 remaining gaps: parser_oof_rejection_gap, production_compiler_assembly
 ```
 
-## Remaining Gaps
+## Follow-Up Closure
 
-[Q] Runtime operator table is still proof-local and still contains historical
-operator compatibility. A later stdlib registry should reject
-`stdlib.numeric.add` at RuntimeMachine execution time.
+[D] Follow-up track `canonical-stdlib-registry-runtime-v0` closed the
+historical operator compatibility gap. The RuntimeMachine proof now rejects
+`"add"`, `stdlib.numeric.add`, and unknown `stdlib.*` operators.
+
+## Remaining Gaps
 
 [Q] Production compiler assembly is still proof-local.
 
@@ -112,5 +114,5 @@ docs/tracks/runtime-eval-surface-stage1-fixtures-v0.md
 
 ## Next
 
-[Next] Replace the proof-local operator table with a small canonical stdlib
-registry and remove runtime acceptance of pre-resolution `stdlib.numeric.add`.
+[Next] Extract the proof-local canonical stdlib registry into the approved
+production RuntimeMachine/package boundary.

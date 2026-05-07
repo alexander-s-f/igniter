@@ -40,7 +40,7 @@ module PolymorphicAddRuntimeLoadBoundaryProof
       check("runtime.reject_generic_add", runtime_eval.dig(:generic_add, :status) == "rejected"),
       check("runtime.reject_add_string", runtime_eval.dig(:add_string, :status) == "rejected"),
       check(
-        "runtime.operator_stdlib_numeric_add",
+        "runtime.operator_canonical_monomorphic_add",
         runtime_eval.dig(:add_integer, :error).nil? && runtime_eval.dig(:add_float, :error).nil?
       )
     ]
