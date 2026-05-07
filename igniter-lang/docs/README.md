@@ -18,6 +18,7 @@ Track index                    → tracks/README.md
 Stage 2 active proposals       → proposals/README.md  (PROP-022..027, new from PROP-028)
 Accepted Stage 1 PROPs         → proposals/accepted/  (read-only)
 Governance                     → meta-proposals/README.md
+Human-agent vision            → meta-proposals/META-EXPERT-010-human-agent-symbiosis-vision-v0.md
 Stage 1 close snapshot         → archive/snapshots/2026-05-06-stage1-close/
 Pre-crystallization archive    → archive/snapshots/2026-05-06-stage1-pre-crystallization/
 ```
