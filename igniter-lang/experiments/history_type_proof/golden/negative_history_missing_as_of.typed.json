@@ -1,0 +1,16 @@
+{
+  "contracts": [],
+  "diagnostics": [
+    {
+      "contract": "TechnicianJobCountWithoutAsOf",
+      "message": "History[T] point access requires an explicit as_of DateTime argument",
+      "node": "current_count",
+      "rule": "OOF-H1",
+      "severity": "error"
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "typed_program",
+  "module": "Fixture.HistoryTypeProof",
+  "source_hash": "sha256:5d9faad248d8188940415e59614751d5a0998e28e194e41879e03f2a4f9ddab8"
+}

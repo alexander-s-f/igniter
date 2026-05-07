@@ -1,0 +1,174 @@
+{
+  "append_observations": [
+    {
+      "kind": "history_append_observation",
+      "observation_id": "obs/history_append/f8d0bde0dcace702",
+      "observed_at": "2026-05-01T00:00:00Z",
+      "subject": "technicians/tech-synthetic-1/job_count",
+      "temporal": {
+        "as_of": "2026-05-01T00:00:00Z",
+        "axis": "valid_time",
+        "lifecycle": "durable"
+      },
+      "valid_from": "2026-05-01T00:00:00Z",
+      "value": 7,
+      "value_type": "Integer"
+    },
+    {
+      "kind": "history_append_observation",
+      "observation_id": "obs/history_append/4e39dce7c37109f7",
+      "observed_at": "2026-05-05T00:00:00Z",
+      "subject": "technicians/tech-synthetic-1/job_count",
+      "temporal": {
+        "as_of": "2026-05-05T00:00:00Z",
+        "axis": "valid_time",
+        "lifecycle": "durable"
+      },
+      "valid_from": "2026-05-05T00:00:00Z",
+      "value": 9,
+      "value_type": "Integer"
+    }
+  ],
+  "artifacts": {
+    "assembled_files": [
+      "igniter-lang/experiments/history_type_proof/out/history_integer_point_access.igapp/compilation_report.json",
+      "igniter-lang/experiments/history_type_proof/out/history_integer_point_access.igapp/contracts/technician_job_count_at.json",
+      "igniter-lang/experiments/history_type_proof/out/history_integer_point_access.igapp/diagnostics.json",
+      "igniter-lang/experiments/history_type_proof/out/history_integer_point_access.igapp/manifest.json",
+      "igniter-lang/experiments/history_type_proof/out/history_integer_point_access.igapp/requirements.json",
+      "igniter-lang/experiments/history_type_proof/out/history_integer_point_access.igapp/semantic_ir_program.json"
+    ],
+    "golden_dir": "igniter-lang/experiments/history_type_proof/golden",
+    "igapp_dir": "igniter-lang/experiments/history_type_proof/out/history_integer_point_access.igapp"
+  },
+  "checks": {
+    "assembler.history_igapp": true,
+    "classifier.history_read_escape": true,
+    "compilation.positive_report_ok": true,
+    "history.append_seed_observations": true,
+    "negative.missing_as_of_oof_h1": true,
+    "parser.hand_authored_history_parsed_program": true,
+    "runtime.evaluate_as_of_2026_05_03": true,
+    "runtime.evaluate_as_of_2026_05_06": true,
+    "runtime.load_history_igapp_trusted": true,
+    "runtime.output_links_selected_append_observation": true,
+    "semanticir.temporal_access_node": true,
+    "semanticir.temporal_input_node": true,
+    "typechecker.history_at_option_integer": true
+  },
+  "compatibility_report": {
+    "checks": {
+      "compilation_report": "ok",
+      "history_requirements": "ok",
+      "manifest": "ok",
+      "semantic_ir_program": "ok"
+    },
+    "format_version": "0.1.0",
+    "kind": "compatibility_report",
+    "program_id": "semanticir/history/096b47d88eccf388",
+    "status": "trusted"
+  },
+  "evaluations": {
+    "as_of_2026_05_03": {
+      "as_of": "2026-05-03T10:00:00Z",
+      "contract_ref": "contract/Fixture.HistoryTypeProof.TechnicianJobCountAt@history-point-v0",
+      "evidence_links": [
+        {
+          "from": "obs/history_access/f94e76df56f11972",
+          "rel": "selected_append",
+          "to": "obs/history_append/f8d0bde0dcace702"
+        }
+      ],
+      "kind": "runtime_evaluation",
+      "observations": [
+        {
+          "access": "point",
+          "as_of": "2026-05-03T10:00:00Z",
+          "kind": "history_access_observation",
+          "observation_id": "obs/history_access/f94e76df56f11972",
+          "observed_at": "2026-05-03T10:00:00Z",
+          "option_encoding": {
+            "none": {
+              "none": true
+            },
+            "some": {
+              "some": "<value>"
+            }
+          },
+          "result": {
+            "some": 7
+          },
+          "selected_append_ref": "obs/history_append/f8d0bde0dcace702",
+          "subject": "technicians/tech-synthetic-1/job_count",
+          "temporal": {
+            "as_of": "2026-05-03T10:00:00Z",
+            "axis": "valid_time",
+            "lifecycle": "session"
+          }
+        }
+      ],
+      "outputs": {
+        "current_count": {
+          "some": 7
+        }
+      }
+    },
+    "as_of_2026_05_06": {
+      "as_of": "2026-05-06T10:00:00Z",
+      "contract_ref": "contract/Fixture.HistoryTypeProof.TechnicianJobCountAt@history-point-v0",
+      "evidence_links": [
+        {
+          "from": "obs/history_access/a5d6cfc59ef6f905",
+          "rel": "selected_append",
+          "to": "obs/history_append/4e39dce7c37109f7"
+        }
+      ],
+      "kind": "runtime_evaluation",
+      "observations": [
+        {
+          "access": "point",
+          "as_of": "2026-05-06T10:00:00Z",
+          "kind": "history_access_observation",
+          "observation_id": "obs/history_access/a5d6cfc59ef6f905",
+          "observed_at": "2026-05-06T10:00:00Z",
+          "option_encoding": {
+            "none": {
+              "none": true
+            },
+            "some": {
+              "some": "<value>"
+            }
+          },
+          "result": {
+            "some": 9
+          },
+          "selected_append_ref": "obs/history_append/4e39dce7c37109f7",
+          "subject": "technicians/tech-synthetic-1/job_count",
+          "temporal": {
+            "as_of": "2026-05-06T10:00:00Z",
+            "axis": "valid_time",
+            "lifecycle": "session"
+          }
+        }
+      ],
+      "outputs": {
+        "current_count": {
+          "some": 9
+        }
+      }
+    }
+  },
+  "format_version": "0.1.0",
+  "kind": "history_type_proof_summary",
+  "option_encoding": {
+    "none": {
+      "none": true
+    },
+    "some": {
+      "some": "<value>"
+    }
+  },
+  "parser_gap": "Current parser support for History[T] read/from/lifecycle is not used; this proof starts from hand-authored ParsedProgram.",
+  "status": "PASS",
+  "track": "history-type-point-access-proof-v0"
+}

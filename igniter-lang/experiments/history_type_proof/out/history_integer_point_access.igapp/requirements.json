@@ -1,0 +1,18 @@
+{
+  "capabilities": {
+    "required_caps": [
+      "history_read"
+    ]
+  },
+  "format_version": "0.1.0",
+  "kind": "requirements",
+  "temporal": {
+    "axes": [
+      "valid_time"
+    ],
+    "history_reads": [
+      "job_count_history"
+    ],
+    "requires_as_of": true
+  }
+}

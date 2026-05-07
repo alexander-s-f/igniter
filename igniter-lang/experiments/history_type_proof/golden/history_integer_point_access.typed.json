@@ -1,0 +1,92 @@
+{
+  "contracts": [
+    {
+      "computes": [
+        {
+          "fragment_class": "escape",
+          "name": "current_count",
+          "resolved_type_variables": {
+            "T": {
+              "kind": "type_ref",
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "signature": "history_at(History[T], DateTime) -> Option[T]",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "fragment_class": "escape",
+      "inputs": [
+        {
+          "name": "technician_id",
+          "type": {
+            "kind": "type_ref",
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "name": "as_of",
+          "type": {
+            "kind": "type_ref",
+            "name": "DateTime",
+            "params": []
+          }
+        }
+      ],
+      "name": "TechnicianJobCountAt",
+      "outputs": [
+        {
+          "name": "current_count",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "reads": [
+        {
+          "fragment_class": "escape",
+          "name": "job_count_history",
+          "required_caps": [
+            "history_read"
+          ],
+          "type": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "kind": "typed_program",
+  "module": "Fixture.HistoryTypeProof",
+  "source_hash": "sha256:096b47d88eccf388186cda7faddcfc7e2b3753ba63fea0e0b68f48afe63ed2fb"
+}

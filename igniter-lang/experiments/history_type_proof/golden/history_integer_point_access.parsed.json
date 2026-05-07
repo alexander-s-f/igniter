@@ -1,0 +1,90 @@
+{
+  "contracts": [
+    {
+      "body": [
+        {
+          "kind": "input",
+          "name": "technician_id",
+          "type_ref": {
+            "kind": "type_ref",
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "kind": "input",
+          "name": "as_of",
+          "type_ref": {
+            "kind": "type_ref",
+            "name": "DateTime",
+            "params": []
+          }
+        },
+        {
+          "capability": "history_read",
+          "kind": "escape"
+        },
+        {
+          "from": "technicians/{technician_id}/job_count",
+          "kind": "read",
+          "lifecycle": "durable",
+          "name": "job_count_history",
+          "type_ref": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "job_count_history"
+              },
+              {
+                "kind": "ref",
+                "name": "as_of"
+              }
+            ],
+            "kind": "call",
+            "name": "history_at"
+          },
+          "kind": "compute",
+          "name": "current_count"
+        },
+        {
+          "kind": "output",
+          "lifecycle": "session",
+          "name": "current_count",
+          "type_ref": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "contract",
+      "name": "TechnicianJobCountAt"
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "parsed_program",
+  "module": "Fixture.HistoryTypeProof",
+  "parse_errors": [],
+  "parser_status": "hand_authored_until_history_read_grammar_lands",
+  "source_hash": "sha256:096b47d88eccf388186cda7faddcfc7e2b3753ba63fea0e0b68f48afe63ed2fb",
+  "source_path": "igniter-lang/experiments/history_type_proof/history_integer_point_access.ig"
+}

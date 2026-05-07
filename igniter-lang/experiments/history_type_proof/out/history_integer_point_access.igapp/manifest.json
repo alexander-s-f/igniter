@@ -1,0 +1,9 @@
+{
+  "artifact_hash": "sha256:0c313f28775e1fd3f4db40a00b976a944c20b7e234284dc3465cc94b1a765787",
+  "entry_contract_ref": "contract/Fixture.HistoryTypeProof.TechnicianJobCountAt@history-point-v0",
+  "format_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "igniter-lang-stage2-proof",
+  "program_id": "semanticir/history/096b47d88eccf388",
+  "track": "history-type-point-access-proof-v0"
+}

@@ -1,0 +1,42 @@
+{
+  "contracts": [
+    {
+      "computes": [
+        {
+          "fragment_class": "oof",
+          "name": "current_count",
+          "operation": "history_at"
+        }
+      ],
+      "fragment_class": "oof",
+      "name": "TechnicianJobCountWithoutAsOf",
+      "reads": [
+        {
+          "fragment_class": "escape",
+          "name": "job_count_history",
+          "required_caps": [
+            "history_read"
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "contract": "TechnicianJobCountWithoutAsOf",
+      "message": "History[T] point access requires an explicit as_of DateTime argument",
+      "node": "current_count",
+      "rule": "OOF-H1",
+      "severity": "error"
+    }
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "oof",
+  "kind": "classified_program",
+  "module": "Fixture.HistoryTypeProof",
+  "parser_status": "hand_authored_until_history_read_grammar_lands",
+  "required_caps": [
+    "history_read"
+  ],
+  "source_hash": "sha256:5d9faad248d8188940415e59614751d5a0998e28e194e41879e03f2a4f9ddab8"
+}

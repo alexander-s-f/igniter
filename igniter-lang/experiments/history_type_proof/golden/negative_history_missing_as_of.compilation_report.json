@@ -1,0 +1,25 @@
+{
+  "diagnostics": [
+    {
+      "contract": "TechnicianJobCountWithoutAsOf",
+      "message": "History[T] point access requires an explicit as_of DateTime argument",
+      "node": "current_count",
+      "rule": "OOF-H1",
+      "severity": "error"
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "program_id": "compilation_report/history/5d9faad248d81889",
+  "semantic_ir_ref": null,
+  "source_hash": "sha256:5d9faad248d8188940415e59614751d5a0998e28e194e41879e03f2a4f9ddab8",
+  "source_path": "igniter-lang/experiments/history_type_proof/negative_history_missing_as_of.ig",
+  "stages": {
+    "classify": "oof",
+    "emit": "skipped",
+    "parse": "ok",
+    "typecheck": "skipped"
+  },
+  "track": "history-type-point-access-proof-v0"
+}

@@ -1,0 +1,92 @@
+{
+  "compilation_report_ref": "compilation_report/history/096b47d88eccf388",
+  "contracts": [
+    {
+      "contract_name": "TechnicianJobCountAt",
+      "contract_ref": "contract/Fixture.HistoryTypeProof.TechnicianJobCountAt@history-point-v0",
+      "escape_boundaries": [
+        {
+          "name": "history_read",
+          "produces": [
+            "history_access_observation"
+          ],
+          "required_caps": [
+            "history_read"
+          ]
+        }
+      ],
+      "fragment_class": "escape",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "technician_id",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "as_of",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "nodes": [
+        {
+          "as_of_ref": "as_of",
+          "axis": "single",
+          "fragment": "escape",
+          "kind": "temporal_input_node",
+          "name": "job_count_history",
+          "required_caps": [
+            "history_read"
+          ],
+          "store_ref": "technicians/{technician_id}/job_count",
+          "type": {
+            "constructor": "History",
+            "element_type": "Integer"
+          }
+        },
+        {
+          "access": "point",
+          "evidence_policy": "link_selected_append_observation",
+          "fragment": "escape",
+          "kind": "temporal_access_node",
+          "name": "current_count",
+          "result_type": {
+            "constructor": "Option",
+            "element_type": "Integer"
+          },
+          "source_ref": "job_count_history",
+          "time_ref": "as_of"
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "current_count",
+          "type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "Fixture.HistoryTypeProof",
+  "program_id": "semanticir/history/096b47d88eccf388",
+  "source_hash": "sha256:096b47d88eccf388186cda7faddcfc7e2b3753ba63fea0e0b68f48afe63ed2fb",
+  "source_path": "igniter-lang/experiments/history_type_proof/history_integer_point_access.ig",
+  "typecheck_ref": "typed_program/255a11bf9e45377e"
+}
