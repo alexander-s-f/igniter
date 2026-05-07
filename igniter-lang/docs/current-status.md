@@ -1,9 +1,10 @@
-# Igniter-Lang Current Status — Stage 1
+# Igniter-Lang Current Status
 
-Status: active scoreboard
+Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
+Stage 2: **OPEN** (2026-05-06) — META-EXPERT-008
 Maintained by: `[Igniter-Lang Meta Expert]`
 Last updated: 2026-05-06
-Policy: `META-EXPERT-003-stage1-implementation-governance-v0.md`
+Policy: `META-EXPERT-008-stage2-implementation-governance-v0.md`
 Language spec: `docs/language-spec.md` → `docs/spec/ch1..ch9`
 
 > Full historical status preserved in:
@@ -248,3 +249,28 @@ Step 5: Archive Stage 2 design PROPs
 
 **Do not do any of this until Stage 1 is closed.**
 Stage 1 close criteria: RuntimeMachine.evaluate(assembled_add.igapp, inputs) → correct output, end-to-end.
+
+---
+
+## Stage 2 Scoreboard — 2026-05-06
+
+```text
+Pass/Feature           PROP(s)       Experiment                        Status
+──────────────────────────────────────────────────────────────────────────────
+Parser OOF hardening   PROP-014/015  experiments/parser/               ⏳ deferred gap
+Production compiler    PROP-022A     no package yet                    ⏳ deferred gap
+Runtime eval surface   —             runtime_machine_memory_proof/     ⏳ deferred gap
+                                     (field_access, integer.gt, bool.and)
+History[T]             PROP-022      no experiment yet                 🔵 authored
+stream T               PROP-023      no experiment yet                 🔵 authored
+OLAPPoint[T,Dims]      PROP-024      no experiment yet                 🔵 authored
+Invariant severity     PROP-025      no experiment yet                 🔵 authored
+──────────────────────────────────────────────────────────────────────────────
+STAGE 2 CLOSED:   NO
+Active priority:  Deferred Gap C (runtime eval surface) → Gap A (parser OOF) → Tier 1 proofs
+Governance:       META-EXPERT-008
+New PROPs:        start from PROP-026
+```
+
+→ See `meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md` for
+  full dependency order, done criteria, agent routing, and close conditions.

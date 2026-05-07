@@ -12,8 +12,9 @@ Documents that govern active Stage 1 work. New agents should read these first.
 
 | Document | Status | Purpose |
 |----------|--------|---------|
+| [META-EXPERT-008](META-EXPERT-008-stage2-implementation-governance-v0.md) | **active** | Stage 2 governance: scoreboard, dependency order, done criteria, agent routing, close criteria |
 | [META-EXPERT-007](META-EXPERT-007-stage1-close-governance-v0.md) | decision | Stage 1 close governance: verdict CLOSE WITH DEFERRED GAP; close criteria formally satisfied; 3 deferred gaps; post-close action list |
-| [META-EXPERT-007.1](META-EXPERT-007.1-stage1-close-snapshot-plan-v0.md) | plan (not yet executed) | Post-close doc transition: snapshot path, PROP freeze list, naming collision fix, file move commands, Stage 2 governance skeleton |
+| [META-EXPERT-007.1](META-EXPERT-007.1-stage1-close-snapshot-plan-v0.md) | done | Post-close doc transition: snapshot, PROP freeze list, naming collision fix, file moves |
 | [META-EXPERT-003](META-EXPERT-003-stage1-implementation-governance-v0.md) | done | Stage 1 scoreboard, agent routing policy, done criteria per pass, next 3 slices |
 | [META-EXPERT-004](META-EXPERT-004-stage1-scoreboard-reconciliation-v0.md) | done | Reconciles PROP-019.1 errata: oof_log removed, golden file migration gate, assembler unblock path |
 
