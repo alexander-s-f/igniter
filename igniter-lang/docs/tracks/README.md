@@ -27,30 +27,27 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
-## Stage 2 Round 3 Evidence
+## Stage 2 Round 4 Evidence
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `option-encoding-normalization-v0.md` | done | Option[T] → `{kind,value}` canonical shape; history_type_proof PASS |
-| `history-type-parser-acceptance-v0.md` | done | Parser structured TypeRef for generic types; History[T] parser PASS |
-| `bihistory-parser-typechecker-axes-v0.md` | done | TypeChecker BiHistory axis checks (4 classified cases); typechecker_proof PASS |
-| `history-temporal-access-runtime-extraction-v0.md` | done | TemporalAccessRuntime::MemoryBackend shared; history+bihistory PASS |
-| `production-compiler-diagnostics-implementation-v0.md` | done | ProductionCompilerCLI::Diagnostics module added; CLI proof PASS |
-| `production-compiler-diagnostics-extraction-v0.md` | done | Diagnostics isolated from CLI orchestration; CLI proof PASS |
-| `compiler-diagnostics-library-boundary-v0.md` | done | lib/igniter_lang/diagnostics.rb extracted; library_require ok |
-| `invariant-severity-proof-v0.md` | done | invariant_severity_proof PASS; parser/TC ownership deferred |
-| `stage2-round3-map-refresh-v0.md` | done | R3 map sync — this track |
+| `runtime-temporal-access-node-loader-v0.md` | done | temporal_access_node evaluated via TemporalAccessRuntime in history+bihistory proofs |
+| `compiler-result-report-boundary-v0.md` | done | lib/igniter_lang/compiler_result.rb + compilation_report.rb extracted; CLI proof PASS |
+| `invariant-severity-parser-and-typechecker-ownership-v0.md` | done | Parser/TC spec (PINV-1..4 + TINV-1..3) authored; impl deferred; proof PASS |
+| `stream-t-proof-v0.md` | done | stream_t_proof PASS: fold_stream bounded window → CORE fold; OOF-S1..5 |
+| `stage2-round4-map-refresh-v0.md` | done | R4 map sync — this track |
 
-## Stage 2 Round 2 Evidence (summary)
+## Stage 2 Round 3 Evidence (summary)
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `stage2-map-refresh-v0.md` | done | Stage 2 map refresh; current-status compacted |
-| `parser-oof-hardening-stage2-proof-v0.md` | done | PROP-026 parser OOF hardening PASS |
-| `production-compiler-cli-wrapper-v0.md` | done | CLI `bin/igniter-lang compile` proof PASS |
-| `production-compiler-module-extraction-map-v0.md` | done | Extraction map; no code moved yet |
-| `sparkcrm-bihistory-fixture-v0.md` | done | BiHistory fixture PASS (OOF-BT1..4) |
-| `temporal-option-and-bihistory-shape-v0.md` | done | Option[T] + BiHistory canonical shape spec |
+| `option-encoding-normalization-v0.md` | done | Option[T] → `{kind,value}` canonical |
+| `history-type-parser-acceptance-v0.md` | done | History[T] parser structured TypeRef PASS |
+| `bihistory-parser-typechecker-axes-v0.md` | done | TypeChecker BiHistory axes PASS |
+| `history-temporal-access-runtime-extraction-v0.md` | done | TemporalAccessRuntime::MemoryBackend shared |
+| `compiler-diagnostics-library-boundary-v0.md` | done | lib/igniter_lang/diagnostics.rb extracted |
+| `invariant-severity-proof-v0.md` | done | invariant_severity_proof PASS |
+| `production-compiler-diagnostics-*.md` | done | Diagnostics module + extraction PASS |
 
 ---
 
@@ -58,10 +55,10 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `runtime-temporal-access-node-loader-v0` | Map SemanticIR temporal_access_node onto TemporalAccessRuntime API | Research Agent |
-| `compiler-result-report-boundary-v0` | Extract CompilerResult + CompilationReport helpers into lib/ | Research Agent |
-| `invariant-severity-parser-and-typechecker-ownership-v0` | Parser syntax + TypeChecker OOF codes for severity levels | Compiler/Grammar Expert |
-| `stream-t-proof-v0` | First proof for PROP-023 stream T | Research Agent |
+| `extract-parser-module-v0` | Move parser to lib/igniter_lang/parser.rb; preserve OOF + stage1 proofs | Research Agent |
+| `stream-parser-classifier-boundary-v0` | Parser + classifier for stream T (OOF-S1..S5) | Compiler/Grammar Expert |
+| `production-runtime-temporal-access-integration-v0` | TBackend adapters + capability checks for production RuntimeMachine | Research Agent |
+| `olap-point-proof-v0` | First proof for PROP-024 OLAPPoint[T,Dims] | Research Agent |
 
 ---
 

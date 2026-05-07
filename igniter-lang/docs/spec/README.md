@@ -1,6 +1,6 @@
 # Igniter-Lang Language Specification
 
-Version: 0.5 — Stage 2 R3 sync
+Version: 0.6 — Stage 2 R4 sync
 Maintainer: `[Igniter-Lang Meta Expert]`
 Status: living document
 Last updated: 2026-05-07
@@ -49,8 +49,9 @@ Last updated: 2026-05-07
 | Ch9 History[T] | PROP-022 | experiments/history_type_proof/ | ✅ point proof PASS ✅ parser accepted |
 | Ch9 BiHistory[T] | PROP-022 | sparkcrm_bihistory_fixture/ + typechecker_proof/ | ✅ fixture PASS ✅ axes typechecked |
 | Ch9 Temporal access runtime | PROP-022 | experiments/temporal_access_runtime/ | ✅ MemoryBackend shared |
-| Ch9 Invariant severity | PROP-025 | experiments/invariant_severity_proof/ | ✅ proof PASS ⏳ parser/TC deferred |
-| Ch9 stream T | PROP-023 | — | deferred Stage 2 |
+| Ch9 Temporal access SemanticIR | PROP-022 | history_type_proof/ + bihistory/ | ✅ temporal_access_node evaluated |
+| Ch9 Invariant severity | PROP-025 | experiments/invariant_severity_proof/ | ✅ proof PASS ✅ parser/TC spec done ⏳ impl deferred |
+| Ch9 stream T | PROP-023 | experiments/stream_t_proof/ | ✅ proof PASS ⏳ parser/classifier next |
 | Ch9 OLAPPoint | PROP-024 | — | deferred Stage 2 |
 
 ---
@@ -62,8 +63,8 @@ accepted + PASS   Ch3 (TypeChecker + boundary + BiHistory axes), Ch4 (classifier
                   Ch5 (pipeline + assembler), Ch6 (SemanticIR + assembler),
                   Ch7 (RuntimeMachine), Ch8 (stdlib kernel)
 accepted partial  Ch2 (OOF syntax gap closed PROP-026; semantic OOF caught at Classify/TypeCheck)
-Stage 2 partial   Ch9 (History[T]+BiHistory PASS; TemporalAccessRuntime PASS; severity proof PASS;
-                       stream T / OLAPPoint deferred)
+Stage 2 partial   Ch9 (History[T]+BiHistory+stream T PASS; temporal_access_node evaluated;
+                       severity proof+spec PASS; OLAPPoint deferred)
 ```
 
 ---
@@ -71,22 +72,29 @@ Stage 2 partial   Ch9 (History[T]+BiHistory PASS; TemporalAccessRuntime PASS; se
 ## Stage 1 Remaining Gap
 
 ```
-Stage 2 open gaps:
-1. SemanticIR temporal node generalization
-   temporal_access_runtime MemoryBackend extracted; needs SemanticIR node mapping.
-2. Production compiler package — diagnostics lib extracted; CompilerResult/CompilationReport helpers remain.
-3. Invariant severity parser + typechecker ownership
-   invariant_severity_proof PASS (proof-local); parser syntax + OOF codes deferred.
-4. stream T / OLAPPoint — PROP-023/024 authored; no experiments yet.
+Stage 2 open gaps (after R4):
+1. Production compiler parser module — extract-parser-module-v0
+   lib/: diagnostics.rb, compiler_result.rb, compilation_report.rb done.
+   Next: lib/igniter_lang/parser.rb.
+2. stream T parser + classifier boundary — stream-parser-classifier-boundary-v0
+   stream_t_proof PASS (proof-local); parser/classifier OOF-S1..S5 unimplemented.
+3. Invariant severity parser + typechecker implementation
+   Spec (PINV-1..4 + TINV-1..3) authored; impl deferred (Tier 1, after compiler closes).
+4. OLAPPoint[T,Dims] — PROP-024 authored; no experiment yet.
+5. Production RuntimeMachine temporal integration — temporal_access_node in proof;
+   TBackend adapters and capability checks remain.
 
-Closed post-Stage-1 and in Stage 2 R1–R3 (no longer gaps):
+Closed post-Stage-1 and in Stage 2 R1–R4 (no longer gaps):
   OOF syntax rejection     — PASS: PROP-026
   Runtime eval surface     — closed_in_proof: igapp_assembler_proof
   Option[T] normalization  — PASS: canonical {kind,value} shape
   History[T] parser        — PASS: structured TypeRef for generic types
   BiHistory[T] axes        — PASS: typechecker_proof (4 BiHistory classified cases)
   Temporal access runtime  — PASS: TemporalAccessRuntime::MemoryBackend shared
-  Invariant severity proof — PASS: invariant_severity_proof (proof-local)
+  Temporal access SemanticIR — PASS: temporal_access_node evaluated end-to-end
+  Invariant severity proof — PASS: invariant_severity_proof; parser/TC spec done
+  stream T proof           — PASS: stream_t_proof (fold_stream bounded window)
+  Production compiler libs — 3 libs in lib/igniter_lang/ (diagnostics, result, report)
 ```
 
 ---
