@@ -27,6 +27,15 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 2 Round 8 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `extract-semanticir-emitter-module-v0.md` | done | `lib/igniter_lang/semanticir_emitter.rb` extracted; source→SemanticIR golden PASS |
+| `olap-point-typechecker-semanticir-v0.md` | done | OOF-O2..O5; `olap_access_node`; explicit `dims_record`; OLAP proof PASS |
+| `stream-oof-s3-typechecker-v0.md` | done | ESCAPE-in-fold TypeChecker rule; stream OOF-S1..S5 all proven |
+| `production-runtime-machine-temporal-access-integration-v0.md` | done | RuntimeMachine load/evaluate proof-local hook integration; TBackend adapter still future |
+
 ## Stage 2 Round 7 Evidence
 
 | Track | Status | Notes |
@@ -48,7 +57,7 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
-## lib/igniter_lang/ — Current State (7 libs)
+## lib/igniter_lang/ — Current State (8 libs)
 
 ```text
 diagnostics.rb            (R3)
@@ -57,7 +66,8 @@ compilation_report.rb     (R4)
 parser.rb                 (R5/R7) — parser + stream + olap_point/dims_record
 temporal_access_runtime.rb (R5/R6/R7) — MemoryBackend + RuntimeMachineHook (wired R7)
 classifier.rb             (R6/R7) — ParsedProgram→ClassifiedProgram; OOF-S2
-typechecker.rb            (R7) — TypedProgram boundary
+typechecker.rb            (R7/R8) — TypedProgram boundary; stream OOF-S3; OLAP OOF-O2..O5
+semanticir_emitter.rb     (R8) — extracted SemanticIR emitter boundary
 ```
 
 ---
@@ -66,10 +76,11 @@ typechecker.rb            (R7) — TypedProgram boundary
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `extract-semanticir-emitter-module-v0` | Move SemanticIR emitter to lib/igniter_lang/semanticir_emitter.rb | Research Agent |
-| `olap-point-typechecker-semanticir-v0` | OOF-O2..O5 + olap_access_node lowering into SemanticIR | Compiler/Grammar Expert |
-| `stream-oof-s3-typechecker-v0` | OOF-S3 ESCAPE-in-fold-fn TypeChecker rule | Compiler/Grammar Expert |
-| `production-runtime-machine-temporal-access-integration-v0` | Wire RuntimeMachineHook into production RM; TBackend adapter | Research Agent |
+| `extract-assembler-module-v0` | Move assembler logic behind `lib/igniter_lang/assembler.rb` while preserving Stage 1 goldens | Research Agent |
+| `compiler-orchestrator-v0` | Wire Parser → Classifier → TypeChecker → SemanticIREmitter → Assembler behind one production boundary | Research Agent |
+| `semanticir-stage2-surface-lowering-v0` | Integrate OLAP/stream/invariant lowering into the extracted SemanticIR emitter | Compiler/Grammar Expert |
+| `production-tbackend-adapter-v0` | Bind RuntimeMachine temporal access to a production TBackend/Ledger bridge | Bridge Agent |
+| `living-signal-ledger-index-v0` | Create the compact concordance index over META-EXPERT-008.4 and 008.5 | Archive/Form Expert |
 
 ---
 
