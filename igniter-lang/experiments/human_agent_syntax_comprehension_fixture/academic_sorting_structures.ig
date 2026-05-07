@@ -311,18 +311,3 @@ contract SortStrategy[T where Ordered[T]](xs: List[T]) -> result: SortResult[T],
   output proof: SortProof[T] = chosen.proof
     evidence [xs, result]
 }
-
-contract Array [T]{
-    input add
-    input index
-
-    -- computations ..
-
-    output result:
-    output sorted:
-    -- etc
-
---    action sort -> ()
---    action pop -> ()
---    action push -> ()
-}
