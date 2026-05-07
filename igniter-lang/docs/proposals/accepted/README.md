@@ -8,6 +8,21 @@ All files in this directory are **read-only** Stage 1 accepted PROPs.
 No amendments except errata. Errata files may be added alongside the original.
 Do not rename or delete files in this directory.
 
+## Naming Convention Note
+
+Files `PROP-022A` and `PROP-023A` use an `-A` suffix because their number-space
+collides with active Stage 2 design PROPs:
+
+| Accepted file | Meaning | Active Stage 2 PROP |
+|---------------|---------|---------------------|
+| `PROP-022A-igapp-assembler-contract-v0.md` | Stage 1 assembler contract | `PROP-022` = History[T] |
+| `PROP-023A-classified-expr-boundary-v0.md` | Stage 1 ClassifiedExpr boundary | `PROP-023` = stream T |
+
+When citing these accepted PROPs, always use the full filename or the `-A` number.
+Bare `PROP-022` always refers to the Stage 2 History[T] design.
+See `META-EXPERT-008.1-prop-numbering-audit-v0.md` for full canonical map.
+
+
 ## Contents
 
 | File | Stage | Topic |

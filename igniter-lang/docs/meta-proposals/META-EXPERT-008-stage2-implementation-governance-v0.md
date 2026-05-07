@@ -5,6 +5,12 @@ Status: active
 Date: 2026-05-06
 Supersedes: META-EXPERT-003 (Stage 1 governance — complete)
 Prerequisite: META-EXPERT-007 (Stage 1 close decision — CLOSED)
+Numbering audit: META-EXPERT-008.1 (canonical PROP map — no file moves needed)
+
+> **PROP numbering note**: `PROP-022` = History[T] (Stage 2 design).
+> `PROP-022A` = .igapp assembler contract (Stage 1, frozen in accepted/).
+> `PROP-023` = stream T (Stage 2). `PROP-023A` = ClassifiedExpr boundary (Stage 1, frozen).
+> New Stage 2 proposals start from PROP-026.
 
 ---
 
@@ -33,7 +39,7 @@ Proven and frozen (do not re-implement):
 Deferred from Stage 1 (Stage 2 must address):
   ⏳ Parser OOF rejection hardening
   ⏳ Production compiler package (CLI + gem packaging)
-  ⏳ Runtime eval surface: field_access, integer.gt, bool.and operators
+  ✅ Runtime eval surface: closed_in_proof (igapp_assembler_proof evaluates all 3 contracts)
 ```
 
 ---
@@ -49,9 +55,9 @@ Parser OOF hardening   PROP-014/015        experiments/parser/               ⏳
 Production compiler    PROP-022A           no package yet                    ⏳ deferred gap
 package                (assembler contract)                                   (from Stage 1)
 
-Runtime eval surface   —                   experiments/runtime_machine_      ⏳ deferred gap
-(field_access,                              memory_proof/                      needs expansion
- integer.gt, bool.and)
+Runtime eval surface   —                   igapp_assembler_proof/            ✅ closed_in_proof
+                                            Add, ClaimEvidenceBundle,          all 3 contracts
+                                            EvidenceLinkedAlertGate → trusted
 
 History[T]             PROP-022            no experiment yet                 🔵 authored
                        Depends: PROP-004,                                     pending proof
@@ -83,7 +89,7 @@ Stage 2 implementation order (strict):
   Tier 0 (deferred gaps — address first):
     A. Parser OOF hardening
     B. Production compiler package foundation
-    C. Runtime eval surface (field_access, integer.gt, bool.and)
+    [C. Runtime eval surface — closed_in_proof ✅]
 
   Tier 1 (independent from each other, depend on Stage 1):
     D. History[T] (PROP-022) — depends on PROP-004/013/016 (all frozen ✅)
@@ -121,14 +127,12 @@ Done when:
   - Packaged as Ruby gem or standalone executable
 ```
 
-### Deferred Gap C — Runtime eval surface
+### ~~Deferred Gap C — Runtime eval surface~~ ✅ CLOSED
 
 ```text
-Done when:
-  - claim_evidence.igapp evaluates end-to-end (needs field_access)
-  - evidence_linked_alert.igapp evaluates (needs integer.gt + bool.and)
-  - experiments/igapp_assembler_proof/ evaluate cases expanded beyond add
-  - stage1_close_candidate updated or new stage2_close_candidate runner
+Closed by: igapp_assembler_proof closed_candidate_signals.runtime_eval_surface
+  evaluates: Add, ClaimEvidenceBundle, EvidenceLinkedAlertGate → trusted
+  field_access, integer.gt, bool.and: implemented in assembler proof evaluator
 ```
 
 ### Stage 2 PROP D — History[T] (PROP-022)
@@ -180,8 +184,7 @@ Done when:
 ## Agent Routing
 
 ```text
-[Research Agent]            → Deferred Gap C (runtime eval surface)
-                            → Tier 1 proofs: history_type_proof, invariant_severity_proof
+[Research Agent]            → Tier 1 proofs: history_type_proof, invariant_severity_proof
                             → Tier 2 proofs: stream_input_proof, olap_point_proof
 
 [Compiler/Grammar Expert]  → Deferred Gap A (parser OOF hardening spec)
@@ -199,9 +202,9 @@ Do not start:
   ❌ Breaking changes to Stage 1 accepted PROPs (proposals/accepted/)
 
 Do start:
-  ✅ Deferred Gap C — runtime eval surface (highest priority)
-  ✅ Deferred Gap A — parser OOF hardening (parallel)
+  ✅ Deferred Gap A — parser OOF hardening (top priority)
   ✅ Deferred Gap B — production compiler package planning
+  ✅ Tier 1 proofs: history_type_proof, invariant_severity_proof (parallel)
 ```
 
 ---

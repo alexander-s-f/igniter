@@ -39,7 +39,7 @@ Stdlib execution   ✅ PASS     experiments/stdlib_execution_kernel_stage1/
 ─────────────────────────────────────────────────────────────────────────────────
 STAGE 1 CLOSED:   YES — CLOSE WITH DEFERRED GAP (2026-05-06)
 Close evidence:   experiments/stage1_close_candidate/stage1_close_candidate.json
-Deferred gaps:    Parser OOF hardening | production compiler pkg | runtime eval surface
+Deferred gaps:    Parser OOF hardening | production compiler pkg
 ```
 
 ### Run the full Stage 1 proof suite
