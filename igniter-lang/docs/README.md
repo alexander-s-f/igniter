@@ -81,16 +81,22 @@ Active intake baseline (authors of new Stage 2 PROPs start from PROP-028):
 Current priority:
 
 ```text
-Tier 1 proof artifacts
-  -> production compiler package extraction
-  -> canonical diagnostics
-  -> parser/classifier/typechecker/assembler reusable modules
+Stage 2 proof line
+  -> normalize Option[T] encoding
+  -> make History[T] fixture parser-accepted
+  -> prove SparkCRM BiHistory availability correction
+
+Production compiler line
+  -> extract CLI Diagnostics helper to reusable file
+  -> continue parser/classifier/typechecker/assembler module extraction
 ```
 
-CLI wrapper proof:
+Current proof commands:
 
 ```bash
 igniter-lang/bin/igniter-lang compile igniter-lang/experiments/source_to_semanticir_fixture/add.ig --out /tmp/igniter_lang_cli_report_add.igapp
+ruby igniter-lang/experiments/production_compiler_cli/production_compiler_cli_proof.rb
+ruby igniter-lang/experiments/history_type_proof/history_type_proof.rb
 ```
 
 ---

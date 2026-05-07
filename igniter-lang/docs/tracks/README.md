@@ -33,6 +33,10 @@ assigned track only.
 
 | Track | Status | Notes |
 |-------|--------|-------|
+| `production-compiler-diagnostics-implementation-v0.md` | done | Canonical CLI diagnostics implemented; `igapp_path`, categories, stages, warnings |
+| `history-type-point-access-proof-v0.md` | done | Executable `History[Integer]` point proof; OOF-H1 negative; parser gap explicit |
+| `temporal-option-and-bihistory-shape-v0.md` | done | Canonical `Option[T]`, `history_at`, `bihistory_at`, OOF-BT rules |
+| `sparkcrm-bihistory-fixture-pressure-v0.md` | done | SparkCRM bitemporal availability correction fixture shape |
 | `production-compiler-cli-wrapper-v0.md` | done | CLI wrapper proof for `bin/igniter-lang compile` |
 | `production-compiler-module-extraction-map-v0.md` | done | Extraction map for production compiler package |
 | `history-type-proof-planning-v0.md` | done | Planning slice for `History[T]` proof path |
@@ -48,10 +52,11 @@ themselves.
 
 | Candidate | Purpose |
 |-----------|---------|
-| `extract-canonical-json-diagnostics-v0` | Move CLI diagnostics into reusable compiler package code |
-| `extract-parser-module-v0` | Create production parser module without changing semantics |
-| `history-type-proof-v0` | Turn planning for `History[T]` into executable proof |
-| `stage2-map-refresh-v0` | Refresh current-status/spec coverage after a major agent cycle |
+| `option-encoding-normalization-v0` | Normalize `history_type_proof` goldens to canonical `{ kind, value }` Option shape |
+| `history-type-parser-acceptance-v0` | Make parser accept the current `History[T]` fixture instead of hand-authored ParsedProgram |
+| `history-type-runtime-node-extraction-v0` | Extract proof-local `temporal_access_node` runtime support toward production RuntimeMachine |
+| `sparkcrm-bihistory-fixture-v0` | Executable bitemporal availability correction proof with OOF-BT diagnostics |
+| `production-compiler-diagnostics-extraction-v0` | Move `ProductionCompilerCLI::Diagnostics` to a separate reusable file |
 
 ---
 
@@ -80,4 +85,3 @@ Status:
 
 Keep the handoff compact. The track body may contain detailed evidence; the
 handoff should tell the supervisor what changed and what to do next.
-

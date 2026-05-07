@@ -45,17 +45,20 @@ Pass/Feature           PROP    Experiment                                Status
 ──────────────────────────────────────────────────────────────────────────────
 Parser OOF hardening   PROP-026  experiments/parser_oof_hardening_      ✅ PASS
                                   stage2_proof/
-Production compiler    PROP-027  no package yet                          ⏳ Tier 0 Gap B
-                                  (CLI + gem; contract authored)
+Production compiler    PROP-027  experiments/production_compiler_cli/    ✅ diagnostics
+                                  canonical diagnostics implemented       ⏳ package gap
 Runtime eval surface   —         igapp_assembler_proof/                  ✅ closed_in_proof
                                   Add, ClaimEvidence, EvidenceAlert
-History[T]             PROP-022  no experiment yet                       🔵 authored
+History[T]             PROP-022  experiments/history_type_proof/         ✅ point proof
+                                  History[Integer] + OOF-H1              ⏳ parser gap
+Option[T] encoding     PROP-022  proof/docs mismatch                     ⚠ normalize next
+BiHistory[T]           PROP-022  sparkcrm_bihistory fixture planned      🔵 next proof
 Invariant severity     PROP-025  no experiment yet                       🔵 authored
 stream T               PROP-023  no experiment yet                       🔵 authored
 OLAPPoint[T,Dims]      PROP-024  no experiment yet                       🔵 authored
 ──────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  Tier 0: PROP-027 (production compiler) → Tier 1: PROP-022, PROP-025
+Active priority:  Normalize Option[T] → History parser acceptance → BiHistory fixture
 New PROPs:        start from PROP-028
 ```
 
@@ -64,15 +67,24 @@ New PROPs:        start from PROP-028
 ## PROP Canonical Map
 
 ```text
-PROP-022   History[T]                    Stage 2 authored
+PROP-022   History[T]                    point proof PASS; parser gap remains
 PROP-022A  .igapp assembler contract     Stage 1 frozen (accepted/)
 PROP-023   stream T                      Stage 2 authored
 PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
 PROP-024   OLAPPoint[T,Dims]             Stage 2 authored
 PROP-025   Invariant severity            Stage 2 authored
 PROP-026   Parser OOF hardening          ✅ PASS
-PROP-027   Production compiler diag.     authored, no CLI
+PROP-027   Production compiler diag.     ✅ CLI diagnostics implemented; package extraction remains
 PROP-028+  next available
+```
+
+## Immediate Normalization
+
+```text
+Option[T] encoding:
+  history_type_proof currently uses:      { "some": value } / { "none": true }
+  temporal shape doc recommends:          { "kind":"some","value":value } / { "kind":"none" }
+  next action: normalize proof + goldens to the canonical kind/value shape.
 ```
 
 → Full governance: `meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md`
