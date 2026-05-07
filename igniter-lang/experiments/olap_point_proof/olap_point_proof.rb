@@ -8,6 +8,7 @@ require "json"
 require "pathname"
 
 require_relative "../../lib/igniter_lang/parser"
+require_relative "../../lib/igniter_lang/semanticir_emitter"
 require_relative "../../lib/igniter_lang/typechecker"
 
 module OLAPPointProof
@@ -596,22 +597,8 @@ module OLAPPointProof
   end
 
   def semantic_ir_from_typed(typed)
-    contract = typed.fetch("contracts").first
-    {
-      "kind" => "semantic_ir_program",
-      "format_version" => FORMAT_VERSION,
-      "program_id" => "semanticir/olap_boundary/#{Canonical.short_hash(typed)}",
-      "source_path" => typed.fetch("source_path"),
-      "olap_points" => typed.fetch("olap_points"),
-      "contracts" => [
-        {
-          "kind" => "contract_ir",
-          "contract_name" => contract.fetch("name"),
-          "fragment_class" => contract.fetch("fragment_class"),
-          "nodes" => contract.fetch("declarations").filter_map { |decl| decl.fetch("semantic_node", nil) }
-        }
-      ]
-    }
+    emitted = IgniterLang::SemanticIREmitter.new.emit_typed(typed)
+    emitted.fetch("semantic_ir") || raise("SemanticIREmitter refused OLAP typed boundary")
   end
 
   def typechecker_semanticir_boundary_checks(boundary)
@@ -642,7 +629,9 @@ module OLAPPointProof
       "typechecker.oof_o5_dimension_type_mismatch" => typed_rules(mismatch, "type_errors") == ["OOF-O5"],
       "semanticir.boundary_olap_point_decl_from_typed" => semantic_ir.dig("olap_points", 0, "kind") == "olap_point_decl",
       "semanticir.boundary_olap_access_node_from_typed" => access_node.fetch("kind") == "olap_access_node",
-      "semanticir.boundary_dims_record_lowered" => access_node.dig("result_type", "dims_record", "kind") == "dims_record"
+      "semanticir.boundary_dims_record_lowered" => access_node.dig("result_type", "dims_record", "kind") == "dims_record",
+      "semanticir.emitter_typed_program_ref" => semantic_ir.fetch("program_id").start_with?("semanticir/typed/") &&
+        semantic_ir.fetch("compilation_report_ref").start_with?("compilation_report/typed_")
     }
   end
 

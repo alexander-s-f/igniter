@@ -28,12 +28,13 @@ Run: `ruby igniter-lang/experiments/stage1_close_candidate/stage1_close_candidat
 Pass/Feature             PROP    Experiment / Library                     Status
 ────────────────────────────────────────────────────────────────────────────────
 Production compiler      PROP-027  production_compiler_cli/ PASS        ✅ CLI PASS
-  package                          lib/igniter_lang/ (8 libs)           ✅ SemanticIR emitter extracted
+  package                          lib/igniter_lang/ (9 libs)           ✅ assembler extracted (R9)
 History[T]+BiHistory[T]  PROP-022  history+bihistory proofs PASS        ✅ full proof stack
   + Temporal access hook           RuntimeMachineHook wired              ✅ hook proof PASS
                                    RuntimeMachine load/evaluate proof     ✅ proof-local RM integration
 stream T                 PROP-023  stream_t_proof/ PASS                 ✅ runtime proof PASS
-  + OOF-S1..S5                      all five stream OOF rules             ✅ S1..S5 PASS
+  + OOF-S1..S5                     all five stream OOF rules             ✅ S1..S5 PASS
+                                   (window_ref grammar + SemanticIR       ⏳ emitter lowering next)
 OLAPPoint[T,Dims]        PROP-024  olap_point_proof/ PASS                ✅ PASS + grammar spec
   + parser impl                    revenue_point.ig parses live          ✅ parser impl PASS
   + TC/SemanticIR boundary          OOF-O2..O5 + olap_access_node         ✅ proof PASS
@@ -74,7 +75,7 @@ PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
 PROP-024   OLAPPoint[T,Dims]             ✅ proof + grammar spec + parser + TC/IR boundary PASS
 PROP-025   Invariant severity            ✅ proof + spec PASS; impl deferred (Tier 1)
 PROP-026   Parser OOF hardening          ✅ PASS
-PROP-027   Production compiler diag.     ✅ CLI PASS; 8 libs extracted; assembler next
+PROP-027   Production compiler diag.     ✅ CLI PASS; 9 libs extracted; orchestrator next
 PROP-028+  next available
 ```
 
@@ -83,23 +84,20 @@ PROP-028+  next available
 ## Open Gaps
 
 ```text
-1. Assembler module extraction
-   Parser, Classifier, TypeChecker, and SemanticIR emitter are extracted.
-   Next: extract-assembler-module-v0.
+1. Compiler orchestrator
+   All 9 compiler pass libs extracted (parser, classifier, typechecker, emitter, assembler).
+   Next: compiler-orchestrator-v0.
 
-2. Compiler orchestrator
-   After assembler extraction, wire Parser → Classifier → TypeChecker →
-   SemanticIREmitter → Assembler → RuntimeSmoke behind a small production boundary.
+2. Production SemanticIR emission for Stage 2 surfaces
+   OLAP boundary proof exists; stream OOF-S1..S5 proven. Emitter lowering for
+   stream/invariant/OLAP rollup and production orchestration remain.
+   Next: stream-semanticir-surface-lowering-v0.
 
-3. Production SemanticIR emission for Stage 2 surfaces
-   OLAP boundary proof exists; stream proof exists. The extracted emitter still needs
-   production lowering for OLAP/stream/invariant surfaces.
-
-4. Production RuntimeMachine temporal integration
+3. Production RuntimeMachine temporal integration
    Proof-local RuntimeMachine load/evaluate integration PASS. Production TBackend
    adapter selection and Ledger/Durable Model bridge remain.
 
-5. Invariant severity parser + typechecker implementation
+4. Invariant severity parser + typechecker implementation
    Spec done. Impl deferred — Tier 1, after compiler package spine stabilizes.
 ```
 

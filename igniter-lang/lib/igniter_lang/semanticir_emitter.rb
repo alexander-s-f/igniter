@@ -23,6 +23,16 @@ module IgniterLang
 
     alias compile emit
 
+    def emit_typed(typed_program)
+      diagnostics = typed_program.fetch("type_errors", [])
+      semantic_ir = diagnostics.empty? ? typed_semantic_ir_program(typed_program) : nil
+
+      {
+        "semantic_ir" => semantic_ir,
+        "compilation_report" => typed_compilation_report(typed_program, diagnostics, semantic_ir)
+      }
+    end
+
     private
 
     def semantic_ir_program(parsed_program, contracts)
@@ -61,6 +71,44 @@ module IgniterLang
       }
     end
 
+    def typed_semantic_ir_program(typed_program)
+      report_id = typed_compilation_report_id(typed_program)
+      result = {
+        "kind" => "semantic_ir_program",
+        "format_version" => FORMAT_VERSION,
+        "program_id" => typed_program_id(typed_program),
+        "grammar_version" => typed_program.fetch("grammar_version"),
+        "source_hash" => typed_program.fetch("source_hash"),
+        "source_path" => source_path(typed_program),
+        "module" => typed_program.fetch("module"),
+        "compilation_report_ref" => report_id,
+        "contracts" => typed_program.fetch("contracts").map { |contract| typed_contract_ir(contract) }
+      }
+      result["olap_points"] = typed_program.fetch("olap_points") if typed_program.key?("olap_points")
+      result
+    end
+
+    def typed_compilation_report(typed_program, diagnostics, semantic_ir)
+      ok = diagnostics.empty?
+      {
+        "kind" => "compilation_report",
+        "format_version" => FORMAT_VERSION,
+        "program_id" => typed_compilation_report_id(typed_program),
+        "grammar_version" => typed_program.fetch("grammar_version"),
+        "source_hash" => typed_program.fetch("source_hash"),
+        "source_path" => source_path(typed_program),
+        "pass_result" => ok ? "ok" : "oof",
+        "stages" => {
+          "parse" => "ok",
+          "classify" => "ok",
+          "typecheck" => ok ? "ok" : "oof",
+          "emit" => ok ? "ok" : "skipped"
+        },
+        "diagnostics" => diagnostics.map { |entry| diagnostic(entry) },
+        "semantic_ir_ref" => semantic_ir&.fetch("program_id")
+      }
+    end
+
     def program_id(parsed_program)
       "semanticir/#{parsed_program.fetch("source_hash").delete_prefix("sha256:")[0, 16]}"
     end
@@ -69,8 +117,62 @@ module IgniterLang
       "compilation_report/#{parsed_program.fetch("source_hash").delete_prefix("sha256:")[0, 16]}"
     end
 
+    def typed_program_id(typed_program)
+      "semanticir/typed/#{Digest::SHA256.hexdigest(canonical_json(typed_program))[0, 16]}"
+    end
+
+    def typed_compilation_report_id(typed_program)
+      "compilation_report/typed_#{Digest::SHA256.hexdigest(canonical_json([
+        typed_program.fetch("program_id"),
+        typed_program.fetch("source_hash")
+      ]))[0, 16]}"
+    end
+
     def source_path(parsed_program)
       parsed_program.fetch("source_path").delete_prefix("igniter-lang/")
+    end
+
+    def typed_contract_ir(contract)
+      contract_ir = {
+        "kind" => "contract_ir",
+        "contract_ref" => nil,
+        "contract_name" => contract.fetch("name"),
+        "specialization_of" => nil,
+        "type_args" => {},
+        "fragment_class" => contract.fetch("fragment_class"),
+        "inputs" => typed_ports(contract, "input"),
+        "outputs" => typed_ports(contract, "output"),
+        "nodes" => typed_nodes(contract),
+        "escape_boundaries" => []
+      }
+      contract_ir["contract_ref"] = contract_ref(contract_ir)
+      contract_ir
+    end
+
+    def typed_ports(contract, kind)
+      contract.fetch("declarations").select { |decl| decl.fetch("kind") == kind }.map do |decl|
+        {
+          "name" => decl.fetch("name"),
+          "type" => decl.fetch("type"),
+          "lifecycle" => decl.fetch("lifecycle", kind == "input" ? "local" : "session")
+        }
+      end
+    end
+
+    def typed_nodes(contract)
+      contract.fetch("declarations").filter_map do |decl|
+        next decl.fetch("semantic_node") if decl.key?("semantic_node")
+        next unless decl.fetch("kind") == "compute"
+
+        {
+          "kind" => "compute",
+          "name" => decl.fetch("name"),
+          "expr" => decl.fetch("expr"),
+          "type" => decl.fetch("type"),
+          "deps" => decl.fetch("deps", []),
+          "fragment" => decl.fetch("fragment_class")
+        }
+      end
     end
 
     def type_shapes(parsed_program)

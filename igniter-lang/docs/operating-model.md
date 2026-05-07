@@ -66,6 +66,7 @@ The supervisor owns input/output motion. Agents own their slice artifacts.
 | `docs/spec/` | Meta Expert + approved implementer | Canonical crystallized language description |
 | `docs/meta-proposals/` | Meta Expert | Governance, audits, closure plans |
 | `docs/archive/` | Supervisor + Meta Expert | Snapshots and archaeology |
+| `roles/*.md` | Supervisor | Role profiles; concrete agent names are assigned in handoff cards |
 
 ---
 
@@ -98,7 +99,8 @@ Supervisor-assigned cards should include a compact identifier:
 
 ```text
 Card: S2-R2-C3-P
-[Igniter-Lang Research Agent]
+Agent: [Igniter-Lang Research Agent]
+Role: research-agent
 Track: production-compiler-diagnostics-extraction-v0
 ```
 
@@ -124,7 +126,8 @@ Agents should end every slice with a compact block:
 
 ```text
 Card:
-[Role]
+Agent: [Igniter-Lang <Agent Name>]
+Role: <role-profile-id>
 Track:
 Status:
 
@@ -149,6 +152,28 @@ more. Long reasoning belongs in the track document.
 
 ---
 
+## New Agent Onboarding
+
+Agents need a compact role profile plus the current map, not the whole history.
+
+Read order for every new slice:
+
+1. `igniter-lang/AGENTS.md`
+2. `igniter-lang/roles/README.md`
+3. the assigned role profile in `igniter-lang/roles/`
+4. `igniter-lang/docs/README.md`
+5. `igniter-lang/docs/operating-model.md`
+6. `igniter-lang/docs/current-status.md`
+7. relevant chapters in `igniter-lang/docs/spec/`
+8. the assigned track/proposal/source docs only
+
+Do not read archives, old tracks, package docs, or external project docs unless
+the card explicitly names them.
+
+When adding a new role, start from `igniter-lang/roles/role-template.md`.
+
+---
+
 ## Anti-Drift Rules
 
 - Do not use `agent-motion.md` as a daily work log.
@@ -163,7 +188,8 @@ more. Long reasoning belongs in the track document.
 ## Current Practical Loop
 
 1. Supervisor opens a track card.
-2. Agent reads role, docs map, current status, and assigned track only.
+2. Agent reads role profile, docs map, current status, relevant spec chapters,
+   and assigned track only.
 3. Agent works inside owned files and proof scope.
 4. Agent returns compact handoff.
 5. Meta Expert updates map/governance when asked.

@@ -1,8 +1,37 @@
 {
+  "compilation_report_ref": "compilation_report/typed_cc287652a1b2a0a7",
   "contracts": [
     {
       "contract_name": "RegionalDailyRevenuePoint",
+      "contract_ref": "contract/RegionalDailyRevenuePoint/sha256:d5b38e5b32544809b052728d",
+      "escape_boundaries": [],
       "fragment_class": "escape",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "date",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "region",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "channel",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        }
+      ],
       "kind": "contract_ir",
       "nodes": [
         {
@@ -41,11 +70,28 @@
             }
           ]
         }
-      ]
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "revenue_point",
+          "type": {
+            "kind": "type_ref",
+            "name": "Decimal",
+            "params": [
+              2
+            ]
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
     }
   ],
   "format_version": "0.1.0",
+  "grammar_version": "olap-point-v0",
   "kind": "semantic_ir_program",
+  "module": null,
   "olap_points": [
     {
       "dimensions": {
@@ -66,6 +112,7 @@
       "source_ref": "synthetic_fulfilled_order_facts"
     }
   ],
-  "program_id": "semanticir/olap_boundary/d58401d42d50c708",
-  "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig"
+  "program_id": "semanticir/typed/d58401d42d50c708",
+  "source_hash": "sha256:8ae0d8de45a3602abd9a86b44241547c116bf422a7b9fff5b7bdec48bb4060f9",
+  "source_path": "experiments/olap_point_proof/revenue_point.ig"
 }

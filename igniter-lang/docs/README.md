@@ -81,14 +81,16 @@ Active intake baseline (authors of new Stage 2 PROPs start from PROP-028):
 Current priority:
 
 ```text
-Stage 2 proof line
-  -> generalize BiHistory axes in parser/typechecker
-  -> extract temporal_access_node runtime behavior
-  -> prove invariant severity levels
-
 Production compiler line
-  -> move extracted CLI Diagnostics helper toward library boundary
-  -> continue parser/classifier/typechecker/assembler module extraction
+  -> extract assembler module
+  -> add compiler orchestrator over Parser/Classifier/TypeChecker/SemanticIREmitter/Assembler
+
+Stage 2 surface line
+  -> lower OLAP/stream/invariant surfaces through the extracted SemanticIR emitter
+  -> preserve proven OOF boundaries and diagnostics
+
+Runtime bridge line
+  -> bind RuntimeMachine temporal access to production TBackend/Ledger/Durable Model adapters
 ```
 
 Current proof commands:

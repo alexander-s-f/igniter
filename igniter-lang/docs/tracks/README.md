@@ -27,6 +27,15 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 2 Round 9 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `extract-assembler-module-v0.md` | done | lib/igniter_lang/assembler.rb extracted; Stage 1 goldens PASS; CLI PASS |
+| `production-tbackend-adapter-shape-v0.md` | done | Docs-only: TBackend adapter shape spec; no code changes |
+| `semanticir-stage2-surface-lowering-v0.md` | done | OLAP SemanticIR lowering in emitter; olap_point_proof PASS; stage1 PASS |
+| `stage2-round9-map-refresh-v0.md` | done | R9 map sync — this track |
+
 ## Stage 2 Round 8 Evidence
 
 | Track | Status | Notes |
@@ -57,17 +66,18 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
-## lib/igniter_lang/ — Current State (8 libs)
+## lib/igniter_lang/ — Current State (9 libs)
 
 ```text
 diagnostics.rb            (R3)
 compiler_result.rb        (R4)
 compilation_report.rb     (R4)
 parser.rb                 (R5/R7) — parser + stream + olap_point/dims_record
-temporal_access_runtime.rb (R5/R6/R7) — MemoryBackend + RuntimeMachineHook (wired R7)
-classifier.rb             (R6/R7) — ParsedProgram→ClassifiedProgram; OOF-S2
+temporal_access_runtime.rb (R5–R7) — MemoryBackend + RuntimeMachineHook
+classifier.rb             (R6/R7) — ParsedProgram→ClassifiedProgram; OOF-S1/2
 typechecker.rb            (R7/R8) — TypedProgram boundary; stream OOF-S3; OLAP OOF-O2..O5
-semanticir_emitter.rb     (R8) — extracted SemanticIR emitter boundary
+semanticir_emitter.rb     (R8/R9) — SemanticIR emitter; OLAP lowering added R9
+assembler.rb              (R9) — NEW; .igapp/ assembler boundary
 ```
 
 ---
@@ -76,11 +86,10 @@ semanticir_emitter.rb     (R8) — extracted SemanticIR emitter boundary
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `extract-assembler-module-v0` | Move assembler logic behind `lib/igniter_lang/assembler.rb` while preserving Stage 1 goldens | Research Agent |
-| `compiler-orchestrator-v0` | Wire Parser → Classifier → TypeChecker → SemanticIREmitter → Assembler behind one production boundary | Research Agent |
-| `semanticir-stage2-surface-lowering-v0` | Integrate OLAP/stream/invariant lowering into the extracted SemanticIR emitter | Compiler/Grammar Expert |
-| `production-tbackend-adapter-v0` | Bind RuntimeMachine temporal access to a production TBackend/Ledger bridge | Bridge Agent |
-| `living-signal-ledger-index-v0` | Create the compact concordance index over META-EXPERT-008.4 and 008.5 | Archive/Form Expert |
+| `compiler-orchestrator-v0` | Wire Parser → Classifier → TypeChecker → SemanticIREmitter → Assembler behind production boundary | Research Agent |
+| `stream-semanticir-surface-lowering-v0` | stream_input_node / fold_stream_node emitter lowering | Compiler/Grammar Expert |
+| `production-tbackend-adapter-fixture-v0` | Proof-local AdapterRegistry + CompatibilityReport persistence | Research Agent |
+| `invariant-severity-parser-impl-v0` | PINV-1..4 + TINV-1..3 implementation (Tier 1) | Compiler/Grammar Expert |
 
 ---
 

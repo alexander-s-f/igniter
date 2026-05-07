@@ -1,0 +1,391 @@
+# frozen_string_literal: true
+
+require "digest"
+require "fileutils"
+require "json"
+require "pathname"
+
+module IgniterLang
+  class AssemblyRefused < StandardError; end
+
+  class Assembler
+    ROOT = Pathname.new(File.expand_path("../..", __dir__))
+    DEFAULT_GOLDEN_DIR = ROOT / "experiments/source_to_semanticir_fixture/golden"
+    DEFAULT_OUT_DIR = ROOT / "experiments/igapp_assembler_proof/out"
+
+    module Canonical
+      module_function
+
+      def normalize(value)
+        case value
+        when Hash
+          value.keys.sort_by(&:to_s).each_with_object({}) do |key, out|
+            out[key.to_s] = normalize(value[key])
+          end
+        when Array
+          value.map { |item| normalize(item) }
+        when Symbol
+          value.to_s
+        else
+          value
+        end
+      end
+
+      def json(value)
+        JSON.pretty_generate(normalize(value)) + "\n"
+      end
+
+      def hash(value)
+        "sha256:#{Digest::SHA256.hexdigest(JSON.generate(normalize(value)))}"
+      end
+
+      def short_hash(value)
+        hash(value).split(":").last[0, 16]
+      end
+    end
+
+    def initialize(golden_dir: DEFAULT_GOLDEN_DIR, out_dir: DEFAULT_OUT_DIR)
+      @golden_dir = Pathname.new(golden_dir)
+      @out_dir = Pathname.new(out_dir)
+    end
+
+    def assemble_case(case_name)
+      report = read_json(@golden_dir / "#{case_name}.compilation_report.json")
+      refuse!(case_name, "pass_result=#{report.fetch("pass_result")}") unless report.fetch("pass_result") == "ok"
+      refuse!(case_name, "semantic_ir_ref missing") unless report.fetch("semantic_ir_ref").is_a?(String)
+
+      semantic_ir = read_json(@golden_dir / "#{case_name}.semantic_ir.json")
+      validate_refs!(case_name, report, semantic_ir)
+      validate_semantic_ir!(case_name, semantic_ir)
+
+      artifact = build_artifact(case_name, report, semantic_ir)
+      write_artifact(case_name, artifact)
+      artifact_summary(case_name, artifact)
+    end
+
+    def assemble_artifacts(case_name:, report:, semantic_ir:, target_dir:)
+      refuse!(case_name, "pass_result=#{report.fetch("pass_result")}") unless report.fetch("pass_result") == "ok"
+      refuse!(case_name, "semantic_ir_ref missing") unless report.fetch("semantic_ir_ref").is_a?(String)
+      validate_refs!(case_name, report, semantic_ir)
+      validate_semantic_ir!(case_name, semantic_ir)
+
+      artifact = build_artifact(case_name, report, semantic_ir)
+      target = Pathname.new(target_dir)
+      write_artifact_to(target, artifact)
+      artifact_summary_for_target(case_name, artifact, target)
+    end
+
+    def refuse_case(case_name)
+      report = read_json(@golden_dir / "#{case_name}.compilation_report.json")
+      assemble_case(case_name)
+      raise "expected #{case_name} to refuse, but it assembled"
+    rescue AssemblyRefused => e
+      target = @out_dir / "#{case_name}.igapp"
+      {
+        "case" => case_name,
+        "status" => "refused",
+        "pass_result" => report.fetch("pass_result"),
+        "reason" => e.message,
+        "wrote_igapp" => target.exist?
+      }
+    end
+
+    private
+
+    def read_json(path)
+      JSON.parse(File.read(path))
+    end
+
+    def refuse!(case_name, reason)
+      raise AssemblyRefused, "#{case_name}: #{reason}"
+    end
+
+    def validate_refs!(case_name, report, semantic_ir)
+      refuse!(case_name, "SemanticIR kind=#{semantic_ir.fetch("kind", nil)}") unless semantic_ir.fetch("kind") == "semantic_ir_program"
+      refuse!(case_name, "semantic_ir_ref mismatch") unless report.fetch("semantic_ir_ref") == semantic_ir.fetch("program_id")
+      return if semantic_ir.fetch("compilation_report_ref") == report.fetch("program_id")
+
+      refuse!(case_name, "compilation_report_ref mismatch")
+    end
+
+    def validate_semantic_ir!(case_name, semantic_ir)
+      semantic_ir.fetch("contracts").each do |contract|
+        refuse!(case_name, "OOF contract emitted: #{contract.fetch("contract_name")}") if contract.fetch("fragment_class") == "oof"
+      end
+
+      return unless JSON.generate(semantic_ir).include?("stdlib.numeric.")
+
+      refuse!(case_name, "unresolved stdlib.numeric operator in SemanticIR")
+    end
+
+    def build_artifact(case_name, report, semantic_ir)
+      contracts = semantic_ir.fetch("contracts").map { |contract| contract_file(contract) }
+      contract_ids = contracts.map { |contract| contract.fetch("contract_id") }.sort
+      fragment_class = contracts.map { |contract| contract.fetch("fragment_class") }.uniq == ["core"] ? "core" : "mixed"
+      requirements = requirements_for
+      classified_ast = classified_ast_for(report, semantic_ir, contract_ids, fragment_class)
+      diagnostics = { "diagnostics" => report.fetch("diagnostics") }
+      compatibility_metadata = compatibility_metadata_for(report, semantic_ir)
+
+      artifact_material = {
+        "semantic_ir_program" => semantic_ir,
+        "contracts" => contracts,
+        "compilation_report" => report,
+        "requirements" => requirements,
+        "diagnostics" => diagnostics,
+        "classified_ast" => classified_ast,
+        "compatibility_metadata" => compatibility_metadata
+      }
+      artifact_hash = Canonical.hash(artifact_material)
+      contracts = contracts.map { |contract| contract.merge("artifact_hash" => artifact_hash) }
+
+      manifest = {
+        "kind" => "igapp_manifest",
+        "format_version" => "0.1.0",
+        "format" => "igapp_dir",
+        "program_id" => semantic_ir.fetch("program_id"),
+        "artifact_hash" => artifact_hash,
+        "language_version" => semantic_ir.fetch("format_version"),
+        "grammar_version" => semantic_ir.fetch("grammar_version"),
+        "schema_version" => "0.1.0",
+        "compiled_at" => "2026-05-06T00:00:00Z",
+        "assembler" => "igapp-assembler-proof-stage1-v0",
+        "semantic_ir_ref" => report.fetch("semantic_ir_ref"),
+        "compilation_report_ref" => semantic_ir.fetch("compilation_report_ref"),
+        "source_hash" => semantic_ir.fetch("source_hash"),
+        "source_path" => semantic_ir.fetch("source_path"),
+        "contracts" => contract_ids,
+        "contract_refs" => semantic_ir.fetch("contracts").to_h do |contract|
+          [contract.fetch("contract_name"), contract.fetch("contract_ref")]
+        end,
+        "fragment_class" => fragment_class,
+        "schema_descriptor" => { "trait_bounds" => [], "migrations" => [] },
+        "warnings" => [],
+        "diagnostics" => report.fetch("diagnostics")
+      }
+
+      {
+        "case" => case_name,
+        "manifest" => manifest,
+        "semantic_ir_program" => semantic_ir,
+        "contracts" => contracts,
+        "compilation_report" => report,
+        "requirements" => requirements,
+        "diagnostics" => diagnostics,
+        "classified_ast" => classified_ast,
+        "projections" => { "projections" => [] },
+        "compatibility_metadata" => compatibility_metadata
+      }
+    end
+
+    def contract_file(contract_ir)
+      contract_id = contract_ir.fetch("contract_name")
+      input_ports = ports(contract_ir.fetch("inputs"))
+      output_ports = ports(contract_ir.fetch("outputs"))
+      compute_nodes = contract_ir.fetch("nodes").map do |node|
+        {
+          "node_id" => "node_#{node.fetch("name")}",
+          "name" => node.fetch("name"),
+          "kind" => node.fetch("kind"),
+          "fragment_class" => node.fetch("fragment"),
+          "type_tag" => type_name(node.fetch("type")),
+          "lifecycle" => "session",
+          "obs_kind" => "value_observation",
+          "dependencies" => node.fetch("deps").map { |dep| "input:#{dep}" },
+          "expression" => compat_expr(node.fetch("expr"))
+        }
+      end
+
+      {
+        "contract_id" => contract_id,
+        "source_contract_ref" => contract_ir.fetch("contract_ref"),
+        "name" => contract_id,
+        "fragment_class" => contract_ir.fetch("fragment_class"),
+        "escape_set" => contract_ir.fetch("escape_boundaries"),
+        "lifecycle" => "session",
+        "input_ports" => input_ports,
+        "output_ports" => output_ports,
+        "compute_nodes" => compute_nodes,
+        "type_signature" => {
+          "inputs" => input_ports.to_h { |port| [port.fetch("name"), port.fetch("type_tag")] },
+          "outputs" => output_ports.to_h { |port| [port.fetch("name"), port.fetch("type_tag")] }
+        }
+      }
+    end
+
+    def ports(port_irs)
+      port_irs.map do |port|
+        {
+          "name" => port.fetch("name"),
+          "type_tag" => type_name(port.fetch("type")),
+          "lifecycle" => port.fetch("lifecycle"),
+          "required" => true
+        }
+      end
+    end
+
+    def compat_expr(expr)
+      case expr.fetch("kind")
+      when "call"
+        {
+          "kind" => "apply",
+          "operator" => expr.fetch("fn"),
+          "operands" => expr.fetch("args").map { |arg| compat_expr(arg) }
+        }
+      when "ref"
+        { "kind" => "ref", "name" => expr.fetch("name") }
+      when "literal"
+        { "kind" => "literal", "value" => expr.fetch("value"), "type_tag" => type_name(expr.fetch("resolved_type")) }
+      when "field_access"
+        {
+          "kind" => "field_access",
+          "object" => compat_expr(expr.fetch("object")),
+          "field" => expr.fetch("field"),
+          "type_tag" => type_name(expr.fetch("resolved_type"))
+        }
+      else
+        expr
+      end
+    end
+
+    def type_name(type)
+      return type if type.is_a?(String)
+
+      params = type.fetch("params", [])
+      return type.fetch("name") if params.empty?
+
+      "#{type.fetch("name")}[#{params.map { |param| type_name(param) }.join(",")}]"
+    end
+
+    def requirements_for
+      {
+        "temporal" => {
+          "requires_as_of" => true,
+          "requires_replay" => false,
+          "requires_snapshot" => false,
+          "min_consistency" => "strong",
+          "windows" => [],
+          "slices" => []
+        },
+        "lifecycle" => {
+          "min_lifecycle" => "local",
+          "has_audit" => false,
+          "has_window" => false
+        },
+        "capabilities" => {
+          "required_caps" => [],
+          "effect_kinds" => []
+        },
+        "effects" => [],
+        "ffi" => [],
+        "required_tbackend_caps" => {
+          "read_as_of" => true,
+          "append_atomic" => true,
+          "replay_enabled" => false,
+          "snapshot_enabled" => false,
+          "compact_enabled" => false,
+          "subscribe_enabled" => false,
+          "consistency" => "strong"
+        }
+      }
+    end
+
+    def classified_ast_for(report, semantic_ir, contract_ids, fragment_class)
+      {
+        "kind" => "classified_program",
+        "format_version" => "0.1.0",
+        "program_id" => semantic_ir.fetch("program_id"),
+        "source_hash" => semantic_ir.fetch("source_hash"),
+        "source_path" => semantic_ir.fetch("source_path"),
+        "pass_result" => report.fetch("pass_result"),
+        "semantic_ir_ref" => report.fetch("semantic_ir_ref"),
+        "compilation_report_ref" => semantic_ir.fetch("compilation_report_ref"),
+        "fragment_class" => fragment_class,
+        "oof_count" => 0,
+        "contracts" => contract_ids,
+        "loadable_contracts" => contract_ids
+      }
+    end
+
+    def compatibility_metadata_for(report, semantic_ir)
+      {
+        "kind" => "igapp_compatibility_metadata",
+        "format_version" => "0.1.0",
+        "canonical_semantic_ir_ref" => semantic_ir.fetch("program_id"),
+        "compilation_report_ref" => report.fetch("program_id"),
+        "loader_shape" => "runtime_machine_memory_proof.prop0191_direct_v0",
+        "canonical_artifact" => "semantic_ir_program.json",
+        "runtime_compatibility_artifact" => nil,
+        "notes" => [
+          "semantic_ir_program.json preserves PROP-019.1 envelope",
+          "RuntimeMachine proof loader reads semantic_ir_program.json directly"
+        ]
+      }
+    end
+
+    def write_artifact(case_name, artifact)
+      target = @out_dir / "#{case_name}.igapp"
+      write_artifact_to(target, artifact)
+    end
+
+    def write_artifact_to(target, artifact)
+      FileUtils.rm_rf(target)
+      FileUtils.mkdir_p(target / "contracts")
+
+      write_json(target / "manifest.json", artifact.fetch("manifest"))
+      write_json(target / "semantic_ir_program.json", artifact.fetch("semantic_ir_program"))
+      write_json(target / "compilation_report.json", artifact.fetch("compilation_report"))
+      write_json(target / "requirements.json", artifact.fetch("requirements"))
+      write_json(target / "diagnostics.json", artifact.fetch("diagnostics"))
+      write_json(target / "classified_ast.json", artifact.fetch("classified_ast"))
+      write_json(target / "projections.json", artifact.fetch("projections"))
+      write_json(target / "compatibility_metadata.json", artifact.fetch("compatibility_metadata"))
+      artifact.fetch("contracts").each do |contract|
+        write_json(target / "contracts/#{snake_case(contract.fetch("contract_id"))}.json", contract)
+      end
+    end
+
+    def write_json(path, value)
+      File.write(path, Canonical.json(value))
+    end
+
+    def snake_case(value)
+      value.gsub(/([a-z])([A-Z])/, "\\1_\\2").downcase
+    end
+
+    def artifact_summary(case_name, artifact)
+      {
+        "case" => case_name,
+        "status" => "assembled",
+        "igapp_dir" => "experiments/igapp_assembler_proof/out/#{case_name}.igapp",
+        "program_id" => artifact.fetch("manifest").fetch("program_id"),
+        "artifact_hash" => artifact.fetch("manifest").fetch("artifact_hash"),
+        "semantic_ir_ref" => artifact.fetch("manifest").fetch("semantic_ir_ref"),
+        "compilation_report_ref" => artifact.fetch("manifest").fetch("compilation_report_ref"),
+        "contracts" => artifact.fetch("manifest").fetch("contracts"),
+        "files" => artifact_files(case_name)
+      }
+    end
+
+    def artifact_summary_for_target(case_name, artifact, target)
+      {
+        "case" => case_name,
+        "status" => "assembled",
+        "igapp_dir" => target.to_s,
+        "program_id" => artifact.fetch("manifest").fetch("program_id"),
+        "artifact_hash" => artifact.fetch("manifest").fetch("artifact_hash"),
+        "semantic_ir_ref" => artifact.fetch("manifest").fetch("semantic_ir_ref"),
+        "compilation_report_ref" => artifact.fetch("manifest").fetch("compilation_report_ref"),
+        "contracts" => artifact.fetch("manifest").fetch("contracts"),
+        "files" => target.find.select(&:file?).map { |path| path.relative_path_from(target).to_s }.sort
+      }
+    end
+
+    def artifact_files(case_name)
+      target = @out_dir / "#{case_name}.igapp"
+      target.find.select(&:file?).map { |path| path.relative_path_from(target).to_s }.sort
+    end
+  end
+
+  IgappAssembler = Assembler
+end

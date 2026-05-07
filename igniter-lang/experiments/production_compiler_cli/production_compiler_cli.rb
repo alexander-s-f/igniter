@@ -7,11 +7,12 @@ require "pathname"
 
 require_relative "diagnostics"
 require_relative "../../lib/igniter_lang/parser"
+require_relative "../../lib/igniter_lang/assembler"
 require_relative "../../lib/igniter_lang/compiler_result"
 require_relative "../../lib/igniter_lang/compilation_report"
 require_relative "../../lib/igniter_lang/semanticir_emitter"
 require_relative "../source_to_semanticir_fixture/source_to_semanticir_fixture"
-require_relative "../igapp_assembler_proof/igapp_assembler_proof"
+require_relative "../runtime_machine_memory_proof/compiled_program"
 
 module ProductionCompilerCLI
   ROOT = Pathname.new(File.expand_path("../../..", __dir__))
@@ -44,7 +45,7 @@ module ProductionCompilerCLI
 
       return refusal(report, source_path, out_path) unless report.fetch("pass_result") == "ok"
 
-      assembled = IgappAssemblerProof::Assembler.new.assemble_artifacts(
+      assembled = IgniterLang::Assembler.new.assemble_artifacts(
         case_name: case_name_for(source_path, parsed),
         report: report,
         semantic_ir: semantic_ir,
@@ -66,7 +67,7 @@ module ProductionCompilerCLI
         contracts: assembled.fetch("contracts"),
         runtime_smoke: smoke
       )
-    rescue IgappAssemblerProof::AssemblyRefused => e
+    rescue IgniterLang::AssemblyRefused => e
       report = IgniterLang::CompilationReport.internal_error(
         format_version: FORMAT_VERSION,
         source_path: source_path,
