@@ -15,6 +15,7 @@ and operating model first, then use this index for governance context.
 |----------|--------|---------|
 | [META-EXPERT-008](META-EXPERT-008-stage2-implementation-governance-v0.md) | **active** | Stage 2 governance: scoreboard, dependency order, done criteria, agent routing, close criteria |
 | [META-EXPERT-008.1](META-EXPERT-008.1-prop-numbering-audit-v0.md) | decision | PROP numbering audit: no file moves needed; canonical map PROP-026=parser OOF hardening, PROP-027=production compiler diagnostics; new Stage 2 authors start from PROP-028 |
+| [META-EXPERT-008.2](META-EXPERT-008.2-fresh-language-model-report-v0.md) | proposal | Fresh language model report: LanguageContract/RuntimeContract composition, general-purpose profiles, OSINT traceability, mesh, FFI, modeling, and next-slice priorities |
 | [META-EXPERT-007](META-EXPERT-007-stage1-close-governance-v0.md) | decision | Stage 1 close governance: verdict CLOSE WITH DEFERRED GAP; close criteria formally satisfied; 3 deferred gaps; post-close action list |
 | [META-EXPERT-007.1](META-EXPERT-007.1-stage1-close-snapshot-plan-v0.md) | done | Post-close doc transition: snapshot, PROP freeze list, naming collision fix, file moves |
 | [META-EXPERT-003](META-EXPERT-003-stage1-implementation-governance-v0.md) | done | Stage 1 scoreboard, agent routing policy, done criteria per pass, next 3 slices |
