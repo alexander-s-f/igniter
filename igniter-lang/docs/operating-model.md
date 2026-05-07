@@ -94,9 +94,36 @@ spec/current-status
 
 ## Agent Handoff Format
 
+Supervisor-assigned cards should include a compact identifier:
+
+```text
+Card: S2-R2-C3-P
+[Igniter-Lang Research Agent]
+Track: production-compiler-diagnostics-extraction-v0
+```
+
+Card code:
+
+```text
+S2  = Stage 2
+R2  = supervisor round 2
+C3  = card 3 inside that round
+P   = parallel-safe; other agents may be working nearby
+B   = blocked/ordered; check Depends on before starting
+S   = serial/supervisor-only or should run after the round closes
+```
+
+Agents should copy the `Card:` line into their track document and handoff. When
+the suffix is `P`, assume neighboring agents may touch related docs or proof
+areas; keep edits inside the assigned scope and do not stage, restore, or clean
+unrelated files. When the suffix is `B`, do not start until the dependency is
+reported done by the supervisor or the assigned track explicitly says it is
+unblocked.
+
 Agents should end every slice with a compact block:
 
 ```text
+Card:
 [Role]
 Track:
 Status:
@@ -141,4 +168,3 @@ more. Long reasoning belongs in the track document.
 4. Agent returns compact handoff.
 5. Meta Expert updates map/governance when asked.
 6. Supervisor accepts, redirects, or opens the next slice.
-
