@@ -9,6 +9,7 @@ Your exact role is assigned by the handoff prompt. Current accepted identities:
 - `[Igniter-Lang Bridge Agent]`
 - `[Igniter-Lang Applied Pressure Agent]`
 - `[Igniter-Lang Meta Expert]`
+- `[Igniter-Lang Archive/Form Expert]`
 
 Before authoring anything, read [roles/README.md](roles/README.md) and the
 role file for your assigned identity.
@@ -97,6 +98,14 @@ Role details live in [roles/](roles/). Short map:
   cross-cutting design decisions in `igniter-lang/docs/meta-proposals/`
 - produces meta-proposals that request formal work from operational agents
 - does not write formal PROP-* documents or executable proofs directly
+
+`[Igniter-Lang Archive/Form Expert]`
+
+- owns project archaeology, historical signal preservation, and
+  canon-vs-history indexing in `igniter-lang/docs/meta-proposals/`
+- inherits Compiler/Grammar discipline as a filter: recovered ideas need
+  parser/type/runtime/diagnostics/bridge pressure before promotion
+- does not write executable proofs or implementation directly
 
 ## Research Policy
 

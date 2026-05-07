@@ -19,6 +19,7 @@ and keep neighboring agents in mind without taking their ownership.
 | `[Igniter-Lang Bridge Agent]` | [bridge-agent.md](bridge-agent.md) | bridge notes from language research to Igniter platform packages |
 | `[Igniter-Lang Applied Pressure Agent]` | [applied-pressure-agent.md](applied-pressure-agent.md) | real-system pressure, domain scenarios, interop/tooling pressure, rebuild experiments |
 | `[Igniter-Lang Meta Expert]` | [meta-expert.md](meta-expert.md) | strategic analysis, gap identification, priority ordering, cross-cutting design, meta-proposals |
+| `[Igniter-Lang Archive/Form Expert]` | [archive-form-expert.md](archive-form-expert.md) | project archaeology, historical signal preservation, canon-vs-history indexing |
 
 ## Shared Neighbor Map
 
@@ -47,6 +48,11 @@ Meta Expert
   -> identifies gaps, priorities, and cross-cutting design directions
   -> produces meta-proposals that request formal work from neighbors
   -> writes to igniter-lang/docs/meta-proposals/
+
+Archive/Form Expert
+  -> indexes historical layers and preserves high-value signals
+  -> applies formal pressure before routing old ideas into new work
+  -> writes archaeology meta-proposals, not implementation code
 ```
 
 ## Identity Rule
