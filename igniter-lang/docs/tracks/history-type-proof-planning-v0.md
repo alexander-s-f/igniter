@@ -90,12 +90,12 @@ Evaluation input:
 Expected output:
 
 ```json
-{ "current_count": { "some": 9 } }
+{ "current_count": { "kind": "some", "value": 9 } }
 ```
 
-The exact `Option[T]` JSON encoding can be settled by Compiler/Grammar Expert
-before implementation. For a first proof, `{ "some": value }` and
-`{ "none": true }` are sufficient and inspectable.
+The exact `Option[T]` JSON encoding was later settled by
+`temporal-option-and-bihistory-shape-v0`: `{ "kind": "some", "value": V }` and
+`{ "kind": "none" }`.
 
 ## Expected Pass Chain
 
@@ -347,8 +347,8 @@ stage1_regression.close_candidate_pass: ok
 [Q] Should the canonical SemanticIR node be named `history_access` or
 `temporal_access_node` for the first proof?
 
-[Q] Should `Option[T]` runtime JSON use `{ "some": value }`, `{ "kind":
-"some", "value": value }`, or nullable raw values with evidence metadata?
+[Q] Resolved later by `temporal-option-and-bihistory-shape-v0`: `Option[T]`
+uses `{ "kind": "some", "value": value }` or `{ "kind": "none" }`.
 
 [Q] Should `History[T]` reads require an explicit `escape history_read`
 declaration, or should `read x: History[T]` imply the capability?

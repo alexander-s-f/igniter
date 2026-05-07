@@ -74,7 +74,7 @@
       "contract_ref": "contract/Fixture.HistoryTypeProof.TechnicianJobCountAt@history-point-v0",
       "evidence_links": [
         {
-          "from": "obs/history_access/f94e76df56f11972",
+          "from": "obs/history_access/973aef27976d4bd3",
           "rel": "selected_append",
           "to": "obs/history_append/f8d0bde0dcace702"
         }
@@ -85,18 +85,20 @@
           "access": "point",
           "as_of": "2026-05-03T10:00:00Z",
           "kind": "history_access_observation",
-          "observation_id": "obs/history_access/f94e76df56f11972",
+          "observation_id": "obs/history_access/973aef27976d4bd3",
           "observed_at": "2026-05-03T10:00:00Z",
           "option_encoding": {
             "none": {
-              "none": true
+              "kind": "none"
             },
             "some": {
-              "some": "<value>"
+              "kind": "some",
+              "value": "<value>"
             }
           },
           "result": {
-            "some": 7
+            "kind": "some",
+            "value": 7
           },
           "selected_append_ref": "obs/history_append/f8d0bde0dcace702",
           "subject": "technicians/tech-synthetic-1/job_count",
@@ -109,7 +111,8 @@
       ],
       "outputs": {
         "current_count": {
-          "some": 7
+          "kind": "some",
+          "value": 7
         }
       }
     },
@@ -118,7 +121,7 @@
       "contract_ref": "contract/Fixture.HistoryTypeProof.TechnicianJobCountAt@history-point-v0",
       "evidence_links": [
         {
-          "from": "obs/history_access/a5d6cfc59ef6f905",
+          "from": "obs/history_access/c3a7973e40bddf56",
           "rel": "selected_append",
           "to": "obs/history_append/4e39dce7c37109f7"
         }
@@ -129,18 +132,20 @@
           "access": "point",
           "as_of": "2026-05-06T10:00:00Z",
           "kind": "history_access_observation",
-          "observation_id": "obs/history_access/a5d6cfc59ef6f905",
+          "observation_id": "obs/history_access/c3a7973e40bddf56",
           "observed_at": "2026-05-06T10:00:00Z",
           "option_encoding": {
             "none": {
-              "none": true
+              "kind": "none"
             },
             "some": {
-              "some": "<value>"
+              "kind": "some",
+              "value": "<value>"
             }
           },
           "result": {
-            "some": 9
+            "kind": "some",
+            "value": 9
           },
           "selected_append_ref": "obs/history_append/4e39dce7c37109f7",
           "subject": "technicians/tech-synthetic-1/job_count",
@@ -153,7 +158,8 @@
       ],
       "outputs": {
         "current_count": {
-          "some": 9
+          "kind": "some",
+          "value": 9
         }
       }
     }
@@ -162,10 +168,11 @@
   "kind": "history_type_proof_summary",
   "option_encoding": {
     "none": {
-      "none": true
+      "kind": "none"
     },
     "some": {
-      "some": "<value>"
+      "kind": "some",
+      "value": "<value>"
     }
   },
   "parser_gap": "Current parser support for History[T] read/from/lifecycle is not used; this proof starts from hand-authored ParsedProgram.",

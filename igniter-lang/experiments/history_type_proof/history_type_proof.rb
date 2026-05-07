@@ -29,8 +29,8 @@ module HistoryTypeProof
   AS_OF_EARLY = "2026-05-03T10:00:00Z"
   AS_OF_LATE = "2026-05-06T10:00:00Z"
   OPTION_ENCODING = {
-    "some" => { "some" => "<value>" },
-    "none" => { "none" => true }
+    "some" => { "kind" => "some", "value" => "<value>" },
+    "none" => { "kind" => "none" }
   }.freeze
 
   module Canonical
@@ -105,7 +105,7 @@ module HistoryTypeProof
       selected = @append_observations
         .select { |obs| obs.fetch("subject") == subject && Time.iso8601(obs.fetch("valid_from")) <= as_of_time }
         .max_by { |obs| Time.iso8601(obs.fetch("valid_from")) }
-      result = selected ? { "some" => selected.fetch("value") } : { "none" => true }
+      result = selected ? { "kind" => "some", "value" => selected.fetch("value") } : { "kind" => "none" }
       payload = {
         "kind" => "history_access_observation",
         "subject" => subject,
@@ -659,9 +659,9 @@ module HistoryTypeProof
       "semanticir.temporal_access_node" => semantic_ir.dig("contracts", 0, "nodes").any? { |node| node.fetch("kind") == "temporal_access_node" },
       "assembler.history_igapp" => assembled.fetch("files").any? { |path| path.end_with?("semantic_ir_program.json") },
       "runtime.load_history_igapp_trusted" => compatibility.fetch("status") == "trusted",
-      "runtime.evaluate_as_of_2026_05_03" => early_eval.dig("outputs", "current_count") == { "some" => 7 } &&
+      "runtime.evaluate_as_of_2026_05_03" => early_eval.dig("outputs", "current_count") == { "kind" => "some", "value" => 7 } &&
         early_obs.fetch("selected_append_ref") == backend.append_observations.fetch(0).fetch("observation_id"),
-      "runtime.evaluate_as_of_2026_05_06" => late_eval.dig("outputs", "current_count") == { "some" => 9 } &&
+      "runtime.evaluate_as_of_2026_05_06" => late_eval.dig("outputs", "current_count") == { "kind" => "some", "value" => 9 } &&
         late_obs.fetch("selected_append_ref") == backend.append_observations.fetch(1).fetch("observation_id"),
       "runtime.output_links_selected_append_observation" => late_eval.fetch("evidence_links").first.fetch("to") ==
         backend.append_observations.fetch(1).fetch("observation_id"),
@@ -700,7 +700,7 @@ module HistoryTypeProof
     summary.fetch("checks").each do |name, ok|
       puts "#{name}: #{ok ? "ok" : "FAIL"}"
     end
-    puts "option.encoding: some={\"some\": value} none={\"none\": true}"
+    puts "option.encoding: some={\"kind\":\"some\",\"value\":value} none={\"kind\":\"none\"}"
     puts "summary: #{SUMMARY_PATH.relative_path_from(ROOT)}"
   end
 end

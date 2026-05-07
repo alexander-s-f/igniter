@@ -140,14 +140,14 @@ Expected projection:
 
 ```json
 {
-  "current_count": { "some": 9 }
+  "current_count": { "kind": "some", "value": 9 }
 }
 ```
 
 The compact proof artifact should also include a second projection check:
 
 ```text
-as_of = 2026-05-03T10:00:00Z -> { "some": 7 }
+as_of = 2026-05-03T10:00:00Z -> { "kind": "some", "value": 7 }
 ```
 
 This proves value-over-time rather than only current-value lookup.
@@ -410,9 +410,9 @@ grammar delta. If it is too large, the first executable proof may start from a
 hand-authored ParsedProgram and mark parser acceptance as a separate neighbor
 track.
 
-[R] `Option[T]` JSON encoding should be fixed before goldens are written. Use
-`{ "some": value }` and `{ "none": true }` unless Compiler/Grammar chooses a
-different canonical form.
+[R] `Option[T]` JSON encoding is fixed by
+`temporal-option-and-bihistory-shape-v0`: use `{ "kind": "some", "value": V }`
+and `{ "kind": "none" }`.
 
 [R] Keep `temporal_access_node` as the fixture node name to match PROP-022
 literally.

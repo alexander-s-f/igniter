@@ -37,8 +37,8 @@ evaluation.
 
 ```json
 {
-  "some": { "some": "<value>" },
-  "none": { "none": true }
+  "some": { "kind": "some", "value": "<value>" },
+  "none": { "kind": "none" }
 }
 ```
 
@@ -104,8 +104,8 @@ Seeded append observations:
 Runtime projections:
 
 ```text
-2026-05-03T10:00:00Z -> { "some": 7 }
-2026-05-06T10:00:00Z -> { "some": 9 }
+2026-05-03T10:00:00Z -> { "kind": "some", "value": 7 }
+2026-05-06T10:00:00Z -> { "kind": "some", "value": 9 }
 ```
 
 Each runtime evaluation emits a `history_access_observation` with:
@@ -194,7 +194,7 @@ runtime.evaluate_as_of_2026_05_06: ok
 runtime.output_links_selected_append_observation: ok
 negative.missing_as_of_oof_h1: ok
 compilation.positive_report_ok: ok
-option.encoding: some={"some": value} none={"none": true}
+option.encoding: some={"kind":"some","value":value} none={"kind":"none"}
 summary: igniter-lang/experiments/history_type_proof/history_type_proof_summary.json
 ```
 
@@ -260,7 +260,7 @@ Status: done
 [D] Decisions
 - First History[T] executable proof uses History[Integer] point access only.
 - Append is proof-local seed evidence, not source-language mutation.
-- Option[T] is encoded as { "some": value } or { "none": true }.
+- Option[T] is encoded as { "kind":"some", "value":value } or { "kind":"none" }.
 - Parser gap is explicit: hand-authored ParsedProgram starts this proof.
 
 [S] Shipped / Signals
