@@ -1,0 +1,26 @@
+{
+  "case_id": "negative_missing_vt",
+  "diagnostics": [
+    {
+      "category": "typechecker_oof",
+      "contract": "SparkCRMBiHistoryAvailabilityCorrection",
+      "diagnostic": "history.valid_time_axis_missing",
+      "message": "bihistory_at requires valid_time_ref",
+      "node": "bihistory_at",
+      "path": "contract:SparkCRMBiHistoryAvailabilityCorrection/compute:bihistory_at",
+      "rule": "OOF-BT2",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "semantic_ir_ref": null,
+  "stages": {
+    "classify": "ok",
+    "emit": "skipped",
+    "parse": "ok",
+    "typecheck": "oof"
+  }
+}

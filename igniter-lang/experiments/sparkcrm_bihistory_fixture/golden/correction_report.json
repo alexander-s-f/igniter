@@ -1,0 +1,28 @@
+{
+  "changed_slots": [
+    {
+      "corrected_event_ref": "hist/schedule/t-17/10/canceled/correction-1510",
+      "corrected_known_time": "2026-05-07T15:20:00Z",
+      "corrected_reason": "available",
+      "diagnostic": "availability.corrected_after_decision",
+      "prior_event_ref": "hist/schedule/t-17/10/planned/as-known-1205",
+      "prior_known_time": "2026-05-07T13:30:00Z",
+      "prior_reason": "busy",
+      "slot_local": "10:00",
+      "valid_time": "2026-05-07T14:00:00Z"
+    }
+  ],
+  "corrected_snapshot_ref": "availability_snapshot/t-17/2026-05-07/as-known-1520",
+  "diagnostics": [
+    "availability.corrected_after_decision",
+    "history.bitemporal_access_recorded",
+    "projection.original_snapshot_preserved",
+    "retention.explanation_right_preserved"
+  ],
+  "kind": "AvailabilityCorrectionReport",
+  "original_decision_rewritten": false,
+  "original_decision_status": "still_explainable",
+  "prior_snapshot_ref": "availability_snapshot/t-17/2026-05-07/as-known-1330",
+  "report_id": "availability_correction/t-17/2026-05-07/1520",
+  "trust_status": "trusted"
+}

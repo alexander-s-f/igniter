@@ -812,10 +812,10 @@ module IgniterLang
           advance
           inner2 = parse_type_ref
           expect_type!(:rbracket)
-          return "#{name}[#{inner}, #{inner2}]"
+          return { "kind" => "type_ref", "name" => name, "params" => [normalize_type_param(inner), normalize_type_param(inner2)] }
         end
         expect_type!(:rbracket)
-        "#{name}[#{inner}]"
+        { "kind" => "type_ref", "name" => name, "params" => [normalize_type_param(inner)] }
       else
         if name == "Decimal"
           add_parse_error(
@@ -830,6 +830,13 @@ module IgniterLang
         name
       end
     end
+
+     # Normalize a bare type name string into a structured TypeRef node.
+     # Used only when assembling params inside a generic type like History[T].
+     # Existing callers that receive bare strings are unaffected.
+     def normalize_type_param(ref)
+       ref.is_a?(String) ? { "kind" => "type_ref", "name" => ref, "params" => [] } : ref
+     end
 
     def add_parse_error(rule:, message:, token:, line:, col:, severity: "error")
       @errors << {

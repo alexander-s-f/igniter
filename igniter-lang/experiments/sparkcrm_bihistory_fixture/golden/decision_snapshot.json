@@ -1,0 +1,147 @@
+{
+  "available_count": 2,
+  "blocked_count": 2,
+  "company_id": "company/fixture-acme",
+  "kind": "AvailabilitySnapshot",
+  "known_time": "2026-05-07T13:30:00Z",
+  "reason_counts": {
+    "available": 2,
+    "busy": 1,
+    "day_off": 0,
+    "off": 1
+  },
+  "requested_window": {
+    "local": "10:00..11:00",
+    "reason": "busy",
+    "result": "blocked",
+    "source_event_refs": [
+      "hist/schedule/t-17/10/planned/as-known-1205"
+    ]
+  },
+  "service_date": "2026-05-07",
+  "slots": [
+    {
+      "access_observation_refs": [
+        "obs/bihistory_access/22a6724f36532107",
+        "obs/bihistory_access/8808bcb537657ba4",
+        "obs/bihistory_access/3e3d2d23e0db97b4"
+      ],
+      "day_off_config": {
+        "kind": "some",
+        "value": {
+          "blocked_slots_local": [],
+          "config_version": "day-off-config-synthetic-v1"
+        }
+      },
+      "known_time": "2026-05-07T13:30:00Z",
+      "off_schedule": {
+        "kind": "none"
+      },
+      "reason": "available",
+      "result": "available",
+      "schedule": {
+        "kind": "none"
+      },
+      "slot_local": "09:00",
+      "source_event_refs": [],
+      "valid_time": "2026-05-07T13:00:00Z"
+    },
+    {
+      "access_observation_refs": [
+        "obs/bihistory_access/bf1f663f8666db6d",
+        "obs/bihistory_access/b832a0c1a235afa5",
+        "obs/bihistory_access/667809a6b1ec6841"
+      ],
+      "day_off_config": {
+        "kind": "some",
+        "value": {
+          "blocked_slots_local": [],
+          "config_version": "day-off-config-synthetic-v1"
+        }
+      },
+      "known_time": "2026-05-07T13:30:00Z",
+      "off_schedule": {
+        "kind": "none"
+      },
+      "reason": "busy",
+      "result": "blocked",
+      "schedule": {
+        "kind": "some",
+        "value": {
+          "blocks_availability": true,
+          "order_ref": "order/existing-o-100",
+          "slot_local": "10:00",
+          "status": "planned"
+        }
+      },
+      "slot_local": "10:00",
+      "source_event_refs": [
+        "hist/schedule/t-17/10/planned/as-known-1205"
+      ],
+      "valid_time": "2026-05-07T14:00:00Z"
+    },
+    {
+      "access_observation_refs": [
+        "obs/bihistory_access/e58e6649c0dbe8f1",
+        "obs/bihistory_access/a7e36d91a6ae81e2",
+        "obs/bihistory_access/e834410306e66740"
+      ],
+      "day_off_config": {
+        "kind": "some",
+        "value": {
+          "blocked_slots_local": [],
+          "config_version": "day-off-config-synthetic-v1"
+        }
+      },
+      "known_time": "2026-05-07T13:30:00Z",
+      "off_schedule": {
+        "kind": "none"
+      },
+      "reason": "available",
+      "result": "available",
+      "schedule": {
+        "kind": "none"
+      },
+      "slot_local": "11:00",
+      "source_event_refs": [],
+      "valid_time": "2026-05-07T15:00:00Z"
+    },
+    {
+      "access_observation_refs": [
+        "obs/bihistory_access/a64164a773d24504",
+        "obs/bihistory_access/dd6f9b173fdd20ee",
+        "obs/bihistory_access/86b9e499c97047be"
+      ],
+      "day_off_config": {
+        "kind": "some",
+        "value": {
+          "blocked_slots_local": [],
+          "config_version": "day-off-config-synthetic-v1"
+        }
+      },
+      "known_time": "2026-05-07T13:30:00Z",
+      "off_schedule": {
+        "kind": "some",
+        "value": {
+          "blocks_availability": true,
+          "reason": "personal_block",
+          "slot_local": "12:00"
+        }
+      },
+      "reason": "off",
+      "result": "blocked",
+      "schedule": {
+        "kind": "none"
+      },
+      "slot_local": "12:00",
+      "source_event_refs": [
+        "hist/off_schedule/t-17/12/personal-block"
+      ],
+      "valid_time": "2026-05-07T16:00:00Z"
+    }
+  ],
+  "snapshot_id": "availability_snapshot/t-17/2026-05-07/as-known-1330",
+  "technician_id": "tech/t-17",
+  "timezone": "America/New_York",
+  "trust_status": "trusted"
+}

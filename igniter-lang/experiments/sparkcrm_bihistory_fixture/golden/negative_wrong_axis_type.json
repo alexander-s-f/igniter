@@ -1,0 +1,28 @@
+{
+  "case_id": "negative_wrong_axis_type",
+  "diagnostics": [
+    {
+      "axis": "vt",
+      "category": "typechecker_oof",
+      "contract": "SparkCRMBiHistoryAvailabilityCorrection",
+      "diagnostic": "history.axis_type_mismatch",
+      "message": "vt must be ISO8601 DateTime",
+      "node": "bihistory_at",
+      "path": "contract:SparkCRMBiHistoryAvailabilityCorrection/compute:bihistory_at",
+      "rule": "OOF-BT4",
+      "severity": "error",
+      "span": null,
+      "value": "10:00"
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "semantic_ir_ref": null,
+  "stages": {
+    "classify": "ok",
+    "emit": "skipped",
+    "parse": "ok",
+    "typecheck": "oof"
+  }
+}

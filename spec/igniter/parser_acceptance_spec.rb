@@ -171,12 +171,12 @@ RSpec.describe "Parser Acceptance Harness — PROP-014 / PROP-015" do
       end
 
       it "param type_annotations: Collection[GeoSignal] and ScheduleFact" do
-        expect(fn.dig("params", 0, "type_annotation")).to eq("Collection[GeoSignal]")
+        expect(fn.dig("params", 0, "type_annotation")).to eq({ "kind" => "type_ref", "name" => "Collection", "params" => [{ "kind" => "type_ref", "name" => "GeoSignal", "params" => [] }] })
         expect(fn.dig("params", 1, "type_annotation")).to eq("ScheduleFact")
       end
 
       it "return_type: Collection[TimeSlot]" do
-        expect(fn["return_type"]).to eq("Collection[TimeSlot]")
+        expect(fn["return_type"]).to eq({ "kind" => "type_ref", "name" => "Collection", "params" => [{ "kind" => "type_ref", "name" => "TimeSlot", "params" => [] }] })
       end
 
       it "body return_expr is if_expr" do
@@ -278,7 +278,7 @@ RSpec.describe "Parser Acceptance Harness — PROP-014 / PROP-015" do
 
       it "geo_signals read type: Collection[GeoSignal]" do
         geo = body.find { |d| d["kind"] == "read" && d["name"] == "geo_signals" }
-        expect(geo["type_annotation"]).to eq("Collection[GeoSignal]")
+        expect(geo["type_annotation"]).to eq({ "kind" => "type_ref", "name" => "Collection", "params" => [{ "kind" => "type_ref", "name" => "GeoSignal", "params" => [] }] })
       end
 
       it "geo_signals from template includes technician_id and date" do
