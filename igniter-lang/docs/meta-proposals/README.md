@@ -18,6 +18,7 @@ and operating model first, then use this index for governance context.
 | [META-EXPERT-008.2](META-EXPERT-008.2-fresh-language-model-report-v0.md) | proposal | Fresh language model report: LanguageContract/RuntimeContract composition, general-purpose profiles, OSINT traceability, mesh, FFI, modeling, and next-slice priorities |
 | [META-EXPERT-008.3](META-EXPERT-008.3-project-archaeology-slice-index-v0.md) | proposal | Project archaeology slice index: maps Igniter/Igniter-Lang history into bounded A00..A17 consolidation slices |
 | [META-EXPERT-008.4](META-EXPERT-008.4-origin-temporal-concordance-v0.md) | proposal | Origin-to-current-canon concordance for A01/A05: formal identities, SIR, grammar discipline, temporal/History/BiHistory/OLAP/Stream signals |
+| [META-EXPERT-008.5](META-EXPERT-008.5-runtime-ledger-mesh-concordance-v0.md) | proposal | Runtime/ledger/mesh concordance for A04/A11/A12: RuntimeMachine, TBackend, Ledger, Durable Model, MCP, cluster, mesh signals |
 | [META-EXPERT-007](META-EXPERT-007-stage1-close-governance-v0.md) | decision | Stage 1 close governance: verdict CLOSE WITH DEFERRED GAP; close criteria formally satisfied; 3 deferred gaps; post-close action list |
 | [META-EXPERT-007.1](META-EXPERT-007.1-stage1-close-snapshot-plan-v0.md) | done | Post-close doc transition: snapshot, PROP freeze list, naming collision fix, file moves |
 | [META-EXPERT-003](META-EXPERT-003-stage1-implementation-governance-v0.md) | done | Stage 1 scoreboard, agent routing policy, done criteria per pass, next 3 slices |
