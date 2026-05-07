@@ -28,7 +28,8 @@ Run: `ruby igniter-lang/experiments/stage1_close_candidate/stage1_close_candidat
 Pass/Feature             PROP    Experiment / Library                     Status
 ────────────────────────────────────────────────────────────────────────────────
 Production compiler      PROP-027  production_compiler_cli/ PASS        ✅ CLI PASS
-  package                          lib/igniter_lang/ (9 libs)           ✅ assembler extracted (R9)
+  package                          lib/igniter_lang/ (10 libs)          ✅ orchestrator extracted (R10)
+                                   IgniterLang.compile facade            ✅ Ruby API facade PASS (R11)
 History[T]+BiHistory[T]  PROP-022  history+bihistory proofs PASS        ✅ full proof stack
   + Temporal access hook           RuntimeMachineHook wired              ✅ hook proof PASS
                                    RuntimeMachine load/evaluate proof     ✅ proof-local RM integration
@@ -41,17 +42,19 @@ OLAPPoint[T,Dims]        PROP-024  olap_point_proof/ PASS                ✅ PAS
 Invariant severity       PROP-025  invariant_severity_proof/ PASS       ✅ proof + spec PASS
                                    PINV-1..4 (parser) PASS               ✅ PINV-1..4 done (R10)
                                    TINV-1..3 (TypeChecker) PASS          ✅ TINV-1..3 done (R10)
+                                   SemanticIR invariant_node lowering    ✅ emitter lowering PASS (R11)
+TBackend bridge          PROP-008  tbackend-ledger-bridge-conformance    ✅ docs-only conformance done (R11)
 Parser OOF hardening     PROP-026  parser_oof_hardening_stage2_proof/   ✅ PASS
 Runtime eval surface     —         igapp_assembler_proof/               ✅ closed_in_proof
 ────────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  Packageable compiler API → Invariant SemanticIR lowering
+Active priority:  Compiler package boundary → Runtime smoke extraction → Ledger adapter descriptor
 New PROPs:        start from PROP-028
 ```
 
 ---
 
-## lib/igniter_lang/ — 10 Libs Extracted
+## lib/igniter_lang/ — 10 Libs Extracted + Facade
 
 ```text
 diagnostics.rb            (R3)
@@ -61,9 +64,10 @@ parser.rb                 (R5/R7/R10) — parser + stream + olap_point + invaria
 temporal_access_runtime.rb (R5–R7) — MemoryBackend + RuntimeMachineHook
 classifier.rb             (R6/R7) — ParsedProgram→ClassifiedProgram; OOF-S1/2
 typechecker.rb            (R7/R8/R10) — TypedProgram boundary; stream OOF-S3; OLAP OOF-O2..O5; TINV-1..3
-semanticir_emitter.rb     (R8/R9/R10) — SemanticIR emitter; OLAP/stream lowering added
+semanticir_emitter.rb     (R8/R9/R10/R11) — SemanticIR emitter; OLAP/stream/invariant lowering added
 assembler.rb              (R9) — .igapp/ assembler boundary
 compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
+../igniter_lang.rb        (R11) — packageable Ruby facade: IgniterLang.compile(...)
 ```
 
 ---
@@ -76,9 +80,9 @@ PROP-022A  .igapp assembler contract     Stage 1 frozen (accepted/)
 PROP-023   stream T                      ✅ runtime + SC-1/2/3 + OOF-S1..S5 PASS (all stream OOF done)
 PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
 PROP-024   OLAPPoint[T,Dims]             ✅ proof + grammar spec + parser + TC/IR boundary PASS
-PROP-025   Invariant severity            ✅ proof + spec + PINV-1..4 + TINV-1..3 PASS (R10)
+PROP-025   Invariant severity            ✅ proof + parser/TC + SemanticIR invariant_node PASS
 PROP-026   Parser OOF hardening          ✅ PASS
-PROP-027   Production compiler diag.     ✅ CLI PASS; 10 libs extracted
+PROP-027   Production compiler diag.     ✅ CLI PASS; 10 libs + Ruby facade extracted
 PROP-028+  next available
 ```
 
@@ -87,21 +91,25 @@ PROP-028+  next available
 ## Open Gaps
 
 ```text
-1. Packageable Compiler API
-   10 compiler libs extracted including orchestrator.
-   Next: packageable-compiler-api-v0 to expose stable Ruby API.
+1. Compiler package boundary
+   ✅ Ruby-facing IgniterLang.compile facade done (S2-R11-C1-P).
+   Remaining: load-path/gemspec/bin integration and shared CLI/API package proof.
 
 2. Production SemanticIR emission for Stage 2 surfaces
-   Stream and OLAP emitter lowering PASS. Invariant emission remains.
-   Next: invariant-severity-semanticir-lowering-v0.
+   ✅ Stream, OLAP, and invariant_node emitter lowering PASS.
+   Remaining: runtime invariant_violation_node observations are future runtime work,
+   not compile-time SemanticIR lowering.
 
 3. Production RuntimeMachine temporal integration
-   Proof-local adapter registry and shim selected. Production TBackend
-   adapter selection and Ledger/Durable Model bridge remain blocked until compiler spine stabilizes.
+   Proof-local adapter registry and shim selected. Ledger conformance is descriptor-first
+   (S2-R11-C3-P). Next package-side move should be metadata-only
+   LedgerTBackendAdapterDescriptor v0 before read/write/runtime binding.
 
 4. Invariant severity parser + typechecker implementation
    ✅ DONE (S2-R10-C4-P). PINV-1..4 (parser) + TINV-1..3 (TypeChecker) implemented.
-   Remaining: OOF-I1 (@bitemporal deferred), OOF-I3 (~T deferred), SemanticIR emission.
+   ✅ SemanticIR invariant_node lowering DONE (S2-R11-C2-P).
+   Remaining: OOF-I1 (@bitemporal deferred), OOF-I3 (~T deferred), OOF-I5
+   (requirements DB), OOF-I2 advisory caller-warning analysis.
 ```
 
 → Full governance: `meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md`

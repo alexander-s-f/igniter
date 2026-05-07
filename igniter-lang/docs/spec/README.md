@@ -1,6 +1,6 @@
 # Igniter-Lang Language Specification
 
-Version: 1.0 — Stage 2 R9 sync
+Version: 1.0 — Stage 2 R11 sync
 Maintainer: `[Igniter-Lang Meta Expert]`
 Status: living document
 Last updated: 2026-05-07
@@ -41,7 +41,7 @@ Last updated: 2026-05-07
 | Ch5 TypeChecker pass | PROP-021 | experiments/typechecker_proof/ | ✅ PASS ✅ boundary CLOSED |
 | Ch5 TypeChecker module | PROP-021 | lib/igniter_lang/typechecker.rb | ✅ lib extracted; stream OOF-S3 + OLAP OOF-O2..O5 (R8) |
 | Ch6 SemanticIR envelope | PROP-019.1 | experiments/source_to_semanticir_fixture/ | ✅ PASS ✅ golden check PASS |
-| Ch6 SemanticIR emitter module | PROP-019.1 | lib/igniter_lang/semanticir_emitter.rb | ✅ lib extracted (R8) ⏳ stage2 surface lowering next |
+| Ch6 SemanticIR emitter module | PROP-019.1 | lib/igniter_lang/semanticir_emitter.rb | ✅ lib extracted (R8); stream/OLAP/invariant lowering PASS (R10/R11) |
 | Ch6 CompilationReport | PROP-019.1 | source_to_semanticir_fixture --check-golden | ✅ PASS |
 | Ch6 Assembler criteria A1–A6 | PROP-019.1 | experiments/igapp_assembler_proof/ | ✅ PASS A1–A6 all ok |
 | Ch6 Assembler module | PROP-019.1 | lib/igniter_lang/assembler.rb | ✅ lib extracted (R9) |
@@ -50,7 +50,7 @@ Last updated: 2026-05-07
 | Ch7 CompatibilityReport gate | PROP-009, PROP-009.1 | igapp_assembler_proof runtime.* | ✅ proven (assembled igapp) |
 | Ch7 Temporal access hook spec | PROP-022 | lib/igniter_lang/temporal_access_runtime.rb | ✅ RuntimeMachineHook spec + smoke |
 | Ch7 Temporal access hook proof | PROP-022 | history_type_proof/ + sparkcrm_bihistory/ | ✅ hook PASS: valid-time + bitemporal paths |
-| Ch7 Temporal access RM integration | PROP-022 | proof-local RuntimeMachine load/evaluate (R8) | ✅ proof-local PASS ⏳ production TBackend next |
+| Ch7 Temporal access RM integration | PROP-022 | proof-local RuntimeMachine load/evaluate (R8); TBackend conformance (R11) | ✅ proof-local PASS; descriptor-first Ledger bridge mapped |
 | Ch8 Collection[T] ops | PROP-013 | stdlib_execution_kernel_stage1 | ✅ PASS |
 | Ch8 fold/map/filter | PROP-013 | experiments/stdlib_execution_kernel_stage1/ | ✅ PASS |
 | Ch9 History[T] | PROP-022 | experiments/history_type_proof/ | ✅ point proof PASS ✅ parser accepted |
@@ -58,12 +58,12 @@ Last updated: 2026-05-07
 | Ch9 Temporal access runtime | PROP-022 | experiments/temporal_access_runtime/ | ✅ MemoryBackend shared |
 | Ch9 Temporal access SemanticIR | PROP-022 | history_type_proof/ + bihistory/ | ✅ temporal_access_node evaluated |
 | Ch9 Temporal access lib | PROP-022 | lib/igniter_lang/temporal_access_runtime.rb | ✅ lib extracted; capability helper ⏳ RuntimeMachine hook |
-| Ch9 Invariant severity | PROP-025 | experiments/invariant_severity_proof/ | ✅ proof PASS ✅ parser/TC spec done ⏳ impl deferred |
+| Ch9 Invariant severity | PROP-025 | experiments/invariant_severity_proof/ | ✅ proof PASS; parser/TC implementation PASS; SemanticIR invariant_node lowering PASS |
 | Ch9 stream T runtime | PROP-023 | experiments/stream_t_proof/ | ✅ proof PASS |
-| Ch9 stream T parser | PROP-023 | lib/igniter_lang/parser.rb | ✅ stream/fold_stream keywords ⏳ OOF-S2 next |
+| Ch9 stream T parser | PROP-023 | lib/igniter_lang/parser.rb | ✅ stream/fold_stream keywords; OOF-S2 closed |
 | Ch9 stream T classifier | PROP-023 | classifier_pass_proof/ (SC-1/2/3) | ✅ ESCAPE propagation PASS |
 | Ch9 stream T OOF-S2 | PROP-023 | classifier.rb + classifier_pass_proof/ | ✅ OOF-S2 missing-window PASS |
-| Ch9 stream T OOF-S3 | PROP-023 | typechecker.rb (R8) | ✅ OOF-S3 ESCAPE-in-fold PASS ⏳ SemanticIR lowering next |
+| Ch9 stream T OOF-S3 + SemanticIR | PROP-023 | typechecker.rb (R8), semanticir_emitter.rb (R10) | ✅ OOF-S3 ESCAPE-in-fold PASS; stream lowering PASS |
 | Ch9 OLAPPoint[T,Dims] | PROP-024 | experiments/olap_point_proof/ | ✅ proof + grammar spec PASS |
 | Ch9 OLAPPoint parser | PROP-024 | lib/igniter_lang/parser.rb + spec 61 PASS | ✅ revenue_point.ig; olap_points[]; dims_record |
 | Ch9 OLAPPoint TC/SemanticIR | PROP-024 | olap_point_proof/ + typechecker.rb (R8) | ✅ OOF-O2..O5 + olap_access_node lowering PASS |
@@ -74,10 +74,11 @@ Last updated: 2026-05-07
 
 ```
 accepted + PASS   Ch1–Ch8 (all Stage 1 passes PASS; classifier + typechecker + emitter +
-                  assembler modules extracted; 9 libs)
+                  assembler + orchestrator modules extracted; 10 libs + facade)
 accepted partial  Ch2 (OOF syntax gap closed PROP-026)
-Stage 2 partial   Ch9 (all stream OOF S1..S5 PASS; OLAP parser+TC+SemanticIR PASS;
-                       hook+RM proof PASS; emitter stage2 surface lowering next)
+Stage 2 partial   Ch9 (History/BiHistory full proof stack PASS; stream OOF S1..S5 +
+                       SemanticIR PASS; OLAP parser+TC+SemanticIR PASS; invariant
+                       parser+TC+SemanticIR PASS; production runtime adapter binding open)
 ```
 
 ---
@@ -85,18 +86,21 @@ Stage 2 partial   Ch9 (all stream OOF S1..S5 PASS; OLAP parser+TC+SemanticIR PAS
 ## Stage 1 Remaining Gap
 
 ```
-Stage 2 open gaps (after R9):
-1. Assembler module extracted (R9). Next: compiler-orchestrator-v0.
-2. Production SemanticIR stage2 surface lowering
-   stream/invariant/OLAP rollup emitter lowering; production orchestration.
-   Next: stream-semanticir-surface-lowering-v0.
+Stage 2 open gaps (after R11):
+1. Compiler package boundary
+   IgniterLang.compile(...) facade exists. Remaining: load-path/gemspec/bin
+   integration and shared CLI/API package proof.
+2. Runtime invariant violation observations
+   Compile-time invariant_node lowering PASS. Runtime invariant_violation_node
+   observations remain future runtime work.
 3. Production RuntimeMachine temporal integration
-   Proof-local PASS. TBackend adapter shape spec authored (R9, docs-only).
-   Next: production TBackend adapter fixture.
-4. Invariant severity parser + TC implementation
-   Spec done. Impl deferred — Tier 1, after compiler spine stabilizes.
+   Proof-local PASS. Ledger bridge conformance is descriptor-first; next package
+   slice should be metadata-only LedgerTBackendAdapterDescriptor v0.
+4. Deferred invariant OOF surfaces
+   OOF-I1 (@bitemporal), OOF-I3 (~T), OOF-I5 (requirements DB), and OOF-I2
+   caller-warning analysis remain open/deferred.
 
-Closed post-Stage-1 and in Stage 2 R1–R9 (no longer gaps):
+Closed post-Stage-1 and in Stage 2 R1–R11 (no longer gaps):
   OOF syntax rejection         — PASS: PROP-026
   Runtime eval surface         — closed_in_proof: igapp_assembler_proof
   History[T]+BiHistory[T]      — PASS: full proof stack (point, parser, axes, temporal node)
@@ -106,7 +110,9 @@ Closed post-Stage-1 and in Stage 2 R1–R9 (no longer gaps):
   Invariant severity proof     — PASS: proof + parser/TC spec done
   stream T runtime+OOF S1..S5  — PASS: all five stream OOF rules proven (S3 TypeChecker R8)
   OLAPPoint full stack         — PASS: proof + grammar + parser + TC/SemanticIR boundary (R8)
-  Production compiler libs     — 9 libs: +semanticir_emitter.rb (R8) +assembler.rb (R9)
+  Production compiler libs     — 10 libs: +semanticir_emitter.rb (R8) +assembler.rb (R9) +compiler_orchestrator.rb (R10)
+  Packageable compiler API     — PASS: IgniterLang.compile(...) facade (R11)
+  Stage 2 SemanticIR lowering  — PASS: stream (R10), OLAP (R9), invariant_node (R11)
 ```
 
 ---

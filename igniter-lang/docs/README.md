@@ -82,15 +82,18 @@ Current priority:
 
 ```text
 Production compiler line
-  -> extract assembler module
-  -> add compiler orchestrator over Parser/Classifier/TypeChecker/SemanticIREmitter/Assembler
+  -> keep IgniterLang.compile(...) as the public facade over CompilerOrchestrator
+  -> extract reusable RuntimeSmoke
+  -> prove package-level load path + bin/CLI entrypoint
 
 Stage 2 surface line
-  -> lower OLAP/stream/invariant surfaces through the extracted SemanticIR emitter
+  -> OLAP/stream/invariant compile-time SemanticIR lowering PASS
   -> preserve proven OOF boundaries and diagnostics
+  -> defer runtime invariant_violation_node observations to a runtime slice
 
 Runtime bridge line
-  -> bind RuntimeMachine temporal access to production TBackend/Ledger/Durable Model adapters
+  -> start descriptor-first LedgerTBackendAdapterDescriptor metadata work
+  -> bind RuntimeMachine temporal access only after adapter evidence is approved
 ```
 
 Current proof commands:
@@ -98,6 +101,7 @@ Current proof commands:
 ```bash
 igniter-lang/bin/igniter-lang compile igniter-lang/experiments/source_to_semanticir_fixture/add.ig --out /tmp/igniter_lang_cli_report_add.igapp
 ruby igniter-lang/experiments/production_compiler_cli/production_compiler_cli_proof.rb
+ruby igniter-lang/experiments/invariant_severity_proof/invariant_severity_proof.rb
 ruby igniter-lang/experiments/history_type_proof/history_type_proof.rb
 ruby igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixture.rb
 ```

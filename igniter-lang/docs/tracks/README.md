@@ -27,6 +27,15 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 2 Round 11 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `packageable-compiler-api-v0.md` | done | top-level `IgniterLang.compile(...)` facade added; CLI delegates to facade; production compiler, SemanticIR, assembler, and Stage 1 proofs PASS |
+| `invariant-severity-semanticir-lowering-v0.md` | done | typed invariants lower to `invariant_node`; output effect propagation and invariant coverage preserved; invariant proof PASS |
+| `tbackend-ledger-bridge-conformance-v0.md` | done | docs-only Ledger-backed TBackend conformance map; descriptor-first, metadata-only package slice recommended |
+| `stage2-round11-status-curation-v0.md` | done | R11 map sync — this track |
+
 ## Stage 2 Round 10 Evidence
 
 | Track | Status | Notes |
@@ -76,7 +85,7 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
-## lib/igniter_lang/ — Current State (10 libs)
+## lib/igniter_lang/ — Current State (10 libs + facade)
 
 ```text
 diagnostics.rb            (R3)
@@ -86,9 +95,10 @@ parser.rb                 (R5/R7/R10) — parser + stream + olap_point + invaria
 temporal_access_runtime.rb (R5–R7) — MemoryBackend + RuntimeMachineHook
 classifier.rb             (R6/R7) — ParsedProgram→ClassifiedProgram; OOF-S1/2
 typechecker.rb            (R7/R8/R10) — TypedProgram boundary; stream OOF-S3; OLAP OOF-O2..O5; TINV-1..3
-semanticir_emitter.rb     (R8/R9/R10) — SemanticIR emitter; OLAP/stream lowering added
+semanticir_emitter.rb     (R8/R9/R10/R11) — SemanticIR emitter; OLAP/stream/invariant lowering added
 assembler.rb              (R9) — .igapp/ assembler boundary
 compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
+../igniter_lang.rb        (R11) — packageable Ruby facade: IgniterLang.compile(...)
 ```
 
 ---
@@ -97,8 +107,10 @@ compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `packageable-compiler-api-v0` | Wire stable Ruby API over CompilerOrchestrator | Research Agent |
-| `invariant-severity-semanticir-lowering-v0` | invariant_node / invariant_violation_node emission | Compiler/Grammar Expert |
+| `runtime-smoke-extraction-v0` | Move proof-local CLI runtime smoke toward reusable `IgniterLang::RuntimeSmoke` while keeping smoke optional | Research Agent |
+| `compiler-package-boundary-v0` | Prove package-level load path, CLI entrypoint, and Ruby API share the same facade | Research Agent |
+| `ledger-tbackend-adapter-descriptor-v0` | Metadata-only Ledger adapter descriptor with capability checks and stable hashes; no reads/writes/runtime binding | Bridge Agent |
+| `runtime-invariant-violation-observations-v0` | Convert violated `invariant_node` runtime results into observation-shaped `invariant_violation_node` records | Research Agent |
 
 ---
 
