@@ -5,7 +5,7 @@ require "json"
 require "pathname"
 
 require_relative "diagnostics"
-require_relative "../../lib/igniter_lang/compiler_orchestrator"
+require_relative "../../lib/igniter_lang"
 require_relative "../source_to_semanticir_fixture/source_to_semanticir_fixture"
 require_relative "../runtime_machine_memory_proof/compiled_program"
 
@@ -16,7 +16,7 @@ module ProductionCompilerCLI
 
   class Compiler
     def compile(source_path:, out_path:)
-      orchestration = IgniterLang::CompilerOrchestrator.new.compile(
+      orchestration = IgniterLang.compile(
         source_path: source_path,
         out_path: out_path,
         sample_input_resolver: method(:sample_input_for),

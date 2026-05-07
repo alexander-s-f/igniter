@@ -6,6 +6,7 @@ require "fileutils"
 require "json"
 require "pathname"
 require_relative "../../lib/igniter_lang/parser"
+require_relative "../../lib/igniter_lang/semanticir_emitter"
 
 module InvariantSeverityProof
   ROOT = Pathname.new(File.expand_path("../../..", __dir__))
@@ -219,14 +220,16 @@ module InvariantSeverityProof
 
   def run
     FileUtils.mkdir_p(GOLDEN_DIR)
-    evaluator = RuntimeEvaluator.new(contract_fixture)
+    semantic_boundary = semantic_ir_boundary
+    contract = semantic_boundary.fetch("semantic_ir")
+    evaluator = RuntimeEvaluator.new(contract)
     cases = {
       "error_blocks" => evaluator.evaluate(case_id: "error_blocks", inputs: error_inputs),
       "warn_allows" => evaluator.evaluate(case_id: "warn_allows", inputs: warn_inputs),
       "soft_uncertain" => evaluator.evaluate(case_id: "soft_uncertain", inputs: soft_inputs),
       "metric_records" => evaluator.evaluate(case_id: "metric_records", inputs: metric_inputs)
     }
-    report = compilation_report
+    report = semantic_boundary.fetch("compilation_report")
     pinv = parser_checks
     all_checks = checks(cases, report).merge(pinv)
     summary = {
@@ -234,7 +237,7 @@ module InvariantSeverityProof
       "format_version" => FORMAT_VERSION,
       "track" => TRACK,
       "status" => all_checks.values.all? ? "PASS" : "FAIL",
-      "contract" => contract_fixture,
+      "contract" => contract,
       "compilation_report" => report,
       "cases" => cases,
       "checks" => all_checks
@@ -245,30 +248,117 @@ module InvariantSeverityProof
   end
 
   def contract_fixture
+    semantic_ir_boundary.fetch("semantic_ir")
+  end
+
+  def semantic_ir_boundary
+    emitted = IgniterLang::SemanticIREmitter.new.emit_typed(invariant_typed_program)
+    raise "invariant typed SemanticIR emission failed" unless emitted.fetch("compilation_report").fetch("pass_result") == "ok"
+
+    emitted
+  end
+
+  def invariant_typed_program
     {
-      "kind" => "semantic_ir_program",
-      "format_version" => FORMAT_VERSION,
-      "program_id" => "semanticir/invariant_severity/#{Canonical.short_hash("invariant_severity")}",
+      "kind" => "typed_program",
+      "typechecker_version" => "invariant-severity-proof-local-typed-v0",
+      "program_id" => "typed/invariant_severity/#{Canonical.short_hash("invariant_severity")}",
+      "classified_program_id" => "classifier_pass/invariant_severity_proof_local",
+      "source_path" => "igniter-lang/experiments/invariant_severity_proof/invariant_severity.ig",
+      "source_hash" => Canonical.hash("invariant_severity"),
+      "grammar_version" => FORMAT_VERSION,
+      "module" => "Fixture.InvariantSeverity",
+      "type_env" => {},
       "contracts" => [
         {
-          "kind" => "contract_ir",
-          "contract_ref" => CONTRACT_REF,
-          "contract_name" => "MedicationDoseReview",
-          "outputs" => [
-            {
-              "kind" => "output_node",
-              "name" => "approved_dose",
-              "type" => { "name" => "Decimal", "params" => [2] },
-              "warnings_from" => ["major_interaction_acknowledgement"],
-              "uncertain_from" => ["renal_confidence_gate"],
-              "metrics_from" => ["latency_metric"]
-            }
-          ],
-          "nodes" => invariant_nodes
+          "kind" => "typed_contract",
+          "contract_id" => CONTRACT_REF,
+          "name" => "MedicationDoseReview",
+          "status" => "accepted",
+          "fragment_class" => "core",
+          "symbols" => typed_symbols,
+          "declarations" => invariant_typed_declarations,
+          "type_errors" => []
         }
       ],
-      "invariants" => invariant_nodes
+      "type_errors" => [],
+      "semantic_ir_ref" => nil
     }
+  end
+
+  def typed_symbols
+    [
+      { "name" => "approved_dose", "type" => decimal_type, "resolved" => true },
+      { "name" => "contraindicated_interactions_empty", "type" => bool_type, "resolved" => true },
+      { "name" => "major_interactions_acknowledged", "type" => bool_type, "resolved" => true },
+      { "name" => "confidence_at_least_threshold", "type" => bool_type, "resolved" => true },
+      { "name" => "runtime_latency_under_threshold_ms", "type" => bool_type, "resolved" => true }
+    ]
+  end
+
+  def invariant_typed_declarations
+    [
+      {
+        "decl_id" => "compute:approved_dose",
+        "kind" => "compute",
+        "name" => "approved_dose",
+        "fragment_class" => "core",
+        "type" => decimal_type,
+        "deps" => [],
+        "expr" => { "kind" => "literal", "value" => "12.50", "resolved_type" => decimal_type, "deps" => [] }
+      }
+    ] + invariant_nodes.map { |node| invariant_decl(node) } + [
+      {
+        "decl_id" => "output:approved_dose",
+        "kind" => "output",
+        "name" => "approved_dose",
+        "fragment_class" => "core",
+        "type" => decimal_type,
+        "deps" => ["approved_dose"],
+        "warnings_from" => ["major_interaction_acknowledgement"],
+        "uncertain_from" => ["renal_confidence_gate"],
+        "metrics_from" => ["latency_metric"]
+      }
+    ]
+  end
+
+  def invariant_decl(node)
+    result = {
+      "decl_id" => "invariant:#{node.fetch("name")}",
+      "kind" => "invariant",
+      "name" => node.fetch("name"),
+      "fragment_class" => "core",
+      "predicate_ref" => node.fetch("predicate"),
+      "predicate_type" => bool_type,
+      "severity" => node.fetch("severity"),
+      "label" => node.fetch("label"),
+      "message" => node.fetch("message"),
+      "overridable_with" => node.fetch("overridable_with"),
+      "output_effect" => invariant_decl_effect(node.fetch("severity")),
+      "type" => bool_type,
+      "deps" => [node.fetch("predicate")]
+    }
+    result["threshold"] = node.fetch("threshold") if node.key?("threshold")
+    result["threshold_ms"] = node.fetch("threshold_ms") if node.key?("threshold_ms")
+    result
+  end
+
+  def invariant_decl_effect(severity)
+    case severity
+    when "error" then "blocks"
+    when "warn" then "warns"
+    when "soft" then "uncertain"
+    when "metric" then "metric"
+    else "blocks"
+    end
+  end
+
+  def bool_type
+    { "name" => "Bool", "params" => [] }
+  end
+
+  def decimal_type
+    { "name" => "Decimal", "params" => [2] }
   end
 
   def invariant_nodes
@@ -497,6 +587,10 @@ module InvariantSeverityProof
 
   def checks(cases, report)
     {
+      "semanticir.emitter_typed_program_ref" => contract_fixture.fetch("program_id").start_with?("semanticir/typed/"),
+      "semanticir.invariant_nodes_from_typed" => contract_fixture.fetch("invariants").length == 4 &&
+        contract_fixture.fetch("invariants").all? { |node| node.fetch("kind") == "invariant_node" },
+      "semanticir.output_effect_preserved" => contract_fixture.fetch("invariants").map { |node| node.fetch("output_effect") }.sort == %w[blocks metric uncertain warns],
       "compile.invariant_nodes_have_severity" => invariant_nodes.all? { |node| node.key?("severity") },
       "compile.output_tracks_warn_soft_metric_sources" => contract_fixture.dig("contracts", 0, "outputs", 0, "warnings_from") == ["major_interaction_acknowledgement"] &&
         contract_fixture.dig("contracts", 0, "outputs", 0, "uncertain_from") == ["renal_confidence_gate"] &&

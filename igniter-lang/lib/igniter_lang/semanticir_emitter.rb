@@ -85,12 +85,14 @@ module IgniterLang
         "contracts" => typed_program.fetch("contracts").map { |contract| typed_contract_ir(contract) }
       }
       result["olap_points"] = typed_program.fetch("olap_points") if typed_program.key?("olap_points")
+      invariants = typed_program_invariants(result.fetch("contracts"))
+      result["invariants"] = invariants unless invariants.empty?
       result
     end
 
     def typed_compilation_report(typed_program, diagnostics, semantic_ir)
       ok = diagnostics.empty?
-      {
+      report = {
         "kind" => "compilation_report",
         "format_version" => FORMAT_VERSION,
         "program_id" => typed_compilation_report_id(typed_program),
@@ -107,6 +109,9 @@ module IgniterLang
         "diagnostics" => diagnostics.map { |entry| diagnostic(entry) },
         "semantic_ir_ref" => semantic_ir&.fetch("program_id")
       }
+      coverage = typed_invariant_coverage(semantic_ir)
+      report["invariant_coverage"] = coverage unless coverage.empty?
+      report
     end
 
     def program_id(parsed_program)
@@ -151,11 +156,17 @@ module IgniterLang
 
     def typed_ports(contract, kind)
       contract.fetch("declarations").select { |decl| decl.fetch("kind") == kind }.map do |decl|
-        {
+        port = {
           "name" => decl.fetch("name"),
           "type" => decl.fetch("type"),
           "lifecycle" => decl.fetch("lifecycle", kind == "input" ? "local" : "session")
         }
+        if kind == "output"
+          port["warnings_from"] = decl.fetch("warnings_from") if decl.key?("warnings_from")
+          port["uncertain_from"] = decl.fetch("uncertain_from") if decl.key?("uncertain_from")
+          port["metrics_from"] = decl.fetch("metrics_from") if decl.key?("metrics_from")
+        end
+        port
       end
     end
 
@@ -171,6 +182,8 @@ module IgniterLang
           window_decl_node(decl)
         when "fold_stream"
           fold_stream_node(decl, declarations)
+        when "invariant"
+          invariant_node(decl)
         when "compute"
           {
             "kind" => "compute",
@@ -184,6 +197,26 @@ module IgniterLang
       end
     end
 
+    def typed_program_invariants(contracts)
+      contracts.flat_map do |contract|
+        contract.fetch("nodes").select { |node| node.fetch("kind") == "invariant_node" }
+      end
+    end
+
+    def typed_invariant_coverage(semantic_ir)
+      return [] unless semantic_ir
+
+      typed_program_invariants(semantic_ir.fetch("contracts")).map do |node|
+        {
+          "name" => node.fetch("name"),
+          "severity" => node.fetch("severity"),
+          "label" => node.fetch("label", nil),
+          "output_policy" => node.fetch("severity") == "error" ? "blocking" : "non_blocking",
+          "output_effect" => node.fetch("output_effect")
+        }
+      end
+    end
+
     def typed_escape_boundaries(contract)
       return [] unless contract.fetch("declarations").any? { |decl| decl.fetch("kind") == "stream" }
 
@@ -194,6 +227,36 @@ module IgniterLang
           "produces" => ["stream_window_observation"]
         }
       ]
+    end
+
+    def invariant_node(decl)
+      result = {
+        "kind" => "invariant_node",
+        "name" => decl.fetch("name"),
+        "predicate" => decl.fetch("predicate_ref", nil),
+        "predicate_ref" => decl.fetch("predicate_ref", nil),
+        "predicate_type" => decl.fetch("predicate_type", nil),
+        "severity" => decl.fetch("severity", "error"),
+        "label" => decl.fetch("label", nil),
+        "message" => decl.fetch("message", nil),
+        "overridable_with" => decl.fetch("overridable_with", nil),
+        "output_effect" => decl.fetch("output_effect", invariant_output_effect(decl.fetch("severity", "error"))),
+        "deps" => decl.fetch("deps", []),
+        "fragment" => decl.fetch("fragment_class", "core")
+      }
+      result["threshold"] = decl.fetch("threshold") if decl.key?("threshold")
+      result["threshold_ms"] = decl.fetch("threshold_ms") if decl.key?("threshold_ms")
+      result
+    end
+
+    def invariant_output_effect(severity)
+      case severity
+      when "error" then "blocks"
+      when "warn" then "warns"
+      when "soft" then "uncertain"
+      when "metric" then "metric"
+      else "blocks"
+      end
     end
 
     def stream_input_node(decl, declarations)

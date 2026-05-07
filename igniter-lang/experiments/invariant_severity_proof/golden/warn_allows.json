@@ -5,6 +5,10 @@
   "format_version": "0.1.0",
   "invariant_results": [
     {
+      "deps": [
+        "contraindicated_interactions_empty"
+      ],
+      "fragment": "core",
       "kind": "invariant_node",
       "label": "CG-INTERACTION-01",
       "message": "Contraindicated drug combination - order blocked",
@@ -12,10 +16,19 @@
       "output_effect": "none",
       "overridable_with": null,
       "predicate": "contraindicated_interactions_empty",
+      "predicate_ref": "contraindicated_interactions_empty",
+      "predicate_type": {
+        "name": "Bool",
+        "params": []
+      },
       "severity": "error",
       "status": "satisfied"
     },
     {
+      "deps": [
+        "major_interactions_acknowledged"
+      ],
+      "fragment": "core",
       "kind": "invariant_node",
       "label": "CG-INTERACTION-02",
       "message": "Major drug interaction requires acknowledgement",
@@ -23,10 +36,19 @@
       "output_effect": "attach_warning",
       "overridable_with": "documented_justification",
       "predicate": "major_interactions_acknowledged",
+      "predicate_ref": "major_interactions_acknowledged",
+      "predicate_type": {
+        "name": "Bool",
+        "params": []
+      },
       "severity": "warn",
       "status": "violated"
     },
     {
+      "deps": [
+        "confidence_at_least_threshold"
+      ],
+      "fragment": "core",
       "kind": "invariant_node",
       "label": "CG-RENAL-CONF-01",
       "message": "Low confidence renal function - dose is approximate",
@@ -34,11 +56,20 @@
       "output_effect": "none",
       "overridable_with": null,
       "predicate": "confidence_at_least_threshold",
+      "predicate_ref": "confidence_at_least_threshold",
+      "predicate_type": {
+        "name": "Bool",
+        "params": []
+      },
       "severity": "soft",
       "status": "satisfied",
       "threshold": 0.85
     },
     {
+      "deps": [
+        "runtime_latency_under_threshold_ms"
+      ],
+      "fragment": "core",
       "kind": "invariant_node",
       "label": "PERF-DOSE-01",
       "message": "Dose computation latency metric",
@@ -46,6 +77,11 @@
       "output_effect": "record_metric",
       "overridable_with": null,
       "predicate": "runtime_latency_under_threshold_ms",
+      "predicate_ref": "runtime_latency_under_threshold_ms",
+      "predicate_type": {
+        "name": "Bool",
+        "params": []
+      },
       "severity": "metric",
       "status": "satisfied",
       "threshold_ms": 500

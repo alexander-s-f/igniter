@@ -1,39 +1,47 @@
 {
   "diagnostics": [],
   "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
   "invariant_coverage": [
     {
       "label": "CG-INTERACTION-01",
       "name": "contraindicated_interaction_block",
+      "output_effect": "blocks",
       "output_policy": "blocking",
       "severity": "error"
     },
     {
       "label": "CG-INTERACTION-02",
       "name": "major_interaction_acknowledgement",
+      "output_effect": "warns",
       "output_policy": "non_blocking",
       "severity": "warn"
     },
     {
       "label": "CG-RENAL-CONF-01",
       "name": "renal_confidence_gate",
+      "output_effect": "uncertain",
       "output_policy": "non_blocking",
       "severity": "soft"
     },
     {
       "label": "PERF-DOSE-01",
       "name": "latency_metric",
+      "output_effect": "metric",
       "output_policy": "non_blocking",
       "severity": "metric"
     }
   ],
   "kind": "compilation_report",
   "pass_result": "ok",
-  "program_id": "compilation_report/invariant_severity/364afca16e5c3164",
+  "program_id": "compilation_report/typed_d99cf84965faa446",
+  "semantic_ir_ref": "semanticir/typed/2ab52533d8d441d4",
+  "source_hash": "sha256:95394d2fa119a6ad9000ba9e32ef713a17d96b6646a23fda7f66df6b4bd818fa",
+  "source_path": "experiments/invariant_severity_proof/invariant_severity.ig",
   "stages": {
     "classify": "ok",
     "emit": "ok",
-    "parse": "proof_local",
+    "parse": "ok",
     "typecheck": "ok"
   }
 }

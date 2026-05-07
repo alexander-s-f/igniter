@@ -1,52 +1,119 @@
 {
+  "compilation_report_ref": "compilation_report/typed_d99cf84965faa446",
   "contracts": [
     {
       "contract_name": "MedicationDoseReview",
-      "contract_ref": "contract/Fixture.InvariantSeverity.MedicationDoseReview@v0",
+      "contract_ref": "contract/MedicationDoseReview/sha256:7645ec9ebdddc1bde2bbf0a4",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [],
       "kind": "contract_ir",
       "nodes": [
         {
+          "deps": [],
+          "expr": {
+            "deps": [],
+            "kind": "literal",
+            "resolved_type": {
+              "name": "Decimal",
+              "params": [
+                2
+              ]
+            },
+            "value": "12.50"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "approved_dose",
+          "type": {
+            "name": "Decimal",
+            "params": [
+              2
+            ]
+          }
+        },
+        {
+          "deps": [
+            "contraindicated_interactions_empty"
+          ],
+          "fragment": "core",
           "kind": "invariant_node",
           "label": "CG-INTERACTION-01",
           "message": "Contraindicated drug combination - order blocked",
           "name": "contraindicated_interaction_block",
+          "output_effect": "blocks",
           "overridable_with": null,
           "predicate": "contraindicated_interactions_empty",
+          "predicate_ref": "contraindicated_interactions_empty",
+          "predicate_type": {
+            "name": "Bool",
+            "params": []
+          },
           "severity": "error"
         },
         {
+          "deps": [
+            "major_interactions_acknowledged"
+          ],
+          "fragment": "core",
           "kind": "invariant_node",
           "label": "CG-INTERACTION-02",
           "message": "Major drug interaction requires acknowledgement",
           "name": "major_interaction_acknowledgement",
+          "output_effect": "warns",
           "overridable_with": "documented_justification",
           "predicate": "major_interactions_acknowledged",
+          "predicate_ref": "major_interactions_acknowledged",
+          "predicate_type": {
+            "name": "Bool",
+            "params": []
+          },
           "severity": "warn"
         },
         {
+          "deps": [
+            "confidence_at_least_threshold"
+          ],
+          "fragment": "core",
           "kind": "invariant_node",
           "label": "CG-RENAL-CONF-01",
           "message": "Low confidence renal function - dose is approximate",
           "name": "renal_confidence_gate",
+          "output_effect": "uncertain",
           "overridable_with": null,
           "predicate": "confidence_at_least_threshold",
+          "predicate_ref": "confidence_at_least_threshold",
+          "predicate_type": {
+            "name": "Bool",
+            "params": []
+          },
           "severity": "soft",
           "threshold": 0.85
         },
         {
+          "deps": [
+            "runtime_latency_under_threshold_ms"
+          ],
+          "fragment": "core",
           "kind": "invariant_node",
           "label": "PERF-DOSE-01",
           "message": "Dose computation latency metric",
           "name": "latency_metric",
+          "output_effect": "metric",
           "overridable_with": null,
           "predicate": "runtime_latency_under_threshold_ms",
+          "predicate_ref": "runtime_latency_under_threshold_ms",
+          "predicate_type": {
+            "name": "Bool",
+            "params": []
+          },
           "severity": "metric",
           "threshold_ms": 500
         }
       ],
       "outputs": [
         {
-          "kind": "output_node",
+          "lifecycle": "session",
           "metrics_from": [
             "latency_metric"
           ],
@@ -64,50 +131,96 @@
             "major_interaction_acknowledgement"
           ]
         }
-      ]
+      ],
+      "specialization_of": null,
+      "type_args": {}
     }
   ],
   "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
   "invariants": [
     {
+      "deps": [
+        "contraindicated_interactions_empty"
+      ],
+      "fragment": "core",
       "kind": "invariant_node",
       "label": "CG-INTERACTION-01",
       "message": "Contraindicated drug combination - order blocked",
       "name": "contraindicated_interaction_block",
+      "output_effect": "blocks",
       "overridable_with": null,
       "predicate": "contraindicated_interactions_empty",
+      "predicate_ref": "contraindicated_interactions_empty",
+      "predicate_type": {
+        "name": "Bool",
+        "params": []
+      },
       "severity": "error"
     },
     {
+      "deps": [
+        "major_interactions_acknowledged"
+      ],
+      "fragment": "core",
       "kind": "invariant_node",
       "label": "CG-INTERACTION-02",
       "message": "Major drug interaction requires acknowledgement",
       "name": "major_interaction_acknowledgement",
+      "output_effect": "warns",
       "overridable_with": "documented_justification",
       "predicate": "major_interactions_acknowledged",
+      "predicate_ref": "major_interactions_acknowledged",
+      "predicate_type": {
+        "name": "Bool",
+        "params": []
+      },
       "severity": "warn"
     },
     {
+      "deps": [
+        "confidence_at_least_threshold"
+      ],
+      "fragment": "core",
       "kind": "invariant_node",
       "label": "CG-RENAL-CONF-01",
       "message": "Low confidence renal function - dose is approximate",
       "name": "renal_confidence_gate",
+      "output_effect": "uncertain",
       "overridable_with": null,
       "predicate": "confidence_at_least_threshold",
+      "predicate_ref": "confidence_at_least_threshold",
+      "predicate_type": {
+        "name": "Bool",
+        "params": []
+      },
       "severity": "soft",
       "threshold": 0.85
     },
     {
+      "deps": [
+        "runtime_latency_under_threshold_ms"
+      ],
+      "fragment": "core",
       "kind": "invariant_node",
       "label": "PERF-DOSE-01",
       "message": "Dose computation latency metric",
       "name": "latency_metric",
+      "output_effect": "metric",
       "overridable_with": null,
       "predicate": "runtime_latency_under_threshold_ms",
+      "predicate_ref": "runtime_latency_under_threshold_ms",
+      "predicate_type": {
+        "name": "Bool",
+        "params": []
+      },
       "severity": "metric",
       "threshold_ms": 500
     }
   ],
   "kind": "semantic_ir_program",
-  "program_id": "semanticir/invariant_severity/95394d2fa119a6ad"
+  "module": "Fixture.InvariantSeverity",
+  "program_id": "semanticir/typed/2ab52533d8d441d4",
+  "source_hash": "sha256:95394d2fa119a6ad9000ba9e32ef713a17d96b6646a23fda7f66df6b4bd818fa",
+  "source_path": "experiments/invariant_severity_proof/invariant_severity.ig"
 }
