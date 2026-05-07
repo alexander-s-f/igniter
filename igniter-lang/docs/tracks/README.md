@@ -10,10 +10,8 @@ Last updated: 2026-05-07
 
 Track documents are slice evidence, not the global project log.
 
-Use this directory when a role needs to prove, pressure-test, or map a bounded
-question. Completed tracks remain as evidence, but new agents should start from
-`docs/README.md`, `docs/operating-model.md`, `docs/current-status.md`, and the
-assigned track only.
+New agents should start from `docs/README.md`, `docs/operating-model.md`,
+`docs/current-status.md`, and the assigned track only.
 
 ---
 
@@ -29,24 +27,30 @@ assigned track only.
 
 ---
 
-## Stage 2 Round 2 Evidence
+## Stage 2 Round 3 Evidence
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `stage2-map-refresh-v0.md` | done | Stage 2 map refresh; current-status compacted to 80 lines |
+| `option-encoding-normalization-v0.md` | done | Option[T] → `{kind,value}` canonical shape; history_type_proof PASS |
+| `history-type-parser-acceptance-v0.md` | done | Parser structured TypeRef for generic types; History[T] parser PASS |
+| `bihistory-parser-typechecker-axes-v0.md` | done | TypeChecker BiHistory axis checks (4 classified cases); typechecker_proof PASS |
+| `history-temporal-access-runtime-extraction-v0.md` | done | TemporalAccessRuntime::MemoryBackend shared; history+bihistory PASS |
+| `production-compiler-diagnostics-implementation-v0.md` | done | ProductionCompilerCLI::Diagnostics module added; CLI proof PASS |
+| `production-compiler-diagnostics-extraction-v0.md` | done | Diagnostics isolated from CLI orchestration; CLI proof PASS |
+| `compiler-diagnostics-library-boundary-v0.md` | done | lib/igniter_lang/diagnostics.rb extracted; library_require ok |
+| `invariant-severity-proof-v0.md` | done | invariant_severity_proof PASS; parser/TC ownership deferred |
+| `stage2-round3-map-refresh-v0.md` | done | R3 map sync — this track |
+
+## Stage 2 Round 2 Evidence (summary)
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `stage2-map-refresh-v0.md` | done | Stage 2 map refresh; current-status compacted |
 | `parser-oof-hardening-stage2-proof-v0.md` | done | PROP-026 parser OOF hardening PASS |
-| `production-compiler-cli-wrapper-v0.md` | done | CLI `bin/igniter-lang compile` proof PASS (9 checks) |
-| `production-compiler-module-extraction-map-v0.md` | done | Extraction map for production compiler; no code moved yet |
-| `production-compiler-diagnostics-extraction-v0.md` | done | Diagnostics helper extracted to experiment-local reusable file |
-| `history-type-proof-planning-v0.md` | done | Planning for History[T] proof path |
-| `option-encoding-normalization-v0.md` | done | Canonical `Option[T]` `{kind,value}` shape normalized in History proof |
-| `history-type-parser-acceptance-v0.md` | done | Parser now emits structured TypeRef for generic types including `History[Integer]` |
-| `canonical-stdlib-registry-runtime-v0.md` | done | Runtime-visible stdlib registry direction |
-| `sparkcrm-history-pressure-v0.md` | done | Pressure map for Spark CRM bitemporal scenarios |
-| `sparkcrm-bihistory-fixture-pressure-v0.md` | done | Pressure spec for BiHistory fixture |
+| `production-compiler-cli-wrapper-v0.md` | done | CLI `bin/igniter-lang compile` proof PASS |
+| `production-compiler-module-extraction-map-v0.md` | done | Extraction map; no code moved yet |
+| `sparkcrm-bihistory-fixture-v0.md` | done | BiHistory fixture PASS (OOF-BT1..4) |
 | `temporal-option-and-bihistory-shape-v0.md` | done | Option[T] + BiHistory canonical shape spec |
-| `sparkcrm-bihistory-fixture-v0.md` | done | BiHistory fixture PASS (OOF-BT1..4 + correction proof) |
-| `stage2-round2-map-refresh-v0.md` | done | R2 map sync — this track |
 
 ---
 
@@ -54,10 +58,10 @@ assigned track only.
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `bihistory-parser-typechecker-axes-v0` | Parser/typechecker for BiHistory temporal axes | Compiler/Grammar Expert |
-| `history-temporal-access-runtime-extraction-v0` | Extract proof-local History/BiHistory temporal access into runtime support | Research Agent |
-| `compiler-diagnostics-library-boundary-v0` | Move experiment-local diagnostics toward first reusable library boundary | Research Agent |
-| `invariant-severity-proof-v0` | First proof for PROP-025 severity levels | Research Agent |
+| `runtime-temporal-access-node-loader-v0` | Map SemanticIR temporal_access_node onto TemporalAccessRuntime API | Research Agent |
+| `compiler-result-report-boundary-v0` | Extract CompilerResult + CompilationReport helpers into lib/ | Research Agent |
+| `invariant-severity-parser-and-typechecker-ownership-v0` | Parser syntax + TypeChecker OOF codes for severity levels | Compiler/Grammar Expert |
+| `stream-t-proof-v0` | First proof for PROP-023 stream T | Research Agent |
 
 ---
 
@@ -66,23 +70,12 @@ assigned track only.
 ```text
 [Role]
 Track:
+Card:
 Status:
 
 [D] Decisions
-- ...
-
 [S] Shipped / Signals
-- ...
-
 [T] Tests / Proofs
-- ...
-
 [R] Risks / Recommendations
-- ...
-
 [Next] Suggested next slice
-- ...
 ```
-
-Keep the handoff compact. The track body may contain detailed evidence; the
-handoff should tell the supervisor what changed and what to do next.

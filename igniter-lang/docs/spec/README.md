@@ -1,6 +1,6 @@
 # Igniter-Lang Language Specification
 
-Version: 0.4 — Stage 2 R2 sync
+Version: 0.5 — Stage 2 R3 sync
 Maintainer: `[Igniter-Lang Meta Expert]`
 Status: living document
 Last updated: 2026-05-07
@@ -47,20 +47,23 @@ Last updated: 2026-05-07
 | Ch8 Collection[T] ops | PROP-013 | stdlib_execution_kernel_stage1 | ✅ PASS |
 | Ch8 fold/map/filter | PROP-013 | experiments/stdlib_execution_kernel_stage1/ | ✅ PASS |
 | Ch9 History[T] | PROP-022 | experiments/history_type_proof/ | ✅ point proof PASS ✅ parser accepted |
-| Ch9 BiHistory[T] | PROP-022 | experiments/sparkcrm_bihistory_fixture/ | ✅ fixture PASS ⏳ axes gap |
+| Ch9 BiHistory[T] | PROP-022 | sparkcrm_bihistory_fixture/ + typechecker_proof/ | ✅ fixture PASS ✅ axes typechecked |
+| Ch9 Temporal access runtime | PROP-022 | experiments/temporal_access_runtime/ | ✅ MemoryBackend shared |
+| Ch9 Invariant severity | PROP-025 | experiments/invariant_severity_proof/ | ✅ proof PASS ⏳ parser/TC deferred |
 | Ch9 stream T | PROP-023 | — | deferred Stage 2 |
 | Ch9 OLAPPoint | PROP-024 | — | deferred Stage 2 |
-| Ch9 Invariant severity | PROP-025 | — | deferred Stage 2 |
 
 ---
 
 ## Coverage Summary
 
 ```
-accepted + PASS   Ch3 (TypeChecker + boundary), Ch4 (classifier), Ch5 (pipeline + assembler),
-                  Ch6 (SemanticIR + assembler), Ch7 (RuntimeMachine), Ch8 (stdlib kernel)
+accepted + PASS   Ch3 (TypeChecker + boundary + BiHistory axes), Ch4 (classifier),
+                  Ch5 (pipeline + assembler), Ch6 (SemanticIR + assembler),
+                  Ch7 (RuntimeMachine), Ch8 (stdlib kernel)
 accepted partial  Ch2 (OOF syntax gap closed PROP-026; semantic OOF caught at Classify/TypeCheck)
-Stage 2 partial   Ch9 (History[T] point proof PASS; BiHistory fixture PASS; stream/OLAP/severity deferred)
+Stage 2 partial   Ch9 (History[T]+BiHistory PASS; TemporalAccessRuntime PASS; severity proof PASS;
+                       stream T / OLAPPoint deferred)
 ```
 
 ---
@@ -69,17 +72,21 @@ Stage 2 partial   Ch9 (History[T] point proof PASS; BiHistory fixture PASS; stre
 
 ```
 Stage 2 open gaps:
-1. BiHistory[T] axes — parser/typechecker for bitemporal axes not generalized
-   (sparkcrm_bihistory_fixture PASS; axes generalization pending)
-2. Runtime temporal access extraction — History/BiHistory runtime behavior is proof-local
-   (History point proof and SparkCRM BiHistory fixture PASS)
-3. Production compiler package — CLI proof PASS; diagnostics extraction started (PROP-027)
+1. SemanticIR temporal node generalization
+   temporal_access_runtime MemoryBackend extracted; needs SemanticIR node mapping.
+2. Production compiler package — diagnostics lib extracted; CompilerResult/CompilationReport helpers remain.
+3. Invariant severity parser + typechecker ownership
+   invariant_severity_proof PASS (proof-local); parser syntax + OOF codes deferred.
+4. stream T / OLAPPoint — PROP-023/024 authored; no experiments yet.
 
-Closed post-Stage-1 (no longer gaps):
-  OOF syntax rejection — PASS: PROP-026 + parser_oof_hardening_stage2_proof
-  Runtime eval surface — closed_in_proof: igapp_assembler_proof (all 3 contracts)
-  Option[T] encoding normalization — PASS: canonical `{kind,value}` shape in history proof
-  History[T] parser acceptance — PASS: structured TypeRef for generic types
+Closed post-Stage-1 and in Stage 2 R1–R3 (no longer gaps):
+  OOF syntax rejection     — PASS: PROP-026
+  Runtime eval surface     — closed_in_proof: igapp_assembler_proof
+  Option[T] normalization  — PASS: canonical {kind,value} shape
+  History[T] parser        — PASS: structured TypeRef for generic types
+  BiHistory[T] axes        — PASS: typechecker_proof (4 BiHistory classified cases)
+  Temporal access runtime  — PASS: TemporalAccessRuntime::MemoryBackend shared
+  Invariant severity proof — PASS: invariant_severity_proof (proof-local)
 ```
 
 ---

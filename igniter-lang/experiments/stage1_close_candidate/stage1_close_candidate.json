@@ -123,6 +123,10 @@
           "status": "PASS"
         },
         {
+          "name": "typed.bihistory_valid",
+          "status": "PASS"
+        },
+        {
           "name": "typed.accepted_no_unresolved_types",
           "status": "PASS"
         },
@@ -136,6 +140,18 @@
         },
         {
           "name": "negative.confidence_bool_blocked",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.bihistory_missing_vt",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.bihistory_missing_tt",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.bihistory_wrong_axis_type",
           "status": "PASS"
         },
         {
@@ -171,10 +187,14 @@
         "typed.add: ok",
         "typed.claim_evidence: ok",
         "typed.evidence_linked_alert: ok",
+        "typed.bihistory_valid: ok",
         "typed.accepted_no_unresolved_types: ok",
         "negative.unresolved_symbol_blocked: ok",
         "negative.evidence_less_alert_blocked: ok",
         "negative.confidence_bool_blocked: ok",
+        "negative.bihistory_missing_vt: ok",
+        "negative.bihistory_missing_tt: ok",
+        "negative.bihistory_wrong_axis_type: ok",
         "semanticir.not_emitted: ok",
         "boundary.classified_inputs_present: ok",
         "boundary.classified_program_input_only: ok",

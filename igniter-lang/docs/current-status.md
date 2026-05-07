@@ -22,7 +22,7 @@ Classifier             PROP-018/020  experiments/classifier_pass_proof/     ✅ 
 SemanticIR Emitter     PROP-019.1    experiments/source_to_semanticir_      ✅ PASS
                                      fixture/ --check-golden
 TypeChecker            PROP-021      experiments/typechecker_proof/         ✅ PASS
-                                     (incl. boundary fixture)
+                                     (incl. boundary + BiHistory axes)
 .igapp/ Assembler      PROP-022A     experiments/igapp_assembler_proof/     ✅ PASS
                                      A1-A6 + runtime.evaluate → trusted
 RuntimeMachine         PROP-011      experiments/runtime_machine_memory_    ✅ proven
@@ -41,25 +41,27 @@ Run: `ruby igniter-lang/experiments/stage1_close_candidate/stage1_close_candidat
 ## Stage 2 — OPEN
 
 ```text
-Pass/Feature           PROP    Experiment                                Status
-──────────────────────────────────────────────────────────────────────────────
-Parser OOF hardening   PROP-026  experiments/parser_oof_hardening_      ✅ PASS
-                                  stage2_proof/
-Production compiler    PROP-027  experiments/production_compiler_cli/    ✅ diagnostics
-                                  canonical diagnostics implemented       ⏳ package gap
-Runtime eval surface   —         igapp_assembler_proof/                  ✅ closed_in_proof
-                                  Add, ClaimEvidence, EvidenceAlert
-History[T]             PROP-022  experiments/history_type_proof/         ✅ point proof
-                                  History[Integer] + OOF-H1              ✅ parser accepted
-Option[T] encoding     PROP-022  canonical kind/value shape              ✅ normalized
-BiHistory[T]           PROP-022  experiments/sparkcrm_bihistory_         ✅ fixture proof
-                                  fixture/                               ⏳ axes gap
-Invariant severity     PROP-025  no experiment yet                       🔵 authored
-stream T               PROP-023  no experiment yet                       🔵 authored
-OLAPPoint[T,Dims]      PROP-024  no experiment yet                       🔵 authored
-──────────────────────────────────────────────────────────────────────────────
+Pass/Feature             PROP    Experiment                               Status
+────────────────────────────────────────────────────────────────────────────────
+Parser OOF hardening     PROP-026  parser_oof_hardening_stage2_proof/   ✅ PASS
+Production compiler      PROP-027  production_compiler_cli/             ✅ CLI PASS
+  diagnostics lib                  lib/igniter_lang/diagnostics.rb      ✅ lib extracted
+                                   (package boundary remains)            ⏳ package gap
+Runtime eval surface     —         igapp_assembler_proof/               ✅ closed_in_proof
+Option[T] encoding       PROP-022  canonical {kind,value} shape         ✅ normalized
+History[T]               PROP-022  history_type_proof/                  ✅ point proof PASS
+                                   History[Integer] + OOF-H1            ✅ parser accepted
+BiHistory[T]             PROP-022  sparkcrm_bihistory_fixture/          ✅ fixture PASS
+                                   typechecker_proof/                   ✅ axes typechecked
+Temporal access runtime  PROP-022  temporal_access_runtime/             ✅ MemoryBackend
+                                   TemporalAccessRuntime::MemoryBackend  shared history+bi
+Invariant severity       PROP-025  invariant_severity_proof/            ✅ PASS
+                                   severity :error/:warn/:soft/:metric   (proof-local)
+stream T                 PROP-023  no experiment yet                    🔵 authored
+OLAPPoint[T,Dims]        PROP-024  no experiment yet                    🔵 authored
+────────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  BiHistory axes generalization → runtime node extraction → invariant severity
+Active priority:  SemanticIR temporal node generalization → production compiler package
 New PROPs:        start from PROP-028
 ```
 
@@ -68,29 +70,37 @@ New PROPs:        start from PROP-028
 ## PROP Canonical Map
 
 ```text
-PROP-022   History[T] / BiHistory[T]     point proof PASS; parser accepted; BiHistory fixture PASS
+PROP-022   History[T] / BiHistory[T]     point+axes proof PASS; TemporalAccessRuntime shared
 PROP-022A  .igapp assembler contract     Stage 1 frozen (accepted/)
 PROP-023   stream T                      Stage 2 authored
 PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
 PROP-024   OLAPPoint[T,Dims]             Stage 2 authored
-PROP-025   Invariant severity            Stage 2 authored
+PROP-025   Invariant severity            ✅ proof PASS (proof-local; parser/TC next)
 PROP-026   Parser OOF hardening          ✅ PASS
-PROP-027   Production compiler diag.     ✅ CLI diagnostics implemented; package extraction remains
+PROP-027   Production compiler diag.     ✅ CLI PASS; lib extracted; package boundary open
 PROP-028+  next available
 ```
 
-## Immediate Next
+---
+
+## Open Gaps
 
 ```text
-BiHistory axes:
-  sparkcrm_bihistory_fixture proves bitemporal behavior with proof-local stubs.
-  next action: parser/typechecker support for bitemporal axes and OOF-BT reports.
+1. SemanticIR temporal node generalization
+   History/BiHistory temporal_access_node evaluation is proof-local (TemporalAccessRuntime).
+   Next: map SemanticIR temporal_access_node onto TemporalAccessRuntime API.
 
-Runtime temporal access:
-  History and BiHistory currently use proof-local runtime evaluation.
-  next action: extract temporal_access_node evaluation toward production RuntimeMachine.
+2. Production compiler package boundary
+   lib/igniter_lang/diagnostics.rb extracted. CompilerResult/CompilationReport helpers remain.
+   Next: compiler-result-report-boundary-v0.
+
+3. Invariant severity parser + typechecker ownership
+   invariant_severity_proof PASS (proof-local). Parser syntax and TypeChecker OOF codes deferred.
+   Next: invariant-severity-parser-and-typechecker-ownership-v0.
+
+4. stream T / OLAPPoint
+   PROP-023 / PROP-024 authored; no experiments yet.
 ```
 
 → Full governance: `meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md`
 → Proposals queue: `proposals/README.md`
-→ Stage 2 agent routing: `meta-proposals/META-EXPERT-008`
