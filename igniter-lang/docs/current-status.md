@@ -39,7 +39,8 @@ OLAPPoint[T,Dims]        PROP-024  olap_point_proof/ PASS                ✅ PAS
   + parser impl                    revenue_point.ig parses live          ✅ parser impl PASS
   + TC/SemanticIR boundary          OOF-O2..O5 + olap_access_node         ✅ proof PASS
 Invariant severity       PROP-025  invariant_severity_proof/ PASS       ✅ proof + spec PASS
-                                   parser/TC spec (PINV-1..4, TINV-1..3) ⏳ impl deferred (Tier 1)
+                                   PINV-1..4 (parser) PASS               ✅ PINV-1..4 done (R10)
+                                   TINV-1..3 (TypeChecker) PASS          ✅ TINV-1..3 done (R10)
 Parser OOF hardening     PROP-026  parser_oof_hardening_stage2_proof/   ✅ PASS
 Runtime eval surface     —         igapp_assembler_proof/               ✅ closed_in_proof
 ────────────────────────────────────────────────────────────────────────────────
@@ -73,7 +74,7 @@ PROP-022A  .igapp assembler contract     Stage 1 frozen (accepted/)
 PROP-023   stream T                      ✅ runtime + SC-1/2/3 + OOF-S1..S5 PASS (all stream OOF done)
 PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
 PROP-024   OLAPPoint[T,Dims]             ✅ proof + grammar spec + parser + TC/IR boundary PASS
-PROP-025   Invariant severity            ✅ proof + spec PASS; impl deferred (Tier 1)
+PROP-025   Invariant severity            ✅ proof + spec + PINV-1..4 + TINV-1..3 PASS (R10)
 PROP-026   Parser OOF hardening          ✅ PASS
 PROP-027   Production compiler diag.     ✅ CLI PASS; 9 libs extracted; orchestrator next
 PROP-028+  next available
@@ -98,7 +99,8 @@ PROP-028+  next available
    adapter selection and Ledger/Durable Model bridge remain.
 
 4. Invariant severity parser + typechecker implementation
-   Spec done. Impl deferred — Tier 1, after compiler package spine stabilizes.
+   ✅ DONE (S2-R10-C4-P). PINV-1..4 (parser) + TINV-1..3 (TypeChecker) implemented.
+   Remaining: OOF-I1 (@bitemporal deferred), OOF-I3 (~T deferred), SemanticIR emission.
 ```
 
 → Full governance: `meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md`

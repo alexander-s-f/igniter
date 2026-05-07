@@ -63,6 +63,7 @@ module IgniterLang
       type_warnings = []
       symbol_types = {}
       typed_decls = []
+      invariant_effects = []  # [{"name" => ..., "effect" => "warns"|"uncertain"|"metric"}] for output propagation
 
       classified_contract.fetch("declarations").each do |decl|
         case decl.fetch("kind")
@@ -86,6 +87,10 @@ module IgniterLang
           result_type = fold_stream_result_type(decl)
           symbol_types[decl.fetch("name")] = result_type
           typed_decls << typed_decl(decl, result_type, nil, decl.fetch("deps", []))
+        when "invariant"
+          # TINV-1/2/3: Resolve predicate_ref, validate overridable_with, compute output_effect
+          check_invariant(decl, symbol_types, type_errors, invariant_effects)
+          typed_decls << typed_decl_invariant(decl, symbol_types)
         when "compute"
           typed_expr = infer_expr(decl.fetch("expr"), symbol_types, type_errors, type_warnings, decl.fetch("name"))
           validate_declared_olap_type(decl, typed_expr, type_errors)
@@ -97,7 +102,8 @@ module IgniterLang
           if type_name(actual) != type_name(expected) && !blocking_rule_present?(type_errors)
             type_errors << type_mismatch(expected, actual, decl.fetch("name"))
           end
-          typed_decls << typed_decl(decl, expected, nil, decl.fetch("deps"))
+          # TINV-4: propagate invariant output effects to output nodes
+          typed_decls << typed_decl_output(decl, expected, invariant_effects)
         end
       end
 
@@ -544,7 +550,88 @@ module IgniterLang
     end
 
     def blocking_rule_present?(errors)
-      %w[OOF-P1 OOF-CE4 OOF-OS2 OOF-H1 OOF-BT2 OOF-BT3 OOF-BT4 OOF-S3 OOF-O3 OOF-O4 OOF-O5].any? { |rule| rule_present?(errors, rule) }
+      %w[OOF-P1 OOF-CE4 OOF-OS2 OOF-H1 OOF-BT2 OOF-BT3 OOF-BT4 OOF-S3 OOF-O3 OOF-O4 OOF-O5 OOF-IV3].any? { |rule| rule_present?(errors, rule) }
+    end
+
+    # OOF-IV helpers -------------------------------------------------------
+
+    # TC-INV-1: resolve predicate_ref, check Bool type.
+    # TC-INV-2: validate overridable_with semantics.
+    # TC-INV-3: compute output_effect and record for output propagation.
+    def check_invariant(decl, symbol_types, type_errors, invariant_effects)
+      predicate_ref = decl.fetch("predicate_ref", nil)
+      severity = decl.fetch("severity", "error")
+      name = decl.fetch("name")
+
+      # TC-INV-1: predicate must resolve to Bool
+      if predicate_ref
+        pred_type = symbol_types.fetch(predicate_ref, type_ir("Unknown"))
+        unless type_name(pred_type) == "Bool" || type_name(pred_type) == "Unknown"
+          type_errors << oof("OOF-IV3", "invariant predicate must be Bool, got #{type_name(pred_type)}", name)
+        end
+      end
+
+      # TC-INV-2: overridable_with on :error is OOF-I4 (dynamic/inferred case; parser catches static)
+      overridable_with = decl.fetch("overridable_with", nil)
+      if overridable_with && severity == "error"
+        type_errors << oof("OOF-I4", ":error invariants cannot be overridden", name)
+      end
+
+      # TC-INV-3: record output effect for TINV-4 propagation
+      effect = invariant_output_effect(severity)
+      invariant_effects << { "name" => name, "effect" => effect } if %w[warns uncertain metric].include?(effect)
+    end
+
+    # Typed node for an invariant declaration.
+    def typed_decl_invariant(decl, symbol_types)
+      predicate_ref = decl.fetch("predicate_ref", nil)
+      pred_type = predicate_ref ? symbol_types.fetch(predicate_ref, type_ir("Unknown")) : type_ir("Unknown")
+      output_effect = invariant_output_effect(decl.fetch("severity", "error"))
+      {
+        "decl_id"          => decl.fetch("decl_id"),
+        "kind"             => "invariant",
+        "name"             => decl.fetch("name"),
+        "fragment_class"   => decl.fetch("fragment_class"),
+        "predicate_ref"    => predicate_ref,
+        "predicate_type"   => pred_type,
+        "severity"         => decl.fetch("severity", "error"),
+        "label"            => decl.fetch("label", nil),
+        "message"          => decl.fetch("message", nil),
+        "overridable_with" => decl.fetch("overridable_with", nil),
+        "output_effect"    => output_effect,
+        "type"             => type_ir("Bool"),
+        "deps"             => predicate_ref ? [predicate_ref] : []
+      }
+    end
+
+    # Typed output decl with invariant effect propagation (TINV-4).
+    def typed_decl_output(decl, type, invariant_effects)
+      result = {
+        "decl_id"        => decl.fetch("decl_id"),
+        "kind"           => "output",
+        "name"           => decl.fetch("name"),
+        "fragment_class" => decl.fetch("fragment_class"),
+        "type"           => type,
+        "deps"           => decl.fetch("deps")
+      }
+      warnings_from  = invariant_effects.select { |e| e["effect"] == "warns" }.map { |e| e["name"] }
+      uncertain_from = invariant_effects.select { |e| e["effect"] == "uncertain" }.map { |e| e["name"] }
+      metrics_from   = invariant_effects.select { |e| e["effect"] == "metric" }.map { |e| e["name"] }
+      result["warnings_from"]  = warnings_from  unless warnings_from.empty?
+      result["uncertain_from"] = uncertain_from unless uncertain_from.empty?
+      result["metrics_from"]   = metrics_from   unless metrics_from.empty?
+      result
+    end
+
+    # Maps severity to the output_effect string (per PROP-025 §3 / spec track Part 3).
+    def invariant_output_effect(severity)
+      case severity
+      when "error"  then "blocks"
+      when "warn"   then "warns"
+      when "soft"   then "uncertain"
+      when "metric" then "metric"
+      else "blocks"
+      end
     end
 
     # OOF-S3 helpers -------------------------------------------------------

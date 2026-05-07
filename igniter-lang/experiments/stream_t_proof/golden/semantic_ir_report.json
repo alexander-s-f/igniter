@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/typed_a6cfe567b84eabe5",
+  "semantic_ir_ref": "semanticir/typed/63d73b83fa2e0ff4",
+  "source_hash": "sha256:bcd96b852717defcecf4221d622a71d5859f362e654ed7f571c2a717636ac2cf",
+  "source_path": "experiments/stream_t_proof/stream_integer_window.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

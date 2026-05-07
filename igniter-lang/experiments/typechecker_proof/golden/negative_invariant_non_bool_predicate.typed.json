@@ -1,0 +1,128 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/c7e37931ee567ec8",
+  "classified_program_id": "classifier_pass/oof_iv3_non_bool_predicate",
+  "source_path": "igniter-lang/experiments/typechecker_proof/classified/negative_invariant_non_bool_predicate.ig",
+  "source_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.TypeChecker.OOF_IV3",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Fixture.TypeChecker.OOF_IV3.InvariantNonBoolPredicate",
+      "name": "InvariantNonBoolPredicate",
+      "status": "blocked",
+      "fragment_class": "core",
+      "symbols": [
+        {
+          "name": "result",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "score",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:score",
+          "kind": "input",
+          "name": "score",
+          "fragment_class": "core",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "compute:result",
+          "kind": "compute",
+          "name": "result",
+          "fragment_class": "core",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": [
+            "score"
+          ],
+          "expr": {
+            "kind": "ref",
+            "name": "score",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            },
+            "deps": [
+              "score"
+            ]
+          }
+        },
+        {
+          "decl_id": "invariant:score_check",
+          "kind": "invariant",
+          "name": "score_check",
+          "fragment_class": "core",
+          "predicate_ref": "result",
+          "predicate_type": {
+            "name": "Integer",
+            "params": []
+          },
+          "severity": "error",
+          "label": null,
+          "message": "Score must be Bool",
+          "overridable_with": null,
+          "output_effect": "blocks",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "result"
+          ]
+        },
+        {
+          "decl_id": "output:result",
+          "kind": "output",
+          "name": "result",
+          "fragment_class": "core",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": [
+            "result"
+          ]
+        }
+      ],
+      "type_errors": [
+        {
+          "rule": "OOF-IV3",
+          "message": "invariant predicate must be Bool, got Integer",
+          "node": "score_check",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "type_errors": [
+    {
+      "rule": "OOF-IV3",
+      "message": "invariant predicate must be Bool, got Integer",
+      "node": "score_check",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

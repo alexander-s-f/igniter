@@ -143,7 +143,7 @@ module IgniterLang
         "inputs" => typed_ports(contract, "input"),
         "outputs" => typed_ports(contract, "output"),
         "nodes" => typed_nodes(contract),
-        "escape_boundaries" => []
+        "escape_boundaries" => typed_escape_boundaries(contract)
       }
       contract_ir["contract_ref"] = contract_ref(contract_ir)
       contract_ir
@@ -160,19 +160,157 @@ module IgniterLang
     end
 
     def typed_nodes(contract)
+      declarations = contract.fetch("declarations")
       contract.fetch("declarations").filter_map do |decl|
         next decl.fetch("semantic_node") if decl.key?("semantic_node")
-        next unless decl.fetch("kind") == "compute"
 
-        {
-          "kind" => "compute",
-          "name" => decl.fetch("name"),
-          "expr" => decl.fetch("expr"),
-          "type" => decl.fetch("type"),
-          "deps" => decl.fetch("deps", []),
-          "fragment" => decl.fetch("fragment_class")
-        }
+        case decl.fetch("kind")
+        when "stream"
+          stream_input_node(decl, declarations)
+        when "window"
+          window_decl_node(decl)
+        when "fold_stream"
+          fold_stream_node(decl, declarations)
+        when "compute"
+          {
+            "kind" => "compute",
+            "name" => decl.fetch("name"),
+            "expr" => decl.fetch("expr"),
+            "type" => decl.fetch("type"),
+            "deps" => decl.fetch("deps", []),
+            "fragment" => decl.fetch("fragment_class")
+          }
+        end
       end
+    end
+
+    def typed_escape_boundaries(contract)
+      return [] unless contract.fetch("declarations").any? { |decl| decl.fetch("kind") == "stream" }
+
+      [
+        {
+          "name" => "stream_input",
+          "required_caps" => ["stream_input"],
+          "produces" => ["stream_window_observation"]
+        }
+      ]
+    end
+
+    def stream_input_node(decl, declarations)
+      {
+        "kind" => "stream_input_node",
+        "name" => decl.fetch("name"),
+        "type" => type_display(decl.fetch("type")),
+        "window_ref" => decl.fetch("window_ref", first_window_ref(declarations)),
+        "escape_capability" => "stream_input",
+        "fragment" => decl.fetch("fragment_class", "escape")
+      }
+    end
+
+    def window_decl_node(decl)
+      result = {
+        "kind" => "window_decl_node",
+        "ref" => window_ref(decl),
+        "key" => decl.fetch("key", decl.fetch("name")),
+        "window_kind" => atom_value(decl.fetch("window_kind", decl.dig("options", "kind"))),
+        "on_close" => atom_value(decl.fetch("on_close", decl.dig("options", "on_close")))
+      }
+      result["size"] = decl.fetch("size", decl.dig("options", "size")) if decl.key?("size") || decl.dig("options", "size")
+      result["period"] = decl.fetch("period", decl.dig("options", "period")) if decl.key?("period") || decl.dig("options", "period")
+      result["idle"] = decl.fetch("idle", decl.dig("options", "idle")) if decl.key?("idle") || decl.dig("options", "idle")
+      result.compact
+    end
+
+    def fold_stream_node(decl, declarations)
+      expr = decl.fetch("expr", {})
+      args = expr.fetch("args", [])
+      {
+        "kind" => "fold_stream_node",
+        "name" => decl.fetch("name"),
+        "stream_ref" => decl.fetch("stream_ref", ref_name(args[0])),
+        "init" => decl.fetch("init", literal_node(args[1])),
+        "fn_ref" => decl.fetch("fn_ref", lambda_ref(args[2])),
+        "bound" => decl.fetch("bound", stream_bound(decl, declarations)),
+        "result_type" => decl.fetch("type"),
+        "escape_capability" => "stream_input",
+        "result_fragment" => decl.fetch("fragment_class", "core")
+      }
+    end
+
+    def first_window_ref(declarations)
+      window_decl = declarations.find { |decl| decl.fetch("kind") == "window" }
+      window_decl && window_ref(window_decl)
+    end
+
+    def window_ref(decl)
+      decl.fetch("window_ref", decl.fetch("ref", decl.fetch("name")))
+    end
+
+    def stream_bound(decl, declarations)
+      {
+        "kind" => decl.fetch("bound_kind", "window_bounded"),
+        "window_ref" => decl.fetch("window_ref", first_window_ref(declarations))
+      }
+    end
+
+    def ref_name(expr)
+      return nil unless expr.is_a?(Hash)
+      return expr.fetch("name") if expr.fetch("kind", nil) == "ref"
+
+      nil
+    end
+
+    def literal_node(expr)
+      return expr unless expr.is_a?(Hash) && expr.fetch("kind", nil) == "literal"
+
+      type_tag = expr.fetch("type_tag", "Unknown")
+      {
+        "kind" => "#{type_tag.downcase}_literal",
+        "value" => expr.fetch("value")
+      }
+    end
+
+    def lambda_ref(expr)
+      return "integer_sum_lambda" if integer_sum_lambda?(expr)
+      return nil unless expr.is_a?(Hash)
+
+      "lambda/#{Digest::SHA256.hexdigest(canonical_json(expr))[0, 16]}"
+    end
+
+    def integer_sum_lambda?(expr)
+      return false unless expr.is_a?(Hash) && expr.fetch("kind", nil) == "lambda"
+
+      params = expr.fetch("params", [])
+      body = expr.fetch("body", {})
+      body.fetch("kind", nil) == "binary_op" &&
+        body.fetch("op", nil) == "+" &&
+        ref_name(body.fetch("left", {})) == params[0]
+    end
+
+    def atom_value(value)
+      case value
+      when Hash
+        if value.fetch("kind", nil) == "symbol"
+          value.fetch("value")
+        elsif value.fetch("kind", nil) == "literal"
+          value.fetch("value")
+        else
+          value
+        end
+      when Symbol
+        value.to_s
+      else
+        value
+      end
+    end
+
+    def type_display(type)
+      return type unless type.is_a?(Hash)
+
+      params = type.fetch("params", [])
+      return type.fetch("name") if params.empty?
+
+      "#{type.fetch("name")}[#{params.map { |param| type_display(param) }.join(", ")}]"
     end
 
     def type_shapes(parsed_program)

@@ -697,6 +697,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-07 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/stream-classifier-escape-propagation-v0 | done |
 | 2026-05-07 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/olap-point-parser-typechecker-boundary-v0 | done |
 | 2026-05-07 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/stream-oof-s3-typechecker-v0 | done |
+| 2026-05-07 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/invariant-severity-parser-impl-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/bridge-agent-entry-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-bridge-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-package-touchpoint-map-v0.md | done |

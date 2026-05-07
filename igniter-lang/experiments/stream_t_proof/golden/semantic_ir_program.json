@@ -1,8 +1,9 @@
 {
+  "compilation_report_ref": "compilation_report/typed_a6cfe567b84eabe5",
   "contracts": [
     {
       "contract_name": "IntegerWindowSum",
-      "contract_ref": "contract/Fixture.StreamT.IntegerWindowSum@v0",
+      "contract_ref": "contract/IntegerWindowSum/sha256:ca7a553c52af0e827186fee1",
       "escape_boundaries": [
         {
           "name": "stream_input",
@@ -73,12 +74,16 @@
             "params": []
           }
         }
-      ]
+      ],
+      "specialization_of": null,
+      "type_args": {}
     }
   ],
   "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
   "kind": "semantic_ir_program",
-  "program_id": "semanticir/stream_t/bcd96b852717defc",
-  "source_path": "igniter-lang/experiments/stream_t_proof/stream_integer_window.ig",
-  "source_status": "syntax_sketch_parser_not_used_in_this_proof"
+  "module": "Fixture.StreamT",
+  "program_id": "semanticir/typed/63d73b83fa2e0ff4",
+  "source_hash": "sha256:bcd96b852717defcecf4221d622a71d5859f362e654ed7f571c2a717636ac2cf",
+  "source_path": "experiments/stream_t_proof/stream_integer_window.ig"
 }

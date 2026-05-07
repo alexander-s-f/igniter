@@ -7,11 +7,13 @@ require "json"
 require "time"
 
 require_relative "../temporal_access_runtime/temporal_access_runtime"
+require_relative "../production_tbackend_adapter_fixture/adapter_registry_fixture"
 
 module RuntimeMachineMemoryProof
   PROOF_AS_OF = "2026-05-05T10:42:00Z"
   RULE_VERSION = "toy_dispatch@1"
   TemporalRuntime = IgniterLang::TemporalAccessRuntime
+  AdapterFixture = ProductionTBackendAdapterFixture
 
   module Canonical
     module_function
@@ -424,6 +426,10 @@ module RuntimeMachineMemoryProof
       { "capabilities" => { "required_caps" => [TemporalRuntime::Capabilities::HISTORY_READ] } }
     end
 
+    def igapp_runtime_metadata
+      AdapterFixture.igapp_runtime_metadata(schema_fingerprint: schema_descriptor.fetch("schema_fingerprint"))
+    end
+
     def semantic_contract
       {
         "kind" => "contract_ir",
@@ -528,6 +534,7 @@ module RuntimeMachineMemoryProof
     attr_reader :execution_environment_ref, :tbackend_descriptor_ref
     attr_reader :last_value_packet, :last_result_hash
     attr_reader :temporal_access_hook_check
+    attr_reader :temporal_access_adapter_selection, :temporal_access_compatibility_report
 
     def initialize(machine_id:, session_id:, backend:, runtime_version: "proof-runtime-v1")
       @machine_id = machine_id
@@ -541,6 +548,8 @@ module RuntimeMachineMemoryProof
       @temporal_access_hook = nil
       @temporal_contract = nil
       @temporal_access_hook_check = nil
+      @temporal_access_adapter_selection = nil
+      @temporal_access_compatibility_report = nil
       @last_value_packet = nil
       @last_result_hash = nil
     end
@@ -620,7 +629,7 @@ module RuntimeMachineMemoryProof
       { status: "ok", receipt: receipt }
     end
 
-    def load(contract, temporal_backend: nil)
+    def load(contract, temporal_backend: nil, adapter_registry: nil, runtime_metadata: nil)
       return failure("runtime.invalid_transition", "load requires booted machine") unless %w[booted loaded].include?(@state)
 
       descriptor = packet(
@@ -647,8 +656,27 @@ module RuntimeMachineMemoryProof
 
       temporal_hook = nil
       temporal_hook_check = nil
+      adapter_selection = nil
+      compatibility_report = nil
+      compatibility_packet = nil
       if contract.respond_to?(:semantic_contract)
-        temporal_backend ||= MemoryTemporalAccessAdapter.new(@backend)
+        if temporal_backend
+          # Caller supplied an explicit proof shim; keep direct negative cases simple.
+        elsif adapter_registry || contract.respond_to?(:igapp_runtime_metadata)
+          runtime_metadata ||= contract.igapp_runtime_metadata
+          adapter_registry ||= default_adapter_registry_for(contract)
+          adapter_selection = adapter_registry.select(runtime_metadata, backend: @backend)
+          unless adapter_selection.fetch("status") == "ok"
+            return failure(
+              "temporal_access.adapter_selection_blocked",
+              "temporal backend adapter selection failed",
+              context: { adapter_selection: adapter_selection, as_of: PROOF_AS_OF }
+            )
+          end
+          temporal_backend = adapter_selection.fetch("adapter")
+        else
+          temporal_backend ||= MemoryTemporalAccessAdapter.new(@backend)
+        end
         temporal_hook = TemporalRuntime::RuntimeMachineHook.new(
           backend: temporal_backend,
           capabilities: temporal_backend.respond_to?(:capabilities) ? temporal_backend.capabilities : nil
@@ -664,6 +692,20 @@ module RuntimeMachineMemoryProof
             error_shape.fetch("message"),
             context: { error: error_shape, temporal_access_hook: temporal_hook_check, as_of: PROOF_AS_OF }
           )
+        end
+        if adapter_selection
+          compatibility_report = AdapterFixture.compatibility_report(
+            selection: adapter_selection,
+            load_check: temporal_hook_check
+          )
+          compatibility_packet = packet(
+            kind: "platform_observation",
+            subject: "compatibility-report/#{@session_id}/temporal-adapter",
+            payload: compatibility_report,
+            temporal: { as_of: PROOF_AS_OF, lifecycle: "load" },
+            links: evidence_links + [link("describes", descriptor.id)]
+          )
+          @backend.append(compatibility_packet, idempotency_key: compatibility_packet.id)
         end
       end
 
@@ -682,10 +724,16 @@ module RuntimeMachineMemoryProof
         migration_descriptor_refs_by_id: migration_descriptor_refs_by_id
       }
       @loaded_unit[:temporal_access_hook] = temporal_hook_check if temporal_hook_check
+      if adapter_selection
+        @loaded_unit[:temporal_access_adapter] = adapter_selection.fetch("selected_adapter_descriptor")
+        @loaded_unit[:temporal_access_compatibility_report_ref] = compatibility_packet.id
+      end
       @contract = contract
       @temporal_access_hook = temporal_hook
       @temporal_contract = contract.semantic_contract if contract.respond_to?(:semantic_contract)
       @temporal_access_hook_check = temporal_hook_check
+      @temporal_access_adapter_selection = adapter_selection
+      @temporal_access_compatibility_report = compatibility_report
 
       receipt = packet(
         kind: "receipt_observation",
@@ -694,15 +742,17 @@ module RuntimeMachineMemoryProof
           transition: "load",
           status: "ok",
           loaded_unit: @loaded_unit,
-          migration_descriptor_refs: migration_descriptor_refs
+          migration_descriptor_refs: migration_descriptor_refs,
+          temporal_access_compatibility_report_ref: compatibility_packet&.id
         },
         temporal: { as_of: PROOF_AS_OF, lifecycle: "load" },
-        links: evidence_links + [link("describes", descriptor.id)]
+        links: evidence_links + [link("describes", descriptor.id)] +
+          (compatibility_packet ? [link("verified_by", compatibility_packet.id)] : [])
       )
       @backend.append(receipt)
 
       @state = "loaded"
-      { status: "ok", loaded_unit: @loaded_unit, receipt: receipt }
+      { status: "ok", loaded_unit: @loaded_unit, receipt: receipt, compatibility_packet: compatibility_packet }
     end
 
     def emit_schema_migration_receipt(image:, report:, migration:, as_of:)
@@ -870,6 +920,7 @@ module RuntimeMachineMemoryProof
         subject: "temporal-access/#{node_name}",
         payload: {
           temporal_access_loader: "TemporalAccessRuntime::RuntimeMachineHook",
+          selected_adapter_descriptor_hash: @temporal_access_adapter_selection&.fetch("selected_adapter_descriptor")&.fetch("descriptor_hash"),
           node: node_name,
           result: access_eval.fetch("result"),
           observation: access_eval.fetch("observation"),
@@ -890,7 +941,8 @@ module RuntimeMachineMemoryProof
           status: "ok",
           value_ref: value.id,
           result_hash: value.payload_hash,
-          temporal_access_hook: @temporal_access_hook_check
+          temporal_access_hook: @temporal_access_hook_check,
+          temporal_access_compatibility_report_id: @temporal_access_compatibility_report&.fetch("report_id")
         },
         temporal: { as_of: as_of, rule_version: rule_version },
         links: evidence_links + [link("caused_by", value.id)]
@@ -1044,6 +1096,13 @@ module RuntimeMachineMemoryProof
     end
 
     private
+
+    def default_adapter_registry_for(contract)
+      schema = schema_descriptor_for(contract)
+      AdapterFixture::AdapterRegistry.new(
+        descriptors: [AdapterFixture.memory_descriptor(schema_fingerprint: schema.fetch("schema_fingerprint"))]
+      )
+    end
 
     def schema_descriptor
       @loaded_schema_descriptor || default_schema_descriptor
@@ -1736,6 +1795,9 @@ module RuntimeMachineMemoryProof
 
       load = machine.load(contract)
       hook_check = load.fetch(:loaded_unit).fetch(:temporal_access_hook)
+      selected_adapter = load.fetch(:loaded_unit).fetch(:temporal_access_adapter)
+      compatibility_packet = load.fetch(:compatibility_packet)
+      compatibility_report = compatibility_packet.payload
       eval = machine.evaluate_temporal_access(
         node_name: "schedule_slot_at",
         inputs: { "technician_id" => "tech/t-17", "as_of" => PROOF_AS_OF },
@@ -1752,9 +1814,24 @@ module RuntimeMachineMemoryProof
           hook_check.fetch("checks").first.fetch("required_capabilities") == [TemporalRuntime::Capabilities::HISTORY_READ]
       )
       check(
+        "tbackend_adapter.registry_selected_descriptor",
+        selected_adapter.fetch("kind") == "tbackend_adapter_descriptor" &&
+          selected_adapter.fetch("adapter_kind") == "memory" &&
+          selected_adapter.fetch("hook_methods").include?("read_as_of") &&
+          selected_adapter.fetch("hook_methods").include?("bihistory_at")
+      )
+      check(
+        "tbackend_adapter.compatibility_report_persisted",
+        compatibility_report.fetch("kind") == "proof_local_compatibility_report" &&
+          compatibility_report.fetch("status") == "trusted" &&
+          compatibility_report.fetch("selected_adapter_descriptor_hash") == selected_adapter.fetch("descriptor_hash") &&
+          compatibility_report.fetch("temporal_access_hook_load_check").fetch("status") == "ok"
+      )
+      check(
         "temporal_access.resolver_hook_evaluate",
         eval.fetch(:status) == "ok" &&
           eval.fetch(:value_packet).payload.fetch("temporal_access_loader") == "TemporalAccessRuntime::RuntimeMachineHook" &&
+          eval.fetch(:value_packet).payload.fetch("selected_adapter_descriptor_hash") == selected_adapter.fetch("descriptor_hash") &&
           result.fetch("kind") == "some" &&
           result.dig("value", "occupied") == false
       )
@@ -1765,6 +1842,7 @@ module RuntimeMachineMemoryProof
 
       run_negative_temporal_missing_capability(contract)
       run_negative_temporal_missing_backend_method(contract)
+      run_negative_adapter_registry_missing_hook_method(contract)
     end
 
     def run_negative_temporal_missing_capability(contract)
@@ -1807,6 +1885,27 @@ module RuntimeMachineMemoryProof
         load.fetch(:status) == "blocked" &&
           load.fetch(:reason_code) == "temporal_access.backend_contract_missing" &&
           error.fetch("backend_method") == "read_as_of"
+      )
+    end
+
+    def run_negative_adapter_registry_missing_hook_method(contract)
+      backend = MemoryTBackend.new
+      machine = RuntimeMachine.new(
+        machine_id: "runtime-machine/adapter-registry-missing-hook",
+        session_id: "session/adapter-registry-missing-hook",
+        backend: backend
+      )
+      machine.boot
+      descriptor = AdapterFixture.memory_descriptor(schema_fingerprint: contract.schema_descriptor.fetch("schema_fingerprint"))
+        .merge("hook_methods" => ["read_as_of"])
+      registry = AdapterFixture::AdapterRegistry.new(descriptors: [descriptor])
+      load = machine.load(contract, adapter_registry: registry)
+      selection = load.fetch(:packet).payload.fetch("context").fetch("adapter_selection")
+      check(
+        "negative.adapter_registry_missing_bihistory_hook_blocked",
+        load.fetch(:status) == "blocked" &&
+          load.fetch(:reason_code) == "temporal_access.adapter_selection_blocked" &&
+          selection.dig("selection_check", "missing_hook_methods") == ["bihistory_at"]
       )
     end
 

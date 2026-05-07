@@ -189,6 +189,22 @@
           "status": "PASS"
         },
         {
+          "name": "typed.invariant_severity_valid",
+          "status": "PASS"
+        },
+        {
+          "name": "invariant.tinv1_output_has_warnings_from",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.invariant_non_bool_predicate_oof_iv3",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.invariant_overridable_on_error_oof_i4",
+          "status": "PASS"
+        },
+        {
           "name": "semanticir.not_emitted",
           "status": "PASS"
         },
@@ -230,6 +246,10 @@
         "negative.bihistory_missing_tt: ok",
         "negative.bihistory_wrong_axis_type: ok",
         "negative.stream_escape_in_fold_oof_s3: ok",
+        "typed.invariant_severity_valid: ok",
+        "invariant.tinv1_output_has_warnings_from: ok",
+        "negative.invariant_non_bool_predicate_oof_iv3: ok",
+        "negative.invariant_overridable_on_error_oof_i4: ok",
         "semanticir.not_emitted: ok",
         "boundary.classified_inputs_present: ok",
         "boundary.classified_program_input_only: ok",

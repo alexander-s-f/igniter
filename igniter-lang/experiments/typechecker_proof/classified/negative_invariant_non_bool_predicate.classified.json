@@ -1,0 +1,92 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/oof_iv3_non_bool_predicate",
+  "source_path": "igniter-lang/experiments/typechecker_proof/classified/negative_invariant_non_bool_predicate.ig",
+  "source_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.TypeChecker.OOF_IV3",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.TypeChecker.OOF_IV3.InvariantNonBoolPredicate",
+      "name": "InvariantNonBoolPredicate",
+      "fragment_class": "core",
+      "symbols": [
+        {
+          "name": "score",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "result",
+          "kind": "compute",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:score",
+          "kind": "input",
+          "name": "score",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        },
+        {
+          "decl_id": "compute:result",
+          "kind": "compute",
+          "name": "result",
+          "fragment_class": "core",
+          "deps": ["score"],
+          "missing_refs": [],
+          "expr_kind": "ref",
+          "expr": {
+            "kind": "ref",
+            "name": "score"
+          }
+        },
+        {
+          "decl_id": "invariant:score_check",
+          "kind": "invariant",
+          "name": "score_check",
+          "fragment_class": "core",
+          "predicate_ref": "result",
+          "severity": "error",
+          "label": null,
+          "message": "Score must be Bool",
+          "overridable_with": null,
+          "deps": ["result"],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "output:result",
+          "kind": "output",
+          "name": "result",
+          "fragment_class": "core",
+          "deps": ["result"],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:score",
+          "compute:result",
+          "invariant:score_check",
+          "output:result"
+        ],
+        "edges": [
+          { "from": "input:score", "to": "compute:result", "kind": "symbol" },
+          { "from": "compute:result", "to": "invariant:score_check", "kind": "symbol" },
+          { "from": "compute:result", "to": "output:result", "kind": "symbol" }
+        ]
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}

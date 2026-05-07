@@ -1,0 +1,159 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/3565185b038a306d",
+  "classified_program_id": "classifier_pass/invariant_severity_valid",
+  "source_path": "igniter-lang/experiments/typechecker_proof/classified/invariant_severity_valid.ig",
+  "source_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.TypeChecker.InvariantSeverityValid",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Fixture.TypeChecker.InvariantSeverityValid.DrugOrderGate",
+      "name": "DrugOrderGate",
+      "status": "accepted",
+      "fragment_class": "core",
+      "symbols": [
+        {
+          "name": "approved",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "has_warning",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "is_safe",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:is_safe",
+          "kind": "input",
+          "name": "is_safe",
+          "fragment_class": "core",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "input:has_warning",
+          "kind": "input",
+          "name": "has_warning",
+          "fragment_class": "core",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "compute:approved",
+          "kind": "compute",
+          "name": "approved",
+          "fragment_class": "core",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "is_safe"
+          ],
+          "expr": {
+            "kind": "ref",
+            "name": "is_safe",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            },
+            "deps": [
+              "is_safe"
+            ]
+          }
+        },
+        {
+          "decl_id": "invariant:safety_block",
+          "kind": "invariant",
+          "name": "safety_block",
+          "fragment_class": "core",
+          "predicate_ref": "is_safe",
+          "predicate_type": {
+            "name": "Bool",
+            "params": []
+          },
+          "severity": "error",
+          "label": "REQ-SAFE-01",
+          "message": "Safety constraint violated",
+          "overridable_with": null,
+          "output_effect": "blocks",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "is_safe"
+          ]
+        },
+        {
+          "decl_id": "invariant:interaction_warn",
+          "kind": "invariant",
+          "name": "interaction_warn",
+          "fragment_class": "core",
+          "predicate_ref": "has_warning",
+          "predicate_type": {
+            "name": "Bool",
+            "params": []
+          },
+          "severity": "warn",
+          "label": "CG-INTERACTION-01",
+          "message": "Drug interaction warning",
+          "overridable_with": "documented_justification",
+          "output_effect": "warns",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "has_warning"
+          ]
+        },
+        {
+          "decl_id": "output:approved",
+          "kind": "output",
+          "name": "approved",
+          "fragment_class": "core",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "approved"
+          ],
+          "warnings_from": [
+            "interaction_warn"
+          ]
+        }
+      ],
+      "type_errors": []
+    }
+  ],
+  "type_errors": [],
+  "semantic_ir_ref": null
+}

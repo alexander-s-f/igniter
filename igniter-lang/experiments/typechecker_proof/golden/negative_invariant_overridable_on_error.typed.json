@@ -1,0 +1,96 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/e84b991be8db2208",
+  "classified_program_id": "classifier_pass/oof_i4_overridable_with_error",
+  "source_path": "igniter-lang/experiments/typechecker_proof/classified/negative_invariant_overridable_on_error.ig",
+  "source_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.TypeChecker.OOF_I4",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Fixture.TypeChecker.OOF_I4.InvariantOverridableOnError",
+      "name": "InvariantOverridableOnError",
+      "status": "blocked",
+      "fragment_class": "core",
+      "symbols": [
+        {
+          "name": "is_safe",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:is_safe",
+          "kind": "input",
+          "name": "is_safe",
+          "fragment_class": "core",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "invariant:safety_check",
+          "kind": "invariant",
+          "name": "safety_check",
+          "fragment_class": "core",
+          "predicate_ref": "is_safe",
+          "predicate_type": {
+            "name": "Bool",
+            "params": []
+          },
+          "severity": "error",
+          "label": "REQ-SAFE-01",
+          "message": "Safety constraint violated",
+          "overridable_with": "supervisor_approval",
+          "output_effect": "blocks",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "is_safe"
+          ]
+        },
+        {
+          "decl_id": "output:is_safe",
+          "kind": "output",
+          "name": "is_safe",
+          "fragment_class": "core",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "deps": [
+            "is_safe"
+          ]
+        }
+      ],
+      "type_errors": [
+        {
+          "rule": "OOF-I4",
+          "message": ":error invariants cannot be overridden",
+          "node": "safety_check",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "type_errors": [
+    {
+      "rule": "OOF-I4",
+      "message": ":error invariants cannot be overridden",
+      "node": "safety_check",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

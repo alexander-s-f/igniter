@@ -5,6 +5,7 @@ require "digest"
 require "fileutils"
 require "json"
 require "pathname"
+require_relative "../../lib/igniter_lang/parser"
 
 module InvariantSeverityProof
   ROOT = Pathname.new(File.expand_path("../../..", __dir__))
@@ -226,15 +227,17 @@ module InvariantSeverityProof
       "metric_records" => evaluator.evaluate(case_id: "metric_records", inputs: metric_inputs)
     }
     report = compilation_report
+    pinv = parser_checks
+    all_checks = checks(cases, report).merge(pinv)
     summary = {
       "kind" => "invariant_severity_proof_summary",
       "format_version" => FORMAT_VERSION,
       "track" => TRACK,
-      "status" => checks(cases, report).values.all? ? "PASS" : "FAIL",
+      "status" => all_checks.values.all? ? "PASS" : "FAIL",
       "contract" => contract_fixture,
       "compilation_report" => report,
       "cases" => cases,
-      "checks" => checks(cases, report)
+      "checks" => all_checks
     }
     write_outputs(summary)
     print_summary(summary)
@@ -369,6 +372,127 @@ module InvariantSeverityProof
 
   def metric_inputs
     base_inputs.merge("runtime_latency_ms" => 850)
+  end
+
+  # ── Parser-level checks (PINV-1..4) ───────────────────────────────────────
+
+  VALID_INVARIANT_SOURCE = <<~IGNITER
+    module Fixture.InvariantSeverity
+    contract DrugOrderGate {
+      input is_safe: Bool
+      input has_warning: Bool
+      compute approved = is_safe
+      invariant safety_block
+        predicate: approved
+        severity: :error
+        label: "REQ-SAFE-01"
+        message: "Safety block"
+      invariant interaction_warn
+        predicate: has_warning
+        severity: :warn
+        message: "Interaction warning"
+        overridable_with: :documented_justification
+      invariant confidence_soft
+        predicate: is_safe
+        severity: :soft
+      invariant latency_metric
+        predicate: has_warning
+        severity: :metric
+      output approved: Bool
+    }
+  IGNITER
+
+  MISSING_PREDICATE_SOURCE = <<~IGNITER
+    module Fixture.InvariantSeverity
+    contract MissingPredicate {
+      input a: Bool
+      invariant bad_invariant
+        severity: :error
+        message: "Missing predicate"
+      output a: Bool
+    }
+  IGNITER
+
+  UNKNOWN_SEVERITY_SOURCE = <<~IGNITER
+    module Fixture.InvariantSeverity
+    contract UnknownSeverity {
+      input a: Bool
+      invariant bad_severity
+        predicate: a
+        severity: :critical
+      output a: Bool
+    }
+  IGNITER
+
+  OVERRIDABLE_ON_ERROR_SOURCE = <<~IGNITER
+    module Fixture.InvariantSeverity
+    contract OverridableOnError {
+      input a: Bool
+      invariant bad_override
+        predicate: a
+        severity: :error
+        overridable_with: :supervisor_approval
+      output a: Bool
+    }
+  IGNITER
+
+  def parser_checks
+    {
+      "pinv.parser_accepts_valid_invariant"         => pinv_accepts?(VALID_INVARIANT_SOURCE),
+      "pinv.invariant_nodes_count_4"                => pinv_invariant_count?(VALID_INVARIANT_SOURCE, 4),
+      "pinv.severity_values_correct"                => pinv_severity_values?(VALID_INVARIANT_SOURCE),
+      "pinv.overridable_with_parsed"                => pinv_overridable_with?(VALID_INVARIANT_SOURCE, "interaction_warn", "documented_justification"),
+      "pinv.missing_predicate_emits_oof_iv1"        => pinv_oof_emitted?(MISSING_PREDICATE_SOURCE, "OOF-IV1"),
+      "pinv.unknown_severity_emits_oof_iv2"         => pinv_oof_emitted?(UNKNOWN_SEVERITY_SOURCE, "OOF-IV2"),
+      "pinv.overridable_on_error_emits_oof_i4"      => pinv_oof_emitted?(OVERRIDABLE_ON_ERROR_SOURCE, "OOF-I4")
+    }
+  end
+
+  def parse_source(source)
+    IgniterLang::ParsedProgram.parse(source)
+  end
+
+  def pinv_accepts?(source)
+    result = parse_source(source)
+    result.errors.none? { |e| e.is_a?(Hash) && e["rule"]&.start_with?("OOF-IV", "OOF-I4") }
+  rescue StandardError
+    false
+  end
+
+  def pinv_invariant_count?(source, expected_count)
+    result = parse_source(source)
+    contracts = result.ast.fetch("contracts", [])
+    invariant_decls = contracts.flat_map { |c| c.fetch("body", []) }.select { |n| n.is_a?(Hash) && n.fetch("kind", nil) == "invariant" }
+    invariant_decls.length == expected_count
+  rescue StandardError
+    false
+  end
+
+  def pinv_severity_values?(source)
+    result = parse_source(source)
+    contracts = result.ast.fetch("contracts", [])
+    invariants = contracts.flat_map { |c| c.fetch("body", []) }.select { |n| n.is_a?(Hash) && n.fetch("kind", nil) == "invariant" }
+    severities = invariants.map { |inv| inv.fetch("severity") }.sort
+    severities == %w[error metric soft warn]
+  rescue StandardError
+    false
+  end
+
+  def pinv_overridable_with?(source, invariant_name, expected_value)
+    result = parse_source(source)
+    contracts = result.ast.fetch("contracts", [])
+    invariants = contracts.flat_map { |c| c.fetch("body", []) }.select { |n| n.is_a?(Hash) && n.fetch("kind", nil) == "invariant" }
+    inv = invariants.find { |n| n.fetch("name") == invariant_name }
+    inv&.fetch("overridable_with") == expected_value
+  rescue StandardError
+    false
+  end
+
+  def pinv_oof_emitted?(source, rule)
+    result = parse_source(source)
+    result.errors.any? { |e| e.is_a?(Hash) && e["rule"] == rule }
+  rescue StandardError
+    false
   end
 
   def checks(cases, report)

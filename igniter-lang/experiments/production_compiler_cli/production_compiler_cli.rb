@@ -1,16 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "fileutils"
 require "json"
 require "pathname"
 
 require_relative "diagnostics"
-require_relative "../../lib/igniter_lang/parser"
-require_relative "../../lib/igniter_lang/assembler"
-require_relative "../../lib/igniter_lang/compiler_result"
-require_relative "../../lib/igniter_lang/compilation_report"
-require_relative "../../lib/igniter_lang/semanticir_emitter"
+require_relative "../../lib/igniter_lang/compiler_orchestrator"
 require_relative "../source_to_semanticir_fixture/source_to_semanticir_fixture"
 require_relative "../runtime_machine_memory_proof/compiled_program"
 
@@ -18,104 +13,19 @@ module ProductionCompilerCLI
   ROOT = Pathname.new(File.expand_path("../../..", __dir__))
   LANG_ROOT = ROOT / "igniter-lang"
   PROOF_AS_OF = RuntimeMachineMemoryProof::PROOF_AS_OF
-  FORMAT_VERSION = IgniterLang::SemanticIREmitter::FORMAT_VERSION
-
-  module JSONIO
-    module_function
-
-    def write(path, value)
-      FileUtils.mkdir_p(Pathname.new(path).dirname)
-      File.write(path, "#{JSON.pretty_generate(value)}\n")
-    end
-  end
 
   class Compiler
     def compile(source_path:, out_path:)
-      source = File.read(source_path)
-      parsed = IgniterLang::ParsedProgram.parse(source, source_path: source_path.to_s).to_h
-      return parse_failure(parsed, source_path, out_path) unless parsed.fetch("parse_errors").empty?
-
-      sample_input = sample_input_for(parsed)
-      compilation = IgniterLang::SemanticIREmitter.new.emit(parsed, sample_input: sample_input)
-      report = IgniterLang::CompilationReport.enrich(
-        report: compilation.fetch("compilation_report"),
-        parsed: parsed
-      )
-      semantic_ir = compilation.fetch("semantic_ir")
-
-      return refusal(report, source_path, out_path) unless report.fetch("pass_result") == "ok"
-
-      assembled = IgniterLang::Assembler.new.assemble_artifacts(
-        case_name: case_name_for(source_path, parsed),
-        report: report,
-        semantic_ir: semantic_ir,
-        target_dir: out_path
-      )
-      smoke = RuntimeSmoke.run(out_path: out_path, sample_input: sample_input)
-
-      unless smoke.fetch("trusted")
-        smoke_report = smoke_failure_report(report, smoke, source_path)
-        return refusal(smoke_report, source_path, out_path, status: "runtime_smoke_failed")
-      end
-
-      IgniterLang::CompilerResult.ok(
-        format_version: FORMAT_VERSION,
-        semantic_ir: semantic_ir,
+      orchestration = IgniterLang::CompilerOrchestrator.new.compile(
         source_path: source_path,
-        report: report,
-        igapp_path: out_path,
-        contracts: assembled.fetch("contracts"),
-        runtime_smoke: smoke
+        out_path: out_path,
+        sample_input_resolver: method(:sample_input_for),
+        runtime_smoke: ->(out_path:, sample_input:) { RuntimeSmoke.run(out_path: out_path, sample_input: sample_input) }
       )
-    rescue IgniterLang::AssemblyRefused => e
-      report = IgniterLang::CompilationReport.internal_error(
-        format_version: FORMAT_VERSION,
-        source_path: source_path,
-        rule: "assembler_refused",
-        error: e
-      )
-      refusal(report, source_path, out_path, status: "assembler_refused")
-    rescue => e
-      report = IgniterLang::CompilationReport.internal_error(
-        format_version: FORMAT_VERSION,
-        source_path: source_path,
-        rule: "compiler_error",
-        error: e
-      )
-      refusal(report, source_path, out_path, status: "error")
+      orchestration.fetch("result")
     end
 
     private
-
-    def parse_failure(parsed, source_path, out_path)
-      report = IgniterLang::CompilationReport.parse_failure(
-        format_version: FORMAT_VERSION,
-        parsed: parsed,
-        source_path: source_path
-      )
-      refusal(report, source_path, out_path, status: "error")
-    end
-
-    def refusal(report, source_path, out_path, status: "oof")
-      report_path = report_path_for(out_path)
-      JSONIO.write(report_path, report)
-      IgniterLang::CompilerResult.refusal(
-        format_version: FORMAT_VERSION,
-        status: status,
-        report: report,
-        source_path: source_path,
-        report_path: report_path
-      )
-    end
-
-    def report_path_for(out_path)
-      raw = out_path.to_s
-      if raw.end_with?(".igapp")
-        Pathname.new(raw.delete_suffix(".igapp") + ".compilation_report.json")
-      else
-        Pathname.new("#{raw}.compilation_report.json")
-      end
-    end
 
     def sample_input_for(parsed)
       contract = parsed.fetch("contracts").fetch(0, {})
@@ -160,20 +70,6 @@ module ProductionCompilerCLI
       end
     end
 
-    def case_name_for(source_path, parsed)
-      basename = File.basename(source_path.to_s, ".ig")
-      return basename unless basename.empty?
-
-      parsed.fetch("contracts").fetch(0).fetch("name").downcase
-    end
-
-    def smoke_failure_report(report, smoke, source_path)
-      IgniterLang::CompilationReport.runtime_smoke_failure(
-        report: report,
-        smoke: smoke,
-        source_path: source_path
-      )
-    end
   end
 
   module RuntimeSmoke

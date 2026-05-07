@@ -82,6 +82,25 @@ module TypecheckerProof
       expected_contract: "StreamEscapeInFold",
       expected_status: "blocked",
       expected_rules: ["OOF-S3"]
+    },
+    "invariant_severity_valid" => {
+      classified: "invariant_severity_valid.classified.json",
+      expected_contract: "DrugOrderGate",
+      expected_status: "accepted",
+      expected_rules: [],
+      expected_outputs: { "approved" => "Bool" }
+    },
+    "negative_invariant_non_bool_predicate" => {
+      classified: "negative_invariant_non_bool_predicate.classified.json",
+      expected_contract: "InvariantNonBoolPredicate",
+      expected_status: "blocked",
+      expected_rules: ["OOF-IV3"]
+    },
+    "negative_invariant_overridable_on_error" => {
+      classified: "negative_invariant_overridable_on_error.classified.json",
+      expected_contract: "InvariantOverridableOnError",
+      expected_status: "blocked",
+      expected_rules: ["OOF-I4"]
     }
   }.freeze
 
@@ -135,6 +154,10 @@ module TypecheckerProof
       "negative.bihistory_missing_tt" => blocked_with_rules?(outputs, "negative_bihistory_missing_tt"),
       "negative.bihistory_wrong_axis_type" => blocked_with_rules?(outputs, "negative_bihistory_wrong_axis_type"),
       "negative.stream_escape_in_fold_oof_s3" => blocked_with_rules?(outputs, "negative_stream_escape_in_fold"),
+      "typed.invariant_severity_valid" => accepted_with_outputs?(outputs, "invariant_severity_valid"),
+      "invariant.tinv1_output_has_warnings_from" => invariant_output_effect?(outputs, "invariant_severity_valid", "interaction_warn"),
+      "negative.invariant_non_bool_predicate_oof_iv3" => blocked_with_rules?(outputs, "negative_invariant_non_bool_predicate"),
+      "negative.invariant_overridable_on_error_oof_i4" => blocked_with_rules?(outputs, "negative_invariant_overridable_on_error"),
       "semanticir.not_emitted" => outputs.values.all? { |result| result.fetch(:typed).fetch("semantic_ir_ref").nil? },
       "boundary.classified_inputs_present" => classified_inputs_present?(classified_dir),
       "boundary.classified_program_input_only" => classified_program_input_only?(outputs),
@@ -167,6 +190,15 @@ module TypecheckerProof
     contract = only_contract(result)
     actual_rules = result.fetch(:typed).fetch("type_errors").map { |entry| entry.fetch("rule") }.uniq
     contract.fetch("status") == "blocked" && actual_rules == result.fetch(:config).fetch(:expected_rules)
+  end
+
+  # Checks that the named invariant appears in warnings_from on any output decl (TINV-4).
+  def invariant_output_effect?(outputs, case_id, invariant_name)
+    result = outputs.fetch(case_id)
+    contract = only_contract(result)
+    contract.fetch("declarations").any? do |decl|
+      decl.fetch("kind") == "output" && Array(decl["warnings_from"]).include?(invariant_name)
+    end
   end
 
   def build_golden_checks(outputs, classified_dir:)

@@ -1,0 +1,122 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/invariant_severity_valid",
+  "source_path": "igniter-lang/experiments/typechecker_proof/classified/invariant_severity_valid.ig",
+  "source_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.TypeChecker.InvariantSeverityValid",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.TypeChecker.InvariantSeverityValid.DrugOrderGate",
+      "name": "DrugOrderGate",
+      "fragment_class": "core",
+      "symbols": [
+        {
+          "name": "is_safe",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "has_warning",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "approved",
+          "kind": "compute",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:is_safe",
+          "kind": "input",
+          "name": "is_safe",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Bool"
+        },
+        {
+          "decl_id": "input:has_warning",
+          "kind": "input",
+          "name": "has_warning",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Bool"
+        },
+        {
+          "decl_id": "compute:approved",
+          "kind": "compute",
+          "name": "approved",
+          "fragment_class": "core",
+          "deps": ["is_safe"],
+          "missing_refs": [],
+          "expr_kind": "ref",
+          "expr": {
+            "kind": "ref",
+            "name": "is_safe"
+          }
+        },
+        {
+          "decl_id": "invariant:safety_block",
+          "kind": "invariant",
+          "name": "safety_block",
+          "fragment_class": "core",
+          "predicate_ref": "is_safe",
+          "severity": "error",
+          "label": "REQ-SAFE-01",
+          "message": "Safety constraint violated",
+          "overridable_with": null,
+          "deps": ["is_safe"],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "invariant:interaction_warn",
+          "kind": "invariant",
+          "name": "interaction_warn",
+          "fragment_class": "core",
+          "predicate_ref": "has_warning",
+          "severity": "warn",
+          "label": "CG-INTERACTION-01",
+          "message": "Drug interaction warning",
+          "overridable_with": "documented_justification",
+          "deps": ["has_warning"],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "output:approved",
+          "kind": "output",
+          "name": "approved",
+          "fragment_class": "core",
+          "deps": ["approved"],
+          "missing_refs": [],
+          "type_annotation": "Bool"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:is_safe",
+          "input:has_warning",
+          "compute:approved",
+          "invariant:safety_block",
+          "invariant:interaction_warn",
+          "output:approved"
+        ],
+        "edges": [
+          { "from": "input:is_safe", "to": "compute:approved", "kind": "symbol" },
+          { "from": "input:is_safe", "to": "invariant:safety_block", "kind": "symbol" },
+          { "from": "input:has_warning", "to": "invariant:interaction_warn", "kind": "symbol" },
+          { "from": "compute:approved", "to": "output:approved", "kind": "symbol" }
+        ]
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}

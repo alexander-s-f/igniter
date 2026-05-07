@@ -43,6 +43,7 @@ module IgniterLang
     input output compute read snapshot window escape
     stream fold_stream
     olap_point
+    invariant predicate severity label message overridable_with
     from lifecycle using implements
     pipeline step scoped_by cardinality schema_version tenant_free
     if else let
@@ -656,6 +657,7 @@ module IgniterLang
       when "escape"   then advance; parse_escape_decl
       when "stream"   then advance; parse_stream_decl
       when "fold_stream" then advance; parse_fold_stream_decl
+      when "invariant"   then advance; parse_invariant_decl
       when "pipeline"
         add_parse_error(
           rule: "OOF-P2",
@@ -811,6 +813,95 @@ module IgniterLang
       { "kind" => "escape", "name" => name }
     end
 
+    # PINV-3: parse invariant declaration
+    # invariant <name>
+    #   predicate: <compute_ref>
+    #   severity: :<error|warn|soft|metric>   (default: error)
+    #   label: "<string>"                     (optional)
+    #   message: "<string>"                   (optional)
+    #   overridable_with: :<symbol>            (optional; only on :warn)
+    def parse_invariant_decl
+      name_tok = peek
+      name = name_token!(%i[ident])
+      predicate_ref = nil
+      severity = "error"
+      label = nil
+      message = nil
+      overridable_with = nil
+
+      # Parse attribute lines until we hit something that doesn't look like an attribute
+      while peek_kw?("predicate") || peek_kw?("severity") || peek_kw?("label") ||
+            peek_kw?("message") || peek_kw?("overridable_with")
+        attr_tok = peek
+        attr = advance.value
+        expect_type!(:colon)
+        case attr
+        when "predicate"
+          predicate_ref = name_token!(%i[ident])
+        when "severity"
+          if peek_type?(:symbol_lit)
+            severity = advance.value
+            unless %w[error warn soft metric].include?(severity)
+              add_parse_error(
+                rule: "OOF-IV2",
+                message: "Unknown severity '#{severity}'; expected :error :warn :soft :metric",
+                token: severity,
+                line: attr_tok.line,
+                col: attr_tok.col
+              )
+              severity = "error" # recover
+            end
+          else
+            add_parse_error(
+              rule: "OOF-IV2",
+              message: "severity: requires a symbol literal (:error, :warn, :soft, :metric)",
+              token: peek&.value.to_s,
+              line: attr_tok.line,
+              col: attr_tok.col
+            )
+          end
+        when "label"
+          label = peek_type?(:string_lit) ? advance.value : name_token!(%i[ident])
+        when "message"
+          message = peek_type?(:string_lit) ? advance.value : name_token!(%i[ident])
+        when "overridable_with"
+          overridable_with = peek_type?(:symbol_lit) ? advance.value : name_token!(%i[ident])
+        end
+      end
+
+      # PINV-3: OOF-IV1 — missing predicate: field
+      if predicate_ref.nil?
+        add_parse_error(
+          rule: "OOF-IV1",
+          message: "invariant '#{name}' missing required predicate: field",
+          token: name,
+          line: name_tok.line,
+          col: name_tok.col
+        )
+      end
+
+      # PINV-3: OOF-I4 — overridable_with: on severity: :error invariant (static case)
+      if overridable_with && severity == "error"
+        add_parse_error(
+          rule: "OOF-I4",
+          message: ":error invariants cannot be overridden — use :warn if override is intended",
+          token: name,
+          line: name_tok.line,
+          col: name_tok.col
+        )
+      end
+
+      {
+        "kind"             => "invariant",
+        "name"             => name,
+        "predicate_ref"    => predicate_ref,
+        "severity"         => severity,
+        "label"            => label,
+        "message"          => message,
+        "overridable_with" => overridable_with
+      }
+    end
+
     def parse_stream_decl
       # stream <name>: <Type>
       name = name_token!(%i[ident])
@@ -889,7 +980,7 @@ module IgniterLang
       expect_type!(:lbrace)
       fields = []
       until peek_type?(:rbrace) || peek_type?(:eof)
-        fname = name_token!(%i[ident])
+        fname = name_token!(%i[ident keyword])
         expect_type!(:colon)
         ftype = parse_type_ref
         optional = peek_type?(:question) ? (advance; true) : false

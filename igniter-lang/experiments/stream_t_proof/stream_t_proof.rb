@@ -6,6 +6,8 @@ require "fileutils"
 require "json"
 require "pathname"
 
+require_relative "../../lib/igniter_lang/semanticir_emitter"
+
 module StreamTProof
   ROOT = Pathname.new(File.expand_path("../../..", __dir__))
   LANG_ROOT = ROOT / "igniter-lang"
@@ -229,7 +231,8 @@ module StreamTProof
 
   def run
     FileUtils.mkdir_p(GOLDEN_DIR)
-    semantic_ir = semantic_ir_program
+    emitted = semantic_ir_boundary
+    semantic_ir = emitted.fetch("semantic_ir")
     finite_result = RuntimeEvaluator.new(semantic_ir).evaluate(source: finite_replay_source)
     open_live = RuntimeEvaluator.new(semantic_ir).evaluate(source: open_live_source)
     negatives = negative_reports
@@ -243,6 +246,7 @@ module StreamTProof
         "history_t" => "durable_temporal_memory_read_by_explicit_time"
       },
       "semantic_ir_program" => semantic_ir,
+      "semantic_ir_report" => emitted.fetch("compilation_report"),
       "finite_replay_result" => finite_result,
       "open_live_descriptor" => open_live,
       "negative_reports" => negatives,
@@ -253,61 +257,117 @@ module StreamTProof
     summary.fetch("status") == "PASS"
   end
 
-  def semantic_ir_program
+  def semantic_ir_boundary
+    emitted = IgniterLang::SemanticIREmitter.new.emit_typed(stream_t_typed_program)
+    raise "stream_t typed SemanticIR emission failed" unless emitted.fetch("compilation_report").fetch("pass_result") == "ok"
+
+    emitted
+  end
+
+  def stream_t_typed_program
     {
-      "kind" => "semantic_ir_program",
-      "format_version" => FORMAT_VERSION,
-      "program_id" => "semanticir/stream_t/#{Canonical.short_hash(File.read(SOURCE_PATH))}",
+      "kind" => "typed_program",
+      "typechecker_version" => "stream-t-proof-local-typed-v0",
+      "program_id" => "typed/stream_t/#{Canonical.short_hash(File.read(SOURCE_PATH))}",
+      "classified_program_id" => "classifier_pass/stream_t_proof_local",
       "source_path" => SOURCE_PATH.relative_path_from(ROOT).to_s,
-      "source_status" => "syntax_sketch_parser_not_used_in_this_proof",
+      "source_hash" => Canonical.hash(File.read(SOURCE_PATH)),
+      "grammar_version" => FORMAT_VERSION,
+      "module" => "Fixture.StreamT",
+      "type_env" => {},
       "contracts" => [
         {
-          "kind" => "contract_ir",
-          "contract_ref" => CONTRACT_REF,
-          "contract_name" => "IntegerWindowSum",
+          "kind" => "typed_contract",
+          "contract_id" => CONTRACT_REF,
+          "name" => "IntegerWindowSum",
+          "status" => "accepted",
           "fragment_class" => "escape",
-          "inputs" => [
-            { "name" => "device_id", "type" => { "name" => "String", "params" => [] }, "lifecycle" => "local" }
+          "symbols" => [
+            { "name" => "device_id", "type" => type_ir("String"), "resolved" => true },
+            { "name" => "readings", "type" => type_ir("Integer"), "resolved" => true },
+            { "name" => "total", "type" => type_ir("Integer"), "resolved" => true },
+            { "name" => "snapshot", "type" => type_ir("IntegerWindowSnapshot"), "resolved" => true }
           ],
-          "outputs" => [
-            { "name" => "snapshot", "type" => { "name" => "IntegerWindowSnapshot", "params" => [] }, "lifecycle" => "durable" }
-          ],
-          "nodes" => [
+          "declarations" => [
             {
-              "kind" => "stream_input_node",
-              "name" => "readings",
-              "type" => "Integer",
-              "window_ref" => "integer_count_window",
-              "escape_capability" => "stream_input",
-              "fragment" => "escape"
+              "decl_id" => "input:device_id",
+              "kind" => "input",
+              "name" => "device_id",
+              "fragment_class" => "core",
+              "type" => type_ir("String"),
+              "deps" => [],
+              "lifecycle" => "local"
             },
             {
-              "kind" => "window_decl_node",
-              "ref" => "integer_count_window",
+              "decl_id" => "stream:readings",
+              "kind" => "stream",
+              "name" => "readings",
+              "fragment_class" => "escape",
+              "type" => type_ir("Integer"),
+              "deps" => [],
+              "window_ref" => "integer_count_window"
+            },
+            {
+              "decl_id" => "window:integer_count_window",
+              "kind" => "window",
+              "name" => "integer/{device_id}",
+              "fragment_class" => "escape",
+              "deps" => [],
+              "window_ref" => "integer_count_window",
               "key" => "integer/{device_id}",
               "window_kind" => "count",
               "size" => 3,
               "on_close" => "snapshot"
             },
             {
-              "kind" => "fold_stream_node",
+              "decl_id" => "fold_stream:total",
+              "kind" => "fold_stream",
               "name" => "total",
-              "stream_ref" => "readings",
-              "init" => { "kind" => "integer_literal", "value" => 0 },
-              "fn_ref" => "integer_sum_lambda",
+              "fragment_class" => "core",
+              "type" => type_ir("Integer"),
+              "deps" => ["readings"],
+              "expr" => fold_stream_expr,
               "bound" => { "kind" => "window_bounded", "window_ref" => "integer_count_window" },
-              "result_type" => { "name" => "Integer", "params" => [] },
-              "escape_capability" => "stream_input",
-              "result_fragment" => "core"
+              "fn_ref" => "integer_sum_lambda"
+            },
+            {
+              "decl_id" => "output:snapshot",
+              "kind" => "output",
+              "name" => "snapshot",
+              "fragment_class" => "core",
+              "type" => type_ir("IntegerWindowSnapshot"),
+              "deps" => ["total"],
+              "lifecycle" => "durable"
             }
           ],
-          "escape_boundaries" => [
-            {
-              "name" => "stream_input",
-              "required_caps" => ["stream_input"],
-              "produces" => ["stream_window_observation"]
-            }
-          ]
+          "type_errors" => []
+        }
+      ],
+      "type_errors" => [],
+      "semantic_ir_ref" => nil
+    }
+  end
+
+  def type_ir(name)
+    { "name" => name, "params" => [] }
+  end
+
+  def fold_stream_expr
+    {
+      "kind" => "call",
+      "fn" => "fold_stream",
+      "args" => [
+        { "kind" => "ref", "name" => "readings" },
+        { "kind" => "literal", "value" => 0, "type_tag" => "Integer" },
+        {
+          "kind" => "lambda",
+          "params" => ["acc", "reading"],
+          "body" => {
+            "kind" => "binary_op",
+            "op" => "+",
+            "left" => { "kind" => "ref", "name" => "acc" },
+            "right" => { "kind" => "ref", "name" => "reading" }
+          }
         }
       ]
     }
@@ -445,6 +505,7 @@ module StreamTProof
       "semanticir.stream_input_node" => semantic_ir.dig("contracts", 0, "nodes").any? { |node| node.fetch("kind") == "stream_input_node" },
       "semanticir.window_decl_node" => semantic_ir.dig("contracts", 0, "nodes").any? { |node| node.fetch("kind") == "window_decl_node" },
       "semanticir.fold_stream_node" => semantic_ir.dig("contracts", 0, "nodes").any? { |node| node.fetch("kind") == "fold_stream_node" },
+      "semanticir.emitter_typed_program_ref" => semantic_ir.fetch("program_id").start_with?("semanticir/typed/"),
       "classification.stream_is_escape" => finite_result.fetch("stream_classification") == "escape",
       "classification.fold_result_is_core" => finite_result.fetch("fold_result_classification") == "core",
       "runtime.finite_replay_window_closed" => finite_result.dig("window", "source_mode") == "finite_replay" &&
@@ -482,6 +543,7 @@ module StreamTProof
   def write_outputs(summary)
     write_json(SUMMARY_PATH, summary)
     write_json(GOLDEN_DIR / "semantic_ir_program.json", summary.fetch("semantic_ir_program"))
+    write_json(GOLDEN_DIR / "semantic_ir_report.json", summary.fetch("semantic_ir_report"))
     write_json(GOLDEN_DIR / "finite_replay_result.json", summary.fetch("finite_replay_result"))
     write_json(GOLDEN_DIR / "open_live_descriptor.json", summary.fetch("open_live_descriptor"))
     summary.fetch("negative_reports").each do |report|
