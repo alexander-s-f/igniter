@@ -28,9 +28,10 @@ Run: `ruby igniter-lang/experiments/stage1_close_candidate/stage1_close_candidat
 Pass/Feature             PROP    Experiment / Library                     Status
 ────────────────────────────────────────────────────────────────────────────────
 Production compiler      PROP-027  production_compiler_cli/ PASS        ✅ CLI PASS
-  package                          lib/igniter_lang/ (11 libs)          ✅ runtime_smoke extracted (R12)
+  package                          igniter-lang/lib (14 files)          ✅ packaging skeleton PASS (R13)
                                    IgniterLang.compile facade            ✅ Ruby API facade PASS (R11)
                                    CLI/API package boundary              ✅ shared facade proof PASS (R12)
+                                   prerelease gem + igc                  ✅ installed gem/bin smoke PASS (R13)
 History[T]+BiHistory[T]  PROP-022  history+bihistory proofs PASS        ✅ full proof stack
   + Temporal access hook           RuntimeMachineHook wired              ✅ hook proof PASS
                                    RuntimeMachine load/evaluate proof     ✅ proof-local RM integration
@@ -47,19 +48,24 @@ Invariant severity       PROP-025  invariant_severity_proof/ PASS       ✅ proo
                                    Runtime violation observations        ✅ observation proof PASS (R12)
 TBackend bridge          PROP-008  tbackend-ledger-bridge-conformance    ✅ docs-only conformance done (R11)
                                    ledger descriptor fixture             ✅ metadata diagnostics PASS (R12)
+                                   descriptor package plan               ✅ package plan done (R13)
 Parser OOF hardening     PROP-026  parser_oof_hardening_stage2_proof/   ✅ PASS
 Runtime eval surface     —         igapp_assembler_proof/               ✅ closed_in_proof
+Stage 2 close candidate  —         stage2-close-candidate-planning       ✅ R14 runner plan done (R13)
 ────────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  Packaging skeleton → Runtime smoke production adapter plan → Ledger descriptor package slice
+Active priority:  Stage 2 close candidate runner → gem-native package specs → Ledger descriptor package implementation
 New PROPs:        start from PROP-028
 ```
 
 ---
 
-## lib/igniter_lang/ — 11 Libs Extracted + Facade
+## igniter-lang/lib — 14 Files (13 package/internal + facade)
 
 ```text
+igniter_lang.rb           (R11/R13) — package facade; exposes VERSION + compile
+igniter_lang/version.rb   (R13) — prerelease package version
+igniter_lang/cli.rb       (R13) — thin package CLI for igc compile
 diagnostics.rb            (R3)
 compiler_result.rb        (R4)
 compilation_report.rb     (R4)
@@ -71,7 +77,6 @@ typechecker.rb            (R7/R8/R10) — TypedProgram boundary; stream OOF-S3; 
 semanticir_emitter.rb     (R8/R9/R10/R11) — SemanticIR emitter; OLAP/stream/invariant lowering added
 assembler.rb              (R9) — .igapp/ assembler boundary
 compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
-../igniter_lang.rb        (R11) — packageable Ruby facade: IgniterLang.compile(...)
 ```
 
 ---
@@ -86,7 +91,7 @@ PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
 PROP-024   OLAPPoint[T,Dims]             ✅ proof + grammar spec + parser + TC/IR boundary PASS
 PROP-025   Invariant severity            ✅ proof + parser/TC + SemanticIR + runtime observations PASS
 PROP-026   Parser OOF hardening          ✅ PASS
-PROP-027   Production compiler diag.     ✅ CLI PASS; 11 libs + Ruby facade + shared boundary proof
+PROP-027   Production compiler diag.     ✅ CLI PASS; package skeleton + Ruby facade + igc proof
 PROP-028+  next available
 ```
 
@@ -98,25 +103,36 @@ PROP-028+  next available
 1. Compiler package boundary
    ✅ Ruby-facing IgniterLang.compile facade done (S2-R11-C1-P).
    ✅ Shared CLI/API facade + load-path proof done (S2-R12-C2-P).
-   Remaining: gemspec/version/bin install path and decision whether
-   ProductionCompilerCLI graduates from experiment to package entrypoint.
+   ✅ Gem skeleton, prerelease version, and installed igc smoke done (S2-R13-C1-P).
+   Remaining: gem-native package specs, final metadata/URL/contact policy,
+   final executable naming, and release/CI policy.
 
-2. Stage 2 invariant runtime observation boundary
+2. Stage 2 close candidate
+   ✅ Close candidate plan and JSON schema done (S2-R13-C2-P).
+   Remaining: implement R14 runner at experiments/stage2_close_candidate/
+   and produce stage2_close_candidate.json.
+
+3. Stage 2 invariant runtime observation boundary
    ✅ Stream, OLAP, and invariant_node emitter lowering PASS.
    ✅ Runtime invariant_violation_observation proof done (S2-R12-C4-P).
    Remaining: production RuntimeMachine emission/persistence boundary.
 
-3. Production RuntimeMachine temporal integration
+4. Production RuntimeMachine temporal integration
    Proof-local adapter registry and shim selected. Ledger conformance is descriptor-first
    (S2-R11-C3-P). Descriptor fixture + diagnostics PASS (S2-R12-C3-P).
-   Next package-side move should remain metadata-only: no read/write/replay/runtime binding.
+   ✅ Package-side descriptor plan done (S2-R13-C3-P).
+   Next package-side implementation should remain metadata-only: no read/write/replay/runtime binding.
 
-4. Invariant severity parser + typechecker implementation
+5. Invariant severity parser + typechecker implementation
    ✅ DONE (S2-R10-C4-P). PINV-1..4 (parser) + TINV-1..3 (TypeChecker) implemented.
    ✅ SemanticIR invariant_node lowering DONE (S2-R11-C2-P).
    ✅ Runtime violation observations DONE (S2-R12-C4-P).
    Remaining: OOF-I1 (@bitemporal deferred), OOF-I3 (~T deferred), OOF-I5
    (requirements DB), OOF-I2 advisory caller-warning analysis.
+
+6. Human-agent symbiosis vision
+   ✅ META-EXPERT-010 authored (S2-R13-M0-S).
+   Routing: Stage 3 / PROP-028+ after Stage 2 close; not a Stage 2 close blocker.
 ```
 
 → Full governance: `meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md`

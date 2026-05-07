@@ -27,6 +27,15 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 2 Round 13 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `compiler-packaging-skeleton-v0.md` | done | prerelease gem skeleton, `IgniterLang::VERSION`, package CLI, and `bin/igc`; gem build/install and installed `igc compile` smokes PASS |
+| `stage2-close-candidate-planning-v0.md` | done | planning-only R14 close runner design; target JSON schema, proof list, fixtures, and deferred gaps defined |
+| `ledger-tbackend-adapter-descriptor-package-plan-v0.md` | done | package-side descriptor-only implementation plan; no runtime/Ledger operation binding authorized |
+| `stage2-round13-status-curation-v0.md` | done | R13 map sync — this track |
+
 ## Stage 2 Round 12 Evidence
 
 | Track | Status | Notes |
@@ -95,9 +104,12 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
-## lib/igniter_lang/ — Current State (11 libs + facade)
+## igniter-lang/lib — Current State (14 files)
 
 ```text
+igniter_lang.rb           (R11/R13) — package facade; exposes VERSION + compile
+igniter_lang/version.rb   (R13) — prerelease package version
+igniter_lang/cli.rb       (R13) — thin package CLI for igc compile
 diagnostics.rb            (R3)
 compiler_result.rb        (R4)
 compilation_report.rb     (R4)
@@ -109,7 +121,6 @@ typechecker.rb            (R7/R8/R10) — TypedProgram boundary; stream OOF-S3; 
 semanticir_emitter.rb     (R8/R9/R10/R11) — SemanticIR emitter; OLAP/stream/invariant lowering added
 assembler.rb              (R9) — .igapp/ assembler boundary
 compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
-../igniter_lang.rb        (R11) — packageable Ruby facade: IgniterLang.compile(...)
 ```
 
 ---
@@ -118,9 +129,9 @@ compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `compiler-packaging-skeleton-v0` | Add version/gemspec/bin load-path proof and decide package entrypoint ownership | Research Agent |
-| `runtime-smoke-production-adapter-plan-v0` | Keep `IgniterLang::RuntimeSmoke` proof-backed now while planning production RuntimeMachine/TBackend adapter path | Research Agent |
-| `ledger-tbackend-adapter-descriptor-package-v0` | Package-side descriptor-only diagnostics implementation; no RuntimeMachine or Ledger operation binding | Bridge Agent |
+| `stage2-close-candidate-v0` | Implement close-candidate runner and JSON packet from R13 plan | Research Agent |
+| `gem-native-package-boundary-specs-v0` | Add gem-native specs for `require "igniter_lang"`, `IgniterLang.compile`, and installed `igc` outside proof harnesses | Research Agent |
+| `ledger-tbackend-adapter-descriptor-package-v0` | Implement package-side descriptor-only diagnostics object after approval; no RuntimeMachine or Ledger operation binding | Bridge Agent |
 | `runtime-invariant-observation-runtime-machine-boundary-v0` | Decide where production RuntimeMachine emits and persists invariant violation observations | Research Agent |
 
 ---
