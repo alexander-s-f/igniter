@@ -27,27 +27,36 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
-## Stage 2 Round 4 Evidence
+## Stage 2 Round 5 Evidence
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `runtime-temporal-access-node-loader-v0.md` | done | temporal_access_node evaluated via TemporalAccessRuntime in history+bihistory proofs |
-| `compiler-result-report-boundary-v0.md` | done | lib/igniter_lang/compiler_result.rb + compilation_report.rb extracted; CLI proof PASS |
-| `invariant-severity-parser-and-typechecker-ownership-v0.md` | done | Parser/TC spec (PINV-1..4 + TINV-1..3) authored; impl deferred; proof PASS |
-| `stream-t-proof-v0.md` | done | stream_t_proof PASS: fold_stream bounded window → CORE fold; OOF-S1..5 |
-| `stage2-round4-map-refresh-v0.md` | done | R4 map sync — this track |
+| `extract-parser-module-v0.md` | done | lib/igniter_lang/parser.rb extracted; 61 specs PASS; CLI PASS |
+| `stream-parser-classifier-boundary-v0.md` | done | stream/fold_stream keywords in parser.rb; stream_t_proof PASS; classifier SC-1..3 next |
+| `production-runtime-temporal-access-integration-v0.md` | done | lib/igniter_lang/temporal_access_runtime.rb extracted; capability helper; history+bihistory PASS |
+| `olap-point-proof-v0.md` | done | olap_point_proof PASS: point access + rollup + OOF-O1..3 |
+| `stage2-round5-map-refresh-v0.md` | done | R5 map sync — this track |
 
-## Stage 2 Round 3 Evidence (summary)
+## Stage 2 Round 4 Evidence (summary)
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `option-encoding-normalization-v0.md` | done | Option[T] → `{kind,value}` canonical |
-| `history-type-parser-acceptance-v0.md` | done | History[T] parser structured TypeRef PASS |
-| `bihistory-parser-typechecker-axes-v0.md` | done | TypeChecker BiHistory axes PASS |
-| `history-temporal-access-runtime-extraction-v0.md` | done | TemporalAccessRuntime::MemoryBackend shared |
-| `compiler-diagnostics-library-boundary-v0.md` | done | lib/igniter_lang/diagnostics.rb extracted |
-| `invariant-severity-proof-v0.md` | done | invariant_severity_proof PASS |
-| `production-compiler-diagnostics-*.md` | done | Diagnostics module + extraction PASS |
+| `runtime-temporal-access-node-loader-v0.md` | done | temporal_access_node evaluated via TemporalAccessRuntime |
+| `compiler-result-report-boundary-v0.md` | done | compiler_result.rb + compilation_report.rb extracted |
+| `invariant-severity-parser-and-typechecker-ownership-v0.md` | done | Parser/TC spec authored; proof PASS |
+| `stream-t-proof-v0.md` | done | stream_t_proof PASS: fold_stream bounded window → CORE |
+
+---
+
+## lib/igniter_lang/ — Current State
+
+```text
+diagnostics.rb           (R3) — CompilationReport diagnostics helpers
+compiler_result.rb       (R4) — CompilerResult status/stages
+compilation_report.rb    (R4) — CompilationReport ref/path helpers
+parser.rb                (R5) — Full parser + stream/fold_stream keywords
+temporal_access_runtime.rb (R5) — TemporalAccessRuntime::MemoryBackend + capability helper
+```
 
 ---
 
@@ -55,10 +64,10 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `extract-parser-module-v0` | Move parser to lib/igniter_lang/parser.rb; preserve OOF + stage1 proofs | Research Agent |
-| `stream-parser-classifier-boundary-v0` | Parser + classifier for stream T (OOF-S1..S5) | Compiler/Grammar Expert |
-| `production-runtime-temporal-access-integration-v0` | TBackend adapters + capability checks for production RuntimeMachine | Research Agent |
-| `olap-point-proof-v0` | First proof for PROP-024 OLAPPoint[T,Dims] | Research Agent |
+| `extract-classifier-module-v0` | Move classifier to lib/igniter_lang/classifier.rb | Research Agent |
+| `stream-classifier-escape-propagation-v0` | SC-1..3 ESCAPE rules for stream T | Compiler/Grammar Expert |
+| `olap-point-parser-typechecker-boundary-v0` | Grammar surface + TypeChecker OOF-O for OLAPPoint | Compiler/Grammar Expert |
+| `runtime-machine-temporal-access-hook-v0` | Resolver hook in RuntimeMachine; TBackend capability checks | Research Agent |
 
 ---
 
