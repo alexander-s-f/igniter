@@ -18,8 +18,10 @@
       "severity": "error",
       "message": "Unresolved symbol: missing_b",
       "node": "sum",
-      "path": null,
-      "line": null
+      "path": "contract:BadUnresolvedSymbol/node:sum",
+      "category": "classifier_oof",
+      "contract": "BadUnresolvedSymbol",
+      "span": null
     }
   ],
   "semantic_ir_ref": null

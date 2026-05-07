@@ -13,6 +13,7 @@ module ProductionCompilerCLI
   ROOT = Pathname.new(File.expand_path("../../..", __dir__))
   LANG_ROOT = ROOT / "igniter-lang"
   PROOF_AS_OF = RuntimeMachineMemoryProof::PROOF_AS_OF
+  FORMAT_VERSION = SourceToSemanticIRFixture::FORMAT_VERSION
 
   module JSONIO
     module_function
@@ -20,6 +21,128 @@ module ProductionCompilerCLI
     def write(path, value)
       FileUtils.mkdir_p(Pathname.new(path).dirname)
       File.write(path, "#{JSON.pretty_generate(value)}\n")
+    end
+  end
+
+  module Diagnostics
+    CATEGORIES = {
+      parse_error: "parser_error",
+      parse_warning: "parser_warning",
+      classified: "classifier_oof",
+      typechecked: "typechecker_oof",
+      assembler: "assembler_refusal",
+      runtime_smoke: "runtime_smoke_failure"
+    }.freeze
+
+    module_function
+
+    def enrich(entries, category:, contract: nil)
+      Array(entries).map do |entry|
+        normalized = stringify_keys(entry)
+        diagnostic_contract = normalized.key?("contract") ? normalized.fetch("contract") : contract
+        node = normalized.fetch("node", nil)
+        path = normalized.fetch("path", nil) || path_for(diagnostic_contract, node, normalized)
+        span = span_for(normalized)
+
+        normalized.merge(
+          "category" => normalized.fetch("category", category),
+          "rule" => normalized.fetch("rule", "UNKNOWN"),
+          "severity" => normalized.fetch("severity", "error"),
+          "message" => normalized.fetch("message", "compiler diagnostic"),
+          "contract" => diagnostic_contract,
+          "node" => node,
+          "path" => path,
+          "span" => span
+        ).reject { |key, _value| key == "line" || key == "col" }
+      end
+    end
+
+    def from_parse_errors(errors)
+      Array(errors).flat_map do |entry|
+        severity = stringify_keys(entry).fetch("severity", "error")
+        category = severity == "warning" ? CATEGORIES.fetch(:parse_warning) : CATEGORIES.fetch(:parse_error)
+        enrich([entry], category: category)
+      end
+    end
+
+    def from_classified(diagnostics, contract: nil)
+      enrich(diagnostics, category: CATEGORIES.fetch(:classified), contract: contract)
+    end
+
+    def from_typechecked(diagnostics, contract: nil)
+      enrich(diagnostics, category: CATEGORIES.fetch(:typechecked), contract: contract)
+    end
+
+    def from_assembler_refusal(refusal)
+      enrich(
+        [
+          {
+            "rule" => "ASSEMBLER-REFUSAL",
+            "severity" => "error",
+            "message" => refusal.respond_to?(:message) ? refusal.message : refusal.to_s
+          }
+        ],
+        category: CATEGORIES.fetch(:assembler)
+      )
+    end
+
+    def from_runtime_smoke(smoke)
+      return [] if smoke.fetch("trusted", false)
+
+      enrich(
+        [
+          {
+            "rule" => "OOF-RUNTIME-SMOKE",
+            "severity" => "error",
+            "message" => "RuntimeMachine load/evaluate smoke failed",
+            "details" => smoke
+          }
+        ],
+        category: CATEGORIES.fetch(:runtime_smoke)
+      )
+    end
+
+    def warnings(entries)
+      Array(entries).select { |entry| entry.fetch("severity", nil) == "warning" }
+    end
+
+    def errors(entries)
+      Array(entries).reject { |entry| entry.fetch("severity", nil) == "warning" }
+    end
+
+    def stringify_keys(value)
+      case value
+      when Hash
+        value.each_with_object({}) { |(key, entry), out| out[key.to_s] = stringify_keys(entry) }
+      when Array
+        value.map { |entry| stringify_keys(entry) }
+      else
+        value
+      end
+    end
+
+    def path_for(contract, node, entry)
+      return nil unless contract || node
+
+      parts = []
+      parts << "contract:#{contract}" if contract
+      parts << "#{node_kind(entry)}:#{node}" if node
+      parts.join("/")
+    end
+
+    def node_kind(entry)
+      entry.fetch("node_kind", nil) || entry.fetch("kind", nil) || "node"
+    end
+
+    def span_for(entry)
+      span = entry.fetch("span", nil)
+      return span if span.is_a?(Hash)
+
+      line = entry.fetch("line", nil)
+      col = entry.fetch("col", nil) || entry.fetch("column", nil)
+      return nil unless line && col
+
+      { "line" => line, "col" => col }
     end
   end
 
@@ -31,7 +154,7 @@ module ProductionCompilerCLI
 
       sample_input = sample_input_for(parsed)
       compilation = SourceToSemanticIRFixture::TinyCompiler.new.compile(parsed, sample_input: sample_input)
-      report = compilation.fetch("compilation_report")
+      report = enrich_report(compilation.fetch("compilation_report"), parsed)
       semantic_ir = compilation.fetch("semantic_ir")
 
       return refusal(report, source_path, out_path) unless report.fetch("pass_result") == "ok"
@@ -50,12 +173,20 @@ module ProductionCompilerCLI
       end
 
       {
+        "kind" => "compiler_result",
+        "format_version" => FORMAT_VERSION,
         "status" => "ok",
+        "program_id" => semantic_ir.fetch("program_id"),
         "source_path" => source_path.to_s,
-        "out" => out_path.to_s,
+        "source_hash" => report.fetch("source_hash"),
+        "grammar_version" => report.fetch("grammar_version"),
+        "stages" => report_stages(report, assemble: "ok"),
+        "igapp_path" => out_path.to_s,
         "compilation_report_ref" => report.fetch("program_id"),
         "semantic_ir_ref" => report.fetch("semantic_ir_ref"),
         "contracts" => assembled.fetch("contracts"),
+        "diagnostics" => [],
+        "warnings" => Diagnostics.warnings(report.fetch("diagnostics", [])),
         "runtime_smoke" => smoke,
         "report" => report
       }
@@ -72,7 +203,7 @@ module ProductionCompilerCLI
     def parse_failure(parsed, source_path, out_path)
       report = {
         "kind" => "compilation_report",
-        "format_version" => SourceToSemanticIRFixture::FORMAT_VERSION,
+        "format_version" => FORMAT_VERSION,
         "program_id" => "compilation_report/parse_error",
         "grammar_version" => parsed.fetch("grammar_version"),
         "source_hash" => parsed.fetch("source_hash"),
@@ -84,7 +215,7 @@ module ProductionCompilerCLI
           "typecheck" => "skipped",
           "emit" => "skipped"
         },
-        "diagnostics" => parsed.fetch("parse_errors"),
+        "diagnostics" => Diagnostics.from_parse_errors(parsed.fetch("parse_errors")),
         "semantic_ir_ref" => nil
       }
       refusal(report, source_path, out_path, status: "error")
@@ -93,12 +224,21 @@ module ProductionCompilerCLI
     def refusal(report, source_path, out_path, status: "oof")
       report_path = report_path_for(out_path)
       JSONIO.write(report_path, report)
+      diagnostics = report.fetch("diagnostics", [])
       {
+        "kind" => "compiler_result",
+        "format_version" => FORMAT_VERSION,
         "status" => status,
+        "program_id" => report.fetch("semantic_ir_ref", nil),
         "source_path" => source_path.to_s,
-        "out" => nil,
+        "source_hash" => report.fetch("source_hash", nil),
+        "grammar_version" => report.fetch("grammar_version", nil),
+        "stages" => report_stages(report, assemble: "skipped"),
+        "igapp_path" => nil,
+        "contracts" => [],
         "compilation_report_path" => report_path.to_s,
-        "diagnostics" => report.fetch("diagnostics", []),
+        "diagnostics" => Diagnostics.errors(diagnostics),
+        "warnings" => Diagnostics.warnings(diagnostics),
         "report" => report
       }
     end
@@ -166,21 +306,14 @@ module ProductionCompilerCLI
       report.merge(
         "pass_result" => "error",
         "source_path" => source_path.to_s,
-        "diagnostics" => report.fetch("diagnostics", []) + [
-          {
-            "rule" => "OOF-RUNTIME-SMOKE",
-            "severity" => "error",
-            "message" => "RuntimeMachine load/evaluate smoke failed",
-            "details" => smoke
-          }
-        ]
+        "diagnostics" => report.fetch("diagnostics", []) + Diagnostics.from_runtime_smoke(smoke)
       )
     end
 
     def internal_error_report(source_path, rule, error)
       {
         "kind" => "compilation_report",
-        "format_version" => SourceToSemanticIRFixture::FORMAT_VERSION,
+        "format_version" => FORMAT_VERSION,
         "program_id" => "compilation_report/#{rule}",
         "grammar_version" => "unknown",
         "source_hash" => nil,
@@ -192,15 +325,46 @@ module ProductionCompilerCLI
           "typecheck" => "unknown",
           "emit" => "unknown"
         },
-        "diagnostics" => [
-          {
-            "rule" => rule,
-            "severity" => "error",
-            "message" => "#{error.class}: #{error.message}"
-          }
-        ],
+        "diagnostics" => if rule == "assembler_refused"
+                           Diagnostics.from_assembler_refusal(error)
+                         else
+                           Diagnostics.enrich(
+                             [
+                               {
+                                 "rule" => rule,
+                                 "severity" => "error",
+                                 "message" => "#{error.class}: #{error.message}"
+                               }
+                             ],
+                             category: "emitter_error"
+                           )
+                         end,
         "semantic_ir_ref" => nil
       }
+    end
+
+    def enrich_report(report, parsed)
+      contract_name = parsed.fetch("contracts", []).fetch(0, {}).fetch("name", nil)
+      category = diagnostic_category_for(report)
+      report.merge(
+        "diagnostics" => Diagnostics.enrich(
+          report.fetch("diagnostics", []),
+          category: category,
+          contract: contract_name
+        )
+      )
+    end
+
+    def diagnostic_category_for(report)
+      stages = report.fetch("stages", {})
+      return "typechecker_oof" if stages.fetch("typecheck", nil) == "oof"
+      return "emitter_error" if stages.fetch("emit", nil) == "error"
+
+      "classifier_oof"
+    end
+
+    def report_stages(report, assemble:)
+      report.fetch("stages").merge("assemble" => assemble)
     end
   end
 
