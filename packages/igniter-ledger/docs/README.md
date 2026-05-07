@@ -64,6 +64,7 @@ intentional pre-v1 carryovers until a later deep-rename phase.
 | [tracks/contractable-receipt-ledger-sink-v0.md](tracks/contractable-receipt-ledger-sink-v0.md) | Durable Store/Ledger sink for Embed contractable observation/event receipts |
 | [tracks/ledger-rename-hardening-compatibility-audit-v0.md](tracks/ledger-rename-hardening-compatibility-audit-v0.md) | Public rename hardening, compatibility tests, token audit map, and deep-rename plan |
 | [tracks/ledger-client-append-protocol-boundary-v0.md](tracks/ledger-client-append-protocol-boundary-v0.md) | First-class protocol append op for LedgerClient and history/event consumers |
+| [tracks/ledger-tbackend-adapter-descriptor-package-v0.md](tracks/ledger-tbackend-adapter-descriptor-package-v0.md) | Metadata-only Ledger TBackend adapter descriptor value object and diagnostics |
 | [tracks/changefeed-events-v0.md](tracks/changefeed-events-v0.md) | Package Agent track for the first Changefeed events subsystem slice |
 | [tracks/changefeed-ordering-replay-v0.md](tracks/changefeed-ordering-replay-v0.md) | Package Agent track for Changefeed ordering and replay cursor semantics |
 | [tracks/changefeed-sse-events-v0.md](tracks/changefeed-sse-events-v0.md) | Package Agent track for SSE `/v1/events` over Changefeed replay/live push |

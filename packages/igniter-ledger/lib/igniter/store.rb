@@ -29,6 +29,7 @@ require_relative "store/codecs"
 require_relative "store/segmented_file_backend"
 require_relative "store/mcp_adapter"
 require_relative "store/contractable_receipt_sink"
+require_relative "store/tbackend_adapter_descriptor"
 
 module Igniter
   module Store
