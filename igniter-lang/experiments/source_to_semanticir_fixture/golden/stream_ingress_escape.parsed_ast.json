@@ -1,0 +1,54 @@
+{
+  "kind": "parsed_program",
+  "source_path": "stream_ingress_escape.ig",
+  "source_hash": "sha256:06553e2a8af086b64f7e281cac4bac1fc71421e67d8c736294a3d6695684368d",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.StreamClassifier",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "StreamIngressEscape",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "device_id",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "escape",
+          "name": "stream_input"
+        },
+        {
+          "kind": "stream",
+          "name": "readings",
+          "type_annotation": "Integer",
+          "fragment_class": "escape",
+          "escape_capability": "stream_input"
+        },
+        {
+          "kind": "window",
+          "label": "integer/{device_id}",
+          "options": {
+            "kind": "count",
+            "size": 3,
+            "on_close": "snapshot"
+          }
+        },
+        {
+          "kind": "output",
+          "name": "device_id",
+          "type_annotation": "String"
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "parse_errors": []
+}

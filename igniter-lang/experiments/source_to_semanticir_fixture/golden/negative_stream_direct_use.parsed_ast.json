@@ -1,0 +1,54 @@
+{
+  "kind": "parsed_program",
+  "source_path": "negative_stream_direct_use.ig",
+  "source_hash": "sha256:460982c7d7a3b51768689990987094d6fa1713e96e5340e8f652373ebae0e160",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.StreamClassifier",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "StreamDirectUse",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "device_id",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "escape",
+          "name": "stream_input"
+        },
+        {
+          "kind": "stream",
+          "name": "readings",
+          "type_annotation": "Integer",
+          "fragment_class": "escape",
+          "escape_capability": "stream_input"
+        },
+        {
+          "kind": "compute",
+          "name": "bad_direct",
+          "expr": {
+            "kind": "ref",
+            "name": "readings"
+          }
+        },
+        {
+          "kind": "output",
+          "name": "bad_direct",
+          "type_annotation": "Integer",
+          "lifecycle": "session"
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "parse_errors": []
+}

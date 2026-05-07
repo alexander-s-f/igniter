@@ -1,0 +1,95 @@
+{
+  "kind": "parsed_program",
+  "source_path": "stream_fold_core.ig",
+  "source_hash": "sha256:cc342b95b32dbd25f532fc584606753679ee24af02b8ad689ea8d5362f750b1d",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.StreamClassifier",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "StreamFoldCore",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "device_id",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "escape",
+          "name": "stream_input"
+        },
+        {
+          "kind": "stream",
+          "name": "readings",
+          "type_annotation": "Integer",
+          "fragment_class": "escape",
+          "escape_capability": "stream_input"
+        },
+        {
+          "kind": "window",
+          "label": "integer/{device_id}",
+          "options": {
+            "kind": "count",
+            "size": 3,
+            "on_close": "snapshot"
+          }
+        },
+        {
+          "kind": "fold_stream",
+          "name": "total",
+          "expr": {
+            "kind": "call",
+            "fn": "fold_stream",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "readings"
+              },
+              {
+                "kind": "literal",
+                "value": 0,
+                "type_tag": "Integer"
+              },
+              {
+                "kind": "lambda",
+                "params": [
+                  "acc"
+                ],
+                "body": {
+                  "kind": "binary_op",
+                  "op": "+",
+                  "left": {
+                    "kind": "ref",
+                    "name": "acc"
+                  },
+                  "right": {
+                    "kind": "ref",
+                    "name": "val"
+                  }
+                }
+              }
+            ]
+          },
+          "bound": {
+            "kind": "window_bounded"
+          }
+        },
+        {
+          "kind": "output",
+          "name": "total",
+          "type_annotation": "Integer",
+          "lifecycle": "session"
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "parse_errors": []
+}

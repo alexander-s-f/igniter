@@ -1,0 +1,96 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/8dd31eb781970724",
+  "source_path": "stream_ingress_escape.ig",
+  "source_hash": "sha256:06553e2a8af086b64f7e281cac4bac1fc71421e67d8c736294a3d6695684368d",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.StreamClassifier",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.StreamClassifier.StreamIngressEscape",
+      "name": "StreamIngressEscape",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "device_id",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "readings",
+          "kind": "stream",
+          "fragment_class": "escape"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:device_id",
+          "kind": "input",
+          "name": "device_id",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "escape:stream_input",
+          "kind": "escape",
+          "name": "stream_input",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "stream:readings",
+          "kind": "stream",
+          "name": "readings",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        },
+        {
+          "decl_id": "window:integer/{device_id}",
+          "kind": "window",
+          "name": "integer/{device_id}",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "output:device_id",
+          "kind": "output",
+          "name": "device_id",
+          "fragment_class": "core",
+          "deps": [
+            "device_id"
+          ],
+          "missing_refs": [],
+          "type_annotation": "String"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:device_id",
+          "escape:stream_input",
+          "stream:readings",
+          "window:integer/{device_id}",
+          "output:device_id"
+        ],
+        "edges": [
+          {
+            "from": "input:device_id",
+            "to": "output:device_id",
+            "kind": "symbol"
+          }
+        ]
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}

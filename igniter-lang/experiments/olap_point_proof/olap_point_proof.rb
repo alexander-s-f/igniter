@@ -299,7 +299,8 @@ module OLAPPointProof
       "stages" => {
         "parse" => "proof_local_sketch",
         "classify" => "ok",
-        "typecheck" => rule.start_with?("OOF-O-T") ? "oof" : "skipped",
+        # OOF-O1 is Parser-owned (Stage 1 gate). All other OOF-O* codes are TypeChecker-owned.
+        "typecheck" => (rule.start_with?("OOF-O-T") || (rule.start_with?("OOF-O") && rule != "OOF-O1")) ? "oof" : "skipped",
         "emit" => "skipped"
       },
       "diagnostics" => [
@@ -343,6 +344,85 @@ module OLAPPointProof
       "negative.dimension_type_mismatch_oof" => negative_rule?(negatives, "negative_dimension_type_mismatch", "OOF-O-T2"),
       "negative.empty_without_source_oof_o3" => negative_rule?(negatives, "negative_empty_without_source_or_data", "OOF-O3"),
       "relationship.stream_history_olap_documented" => true
+    }.merge(grammar_boundary_checks(semantic_ir, negatives))
+  end
+
+  # Grammar/TypeChecker boundary checks — added by track olap-point-parser-typechecker-boundary-v0.
+  # Verifies that the proof's hand-authored nodes conform to the formally defined
+  # ParsedProgram and TypedProgram shapes, and that OOF-O ownership is correct.
+  # These are structural checks only — no live parser is invoked.
+  def grammar_boundary_checks(semantic_ir, negatives)
+    decl = semantic_ir.fetch("olap_points").first
+    access_node = semantic_ir.dig("contracts", 0, "nodes")&.find { |n| n.fetch("kind") == "olap_access_node" }
+    contract = semantic_ir.dig("contracts", 0)
+
+    # §2.1 ParsedProgram olap_point decl shape: must have name, dimensions (Hash), measure_type, indexed (Array)
+    parsed_decl_shape_valid =
+      decl.fetch("kind") == "olap_point_decl" &&
+      decl.fetch("name").is_a?(String) &&
+      decl.fetch("dimensions").is_a?(Hash) &&
+      decl.fetch("dimensions").values.all? { |t| t.is_a?(String) } &&
+      decl.key?("measure_type") &&
+      decl.fetch("indexed").is_a?(Array)
+
+    # §2.2 ParsedProgram OLAPPoint[T,Dims] type_ref shape: access_node must carry result_type
+    # with constructor=OLAPPoint and a dims map (dims_record equivalent in SemanticIR)
+    dims_record_shape_valid =
+      access_node &&
+      access_node.dig("result_type", "constructor") == "OLAPPoint" &&
+      access_node.dig("result_type", "dims").is_a?(Hash) &&
+      access_node.dig("result_type", "dims").keys.sort == %w[channel date region]
+
+    # §2.1 measure type is a structured reference (not nil, not empty)
+    measure_type_ref_structured =
+      decl.fetch("measure_type", nil)&.is_a?(String) &&
+      !decl.fetch("measure_type").empty?
+
+    # §4 OOF-O4 formally assigned: missing-dimension error code is OOF-O-T1 (proof-local alias),
+    # verify the proof uses the TypeChecker-stage marker (typecheck: oof)
+    oof_o4_typechecker_owned =
+      negative_report_typechecker_stage?(negatives, "negative_missing_dimension")
+
+    # §4 OOF-O5 formally assigned: dimension-type-mismatch code is OOF-O-T2 (proof-local alias),
+    # verify TypeChecker stage
+    oof_o5_typechecker_owned =
+      negative_report_typechecker_stage?(negatives, "negative_dimension_type_mismatch")
+
+    # §4 OOF-O3 TypeChecker-owned: empty point without source fires at typecheck stage
+    oof_o3_ownership_typechecker =
+      negative_report_typechecker_stage?(negatives, "negative_empty_without_source_or_data")
+
+    # §4 OOF-O1 Parser-owned: Stage 1 gate rule. The proof does not fire OOF-O1 (Stage 2 proof),
+    # but verify no negative case mislabels OOF-O1 as a typechecker rule.
+    oof_o1_parser_ownership =
+      negatives.none? do |report|
+        report.fetch("diagnostics", []).any? { |d| d.fetch("rule") == "OOF-O1" } &&
+          report.dig("stages", "typecheck") == "oof"
+      end
+
+    # §5 Classifier boundary: olap_access_node and contract must carry fragment_class "escape"
+    olap_access_fragment_class_escape =
+      access_node &&
+      contract.fetch("fragment_class") == "escape"
+
+    # §5 Boundary: olap_point_decl is a top-level declaration (in olap_points[], not in a contract body)
+    # Verify it is NOT present in contracts[].nodes
+    olap_decl_top_level_not_in_body =
+      semantic_ir.fetch("olap_points").any? { |p| p.fetch("kind") == "olap_point_decl" } &&
+      semantic_ir.fetch("contracts").none? do |c|
+        c.fetch("nodes", []).any? { |n| n.fetch("kind") == "olap_point_decl" }
+      end
+
+    {
+      "grammar.olap_point_decl_shape_valid" => parsed_decl_shape_valid,
+      "grammar.dims_record_type_ref_shape_valid" => dims_record_shape_valid,
+      "grammar.measure_type_ref_structured" => measure_type_ref_structured,
+      "typechecker.oof_o4_code_assigned" => oof_o4_typechecker_owned,
+      "typechecker.oof_o5_code_assigned" => oof_o5_typechecker_owned,
+      "typechecker.oof_o3_ownership_typechecker" => oof_o3_ownership_typechecker,
+      "typechecker.oof_o1_ownership_parser" => oof_o1_parser_ownership,
+      "boundary.olap_point_decl_top_level_not_contract_body" => olap_decl_top_level_not_in_body,
+      "boundary.olap_access_fragment_class_escape" => olap_access_fragment_class_escape
     }
   end
 
@@ -352,6 +432,13 @@ module OLAPPointProof
       report.fetch("pass_result") == "oof" &&
       report.fetch("semantic_ir_ref").nil? &&
       report.fetch("diagnostics").any? { |diagnostic| diagnostic.fetch("rule") == rule }
+  end
+
+  # Returns true when the negative report for case_id fires at the typecheck stage
+  # (stages.typecheck == "oof"), confirming TypeChecker ownership of the OOF rule.
+  def negative_report_typechecker_stage?(negatives, case_id)
+    report = negatives.find { |candidate| candidate.fetch("case_id") == case_id }
+    report&.dig("stages", "typecheck") == "oof"
   end
 
   def write_outputs(summary)

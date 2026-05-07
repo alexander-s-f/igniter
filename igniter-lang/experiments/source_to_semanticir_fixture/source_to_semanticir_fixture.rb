@@ -541,7 +541,7 @@ module SourceToSemanticIRFixture
       "negative.evidence_less_alert" => negative_report_only?(outputs, "negative_evidence_less_alert", "OOF-OS2"),
       "negative.confidence_bool" => negative_report_only?(outputs, "negative_confidence_bool", "OOF-CE4"),
       "stdlib.monomorphic_ops" => monomorphic_ops?(outputs),
-      "golden.ast_outputs" => golden_count(".parsed_ast.json", 6),
+      "golden.ast_outputs" => golden_count(".parsed_ast.json", 9),
       "golden.semanticir_outputs" => golden_count(".semantic_ir.json", 3),
       "golden.compilation_report_outputs" => golden_count(".compilation_report.json", 6)
     }

@@ -1,0 +1,122 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/2013d82b7eb5c95d",
+  "source_path": "negative_stream_direct_use.ig",
+  "source_hash": "sha256:460982c7d7a3b51768689990987094d6fa1713e96e5340e8f652373ebae0e160",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.StreamClassifier",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.StreamClassifier.StreamDirectUse",
+      "name": "StreamDirectUse",
+      "fragment_class": "oof",
+      "symbols": [
+        {
+          "name": "bad_direct",
+          "kind": "compute",
+          "fragment_class": "oof"
+        },
+        {
+          "name": "device_id",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "readings",
+          "kind": "stream",
+          "fragment_class": "escape"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:device_id",
+          "kind": "input",
+          "name": "device_id",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "escape:stream_input",
+          "kind": "escape",
+          "name": "stream_input",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "stream:readings",
+          "kind": "stream",
+          "name": "readings",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        },
+        {
+          "decl_id": "compute:bad_direct",
+          "kind": "compute",
+          "name": "bad_direct",
+          "fragment_class": "oof",
+          "deps": [
+            "readings"
+          ],
+          "missing_refs": [],
+          "expr_kind": "ref",
+          "expr": {
+            "kind": "ref",
+            "name": "readings"
+          }
+        },
+        {
+          "decl_id": "output:bad_direct",
+          "kind": "output",
+          "name": "bad_direct",
+          "fragment_class": "oof",
+          "deps": [
+            "bad_direct"
+          ],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:device_id",
+          "escape:stream_input",
+          "stream:readings",
+          "compute:bad_direct",
+          "output:bad_direct"
+        ],
+        "edges": [
+          {
+            "from": "compute:bad_direct",
+            "to": "output:bad_direct",
+            "kind": "symbol"
+          }
+        ]
+      },
+      "oof_log": [
+        {
+          "rule": "OOF-S4",
+          "message": "Direct use of stream 'readings' is OOF - use fold_stream instead",
+          "node": "bad_direct",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "oof_log": [
+    {
+      "rule": "OOF-S4",
+      "message": "Direct use of stream 'readings' is OOF - use fold_stream instead",
+      "node": "bad_direct",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

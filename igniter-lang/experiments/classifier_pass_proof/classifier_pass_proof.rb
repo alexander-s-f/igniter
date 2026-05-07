@@ -1,17 +1,18 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "digest"
 require "fileutils"
 require "json"
 require "pathname"
+
+require_relative "../../lib/igniter_lang/classifier"
 
 module ClassifierPassProof
   ROOT = File.expand_path("../../..", __dir__)
   FIXTURE_INPUT_DIR = File.expand_path("../source_to_semanticir_fixture", __dir__)
   PARSED_DIR = File.join(FIXTURE_INPUT_DIR, "golden")
   GOLDEN_DIR = File.join(__dir__, "golden")
-  CLASSIFIER_VERSION = "classifier-pass-executable-proof-v0"
+  CLASSIFIER_VERSION = IgniterLang::Classifier::DEFAULT_VERSION
 
   CASES = {
     "add" => {
@@ -88,224 +89,29 @@ module ClassifierPassProof
           "confidence_label" => "high"
         }
       }
+    },
+    "stream_ingress_escape" => {
+      parsed: "stream_ingress_escape.parsed_ast.json",
+      expected_contract: "StreamIngressEscape",
+      expected_fragment: "escape",
+      expected_rules: [],
+      sample_input: { "device_id" => "dev-001" }
+    },
+    "stream_fold_core" => {
+      parsed: "stream_fold_core.parsed_ast.json",
+      expected_contract: "StreamFoldCore",
+      expected_fragment: "escape",
+      expected_rules: [],
+      sample_input: { "device_id" => "dev-001" }
+    },
+    "negative_stream_direct_use" => {
+      parsed: "negative_stream_direct_use.parsed_ast.json",
+      expected_contract: "StreamDirectUse",
+      expected_fragment: "oof",
+      expected_rules: ["OOF-S4"],
+      sample_input: { "device_id" => "dev-001" }
     }
   }.freeze
-
-  class ClassifierPass
-    def classify(parsed_program, sample_input:)
-      contracts = parsed_program.fetch("contracts").map do |contract|
-        classify_contract(parsed_program, contract, sample_input)
-      end
-
-      {
-        "kind" => "classified_program",
-        "classifier_version" => CLASSIFIER_VERSION,
-        "program_id" => program_id(parsed_program),
-        "source_path" => parsed_program.fetch("source_path"),
-        "source_hash" => parsed_program.fetch("source_hash"),
-        "grammar_version" => parsed_program.fetch("grammar_version"),
-        "module" => parsed_program.fetch("module"),
-        "type_declarations" => type_declarations(parsed_program),
-        "contracts" => contracts,
-        "oof_log" => contracts.flat_map { |contract| contract.fetch("oof_log") },
-        "semantic_ir_ref" => nil
-      }
-    end
-
-    def type_declarations(parsed_program)
-      parsed_program.fetch("types", []).map do |type|
-        {
-          "kind" => "type",
-          "name" => type.fetch("name"),
-          "fields" => type.fetch("fields", []).map do |field|
-            {
-              "name" => field.fetch("name"),
-              "type_annotation" => normalize_type(field.fetch("type_annotation")),
-              "optional" => field.fetch("optional", false)
-            }
-          end
-        }
-      end
-    end
-
-    private
-
-    def program_id(parsed_program)
-      seed = [
-        parsed_program.fetch("source_path"),
-        parsed_program.fetch("grammar_version"),
-        parsed_program.fetch("source_hash"),
-        CLASSIFIER_VERSION
-      ].join("|")
-      "classifier_pass/#{Digest::SHA256.hexdigest(seed)[0, 16]}"
-    end
-
-    def classify_contract(parsed_program, contract, sample_input)
-      diagnostics = []
-      declarations = []
-      symbol_fragments = {}
-      symbol_kinds = {}
-      compute_exprs = {}
-
-      contract.fetch("body").each do |node|
-        case node.fetch("kind")
-        when "input"
-          symbol_fragments[node.fetch("name")] = "core"
-          symbol_kinds[node.fetch("name")] = "input"
-          declarations << classified_decl(node, "core", [], [])
-        when "compute"
-          deps = expr_refs(node.fetch("expr"))
-          missing = deps.reject { |dep| symbol_fragments.key?(dep) }
-          missing.each do |name|
-            diagnostics << oof("OOF-P1", "Unresolved symbol: #{name}", node.fetch("name"))
-          end
-          upstream_oof = deps.any? { |dep| symbol_fragments[dep] == "oof" }
-          fragment = missing.empty? && !upstream_oof ? "core" : "oof"
-          symbol_fragments[node.fetch("name")] = fragment
-          symbol_kinds[node.fetch("name")] = "compute"
-          compute_exprs[node.fetch("name")] = node.fetch("expr")
-          declarations << classified_decl(node, fragment, deps, missing)
-        when "output"
-          name = node.fetch("name")
-          missing = symbol_fragments.key?(name) ? [] : [name]
-          diagnostics << oof("OOF-P1", "Unresolved output source: #{name}", name) unless missing.empty?
-          fragment = missing.empty? && symbol_fragments.fetch(name) == "core" ? "core" : "oof"
-          confidence_oof = confidence_as_bool_oof(node, compute_exprs[name])
-          diagnostics << confidence_oof if confidence_oof
-          fragment = "oof" if confidence_oof
-          declarations << classified_decl(node, fragment, [name], missing)
-        end
-      end
-
-      diagnostics.concat(evidence_gate_oofs(contract, sample_input))
-      contract_fragment = diagnostics.empty? && declarations.all? { |decl| decl.fetch("fragment_class") == "core" } ? "core" : "oof"
-
-      {
-        "kind" => "classified_contract",
-        "contract_id" => contract_id(parsed_program, contract),
-        "name" => contract.fetch("name"),
-        "fragment_class" => contract_fragment,
-        "symbols" => symbol_table(symbol_kinds, symbol_fragments),
-        "declarations" => declarations,
-        "dependency_graph" => dependency_graph(declarations),
-        "oof_log" => diagnostics
-      }
-    end
-
-    def contract_id(parsed_program, contract)
-      [parsed_program.fetch("module"), contract.fetch("name")].compact.join(".")
-    end
-
-    def classified_decl(node, fragment, deps, missing)
-      result = {
-        "decl_id" => decl_id(node),
-        "kind" => node.fetch("kind"),
-        "name" => node.fetch("name"),
-        "fragment_class" => fragment,
-        "deps" => deps,
-        "missing_refs" => missing
-      }
-      result["type_annotation"] = normalize_type(node["type_annotation"]) if node.key?("type_annotation")
-      if node.key?("expr")
-        result["expr_kind"] = node.fetch("expr").fetch("kind")
-        result["expr"] = node.fetch("expr")
-      end
-      result
-    end
-
-    def decl_id(node)
-      "#{node.fetch("kind")}:#{node.fetch("name")}"
-    end
-
-    def symbol_table(symbol_kinds, symbol_fragments)
-      symbol_kinds.keys.sort.map do |name|
-        {
-          "name" => name,
-          "kind" => symbol_kinds.fetch(name),
-          "fragment_class" => symbol_fragments.fetch(name)
-        }
-      end
-    end
-
-    def dependency_graph(declarations)
-      declaration_ids = declarations.map { |decl| decl.fetch("decl_id") }
-      symbol_producers = declarations.each_with_object({}) do |decl, index|
-        next unless %w[input compute].include?(decl.fetch("kind"))
-
-        index[decl.fetch("name")] = decl.fetch("decl_id")
-      end
-      edges = declarations.flat_map do |decl|
-        decl.fetch("deps").filter_map do |dep|
-          from = symbol_producers[dep]
-          next unless from
-
-          { "from" => from, "to" => decl.fetch("decl_id"), "kind" => "symbol" }
-        end
-      end
-      { "nodes" => declaration_ids, "edges" => edges }
-    end
-
-    def expr_refs(expr)
-      case expr.fetch("kind")
-      when "ref"
-        [expr.fetch("name")]
-      when "field_access"
-        expr_refs(expr.fetch("object"))
-      when "binary_op"
-        expr_refs(expr.fetch("left")) + expr_refs(expr.fetch("right"))
-      when "call"
-        [expr.fetch("fn")] + expr.fetch("args", []).flat_map { |arg| expr_refs(arg) }
-      when "literal", "symbol"
-        []
-      else
-        expr.values.flat_map { |value| value.is_a?(Hash) ? expr_refs(value) : [] }
-      end.uniq
-    end
-
-    def confidence_as_bool_oof(output_node, expr)
-      return nil unless normalize_type(output_node.fetch("type_annotation")) == "Bool"
-      return nil unless confidence_label_expr?(expr)
-
-      oof("OOF-CE4", "ConfidenceLabel cannot be used as Bool", output_node.fetch("name"))
-    end
-
-    def confidence_label_expr?(expr)
-      return false unless expr
-      return true if expr.fetch("kind") == "field_access" && expr.fetch("field") == "confidence_label"
-
-      false
-    end
-
-    def evidence_gate_oofs(contract, sample_input)
-      return [] unless evidence_alert_contract?(contract)
-
-      alert = sample_input.fetch("alert", {})
-      diagnostics = []
-      if alert.fetch("signal_count", 0) < 1 || alert.fetch("claim_count", 0) < 1
-        diagnostics << oof(
-          "OOF-OS2",
-          "EvidenceLinkedAlert requires non-empty signal_refs and claim_refs",
-          contract.fetch("name")
-        )
-      end
-      diagnostics
-    end
-
-    def evidence_alert_contract?(contract)
-      contract.fetch("body").any? do |node|
-        node.fetch("kind") == "input" &&
-          normalize_type(node.fetch("type_annotation")) == "EvidenceLinkedAlertInput"
-      end
-    end
-
-    def normalize_type(type)
-      type.is_a?(Hash) ? type.fetch("name") : type.to_s
-    end
-
-    def oof(rule, message, node_name)
-      { "rule" => rule, "message" => message, "node" => node_name, "line" => nil }
-    end
-  end
 
   module_function
 
@@ -327,7 +133,7 @@ module ClassifierPassProof
   end
 
   def build_outputs
-    classifier = ClassifierPass.new
+    classifier = IgniterLang::Classifier.new(classifier_version: CLASSIFIER_VERSION)
     CASES.each_with_object({}) do |(case_id, config), outputs|
       parsed = read_json(File.join(PARSED_DIR, config.fetch(:parsed)))
       classified = classifier.classify(parsed, sample_input: config.fetch(:sample_input))
@@ -346,9 +152,14 @@ module ClassifierPassProof
       "classified.add" => classified_ok?(outputs, "add"),
       "classified.claim_evidence" => classified_ok?(outputs, "claim_evidence"),
       "classified.evidence_linked_alert" => classified_ok?(outputs, "evidence_linked_alert"),
+      "classified.stream_ingress_escape" => classified_ok?(outputs, "stream_ingress_escape"),
+      "classified.stream_fold_core" => classified_ok?(outputs, "stream_fold_core"),
       "core.add_propagates" => core_propagates?(outputs, "add"),
       "core.claim_evidence_propagates" => core_propagates?(outputs, "claim_evidence"),
       "core.evidence_linked_alert_propagates" => core_propagates?(outputs, "evidence_linked_alert"),
+      "stream.sc1_ingress_escape" => stream_ingress_escape?(outputs),
+      "stream.sc2_direct_use_oof_s4" => rules_match?(outputs, "negative_stream_direct_use"),
+      "stream.sc3_fold_result_core" => stream_fold_result_core?(outputs),
       "negative.unresolved_symbol" => rules_match?(outputs, "negative_unresolved_symbol"),
       "negative.evidence_less_alert" => rules_match?(outputs, "negative_evidence_less_alert"),
       "negative.confidence_bool" => rules_match?(outputs, "negative_confidence_bool"),
@@ -412,6 +223,18 @@ module ClassifierPassProof
 
   def only_contract(result)
     result.fetch(:classified).fetch("contracts").fetch(0)
+  end
+
+  def stream_ingress_escape?(outputs)
+    contract = only_contract(outputs.fetch("stream_ingress_escape"))
+    stream_decl = contract.fetch("declarations").find { |decl| decl.fetch("kind") == "stream" }
+    stream_decl&.fetch("fragment_class") == "escape"
+  end
+
+  def stream_fold_result_core?(outputs)
+    contract = only_contract(outputs.fetch("stream_fold_core"))
+    fold_decl = contract.fetch("declarations").find { |decl| decl.fetch("kind") == "fold_stream" }
+    fold_decl&.fetch("fragment_class") == "core"
   end
 
   def read_json(path)

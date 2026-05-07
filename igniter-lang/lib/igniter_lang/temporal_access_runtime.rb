@@ -8,7 +8,8 @@ module IgniterLang
   module TemporalAccessRuntime
     module Capabilities
       HISTORY_READ = "history_read"
-      BITEMPORAL_READ = "bitemporal_read"
+      BIHISTORY_READ = "bihistory_read"
+      BITEMPORAL_READ = BIHISTORY_READ
 
       module_function
 
@@ -17,10 +18,15 @@ module IgniterLang
         when "single", "valid_time"
           [HISTORY_READ]
         when "bitemporal"
-          [HISTORY_READ, BITEMPORAL_READ]
+          [BIHISTORY_READ]
         else
           []
         end
+      end
+
+      def axis_for(access_node, input_node)
+        axis = access_node["axis"] || input_node["axis"]
+        axis == "single" ? "valid_time" : axis
       end
     end
 
@@ -87,6 +93,134 @@ module IgniterLang
         @axis = axis
         @value = value
         super("#{axis} must be ISO8601 DateTime")
+      end
+    end
+
+    class CapabilityError < StandardError
+      attr_reader :capability, :node
+
+      def initialize(capability, node)
+        @capability = capability
+        @node = node
+        super("temporal access requires capability: #{capability}")
+      end
+    end
+
+    class BackendContractError < StandardError
+      attr_reader :method_name, :axis
+
+      def initialize(method_name, axis)
+        @method_name = method_name
+        @axis = axis
+        super("temporal access backend must implement #{method_name} for #{axis}")
+      end
+    end
+
+    class RuntimeMachineHook
+      def initialize(backend:, capabilities: nil)
+        @backend = backend
+        @capabilities = Array(capabilities || infer_capabilities(backend))
+        @evaluator = SemanticIRTemporalAccessEvaluator.new(backend)
+      end
+
+      def load_check(contract:, requirements: {})
+        nodes = contract.fetch("nodes", [])
+        temporal_inputs = temporal_inputs_for(nodes)
+        checks = nodes
+          .select { |node| node.fetch("kind") == "temporal_access_node" }
+          .map { |node| load_check_node(node, temporal_inputs, requirements) }
+        {
+          "kind" => "temporal_access_hook_load_check",
+          "status" => checks.all? { |check| check.fetch("status") == "ok" } ? "ok" : "blocked",
+          "checks" => checks
+        }
+      end
+
+      def evaluate(access_node, temporal_inputs:, inputs:)
+        input_node = temporal_inputs.fetch(access_node.fetch("source_ref"))
+        axis = Capabilities.axis_for(access_node, input_node)
+        ensure_capabilities!(Capabilities.for_axis(axis), access_node)
+        ensure_backend_contract!(axis)
+        @evaluator.evaluate(access_node, temporal_inputs: temporal_inputs, inputs: inputs)
+      end
+
+      private
+
+      def load_check_node(access_node, temporal_inputs, requirements)
+        input_node = temporal_inputs.fetch(access_node.fetch("source_ref"))
+        axis = Capabilities.axis_for(access_node, input_node)
+        required = Capabilities.for_axis(axis)
+        declared = Array(requirements.dig("capabilities", "required_caps"))
+        missing_declared_caps = declared.empty? ? [] : required.reject { |capability| declared.include?(capability) }
+        missing_caps = required.reject { |capability| capability_available?(capability) }
+        missing_methods = backend_methods_for(axis).reject { |method_name| @backend.respond_to?(method_name) }
+        {
+          "node" => access_node.fetch("name"),
+          "axis" => axis,
+          "required_capabilities" => required,
+          "declared_capabilities" => declared,
+          "missing_declared_capabilities" => missing_declared_caps,
+          "missing_capabilities" => missing_caps,
+          "required_backend_methods" => backend_methods_for(axis).map(&:to_s),
+          "missing_backend_methods" => missing_methods.map(&:to_s),
+          "status" => missing_declared_caps.empty? && missing_caps.empty? && missing_methods.empty? ? "ok" : "blocked"
+        }
+      rescue KeyError => e
+        {
+          "node" => access_node.fetch("name", nil),
+          "axis" => nil,
+          "required_capabilities" => [],
+          "declared_capabilities" => [],
+          "missing_declared_capabilities" => [],
+          "missing_capabilities" => [],
+          "required_backend_methods" => [],
+          "missing_backend_methods" => [],
+          "status" => "blocked",
+          "error" => e.message
+        }
+      end
+
+      def ensure_capabilities!(required, access_node)
+        required.each do |capability|
+          raise CapabilityError.new(capability, access_node) unless capability_available?(capability)
+        end
+      end
+
+      def ensure_backend_contract!(axis)
+        backend_methods_for(axis).each do |method_name|
+          raise BackendContractError.new(method_name, axis) unless @backend.respond_to?(method_name)
+        end
+      end
+
+      def backend_methods_for(axis)
+        case axis
+        when "valid_time"
+          [:read_as_of]
+        when "bitemporal"
+          [:bihistory_at]
+        else
+          []
+        end
+      end
+
+      def capability_available?(capability)
+        return true if @capabilities.include?(capability)
+        return @backend.supports_capability?(capability) if @backend.respond_to?(:supports_capability?)
+
+        false
+      end
+
+      def infer_capabilities(backend)
+        capabilities = []
+        capabilities << Capabilities::HISTORY_READ if backend.respond_to?(:read_as_of)
+        capabilities << Capabilities::BIHISTORY_READ if backend.respond_to?(:bihistory_at)
+        capabilities
+      end
+
+      def temporal_inputs_for(nodes)
+        nodes
+          .select { |node| node.fetch("kind") == "temporal_input_node" }
+          .to_h { |node| [node.fetch("name"), node] }
       end
     end
 

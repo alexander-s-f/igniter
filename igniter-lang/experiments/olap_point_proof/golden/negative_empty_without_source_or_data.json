@@ -21,6 +21,6 @@
     "classify": "ok",
     "emit": "skipped",
     "parse": "proof_local_sketch",
-    "typecheck": "skipped"
+    "typecheck": "oof"
   }
 }

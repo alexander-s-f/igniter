@@ -1,0 +1,260 @@
+# frozen_string_literal: true
+
+require "digest"
+
+module IgniterLang
+  class Classifier
+    DEFAULT_VERSION = "classifier-pass-executable-proof-v0"
+
+    def initialize(classifier_version: DEFAULT_VERSION)
+      @classifier_version = classifier_version
+    end
+
+    def classify(parsed_program, sample_input:)
+      contracts = parsed_program.fetch("contracts").map do |contract|
+        classify_contract(parsed_program, contract, sample_input)
+      end
+
+      {
+        "kind" => "classified_program",
+        "classifier_version" => @classifier_version,
+        "program_id" => program_id(parsed_program),
+        "source_path" => parsed_program.fetch("source_path"),
+        "source_hash" => parsed_program.fetch("source_hash"),
+        "grammar_version" => parsed_program.fetch("grammar_version"),
+        "module" => parsed_program.fetch("module"),
+        "type_declarations" => type_declarations(parsed_program),
+        "contracts" => contracts,
+        "oof_log" => contracts.flat_map { |contract| contract.fetch("oof_log") },
+        "semantic_ir_ref" => nil
+      }
+    end
+
+    def type_declarations(parsed_program)
+      parsed_program.fetch("types", []).map do |type|
+        {
+          "kind" => "type",
+          "name" => type.fetch("name"),
+          "fields" => type.fetch("fields", []).map do |field|
+            {
+              "name" => field.fetch("name"),
+              "type_annotation" => normalize_type(field.fetch("type_annotation")),
+              "optional" => field.fetch("optional", false)
+            }
+          end
+        }
+      end
+    end
+
+    private
+
+    def program_id(parsed_program)
+      seed = [
+        parsed_program.fetch("source_path"),
+        parsed_program.fetch("grammar_version"),
+        parsed_program.fetch("source_hash"),
+        @classifier_version
+      ].join("|")
+      "classifier_pass/#{Digest::SHA256.hexdigest(seed)[0, 16]}"
+    end
+
+    def classify_contract(parsed_program, contract, sample_input)
+      diagnostics = []
+      declarations = []
+      symbol_fragments = {}
+      symbol_kinds = {}
+      compute_exprs = {}
+
+      contract.fetch("body").each do |node|
+        case node.fetch("kind")
+        when "input"
+          symbol_fragments[node.fetch("name")] = "core"
+          symbol_kinds[node.fetch("name")] = "input"
+          declarations << classified_decl(node, "core", [], [])
+        when "escape"
+          declarations << classified_decl(node, "escape", [], [])
+        when "stream"
+          symbol_fragments[node.fetch("name")] = "escape"
+          symbol_kinds[node.fetch("name")] = "stream"
+          declarations << classified_decl(node, "escape", [], [])
+        when "read"
+          symbol_fragments[node.fetch("name")] = "escape"
+          symbol_kinds[node.fetch("name")] = "read"
+          declarations << classified_decl(node, "escape", [], [])
+        when "window"
+          declarations << classified_decl(node.merge("name" => node.fetch("label", "_window")), "escape", [], [])
+        when "fold_stream"
+          bound = node.fetch("bound", nil)
+          result_fragment = bound ? "core" : "oof"
+          deps = expr_refs(node.fetch("expr", { "kind" => "literal", "value" => nil }))
+          symbol_fragments[node.fetch("name")] = result_fragment
+          symbol_kinds[node.fetch("name")] = "fold_stream"
+          declarations << classified_decl(node, result_fragment, deps, [])
+        when "compute"
+          deps = expr_refs(node.fetch("expr"))
+          missing = deps.reject { |dep| symbol_fragments.key?(dep) }
+          missing.each do |name|
+            diagnostics << oof("OOF-P1", "Unresolved symbol: #{name}", node.fetch("name"))
+          end
+          stream_deps = deps.select { |dep| symbol_kinds[dep] == "stream" }
+          stream_deps.each do |stream_name|
+            diagnostics << oof("OOF-S4", "Direct use of stream '#{stream_name}' is OOF - use fold_stream instead", node.fetch("name"))
+          end
+          upstream_oof = deps.any? { |dep| symbol_fragments[dep] == "oof" }
+          fragment = missing.empty? && stream_deps.empty? && !upstream_oof ? "core" : "oof"
+          symbol_fragments[node.fetch("name")] = fragment
+          symbol_kinds[node.fetch("name")] = "compute"
+          compute_exprs[node.fetch("name")] = node.fetch("expr")
+          declarations << classified_decl(node, fragment, deps, missing)
+        when "output"
+          name = node.fetch("name")
+          missing = symbol_fragments.key?(name) ? [] : [name]
+          diagnostics << oof("OOF-P1", "Unresolved output source: #{name}", name) unless missing.empty?
+          src_fragment = symbol_fragments.fetch(name, "oof")
+          fragment = missing.empty? && src_fragment == "core" ? "core" : "oof"
+          confidence_oof = confidence_as_bool_oof(node, compute_exprs[name])
+          diagnostics << confidence_oof if confidence_oof
+          fragment = "oof" if confidence_oof
+          declarations << classified_decl(node, fragment, [name], missing)
+        end
+      end
+
+      diagnostics.concat(evidence_gate_oofs(contract, sample_input))
+      contract_fragment = contract_fragment_for(declarations, diagnostics)
+
+      {
+        "kind" => "classified_contract",
+        "contract_id" => contract_id(parsed_program, contract),
+        "name" => contract.fetch("name"),
+        "fragment_class" => contract_fragment,
+        "symbols" => symbol_table(symbol_kinds, symbol_fragments),
+        "declarations" => declarations,
+        "dependency_graph" => dependency_graph(declarations),
+        "oof_log" => diagnostics
+      }
+    end
+
+    def contract_fragment_for(declarations, diagnostics)
+      return "oof" unless diagnostics.empty?
+      return "core" if declarations.all? { |decl| decl.fetch("fragment_class") == "core" }
+      return "escape" if declarations.any? { |decl| decl.fetch("fragment_class") == "escape" } &&
+                         declarations.none? { |decl| decl.fetch("fragment_class") == "oof" }
+
+      "oof"
+    end
+
+    def contract_id(parsed_program, contract)
+      [parsed_program.fetch("module"), contract.fetch("name")].compact.join(".")
+    end
+
+    def classified_decl(node, fragment, deps, missing)
+      result = {
+        "decl_id" => decl_id(node),
+        "kind" => node.fetch("kind"),
+        "name" => node.fetch("name"),
+        "fragment_class" => fragment,
+        "deps" => deps,
+        "missing_refs" => missing
+      }
+      result["type_annotation"] = normalize_type(node["type_annotation"]) if node.key?("type_annotation")
+      if node.key?("expr")
+        result["expr_kind"] = node.fetch("expr").fetch("kind")
+        result["expr"] = node.fetch("expr")
+      end
+      result
+    end
+
+    def decl_id(node)
+      "#{node.fetch("kind")}:#{node.fetch("name")}"
+    end
+
+    def symbol_table(symbol_kinds, symbol_fragments)
+      symbol_kinds.keys.sort.map do |name|
+        {
+          "name" => name,
+          "kind" => symbol_kinds.fetch(name),
+          "fragment_class" => symbol_fragments.fetch(name)
+        }
+      end
+    end
+
+    def dependency_graph(declarations)
+      declaration_ids = declarations.map { |decl| decl.fetch("decl_id") }
+      symbol_producers = declarations.each_with_object({}) do |decl, index|
+        next unless %w[input compute].include?(decl.fetch("kind"))
+
+        index[decl.fetch("name")] = decl.fetch("decl_id")
+      end
+      edges = declarations.flat_map do |decl|
+        decl.fetch("deps").filter_map do |dep|
+          from = symbol_producers[dep]
+          next unless from
+
+          { "from" => from, "to" => decl.fetch("decl_id"), "kind" => "symbol" }
+        end
+      end
+      { "nodes" => declaration_ids, "edges" => edges }
+    end
+
+    def expr_refs(expr)
+      case expr.fetch("kind")
+      when "ref"
+        [expr.fetch("name")]
+      when "field_access"
+        expr_refs(expr.fetch("object"))
+      when "binary_op"
+        expr_refs(expr.fetch("left")) + expr_refs(expr.fetch("right"))
+      when "call"
+        [expr.fetch("fn")] + expr.fetch("args", []).flat_map { |arg| expr_refs(arg) }
+      when "literal", "symbol"
+        []
+      else
+        expr.values.flat_map { |value| value.is_a?(Hash) ? expr_refs(value) : [] }
+      end.uniq
+    end
+
+    def confidence_as_bool_oof(output_node, expr)
+      return nil unless normalize_type(output_node.fetch("type_annotation")) == "Bool"
+      return nil unless confidence_label_expr?(expr)
+
+      oof("OOF-CE4", "ConfidenceLabel cannot be used as Bool", output_node.fetch("name"))
+    end
+
+    def confidence_label_expr?(expr)
+      return false unless expr
+      return true if expr.fetch("kind") == "field_access" && expr.fetch("field") == "confidence_label"
+
+      false
+    end
+
+    def evidence_gate_oofs(contract, sample_input)
+      return [] unless evidence_alert_contract?(contract)
+
+      alert = sample_input.fetch("alert", {})
+      diagnostics = []
+      if alert.fetch("signal_count", 0) < 1 || alert.fetch("claim_count", 0) < 1
+        diagnostics << oof(
+          "OOF-OS2",
+          "EvidenceLinkedAlert requires non-empty signal_refs and claim_refs",
+          contract.fetch("name")
+        )
+      end
+      diagnostics
+    end
+
+    def evidence_alert_contract?(contract)
+      contract.fetch("body").any? do |node|
+        node.fetch("kind") == "input" &&
+          normalize_type(node.fetch("type_annotation")) == "EvidenceLinkedAlertInput"
+      end
+    end
+
+    def normalize_type(type)
+      type.is_a?(Hash) ? type.fetch("name") : type.to_s
+    end
+
+    def oof(rule, message, node_name)
+      { "rule" => rule, "message" => message, "node" => node_name, "line" => nil }
+    end
+  end
+end
