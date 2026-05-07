@@ -1,7 +1,7 @@
 {
   "kind": "production_compiler_cli_proof",
   "format_version": "0.1.0",
-  "track": "production-compiler-diagnostics-implementation-v0",
+  "track": "compiler-package-boundary-v0",
   "status": "PASS",
   "checks": {
     "compile.add_exit_zero": true,
@@ -14,7 +14,10 @@
     "compile.oof_writes_no_igapp": true,
     "compile.oof_uses_igapp_path": true,
     "compile.oof_diagnostics_have_category": true,
-    "compile.oof_stages_and_warnings": true
+    "compile.oof_stages_and_warnings": true,
+    "package_boundary.direct_api_compile_ok": true,
+    "package_boundary.cli_and_api_same_facade_shape": true,
+    "package_boundary.lib_load_path_facade": true
   },
   "positive": {
     "command": "igniter-lang/bin/igniter-lang compile igniter-lang/experiments/source_to_semanticir_fixture/add.ig --out igniter-lang/experiments/production_compiler_cli/out/add.igapp",
@@ -93,5 +96,58 @@
       ],
       "warnings": []
     }
+  },
+  "direct_api": {
+    "command": "ruby-api IgniterLang.compile igniter-lang/experiments/source_to_semanticir_fixture/add.ig --out ../../../../../private/tmp/igniter_lang_compiler_package_boundary_direct_api.igapp",
+    "status": "ok",
+    "result": {
+      "kind": "compiler_result",
+      "format_version": "0.1.0",
+      "status": "ok",
+      "program_id": "semanticir/e9664d5446df4e46",
+      "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+      "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+      "grammar_version": "0.1.0",
+      "stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok",
+        "assemble": "ok"
+      },
+      "igapp_path": "/private/tmp/igniter_lang_compiler_package_boundary_direct_api.igapp",
+      "compilation_report_ref": "compilation_report/e9664d5446df4e46",
+      "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+      "contracts": [
+        "Add"
+      ],
+      "diagnostics": [],
+      "warnings": [],
+      "runtime_smoke": null,
+      "report": {
+        "kind": "compilation_report",
+        "format_version": "0.1.0",
+        "program_id": "compilation_report/e9664d5446df4e46",
+        "grammar_version": "0.1.0",
+        "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+        "pass_result": "ok",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok"
+        },
+        "diagnostics": [],
+        "semantic_ir_ref": "semanticir/e9664d5446df4e46"
+      }
+    },
+    "igapp_exists": true
+  },
+  "load_path": {
+    "command": "ruby -I igniter-lang/lib -e 'require \"igniter_lang\"'",
+    "exitstatus": 0,
+    "stdout": "compile=true\norchestrator=constant\n",
+    "stderr": ""
   }
 }

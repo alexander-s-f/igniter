@@ -108,26 +108,38 @@
         "severity": "error",
         "status": "satisfied"
       },
-      "kind": "verification_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "audit",
-      "observation_id": "obs/invariant/a68746aaa595212e",
+      "observation_id": "obs/invariant_verification/05c8c6fbe62b8c0c",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     },
     {
       "contract_ref": "contract/Fixture.InvariantSeverity.MedicationDoseReview@v0",
-      "invariant": {
+      "evidence_links": [
+        {
+          "from": "obs/invariant_violation/898590689bedb390",
+          "rel": "runtime_violation_of",
+          "to": "invariant_node/major_interaction_acknowledgement"
+        }
+      ],
+      "kind": "invariant_violation_observation",
+      "lifecycle": "audit",
+      "node": {
+        "blocks_trusted_output": false,
+        "kind": "invariant_violation_node",
         "label": "CG-INTERACTION-02",
         "message": "Major drug interaction requires acknowledgement",
-        "name": "major_interaction_acknowledgement",
         "output_effect": "attach_warning",
         "severity": "warn",
+        "source_node_kind": "invariant_node",
+        "source_node_ref": "major_interaction_acknowledgement",
         "status": "violated"
       },
-      "kind": "warning_observation",
-      "lifecycle": "audit",
-      "observation_id": "obs/invariant/d6654071839cc2c5",
+      "observation_id": "obs/invariant_violation/898590689bedb390",
+      "observation_shape": "runtime_only_not_compile_time_semanticir",
       "output_ref": "medication/synthetic-dose-a",
+      "runtime_policy": "continue_with_warning",
       "subject": "patient/synthetic-invariant-001"
     },
     {
@@ -140,9 +152,9 @@
         "severity": "soft",
         "status": "satisfied"
       },
-      "kind": "verification_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "audit",
-      "observation_id": "obs/invariant/a4c010a5048b0b36",
+      "observation_id": "obs/invariant_verification/a1d4b37fbe67532a",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     },
@@ -156,9 +168,9 @@
         "severity": "metric",
         "status": "satisfied"
       },
-      "kind": "metric_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "metric",
-      "observation_id": "obs/invariant/308c64918cdd5609",
+      "observation_id": "obs/invariant_verification/6fea2b19f5830d45",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     }

@@ -113,18 +113,30 @@
   "observations": [
     {
       "contract_ref": "contract/Fixture.InvariantSeverity.MedicationDoseReview@v0",
-      "invariant": {
+      "evidence_links": [
+        {
+          "from": "obs/invariant_violation/e23b9e6a763fecf6",
+          "rel": "runtime_violation_of",
+          "to": "invariant_node/contraindicated_interaction_block"
+        }
+      ],
+      "kind": "invariant_violation_observation",
+      "lifecycle": "audit",
+      "node": {
+        "blocks_trusted_output": true,
+        "kind": "invariant_violation_node",
         "label": "CG-INTERACTION-01",
         "message": "Contraindicated drug combination - order blocked",
-        "name": "contraindicated_interaction_block",
         "output_effect": "block_trusted_output",
         "severity": "error",
+        "source_node_kind": "invariant_node",
+        "source_node_ref": "contraindicated_interaction_block",
         "status": "violated"
       },
-      "kind": "failure_observation",
-      "lifecycle": "audit",
-      "observation_id": "obs/invariant/86da3f14d7c1a23c",
+      "observation_id": "obs/invariant_violation/e23b9e6a763fecf6",
+      "observation_shape": "runtime_only_not_compile_time_semanticir",
       "output_ref": "medication/synthetic-dose-a",
+      "runtime_policy": "block_output",
       "subject": "patient/synthetic-invariant-001"
     },
     {
@@ -137,9 +149,9 @@
         "severity": "warn",
         "status": "satisfied"
       },
-      "kind": "verification_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "audit",
-      "observation_id": "obs/invariant/e94014c570d07711",
+      "observation_id": "obs/invariant_verification/cf9b1d29ce14f21d",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     },
@@ -153,9 +165,9 @@
         "severity": "soft",
         "status": "satisfied"
       },
-      "kind": "verification_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "audit",
-      "observation_id": "obs/invariant/a4c010a5048b0b36",
+      "observation_id": "obs/invariant_verification/a1d4b37fbe67532a",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     },
@@ -169,9 +181,9 @@
         "severity": "metric",
         "status": "satisfied"
       },
-      "kind": "metric_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "metric",
-      "observation_id": "obs/invariant/308c64918cdd5609",
+      "observation_id": "obs/invariant_verification/6fea2b19f5830d45",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     }

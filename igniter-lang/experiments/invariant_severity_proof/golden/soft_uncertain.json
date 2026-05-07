@@ -108,9 +108,9 @@
         "severity": "error",
         "status": "satisfied"
       },
-      "kind": "verification_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "audit",
-      "observation_id": "obs/invariant/a68746aaa595212e",
+      "observation_id": "obs/invariant_verification/05c8c6fbe62b8c0c",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     },
@@ -124,26 +124,38 @@
         "severity": "warn",
         "status": "satisfied"
       },
-      "kind": "verification_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "audit",
-      "observation_id": "obs/invariant/e94014c570d07711",
+      "observation_id": "obs/invariant_verification/cf9b1d29ce14f21d",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     },
     {
       "contract_ref": "contract/Fixture.InvariantSeverity.MedicationDoseReview@v0",
-      "invariant": {
+      "evidence_links": [
+        {
+          "from": "obs/invariant_violation/058fd161c736c5bc",
+          "rel": "runtime_violation_of",
+          "to": "invariant_node/renal_confidence_gate"
+        }
+      ],
+      "kind": "invariant_violation_observation",
+      "lifecycle": "audit",
+      "node": {
+        "blocks_trusted_output": false,
+        "kind": "invariant_violation_node",
         "label": "CG-RENAL-CONF-01",
         "message": "Low confidence renal function - dose is approximate",
-        "name": "renal_confidence_gate",
         "output_effect": "promote_to_uncertain",
         "severity": "soft",
+        "source_node_kind": "invariant_node",
+        "source_node_ref": "renal_confidence_gate",
         "status": "violated"
       },
-      "kind": "soft_observation",
-      "lifecycle": "audit",
-      "observation_id": "obs/invariant/1626299714c9d223",
+      "observation_id": "obs/invariant_violation/058fd161c736c5bc",
+      "observation_shape": "runtime_only_not_compile_time_semanticir",
       "output_ref": "medication/synthetic-dose-a",
+      "runtime_policy": "continue_as_uncertain",
       "subject": "patient/synthetic-invariant-001"
     },
     {
@@ -156,9 +168,9 @@
         "severity": "metric",
         "status": "satisfied"
       },
-      "kind": "metric_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "metric",
-      "observation_id": "obs/invariant/308c64918cdd5609",
+      "observation_id": "obs/invariant_verification/6fea2b19f5830d45",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     }

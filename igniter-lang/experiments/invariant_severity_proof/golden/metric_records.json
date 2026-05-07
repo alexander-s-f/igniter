@@ -108,9 +108,9 @@
         "severity": "error",
         "status": "satisfied"
       },
-      "kind": "verification_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "audit",
-      "observation_id": "obs/invariant/a68746aaa595212e",
+      "observation_id": "obs/invariant_verification/05c8c6fbe62b8c0c",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     },
@@ -124,9 +124,9 @@
         "severity": "warn",
         "status": "satisfied"
       },
-      "kind": "verification_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "audit",
-      "observation_id": "obs/invariant/e94014c570d07711",
+      "observation_id": "obs/invariant_verification/cf9b1d29ce14f21d",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     },
@@ -140,26 +140,38 @@
         "severity": "soft",
         "status": "satisfied"
       },
-      "kind": "verification_observation",
+      "kind": "invariant_verification_observation",
       "lifecycle": "audit",
-      "observation_id": "obs/invariant/a4c010a5048b0b36",
+      "observation_id": "obs/invariant_verification/a1d4b37fbe67532a",
       "output_ref": "medication/synthetic-dose-a",
       "subject": "patient/synthetic-invariant-001"
     },
     {
       "contract_ref": "contract/Fixture.InvariantSeverity.MedicationDoseReview@v0",
-      "invariant": {
+      "evidence_links": [
+        {
+          "from": "obs/invariant_violation/a3627e96167abd6a",
+          "rel": "runtime_violation_of",
+          "to": "invariant_node/latency_metric"
+        }
+      ],
+      "kind": "invariant_violation_observation",
+      "lifecycle": "metric",
+      "node": {
+        "blocks_trusted_output": false,
+        "kind": "invariant_violation_node",
         "label": "PERF-DOSE-01",
         "message": "Dose computation latency metric",
-        "name": "latency_metric",
         "output_effect": "record_metric",
         "severity": "metric",
+        "source_node_kind": "invariant_node",
+        "source_node_ref": "latency_metric",
         "status": "violated"
       },
-      "kind": "metric_observation",
-      "lifecycle": "metric",
-      "observation_id": "obs/invariant/032cac97aa154502",
+      "observation_id": "obs/invariant_violation/a3627e96167abd6a",
+      "observation_shape": "runtime_only_not_compile_time_semanticir",
       "output_ref": "medication/synthetic-dose-a",
+      "runtime_policy": "continue_record_metric",
       "subject": "patient/synthetic-invariant-001"
     }
   ],

@@ -6,13 +6,12 @@ require "pathname"
 
 require_relative "diagnostics"
 require_relative "../../lib/igniter_lang"
+require_relative "../../lib/igniter_lang/runtime_smoke"
 require_relative "../source_to_semanticir_fixture/source_to_semanticir_fixture"
-require_relative "../runtime_machine_memory_proof/compiled_program"
 
 module ProductionCompilerCLI
   ROOT = Pathname.new(File.expand_path("../../..", __dir__))
   LANG_ROOT = ROOT / "igniter-lang"
-  PROOF_AS_OF = RuntimeMachineMemoryProof::PROOF_AS_OF
 
   class Compiler
     def compile(source_path:, out_path:)
@@ -20,7 +19,7 @@ module ProductionCompilerCLI
         source_path: source_path,
         out_path: out_path,
         sample_input_resolver: method(:sample_input_for),
-        runtime_smoke: ->(out_path:, sample_input:) { RuntimeSmoke.run(out_path: out_path, sample_input: sample_input) }
+        runtime_smoke: IgniterLang::RuntimeSmoke.callback
       )
       orchestration.fetch("result")
     end
@@ -68,51 +67,6 @@ module ProductionCompilerCLI
       when "String" then "synthetic"
       else {}
       end
-    end
-
-  end
-
-  module RuntimeSmoke
-    module_function
-
-    def run(out_path:, sample_input:)
-      program = RuntimeMachineMemoryProof::CompiledProgram.load_igapp(out_path)
-      program.validate!
-      contract_id = program.contracts.keys.fetch(0)
-      backend = RuntimeMachineMemoryProof::MemoryTBackend.new
-      machine = RuntimeMachineMemoryProof::RuntimeMachine.new(
-        machine_id: "runtime-machine/production-compiler-cli",
-        session_id: "session/production-compiler-cli",
-        backend: backend
-      )
-      machine.boot
-      load = machine.load_program(program)
-      evaluation = machine.evaluate_program(contract_id, eval_input_for(contract_id, sample_input), as_of: PROOF_AS_OF)
-      checkpoint = machine.checkpoint(horizon: { as_of: PROOF_AS_OF, rule_version: "production-compiler-cli-wrapper-v0" })
-      resume = machine.resume(image: checkpoint.fetch(:semantic_image), requested_as_of: PROOF_AS_OF)
-
-      {
-        "load_status" => load.fetch(:status),
-        "contract_id" => contract_id,
-        "evaluate_status" => evaluation.fetch(:status),
-        "outputs" => evaluation.fetch(:outputs),
-        "compatibility_report_status" => resume.fetch(:status),
-        "trusted" => load.fetch(:status) == "loaded" &&
-          evaluation.fetch(:status) == "ok" &&
-          resume.fetch(:status) == "trusted"
-      }
-    rescue => e
-      {
-        "load_status" => "blocked",
-        "error" => "#{e.class}: #{e.message}",
-        "trusted" => false
-      }
-    end
-
-    def eval_input_for(contract_id, sample_input)
-      return { "a" => 19, "b" => 23 } if contract_id == "Add"
-
-      sample_input
     end
   end
 

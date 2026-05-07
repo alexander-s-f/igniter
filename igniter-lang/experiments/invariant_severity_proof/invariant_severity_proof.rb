@@ -145,27 +145,67 @@ module InvariantSeverityProof
     end
 
     def emit_observation(result, inputs, output)
-      kind = case result.fetch("severity")
-             when "error"
-               result.fetch("status") == "violated" ? "failure_observation" : "verification_observation"
-             when "warn"
-               result.fetch("status") == "violated" ? "warning_observation" : "verification_observation"
-             when "soft"
-               result.fetch("status") == "violated" ? "soft_observation" : "verification_observation"
-             when "metric"
-               "metric_observation"
-             end
+      observation = result.fetch("status") == "violated" ?
+        invariant_violation_observation(result, inputs, output) :
+        invariant_verification_observation(result, inputs, output)
+      observations << observation
+    end
+
+    def invariant_violation_observation(result, inputs, output)
       payload = {
-        "kind" => kind,
+        "kind" => "invariant_violation_observation",
+        "contract_ref" => CONTRACT_REF,
+        "node" => {
+          "kind" => "invariant_violation_node",
+          "source_node_kind" => "invariant_node",
+          "source_node_ref" => result.fetch("name"),
+          "severity" => result.fetch("severity"),
+          "label" => result.fetch("label"),
+          "message" => result.fetch("message"),
+          "status" => result.fetch("status"),
+          "output_effect" => result.fetch("output_effect"),
+          "blocks_trusted_output" => result.fetch("severity") == "error"
+        },
+        "subject" => inputs.fetch("patient_ref"),
+        "output_ref" => output.fetch("medication_ref"),
+        "runtime_policy" => runtime_policy(result.fetch("severity")),
+        "observation_shape" => "runtime_only_not_compile_time_semanticir"
+      }
+      observation_id = "obs/invariant_violation/#{Canonical.short_hash(payload)}"
+      payload.merge(
+        "observation_id" => observation_id,
+        "lifecycle" => result.fetch("severity") == "metric" ? "metric" : "audit",
+        "evidence_links" => [
+          {
+            "rel" => "runtime_violation_of",
+            "from" => observation_id,
+            "to" => "invariant_node/#{result.fetch("name")}"
+          }
+        ]
+      )
+    end
+
+    def invariant_verification_observation(result, inputs, output)
+      payload = {
+        "kind" => "invariant_verification_observation",
         "contract_ref" => CONTRACT_REF,
         "invariant" => result.slice("name", "severity", "label", "message", "status", "output_effect"),
         "subject" => inputs.fetch("patient_ref"),
         "output_ref" => output.fetch("medication_ref")
       }
-      observations << payload.merge(
-        "observation_id" => "obs/invariant/#{Canonical.short_hash(payload)}",
+      payload.merge(
+        "observation_id" => "obs/invariant_verification/#{Canonical.short_hash(payload)}",
         "lifecycle" => result.fetch("severity") == "metric" ? "metric" : "audit"
       )
+    end
+
+    def runtime_policy(severity)
+      case severity
+      when "error" then "block_output"
+      when "warn" then "continue_with_warning"
+      when "soft" then "continue_as_uncertain"
+      when "metric" then "continue_record_metric"
+      end
     end
 
     def diagnostics_for(results)
@@ -239,6 +279,16 @@ module InvariantSeverityProof
       "status" => all_checks.values.all? ? "PASS" : "FAIL",
       "contract" => contract,
       "compilation_report" => report,
+      "compile_time_node_model" => {
+        "node_kind" => "invariant_node",
+        "count" => contract.fetch("invariants").length,
+        "runtime_violation_nodes_emitted" => false
+      },
+      "runtime_observation_model" => {
+        "observation_kind" => "invariant_violation_observation",
+        "node_kind" => "invariant_violation_node",
+        "source_node_kind" => "invariant_node"
+      },
       "cases" => cases,
       "checks" => all_checks
     }
@@ -610,12 +660,29 @@ module InvariantSeverityProof
         cases.dig("metric_records", "metrics", 0, "output_effect") == "record_metric" &&
         cases.dig("metric_records", "output", "warnings").empty? &&
         cases.dig("metric_records", "output", "uncertainty").nil?,
-      "observations.error_failure" => cases.dig("error_blocks", "observations").any? { |obs| obs.fetch("kind") == "failure_observation" },
-      "observations.warn_warning" => cases.dig("warn_allows", "observations").any? { |obs| obs.fetch("kind") == "warning_observation" },
-      "observations.soft_observation" => cases.dig("soft_uncertain", "observations").any? { |obs| obs.fetch("kind") == "soft_observation" },
-      "observations.metric_observation" => cases.dig("metric_records", "observations").any? { |obs| obs.fetch("kind") == "metric_observation" },
+      "observations.compile_time_nodes_remain_invariant_node" => contract_fixture.fetch("invariants").all? { |node| node.fetch("kind") == "invariant_node" },
+      "observations.no_compile_time_violation_nodes" => contract_fixture.fetch("invariants").none? { |node| node.fetch("kind") == "invariant_violation_node" },
+      "observations.error_violation_node" => violation_node_for(cases, "error_blocks", "error").fetch("blocks_trusted_output") == true,
+      "observations.warn_violation_node" => violation_node_for(cases, "warn_allows", "warn").fetch("output_effect") == "attach_warning",
+      "observations.soft_violation_node" => violation_node_for(cases, "soft_uncertain", "soft").fetch("output_effect") == "promote_to_uncertain",
+      "observations.metric_violation_node" => violation_node_for(cases, "metric_records", "metric").fetch("output_effect") == "record_metric",
+      "observations.violation_node_severities" => violation_observations(cases).map { |obs| obs.dig("node", "severity") }.sort == %w[error metric soft warn],
+      "observations.violation_links_compile_time_node" => violation_observations(cases).all? do |obs|
+        obs.fetch("evidence_links").any? { |link| link.fetch("rel") == "runtime_violation_of" && link.fetch("to").start_with?("invariant_node/") }
+      end,
       "report.invariant_coverage_present" => report.fetch("invariant_coverage").length == 4
     }
+  end
+
+  def violation_observations(cases)
+    cases.values.flat_map { |result| result.fetch("observations") }
+      .select { |observation| observation.fetch("kind") == "invariant_violation_observation" }
+  end
+
+  def violation_node_for(cases, case_id, severity)
+    cases.fetch(case_id).fetch("observations")
+      .find { |observation| observation.dig("node", "severity") == severity }
+      .fetch("node")
   end
 
   def write_outputs(summary)
@@ -641,7 +708,7 @@ module InvariantSeverityProof
     puts "error.status: #{summary.dig("cases", "error_blocks", "status")}"
     puts "warn.warnings: #{summary.dig("cases", "warn_allows", "warnings").length}"
     puts "soft.uncertainty: #{summary.dig("cases", "soft_uncertain", "output", "uncertainty", "type_promotion")}"
-    puts "metric.observations: #{summary.dig("cases", "metric_records", "observations").count { |obs| obs.fetch("kind") == "metric_observation" }}"
+    puts "metric.violation_observations: #{summary.dig("cases", "metric_records", "observations").count { |obs| obs.fetch("kind") == "invariant_violation_observation" }}"
     puts "summary: #{SUMMARY_PATH.relative_path_from(ROOT)}"
   end
 end
