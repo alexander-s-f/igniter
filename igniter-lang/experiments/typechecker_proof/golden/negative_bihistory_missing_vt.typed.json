@@ -1,0 +1,142 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/378834db3f59edd5",
+  "classified_program_id": "classifier_pass/8fe35a4887faeabf",
+  "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/negative_bihistory_missing_vt.ig",
+  "source_hash": "sha256:8fe35a4887faeabf272e07dd5a8278b02b05ec3aeb0ce458e613bd6da36f6fe1",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.BiHistoryAxes",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Fixture.BiHistoryAxes.BiHistoryMissingVt",
+      "name": "BiHistoryMissingVt",
+      "status": "blocked",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "avail_at",
+          "type": {
+            "name": "Unknown",
+            "params": []
+          },
+          "resolved": false
+        },
+        {
+          "name": "avail_history",
+          "type": {
+            "kind": "type_ref",
+            "name": "BiHistory",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "resolved": true
+        },
+        {
+          "name": "technician_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:technician_id",
+          "kind": "input",
+          "name": "technician_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "read:avail_history",
+          "kind": "read",
+          "name": "avail_history",
+          "fragment_class": "escape",
+          "type": {
+            "kind": "type_ref",
+            "name": "BiHistory",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "compute:avail_at",
+          "kind": "compute",
+          "name": "avail_at",
+          "fragment_class": "escape",
+          "type": {
+            "name": "Unknown",
+            "params": []
+          },
+          "deps": [],
+          "expr": {
+            "kind": "call",
+            "fn": "bihistory_at",
+            "args": [],
+            "resolved_type": {
+              "name": "Unknown",
+              "params": []
+            },
+            "deps": []
+          }
+        },
+        {
+          "decl_id": "output:avail_at",
+          "kind": "output",
+          "name": "avail_at",
+          "fragment_class": "escape",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "deps": [
+            "avail_at"
+          ]
+        }
+      ],
+      "type_errors": [
+        {
+          "rule": "OOF-BT2",
+          "message": "bihistory_at requires valid_time (vt) argument",
+          "node": "avail_at",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "type_errors": [
+    {
+      "rule": "OOF-BT2",
+      "message": "bihistory_at requires valid_time (vt) argument",
+      "node": "avail_at",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

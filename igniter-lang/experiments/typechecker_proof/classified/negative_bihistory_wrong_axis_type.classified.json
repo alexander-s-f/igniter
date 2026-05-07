@@ -1,0 +1,166 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/9e1a22debebf016b",
+  "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/negative_bihistory_wrong_axis_type.ig",
+  "source_hash": "sha256:9e1a22debebf016bb3d8d20090035252b6b5e0a72f752c4f59c9c1d712803bdc",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.BiHistoryAxes",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.BiHistoryAxes.BiHistoryWrongAxisType",
+      "name": "BiHistoryWrongAxisType",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "technician_id",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "bad_axis",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "transaction_time",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "avail_history",
+          "kind": "read",
+          "fragment_class": "escape"
+        },
+        {
+          "name": "avail_at",
+          "kind": "compute",
+          "fragment_class": "escape"
+        },
+        {
+          "name": "avail_at",
+          "kind": "output",
+          "fragment_class": "escape"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:technician_id",
+          "kind": "input",
+          "name": "technician_id",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "input:bad_axis",
+          "kind": "input",
+          "name": "bad_axis",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "input:transaction_time",
+          "kind": "input",
+          "name": "transaction_time",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "DateTime"
+        },
+        {
+          "decl_id": "escape:history_read",
+          "kind": "escape",
+          "name": "history_read",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "read:avail_history",
+          "kind": "read",
+          "name": "avail_history",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "BiHistory",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "from": "t/{technician_id}/avail",
+          "lifecycle": "durable"
+        },
+        {
+          "decl_id": "compute:avail_at",
+          "kind": "compute",
+          "name": "avail_at",
+          "fragment_class": "escape",
+          "deps": [
+            "avail_history",
+            "bad_axis",
+            "transaction_time"
+          ],
+          "missing_refs": [],
+          "expr": {
+            "kind": "call",
+            "fn": "bihistory_at",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "avail_history"
+              },
+              {
+                "kind": "ref",
+                "name": "bad_axis"
+              },
+              {
+                "kind": "ref",
+                "name": "transaction_time"
+              }
+            ]
+          }
+        },
+        {
+          "decl_id": "output:avail_at",
+          "kind": "output",
+          "name": "avail_at",
+          "fragment_class": "escape",
+          "deps": [
+            "avail_at"
+          ],
+          "missing_refs": [],
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [],
+        "edges": []
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}

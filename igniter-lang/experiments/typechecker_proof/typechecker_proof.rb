@@ -51,6 +51,31 @@ module TypecheckerProof
       expected_contract: "BadConfidenceAsBool",
       expected_status: "blocked",
       expected_rules: ["OOF-CE4"]
+    },
+    "bihistory_valid" => {
+      classified: "bihistory_valid.classified.json",
+      expected_contract: "BiHistoryAxesTest",
+      expected_status: "accepted",
+      expected_rules: [],
+      expected_outputs: { "avail_at" => "Option" }
+    },
+    "negative_bihistory_missing_vt" => {
+      classified: "negative_bihistory_missing_vt.classified.json",
+      expected_contract: "BiHistoryMissingVt",
+      expected_status: "blocked",
+      expected_rules: ["OOF-BT2"]
+    },
+    "negative_bihistory_missing_tt" => {
+      classified: "negative_bihistory_missing_tt.classified.json",
+      expected_contract: "BiHistoryMissingTt",
+      expected_status: "blocked",
+      expected_rules: ["OOF-BT3"]
+    },
+    "negative_bihistory_wrong_axis_type" => {
+      classified: "negative_bihistory_wrong_axis_type.classified.json",
+      expected_contract: "BiHistoryWrongAxisType",
+      expected_status: "blocked",
+      expected_rules: ["OOF-BT4"]
     }
   }.freeze
 
@@ -105,6 +130,11 @@ module TypecheckerProof
       classified_contract.fetch("declarations").each do |decl|
         case decl.fetch("kind")
         when "input"
+          type = type_ir(decl.fetch("type_annotation"))
+          symbol_types[decl.fetch("name")] = type
+          typed_decls << typed_decl(decl, type, nil, [])
+        when "read"
+          # read nodes: History[T] or BiHistory[T] — always ESCAPE, registered in symbol_types
           type = type_ir(decl.fetch("type_annotation"))
           symbol_types[decl.fetch("name")] = type
           typed_decls << typed_decl(decl, type, nil, [])
@@ -176,10 +206,78 @@ module TypecheckerProof
         )
       when "binary_op"
         infer_binary(expr, symbol_types, type_errors, node_name)
+      when "call"
+        infer_call(expr, symbol_types, type_errors, node_name)
       else
         type_errors << oof("OOF-TY0", "Unsupported expression kind: #{expr.fetch("kind")}", node_name)
         typed_expr("unsupported", type_ir("Unknown"), [], "source_kind" => expr.fetch("kind"))
       end
+    end
+
+    def infer_call(expr, symbol_types, type_errors, node_name)
+      fn   = expr.fetch("fn")
+      args = expr.fetch("args")
+      case fn
+      when "history_at"
+        # history_at(history, as_of) -> Option[T]
+        # OOF-H1: missing as_of (arity < 2)
+        if args.length < 2
+          type_errors << oof("OOF-H1", "history_at requires as_of argument", node_name)
+          return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
+        end
+        history_ref = infer_expr(args[0], symbol_types, type_errors, node_name)
+        as_of_ref   = infer_expr(args[1], symbol_types, type_errors, node_name)
+        # OOF-BT1: as_of must be DateTime
+        unless type_name(as_of_ref.fetch("resolved_type")) == "DateTime" ||
+               type_name(as_of_ref.fetch("resolved_type")) == "Unknown"
+          type_errors << oof("OOF-BT1", "history_at: as_of must be DateTime, got #{type_name(as_of_ref.fetch("resolved_type"))}", node_name)
+        end
+        # Result type: Option[inner T of History[T]]
+        result_type = option_type_from(history_ref.fetch("resolved_type"))
+        typed_expr("call", result_type,
+                   history_ref.fetch("deps") + as_of_ref.fetch("deps"),
+                   "fn" => fn, "args" => [history_ref, as_of_ref])
+
+      when "bihistory_at"
+        # bihistory_at(history, vt, tt) -> Option[T]
+        # OOF-BT2: missing vt (arity < 2)
+        if args.length < 2
+          type_errors << oof("OOF-BT2", "bihistory_at requires valid_time (vt) argument", node_name)
+          return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
+        end
+        # OOF-BT3: missing tt (arity < 3)
+        if args.length < 3
+          type_errors << oof("OOF-BT3", "bihistory_at requires transaction_time (tt) argument", node_name)
+          return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
+        end
+        history_ref = infer_expr(args[0], symbol_types, type_errors, node_name)
+        vt_ref      = infer_expr(args[1], symbol_types, type_errors, node_name)
+        tt_ref      = infer_expr(args[2], symbol_types, type_errors, node_name)
+        # OOF-BT4: both vt and tt must be DateTime
+        [vt_ref, tt_ref].each_with_index do |axis_ref, idx|
+          axis_name = idx.zero? ? "valid_time" : "transaction_time"
+          unless type_name(axis_ref.fetch("resolved_type")) == "DateTime" ||
+                 type_name(axis_ref.fetch("resolved_type")) == "Unknown"
+            type_errors << oof("OOF-BT4", "bihistory_at: #{axis_name} must be DateTime, got #{type_name(axis_ref.fetch("resolved_type"))}", node_name)
+          end
+        end
+        result_type = option_type_from(history_ref.fetch("resolved_type"))
+        typed_expr("call", result_type,
+                   history_ref.fetch("deps") + vt_ref.fetch("deps") + tt_ref.fetch("deps"),
+                   "fn" => fn, "args" => [history_ref, vt_ref, tt_ref])
+
+      else
+        # Unknown call — treat args as opaque, emit OOF-TY0
+        type_errors << oof("OOF-TY0", "Unknown function: #{fn}", node_name)
+        typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
+      end
+    end
+
+    # Extract Option[inner] type from History[inner] or BiHistory[inner]
+    def option_type_from(history_type)
+      inner = history_type.fetch("params", []).first
+      inner_name = inner.is_a?(Hash) ? inner.fetch("name", "Unknown") : (inner || "Unknown")
+      { "name" => "Option", "params" => [{ "name" => inner_name, "params" => [] }] }
     end
 
     def infer_binary(expr, symbol_types, type_errors, node_name)
@@ -218,8 +316,13 @@ module TypecheckerProof
       { "kind" => kind }.merge(extra).merge("resolved_type" => type, "deps" => deps.uniq)
     end
 
-    def type_ir(name)
-      { "name" => normalize_type(name), "params" => [] }
+    def type_ir(annotation)
+      return annotation.dup if annotation.is_a?(Hash) && annotation.key?("name")
+
+      name = annotation.is_a?(Hash) ? annotation.fetch("name", "Unknown") : annotation.to_s
+      # Extract params from structured TypeRef if present
+      params = annotation.is_a?(Hash) ? annotation.fetch("params", []).map { |p| type_ir(p) } : []
+      { "name" => name, "params" => params }
     end
 
     def type_name(type)
@@ -257,7 +360,7 @@ module TypecheckerProof
     end
 
     def blocking_rule_present?(errors)
-      %w[OOF-P1 OOF-CE4 OOF-OS2].any? { |rule| rule_present?(errors, rule) }
+      %w[OOF-P1 OOF-CE4 OOF-OS2 OOF-H1 OOF-BT2 OOF-BT3 OOF-BT4].any? { |rule| rule_present?(errors, rule) }
     end
 
     def dedupe_errors(errors)
@@ -306,10 +409,14 @@ module TypecheckerProof
       "typed.add" => accepted_with_outputs?(outputs, "add"),
       "typed.claim_evidence" => accepted_with_outputs?(outputs, "claim_evidence"),
       "typed.evidence_linked_alert" => accepted_with_outputs?(outputs, "evidence_linked_alert"),
+      "typed.bihistory_valid" => accepted_with_outputs?(outputs, "bihistory_valid"),
       "typed.accepted_no_unresolved_types" => accepted_no_unresolved_types?(outputs),
       "negative.unresolved_symbol_blocked" => blocked_with_rules?(outputs, "negative_unresolved_symbol"),
       "negative.evidence_less_alert_blocked" => blocked_with_rules?(outputs, "negative_evidence_less_alert"),
       "negative.confidence_bool_blocked" => blocked_with_rules?(outputs, "negative_confidence_bool"),
+      "negative.bihistory_missing_vt" => blocked_with_rules?(outputs, "negative_bihistory_missing_vt"),
+      "negative.bihistory_missing_tt" => blocked_with_rules?(outputs, "negative_bihistory_missing_tt"),
+      "negative.bihistory_wrong_axis_type" => blocked_with_rules?(outputs, "negative_bihistory_wrong_axis_type"),
       "semanticir.not_emitted" => outputs.values.all? { |result| result.fetch(:typed).fetch("semantic_ir_ref").nil? },
       "boundary.classified_inputs_present" => classified_inputs_present?(classified_dir),
       "boundary.classified_program_input_only" => classified_program_input_only?(outputs),

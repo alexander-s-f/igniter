@@ -1,0 +1,39 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "invariant_coverage": [
+    {
+      "label": "CG-INTERACTION-01",
+      "name": "contraindicated_interaction_block",
+      "output_policy": "blocking",
+      "severity": "error"
+    },
+    {
+      "label": "CG-INTERACTION-02",
+      "name": "major_interaction_acknowledgement",
+      "output_policy": "non_blocking",
+      "severity": "warn"
+    },
+    {
+      "label": "CG-RENAL-CONF-01",
+      "name": "renal_confidence_gate",
+      "output_policy": "non_blocking",
+      "severity": "soft"
+    },
+    {
+      "label": "PERF-DOSE-01",
+      "name": "latency_metric",
+      "output_policy": "non_blocking",
+      "severity": "metric"
+    }
+  ],
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/invariant_severity/364afca16e5c3164",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "proof_local",
+    "typecheck": "ok"
+  }
+}

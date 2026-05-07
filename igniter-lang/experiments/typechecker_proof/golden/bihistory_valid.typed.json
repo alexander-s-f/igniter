@@ -1,0 +1,230 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/daace371ca4530d5",
+  "classified_program_id": "classifier_pass/a97da15bba17da42",
+  "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/bihistory_valid.ig",
+  "source_hash": "sha256:a97da15bba17da42b22aa608761be27f282d4ac779b240cbf0abae223aae40e3",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.BiHistoryAxes",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Fixture.BiHistoryAxes.BiHistoryAxesTest",
+      "name": "BiHistoryAxesTest",
+      "status": "accepted",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "avail_at",
+          "type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "resolved": true
+        },
+        {
+          "name": "avail_history",
+          "type": {
+            "kind": "type_ref",
+            "name": "BiHistory",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "resolved": true
+        },
+        {
+          "name": "technician_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "transaction_time",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "valid_time",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:technician_id",
+          "kind": "input",
+          "name": "technician_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "input:valid_time",
+          "kind": "input",
+          "name": "valid_time",
+          "fragment_class": "core",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "input:transaction_time",
+          "kind": "input",
+          "name": "transaction_time",
+          "fragment_class": "core",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "read:avail_history",
+          "kind": "read",
+          "name": "avail_history",
+          "fragment_class": "escape",
+          "type": {
+            "kind": "type_ref",
+            "name": "BiHistory",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "compute:avail_at",
+          "kind": "compute",
+          "name": "avail_at",
+          "fragment_class": "escape",
+          "type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "deps": [
+            "avail_history",
+            "valid_time",
+            "transaction_time"
+          ],
+          "expr": {
+            "kind": "call",
+            "fn": "bihistory_at",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "avail_history",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "BiHistory",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "deps": [
+                  "avail_history"
+                ]
+              },
+              {
+                "kind": "ref",
+                "name": "valid_time",
+                "resolved_type": {
+                  "name": "DateTime",
+                  "params": []
+                },
+                "deps": [
+                  "valid_time"
+                ]
+              },
+              {
+                "kind": "ref",
+                "name": "transaction_time",
+                "resolved_type": {
+                  "name": "DateTime",
+                  "params": []
+                },
+                "deps": [
+                  "transaction_time"
+                ]
+              }
+            ],
+            "resolved_type": {
+              "name": "Option",
+              "params": [
+                {
+                  "name": "String",
+                  "params": []
+                }
+              ]
+            },
+            "deps": [
+              "avail_history",
+              "valid_time",
+              "transaction_time"
+            ]
+          }
+        },
+        {
+          "decl_id": "output:avail_at",
+          "kind": "output",
+          "name": "avail_at",
+          "fragment_class": "escape",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "deps": [
+            "avail_at"
+          ]
+        }
+      ],
+      "type_errors": []
+    }
+  ],
+  "type_errors": [],
+  "semantic_ir_ref": null
+}

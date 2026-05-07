@@ -1,0 +1,147 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/6f8e8dd25c1327c8",
+  "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/negative_bihistory_missing_tt.ig",
+  "source_hash": "sha256:6f8e8dd25c1327c86c21b7e10c9894e7121c5e16466f33fa516ba1e4e83c61c6",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.BiHistoryAxes",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.BiHistoryAxes.BiHistoryMissingTt",
+      "name": "BiHistoryMissingTt",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "technician_id",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "valid_time",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "avail_history",
+          "kind": "read",
+          "fragment_class": "escape"
+        },
+        {
+          "name": "avail_at",
+          "kind": "compute",
+          "fragment_class": "escape"
+        },
+        {
+          "name": "avail_at",
+          "kind": "output",
+          "fragment_class": "escape"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:technician_id",
+          "kind": "input",
+          "name": "technician_id",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "input:valid_time",
+          "kind": "input",
+          "name": "valid_time",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "DateTime"
+        },
+        {
+          "decl_id": "escape:history_read",
+          "kind": "escape",
+          "name": "history_read",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "read:avail_history",
+          "kind": "read",
+          "name": "avail_history",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "BiHistory",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "from": "t/{technician_id}/avail",
+          "lifecycle": "durable"
+        },
+        {
+          "decl_id": "compute:avail_at",
+          "kind": "compute",
+          "name": "avail_at",
+          "fragment_class": "escape",
+          "deps": [
+            "avail_history",
+            "valid_time"
+          ],
+          "missing_refs": [],
+          "expr": {
+            "kind": "call",
+            "fn": "bihistory_at",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "avail_history"
+              },
+              {
+                "kind": "ref",
+                "name": "valid_time"
+              }
+            ]
+          }
+        },
+        {
+          "decl_id": "output:avail_at",
+          "kind": "output",
+          "name": "avail_at",
+          "fragment_class": "escape",
+          "deps": [
+            "avail_at"
+          ],
+          "missing_refs": [],
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [],
+        "edges": []
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}

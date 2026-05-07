@@ -5,7 +5,8 @@ require "digest"
 require "fileutils"
 require "json"
 require "pathname"
-require "time"
+
+require_relative "../temporal_access_runtime/temporal_access_runtime"
 
 module HistoryTypeProof
   ROOT = Pathname.new(File.expand_path("../../..", __dir__))
@@ -28,106 +29,9 @@ module HistoryTypeProof
   SUBJECT = "technicians/#{TECHNICIAN_ID}/job_count"
   AS_OF_EARLY = "2026-05-03T10:00:00Z"
   AS_OF_LATE = "2026-05-06T10:00:00Z"
-  OPTION_ENCODING = {
-    "some" => { "kind" => "some", "value" => "<value>" },
-    "none" => { "kind" => "none" }
-  }.freeze
-
-  module Canonical
-    module_function
-
-    def normalize(value)
-      case value
-      when Hash
-        value.keys.sort_by(&:to_s).each_with_object({}) { |key, out| out[key.to_s] = normalize(value[key]) }
-      when Array
-        value.map { |item| normalize(item) }
-      else
-        value
-      end
-    end
-
-    def json(value)
-      JSON.generate(normalize(value))
-    end
-
-    def pretty(value)
-      "#{JSON.pretty_generate(normalize(value))}\n"
-    end
-
-    def hash(value)
-      "sha256:#{Digest::SHA256.hexdigest(json(value))}"
-    end
-
-    def short_hash(value)
-      hash(value).split(":").last[0, 16]
-    end
-  end
-
-  class MemoryHistoryBackend
-    attr_reader :append_observations, :access_observations
-
-    def initialize
-      @append_observations = []
-      @access_observations = []
-    end
-
-    def seed_append_observations(observations)
-      observations.each do |observation|
-        append(observation.fetch("subject"), observation.fetch("valid_from"), observation.fetch("value"),
-               value_type: observation.fetch("value_type"))
-      end
-    end
-
-    def append(subject, valid_from, value, value_type:)
-      payload = {
-        "kind" => "history_append_observation",
-        "subject" => subject,
-        "valid_from" => valid_from,
-        "value" => value,
-        "value_type" => value_type
-      }
-      observation = payload.merge(
-        "observation_id" => "obs/history_append/#{Canonical.short_hash(payload)}",
-        "observed_at" => valid_from,
-        "temporal" => {
-          "axis" => "valid_time",
-          "as_of" => valid_from,
-          "lifecycle" => "durable"
-        }
-      )
-      @append_observations << observation
-      observation
-    end
-
-    def read_as_of(subject, as_of)
-      as_of_time = Time.iso8601(as_of)
-      selected = @append_observations
-        .select { |obs| obs.fetch("subject") == subject && Time.iso8601(obs.fetch("valid_from")) <= as_of_time }
-        .max_by { |obs| Time.iso8601(obs.fetch("valid_from")) }
-      result = selected ? { "kind" => "some", "value" => selected.fetch("value") } : { "kind" => "none" }
-      payload = {
-        "kind" => "history_access_observation",
-        "subject" => subject,
-        "as_of" => as_of,
-        "access" => "point",
-        "selected_append_ref" => selected&.fetch("observation_id"),
-        "result" => result,
-        "option_encoding" => OPTION_ENCODING
-      }
-      observation = payload.merge(
-        "observation_id" => "obs/history_access/#{Canonical.short_hash(payload)}",
-        "observed_at" => as_of,
-        "temporal" => {
-          "axis" => "valid_time",
-          "as_of" => as_of,
-          "lifecycle" => "session"
-        }
-      )
-      @access_observations << observation
-      [result, observation]
-    end
-  end
+  OPTION_ENCODING = TemporalAccessRuntime::Option::ENCODING
+  Canonical = TemporalAccessRuntime::Canonical
+  MemoryHistoryBackend = TemporalAccessRuntime::MemoryBackend
 
   class ProofCompiler
     def positive_parsed_program

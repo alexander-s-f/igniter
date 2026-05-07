@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "digest"
 require "fileutils"
 require "json"
 require "pathname"
-require "time"
+
+require_relative "../temporal_access_runtime/temporal_access_runtime"
 
 module SparkCRMBiHistoryFixture
   ROOT = Pathname.new(File.expand_path("../../..", __dir__))
@@ -42,145 +42,10 @@ module SparkCRMBiHistoryFixture
     { "slot_local" => "12:00", "valid_time" => "2026-05-07T16:00:00Z" }
   ].freeze
 
-  module Canonical
-    module_function
-
-    def normalize(value)
-      case value
-      when Hash
-        value.keys.sort_by(&:to_s).each_with_object({}) { |key, out| out[key.to_s] = normalize(value[key]) }
-      when Array
-        value.map { |item| normalize(item) }
-      else
-        value
-      end
-    end
-
-    def json(value)
-      JSON.generate(normalize(value))
-    end
-
-    def pretty(value)
-      "#{JSON.pretty_generate(normalize(value))}\n"
-    end
-
-    def hash(value)
-      "sha256:#{Digest::SHA256.hexdigest(json(value))}"
-    end
-
-    def short_hash(value)
-      hash(value).split(":").last[0, 16]
-    end
-  end
-
-  module Option
-    module_function
-
-    def some(value)
-      { "kind" => "some", "value" => value }
-    end
-
-    def none
-      { "kind" => "none" }
-    end
-
-    def some?(value)
-      value.fetch("kind") == "some"
-    end
-
-    def value(option)
-      option.fetch("value")
-    end
-  end
-
-  class MemoryBiHistoryBackend
-    attr_reader :events, :access_observations
-
-    def initialize
-      @events = Hash.new { |hash, key| hash[key] = [] }
-      @access_observations = []
-    end
-
-    def seed(events)
-      events.each { |event| append(event) }
-    end
-
-    def append(event)
-      history_ref = event.fetch("history_ref")
-      @events[history_ref] << event
-      @events[history_ref].sort_by! { |entry| [entry.fetch("valid_from"), entry.fetch("tx_from"), entry.fetch("event_id")] }
-    end
-
-    def bihistory_at(history_ref, vt:, tt:, node_name:)
-      validate_axis!("vt", vt)
-      validate_axis!("tt", tt)
-
-      vt_time = Time.iso8601(vt)
-      tt_time = Time.iso8601(tt)
-      selected = @events.fetch(history_ref, [])
-        .select { |event| covers_valid_time?(event, vt_time) && Time.iso8601(event.fetch("tx_from")) <= tt_time }
-        .max_by { |event| [Time.iso8601(event.fetch("tx_from")), event.fetch("event_id")] }
-      result = selected ? Option.some(selected.fetch("value")) : Option.none
-      observation = access_observation(history_ref, vt, tt, node_name, selected, result)
-      @access_observations << observation
-      [result, observation]
-    end
-
-    private
-
-    def validate_axis!(axis, value)
-      raise AxisTypeError.new(axis, value) unless value.is_a?(String) && iso8601?(value)
-    end
-
-    def iso8601?(value)
-      Time.iso8601(value)
-      true
-    rescue ArgumentError
-      false
-    end
-
-    def covers_valid_time?(event, vt_time)
-      valid_from = Time.iso8601(event.fetch("valid_from"))
-      valid_until = Time.iso8601(event.fetch("valid_until"))
-      valid_from <= vt_time && vt_time < valid_until
-    end
-
-    def access_observation(history_ref, vt, tt, node_name, selected, result)
-      payload = {
-        "kind" => "bihistory_access_observation",
-        "history_ref" => history_ref,
-        "node" => node_name,
-        "axis" => "bitemporal",
-        "valid_time" => vt,
-        "transaction_time" => tt,
-        "selected_event_ref" => selected&.fetch("event_id"),
-        "result" => result,
-        "option_encoding" => {
-          "some" => { "kind" => "some", "value" => "<value>" },
-          "none" => { "kind" => "none" }
-        }
-      }
-      payload.merge(
-        "observation_id" => "obs/bihistory_access/#{Canonical.short_hash(payload)}",
-        "observed_at" => tt,
-        "temporal" => {
-          "valid_time" => vt,
-          "transaction_time" => tt,
-          "lifecycle" => "audit"
-        }
-      )
-    end
-  end
-
-  class AxisTypeError < StandardError
-    attr_reader :axis, :value
-
-    def initialize(axis, value)
-      @axis = axis
-      @value = value
-      super("#{axis} must be ISO8601 DateTime")
-    end
-  end
+  Canonical = TemporalAccessRuntime::Canonical
+  Option = TemporalAccessRuntime::Option
+  MemoryBiHistoryBackend = TemporalAccessRuntime::MemoryBackend
+  AxisTypeError = TemporalAccessRuntime::AxisTypeError
 
   class Proof
     attr_reader :backend

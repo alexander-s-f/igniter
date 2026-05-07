@@ -1,0 +1,209 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "digest"
+require "json"
+require "time"
+
+module TemporalAccessRuntime
+  module Canonical
+    module_function
+
+    def normalize(value)
+      case value
+      when Hash
+        value.keys.sort_by(&:to_s).each_with_object({}) { |key, out| out[key.to_s] = normalize(value[key]) }
+      when Array
+        value.map { |item| normalize(item) }
+      else
+        value
+      end
+    end
+
+    def json(value)
+      JSON.generate(normalize(value))
+    end
+
+    def pretty(value)
+      "#{JSON.pretty_generate(normalize(value))}\n"
+    end
+
+    def hash(value)
+      "sha256:#{Digest::SHA256.hexdigest(json(value))}"
+    end
+
+    def short_hash(value)
+      hash(value).split(":").last[0, 16]
+    end
+  end
+
+  module Option
+    ENCODING = {
+      "some" => { "kind" => "some", "value" => "<value>" },
+      "none" => { "kind" => "none" }
+    }.freeze
+
+    module_function
+
+    def some(value)
+      { "kind" => "some", "value" => value }
+    end
+
+    def none
+      { "kind" => "none" }
+    end
+
+    def some?(value)
+      value.fetch("kind") == "some"
+    end
+
+    def value(option)
+      option.fetch("value")
+    end
+  end
+
+  class AxisTypeError < StandardError
+    attr_reader :axis, :value
+
+    def initialize(axis, value)
+      @axis = axis
+      @value = value
+      super("#{axis} must be ISO8601 DateTime")
+    end
+  end
+
+  class MemoryBackend
+    attr_reader :append_observations, :events, :access_observations
+
+    def initialize
+      @append_observations = []
+      @events = Hash.new { |hash, key| hash[key] = [] }
+      @access_observations = []
+    end
+
+    def seed_append_observations(observations)
+      observations.each do |observation|
+        append(observation.fetch("subject"), observation.fetch("valid_from"), observation.fetch("value"),
+               value_type: observation.fetch("value_type"))
+      end
+    end
+
+    def append(subject, valid_from, value, value_type:)
+      payload = {
+        "kind" => "history_append_observation",
+        "subject" => subject,
+        "valid_from" => valid_from,
+        "value" => value,
+        "value_type" => value_type
+      }
+      observation = payload.merge(
+        "observation_id" => "obs/history_append/#{Canonical.short_hash(payload)}",
+        "observed_at" => valid_from,
+        "temporal" => {
+          "axis" => "valid_time",
+          "as_of" => valid_from,
+          "lifecycle" => "durable"
+        }
+      )
+      @append_observations << observation
+      observation
+    end
+
+    def history_at(subject, as_of)
+      as_of_time = parse_axis!("as_of", as_of)
+      selected = @append_observations
+        .select { |obs| obs.fetch("subject") == subject && Time.iso8601(obs.fetch("valid_from")) <= as_of_time }
+        .max_by { |obs| Time.iso8601(obs.fetch("valid_from")) }
+      result = selected ? Option.some(selected.fetch("value")) : Option.none
+      observation = history_access_observation(subject, as_of, selected, result)
+      @access_observations << observation
+      [result, observation]
+    end
+
+    def read_as_of(subject, as_of)
+      history_at(subject, as_of)
+    end
+
+    def seed(events)
+      events.each { |event| append_bihistory_event(event) }
+    end
+
+    def append_bihistory_event(event)
+      history_ref = event.fetch("history_ref")
+      @events[history_ref] << event
+      @events[history_ref].sort_by! { |entry| [entry.fetch("valid_from"), entry.fetch("tx_from"), entry.fetch("event_id")] }
+    end
+
+    def bihistory_at(history_ref, vt:, tt:, node_name:)
+      vt_time = parse_axis!("vt", vt)
+      tt_time = parse_axis!("tt", tt)
+      selected = @events.fetch(history_ref, [])
+        .select { |event| covers_valid_time?(event, vt_time) && Time.iso8601(event.fetch("tx_from")) <= tt_time }
+        .max_by { |event| [Time.iso8601(event.fetch("tx_from")), event.fetch("event_id")] }
+      result = selected ? Option.some(selected.fetch("value")) : Option.none
+      observation = bihistory_access_observation(history_ref, vt, tt, node_name, selected, result)
+      @access_observations << observation
+      [result, observation]
+    end
+
+    private
+
+    def parse_axis!(axis, value)
+      raise AxisTypeError.new(axis, value) unless value.is_a?(String)
+
+      Time.iso8601(value)
+    rescue ArgumentError
+      raise AxisTypeError.new(axis, value)
+    end
+
+    def covers_valid_time?(event, vt_time)
+      valid_from = Time.iso8601(event.fetch("valid_from"))
+      valid_until = Time.iso8601(event.fetch("valid_until"))
+      valid_from <= vt_time && vt_time < valid_until
+    end
+
+    def history_access_observation(subject, as_of, selected, result)
+      payload = {
+        "kind" => "history_access_observation",
+        "subject" => subject,
+        "as_of" => as_of,
+        "access" => "point",
+        "selected_append_ref" => selected&.fetch("observation_id"),
+        "result" => result,
+        "option_encoding" => Option::ENCODING
+      }
+      payload.merge(
+        "observation_id" => "obs/history_access/#{Canonical.short_hash(payload)}",
+        "observed_at" => as_of,
+        "temporal" => {
+          "axis" => "valid_time",
+          "as_of" => as_of,
+          "lifecycle" => "session"
+        }
+      )
+    end
+
+    def bihistory_access_observation(history_ref, vt, tt, node_name, selected, result)
+      payload = {
+        "kind" => "bihistory_access_observation",
+        "history_ref" => history_ref,
+        "node" => node_name,
+        "axis" => "bitemporal",
+        "valid_time" => vt,
+        "transaction_time" => tt,
+        "selected_event_ref" => selected&.fetch("event_id"),
+        "result" => result,
+        "option_encoding" => Option::ENCODING
+      }
+      payload.merge(
+        "observation_id" => "obs/bihistory_access/#{Canonical.short_hash(payload)}",
+        "observed_at" => tt,
+        "temporal" => {
+          "valid_time" => vt,
+          "transaction_time" => tt,
+          "lifecycle" => "audit"
+        }
+      )
+    end
+  end
+end

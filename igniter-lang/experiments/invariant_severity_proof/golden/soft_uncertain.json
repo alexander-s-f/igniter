@@ -1,0 +1,163 @@
+{
+  "blocking_diagnostics": [],
+  "case_id": "soft_uncertain",
+  "contract_ref": "contract/Fixture.InvariantSeverity.MedicationDoseReview@v0",
+  "format_version": "0.1.0",
+  "invariant_results": [
+    {
+      "kind": "invariant_node",
+      "label": "CG-INTERACTION-01",
+      "message": "Contraindicated drug combination - order blocked",
+      "name": "contraindicated_interaction_block",
+      "output_effect": "none",
+      "overridable_with": null,
+      "predicate": "contraindicated_interactions_empty",
+      "severity": "error",
+      "status": "satisfied"
+    },
+    {
+      "kind": "invariant_node",
+      "label": "CG-INTERACTION-02",
+      "message": "Major drug interaction requires acknowledgement",
+      "name": "major_interaction_acknowledgement",
+      "output_effect": "none",
+      "overridable_with": "documented_justification",
+      "predicate": "major_interactions_acknowledged",
+      "severity": "warn",
+      "status": "satisfied"
+    },
+    {
+      "kind": "invariant_node",
+      "label": "CG-RENAL-CONF-01",
+      "message": "Low confidence renal function - dose is approximate",
+      "name": "renal_confidence_gate",
+      "output_effect": "promote_to_uncertain",
+      "overridable_with": null,
+      "predicate": "confidence_at_least_threshold",
+      "severity": "soft",
+      "status": "violated",
+      "threshold": 0.85
+    },
+    {
+      "kind": "invariant_node",
+      "label": "PERF-DOSE-01",
+      "message": "Dose computation latency metric",
+      "name": "latency_metric",
+      "output_effect": "record_metric",
+      "overridable_with": null,
+      "predicate": "runtime_latency_under_threshold_ms",
+      "severity": "metric",
+      "status": "satisfied",
+      "threshold_ms": 500
+    }
+  ],
+  "kind": "invariant_runtime_result",
+  "metrics": [
+    {
+      "label": "PERF-DOSE-01",
+      "message": "Dose computation latency metric",
+      "name": "latency_metric",
+      "output_effect": "record_metric",
+      "status": "satisfied"
+    }
+  ],
+  "observations": [
+    {
+      "contract_ref": "contract/Fixture.InvariantSeverity.MedicationDoseReview@v0",
+      "invariant": {
+        "label": "CG-INTERACTION-01",
+        "message": "Contraindicated drug combination - order blocked",
+        "name": "contraindicated_interaction_block",
+        "output_effect": "none",
+        "severity": "error",
+        "status": "satisfied"
+      },
+      "kind": "verification_observation",
+      "lifecycle": "audit",
+      "observation_id": "obs/invariant/a68746aaa595212e",
+      "output_ref": "medication/synthetic-dose-a",
+      "subject": "patient/synthetic-invariant-001"
+    },
+    {
+      "contract_ref": "contract/Fixture.InvariantSeverity.MedicationDoseReview@v0",
+      "invariant": {
+        "label": "CG-INTERACTION-02",
+        "message": "Major drug interaction requires acknowledgement",
+        "name": "major_interaction_acknowledgement",
+        "output_effect": "none",
+        "severity": "warn",
+        "status": "satisfied"
+      },
+      "kind": "verification_observation",
+      "lifecycle": "audit",
+      "observation_id": "obs/invariant/e94014c570d07711",
+      "output_ref": "medication/synthetic-dose-a",
+      "subject": "patient/synthetic-invariant-001"
+    },
+    {
+      "contract_ref": "contract/Fixture.InvariantSeverity.MedicationDoseReview@v0",
+      "invariant": {
+        "label": "CG-RENAL-CONF-01",
+        "message": "Low confidence renal function - dose is approximate",
+        "name": "renal_confidence_gate",
+        "output_effect": "promote_to_uncertain",
+        "severity": "soft",
+        "status": "violated"
+      },
+      "kind": "soft_observation",
+      "lifecycle": "audit",
+      "observation_id": "obs/invariant/1626299714c9d223",
+      "output_ref": "medication/synthetic-dose-a",
+      "subject": "patient/synthetic-invariant-001"
+    },
+    {
+      "contract_ref": "contract/Fixture.InvariantSeverity.MedicationDoseReview@v0",
+      "invariant": {
+        "label": "PERF-DOSE-01",
+        "message": "Dose computation latency metric",
+        "name": "latency_metric",
+        "output_effect": "record_metric",
+        "severity": "metric",
+        "status": "satisfied"
+      },
+      "kind": "metric_observation",
+      "lifecycle": "metric",
+      "observation_id": "obs/invariant/308c64918cdd5609",
+      "output_ref": "medication/synthetic-dose-a",
+      "subject": "patient/synthetic-invariant-001"
+    }
+  ],
+  "output": {
+    "approved_dose_mg": "12.50",
+    "medication_ref": "medication/synthetic-dose-a",
+    "metrics_from": [
+      "PERF-DOSE-01"
+    ],
+    "patient_ref": "patient/synthetic-invariant-001",
+    "uncertainty": {
+      "from": [
+        "CG-RENAL-CONF-01"
+      ],
+      "kind": "uncertain",
+      "type_promotion": "T -> ~T"
+    },
+    "warnings": []
+  },
+  "soft_diagnostics": [
+    {
+      "category": "invariant_soft",
+      "contract": "MedicationDoseReview",
+      "label": "CG-RENAL-CONF-01",
+      "message": "Low confidence renal function - dose is approximate",
+      "node": "renal_confidence_gate",
+      "output_effect": "promote_to_uncertain",
+      "path": "contract:MedicationDoseReview/invariant:renal_confidence_gate",
+      "rule": "INV-SOFT",
+      "severity": "info",
+      "span": null
+    }
+  ],
+  "status": "ok",
+  "trusted_output": true,
+  "warnings": []
+}
