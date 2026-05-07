@@ -27,6 +27,16 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 2 Round 12 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `runtime-smoke-extraction-v0.md` | done | `IgniterLang::RuntimeSmoke` extracted; CLI uses reusable callback; production compiler, assembler, and Stage 1 proofs PASS |
+| `compiler-package-boundary-v0.md` | done | direct API, CLI, and load-path proof share `IgniterLang.compile(...)`; no gemspec/bin/version release packaging yet |
+| `ledger-tbackend-adapter-descriptor-v0.md` | done | metadata-only Ledger descriptor fixture PASS; descriptor hash, registry hash, and missing-history diagnostics proven |
+| `runtime-invariant-violation-observations-v0.md` | done | invariant violations emit runtime observation records linked to source `invariant_node`; invariant proof and Stage 1 PASS |
+| `stage2-round12-status-curation-v0.md` | done | R12 map sync — this track |
+
 ## Stage 2 Round 11 Evidence
 
 | Track | Status | Notes |
@@ -85,7 +95,7 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
-## lib/igniter_lang/ — Current State (10 libs + facade)
+## lib/igniter_lang/ — Current State (11 libs + facade)
 
 ```text
 diagnostics.rb            (R3)
@@ -93,6 +103,7 @@ compiler_result.rb        (R4)
 compilation_report.rb     (R4)
 parser.rb                 (R5/R7/R10) — parser + stream + olap_point + invariant
 temporal_access_runtime.rb (R5–R7) — MemoryBackend + RuntimeMachineHook
+runtime_smoke.rb          (R12) — reusable proof-backed RuntimeSmoke callback
 classifier.rb             (R6/R7) — ParsedProgram→ClassifiedProgram; OOF-S1/2
 typechecker.rb            (R7/R8/R10) — TypedProgram boundary; stream OOF-S3; OLAP OOF-O2..O5; TINV-1..3
 semanticir_emitter.rb     (R8/R9/R10/R11) — SemanticIR emitter; OLAP/stream/invariant lowering added
@@ -107,10 +118,10 @@ compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `runtime-smoke-extraction-v0` | Move proof-local CLI runtime smoke toward reusable `IgniterLang::RuntimeSmoke` while keeping smoke optional | Research Agent |
-| `compiler-package-boundary-v0` | Prove package-level load path, CLI entrypoint, and Ruby API share the same facade | Research Agent |
-| `ledger-tbackend-adapter-descriptor-v0` | Metadata-only Ledger adapter descriptor with capability checks and stable hashes; no reads/writes/runtime binding | Bridge Agent |
-| `runtime-invariant-violation-observations-v0` | Convert violated `invariant_node` runtime results into observation-shaped `invariant_violation_node` records | Research Agent |
+| `compiler-packaging-skeleton-v0` | Add version/gemspec/bin load-path proof and decide package entrypoint ownership | Research Agent |
+| `runtime-smoke-production-adapter-plan-v0` | Keep `IgniterLang::RuntimeSmoke` proof-backed now while planning production RuntimeMachine/TBackend adapter path | Research Agent |
+| `ledger-tbackend-adapter-descriptor-package-v0` | Package-side descriptor-only diagnostics implementation; no RuntimeMachine or Ledger operation binding | Bridge Agent |
+| `runtime-invariant-observation-runtime-machine-boundary-v0` | Decide where production RuntimeMachine emits and persists invariant violation observations | Research Agent |
 
 ---
 
