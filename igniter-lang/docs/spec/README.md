@@ -1,9 +1,9 @@
 # Igniter-Lang Language Specification
 
-Version: 0.3 — Stage 1 crystallized from PROPs
+Version: 0.4 — Stage 2 R2 sync
 Maintainer: `[Igniter-Lang Meta Expert]`
 Status: living document
-Last updated: 2026-05-06
+Last updated: 2026-05-07
 
 > Source of truth for each section is the cited PROP.
 > This document is the readable synthesis — not the decision record.
@@ -31,7 +31,7 @@ Last updated: 2026-05-06
 | Spec Section | PROP | Experiment | Status |
 |---|---|---|---|
 | Ch1 Identity | PROP-001 | — | accepted / no proof needed |
-| Ch2 Grammar BNF | PROP-014, PROP-015 | experiments/parser/ (61 specs) | ✅ partial — OOF rejection gap |
+| Ch2 Grammar BNF | PROP-014, PROP-015 | experiments/parser/ (61 specs) | ✅ partial — OOF syntax gap closed PROP-026 |
 | Ch2 ParsedProgram shape | PROP-014, PROP-018 | experiments/parser/ | ✅ proven |
 | Ch3 Type grammar | PROP-004 | experiments/typechecker_proof/ | ✅ PASS ✅ boundary fixture CLOSED |
 | Ch3 Decimal typing | PROP-021 | typechecker_proof TC cases | ✅ PASS |
@@ -46,7 +46,8 @@ Last updated: 2026-05-06
 | Ch7 CompatibilityReport gate | PROP-009, PROP-009.1 | igapp_assembler_proof runtime.* | ✅ proven (assembled igapp) |
 | Ch8 Collection[T] ops | PROP-013 | stdlib_execution_kernel_stage1 | ✅ PASS |
 | Ch8 fold/map/filter | PROP-013 | experiments/stdlib_execution_kernel_stage1/ | ✅ PASS |
-| Ch9 History[T] | PROP-022 | — | deferred Stage 2 |
+| Ch9 History[T] | PROP-022 | experiments/history_type_proof/ | ✅ point proof PASS ⏳ parser gap |
+| Ch9 BiHistory[T] | PROP-022 | experiments/sparkcrm_bihistory_fixture/ | ✅ fixture PASS ⏳ axes gap |
 | Ch9 stream T | PROP-023 | — | deferred Stage 2 |
 | Ch9 OLAPPoint | PROP-024 | — | deferred Stage 2 |
 | Ch9 Invariant severity | PROP-025 | — | deferred Stage 2 |
@@ -56,10 +57,10 @@ Last updated: 2026-05-06
 ## Coverage Summary
 
 ```
-accepted + PASS   Ch3 (TypeChecker + boundary), Ch4 (classifier), Ch5 (pipeline + TypeChecker + assembler),
+accepted + PASS   Ch3 (TypeChecker + boundary), Ch4 (classifier), Ch5 (pipeline + assembler),
                   Ch6 (SemanticIR + assembler), Ch7 (RuntimeMachine), Ch8 (stdlib kernel)
-accepted partial  Ch2 (OOF parse gap — non-blocking, caught at Classify/TypeCheck)
-deferred          Ch9 (Stage 2: History, stream, OLAPPoint, severity)
+accepted partial  Ch2 (OOF syntax gap closed PROP-026; semantic OOF caught at Classify/TypeCheck)
+Stage 2 partial   Ch9 (History[T] point proof PASS; BiHistory fixture PASS; stream/OLAP/severity deferred)
 ```
 
 ---
@@ -67,9 +68,18 @@ deferred          Ch9 (Stage 2: History, stream, OLAPPoint, severity)
 ## Stage 1 Remaining Gap
 
 ```
-1. OOF rejection at parse time — parser accepts some OOF without error (non-blocking).
-   Caught at Classify/TypeCheck stages. Will be addressed in grammar hardening.
-   All other Stage 1 proofs: PASS.
+Stage 2 open gaps:
+1. History[T] parser acceptance — syntax for history.at / history[t] not yet in grammar
+   (PROP-022; runtime proof PASS; grammar surface deferred)
+2. BiHistory[T] axes — parser/typechecker for bitemporal axes not generalized
+   (sparkcrm_bihistory_fixture PASS; axes generalization pending)
+3. Production compiler package — CLI proof PASS; module extraction not yet done (PROP-027)
+4. Option[T] encoding normalization — history_type_proof uses {some:v}/{none:true};
+   canonical shape is {kind:"some",value:v}/{kind:"none"} (normalize before BiHistory axes)
+
+Closed post-Stage-1 (no longer gaps):
+  OOF syntax rejection — PASS: PROP-026 + parser_oof_hardening_stage2_proof
+  Runtime eval surface — closed_in_proof: igapp_assembler_proof (all 3 contracts)
 ```
 
 ---

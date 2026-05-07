@@ -29,34 +29,32 @@ assigned track only.
 
 ---
 
-## Recent Stage 2 Evidence
+## Stage 2 Round 2 Evidence
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `production-compiler-diagnostics-implementation-v0.md` | done | Canonical CLI diagnostics implemented; `igapp_path`, categories, stages, warnings |
-| `history-type-point-access-proof-v0.md` | done | Executable `History[Integer]` point proof; OOF-H1 negative; parser gap explicit |
-| `temporal-option-and-bihistory-shape-v0.md` | done | Canonical `Option[T]`, `history_at`, `bihistory_at`, OOF-BT rules |
-| `sparkcrm-bihistory-fixture-pressure-v0.md` | done | SparkCRM bitemporal availability correction fixture shape |
-| `production-compiler-cli-wrapper-v0.md` | done | CLI wrapper proof for `bin/igniter-lang compile` |
-| `production-compiler-module-extraction-map-v0.md` | done | Extraction map for production compiler package |
-| `history-type-proof-planning-v0.md` | done | Planning slice for `History[T]` proof path |
-| `parser-oof-hardening-stage2-proof-v0.md` | done | Parser OOF hardening evidence |
+| `stage2-map-refresh-v0.md` | done | Stage 2 map refresh; current-status compacted to 80 lines |
+| `parser-oof-hardening-stage2-proof-v0.md` | done | PROP-026 parser OOF hardening PASS |
+| `production-compiler-cli-wrapper-v0.md` | done | CLI `bin/igniter-lang compile` proof PASS (9 checks) |
+| `production-compiler-module-extraction-map-v0.md` | done | Extraction map for production compiler; no code moved yet |
+| `history-type-proof-planning-v0.md` | done | Planning for History[T] proof path |
 | `canonical-stdlib-registry-runtime-v0.md` | done | Runtime-visible stdlib registry direction |
+| `sparkcrm-history-pressure-v0.md` | done | Pressure map for Spark CRM bitemporal scenarios |
+| `sparkcrm-bihistory-fixture-pressure-v0.md` | done | Pressure spec for BiHistory fixture |
+| `temporal-option-and-bihistory-shape-v0.md` | done | Option[T] + BiHistory canonical shape spec |
+| `sparkcrm-bihistory-fixture-v0.md` | done | BiHistory fixture PASS (OOF-BT1..4 + correction proof) |
+| `stage2-round2-map-refresh-v0.md` | done | R2 map sync — this track |
 
 ---
 
 ## Suggested Next Track Shapes
 
-These are short names for future supervisor cards, not active assignments by
-themselves.
-
-| Candidate | Purpose |
-|-----------|---------|
-| `option-encoding-normalization-v0` | Normalize `history_type_proof` goldens to canonical `{ kind, value }` Option shape |
-| `history-type-parser-acceptance-v0` | Make parser accept the current `History[T]` fixture instead of hand-authored ParsedProgram |
-| `history-type-runtime-node-extraction-v0` | Extract proof-local `temporal_access_node` runtime support toward production RuntimeMachine |
-| `sparkcrm-bihistory-fixture-v0` | Executable bitemporal availability correction proof with OOF-BT diagnostics |
-| `production-compiler-diagnostics-extraction-v0` | Move `ProductionCompilerCLI::Diagnostics` to a separate reusable file |
+| Candidate | Purpose | Role |
+|-----------|---------|------|
+| `option-encoding-normalization-v0` | Normalize Option[T] to `{kind:"some"/"none"}` in history proofs | Research Agent |
+| `bihistory-parser-typechecker-axes-v0` | Parser/typechecker for BiHistory temporal axes | Compiler/Grammar Expert |
+| `extract-canonical-json-diagnostics-v0` | Extract `CanonicalJSON`, `DiagnosticEntry`, `CompilationReport` into shared modules | Research Agent |
+| `invariant-severity-proof-v0` | First proof for PROP-025 severity levels | Research Agent |
 
 ---
 
