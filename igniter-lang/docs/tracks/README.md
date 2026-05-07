@@ -27,6 +27,16 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 2 Round 15 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../meta-proposals/META-EXPERT-009.1-stage2-close-decision-v0.md` | decision | Stage 2 formally CLOSED WITH DEFERRED GAPS on 2026-05-07; close candidate PASS, 8 proofs, 7 surface checks, 5 deferred gaps |
+| `gem-native-package-boundary-specs-v0.md` | done | installed gem require/compile/igc proof PASS from isolated gem home; 7 checks PASS, 4 release-readiness gaps remain |
+| `../meta-proposals/human-agent-comprehension-synthesis-v0.md` | research-synthesis | comprehension pressure synthesized; routes Stage 3 syntax experiments without canon promotion |
+| `future-syntax-pressure-formalization-v0.md` | done | formal grammar questions extracted from pressure fixtures; no parser changes and no canon promotion |
+| `stage2-round15-status-curation-v0.md` | done | R15 map sync and Stage 3 intake prep — this track |
+
 ## Stage 2 Round 14 Evidence
 
 | Track | Status | Notes |
@@ -137,9 +147,12 @@ compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `stage2-close-decision-v0` | R15 Meta Expert formal close decision over Stage 2 close candidate PASS and deferred gaps | Meta Expert |
-| `stage2-close-json-archive-v0` | Archive or pin exact Stage 2 close candidate JSON snapshot if close decision requires it | Meta Expert |
-| `gem-native-package-boundary-specs-v0` | Add gem-native specs for `require "igniter_lang"`, `IgniterLang.compile`, and installed `igc` outside proof harnesses | Research Agent |
+| `stage3-governance-opening-v0` | Author Stage 3 governance and authorization rules before PROP-028+ or implementation work | Meta Expert |
+| `stage2-close-snapshot-archive-v0` | Archive the exact Stage 2 close docs/proofs/JSON snapshot for future archaeology | Archive/Form Expert |
+| `gem-release-readiness-policy-v0` | Resolve final gem metadata, CI, RubyGems publishing, signing/checksum, and release policy | Research Agent |
+| `production-tbackend-adapter-binding-v0` | Plan production Ledger/Durable TBackend binding from descriptor evidence without overclaiming runtime trust | Bridge Agent |
+| `syntax-pressure-registry-v0` | Register human-agent syntax fixtures as pressure artifacts, not canon | Compiler/Grammar Expert |
+| `let-compute-boundary-v0` | Prove contract-body `let` lowering or rejection while preserving graph node identity | Compiler/Grammar Expert |
 | `runtime-invariant-observation-runtime-machine-boundary-v0` | Decide where production RuntimeMachine emits and persists invariant violation observations | Research Agent |
 | `compatibility-report-descriptor-consumption-v0` | Plan descriptor evidence consumption without adding Ledger reads/writes/runtime binding | Bridge Agent |
 

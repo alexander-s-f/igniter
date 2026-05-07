@@ -76,14 +76,24 @@ authored after Architect review.
 Stage 3 starting conditions:
   ✅ Full compiler pipeline: IgniterLang.compile → SemanticIR → .igapp
   ✅ 14-file lib/ with public Ruby API (VERSION = "0.1.0.pre.stage2")
+  ✅ Gem-native boundary proof: installed gem require/compile/igc PASS
   ✅ Ledger descriptor: metadata-only, descriptor-first
   ✅ Runtime violation observations: proof-backed
   ⏳ Gem release, TBackend binding, invariant persistence: deferred from Stage 2
 
 Suggested first Stage 3 tracks (not authorized yet):
-  gem-native-package-boundary-specs-v0   [Research Agent]
-  production-tbackend-adapter-binding-v0 [Bridge Agent]
   stage3-governance-opening-v0           [Meta Expert → Architect review]
+  stage2-close-snapshot-archive-v0       [Archive/Form Expert or Research Agent]
+  gem-release-readiness-policy-v0        [Research Agent]
+  production-tbackend-adapter-binding-v0 [Bridge Agent]
+  invariant-persistence-boundary-v0      [Research Agent]
+  syntax-pressure-registry-v0            [Compiler/Grammar Expert; research only]
+  let-compute-boundary-v0                [Compiler/Grammar Expert; research/proof]
+
+Syntax/comprehension note:
+  Human-agent comprehension and future syntax documents are Stage 3 pressure
+  inputs only. They do not promote fixture syntax to canon and do not open
+  PROP-028+ without Stage 3 governance.
 ```
 
 ---
