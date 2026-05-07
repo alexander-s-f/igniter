@@ -390,6 +390,7 @@ module IgniterLang
     end
 
     def parse_pipeline_decl
+      name_tok = peek
       name = name_token!(%i[ident])
       expect_type!(:lbracket)
       in_type  = parse_type_ref
@@ -411,7 +412,13 @@ module IgniterLang
         end
       end
       if steps.empty?
-        @errors << { "message" => "OOF-PG5: pipeline '#{name}' has no steps", "line" => 0 }
+        add_parse_error(
+          rule: "OOF-PG1",
+          message: "pipeline must contain at least one step",
+          token: name,
+          line: name_tok.line,
+          col: name_tok.col
+        )
       end
       expect_type!(:rbrace)
       { "kind" => "pipeline", "name" => name,
@@ -420,7 +427,20 @@ module IgniterLang
     end
 
     def parse_step_decl
+      name_tok = peek
       name = name_token!(%i[ident])
+      unless peek_type?(:colon)
+        add_parse_error(
+          rule: "OOF-PG2",
+          message: "step must reference a contract",
+          token: name,
+          line: name_tok.line,
+          col: name_tok.col
+        )
+        skip_optional_block_or_step_tail
+        return { "kind" => "step", "name" => name, "ref" => nil }
+      end
+
       expect_type!(:colon)
       ref  = parse_qualified_ref
       { "kind" => "step", "name" => name, "ref" => ref }
@@ -502,6 +522,46 @@ module IgniterLang
       when "snapshot" then advance; parse_snapshot_decl
       when "window"   then advance; parse_window_decl
       when "escape"   then advance; parse_escape_decl
+      when "pipeline"
+        add_parse_error(
+          rule: "OOF-P2",
+          message: "pipeline/step is not valid inside a contract body",
+          token: tok.value,
+          line: tok.line,
+          col: tok.col
+        )
+        skip_invalid_declaration_block
+        nil
+      when "step"
+        add_parse_error(
+          rule: "OOF-P2",
+          message: "pipeline/step is not valid inside a contract body",
+          token: tok.value,
+          line: tok.line,
+          col: tok.col
+        )
+        skip_invalid_body_decl
+        nil
+      when "scoped_by"
+        add_parse_error(
+          rule: "OOF-PG3",
+          message: "scoped_by is only valid on read declarations",
+          token: tok.value,
+          line: tok.line,
+          col: tok.col
+        )
+        skip_invalid_body_decl
+        nil
+      when "tenant_free"
+        add_parse_error(
+          rule: "OOF-PG5",
+          message: "tenant_free is only valid on read declarations",
+          token: tok.value,
+          line: tok.line,
+          col: tok.col
+        )
+        skip_invalid_body_decl
+        nil
       else
         @errors << { "message" => "Unknown body declaration: #{tok.value}", "line" => tok.line }
         advance; nil
@@ -736,6 +796,7 @@ module IgniterLang
     end
 
     def parse_type_ref
+      name_tok = peek
       name = name_token!(%i[ident keyword])
       if peek_type?(:lbracket)
         advance
@@ -756,8 +817,79 @@ module IgniterLang
         expect_type!(:rbracket)
         "#{name}[#{inner}]"
       else
+        if name == "Decimal"
+          add_parse_error(
+            rule: "OOF-DM3",
+            message: "Decimal type requires scale parameter: Decimal[N]",
+            token: name,
+            line: name_tok.line,
+            col: name_tok.col
+          )
+          return { "kind" => "type_ref", "name" => "Unknown", "original" => "Decimal", "params" => [] }
+        end
         name
       end
+    end
+
+    def add_parse_error(rule:, message:, token:, line:, col:, severity: "error")
+      @errors << {
+        "rule" => rule,
+        "severity" => severity,
+        "message" => message,
+        "token" => token,
+        "line" => line,
+        "col" => col
+      }
+    end
+
+    def skip_optional_block_or_step_tail
+      if peek_type?(:lbrace)
+        skip_balanced_block
+        return
+      end
+
+      skip_until_body_boundary
+    end
+
+    def skip_invalid_body_decl
+      advance
+      if peek_type?(:lbrace)
+        skip_balanced_block
+        return
+      end
+
+      skip_until_body_boundary
+    end
+
+    def skip_invalid_declaration_block
+      advance
+      until peek_type?(:eof) || peek_type?(:rbrace) || peek_type?(:lbrace)
+        advance
+      end
+      skip_balanced_block if peek_type?(:lbrace)
+    end
+
+    def skip_balanced_block
+      return unless peek_type?(:lbrace)
+
+      depth = 0
+      loop do
+        tok = advance
+        depth += 1 if tok.type == :lbrace
+        depth -= 1 if tok.type == :rbrace
+        break if depth <= 0 || peek_type?(:eof)
+      end
+    end
+
+    def skip_until_body_boundary
+      until peek_type?(:eof) || peek_type?(:rbrace) || body_boundary_token?(peek)
+        advance
+      end
+    end
+
+    def body_boundary_token?(tok)
+      tok&.type == :keyword &&
+        %w[input output compute read snapshot window escape pipeline step scoped_by tenant_free].include?(tok.value)
     end
 
     def parse_lifecycle
