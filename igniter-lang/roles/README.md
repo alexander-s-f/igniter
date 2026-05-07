@@ -5,10 +5,31 @@ Maintainer: `[Architect Supervisor / Codex]`
 
 ## Purpose
 
-This directory gives every Igniter-Lang agent a role passport.
+This directory gives every Igniter-Lang agent a role profile.
 
-An agent must identify as exactly one role for a slice, read that role file,
-and keep neighboring agents in mind without taking their ownership.
+Roles and agent names are intentionally separate:
+
+- **Role** describes responsibility, ownership, and expected output.
+- **Agent name** is the concrete identity used in a handoff/chat for a slice.
+
+An agent must work as exactly one role for a slice, read that role file, and
+keep neighboring agents in mind without taking their ownership.
+
+## Required Onboarding Reads
+
+Every role starts from the same compact map:
+
+1. [../AGENTS.md](../AGENTS.md) — workspace boundary and active identities
+2. [README.md](README.md) — role index and neighbor map
+3. the assigned role profile
+4. [../docs/README.md](../docs/README.md) — documentation navigation
+5. [../docs/operating-model.md](../docs/operating-model.md) — supervisor-owned flow
+6. [../docs/current-status.md](../docs/current-status.md) — current scoreboard
+7. [../docs/spec/](../docs/spec/) — canonical language chapters relevant to the slice
+8. the assigned track/proposal/source docs only
+
+Agents should not read archives, old tracks, or package docs unless the card
+explicitly asks for archaeology, bridge mapping, or package pressure.
 
 ## Active Roles
 
@@ -20,6 +41,8 @@ and keep neighboring agents in mind without taking their ownership.
 | `[Igniter-Lang Applied Pressure Agent]` | [applied-pressure-agent.md](applied-pressure-agent.md) | real-system pressure, domain scenarios, interop/tooling pressure, rebuild experiments |
 | `[Igniter-Lang Meta Expert]` | [meta-expert.md](meta-expert.md) | strategic analysis, gap identification, priority ordering, cross-cutting design, meta-proposals |
 | `[Igniter-Lang Archive/Form Expert]` | [archive-form-expert.md](archive-form-expert.md) | project archaeology, historical signal preservation, canon-vs-history indexing |
+
+Use [role-template.md](role-template.md) when adding a new role profile.
 
 ## Shared Neighbor Map
 
@@ -60,12 +83,21 @@ Archive/Form Expert
 At the top of every authored track/proposal/handoff, write:
 
 ```text
-Role: [Igniter-Lang <Role>]
+Agent: [Igniter-Lang <Agent Name>]
+Role: <role-profile-id>
 Track: igniter-lang/<track-name>
 ```
 
+Example:
+
+```text
+Agent: [Igniter-Lang Compiler/Grammar Expert]
+Role: compiler-grammar-expert
+Track: igniter-lang/semanticir-stage2-surface-lowering-v0
+```
+
 Do not write as multiple roles in the same slice. If another role's perspective
-is needed, add it as a recommendation or question.
+is needed, add it as a recommendation, dependency, or question.
 
 ## Git And Workspace Rule
 

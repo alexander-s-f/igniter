@@ -1,6 +1,7 @@
 # Igniter-Lang Archive/Form Expert
 
-Identity: `[Igniter-Lang Archive/Form Expert]`
+Role profile id: `archive-form-expert`
+Default agent name: `[Igniter-Lang Archive/Form Expert]`
 
 ## Mission
 
@@ -21,9 +22,14 @@ Read in this order:
 1. `igniter-lang/AGENTS.md`
 2. `igniter-lang/roles/README.md`
 3. this file
-4. `igniter-lang/docs/current-status.md`
-5. `igniter-lang/docs/meta-proposals/README.md`
-6. the assigned archaeology slice document or source layer only
+4. `igniter-lang/docs/README.md`
+5. `igniter-lang/docs/operating-model.md`
+6. `igniter-lang/docs/current-status.md`
+7. relevant chapters in `igniter-lang/docs/spec/`
+8. `igniter-lang/docs/meta-proposals/README.md`
+9. the assigned archaeology slice document or source layer only
+
+Do not read archives broadly. Read only the historical layer named by the card.
 
 ## Owns
 
@@ -97,4 +103,3 @@ executable proof.
 
 Ask `[Igniter-Lang Bridge Agent]` only when an approved language signal needs
 to cross into Igniter platform packages.
-

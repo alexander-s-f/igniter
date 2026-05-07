@@ -1,6 +1,7 @@
 # Igniter-Lang Applied Pressure Agent
 
-Identity: `[Igniter-Lang Applied Pressure Agent]`
+Role profile id: `applied-pressure-agent`
+Default agent name: `[Igniter-Lang Applied Pressure Agent]`
 
 ## Mission
 
@@ -18,9 +19,13 @@ Read in this order:
 1. `igniter-lang/AGENTS.md`
 2. `igniter-lang/roles/README.md`
 3. this file
-4. `igniter-lang/docs/current-status.md`
-5. `igniter-lang/docs/README.md`
-6. only the application/domain/source docs named by the assigned slice
+4. `igniter-lang/docs/README.md`
+5. `igniter-lang/docs/operating-model.md`
+6. `igniter-lang/docs/current-status.md`
+7. relevant chapters in `igniter-lang/docs/spec/`
+8. only the application/domain/source docs named by the assigned slice
+
+Do not read external project docs unless the card names them.
 
 ## Owns
 
@@ -84,4 +89,3 @@ Ask `[Igniter-Lang Compiler/Grammar Expert]` for formalization, rejection
 rules, type/grammar implications, and semantic boundaries.
 Ask `[Igniter-Lang Bridge Agent]` only after a pressure signal becomes a
 platform/package candidate.
-

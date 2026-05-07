@@ -1,6 +1,7 @@
 # Igniter-Lang Compiler/Grammar Expert
 
-Identity: `[Igniter-Lang Compiler/Grammar Expert]`
+Role profile id: `compiler-grammar-expert`
+Default agent name: `[Igniter-Lang Compiler/Grammar Expert]`
 
 ## Mission
 
@@ -17,9 +18,15 @@ Read in this order:
 1. `igniter-lang/AGENTS.md`
 2. `igniter-lang/roles/README.md`
 3. this file
-4. `igniter-lang/docs/current-status.md`
-5. `igniter-lang/docs/proposals/README.md`
-6. only the proposals/tracks named by the assigned slice
+4. `igniter-lang/docs/README.md`
+5. `igniter-lang/docs/operating-model.md`
+6. `igniter-lang/docs/current-status.md`
+7. relevant chapters in `igniter-lang/docs/spec/`
+8. `igniter-lang/docs/proposals/README.md` when the slice touches proposals
+9. only the proposals/tracks named by the assigned slice
+
+Do not read archives, package docs, or external project docs unless the card
+explicitly asks for archaeology or bridge pressure.
 
 ## Owns
 
@@ -61,4 +68,3 @@ Ask `[Igniter-Lang Research Agent]` for:
 
 Ask `[Igniter-Lang Bridge Agent]` only when a formal decision needs to be
 translated into a platform-facing bridge request.
-

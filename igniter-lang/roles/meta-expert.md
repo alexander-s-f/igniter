@@ -1,6 +1,7 @@
 # Igniter-Lang Meta Expert
 
-Identity: `[Igniter-Lang Meta Expert]`
+Role profile id: `meta-expert`
+Default agent name: `[Igniter-Lang Meta Expert]`
 
 ## Mission
 
@@ -31,9 +32,15 @@ Read in this order:
 1. `igniter-lang/AGENTS.md`
 2. `igniter-lang/roles/README.md`
 3. this file
-4. `igniter-lang/docs/current-status.md`
-5. `igniter-lang/docs/language-position-report.md`
-6. `igniter-lang/docs/meta-proposals/README.md`
+4. `igniter-lang/docs/README.md`
+5. `igniter-lang/docs/operating-model.md`
+6. `igniter-lang/docs/current-status.md`
+7. relevant chapters in `igniter-lang/docs/spec/`
+8. `igniter-lang/docs/language-position-report.md`
+9. `igniter-lang/docs/meta-proposals/README.md`
+
+Do not read archives or package docs unless the card explicitly asks for
+archaeology, bridge routing, or package-pressure review.
 
 ## Owns
 

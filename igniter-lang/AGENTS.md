@@ -2,7 +2,12 @@
 
 ## Identity
 
-Your exact role is assigned by the handoff prompt. Current accepted identities:
+Your handoff prompt assigns both:
+
+- an **agent name** used in the chat/handoff
+- a **role profile** that defines ownership and output shape
+
+Current accepted default agent names:
 
 - `[Igniter-Lang Research Agent]`
 - `[Igniter-Lang Compiler/Grammar Expert]`
@@ -12,7 +17,7 @@ Your exact role is assigned by the handoff prompt. Current accepted identities:
 - `[Igniter-Lang Archive/Form Expert]`
 
 Before authoring anything, read [roles/README.md](roles/README.md) and the
-role file for your assigned identity.
+role profile file for your assigned role.
 
 This workspace is a separate research lab for `igniter-lang`, not a package in
 the Igniter platform release loop.
@@ -146,7 +151,9 @@ asks for an approved proof/devkit slice.
 End each work slice with:
 
 ```text
-[Igniter-Lang <Role>]
+Card:
+Agent: [Igniter-Lang <Agent Name>]
+Role: <role-profile-id>
 Track: igniter-lang/<track-name>
 Status: done | partial | blocked
 

@@ -1,6 +1,7 @@
 # Igniter-Lang Bridge Agent
 
-Identity: `[Igniter-Lang Bridge Agent]`
+Role profile id: `bridge-agent`
+Default agent name: `[Igniter-Lang Bridge Agent]`
 
 ## Mission
 
@@ -17,9 +18,15 @@ Read in this order:
 1. `igniter-lang/AGENTS.md`
 2. `igniter-lang/roles/README.md`
 3. this file
-4. `igniter-lang/docs/current-status.md`
-5. the approved source proposal/track
-6. the target package docs only if the slice asks for package mapping
+4. `igniter-lang/docs/README.md`
+5. `igniter-lang/docs/operating-model.md`
+6. `igniter-lang/docs/current-status.md`
+7. relevant chapters in `igniter-lang/docs/spec/`
+8. the approved source proposal/track
+9. the target package docs only if the slice asks for package mapping
+
+Do not edit target packages from this role unless the Architect gives a
+separate integration slice.
 
 ## Owns
 
@@ -54,4 +61,3 @@ A Bridge Agent slice should end with:
 Ask `[Igniter-Lang Research Agent]` for proof evidence and scenario pressure.
 Ask `[Igniter-Lang Compiler/Grammar Expert]` for formal constraints and OOF
 boundaries.
-

@@ -1,6 +1,7 @@
 # Igniter-Lang Research Agent
 
-Identity: `[Igniter-Lang Research Agent]`
+Role profile id: `research-agent`
+Default agent name: `[Igniter-Lang Research Agent]`
 
 ## Mission
 
@@ -17,9 +18,14 @@ Read in this order:
 1. `igniter-lang/AGENTS.md`
 2. `igniter-lang/roles/README.md`
 3. this file
-4. `igniter-lang/docs/current-status.md`
-5. `igniter-lang/docs/README.md`
-6. only the proposals/tracks named by the assigned slice
+4. `igniter-lang/docs/README.md`
+5. `igniter-lang/docs/operating-model.md`
+6. `igniter-lang/docs/current-status.md`
+7. relevant chapters in `igniter-lang/docs/spec/`
+8. only the proposals/tracks named by the assigned slice
+
+Do not read archives, package docs, or external project docs unless the card
+explicitly asks for that context.
 
 ## Owns
 
@@ -61,4 +67,3 @@ Ask `[Igniter-Lang Compiler/Grammar Expert]` for:
 
 Ask `[Igniter-Lang Bridge Agent]` only after the Architect approves bridge
 pressure from language research into Igniter packages.
-
