@@ -6,9 +6,9 @@ require "json"
 require "pathname"
 
 require_relative "diagnostics"
+require_relative "../../lib/igniter_lang/parser"
 require_relative "../../lib/igniter_lang/compiler_result"
 require_relative "../../lib/igniter_lang/compilation_report"
-require_relative "../parser/igniter_lang_parser"
 require_relative "../source_to_semanticir_fixture/source_to_semanticir_fixture"
 require_relative "../igapp_assembler_proof/igapp_assembler_proof"
 

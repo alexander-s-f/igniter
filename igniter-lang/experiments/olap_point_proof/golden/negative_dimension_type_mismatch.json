@@ -1,0 +1,28 @@
+{
+  "case_id": "negative_dimension_type_mismatch",
+  "diagnostics": [
+    {
+      "category": "olap_oof",
+      "contract": "RegionalDailyRevenuePoint",
+      "diagnostic": "olap.dimension_type_mismatch",
+      "expected_type": "String",
+      "message": "OLAPPoint dimension 'date' expected String, got Integer",
+      "node": "revenue_point",
+      "path": "contract:RegionalDailyRevenuePoint/olap:revenue_point",
+      "received_type": "Integer",
+      "rule": "OOF-O-T2",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "semantic_ir_ref": null,
+  "stages": {
+    "classify": "ok",
+    "emit": "skipped",
+    "parse": "proof_local_sketch",
+    "typecheck": "oof"
+  }
+}

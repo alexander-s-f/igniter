@@ -1,0 +1,51 @@
+[
+  {
+    "cell_id": "olap/cell/a938b90a485e7317",
+    "dimensions": {
+      "channel": "online",
+      "date": "2026-05-07",
+      "region": "west"
+    },
+    "kind": "olap_cell",
+    "measure": "35.50",
+    "measure_type": "Decimal[2]",
+    "observation_ref": "obs/olap_cell/210caaf3694d8baa",
+    "olap_ref": "Revenue",
+    "source_fact_refs": [
+      "fact/order/98ce0ff2869d40df",
+      "fact/order/d46d1d56626f775f"
+    ]
+  },
+  {
+    "cell_id": "olap/cell/b9c54a741dbcc5cb",
+    "dimensions": {
+      "channel": "retail",
+      "date": "2026-05-07",
+      "region": "west"
+    },
+    "kind": "olap_cell",
+    "measure": "9.50",
+    "measure_type": "Decimal[2]",
+    "observation_ref": "obs/olap_cell/2245ac1ad37811aa",
+    "olap_ref": "Revenue",
+    "source_fact_refs": [
+      "fact/order/ee7d8e03327c51a8"
+    ]
+  },
+  {
+    "cell_id": "olap/cell/0b86a407508ca26d",
+    "dimensions": {
+      "channel": "online",
+      "date": "2026-05-07",
+      "region": "east"
+    },
+    "kind": "olap_cell",
+    "measure": "18.00",
+    "measure_type": "Decimal[2]",
+    "observation_ref": "obs/olap_cell/3a8760bc7db9a394",
+    "olap_ref": "Revenue",
+    "source_fact_refs": [
+      "fact/order/3193023ee53ac569"
+    ]
+  }
+]

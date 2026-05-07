@@ -1,0 +1,23 @@
+{
+  "cell_ref": "olap/cell/a938b90a485e7317",
+  "dimensions": {
+    "channel": "online",
+    "date": "2026-05-07",
+    "region": "west"
+  },
+  "dims_type": {
+    "channel": "String",
+    "date": "String",
+    "region": "String"
+  },
+  "kind": "olap_point_result",
+  "measure": "35.50",
+  "measure_type": "Decimal[2]",
+  "observation_ref": "obs/olap_cell/210caaf3694d8baa",
+  "olap_ref": "Revenue",
+  "result_id": "olap/result/39c93c03f2c86b1a",
+  "source_fact_refs": [
+    "fact/order/98ce0ff2869d40df",
+    "fact/order/d46d1d56626f775f"
+  ]
+}

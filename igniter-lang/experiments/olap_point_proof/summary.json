@@ -1,0 +1,394 @@
+{
+  "cells": [
+    {
+      "cell_id": "olap/cell/a938b90a485e7317",
+      "dimensions": {
+        "channel": "online",
+        "date": "2026-05-07",
+        "region": "west"
+      },
+      "kind": "olap_cell",
+      "measure": "35.50",
+      "measure_type": "Decimal[2]",
+      "observation_ref": "obs/olap_cell/210caaf3694d8baa",
+      "olap_ref": "Revenue",
+      "source_fact_refs": [
+        "fact/order/98ce0ff2869d40df",
+        "fact/order/d46d1d56626f775f"
+      ]
+    },
+    {
+      "cell_id": "olap/cell/b9c54a741dbcc5cb",
+      "dimensions": {
+        "channel": "retail",
+        "date": "2026-05-07",
+        "region": "west"
+      },
+      "kind": "olap_cell",
+      "measure": "9.50",
+      "measure_type": "Decimal[2]",
+      "observation_ref": "obs/olap_cell/2245ac1ad37811aa",
+      "olap_ref": "Revenue",
+      "source_fact_refs": [
+        "fact/order/ee7d8e03327c51a8"
+      ]
+    },
+    {
+      "cell_id": "olap/cell/0b86a407508ca26d",
+      "dimensions": {
+        "channel": "online",
+        "date": "2026-05-07",
+        "region": "east"
+      },
+      "kind": "olap_cell",
+      "measure": "18.00",
+      "measure_type": "Decimal[2]",
+      "observation_ref": "obs/olap_cell/3a8760bc7db9a394",
+      "olap_ref": "Revenue",
+      "source_fact_refs": [
+        "fact/order/3193023ee53ac569"
+      ]
+    }
+  ],
+  "checks": {
+    "evidence.cell_observations_link_sources": true,
+    "negative.dimension_missing_oof": true,
+    "negative.dimension_type_mismatch_oof": true,
+    "negative.empty_without_source_oof_o3": true,
+    "relationship.stream_history_olap_documented": true,
+    "runtime.local_rollup_no_scatter_gather": true,
+    "runtime.materializes_cells": true,
+    "runtime.point_access_deterministic": true,
+    "semanticir.olap_access_node": true,
+    "semanticir.olap_point_decl": true,
+    "type.measure_decimal_string": true,
+    "type.olap_point_typed_dimensions": true
+  },
+  "format_version": "0.1.0",
+  "kind": "olap_point_proof_summary",
+  "negative_reports": [
+    {
+      "case_id": "negative_missing_dimension",
+      "diagnostics": [
+        {
+          "category": "olap_oof",
+          "contract": "RegionalDailyRevenuePoint",
+          "diagnostic": "olap.dimension_missing",
+          "expected_type": {
+            "channel": "String",
+            "date": "String",
+            "region": "String"
+          },
+          "message": "OLAPPoint access missing required dimension: channel",
+          "node": "revenue_point",
+          "path": "contract:RegionalDailyRevenuePoint/olap:revenue_point",
+          "received_dimensions": {
+            "date": "2026-05-07",
+            "region": "west"
+          },
+          "rule": "OOF-O-T1",
+          "severity": "error",
+          "span": null
+        }
+      ],
+      "format_version": "0.1.0",
+      "kind": "compilation_report",
+      "pass_result": "oof",
+      "semantic_ir_ref": null,
+      "stages": {
+        "classify": "ok",
+        "emit": "skipped",
+        "parse": "proof_local_sketch",
+        "typecheck": "oof"
+      }
+    },
+    {
+      "case_id": "negative_dimension_type_mismatch",
+      "diagnostics": [
+        {
+          "category": "olap_oof",
+          "contract": "RegionalDailyRevenuePoint",
+          "diagnostic": "olap.dimension_type_mismatch",
+          "expected_type": "String",
+          "message": "OLAPPoint dimension 'date' expected String, got Integer",
+          "node": "revenue_point",
+          "path": "contract:RegionalDailyRevenuePoint/olap:revenue_point",
+          "received_type": "Integer",
+          "rule": "OOF-O-T2",
+          "severity": "error",
+          "span": null
+        }
+      ],
+      "format_version": "0.1.0",
+      "kind": "compilation_report",
+      "pass_result": "oof",
+      "semantic_ir_ref": null,
+      "stages": {
+        "classify": "ok",
+        "emit": "skipped",
+        "parse": "proof_local_sketch",
+        "typecheck": "oof"
+      }
+    },
+    {
+      "case_id": "negative_empty_without_source_or_data",
+      "diagnostics": [
+        {
+          "category": "olap_oof",
+          "contract": "RegionalDailyRevenuePoint",
+          "diagnostic": "olap.empty_point",
+          "message": "OLAPPoint must declare a source function or be populated via stream snapshot",
+          "node": "Revenue",
+          "path": "contract:RegionalDailyRevenuePoint/olap:Revenue",
+          "rule": "OOF-O3",
+          "severity": "error",
+          "span": null
+        }
+      ],
+      "format_version": "0.1.0",
+      "kind": "compilation_report",
+      "pass_result": "oof",
+      "semantic_ir_ref": null,
+      "stages": {
+        "classify": "ok",
+        "emit": "skipped",
+        "parse": "proof_local_sketch",
+        "typecheck": "skipped"
+      }
+    }
+  ],
+  "observations": [
+    {
+      "dimensions": {
+        "channel": "online",
+        "date": "2026-05-07",
+        "region": "west"
+      },
+      "kind": "olap_cell_observation",
+      "lifecycle": "analytical",
+      "measure": "35.50",
+      "measure_type": "Decimal[2]",
+      "observation_id": "obs/olap_cell/210caaf3694d8baa",
+      "olap_ref": "Revenue",
+      "source_fact_refs": [
+        "fact/order/98ce0ff2869d40df",
+        "fact/order/d46d1d56626f775f"
+      ]
+    },
+    {
+      "dimensions": {
+        "channel": "retail",
+        "date": "2026-05-07",
+        "region": "west"
+      },
+      "kind": "olap_cell_observation",
+      "lifecycle": "analytical",
+      "measure": "9.50",
+      "measure_type": "Decimal[2]",
+      "observation_id": "obs/olap_cell/2245ac1ad37811aa",
+      "olap_ref": "Revenue",
+      "source_fact_refs": [
+        "fact/order/ee7d8e03327c51a8"
+      ]
+    },
+    {
+      "dimensions": {
+        "channel": "online",
+        "date": "2026-05-07",
+        "region": "east"
+      },
+      "kind": "olap_cell_observation",
+      "lifecycle": "analytical",
+      "measure": "18.00",
+      "measure_type": "Decimal[2]",
+      "observation_id": "obs/olap_cell/3a8760bc7db9a394",
+      "olap_ref": "Revenue",
+      "source_fact_refs": [
+        "fact/order/3193023ee53ac569"
+      ]
+    }
+  ],
+  "point_result": {
+    "cell_ref": "olap/cell/a938b90a485e7317",
+    "dimensions": {
+      "channel": "online",
+      "date": "2026-05-07",
+      "region": "west"
+    },
+    "dims_type": {
+      "channel": "String",
+      "date": "String",
+      "region": "String"
+    },
+    "kind": "olap_point_result",
+    "measure": "35.50",
+    "measure_type": "Decimal[2]",
+    "observation_ref": "obs/olap_cell/210caaf3694d8baa",
+    "olap_ref": "Revenue",
+    "result_id": "olap/result/39c93c03f2c86b1a",
+    "source_fact_refs": [
+      "fact/order/98ce0ff2869d40df",
+      "fact/order/d46d1d56626f775f"
+    ]
+  },
+  "relationship_map": {
+    "history_t": "durable_time_axis_memory_equivalent_to_olap_time_dimension",
+    "olap_point": "analytical_projection_cube_point_with_typed_dimensions",
+    "stream_t": "ingress_flow_that_may_populate_cells_on_window_close"
+  },
+  "rollup_result": {
+    "aggregation": "sum",
+    "execution_plan": "local_single_node_no_scatter_gather",
+    "kept_dimensions": [
+      "date",
+      "region"
+    ],
+    "kind": "olap_rollup_result",
+    "olap_ref": "Revenue",
+    "rows": [
+      {
+        "dimensions": {
+          "date": "2026-05-07",
+          "region": "east"
+        },
+        "kind": "olap_rollup_row",
+        "measure": "18.00",
+        "row_id": "olap/rollup_row/3005174d1a890086",
+        "source_cell_refs": [
+          "olap/cell/0b86a407508ca26d"
+        ]
+      },
+      {
+        "dimensions": {
+          "date": "2026-05-07",
+          "region": "west"
+        },
+        "kind": "olap_rollup_row",
+        "measure": "45.00",
+        "row_id": "olap/rollup_row/3a6483a1015850ce",
+        "source_cell_refs": [
+          "olap/cell/a938b90a485e7317",
+          "olap/cell/b9c54a741dbcc5cb"
+        ]
+      }
+    ]
+  },
+  "semantic_ir_program": {
+    "contracts": [
+      {
+        "contract_name": "RegionalDailyRevenuePoint",
+        "contract_ref": "contract/Fixture.OLAPPoint.RegionalDailyRevenuePoint@v0",
+        "fragment_class": "escape",
+        "kind": "contract_ir",
+        "nodes": [
+          {
+            "kind": "olap_access_node",
+            "name": "revenue_point",
+            "olap_ref": "Revenue",
+            "operation": "point",
+            "result_type": {
+              "constructor": "OLAPPoint",
+              "dims": {
+                "channel": "String",
+                "date": "String",
+                "region": "String"
+              },
+              "measure": "Decimal[2]"
+            },
+            "slices": [
+              {
+                "dim": "date",
+                "value_ref": "date"
+              },
+              {
+                "dim": "region",
+                "value_ref": "region"
+              },
+              {
+                "dim": "channel",
+                "value_ref": "channel"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "format_version": "0.1.0",
+    "kind": "semantic_ir_program",
+    "olap_points": [
+      {
+        "dimensions": {
+          "channel": "String",
+          "date": "String",
+          "region": "String"
+        },
+        "granularity": {
+          "date": "daily"
+        },
+        "indexed": [
+          "date",
+          "region"
+        ],
+        "kind": "olap_point_decl",
+        "measure_type": "Decimal[2]",
+        "name": "Revenue",
+        "source_ref": "synthetic_fulfilled_order_facts"
+      }
+    ],
+    "program_id": "semanticir/olap_point/4e0dabfaa6f7ae47",
+    "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
+    "source_status": "syntax_sketch_parser_not_used_in_this_proof"
+  },
+  "source_facts": [
+    {
+      "dimensions": {
+        "channel": "online",
+        "date": "2026-05-07",
+        "region": "west"
+      },
+      "fact_id": "fact/order/98ce0ff2869d40df",
+      "kind": "synthetic_fulfilled_order_fact",
+      "measure": "12.25",
+      "measure_type": "Decimal[2]",
+      "order_ref": "order/100"
+    },
+    {
+      "dimensions": {
+        "channel": "online",
+        "date": "2026-05-07",
+        "region": "west"
+      },
+      "fact_id": "fact/order/d46d1d56626f775f",
+      "kind": "synthetic_fulfilled_order_fact",
+      "measure": "23.25",
+      "measure_type": "Decimal[2]",
+      "order_ref": "order/101"
+    },
+    {
+      "dimensions": {
+        "channel": "retail",
+        "date": "2026-05-07",
+        "region": "west"
+      },
+      "fact_id": "fact/order/ee7d8e03327c51a8",
+      "kind": "synthetic_fulfilled_order_fact",
+      "measure": "9.50",
+      "measure_type": "Decimal[2]",
+      "order_ref": "order/102"
+    },
+    {
+      "dimensions": {
+        "channel": "online",
+        "date": "2026-05-07",
+        "region": "east"
+      },
+      "fact_id": "fact/order/3193023ee53ac569",
+      "kind": "synthetic_fulfilled_order_fact",
+      "measure": "18.00",
+      "measure_type": "Decimal[2]",
+      "order_ref": "order/103"
+    }
+  ],
+  "status": "PASS",
+  "track": "olap-point-proof-v0"
+}

@@ -1,0 +1,26 @@
+{
+  "case_id": "negative_empty_without_source_or_data",
+  "diagnostics": [
+    {
+      "category": "olap_oof",
+      "contract": "RegionalDailyRevenuePoint",
+      "diagnostic": "olap.empty_point",
+      "message": "OLAPPoint must declare a source function or be populated via stream snapshot",
+      "node": "Revenue",
+      "path": "contract:RegionalDailyRevenuePoint/olap:Revenue",
+      "rule": "OOF-O3",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "semantic_ir_ref": null,
+  "stages": {
+    "classify": "ok",
+    "emit": "skipped",
+    "parse": "proof_local_sketch",
+    "typecheck": "skipped"
+  }
+}

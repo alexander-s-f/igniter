@@ -1,0 +1,37 @@
+{
+  "aggregation": "sum",
+  "execution_plan": "local_single_node_no_scatter_gather",
+  "kept_dimensions": [
+    "date",
+    "region"
+  ],
+  "kind": "olap_rollup_result",
+  "olap_ref": "Revenue",
+  "rows": [
+    {
+      "dimensions": {
+        "date": "2026-05-07",
+        "region": "east"
+      },
+      "kind": "olap_rollup_row",
+      "measure": "18.00",
+      "row_id": "olap/rollup_row/3005174d1a890086",
+      "source_cell_refs": [
+        "olap/cell/0b86a407508ca26d"
+      ]
+    },
+    {
+      "dimensions": {
+        "date": "2026-05-07",
+        "region": "west"
+      },
+      "kind": "olap_rollup_row",
+      "measure": "45.00",
+      "row_id": "olap/rollup_row/3a6483a1015850ce",
+      "source_cell_refs": [
+        "olap/cell/a938b90a485e7317",
+        "olap/cell/b9c54a741dbcc5cb"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "case_id": "negative_missing_dimension",
+  "diagnostics": [
+    {
+      "category": "olap_oof",
+      "contract": "RegionalDailyRevenuePoint",
+      "diagnostic": "olap.dimension_missing",
+      "expected_type": {
+        "channel": "String",
+        "date": "String",
+        "region": "String"
+      },
+      "message": "OLAPPoint access missing required dimension: channel",
+      "node": "revenue_point",
+      "path": "contract:RegionalDailyRevenuePoint/olap:revenue_point",
+      "received_dimensions": {
+        "date": "2026-05-07",
+        "region": "west"
+      },
+      "rule": "OOF-O-T1",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "semantic_ir_ref": null,
+  "stages": {
+    "classify": "ok",
+    "emit": "skipped",
+    "parse": "proof_local_sketch",
+    "typecheck": "oof"
+  }
+}
