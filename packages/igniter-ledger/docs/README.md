@@ -82,6 +82,12 @@ intentional pre-v1 carryovers until a later deep-rename phase.
 | [package-agent-task-pack.md](package-agent-task-pack.md) | Sequential large-slice task pack for Package Agent |
 | [architect-supervisor-backlog.md](architect-supervisor-backlog.md) | Small local polish backlog for Architect Supervisor / Codex |
 
+## Reviews
+
+| File | Description |
+|------|-------------|
+| [reviews/README.md](reviews/README.md) | External and cross-agent review notes before they become proposals or tracks |
+
 ## Research Iterations
 
 | File | Description |
