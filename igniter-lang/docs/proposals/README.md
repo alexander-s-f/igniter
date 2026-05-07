@@ -36,7 +36,6 @@ These proposals are the baseline for Stage 2 implementation work.
 | [PROP-023](PROP-023-stream-input-surface-v0.md) | proposal | **Stage 2**: stream T ESCAPE input; window; fold_stream; KPN grounding |
 | [PROP-024](PROP-024-olap-point-primitive-v0.md) | proposal | **Stage 2**: OLAPPoint[T,Dims]; olap_point declaration; cluster scatter-gather |
 | [PROP-025](PROP-025-invariant-severity-levels-v0.md) | proposal | **Stage 2**: invariant severity :error/:warn/:soft/:metric |
-| [PROP-026](PROP-026-parser-oof-hardening-spec-v0.md) | proposal | **Stage 2**: parser OOF ownership/hardening; syntax-owned OOF rules |
 
 ---
 
@@ -72,5 +71,5 @@ authored → proposal → verification (experiment) → approved → spec chapte
 ```
 
 During Stage 2: `proposals/` is the active intake directory.
-New proposals: start from PROP-027.
+New proposals: start from PROP-028.
 Accepted Stage 1 PROPs: see `accepted/` — read-only.

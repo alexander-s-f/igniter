@@ -76,8 +76,9 @@ Rationale:
 2. Moving accepted/ files breaks git history traceability.
 3. The `-A` suffix, while non-standard, is self-documenting in context:
    "PROP-022A = the Stage 1 implementation variant of 022 space."
-4. Stage 2 authors receive PROP-027+ after parser hardening claimed PROP-026 —
-   they never need to author a PROP-022x.
+4. Stage 2 authors receive PROP-028+ after parser hardening claimed PROP-026
+   and compiler diagnostics claimed PROP-027 — they never need to author a
+   PROP-022x.
 
 ---
 
@@ -93,13 +94,14 @@ PROP-023A PROP-023A-classified-expr-boundary-v0.md  1    accepted  ClassifiedExp
 PROP-024  PROP-024-olap-point-primitive-v0.md       2    authored  OLAPPoint[T,Dims]
 PROP-025  PROP-025-invariant-severity-levels-v0.md  2    authored  invariant severity
 PROP-026  PROP-026-parser-oof-hardening-spec-v0.md  2    authored  parser OOF hardening
-PROP-027+ (not yet authored)                        2+   queued    new intake
+PROP-027  PROP-027-production-compiler-diagnostics-contract-v0.md  2  authored  compiler diagnostics
+PROP-028+ (not yet authored)                        2+   queued    new intake
 ────────────────────────────────────────────────────────────────────────────────────
 Convention:
   PROP-NNN       = active or Stage 2 design PROP (no suffix = canonical Stage N design)
   PROP-NNNA      = Stage 1 implementation PROP sharing number-space with a Stage 2 design
   PROP-NNN.M     = errata/patch on PROP-NNN (e.g. PROP-019.1, PROP-009.1)
-  New proposals  = PROP-027, PROP-028 ... (no suffix needed — no collisions going forward)
+  New proposals  = PROP-028, PROP-029 ... (no suffix needed — no collisions going forward)
 ```
 
 ---
@@ -122,7 +124,7 @@ All other docs are already correct.
 When authoring a new PROP:
 
 ```
-Start from PROP-027. Use bare numbers only (no suffix).
+Start from PROP-028. Use bare numbers only (no suffix).
 PROP-022A and PROP-023A are frozen Stage 1 artifacts — do not reference them
 in Stage 2 implementation unless citing a specific accepted decision.
 When citing History[T] design, always use "PROP-022" (not PROP-022A).

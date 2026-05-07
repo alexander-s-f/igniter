@@ -188,7 +188,7 @@ Content skeleton when written:
 | runtime eval surface | — | runtime eval expansion | deferred from Stage 1 |
 | Production compiler pkg | — | — | deferred from Stage 1 |
 
-## New PROP intake: PROP-026+
+## New PROP intake: PROP-028+ after reserved post-close PROP-026 and PROP-027
 ## Agent routing: [Research Agent] | [Compiler Expert] | [Meta Expert]
 ## Allowed: implementation of PROP-022..025
 ## Blocked: breaking changes to Stage 1 accepted PROPs
@@ -210,7 +210,7 @@ PROPs 002, 005, 005.1, 007, 008, 010, 016, 017, 022, 023, 024, 025
 → See proposals/accepted/ directory.
 All accepted PROPs are read-only. No amendments except errata.
 
-## New proposals: start from PROP-027
+## New proposals: start from PROP-028
 ```
 
 ---

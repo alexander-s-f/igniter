@@ -268,7 +268,7 @@ Status: done
 - 4 negative fixture targets: NF-1..NF-4.
 
 [Files] Changed:
-- igniter-lang/docs/proposals/PROP-025-production-compiler-diagnostics-contract-v0.md [NEW]
+- igniter-lang/docs/proposals/PROP-027-production-compiler-diagnostics-contract-v0.md [NEW]
 - igniter-lang/docs/agent-motion.md [updated]
 
 [Next]:

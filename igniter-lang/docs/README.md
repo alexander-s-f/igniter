@@ -1,9 +1,9 @@
 # Igniter-Lang — Documentation
 
 Stage 1 status: **CLOSED** (2026-05-06) — [META-EXPERT-007](meta-proposals/META-EXPERT-007-stage1-close-governance-v0.md)
-Stage 2 status: pending governance opening (META-EXPERT-008 not yet written)
+Stage 2 status: **OPEN** (2026-05-06) — [META-EXPERT-008](meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md)
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-06
+Last updated: 2026-05-07
 
 ---
 
@@ -11,9 +11,11 @@ Last updated: 2026-05-06
 
 ```
 Language reference             → language-spec.md
+Operating model                → operating-model.md
 Stage 1 spec (frozen)          → spec/  (ch1–ch9)
-Stage 1 scoreboard             → current-status.md
-Stage 2 active proposals       → proposals/README.md  (PROP-022..025, new from PROP-026)
+Current scoreboard             → current-status.md
+Track index                    → tracks/README.md
+Stage 2 active proposals       → proposals/README.md  (PROP-022..027, new from PROP-028)
 Accepted Stage 1 PROPs         → proposals/accepted/  (read-only)
 Governance                     → meta-proposals/README.md
 Stage 1 close snapshot         → archive/snapshots/2026-05-06-stage1-close/
@@ -39,7 +41,7 @@ Stdlib execution   ✅ PASS     experiments/stdlib_execution_kernel_stage1/
 ─────────────────────────────────────────────────────────────────────────────────
 STAGE 1 CLOSED:   YES — CLOSE WITH DEFERRED GAP (2026-05-06)
 Close evidence:   experiments/stage1_close_candidate/stage1_close_candidate.json
-Deferred gaps:    Parser OOF hardening | production compiler pkg
+Deferred gaps:    production compiler pkg
 ```
 
 ### Run the full Stage 1 proof suite
@@ -60,11 +62,12 @@ ruby igniter-lang/experiments/stdlib_execution_kernel_stage1/stdlib_execution_ke
 
 ---
 
-## Stage 2 — Not Yet Open
+## Stage 2 — OPEN
 
-Stage 2 governance opens after META-EXPERT-008 is authored.
+Stage 2 is implementation-oriented. New work should preserve Stage 1 semantics
+while moving proofs into reusable production package surfaces.
 
-Active intake baseline (authors of Stage 2 PROPs, start from PROP-026):
+Active intake baseline (authors of new Stage 2 PROPs start from PROP-028):
 
 | PROP | Topic |
 |------|-------|
@@ -72,8 +75,23 @@ Active intake baseline (authors of Stage 2 PROPs, start from PROP-026):
 | [PROP-023](proposals/PROP-023-stream-input-surface-v0.md) | stream T / fold_stream |
 | [PROP-024](proposals/PROP-024-olap-point-primitive-v0.md) | OLAPPoint[T, Dims] |
 | [PROP-025](proposals/PROP-025-invariant-severity-levels-v0.md) | Invariant severity levels |
+| [PROP-026](proposals/PROP-026-parser-oof-hardening-spec-v0.md) | Parser OOF hardening (PASS) |
+| [PROP-027](proposals/PROP-027-production-compiler-diagnostics-contract-v0.md) | Production compiler diagnostics contract |
 
-Do not implement Stage 2 PROPs until META-EXPERT-008 is written and approved.
+Current priority:
+
+```text
+Tier 1 proof artifacts
+  -> production compiler package extraction
+  -> canonical diagnostics
+  -> parser/classifier/typechecker/assembler reusable modules
+```
+
+CLI wrapper proof:
+
+```bash
+igniter-lang/bin/igniter-lang compile igniter-lang/experiments/source_to_semanticir_fixture/add.ig --out /tmp/igniter_lang_cli_report_add.igapp
+```
 
 ---
 
@@ -82,8 +100,10 @@ Do not implement Stage 2 PROPs until META-EXPERT-008 is written and approved.
 | Document | Purpose |
 |----------|---------|
 | [current-status.md](current-status.md) | Scoreboard (Stage 1 closed state) |
+| [operating-model.md](operating-model.md) | Supervisor-owned agent/documentation flow |
 | [meta-proposals/META-EXPERT-007](meta-proposals/META-EXPERT-007-stage1-close-governance-v0.md) | Stage 1 close verdict |
 | [meta-proposals/META-EXPERT-007.1](meta-proposals/META-EXPERT-007.1-stage1-close-snapshot-plan-v0.md) | Post-close doc transition plan |
+| [meta-proposals/META-EXPERT-008](meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md) | Stage 2 implementation governance |
 | [meta-proposals/META-EXPERT-003](meta-proposals/META-EXPERT-003-stage1-implementation-governance-v0.md) | Stage 1 policy (historical) |
 
 ---

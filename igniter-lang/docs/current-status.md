@@ -3,9 +3,10 @@
 Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **OPEN** (2026-05-06) — META-EXPERT-008
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-06
+Last updated: 2026-05-07
 Policy: `META-EXPERT-008-stage2-implementation-governance-v0.md`
 Language spec: `docs/language-spec.md` → `docs/spec/ch1..ch9`
+Operating model: `docs/operating-model.md`
 
 > Full historical status preserved in:
 > `docs/archive/snapshots/2026-05-06-stage1-pre-crystallization/current-status.md`
@@ -249,7 +250,7 @@ Step 4: Open Stage 2 governance
 
 Step 5: Archive Stage 2 design PROPs
   PROP-022–025 move to docs/proposals/ (active, not yet accepted).
-  New Stage 2 implementation PROPs begin from PROP-027+.
+  New Stage 2 implementation PROPs begin from PROP-028+.
 ```
 
 **Do not do any of this until Stage 1 is closed.**

@@ -102,7 +102,7 @@ Stage 2 implementation order (strict):
     F. stream T (PROP-023) — depends on PROP-003/013 (frozen ✅) + PROP-022 errata
     G. OLAPPoint (PROP-024) — depends on PROP-022 + PROP-015/016 (frozen ✅)
 
-  New intake: PROP-027+ (not yet authored)
+  New intake: PROP-028+ (not yet authored)
 ```
 
 ---
@@ -191,7 +191,7 @@ Done when:
                             → Tier 1 proofs: history_type_proof, invariant_severity_proof
                             → Tier 2 proofs: stream_input_proof, olap_point_proof
 
-[Compiler/Grammar Expert]  → PROP-027+ new design proposals
+[Compiler/Grammar Expert]  → PROP-028+ new design proposals
                             → Amendments/errata to PROP-022..025
 
 [Igniter-Lang Meta Expert] → This file + current-status.md updates
@@ -199,7 +199,7 @@ Done when:
                             → Stage 2 close governance (META-EXPERT-009)
 
 Do not start:
-  ❌ PROP-027+ implementation before authoring the matching PROP
+  ❌ PROP-028+ implementation before authoring the matching PROP
   ❌ History[T] implementation before PROP-022 verification pass
   ❌ Breaking changes to Stage 1 accepted PROPs (proposals/accepted/)
 
@@ -216,7 +216,7 @@ Do start:
 ALLOWED:
   Implementing remaining Tier 0 deferred gaps
   Authoring experiments for PROP-022..025
-  Authoring PROP-027+ new proposals
+  Authoring PROP-028+ new proposals
   Expanding stdlib kernel for Stage 2 operators
   Planning production compiler package
 
@@ -249,7 +249,7 @@ Stage 2 close governed by META-EXPERT-009 (not yet written).
 
 ## New Proposal Intake
 
-New Stage 2+ proposals start from **PROP-027**.
+New Stage 2+ proposals start from **PROP-028**.
 
 Before authoring a new PROP:
 - Check that it does not duplicate accepted Stage 1 PROPs

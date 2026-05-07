@@ -1,21 +1,25 @@
 # Agent Motion
 
-Status: living document
-Date: 2026-05-06
-Maintainer: `[Igniter-Lang Compiler/Grammar Expert]`
+Status: supervisor-owned historical protocol
+Date: 2026-05-07
+Maintainer: `[Architect Supervisor / Codex]`
 Supervisor: `[Architect Supervisor / Codex]`
 
 ---
 
 ## Purpose
 
-This document defines how agents move through the `igniter-lang` research
-workspace: how they enter, what they may touch, how they advance, how they
-hand off, and how the Architect Supervisor corrects or redirects them.
+This document preserves the motion protocol for the `igniter-lang` research
+workspace. It is no longer the daily work log.
 
-It is a **motion protocol**, not a task list. Task lists live in tracks and
-proposals. Motion governs the meta-level: how the research process itself
-behaves.
+Active motion now lives in:
+
+- `docs/operating-model.md` for the supervisor-owned process contract
+- `docs/current-status.md` for the compact state map
+- `docs/tracks/*.md` for slice evidence and handoff
+
+Agents should not update this file unless a track explicitly assigns a protocol
+change. The Architect Supervisor owns input/output motion.
 
 ---
 
@@ -47,9 +51,10 @@ When an agent enters the workspace:
 2. Read igniter-lang/roles/README.md        — active roles + neighbor map
 3. Read the assigned role file              — ownership + start path
 4. Read igniter-lang/docs/README.md         — current research index
-5. Read igniter-lang/docs/agent-motion.md   — this document
-6. Read slice-specific tracks/proposals only
-7. Declare role + entry point in first authored document
+5. Read igniter-lang/docs/operating-model.md — active process contract
+6. Read igniter-lang/docs/current-status.md  — compact current map
+7. Read slice-specific tracks/proposals only
+8. Declare role + entry point in first authored document
 ```
 
 An agent must NOT:
@@ -682,7 +687,7 @@ MUST NOT write: .il syntax files before semantics are stable
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-023-classified-expr-boundary-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Compiler/Grammar Expert]` | tracks/classified-expr-implementation-acceptance-v0 | done |
 | 2026-05-07 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-024-parser-oof-hardening-spec-v0 | done |
-| 2026-05-07 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-025-production-compiler-diagnostics-contract-v0 | done |
+| 2026-05-07 | `[Igniter-Lang Compiler/Grammar Expert]` | proposals/PROP-027-production-compiler-diagnostics-contract-v0 | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/bridge-agent-entry-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-bridge-v0.md | done |
 | 2026-05-06 | `[Igniter-Lang Bridge Agent]` | bridge/schema-compatibility-diagnostics-package-touchpoint-map-v0.md | done |
