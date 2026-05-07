@@ -19,6 +19,7 @@ Stage 2 active proposals       → proposals/README.md  (PROP-022..027, new from
 Accepted Stage 1 PROPs         → proposals/accepted/  (read-only)
 Governance                     → meta-proposals/README.md
 Human-agent vision            → meta-proposals/META-EXPERT-010-human-agent-symbiosis-vision-v0.md
+External/cross-agent reviews   → reviews/README.md
 Stage 1 close snapshot         → archive/snapshots/2026-05-06-stage1-close/
 Pre-crystallization archive    → archive/snapshots/2026-05-06-stage1-pre-crystallization/
 ```
@@ -115,6 +116,7 @@ ruby igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixt
 |----------|---------|
 | [current-status.md](current-status.md) | Scoreboard (Stage 1 closed state) |
 | [operating-model.md](operating-model.md) | Supervisor-owned agent/documentation flow |
+| [reviews/README.md](reviews/README.md) | External and cross-agent review signals before proposal/track routing |
 | [meta-proposals/META-EXPERT-007](meta-proposals/META-EXPERT-007-stage1-close-governance-v0.md) | Stage 1 close verdict |
 | [meta-proposals/META-EXPERT-007.1](meta-proposals/META-EXPERT-007.1-stage1-close-snapshot-plan-v0.md) | Post-close doc transition plan |
 | [meta-proposals/META-EXPERT-008](meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md) | Stage 2 implementation governance |
