@@ -64,6 +64,8 @@ module IgniterLang
       symbol_fragments = {}
       symbol_kinds = {}
       compute_exprs = {}
+      window_declarations = []
+      fold_stream_stream_refs = Hash.new { |refs, stream_name| refs[stream_name] = [] }
 
       contract.fetch("body").each do |node|
         case node.fetch("kind")
@@ -82,11 +84,15 @@ module IgniterLang
           symbol_kinds[node.fetch("name")] = "read"
           declarations << classified_decl(node, "escape", [], [])
         when "window"
+          window_declarations << node
           declarations << classified_decl(node.merge("name" => node.fetch("label", "_window")), "escape", [], [])
         when "fold_stream"
           bound = node.fetch("bound", nil)
           result_fragment = bound ? "core" : "oof"
           deps = expr_refs(node.fetch("expr", { "kind" => "literal", "value" => nil }))
+          deps.select { |dep| symbol_kinds[dep] == "stream" }.each do |stream_name|
+            fold_stream_stream_refs[stream_name] << node.fetch("name")
+          end
           symbol_fragments[node.fetch("name")] = result_fragment
           symbol_kinds[node.fetch("name")] = "fold_stream"
           declarations << classified_decl(node, result_fragment, deps, [])
@@ -119,6 +125,7 @@ module IgniterLang
         end
       end
 
+      diagnostics.concat(stream_missing_window_oofs(fold_stream_stream_refs, window_declarations))
       diagnostics.concat(evidence_gate_oofs(contract, sample_input))
       contract_fragment = contract_fragment_for(declarations, diagnostics)
 
@@ -141,6 +148,14 @@ module IgniterLang
                          declarations.none? { |decl| decl.fetch("fragment_class") == "oof" }
 
       "oof"
+    end
+
+    def stream_missing_window_oofs(fold_stream_stream_refs, window_declarations)
+      return [] unless window_declarations.empty?
+
+      fold_stream_stream_refs.keys.sort.map do |stream_name|
+        oof("OOF-S2", "stream '#{stream_name}' has no window - every stream must declare a window", stream_name)
+      end
     end
 
     def contract_id(parsed_program, contract)

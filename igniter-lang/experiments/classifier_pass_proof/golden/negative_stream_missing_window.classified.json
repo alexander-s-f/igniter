@@ -1,0 +1,148 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/56acc4a70bd5811b",
+  "source_path": "negative_stream_missing_window.ig",
+  "source_hash": "sha256:53d08ec41fc66399b28a96d15af5e6340ed8c30e56c2d8d4a1ada8860f151e43",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.StreamClassifier",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.StreamClassifier.StreamMissingWindow",
+      "name": "StreamMissingWindow",
+      "fragment_class": "oof",
+      "symbols": [
+        {
+          "name": "device_id",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "readings",
+          "kind": "stream",
+          "fragment_class": "escape"
+        },
+        {
+          "name": "total",
+          "kind": "fold_stream",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:device_id",
+          "kind": "input",
+          "name": "device_id",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "escape:stream_input",
+          "kind": "escape",
+          "name": "stream_input",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "stream:readings",
+          "kind": "stream",
+          "name": "readings",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        },
+        {
+          "decl_id": "fold_stream:total",
+          "kind": "fold_stream",
+          "name": "total",
+          "fragment_class": "core",
+          "deps": [
+            "fold_stream",
+            "readings",
+            "acc",
+            "val"
+          ],
+          "missing_refs": [],
+          "expr_kind": "call",
+          "expr": {
+            "kind": "call",
+            "fn": "fold_stream",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "readings"
+              },
+              {
+                "kind": "literal",
+                "value": 0,
+                "type_tag": "Integer"
+              },
+              {
+                "kind": "lambda",
+                "params": [
+                  "acc"
+                ],
+                "body": {
+                  "kind": "binary_op",
+                  "op": "+",
+                  "left": {
+                    "kind": "ref",
+                    "name": "acc"
+                  },
+                  "right": {
+                    "kind": "ref",
+                    "name": "val"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "decl_id": "output:total",
+          "kind": "output",
+          "name": "total",
+          "fragment_class": "core",
+          "deps": [
+            "total"
+          ],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:device_id",
+          "escape:stream_input",
+          "stream:readings",
+          "fold_stream:total",
+          "output:total"
+        ],
+        "edges": []
+      },
+      "oof_log": [
+        {
+          "rule": "OOF-S2",
+          "message": "stream 'readings' has no window - every stream must declare a window",
+          "node": "readings",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "oof_log": [
+    {
+      "rule": "OOF-S2",
+      "message": "stream 'readings' has no window - every stream must declare a window",
+      "node": "readings",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

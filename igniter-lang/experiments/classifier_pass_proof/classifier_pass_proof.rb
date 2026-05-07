@@ -110,6 +110,13 @@ module ClassifierPassProof
       expected_fragment: "oof",
       expected_rules: ["OOF-S4"],
       sample_input: { "device_id" => "dev-001" }
+    },
+    "negative_stream_missing_window" => {
+      parsed: "negative_stream_missing_window.parsed_ast.json",
+      expected_contract: "StreamMissingWindow",
+      expected_fragment: "oof",
+      expected_rules: ["OOF-S2"],
+      sample_input: { "device_id" => "dev-001" }
     }
   }.freeze
 
@@ -160,6 +167,7 @@ module ClassifierPassProof
       "stream.sc1_ingress_escape" => stream_ingress_escape?(outputs),
       "stream.sc2_direct_use_oof_s4" => rules_match?(outputs, "negative_stream_direct_use"),
       "stream.sc3_fold_result_core" => stream_fold_result_core?(outputs),
+      "stream.oof_s2_missing_window" => rules_match?(outputs, "negative_stream_missing_window"),
       "negative.unresolved_symbol" => rules_match?(outputs, "negative_unresolved_symbol"),
       "negative.evidence_less_alert" => rules_match?(outputs, "negative_evidence_less_alert"),
       "negative.confidence_bool" => rules_match?(outputs, "negative_confidence_bool"),

@@ -10,7 +10,7 @@ require "json"
 #
 # Grammar (subset):
 #   SourceFile   := ModuleDecl? ImportDecl* TopDecl*
-#   TopDecl      := ContractDecl | TypeDecl | FunctionDecl
+#   TopDecl      := ContractDecl | TypeDecl | FunctionDecl | OLAPPointDecl
 #                 | TraitDecl | ImplDecl | ContractShapeDecl
 #   ContractDecl := "contract" Name TypeParams? Implements? "{" BodyDecl* "}"
 #   BodyDecl     := EscapeDecl | InputDecl | ReadDecl | ComputeDecl
@@ -42,6 +42,7 @@ module IgniterLang
     module import contract contract_shape type def trait impl
     input output compute read snapshot window escape
     stream fold_stream
+    olap_point
     from lifecycle using implements
     pipeline step scoped_by cardinality schema_version tenant_free
     if else let
@@ -265,7 +266,7 @@ module IgniterLang
       program = { "kind" => "source_file", "module" => nil, "imports" => [],
                   "traits" => [], "impls" => [], "contract_shapes" => [],
                   "contracts" => [], "types" => [], "functions" => [],
-                  "pipelines" => [],
+                  "pipelines" => [], "olap_points" => [],
                   "parse_errors" => [] }
 
       # optional module declaration
@@ -291,6 +292,7 @@ module IgniterLang
         when "type"           then program["types"]           << decl
         when "function"       then program["functions"]       << decl
         when "pipeline"       then program["pipelines"]       << decl
+        when "olap_point"     then program["olap_points"]     << decl
         end
       end
 
@@ -384,6 +386,7 @@ module IgniterLang
       when "type"           then advance; parse_type_decl
       when "def"            then advance; parse_function_decl
       when "pipeline"       then advance; parse_pipeline_decl
+      when "olap_point"     then advance; parse_olap_point_decl
       else
         @errors << { "message" => "Unexpected token: #{tok.value}", "line" => tok.line }
         advance
@@ -426,6 +429,133 @@ module IgniterLang
       { "kind" => "pipeline", "name" => name,
         "in_type" => in_type, "out_type" => out_type, "err_type" => err_type,
         "steps" => steps }
+    end
+
+    def parse_olap_point_decl
+      name_tok = peek
+      name = name_token!(%i[ident])
+      expect_type!(:lbrace)
+      dimensions = {}
+      measure = nil
+      granularity = {}
+      source = nil
+      indexed = []
+
+      until peek_type?(:rbrace) || peek_type?(:eof)
+        clause_tok = peek
+        clause = name_token!(%i[ident keyword])
+        expect_type!(:colon)
+
+        case clause
+        when "dimensions"
+          dimensions = parse_olap_type_map
+        when "measure"
+          measure = parse_type_ref
+        when "granularity"
+          granularity = parse_olap_symbol_map
+        when "source"
+          source = parse_olap_source_expr
+        when "indexed"
+          indexed = parse_olap_symbol_list
+        else
+          add_parse_error(
+            rule: "OOF-P0",
+            message: "Unknown olap_point clause: #{clause}",
+            token: clause,
+            line: clause_tok.line,
+            col: clause_tok.col
+          )
+          skip_until_olap_clause_boundary
+        end
+      end
+
+      add_parse_error(
+        rule: "OOF-P0",
+        message: "olap_point '#{name}' must declare dimensions",
+        token: name,
+        line: name_tok.line,
+        col: name_tok.col
+      ) if dimensions.empty?
+
+      add_parse_error(
+        rule: "OOF-P0",
+        message: "olap_point '#{name}' must declare measure",
+        token: name,
+        line: name_tok.line,
+        col: name_tok.col
+      ) if measure.nil?
+
+      expect_type!(:rbrace)
+      {
+        "kind" => "olap_point",
+        "name" => name,
+        "dimensions" => dimensions,
+        "measure" => measure,
+        "granularity" => granularity,
+        "source" => source,
+        "indexed" => indexed
+      }
+    end
+
+    def parse_olap_type_map
+      expect_type!(:lbrace)
+      dims = {}
+      until peek_type?(:rbrace) || peek_type?(:eof)
+        dim = name_token!(%i[ident keyword])
+        expect_type!(:colon)
+        dims[dim] = parse_type_ref
+        advance if peek_type?(:comma)
+      end
+      expect_type!(:rbrace)
+      dims
+    end
+
+    def parse_olap_symbol_map
+      expect_type!(:lbrace)
+      values = {}
+      until peek_type?(:rbrace) || peek_type?(:eof)
+        key = name_token!(%i[ident keyword])
+        expect_type!(:colon)
+        values[key] = parse_olap_symbol_value
+        advance if peek_type?(:comma)
+      end
+      expect_type!(:rbrace)
+      values
+    end
+
+    def parse_olap_symbol_list
+      expect_type!(:lbracket)
+      values = []
+      until peek_type?(:rbracket) || peek_type?(:eof)
+        values << parse_olap_symbol_value
+        advance if peek_type?(:comma)
+      end
+      expect_type!(:rbracket)
+      values
+    end
+
+    def parse_olap_symbol_value
+      if peek_type?(:symbol_lit)
+        advance.value
+      else
+        name_token!(%i[ident keyword])
+      end
+    end
+
+    def parse_olap_source_expr
+      tokens = []
+      depth = 0
+      until peek_type?(:eof)
+        break if depth.zero? && (peek_type?(:rbrace) || olap_clause_boundary?(peek, peek(1)))
+
+        tok = advance
+        depth += 1 if %i[lbrace lparen lbracket].include?(tok.type)
+        depth -= 1 if %i[rbrace rparen rbracket].include?(tok.type)
+        tokens << tok
+      end
+      return nil if tokens.empty?
+
+      { "kind" => "raw_expr", "tokens" => tokens.map { |tok| tok.value.to_s } }
     end
 
     def parse_step_decl
@@ -591,9 +721,16 @@ module IgniterLang
 
     def parse_compute_decl
       name = name_token!(%i[ident])
+      type_ref = nil
+      if peek_type?(:colon)
+        advance
+        type_ref = parse_type_ref
+      end
       expect_type!(:assign)
       expr = parse_expr
-      { "kind" => "compute", "name" => name, "expr" => expr }
+      node = { "kind" => "compute", "name" => name, "expr" => expr }
+      node["type_annotation"] = type_ref if type_ref
+      node
     end
 
     def parse_read_decl
@@ -894,16 +1031,13 @@ module IgniterLang
           expect_type!(:rbracket)
           return { "kind" => "type_ref", "name" => "Decimal", "params" => [scale] }
         end
-        inner = parse_type_ref
-        # handle nested like Result[T, E]
-        if peek_type?(:comma)
-          advance
-          inner2 = parse_type_ref
-          expect_type!(:rbracket)
-          return { "kind" => "type_ref", "name" => name, "params" => [normalize_type_param(inner), normalize_type_param(inner2)] }
+        params = []
+        until peek_type?(:rbracket) || peek_type?(:eof)
+          params << parse_type_ref_param(name, params.length)
+          advance if peek_type?(:comma)
         end
         expect_type!(:rbracket)
-        { "kind" => "type_ref", "name" => name, "params" => [normalize_type_param(inner)] }
+        { "kind" => "type_ref", "name" => name, "params" => params }
       else
         if name == "Decimal"
           add_parse_error(
@@ -919,12 +1053,20 @@ module IgniterLang
       end
     end
 
-     # Normalize a bare type name string into a structured TypeRef node.
-     # Used only when assembling params inside a generic type like History[T].
-     # Existing callers that receive bare strings are unaffected.
-     def normalize_type_param(ref)
-       ref.is_a?(String) ? { "kind" => "type_ref", "name" => ref, "params" => [] } : ref
-     end
+    def parse_type_ref_param(parent_name, index)
+      if parent_name == "OLAPPoint" && index == 1 && peek_type?(:lbrace)
+        { "kind" => "dims_record", "dims" => parse_olap_type_map }
+      else
+        normalize_type_param(parse_type_ref)
+      end
+    end
+
+    # Normalize a bare type name string into a structured TypeRef node.
+    # Used only when assembling params inside a generic type like History[T].
+    # Existing callers that receive bare strings are unaffected.
+    def normalize_type_param(ref)
+      ref.is_a?(String) ? { "kind" => "type_ref", "name" => ref, "params" => [] } : ref
+    end
 
     def add_parse_error(rule:, message:, token:, line:, col:, severity: "error")
       @errors << {
@@ -982,9 +1124,21 @@ module IgniterLang
       end
     end
 
+    def skip_until_olap_clause_boundary
+      until peek_type?(:eof) || peek_type?(:rbrace) || olap_clause_boundary?(peek, peek(1))
+        advance
+      end
+    end
+
     def body_boundary_token?(tok)
       tok&.type == :keyword &&
         %w[input output compute read snapshot window escape stream fold_stream pipeline step scoped_by tenant_free].include?(tok.value)
+    end
+
+    def olap_clause_boundary?(tok, next_tok)
+      tok && %i[ident keyword].include?(tok.type) &&
+        %w[dimensions measure granularity source indexed].include?(tok.value) &&
+        next_tok&.type == :colon
     end
 
     def parse_lifecycle
@@ -1053,7 +1207,7 @@ module IgniterLang
           expr = { "kind" => "field_access", "object" => expr, "field" => field }
         elsif peek_type?(:lbracket)
           advance
-          index = parse_expr
+          index = index_slice_ahead? ? parse_index_slice_record : parse_expr
           expect_type!(:rbracket)
           expr = { "kind" => "index_access", "object" => expr, "index" => index }
         elsif peek_type?(:lparen) && expr["kind"] == "ref"
@@ -1073,6 +1227,21 @@ module IgniterLang
       end
 
       expr
+    end
+
+    def index_slice_ahead?
+      %i[ident keyword].include?(peek&.type) && peek(1)&.type == :colon
+    end
+
+    def parse_index_slice_record
+      fields = {}
+      until peek_type?(:rbracket) || peek_type?(:eof)
+        key = name_token!(%i[ident keyword])
+        expect_type!(:colon)
+        fields[key] = parse_expr
+        advance if peek_type?(:comma)
+      end
+      { "kind" => "slice_record", "fields" => fields }
     end
 
     def parse_call_arg
@@ -1269,6 +1438,7 @@ module IgniterLang
         "types"           => @ast["types"],
         "functions"       => @ast["functions"],
         "pipelines"       => @ast.fetch("pipelines", []),
+        "olap_points"     => @ast.fetch("olap_points", []),
         "parse_errors"    => @errors
       }
     end
@@ -1277,6 +1447,8 @@ module IgniterLang
       decimal_type_ref = lambda { |n|
         n.is_a?(Hash) && n["kind"] == "type_ref" && n["name"] == "Decimal"
       }
+      return "olap-point-v0" if @ast.fetch("olap_points", []).any?
+
       has_decimal = @ast.fetch("contracts", []).any? { |c|
         c.fetch("body", []).any? { |node|
           node.is_a?(Hash) && (

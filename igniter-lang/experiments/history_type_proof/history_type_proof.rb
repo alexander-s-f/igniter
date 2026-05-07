@@ -32,7 +32,8 @@ module HistoryTypeProof
   OPTION_ENCODING = TemporalAccessRuntime::Option::ENCODING
   Canonical = TemporalAccessRuntime::Canonical
   MemoryHistoryBackend = TemporalAccessRuntime::MemoryBackend
-  SemanticIRTemporalAccessEvaluator = TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator
+  RuntimeMachineHook = TemporalAccessRuntime::RuntimeMachineHook
+  CapabilityError = TemporalAccessRuntime::CapabilityError
 
   class ProofCompiler
     def positive_parsed_program
@@ -389,9 +390,9 @@ module HistoryTypeProof
   class HistoryRuntimeMachine
     attr_reader :compatibility_report
 
-    def initialize(backend)
+    def initialize(backend, capabilities: nil)
       @backend = backend
-      @temporal_access = SemanticIRTemporalAccessEvaluator.new(backend)
+      @temporal_access_hook = RuntimeMachineHook.new(backend: backend, capabilities: capabilities)
     end
 
     def load(path)
@@ -401,10 +402,12 @@ module HistoryTypeProof
       report = read_json(dir / "compilation_report.json")
       requirements = read_json(dir / "requirements.json")
       contract = semantic_ir.fetch("contracts").first
+      temporal_hook_check = @temporal_access_hook.load_check(contract: contract, requirements: requirements)
       trusted = report.fetch("pass_result") == "ok" &&
         requirements.dig("capabilities", "required_caps").include?("history_read") &&
         requirements.dig("temporal", "requires_as_of") == true &&
-        contract.fetch("nodes").any? { |node| node.fetch("kind") == "temporal_access_node" }
+        contract.fetch("nodes").any? { |node| node.fetch("kind") == "temporal_access_node" } &&
+        temporal_hook_check.fetch("status") == "ok"
       @loaded = {
         "manifest" => manifest,
         "semantic_ir" => semantic_ir,
@@ -421,8 +424,10 @@ module HistoryTypeProof
           "manifest" => "ok",
           "compilation_report" => report.fetch("pass_result") == "ok" ? "ok" : "blocked",
           "semantic_ir_program" => "ok",
-          "history_requirements" => trusted ? "ok" : "blocked"
-        }
+          "history_requirements" => requirements.dig("capabilities", "required_caps").include?("history_read") ? "ok" : "blocked",
+          "temporal_access_hook" => temporal_hook_check
+        },
+        "blocked_reasons" => trusted ? [] : blocked_reasons(report, requirements, contract, temporal_hook_check)
       }
     end
 
@@ -435,12 +440,12 @@ module HistoryTypeProof
       temporal_inputs = contract.fetch("nodes")
         .select { |node| node.fetch("kind") == "temporal_input_node" }
         .to_h { |node| [node.fetch("name"), node] }
-      access_eval = @temporal_access.evaluate(access_node, temporal_inputs: temporal_inputs, inputs: inputs)
+      access_eval = @temporal_access_hook.evaluate(access_node, temporal_inputs: temporal_inputs, inputs: inputs)
       {
         "kind" => "runtime_evaluation",
         "contract_ref" => @loaded.dig("manifest", "entry_contract_ref"),
         "as_of" => inputs.fetch("as_of"),
-        "temporal_access_loader" => "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_loader" => "TemporalAccessRuntime::RuntimeMachineHook",
         "outputs" => { access_node.fetch("name") => access_eval.fetch("result") },
         "observations" => [access_eval.fetch("observation")],
         "evidence_links" => access_eval.fetch("evidence_links")
@@ -451,6 +456,15 @@ module HistoryTypeProof
 
     def read_json(path)
       JSON.parse(File.read(path))
+    end
+
+    def blocked_reasons(report, requirements, contract, temporal_hook_check)
+      reasons = []
+      reasons << "compilation_report_blocked" unless report.fetch("pass_result") == "ok"
+      reasons << "history_read_requirement_missing" unless requirements.dig("capabilities", "required_caps").include?("history_read")
+      reasons << "temporal_access_node_missing" unless contract.fetch("nodes").any? { |node| node.fetch("kind") == "temporal_access_node" }
+      reasons << "temporal_access_hook_blocked" unless temporal_hook_check.fetch("status") == "ok"
+      reasons
     end
   end
 
@@ -477,6 +491,9 @@ module HistoryTypeProof
     compatibility = machine.load(IGAPP_DIR)
     early_eval = machine.evaluate({ "technician_id" => TECHNICIAN_ID, "as_of" => AS_OF_EARLY })
     late_eval = machine.evaluate({ "technician_id" => TECHNICIAN_ID, "as_of" => AS_OF_LATE })
+    blocked_machine = HistoryRuntimeMachine.new(backend, capabilities: [])
+    blocked_compatibility = blocked_machine.load(IGAPP_DIR)
+    blocked_evaluation = missing_capability_evaluation(blocked_machine)
 
     write_artifacts(
       positive_parsed: positive_parsed,
@@ -499,6 +516,8 @@ module HistoryTypeProof
       positive_report: positive_report,
       negative_report: negative_report,
       compatibility: compatibility,
+      blocked_compatibility: blocked_compatibility,
+      blocked_evaluation: blocked_evaluation,
       early_eval: early_eval,
       late_eval: late_eval,
       assembled: assembled
@@ -513,9 +532,11 @@ module HistoryTypeProof
       "append_observations" => backend.append_observations,
       "evaluations" => {
         "as_of_2026_05_03" => early_eval,
-        "as_of_2026_05_06" => late_eval
+        "as_of_2026_05_06" => late_eval,
+        "missing_history_read_capability" => blocked_evaluation
       },
       "compatibility_report" => compatibility,
+      "blocked_compatibility_report" => blocked_compatibility,
       "checks" => checks,
       "artifacts" => {
         "golden_dir" => GOLDEN_DIR.relative_path_from(ROOT).to_s,
@@ -546,9 +567,11 @@ module HistoryTypeProof
   end
 
   def checks(backend:, positive_parsed:, positive_classified:, positive_typed:, semantic_ir:, positive_report:,
-             negative_report:, compatibility:, early_eval:, late_eval:, assembled:)
+             negative_report:, compatibility:, blocked_compatibility:, blocked_evaluation:, early_eval:, late_eval:, assembled:)
     late_obs = late_eval.fetch("observations").first
     early_obs = early_eval.fetch("observations").first
+    hook_check = compatibility.dig("checks", "temporal_access_hook")
+    blocked_hook_check = blocked_compatibility.dig("checks", "temporal_access_hook")
     {
       "history.append_seed_observations" => backend.append_observations.length == 2,
       "parser.hand_authored_history_parsed_program" => positive_parsed.fetch("parse_errors").empty? &&
@@ -561,14 +584,20 @@ module HistoryTypeProof
       "semanticir.temporal_access_node" => semantic_ir.dig("contracts", 0, "nodes").any? { |node| node.fetch("kind") == "temporal_access_node" },
       "assembler.history_igapp" => assembled.fetch("files").any? { |path| path.end_with?("semantic_ir_program.json") },
       "runtime.load_history_igapp_trusted" => compatibility.fetch("status") == "trusted",
+      "runtime.hook_load_check_valid_time" => hook_check.fetch("status") == "ok" &&
+        hook_check.fetch("checks").first.fetch("required_capabilities") == ["history_read"],
       "runtime.evaluate_as_of_2026_05_03" => early_eval.dig("outputs", "current_count") == { "kind" => "some", "value" => 7 } &&
         early_obs.fetch("selected_append_ref") == backend.append_observations.fetch(0).fetch("observation_id"),
       "runtime.evaluate_as_of_2026_05_06" => late_eval.dig("outputs", "current_count") == { "kind" => "some", "value" => 9 } &&
         late_obs.fetch("selected_append_ref") == backend.append_observations.fetch(1).fetch("observation_id"),
       "runtime.output_links_selected_append_observation" => late_eval.fetch("evidence_links").first.fetch("to") ==
         backend.append_observations.fetch(1).fetch("observation_id"),
-      "runtime.temporal_access_node_loader_valid_time" => early_eval.fetch("temporal_access_loader") == "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator" &&
+      "runtime.temporal_access_node_loader_valid_time" => early_eval.fetch("temporal_access_loader") == "TemporalAccessRuntime::RuntimeMachineHook" &&
         early_obs.dig("temporal", "axis") == "valid_time",
+      "negative.missing_history_read_capability_blocked" => blocked_compatibility.fetch("status") == "blocked" &&
+        blocked_hook_check.fetch("checks").first.fetch("missing_capabilities") == ["history_read"],
+      "negative.missing_history_read_evaluate_rejected" => blocked_evaluation.fetch("error_class") == "IgniterLang::TemporalAccessRuntime::CapabilityError" &&
+        blocked_evaluation.fetch("capability") == "history_read",
       "negative.missing_as_of_oof_h1" => negative_report.fetch("pass_result") == "oof" &&
         negative_report.fetch("semantic_ir_ref").nil? &&
         negative_report.fetch("diagnostics").any? { |diagnostic| diagnostic.fetch("rule") == "OOF-H1" },
@@ -597,6 +626,18 @@ module HistoryTypeProof
   def write_json(path, payload)
     FileUtils.mkdir_p(Pathname.new(path).dirname)
     File.write(path, Canonical.pretty(payload))
+  end
+
+  def missing_capability_evaluation(machine)
+    machine.evaluate({ "technician_id" => TECHNICIAN_ID, "as_of" => AS_OF_LATE })
+  rescue CapabilityError => e
+    {
+      "kind" => "runtime_evaluation_rejection",
+      "status" => "blocked",
+      "error_class" => e.class.name,
+      "capability" => e.capability,
+      "node" => e.node.fetch("name")
+    }
   end
 
   def print_summary(summary)

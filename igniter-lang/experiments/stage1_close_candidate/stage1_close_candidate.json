@@ -67,6 +67,10 @@
           "status": "PASS"
         },
         {
+          "name": "stream.oof_s2_missing_window",
+          "status": "PASS"
+        },
+        {
           "name": "negative.unresolved_symbol",
           "status": "PASS"
         },
@@ -111,6 +115,7 @@
         "stream.sc1_ingress_escape: ok",
         "stream.sc2_direct_use_oof_s4: ok",
         "stream.sc3_fold_result_core: ok",
+        "stream.oof_s2_missing_window: ok",
         "negative.unresolved_symbol: ok",
         "negative.evidence_less_alert: ok",
         "negative.confidence_bool: ok",

@@ -115,5 +115,6 @@
   ],
   "functions": [],
   "pipelines": [],
+  "olap_points": [],
   "parse_errors": []
 }

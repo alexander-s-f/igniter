@@ -44,12 +44,23 @@
       },
       "slot_local": "09:00",
       "source_event_refs": [],
-      "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+      "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
       "temporal_access_nodes": [
         "schedule_at",
         "off_schedule_at",
         "day_off_config_at"
       ],
+      "temporal_evidence_links": {
+        "day_off_config_at": [
+          {
+            "from": "obs/bihistory_access/63cc8503f05a9750",
+            "rel": "selected_event",
+            "to": "hist/day_off_config/t-17/v1"
+          }
+        ],
+        "off_schedule_at": [],
+        "schedule_at": []
+      },
       "valid_time": "2026-05-07T13:00:00Z"
     },
     {
@@ -84,12 +95,29 @@
       "source_event_refs": [
         "hist/schedule/t-17/10/canceled/correction-1510"
       ],
-      "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+      "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
       "temporal_access_nodes": [
         "schedule_at",
         "off_schedule_at",
         "day_off_config_at"
       ],
+      "temporal_evidence_links": {
+        "day_off_config_at": [
+          {
+            "from": "obs/bihistory_access/491fbfe6ea40a46e",
+            "rel": "selected_event",
+            "to": "hist/day_off_config/t-17/v1"
+          }
+        ],
+        "off_schedule_at": [],
+        "schedule_at": [
+          {
+            "from": "obs/bihistory_access/8234ca611057a15f",
+            "rel": "selected_event",
+            "to": "hist/schedule/t-17/10/canceled/correction-1510"
+          }
+        ]
+      },
       "valid_time": "2026-05-07T14:00:00Z"
     },
     {
@@ -116,12 +144,23 @@
       },
       "slot_local": "11:00",
       "source_event_refs": [],
-      "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+      "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
       "temporal_access_nodes": [
         "schedule_at",
         "off_schedule_at",
         "day_off_config_at"
       ],
+      "temporal_evidence_links": {
+        "day_off_config_at": [
+          {
+            "from": "obs/bihistory_access/7eb86ee0c7b77e46",
+            "rel": "selected_event",
+            "to": "hist/day_off_config/t-17/v1"
+          }
+        ],
+        "off_schedule_at": [],
+        "schedule_at": []
+      },
       "valid_time": "2026-05-07T15:00:00Z"
     },
     {
@@ -155,12 +194,29 @@
       "source_event_refs": [
         "hist/off_schedule/t-17/12/personal-block"
       ],
-      "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+      "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
       "temporal_access_nodes": [
         "schedule_at",
         "off_schedule_at",
         "day_off_config_at"
       ],
+      "temporal_evidence_links": {
+        "day_off_config_at": [
+          {
+            "from": "obs/bihistory_access/96facb5447c3e3f5",
+            "rel": "selected_event",
+            "to": "hist/day_off_config/t-17/v1"
+          }
+        ],
+        "off_schedule_at": [
+          {
+            "from": "obs/bihistory_access/bc26dbabbf6cade0",
+            "rel": "selected_event",
+            "to": "hist/off_schedule/t-17/12/personal-block"
+          }
+        ],
+        "schedule_at": []
+      },
       "valid_time": "2026-05-07T16:00:00Z"
     }
   ],

@@ -46,7 +46,8 @@ module SparkCRMBiHistoryFixture
   Option = TemporalAccessRuntime::Option
   MemoryBiHistoryBackend = TemporalAccessRuntime::MemoryBackend
   AxisTypeError = TemporalAccessRuntime::AxisTypeError
-  SemanticIRTemporalAccessEvaluator = TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator
+  RuntimeMachineHook = TemporalAccessRuntime::RuntimeMachineHook
+  CapabilityError = TemporalAccessRuntime::CapabilityError
 
   TEMPORAL_INPUT_NODES = {
     "schedule_history" => {
@@ -113,8 +114,9 @@ module SparkCRMBiHistoryFixture
 
     def initialize
       @backend = MemoryBiHistoryBackend.new
-      @temporal_access = SemanticIRTemporalAccessEvaluator.new(@backend)
+      @temporal_access = RuntimeMachineHook.new(backend: @backend)
       @backend.seed(seed_events)
+      @temporal_hook_load_check = @temporal_access.load_check(contract: runtime_contract, requirements: runtime_requirements)
     end
 
     def run
@@ -123,19 +125,26 @@ module SparkCRMBiHistoryFixture
       dispatch_explanation = dispatch_explanation(decision_snapshot)
       correction_report = correction_report(decision_snapshot, corrected_snapshot)
       negatives = negative_reports
+      missing_bihistory_report = missing_bihistory_capability_report
+      check_results = checks(decision_snapshot, corrected_snapshot, dispatch_explanation, correction_report, negatives,
+                             missing_bihistory_report)
       summary = {
         "kind" => "sparkcrm_bihistory_fixture_summary",
         "format_version" => FORMAT_VERSION,
         "track" => TRACK,
-        "status" => checks(decision_snapshot, corrected_snapshot, dispatch_explanation, correction_report, negatives).values.all? ? "PASS" : "FAIL",
+        "status" => check_results.values.all? ? "PASS" : "FAIL",
         "scenario" => scenario_descriptor,
         "decision_snapshot" => decision_snapshot,
         "corrected_snapshot" => corrected_snapshot,
         "dispatch_explanation" => dispatch_explanation,
         "correction_report" => correction_report,
         "negative_reports" => negatives,
+        "runtime_hook" => {
+          "load_check" => @temporal_hook_load_check,
+          "missing_bihistory_read" => missing_bihistory_report
+        },
         "access_observations" => backend.access_observations,
-        "checks" => checks(decision_snapshot, corrected_snapshot, dispatch_explanation, correction_report, negatives)
+        "checks" => check_results
       }
       write_outputs(summary)
       summary
@@ -195,12 +204,17 @@ module SparkCRMBiHistoryFixture
           off_eval.dig("observation", "observation_id"),
           day_off_eval.dig("observation", "observation_id")
         ],
-        "temporal_access_loader" => "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_loader" => "TemporalAccessRuntime::RuntimeMachineHook",
         "temporal_access_nodes" => [
           schedule_eval.fetch("node"),
           off_eval.fetch("node"),
           day_off_eval.fetch("node")
-        ]
+        ],
+        "temporal_evidence_links" => {
+          "schedule_at" => schedule_eval.fetch("evidence_links"),
+          "off_schedule_at" => off_eval.fetch("evidence_links"),
+          "day_off_config_at" => day_off_eval.fetch("evidence_links")
+        }
       }
     end
 
@@ -310,6 +324,32 @@ module SparkCRMBiHistoryFixture
       ]
     end
 
+    def missing_bihistory_capability_report
+      blocked_hook = RuntimeMachineHook.new(backend: backend, capabilities: [])
+      load_check = blocked_hook.load_check(contract: runtime_contract, requirements: runtime_requirements)
+      evaluation = begin
+        blocked_hook.evaluate(
+          TEMPORAL_ACCESS_NODES.fetch("schedule_at"),
+          temporal_inputs: TEMPORAL_INPUT_NODES,
+          inputs: { "valid_time" => "2026-05-07T14:00:00Z", "known_time" => DECISION_TT }
+        )
+      rescue CapabilityError => e
+        {
+          "kind" => "runtime_evaluation_rejection",
+          "status" => "blocked",
+          "error_class" => e.class.name,
+          "capability" => e.capability,
+          "node" => e.node.fetch("name")
+        }
+      end
+      {
+        "kind" => "runtime_hook_missing_capability_report",
+        "capability" => "bihistory_read",
+        "load_check" => load_check,
+        "evaluation" => evaluation
+      }
+    end
+
     def wrong_axis_type_report
       backend.bihistory_at(SCHEDULE_HISTORY, vt: "10:00", tt: DECISION_TT, node_name: "schedule_at")
     rescue AxisTypeError => e
@@ -352,7 +392,12 @@ module SparkCRMBiHistoryFixture
       }
     end
 
-    def checks(decision_snapshot, corrected_snapshot, dispatch_explanation, correction_report, negatives)
+    def checks(decision_snapshot, corrected_snapshot, dispatch_explanation, correction_report, negatives,
+               missing_bihistory_report)
+      hook_checks = @temporal_hook_load_check.fetch("checks")
+      missing_hook_check = missing_bihistory_report.dig("load_check", "checks").find do |check|
+        check.fetch("node") == "schedule_at"
+      end
       {
         "seed.synthetic_bihistory_events" => backend.events.values.flatten.length == 5,
         "option.canonical_some" => decision_snapshot.dig("slots", 1, "schedule") == {
@@ -374,8 +419,14 @@ module SparkCRMBiHistoryFixture
         "dispatch.original_explanation_preserved" => dispatch_explanation.fetch("reason") == "busy" &&
           dispatch_explanation.fetch("evidence_refs") == [PLANNED_EVENT] &&
           correction_report.fetch("original_decision_rewritten") == false,
-        "runtime.temporal_access_node_loader_bitemporal" => decision_snapshot.dig("slots", 1, "temporal_access_loader") == "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator" &&
+        "runtime.temporal_access_node_loader_bitemporal" => decision_snapshot.dig("slots", 1, "temporal_access_loader") == "TemporalAccessRuntime::RuntimeMachineHook" &&
           decision_snapshot.dig("slots", 1, "temporal_access_nodes").include?("schedule_at"),
+        "runtime.hook_load_check_bitemporal" => @temporal_hook_load_check.fetch("status") == "ok" &&
+          hook_checks.all? { |check| check.fetch("required_capabilities") == ["bihistory_read"] },
+        "runtime.output_links_selected_event_observation" => decision_snapshot.dig("slots", 1, "temporal_evidence_links", "schedule_at", 0, "to") == PLANNED_EVENT,
+        "negative.missing_bihistory_read_capability_blocked" => missing_bihistory_report.dig("load_check", "status") == "blocked" &&
+          missing_hook_check.fetch("missing_capabilities") == ["bihistory_read"] &&
+          missing_bihistory_report.dig("evaluation", "error_class") == "IgniterLang::TemporalAccessRuntime::CapabilityError",
         "negative.missing_vt_oof_bt2" => negative_rule?(negatives, "negative_missing_vt", "OOF-BT2"),
         "negative.missing_tt_oof_bt3" => negative_rule?(negatives, "negative_missing_tt", "OOF-BT3"),
         "negative.wrong_axis_type_oof_bt4" => negative_rule?(negatives, "negative_wrong_axis_type", "OOF-BT4"),
@@ -409,6 +460,25 @@ module SparkCRMBiHistoryFixture
         "correction_tt" => CORRECTION_TT,
         "report_tt" => REPORT_TT,
         "data_policy" => "synthetic_only_no_real_sparkcrm_data_or_adapters"
+      }
+    end
+
+    def runtime_contract
+      {
+        "kind" => "contract_ir",
+        "contract_name" => "SparkCRMBiHistoryAvailabilityCorrection",
+        "nodes" => TEMPORAL_INPUT_NODES.values + TEMPORAL_ACCESS_NODES.values
+      }
+    end
+
+    def runtime_requirements
+      {
+        "kind" => "requirements",
+        "capabilities" => { "required_caps" => ["bihistory_read"] },
+        "temporal" => {
+          "axes" => ["bitemporal"],
+          "bihistory_reads" => TEMPORAL_INPUT_NODES.keys
+        }
       }
     end
 

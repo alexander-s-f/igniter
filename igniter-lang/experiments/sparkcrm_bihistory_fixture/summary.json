@@ -732,11 +732,14 @@
     "correction.report_links_prior_and_corrected_events": true,
     "decision.snapshot_blocks_requested_window": true,
     "dispatch.original_explanation_preserved": true,
+    "negative.missing_bihistory_read_capability_blocked": true,
     "negative.missing_tt_oof_bt3": true,
     "negative.missing_vt_oof_bt2": true,
     "negative.wrong_axis_type_oof_bt4": true,
     "option.canonical_none": true,
     "option.canonical_some": true,
+    "runtime.hook_load_check_bitemporal": true,
+    "runtime.output_links_selected_event_observation": true,
     "runtime.temporal_access_node_loader_bitemporal": true,
     "safety.synthetic_only": true,
     "seed.synthetic_bihistory_events": true
@@ -787,12 +790,23 @@
         },
         "slot_local": "09:00",
         "source_event_refs": [],
-        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
         "temporal_access_nodes": [
           "schedule_at",
           "off_schedule_at",
           "day_off_config_at"
         ],
+        "temporal_evidence_links": {
+          "day_off_config_at": [
+            {
+              "from": "obs/bihistory_access/63cc8503f05a9750",
+              "rel": "selected_event",
+              "to": "hist/day_off_config/t-17/v1"
+            }
+          ],
+          "off_schedule_at": [],
+          "schedule_at": []
+        },
         "valid_time": "2026-05-07T13:00:00Z"
       },
       {
@@ -827,12 +841,29 @@
         "source_event_refs": [
           "hist/schedule/t-17/10/canceled/correction-1510"
         ],
-        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
         "temporal_access_nodes": [
           "schedule_at",
           "off_schedule_at",
           "day_off_config_at"
         ],
+        "temporal_evidence_links": {
+          "day_off_config_at": [
+            {
+              "from": "obs/bihistory_access/491fbfe6ea40a46e",
+              "rel": "selected_event",
+              "to": "hist/day_off_config/t-17/v1"
+            }
+          ],
+          "off_schedule_at": [],
+          "schedule_at": [
+            {
+              "from": "obs/bihistory_access/8234ca611057a15f",
+              "rel": "selected_event",
+              "to": "hist/schedule/t-17/10/canceled/correction-1510"
+            }
+          ]
+        },
         "valid_time": "2026-05-07T14:00:00Z"
       },
       {
@@ -859,12 +890,23 @@
         },
         "slot_local": "11:00",
         "source_event_refs": [],
-        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
         "temporal_access_nodes": [
           "schedule_at",
           "off_schedule_at",
           "day_off_config_at"
         ],
+        "temporal_evidence_links": {
+          "day_off_config_at": [
+            {
+              "from": "obs/bihistory_access/7eb86ee0c7b77e46",
+              "rel": "selected_event",
+              "to": "hist/day_off_config/t-17/v1"
+            }
+          ],
+          "off_schedule_at": [],
+          "schedule_at": []
+        },
         "valid_time": "2026-05-07T15:00:00Z"
       },
       {
@@ -898,12 +940,29 @@
         "source_event_refs": [
           "hist/off_schedule/t-17/12/personal-block"
         ],
-        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
         "temporal_access_nodes": [
           "schedule_at",
           "off_schedule_at",
           "day_off_config_at"
         ],
+        "temporal_evidence_links": {
+          "day_off_config_at": [
+            {
+              "from": "obs/bihistory_access/96facb5447c3e3f5",
+              "rel": "selected_event",
+              "to": "hist/day_off_config/t-17/v1"
+            }
+          ],
+          "off_schedule_at": [
+            {
+              "from": "obs/bihistory_access/bc26dbabbf6cade0",
+              "rel": "selected_event",
+              "to": "hist/off_schedule/t-17/12/personal-block"
+            }
+          ],
+          "schedule_at": []
+        },
         "valid_time": "2026-05-07T16:00:00Z"
       }
     ],
@@ -986,12 +1045,23 @@
         },
         "slot_local": "09:00",
         "source_event_refs": [],
-        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
         "temporal_access_nodes": [
           "schedule_at",
           "off_schedule_at",
           "day_off_config_at"
         ],
+        "temporal_evidence_links": {
+          "day_off_config_at": [
+            {
+              "from": "obs/bihistory_access/3e3d2d23e0db97b4",
+              "rel": "selected_event",
+              "to": "hist/day_off_config/t-17/v1"
+            }
+          ],
+          "off_schedule_at": [],
+          "schedule_at": []
+        },
         "valid_time": "2026-05-07T13:00:00Z"
       },
       {
@@ -1026,12 +1096,29 @@
         "source_event_refs": [
           "hist/schedule/t-17/10/planned/as-known-1205"
         ],
-        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
         "temporal_access_nodes": [
           "schedule_at",
           "off_schedule_at",
           "day_off_config_at"
         ],
+        "temporal_evidence_links": {
+          "day_off_config_at": [
+            {
+              "from": "obs/bihistory_access/667809a6b1ec6841",
+              "rel": "selected_event",
+              "to": "hist/day_off_config/t-17/v1"
+            }
+          ],
+          "off_schedule_at": [],
+          "schedule_at": [
+            {
+              "from": "obs/bihistory_access/bf1f663f8666db6d",
+              "rel": "selected_event",
+              "to": "hist/schedule/t-17/10/planned/as-known-1205"
+            }
+          ]
+        },
         "valid_time": "2026-05-07T14:00:00Z"
       },
       {
@@ -1058,12 +1145,23 @@
         },
         "slot_local": "11:00",
         "source_event_refs": [],
-        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
         "temporal_access_nodes": [
           "schedule_at",
           "off_schedule_at",
           "day_off_config_at"
         ],
+        "temporal_evidence_links": {
+          "day_off_config_at": [
+            {
+              "from": "obs/bihistory_access/e834410306e66740",
+              "rel": "selected_event",
+              "to": "hist/day_off_config/t-17/v1"
+            }
+          ],
+          "off_schedule_at": [],
+          "schedule_at": []
+        },
         "valid_time": "2026-05-07T15:00:00Z"
       },
       {
@@ -1097,12 +1195,29 @@
         "source_event_refs": [
           "hist/off_schedule/t-17/12/personal-block"
         ],
-        "temporal_access_loader": "TemporalAccessRuntime::SemanticIRTemporalAccessEvaluator",
+        "temporal_access_loader": "TemporalAccessRuntime::RuntimeMachineHook",
         "temporal_access_nodes": [
           "schedule_at",
           "off_schedule_at",
           "day_off_config_at"
         ],
+        "temporal_evidence_links": {
+          "day_off_config_at": [
+            {
+              "from": "obs/bihistory_access/86b9e499c97047be",
+              "rel": "selected_event",
+              "to": "hist/day_off_config/t-17/v1"
+            }
+          ],
+          "off_schedule_at": [
+            {
+              "from": "obs/bihistory_access/dd6f9b173fdd20ee",
+              "rel": "selected_event",
+              "to": "hist/off_schedule/t-17/12/personal-block"
+            }
+          ],
+          "schedule_at": []
+        },
         "valid_time": "2026-05-07T16:00:00Z"
       }
     ],
@@ -1211,6 +1326,139 @@
       }
     }
   ],
+  "runtime_hook": {
+    "load_check": {
+      "checks": [
+        {
+          "axis": "bitemporal",
+          "declared_capabilities": [
+            "bihistory_read"
+          ],
+          "missing_backend_methods": [],
+          "missing_capabilities": [],
+          "missing_declared_capabilities": [],
+          "node": "schedule_at",
+          "required_backend_methods": [
+            "bihistory_at"
+          ],
+          "required_capabilities": [
+            "bihistory_read"
+          ],
+          "status": "ok"
+        },
+        {
+          "axis": "bitemporal",
+          "declared_capabilities": [
+            "bihistory_read"
+          ],
+          "missing_backend_methods": [],
+          "missing_capabilities": [],
+          "missing_declared_capabilities": [],
+          "node": "off_schedule_at",
+          "required_backend_methods": [
+            "bihistory_at"
+          ],
+          "required_capabilities": [
+            "bihistory_read"
+          ],
+          "status": "ok"
+        },
+        {
+          "axis": "bitemporal",
+          "declared_capabilities": [
+            "bihistory_read"
+          ],
+          "missing_backend_methods": [],
+          "missing_capabilities": [],
+          "missing_declared_capabilities": [],
+          "node": "day_off_config_at",
+          "required_backend_methods": [
+            "bihistory_at"
+          ],
+          "required_capabilities": [
+            "bihistory_read"
+          ],
+          "status": "ok"
+        }
+      ],
+      "kind": "temporal_access_hook_load_check",
+      "status": "ok"
+    },
+    "missing_bihistory_read": {
+      "capability": "bihistory_read",
+      "evaluation": {
+        "capability": "bihistory_read",
+        "error_class": "IgniterLang::TemporalAccessRuntime::CapabilityError",
+        "kind": "runtime_evaluation_rejection",
+        "node": "schedule_at",
+        "status": "blocked"
+      },
+      "kind": "runtime_hook_missing_capability_report",
+      "load_check": {
+        "checks": [
+          {
+            "axis": "bitemporal",
+            "declared_capabilities": [
+              "bihistory_read"
+            ],
+            "missing_backend_methods": [],
+            "missing_capabilities": [
+              "bihistory_read"
+            ],
+            "missing_declared_capabilities": [],
+            "node": "schedule_at",
+            "required_backend_methods": [
+              "bihistory_at"
+            ],
+            "required_capabilities": [
+              "bihistory_read"
+            ],
+            "status": "blocked"
+          },
+          {
+            "axis": "bitemporal",
+            "declared_capabilities": [
+              "bihistory_read"
+            ],
+            "missing_backend_methods": [],
+            "missing_capabilities": [
+              "bihistory_read"
+            ],
+            "missing_declared_capabilities": [],
+            "node": "off_schedule_at",
+            "required_backend_methods": [
+              "bihistory_at"
+            ],
+            "required_capabilities": [
+              "bihistory_read"
+            ],
+            "status": "blocked"
+          },
+          {
+            "axis": "bitemporal",
+            "declared_capabilities": [
+              "bihistory_read"
+            ],
+            "missing_backend_methods": [],
+            "missing_capabilities": [
+              "bihistory_read"
+            ],
+            "missing_declared_capabilities": [],
+            "node": "day_off_config_at",
+            "required_backend_methods": [
+              "bihistory_at"
+            ],
+            "required_capabilities": [
+              "bihistory_read"
+            ],
+            "status": "blocked"
+          }
+        ],
+        "kind": "temporal_access_hook_load_check",
+        "status": "blocked"
+      }
+    }
+  },
   "scenario": {
     "company_id": "company/fixture-acme",
     "correction_tt": "2026-05-07T15:10:00Z",
