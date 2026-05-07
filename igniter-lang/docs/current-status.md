@@ -28,38 +28,39 @@ Run: `ruby igniter-lang/experiments/stage1_close_candidate/stage1_close_candidat
 Pass/Feature             PROP    Experiment / Library                     Status
 ────────────────────────────────────────────────────────────────────────────────
 Production compiler      PROP-027  production_compiler_cli/ PASS        ✅ CLI PASS
-  package                          lib/igniter_lang/ (6 libs)           ✅ 6 libs extracted
-                                   +classifier.rb (R6)                    ⏳ typechecker next
+  package                          lib/igniter_lang/ (7 libs)           ✅ 7 libs extracted
+                                   +typechecker.rb (R7)                   ⏳ semanticir emitter next
 History[T]+BiHistory[T]  PROP-022  history+bihistory proofs PASS        ✅ full proof stack
-  + Temporal access                temporal_access_runtime lib           ✅ lib + hook spec
-                                   RuntimeMachineHook smoke PASS          ⏳ hook proof next
+  + Temporal access hook           RuntimeMachineHook wired              ✅ hook proof PASS
+                                   valid-time + bitemporal paths PASS     ⏳ production RM next
 stream T                 PROP-023  stream_t_proof/ PASS                 ✅ runtime proof PASS
-  + classifier                     classifier_pass_proof/ PASS          ✅ SC-1/2/3 PASS
-                                   source_to_semanticir goldens 9        ⏳ OOF-S2 classifier
-                                   (OOF-S2 missing-window next)          ⏳ OOF-S3 typechecker
+  + OOF-S1/2                       OOF-S2 missing-window classifier      ✅ OOF-S2 PASS
+                                   (OOF-S3 ESCAPE-in-fold TypeChecker    ⏳ OOF-S3 next)
 OLAPPoint[T,Dims]        PROP-024  olap_point_proof/ PASS (21 checks)   ✅ PASS + grammar spec
-                                   dims_record AST; OOF-O1..5 owned      ⏳ parser/TC impl next
+  + parser impl                    revenue_point.ig parses live          ✅ parser impl PASS
+                                   (TypeChecker/SemanticIR next)         ⏳ OLAP TC/IR next
 Invariant severity       PROP-025  invariant_severity_proof/ PASS       ✅ proof + spec PASS
                                    parser/TC spec (PINV-1..4, TINV-1..3) ⏳ impl deferred (Tier 1)
 Parser OOF hardening     PROP-026  parser_oof_hardening_stage2_proof/   ✅ PASS
 Runtime eval surface     —         igapp_assembler_proof/               ✅ closed_in_proof
 ────────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  TypeChecker module extraction → OLAPPoint parser impl → stream OOF-S2/S3
+Active priority:  SemanticIR emitter extraction → OLAP TypeChecker/SemanticIR → stream OOF-S3
 New PROPs:        start from PROP-028
 ```
 
 ---
 
-## lib/igniter_lang/ — 6 Libs Extracted
+## lib/igniter_lang/ — 7 Libs Extracted
 
 ```text
 diagnostics.rb            (R3)
 compiler_result.rb        (R4)
 compilation_report.rb     (R4)
-parser.rb                 (R5) — includes stream/fold_stream keywords
-temporal_access_runtime.rb (R5) — MemoryBackend + RuntimeMachineHook spec (R6)
-classifier.rb             (R6) — NEW; ParsedProgram → ClassifiedProgram boundary
+parser.rb                 (R5) — parser + stream/fold_stream + olap_point/dims_record (R7)
+temporal_access_runtime.rb (R5/R6) — MemoryBackend + RuntimeMachineHook (wired R7)
+classifier.rb             (R6) — ParsedProgram → ClassifiedProgram; OOF-S2 (R7)
+typechecker.rb            (R7) — NEW; TypedProgram boundary
 ```
 
 ---
@@ -67,14 +68,14 @@ classifier.rb             (R6) — NEW; ParsedProgram → ClassifiedProgram boun
 ## PROP Canonical Map
 
 ```text
-PROP-022   History[T] / BiHistory[T]     full proof stack PASS; hook spec authored
+PROP-022   History[T] / BiHistory[T]     full proof stack PASS; hook proof PASS
 PROP-022A  .igapp assembler contract     Stage 1 frozen (accepted/)
-PROP-023   stream T                      ✅ runtime + SC-1/2/3 PASS; OOF-S2/S3 next
+PROP-023   stream T                      ✅ runtime + SC-1/2/3 + OOF-S2 PASS; OOF-S3 next
 PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
-PROP-024   OLAPPoint[T,Dims]             ✅ proof PASS; grammar spec done; parser impl next
+PROP-024   OLAPPoint[T,Dims]             ✅ proof + grammar spec + parser impl PASS; TC/IR next
 PROP-025   Invariant severity            ✅ proof + spec PASS; impl deferred (Tier 1)
 PROP-026   Parser OOF hardening          ✅ PASS
-PROP-027   Production compiler diag.     ✅ CLI PASS; 6 libs extracted; typechecker next
+PROP-027   Production compiler diag.     ✅ CLI PASS; 7 libs extracted; semanticir emitter next
 PROP-028+  next available
 ```
 
@@ -83,23 +84,23 @@ PROP-028+  next available
 ## Open Gaps
 
 ```text
-1. Production compiler typechecker module extraction
-   classifier.rb extracted (R6). Next: extract-typechecker-module-v0.
+1. SemanticIR emitter module extraction
+   7 libs: parser, classifier, typechecker extracted. Next: extract-semanticir-emitter-module-v0.
 
-2. OLAPPoint parser + typechecker implementation
-   Grammar spec done (dims_record, OOF-O1..5). Parser impl deferred (risk of golden drift).
-   Next: olap-point-parser-implementation-v0.
+2. OLAPPoint TypeChecker + SemanticIR boundary
+   Parser impl PASS (revenue_point.ig, olap_points[], dims_record).
+   Next: olap-point-typechecker-semanticir-v0 (OOF-O2..O5; olap_access_node lowering).
 
-3. stream T OOF-S2 classifier + OOF-S3 typechecker
-   SC-1/2/3 landed; OOF-S2 (missing window) classifier slice is small and bounded.
-   Next: stream-oof-s2-classifier-v0 → stream-oof-s3-typechecker-v0.
+3. stream T OOF-S3 (ESCAPE in fold fn body)
+   OOF-S2 PASS. OOF-S3 is TypeChecker-owned — wait for typechecker.rb stability.
+   Next: stream-oof-s3-typechecker-v0.
 
-4. RuntimeMachine temporal access hook proof
-   Hook spec + smoke in lib. Proof wiring into HistoryRuntimeMachine load/evaluate remains.
-   Next: runtime-machine-temporal-access-hook-proof-v0.
+4. Production RuntimeMachine temporal integration
+   Hook proof PASS (history + bitemporal paths). Production TBackend adapter remains.
+   Next: production-runtime-machine-temporal-access-integration-v0.
 
 5. Invariant severity parser + typechecker implementation
-   Spec done. Impl deferred — Tier 1, after typechecker module closes.
+   Spec done. Impl deferred — Tier 1, after SemanticIR emitter closes.
 ```
 
 → Full governance: `meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md`
