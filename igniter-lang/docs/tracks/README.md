@@ -31,7 +31,10 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `invariant-severity-parser-boundaries-v0.md` | done | PINV-1..4 + TINV-1..3 PASS; Stage 1 + OLAP/Stream proofs PASS |
+| `compiler-orchestrator-v0.md` | done | lib/igniter_lang/compiler_orchestrator.rb extracted |
+| `stream-semanticir-surface-lowering-v0.md` | done | stream SemanticIR lowering PASS; stream_t_proof PASS |
+| `production-tbackend-adapter-fixture-v0.md` | done | proof-local AdapterRegistry + CompatibilityReport persistence |
+| `invariant-severity-parser-impl-v0.md` | done | PINV-1..4 + TINV-1..3 PASS; +3 typechecker cases |
 | `stage2-round10-map-and-role-profile-refresh-v0.md` | done | R10 map sync — this track |
 
 ## Stage 2 Round 9 Evidence
@@ -73,18 +76,19 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
-## lib/igniter_lang/ — Current State (9 libs)
+## lib/igniter_lang/ — Current State (10 libs)
 
 ```text
 diagnostics.rb            (R3)
 compiler_result.rb        (R4)
 compilation_report.rb     (R4)
-parser.rb                 (R5/R7) — parser + stream + olap_point/dims_record
+parser.rb                 (R5/R7/R10) — parser + stream + olap_point + invariant
 temporal_access_runtime.rb (R5–R7) — MemoryBackend + RuntimeMachineHook
 classifier.rb             (R6/R7) — ParsedProgram→ClassifiedProgram; OOF-S1/2
-typechecker.rb            (R7/R8) — TypedProgram boundary; stream OOF-S3; OLAP OOF-O2..O5
-semanticir_emitter.rb     (R8/R9) — SemanticIR emitter; OLAP lowering added R9
-assembler.rb              (R9) — NEW; .igapp/ assembler boundary
+typechecker.rb            (R7/R8/R10) — TypedProgram boundary; stream OOF-S3; OLAP OOF-O2..O5; TINV-1..3
+semanticir_emitter.rb     (R8/R9/R10) — SemanticIR emitter; OLAP/stream lowering added
+assembler.rb              (R9) — .igapp/ assembler boundary
+compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
 ```
 
 ---
@@ -93,9 +97,7 @@ assembler.rb              (R9) — NEW; .igapp/ assembler boundary
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `compiler-orchestrator-v0` | Wire Parser → Classifier → TypeChecker → SemanticIREmitter → Assembler behind production boundary | Research Agent |
-| `stream-semanticir-surface-lowering-v0` | stream_input_node / fold_stream_node emitter lowering | Compiler/Grammar Expert |
-| `production-tbackend-adapter-fixture-v0` | Proof-local AdapterRegistry + CompatibilityReport persistence | Research Agent |
+| `packageable-compiler-api-v0` | Wire stable Ruby API over CompilerOrchestrator | Research Agent |
 | `invariant-severity-semanticir-lowering-v0` | invariant_node / invariant_violation_node emission | Compiler/Grammar Expert |
 
 ---

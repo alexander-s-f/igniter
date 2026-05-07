@@ -34,7 +34,7 @@ History[T]+BiHistory[T]  PROP-022  history+bihistory proofs PASS        ✅ full
                                    RuntimeMachine load/evaluate proof     ✅ proof-local RM integration
 stream T                 PROP-023  stream_t_proof/ PASS                 ✅ runtime proof PASS
   + OOF-S1..S5                     all five stream OOF rules             ✅ S1..S5 PASS
-                                   (window_ref grammar + SemanticIR       ⏳ emitter lowering next)
+                                   SemanticIR emission                   ✅ emitter lowering PASS (R10)
 OLAPPoint[T,Dims]        PROP-024  olap_point_proof/ PASS                ✅ PASS + grammar spec
   + parser impl                    revenue_point.ig parses live          ✅ parser impl PASS
   + TC/SemanticIR boundary          OOF-O2..O5 + olap_access_node         ✅ proof PASS
@@ -45,24 +45,25 @@ Parser OOF hardening     PROP-026  parser_oof_hardening_stage2_proof/   ✅ PASS
 Runtime eval surface     —         igapp_assembler_proof/               ✅ closed_in_proof
 ────────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  Compiler orchestrator → SemanticIR surface lowering (stream/invariant)
+Active priority:  Packageable compiler API → Invariant SemanticIR lowering
 New PROPs:        start from PROP-028
 ```
 
 ---
 
-## lib/igniter_lang/ — 9 Libs Extracted
+## lib/igniter_lang/ — 10 Libs Extracted
 
 ```text
 diagnostics.rb            (R3)
 compiler_result.rb        (R4)
 compilation_report.rb     (R4)
-parser.rb                 (R5/R7) — parser + stream + olap_point/dims_record
+parser.rb                 (R5/R7/R10) — parser + stream + olap_point + invariant
 temporal_access_runtime.rb (R5–R7) — MemoryBackend + RuntimeMachineHook
 classifier.rb             (R6/R7) — ParsedProgram→ClassifiedProgram; OOF-S1/2
-typechecker.rb            (R7/R8) — TypedProgram boundary; stream OOF-S3; OLAP OOF-O2..O5
-semanticir_emitter.rb     (R8/R9) — SemanticIR emitter; OLAP lowering added R9
-assembler.rb              (R9) — NEW; .igapp/ assembler boundary
+typechecker.rb            (R7/R8/R10) — TypedProgram boundary; stream OOF-S3; OLAP OOF-O2..O5; TINV-1..3
+semanticir_emitter.rb     (R8/R9/R10) — SemanticIR emitter; OLAP/stream lowering added
+assembler.rb              (R9) — .igapp/ assembler boundary
+compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
 ```
 
 ---
@@ -77,7 +78,7 @@ PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
 PROP-024   OLAPPoint[T,Dims]             ✅ proof + grammar spec + parser + TC/IR boundary PASS
 PROP-025   Invariant severity            ✅ proof + spec + PINV-1..4 + TINV-1..3 PASS (R10)
 PROP-026   Parser OOF hardening          ✅ PASS
-PROP-027   Production compiler diag.     ✅ CLI PASS; 9 libs extracted; orchestrator next
+PROP-027   Production compiler diag.     ✅ CLI PASS; 10 libs extracted
 PROP-028+  next available
 ```
 
@@ -86,18 +87,17 @@ PROP-028+  next available
 ## Open Gaps
 
 ```text
-1. Compiler orchestrator
-   All 9 compiler pass libs extracted (parser, classifier, typechecker, emitter, assembler).
-   Next: compiler-orchestrator-v0.
+1. Packageable Compiler API
+   10 compiler libs extracted including orchestrator.
+   Next: packageable-compiler-api-v0 to expose stable Ruby API.
 
 2. Production SemanticIR emission for Stage 2 surfaces
-   OLAP boundary proof exists; stream OOF-S1..S5 proven. Emitter lowering for
-   stream/invariant/OLAP rollup and production orchestration remain.
-   Next: stream-semanticir-surface-lowering-v0.
+   Stream and OLAP emitter lowering PASS. Invariant emission remains.
+   Next: invariant-severity-semanticir-lowering-v0.
 
 3. Production RuntimeMachine temporal integration
-   Proof-local RuntimeMachine load/evaluate integration PASS. Production TBackend
-   adapter selection and Ledger/Durable Model bridge remain.
+   Proof-local adapter registry and shim selected. Production TBackend
+   adapter selection and Ledger/Durable Model bridge remain blocked until compiler spine stabilizes.
 
 4. Invariant severity parser + typechecker implementation
    ✅ DONE (S2-R10-C4-P). PINV-1..4 (parser) + TINV-1..3 (TypeChecker) implemented.
