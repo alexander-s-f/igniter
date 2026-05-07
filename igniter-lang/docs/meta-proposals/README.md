@@ -14,8 +14,9 @@ and operating model first, then use this index for governance context.
 | Document | Status | Purpose |
 |----------|--------|---------|
 | [META-EXPERT-010](META-EXPERT-010-human-agent-symbiosis-vision-v0.md) | vision | Human-agent co-creation mission: process as prototype for contract-native collaboration, typed handoffs, status projections, and evidence-linked shared work |
-| [META-EXPERT-009](META-EXPERT-009-stage2-close-readiness-critical-path-v0.md) | **active** | Stage 2 close readiness assessment: what is proven, two hard blockers, R13–R15 critical path, deferred gap register |
-| [META-EXPERT-008](META-EXPERT-008-stage2-implementation-governance-v0.md) | **active** | Stage 2 governance: scoreboard, dependency order, done criteria, agent routing, close criteria |
+| [META-EXPERT-009.1](META-EXPERT-009.1-stage2-close-decision-v0.md) | **decision** | Stage 2 close decision: CLOSE WITH DEFERRED GAPS (2026-05-07); 8 proofs, 7 surface checks PASS, 5 deferred gaps |
+| [META-EXPERT-009](META-EXPERT-009-stage2-close-readiness-critical-path-v0.md) | supporting | Stage 2 close readiness assessment: R13–R15 critical path, deferred gap register |
+| [META-EXPERT-008](META-EXPERT-008-stage2-implementation-governance-v0.md) | **superseded** (by META-EXPERT-009.1) | Stage 2 governance: scoreboard, dependency order, done criteria, agent routing, close criteria |
 | [META-EXPERT-008.1](META-EXPERT-008.1-prop-numbering-audit-v0.md) | decision | PROP numbering audit: no file moves needed; canonical map PROP-026=parser OOF hardening, PROP-027=production compiler diagnostics; new Stage 2 authors start from PROP-028 |
 | [META-EXPERT-008.2](META-EXPERT-008.2-fresh-language-model-report-v0.md) | proposal | Fresh language model report: LanguageContract/RuntimeContract composition, general-purpose profiles, OSINT traceability, mesh, FFI, modeling, and next-slice priorities |
 | [META-EXPERT-008.3](META-EXPERT-008.3-project-archaeology-slice-index-v0.md) | proposal | Project archaeology slice index: maps Igniter/Igniter-Lang history into bounded A00..A17 consolidation slices |
