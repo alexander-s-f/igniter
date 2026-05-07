@@ -8,7 +8,7 @@ Date: 2026-05-07
 ## Goal
 
 Implement the parser hardening proof after Compiler/Grammar Expert defined the
-parser/classifier/typechecker OOF ownership line in `PROP-024`.
+parser/classifier/typechecker OOF ownership line in `PROP-026`.
 
 ## Decisions
 
@@ -96,11 +96,11 @@ source/vendor_lead_pipeline.ig
 
 ## Remaining Gaps
 
-[Q] Parser warning diagnostics from PROP-024 (`PW-1..PW-3`) are still not
+[Q] Parser warning diagnostics from PROP-026 (`PW-1..PW-3`) are still not
 implemented. This proof only hardens syntax-owned OOF errors.
 
 [Q] Classifier skip/forwarding for parser-error contracts is documented in
-PROP-024 but not implemented in this slice because this proof does not run a
+PROP-026 but not implemented in this slice because this proof does not run a
 production classifier over parser-error ASTs.
 
 ## Rejected

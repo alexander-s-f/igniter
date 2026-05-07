@@ -10,7 +10,8 @@ Numbering audit: META-EXPERT-008.1 (canonical PROP map — no file moves needed)
 > **PROP numbering note**: `PROP-022` = History[T] (Stage 2 design).
 > `PROP-022A` = .igapp assembler contract (Stage 1, frozen in accepted/).
 > `PROP-023` = stream T (Stage 2). `PROP-023A` = ClassifiedExpr boundary (Stage 1, frozen).
-> New Stage 2 proposals start from PROP-026.
+> `PROP-026` = parser OOF hardening (Stage 2, authored).
+> New Stage 2 proposals start from PROP-027.
 
 ---
 
@@ -36,8 +37,8 @@ Proven and frozen (do not re-implement):
   ✅ RuntimeMachine load/evaluate/checkpoint/resume (PASS)
   ✅ Stdlib kernel: integer/float/decimal.add, fold, map, filter, count, or_else
 
-Deferred from Stage 1 (Stage 2 must address):
-  ⏳ Parser OOF rejection hardening
+Deferred from Stage 1:
+  ✅ Parser OOF rejection hardening: closed by parser_oof_hardening_stage2_proof
   ⏳ Production compiler package (CLI + gem packaging)
   ✅ Runtime eval surface: closed_in_proof (igapp_assembler_proof evaluates all 3 contracts)
 ```
@@ -49,8 +50,8 @@ Deferred from Stage 1 (Stage 2 must address):
 ```text
 Pass/Feature           PROP(s)             Experiment                        Status
 ─────────────────────────────────────────────────────────────────────────────────────────
-Parser OOF hardening   PROP-014/015        experiments/parser/               ⏳ deferred gap
-                                            OOF rejected at parse time         (from Stage 1)
+Parser OOF hardening   PROP-026            parser_oof_hardening_             ✅ PASS
+                                            stage2_proof/                      syntax-owned OOF
 
 Production compiler    PROP-022A           no package yet                    ⏳ deferred gap
 package                (assembler contract)                                   (from Stage 1)
@@ -76,7 +77,7 @@ Invariant severity     PROP-025            no experiment yet                 �
                        PROP-022
 ─────────────────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  Deferred gaps first → Stage 2 design PROPs second
+Active priority:  Production compiler package → Stage 2 design PROPs
 ```
 
 ---
@@ -87,7 +88,7 @@ Active priority:  Deferred gaps first → Stage 2 design PROPs second
 Stage 2 implementation order (strict):
 
   Tier 0 (deferred gaps — address first):
-    A. Parser OOF hardening
+    [A. Parser OOF hardening — closed by PROP-026 proof ✅]
     B. Production compiler package foundation
     [C. Runtime eval surface — closed_in_proof ✅]
 
@@ -99,21 +100,21 @@ Stage 2 implementation order (strict):
     F. stream T (PROP-023) — depends on PROP-003/013 (frozen ✅) + PROP-022 errata
     G. OLAPPoint (PROP-024) — depends on PROP-022 + PROP-015/016 (frozen ✅)
 
-  New intake: PROP-026+ (not yet authored)
+  New intake: PROP-027+ (not yet authored)
 ```
 
 ---
 
 ## Done Criteria Per Pass
 
-### Deferred Gap A — Parser OOF hardening
+### ~~Deferred Gap A — Parser OOF hardening~~ ✅ CLOSED
 
 ```text
-Done when:
-  - Parser rejects OOF constructs at parse time (not only at classifier)
-  - New negative parse cases added: unresolved_ref, cyclic_dep_at_parse
-  - experiments/parser/ spec count increases; OOF parse negatives PASS
-  - No regression on existing 61 parser specs
+Closed by:
+  - PROP-026-parser-oof-hardening-spec-v0
+  - experiments/parser_oof_hardening_stage2_proof/ PASS
+  - syntax-owned OOF rejects at parser
+  - semantic OOF remains owned by Classifier / TypeChecker
 ```
 
 ### Deferred Gap B — Production compiler package
@@ -184,11 +185,11 @@ Done when:
 ## Agent Routing
 
 ```text
-[Research Agent]            → Tier 1 proofs: history_type_proof, invariant_severity_proof
+[Research Agent]            → Deferred Gap B (production compiler package foundation)
+                            → Tier 1 proofs: history_type_proof, invariant_severity_proof
                             → Tier 2 proofs: stream_input_proof, olap_point_proof
 
-[Compiler/Grammar Expert]  → Deferred Gap A (parser OOF hardening spec)
-                            → PROP-026+ new design proposals
+[Compiler/Grammar Expert]  → PROP-027+ new design proposals
                             → Amendments/errata to PROP-022..025
 
 [Igniter-Lang Meta Expert] → This file + current-status.md updates
@@ -196,14 +197,12 @@ Done when:
                             → Stage 2 close governance (META-EXPERT-009)
 
 Do not start:
-  ❌ PROP-026+ implementation before authoring PROP-026
-  ❌ Production compiler package before deferred gap C is closed
+  ❌ PROP-027+ implementation before authoring the matching PROP
   ❌ History[T] implementation before PROP-022 verification pass
   ❌ Breaking changes to Stage 1 accepted PROPs (proposals/accepted/)
 
 Do start:
-  ✅ Deferred Gap A — parser OOF hardening (top priority)
-  ✅ Deferred Gap B — production compiler package planning
+  ✅ Deferred Gap B — production compiler package foundation
   ✅ Tier 1 proofs: history_type_proof, invariant_severity_proof (parallel)
 ```
 
@@ -213,15 +212,15 @@ Do start:
 
 ```text
 ALLOWED:
-  Implementing Tier 0 deferred gaps
+  Implementing remaining Tier 0 deferred gaps
   Authoring experiments for PROP-022..025
-  Authoring PROP-026+ new proposals
+  Authoring PROP-027+ new proposals
   Expanding stdlib kernel for Stage 2 operators
   Planning production compiler package
 
 BLOCKED:
   Modifying proposals/accepted/ (Stage 1 frozen)
-  Implementing Stage 3+ PROPs (PROP-027+) before Stage 2 closes
+  Implementing Stage 3+ PROPs (PROP-028+) before Stage 2 closes
   Breaking SemanticIR envelope shape (PROP-019.1 accepted — read-only)
   Breaking .igapp/ format (PROP-022A accepted — read-only)
   New speculation tracks without a PROP
@@ -234,7 +233,7 @@ BLOCKED:
 Stage 2 closes when:
 
 ```text
-1. Deferred gaps A, B, C: all addressed
+1. Deferred gaps A, B, C: all addressed (A and C already closed)
 2. PROP-022 (History[T]): experiments/history_type_proof/ PASS
 3. PROP-023 (stream T): experiments/stream_input_proof/ PASS
 4. PROP-024 (OLAPPoint): experiments/olap_point_proof/ PASS
@@ -248,7 +247,7 @@ Stage 2 close governed by META-EXPERT-009 (not yet written).
 
 ## New Proposal Intake
 
-New Stage 2+ proposals start from **PROP-026**.
+New Stage 2+ proposals start from **PROP-027**.
 
 Before authoring a new PROP:
 - Check that it does not duplicate accepted Stage 1 PROPs

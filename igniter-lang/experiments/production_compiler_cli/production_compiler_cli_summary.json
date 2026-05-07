@@ -1,0 +1,63 @@
+{
+  "kind": "production_compiler_cli_proof",
+  "format_version": "0.1.0",
+  "track": "production-compiler-cli-wrapper-v0",
+  "status": "PASS",
+  "checks": {
+    "compile.add_exit_zero": true,
+    "compile.add_writes_igapp": true,
+    "runtime.load_output_trusted": true,
+    "runtime.evaluate_add_42": true,
+    "compile.oof_exit_nonzero": true,
+    "compile.oof_writes_report": true,
+    "compile.oof_writes_no_igapp": true
+  },
+  "positive": {
+    "command": "igniter-lang/bin/igniter-lang compile igniter-lang/experiments/source_to_semanticir_fixture/add.ig --out igniter-lang/experiments/production_compiler_cli/out/add.igapp",
+    "exitstatus": 0,
+    "stdout": "{\n  \"status\": \"ok\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig\",\n  \"out\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/add.igapp\",\n  \"compilation_report_ref\": \"compilation_report/e9664d5446df4e46\",\n  \"semantic_ir_ref\": \"semanticir/e9664d5446df4e46\",\n  \"contracts\": [\n    \"Add\"\n  ],\n  \"runtime_smoke\": {\n    \"load_status\": \"loaded\",\n    \"contract_id\": \"Add\",\n    \"evaluate_status\": \"ok\",\n    \"outputs\": {\n      \"sum\": 42\n    },\n    \"compatibility_report_status\": \"trusted\",\n    \"trusted\": true\n  }\n}\n",
+    "stderr": "",
+    "json": {
+      "status": "ok",
+      "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+      "out": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/add.igapp",
+      "compilation_report_ref": "compilation_report/e9664d5446df4e46",
+      "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+      "contracts": [
+        "Add"
+      ],
+      "runtime_smoke": {
+        "load_status": "loaded",
+        "contract_id": "Add",
+        "evaluate_status": "ok",
+        "outputs": {
+          "sum": 42
+        },
+        "compatibility_report_status": "trusted",
+        "trusted": true
+      }
+    }
+  },
+  "negative": {
+    "command": "igniter-lang/bin/igniter-lang compile igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig --out igniter-lang/experiments/production_compiler_cli/out/negative_unresolved_symbol.igapp",
+    "exitstatus": 1,
+    "stdout": "{\n  \"status\": \"oof\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig\",\n  \"out\": null,\n  \"compilation_report_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/negative_unresolved_symbol.compilation_report.json\",\n  \"diagnostics\": [\n    {\n      \"rule\": \"OOF-P1\",\n      \"severity\": \"error\",\n      \"message\": \"Unresolved symbol: missing_b\",\n      \"node\": \"sum\",\n      \"path\": null,\n      \"line\": null\n    }\n  ]\n}\n",
+    "stderr": "",
+    "json": {
+      "status": "oof",
+      "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+      "out": null,
+      "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/negative_unresolved_symbol.compilation_report.json",
+      "diagnostics": [
+        {
+          "rule": "OOF-P1",
+          "severity": "error",
+          "message": "Unresolved symbol: missing_b",
+          "node": "sum",
+          "path": null,
+          "line": null
+        }
+      ]
+    }
+  }
+}

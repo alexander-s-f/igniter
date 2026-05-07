@@ -210,7 +210,7 @@ PROPs 002, 005, 005.1, 007, 008, 010, 016, 017, 022, 023, 024, 025
 → See proposals/accepted/ directory.
 All accepted PROPs are read-only. No amendments except errata.
 
-## New proposals: start from PROP-026
+## New proposals: start from PROP-027
 ```
 
 ---

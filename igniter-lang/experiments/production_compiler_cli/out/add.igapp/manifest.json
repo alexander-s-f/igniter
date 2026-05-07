@@ -1,0 +1,29 @@
+{
+  "artifact_hash": "sha256:76b8215fee7eae5e17cef2d27047e5e2dbe57d0e9480e13dd8687af8ab744805",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/e9664d5446df4e46",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_refs": {
+    "Add": "contract/Add/sha256:7379226c21b2cdcd69464bb7"
+  },
+  "contracts": [
+    "Add"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/e9664d5446df4e46",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+  "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+  "warnings": []
+}

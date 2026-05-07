@@ -113,6 +113,18 @@ module IgappAssemblerProof
       artifact_summary(case_name, artifact)
     end
 
+    def assemble_artifacts(case_name:, report:, semantic_ir:, target_dir:)
+      refuse!(case_name, "pass_result=#{report.fetch("pass_result")}") unless report.fetch("pass_result") == "ok"
+      refuse!(case_name, "semantic_ir_ref missing") unless report.fetch("semantic_ir_ref").is_a?(String)
+      validate_refs!(case_name, report, semantic_ir)
+      validate_semantic_ir!(case_name, semantic_ir)
+
+      artifact = build_artifact(case_name, report, semantic_ir)
+      target = Pathname.new(target_dir)
+      write_artifact_to(target, artifact)
+      artifact_summary_for_target(case_name, artifact, target)
+    end
+
     def refuse_case(case_name)
       report = read_json(@golden_dir / "#{case_name}.compilation_report.json")
       assemble_case(case_name)
@@ -363,6 +375,10 @@ module IgappAssemblerProof
 
     def write_artifact(case_name, artifact)
       target = @out_dir / "#{case_name}.igapp"
+      write_artifact_to(target, artifact)
+    end
+
+    def write_artifact_to(target, artifact)
       FileUtils.rm_rf(target)
       FileUtils.mkdir_p(target / "contracts")
 
@@ -398,6 +414,20 @@ module IgappAssemblerProof
         "compilation_report_ref" => artifact.fetch("manifest").fetch("compilation_report_ref"),
         "contracts" => artifact.fetch("manifest").fetch("contracts"),
         "files" => artifact_files(case_name)
+      }
+    end
+
+    def artifact_summary_for_target(case_name, artifact, target)
+      {
+        "case" => case_name,
+        "status" => "assembled",
+        "igapp_dir" => target.to_s,
+        "program_id" => artifact.fetch("manifest").fetch("program_id"),
+        "artifact_hash" => artifact.fetch("manifest").fetch("artifact_hash"),
+        "semantic_ir_ref" => artifact.fetch("manifest").fetch("semantic_ir_ref"),
+        "compilation_report_ref" => artifact.fetch("manifest").fetch("compilation_report_ref"),
+        "contracts" => artifact.fetch("manifest").fetch("contracts"),
+        "files" => target.find.select(&:file?).map { |path| path.relative_path_from(target).to_s }.sort
       }
     end
 
@@ -590,5 +620,7 @@ module IgappAssemblerProof
   end
 end
 
-success = IgappAssemblerProof::CLI.run(ARGV)
-exit(success ? 0 : 1)
+if $PROGRAM_NAME == __FILE__
+  success = IgappAssemblerProof::CLI.run(ARGV)
+  exit(success ? 0 : 1)
+end

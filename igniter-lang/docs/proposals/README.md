@@ -34,20 +34,21 @@ These proposals are the baseline for Stage 2 implementation work.
 | [PROP-023](PROP-023-stream-input-surface-v0.md) | proposal | **Stage 2**: stream T ESCAPE input; window; fold_stream; KPN grounding |
 | [PROP-024](PROP-024-olap-point-primitive-v0.md) | proposal | **Stage 2**: OLAPPoint[T,Dims]; olap_point declaration; cluster scatter-gather |
 | [PROP-025](PROP-025-invariant-severity-levels-v0.md) | proposal | **Stage 2**: invariant severity :error/:warn/:soft/:metric |
+| [PROP-026](PROP-026-parser-oof-hardening-spec-v0.md) | proposal | **Stage 2**: parser OOF ownership/hardening; syntax-owned OOF rules |
 
 ---
 
 ## Queued (not yet authored)
 
-New Stage 2+ proposals start from **PROP-026**.
+New Stage 2+ proposals start from **PROP-027**.
 
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|
-| PROP-026 | Probabilistic types ~T (ProbLog subset) | PROP-022, PROP-025 | 2 | medium |
-| PROP-027 | Deadline contracts + WCET analysis | PROP-003, PROP-016 | 3 | medium |
-| PROP-028 | Full unit algebra (dimensional type checking) | PROP-004 errata E5 | 3 | medium |
-| PROP-029 | Plastic Runtime Cells (ownership + migration) | PROP-006, PROP-012 | 3 | medium |
-| PROP-030 | Rule synthesis via LP (goal-directed) | PROP-022, PROP-025 | 4 | low |
+| PROP-027 | Probabilistic types ~T (ProbLog subset) | PROP-022, PROP-025 | 2 | medium |
+| PROP-028 | Deadline contracts + WCET analysis | PROP-003, PROP-016 | 3 | medium |
+| PROP-029 | Full unit algebra (dimensional type checking) | PROP-004 errata E5 | 3 | medium |
+| PROP-030 | Plastic Runtime Cells (ownership + migration) | PROP-006, PROP-012 | 3 | medium |
+| PROP-031 | Rule synthesis via LP (goal-directed) | PROP-022, PROP-025 | 4 | low |
 
 ---
 
@@ -56,9 +57,7 @@ New Stage 2+ proposals start from **PROP-026**.
 These are tracked here until a Stage 2 PROP is authored to address them:
 
 ```
-parser_oof_rejection_gap      Grammar hardening — parser to reject OOF at parse time
 production_compiler_assembly  Production CLI compiler package (not just proof experiments)
-runtime_eval_surface          field_access, integer.gt, bool.and operators in runtime kernel
 ```
 
 ---
@@ -70,5 +69,5 @@ authored → proposal → verification (experiment) → approved → spec chapte
 ```
 
 During Stage 2: `proposals/` is the active intake directory.
-New proposals: start from PROP-026.
+New proposals: start from PROP-027.
 Accepted Stage 1 PROPs: see `accepted/` — read-only.

@@ -69,22 +69,26 @@ Stdlib execution       PROP-013          experiments/stdlib_execution_       ✅
 STAGE 1 CLOSED:   YES — CLOSE WITH DEFERRED GAP
                   Effective: 2026-05-06
                   Verdict: META-EXPERT-007-stage1-close-governance-v0
-Deferred gaps:    Parser OOF hardening | production compiler pkg
+Deferred gaps:    production compiler pkg
+Closed post-close: Parser OOF hardening (Stage 2 proof) | runtime eval surface
 All proofs:       Classifier Emitter TypeChecker Assembler RuntimeMachine Stdlib ✅
 ```
 
 ---
 
-## Stage 1 Remaining Gap
+## Stage 1 Deferred Gaps Status
 
-All major proofs are PASS. One minor gap remains:
+All major Stage 1 proofs are PASS. Deferred gaps are now tracked by Stage 2:
 
 ```text
 OOF rejection at parse time:
-  The parser currently accepts some OOF constructs without error.
-  OOF is caught at Classify (Pass 0) and Type (Pass 1) stages instead.
-  This gap does not block any downstream pass.
-  No slice assigned. Will be addressed as part of full grammar hardening.
+  CLOSED in Stage 2 proof.
+  Syntax-owned OOF now rejects at parser.
+  Semantic OOF remains owned by Classifier / TypeChecker.
+
+Production compiler package:
+  OPEN.
+  Proof chain exists; CLI/package extraction not yet implemented.
 ```
 
 ---
@@ -179,21 +183,22 @@ ruby igniter-lang/experiments/stdlib_execution_kernel_stage1/stdlib_execution_ke
 
 ---
 
-## Stage 2 Deferred (do not implement)
+## Stage 2 Intake
 
-The following are formally specified but blocked until Stage 1 closes:
+The following are Stage 2 active or queued items:
 
 ```text
-History[T] / BiHistory[T]   → PROP-022 authored, implementation deferred
-stream T / fold_stream       → PROP-023 authored, implementation deferred
-OLAPPoint[T, Dims]           → PROP-024 authored, implementation deferred
-Invariant severity levels    → PROP-025 authored, implementation deferred
+History[T] / BiHistory[T]   → PROP-022 authored, pending proof
+stream T / fold_stream       → PROP-023 authored, pending proof
+OLAPPoint[T, Dims]           → PROP-024 authored, pending proof
+Invariant severity levels    → PROP-025 authored, pending proof
+Parser OOF hardening         → PROP-026 authored, proof PASS
 
-~T probabilistic types       → PROP-026 queued
-Deadline contracts           → PROP-027 queued
-Unit algebra                 → PROP-028 queued
-Plastic Runtime Cells        → PROP-029 queued
-Rule synthesis               → PROP-030 queued
+~T probabilistic types       → PROP-027 queued
+Deadline contracts           → PROP-028 queued
+Unit algebra                 → PROP-029 queued
+Plastic Runtime Cells        → PROP-030 queued
+Rule synthesis               → PROP-031 queued
 ```
 
 Reference: [language-spec.md §12](language-spec.md) for full roadmap.
@@ -244,7 +249,7 @@ Step 4: Open Stage 2 governance
 
 Step 5: Archive Stage 2 design PROPs
   PROP-022–025 move to docs/proposals/ (active, not yet accepted).
-  New Stage 2 implementation PROPs begin from PROP-026+.
+  New Stage 2 implementation PROPs begin from PROP-027+.
 ```
 
 **Do not do any of this until Stage 1 is closed.**
@@ -257,7 +262,8 @@ Stage 1 close criteria: RuntimeMachine.evaluate(assembled_add.igapp, inputs) →
 ```text
 Pass/Feature           PROP(s)       Experiment                        Status
 ──────────────────────────────────────────────────────────────────────────────
-Parser OOF hardening   PROP-014/015  experiments/parser/               ⏳ deferred gap
+Parser OOF hardening   PROP-026      parser_oof_hardening_             ✅ PASS
+                                     stage2_proof/
 Production compiler    PROP-022A     no package yet                    ⏳ deferred gap
 Runtime eval surface   —             igapp_assembler_proof/            ✅ closed_in_proof
                                      evaluates Add, ClaimEvidenceBundle,  (all 3 contracts)
@@ -268,9 +274,9 @@ OLAPPoint[T,Dims]      PROP-024      no experiment yet                 🔵 auth
 Invariant severity     PROP-025      no experiment yet                 🔵 authored
 ──────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  Deferred Gap A (parser OOF) → Gap B (production compiler) → Tier 1 proofs
+Active priority:  Deferred Gap B (production compiler) → Tier 1 proofs
 Governance:       META-EXPERT-008
-New PROPs:        start from PROP-026
+New PROPs:        start from PROP-027
 ```
 
 → See `meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md` for

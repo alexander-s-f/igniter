@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative "../experiments/production_compiler_cli/production_compiler_cli"
+
+success = ProductionCompilerCLI::CLI.run(ARGV)
+exit(success ? 0 : 1)

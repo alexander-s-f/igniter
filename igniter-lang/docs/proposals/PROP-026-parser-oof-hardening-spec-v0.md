@@ -1,4 +1,4 @@
-# PROP-024: Parser OOF Hardening Spec v0
+# PROP-026: Parser OOF Hardening Spec v0
 
 Role: `[Igniter-Lang Compiler/Grammar Expert]`
 Status: proposal
@@ -264,7 +264,7 @@ Status: done
 - 4 explicit non-targets: PX-1..PX-4.
 
 [Files] Changed:
-- igniter-lang/docs/proposals/PROP-024-parser-oof-hardening-spec-v0.md [NEW]
+- igniter-lang/docs/proposals/PROP-026-parser-oof-hardening-spec-v0.md [NEW]
 - igniter-lang/docs/agent-motion.md [updated]
 
 [Next]:
