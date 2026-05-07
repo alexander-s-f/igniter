@@ -13,6 +13,7 @@ and operating model first, then use this index for governance context.
 
 | Document | Status | Purpose |
 |----------|--------|---------|
+| [META-EXPERT-009](META-EXPERT-009-stage2-close-readiness-critical-path-v0.md) | **active** | Stage 2 close readiness assessment: what is proven, two hard blockers, R13–R15 critical path, deferred gap register |
 | [META-EXPERT-008](META-EXPERT-008-stage2-implementation-governance-v0.md) | **active** | Stage 2 governance: scoreboard, dependency order, done criteria, agent routing, close criteria |
 | [META-EXPERT-008.1](META-EXPERT-008.1-prop-numbering-audit-v0.md) | decision | PROP numbering audit: no file moves needed; canonical map PROP-026=parser OOF hardening, PROP-027=production compiler diagnostics; new Stage 2 authors start from PROP-028 |
 | [META-EXPERT-008.2](META-EXPERT-008.2-fresh-language-model-report-v0.md) | proposal | Fresh language model report: LanguageContract/RuntimeContract composition, general-purpose profiles, OSINT traceability, mesh, FFI, modeling, and next-slice priorities |
