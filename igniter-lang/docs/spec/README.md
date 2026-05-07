@@ -1,6 +1,6 @@
 # Igniter-Lang Language Specification
 
-Version: 0.7 — Stage 2 R5 sync
+Version: 0.8 — Stage 2 R6 sync
 Maintainer: `[Igniter-Lang Meta Expert]`
 Status: living document
 Last updated: 2026-05-07
@@ -42,8 +42,10 @@ Last updated: 2026-05-07
 | Ch6 SemanticIR envelope | PROP-019.1 | experiments/source_to_semanticir_fixture/ | ✅ PASS ✅ golden check PASS |
 | Ch6 CompilationReport | PROP-019.1 | source_to_semanticir_fixture --check-golden | ✅ PASS |
 | Ch6 Assembler criteria A1–A6 | PROP-019.1 | experiments/igapp_assembler_proof/ | ✅ PASS A1–A6 all ok |
+| Ch6 Classifier module | PROP-018/020 | lib/igniter_lang/classifier.rb | ✅ lib extracted; ParsedProgram→ClassifiedProgram boundary |
 | Ch7 RuntimeMachine lifecycle | PROP-011 | experiments/runtime_machine_memory_proof/ | ✅ proven |
 | Ch7 CompatibilityReport gate | PROP-009, PROP-009.1 | igapp_assembler_proof runtime.* | ✅ proven (assembled igapp) |
+| Ch7 Temporal access hook spec | PROP-022 | lib/igniter_lang/temporal_access_runtime.rb | ✅ RuntimeMachineHook spec + smoke ⏳ proof wiring next |
 | Ch8 Collection[T] ops | PROP-013 | stdlib_execution_kernel_stage1 | ✅ PASS |
 | Ch8 fold/map/filter | PROP-013 | experiments/stdlib_execution_kernel_stage1/ | ✅ PASS |
 | Ch9 History[T] | PROP-022 | experiments/history_type_proof/ | ✅ point proof PASS ✅ parser accepted |
@@ -53,20 +55,19 @@ Last updated: 2026-05-07
 | Ch9 Temporal access lib | PROP-022 | lib/igniter_lang/temporal_access_runtime.rb | ✅ lib extracted; capability helper ⏳ RuntimeMachine hook |
 | Ch9 Invariant severity | PROP-025 | experiments/invariant_severity_proof/ | ✅ proof PASS ✅ parser/TC spec done ⏳ impl deferred |
 | Ch9 stream T runtime | PROP-023 | experiments/stream_t_proof/ | ✅ proof PASS |
-| Ch9 stream T parser | PROP-023 | lib/igniter_lang/parser.rb | ✅ stream/fold_stream keywords ⏳ classifier next |
-| Ch9 OLAPPoint[T,Dims] | PROP-024 | experiments/olap_point_proof/ | ✅ proof PASS ⏳ parser/TC boundary next |
+| Ch9 stream T parser | PROP-023 | lib/igniter_lang/parser.rb | ✅ stream/fold_stream keywords ⏳ OOF-S2 next |
+| Ch9 stream T classifier | PROP-023 | classifier_pass_proof/ (SC-1/2/3) | ✅ ESCAPE propagation PASS ⏳ OOF-S3 TypeChecker next |
+| Ch9 OLAPPoint[T,Dims] | PROP-024 | experiments/olap_point_proof/ (21 checks) | ✅ proof PASS ✅ grammar spec done ⏳ parser impl next |
 
 ---
 
 ## Coverage Summary
 
 ```
-accepted + PASS   Ch3 (TypeChecker + boundary + BiHistory axes), Ch4 (classifier),
-                  Ch5 (pipeline + assembler), Ch6 (SemanticIR + assembler),
-                  Ch7 (RuntimeMachine), Ch8 (stdlib kernel)
-accepted partial  Ch2 (OOF syntax gap closed PROP-026; semantic OOF caught at Classify/TypeCheck)
-Stage 2 partial   Ch9 (History[T]+BiHistory+stream T+OLAPPoint PASS; temporal lib+parser lib
-                       extracted; severity proof+spec PASS; classifier/TC boundaries next)
+accepted + PASS   Ch1–Ch8 (all Stage 1 passes PASS; classifier module extracted)
+accepted partial  Ch2 (OOF syntax gap closed PROP-026)
+Stage 2 partial   Ch9 (History[T]+BiHistory+stream T+OLAPPoint PASS; SC-1/2/3 PASS;
+                       OLAP grammar spec done; typechecker/OLAP impl/S2-S3 next)
 ```
 
 ---
@@ -74,30 +75,28 @@ Stage 2 partial   Ch9 (History[T]+BiHistory+stream T+OLAPPoint PASS; temporal li
 ## Stage 1 Remaining Gap
 
 ```
-Stage 2 open gaps (after R5):
-1. Production compiler classifier module — extract-classifier-module-v0
-   lib/: parser.rb, temporal_access_runtime.rb now extracted (5 libs total).
-2. stream T classifier ESCAPE propagation — SC-1..3
-   stream/fold_stream keywords parsed; classifier ESCAPE rules unimplemented.
-3. OLAPPoint parser + typechecker boundary — olap-point-parser-typechecker-boundary-v0
-   olap_point_proof PASS (proof-local); grammar/TC surface next.
-4. RuntimeMachine temporal access hook — runtime-machine-temporal-access-hook-v0
-   temporal_access_runtime lib extracted; resolver hook in RuntimeMachine remains.
+Stage 2 open gaps (after R6):
+1. Production compiler typechecker module — extract-typechecker-module-v0
+   classifier.rb extracted (R6; 6 libs total). Next: typechecker.rb.
+2. OLAPPoint parser + typechecker implementation — olap-point-parser-implementation-v0
+   Grammar spec done (dims_record, OOF-O1..O5). Parser impl deferred.
+3. stream T OOF-S2 classifier (missing window) + OOF-S3 TypeChecker (ESCAPE in fold fn)
+   SC-1/2/3 PASS. OOF-S2 is small/bounded. OOF-S3 needs TypeChecker boundary.
+4. RuntimeMachine temporal access hook proof
+   RuntimeMachineHook spec + smoke done. Proof wiring into HistoryRuntimeMachine remains.
 5. Invariant severity parser + TC implementation
-   Spec done; impl deferred (Tier 1, after compiler closes).
+   Spec done. Impl deferred — Tier 1, after typechecker module closes.
 
-Closed post-Stage-1 and in Stage 2 R1–R5 (no longer gaps):
+Closed post-Stage-1 and in Stage 2 R1–R6 (no longer gaps):
   OOF syntax rejection     — PASS: PROP-026
   Runtime eval surface     — closed_in_proof: igapp_assembler_proof
-  Option[T] normalization  — PASS: canonical {kind,value} shape
-  History[T] parser        — PASS: structured TypeRef for generic types
-  BiHistory[T] axes        — PASS: typechecker_proof (4 BiHistory cases)
-  Temporal access runtime  — PASS: TemporalAccessRuntime::MemoryBackend + lib extracted
-  Temporal access SemanticIR — PASS: temporal_access_node evaluated end-to-end
+  History[T]+BiHistory[T]  — PASS: full proof stack (point, parser, axes, temporal node)
+  Temporal access runtime  — PASS + lib extracted; capability helper done
   Invariant severity proof — PASS: proof + parser/TC spec done
-  stream T proof           — PASS: stream_t_proof; stream keywords parsed
-  OLAPPoint proof          — PASS: olap_point_proof (point access + rollup + OOF-O1..3)
-  Production compiler libs — 5 libs in lib/igniter_lang/ (diagnostics, result, report, parser, TAR)
+  stream T runtime proof   — PASS: fold_stream bounded window
+  stream T SC-1/2/3        — PASS: ESCAPE propagation in classifier_pass_proof
+  OLAPPoint proof          — PASS: olap_point_proof (21 checks); grammar spec done
+  Production compiler libs — 6 libs extracted: diagnostics, result, report, parser, TAR, classifier
 ```
 
 ---

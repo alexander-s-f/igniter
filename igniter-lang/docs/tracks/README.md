@@ -27,35 +27,36 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
-## Stage 2 Round 5 Evidence
+## Stage 2 Round 6 Evidence
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `extract-parser-module-v0.md` | done | lib/igniter_lang/parser.rb extracted; 61 specs PASS; CLI PASS |
-| `stream-parser-classifier-boundary-v0.md` | done | stream/fold_stream keywords in parser.rb; stream_t_proof PASS; classifier SC-1..3 next |
-| `production-runtime-temporal-access-integration-v0.md` | done | lib/igniter_lang/temporal_access_runtime.rb extracted; capability helper; history+bihistory PASS |
-| `olap-point-proof-v0.md` | done | olap_point_proof PASS: point access + rollup + OOF-O1..3 |
-| `stage2-round5-map-refresh-v0.md` | done | R5 map sync — this track |
+| `extract-classifier-module-v0.md` | done | lib/igniter_lang/classifier.rb extracted; classifier+golden PASS; CLI PASS |
+| `stream-classifier-escape-propagation-v0.md` | done | SC-1/2/3 ESCAPE in classifier; source_to_semanticir goldens 6→9 |
+| `runtime-machine-temporal-access-hook-v0.md` | done | RuntimeMachineHook spec + smoke in TAR lib; history+bihistory PASS |
+| `olap-point-parser-typechecker-boundary-v0.md` | done | Grammar spec: dims_record, OOF-O1..5 ownership; olap_point_proof 12+9=21 PASS; impl deferred |
+| `stage2-round6-map-refresh-v0.md` | done | R6 map sync — this track |
 
-## Stage 2 Round 4 Evidence (summary)
+## Stage 2 Round 5 Evidence (summary)
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `runtime-temporal-access-node-loader-v0.md` | done | temporal_access_node evaluated via TemporalAccessRuntime |
-| `compiler-result-report-boundary-v0.md` | done | compiler_result.rb + compilation_report.rb extracted |
-| `invariant-severity-parser-and-typechecker-ownership-v0.md` | done | Parser/TC spec authored; proof PASS |
-| `stream-t-proof-v0.md` | done | stream_t_proof PASS: fold_stream bounded window → CORE |
+| `extract-parser-module-v0.md` | done | lib/igniter_lang/parser.rb + stream keywords |
+| `stream-parser-classifier-boundary-v0.md` | done | stream/fold_stream in parser.rb; stream_t_proof PASS |
+| `production-runtime-temporal-access-integration-v0.md` | done | temporal_access_runtime.rb extracted |
+| `olap-point-proof-v0.md` | done | olap_point_proof PASS |
 
 ---
 
-## lib/igniter_lang/ — Current State
+## lib/igniter_lang/ — Current State (6 libs)
 
 ```text
-diagnostics.rb           (R3) — CompilationReport diagnostics helpers
-compiler_result.rb       (R4) — CompilerResult status/stages
-compilation_report.rb    (R4) — CompilationReport ref/path helpers
-parser.rb                (R5) — Full parser + stream/fold_stream keywords
-temporal_access_runtime.rb (R5) — TemporalAccessRuntime::MemoryBackend + capability helper
+diagnostics.rb            (R3)
+compiler_result.rb        (R4)
+compilation_report.rb     (R4)
+parser.rb                 (R5) — parser + stream/fold_stream keywords
+temporal_access_runtime.rb (R5/R6) — MemoryBackend + capability helper + RuntimeMachineHook spec
+classifier.rb             (R6) — ParsedProgram → ClassifiedProgram boundary
 ```
 
 ---
@@ -64,10 +65,10 @@ temporal_access_runtime.rb (R5) — TemporalAccessRuntime::MemoryBackend + capab
 
 | Candidate | Purpose | Role |
 |-----------|---------|------|
-| `extract-classifier-module-v0` | Move classifier to lib/igniter_lang/classifier.rb | Research Agent |
-| `stream-classifier-escape-propagation-v0` | SC-1..3 ESCAPE rules for stream T | Compiler/Grammar Expert |
-| `olap-point-parser-typechecker-boundary-v0` | Grammar surface + TypeChecker OOF-O for OLAPPoint | Compiler/Grammar Expert |
-| `runtime-machine-temporal-access-hook-v0` | Resolver hook in RuntimeMachine; TBackend capability checks | Research Agent |
+| `extract-typechecker-module-v0` | Move TypeChecker to lib/igniter_lang/typechecker.rb | Research Agent |
+| `olap-point-parser-implementation-v0` | Add olap_point keyword + dims_record to parser.rb | Research Agent |
+| `stream-oof-s2-classifier-v0` | OOF-S2 missing-window classifier rule | Compiler/Grammar Expert |
+| `runtime-machine-temporal-access-hook-proof-v0` | Wire RuntimeMachineHook into HistoryRuntimeMachine proof | Research Agent |
 
 ---
 
