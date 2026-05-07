@@ -45,23 +45,24 @@ Parser OOF hardening     PROP-026  parser_oof_hardening_stage2_proof/   ✅ PASS
 Runtime eval surface     —         igapp_assembler_proof/               ✅ closed_in_proof
 ────────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  Assembler extraction → compiler orchestrator → production TBackend adapter
+Active priority:  Compiler orchestrator → SemanticIR surface lowering (stream/invariant)
 New PROPs:        start from PROP-028
 ```
 
 ---
 
-## lib/igniter_lang/ — 8 Libs Extracted
+## lib/igniter_lang/ — 9 Libs Extracted
 
 ```text
 diagnostics.rb            (R3)
 compiler_result.rb        (R4)
 compilation_report.rb     (R4)
-parser.rb                 (R5) — parser + stream/fold_stream + olap_point/dims_record (R7)
-temporal_access_runtime.rb (R5/R6) — MemoryBackend + RuntimeMachineHook (wired R7)
-classifier.rb             (R6) — ParsedProgram → ClassifiedProgram; OOF-S2 (R7)
+parser.rb                 (R5/R7) — parser + stream + olap_point/dims_record
+temporal_access_runtime.rb (R5–R7) — MemoryBackend + RuntimeMachineHook
+classifier.rb             (R6/R7) — ParsedProgram→ClassifiedProgram; OOF-S1/2
 typechecker.rb            (R7/R8) — TypedProgram boundary; stream OOF-S3; OLAP OOF-O2..O5
-semanticir_emitter.rb     (R8) — extracted SemanticIR emitter boundary
+semanticir_emitter.rb     (R8/R9) — SemanticIR emitter; OLAP lowering added R9
+assembler.rb              (R9) — NEW; .igapp/ assembler boundary
 ```
 
 ---

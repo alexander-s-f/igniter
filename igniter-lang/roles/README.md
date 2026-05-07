@@ -83,6 +83,7 @@ Archive/Form Expert
 At the top of every authored track/proposal/handoff, write:
 
 ```text
+Card: <Card ID>
 Agent: [Igniter-Lang <Agent Name>]
 Role: <role-profile-id>
 Track: igniter-lang/<track-name>
@@ -91,6 +92,7 @@ Track: igniter-lang/<track-name>
 Example:
 
 ```text
+Card: S2-R10-C5-S
 Agent: [Igniter-Lang Compiler/Grammar Expert]
 Role: compiler-grammar-expert
 Track: igniter-lang/semanticir-stage2-surface-lowering-v0

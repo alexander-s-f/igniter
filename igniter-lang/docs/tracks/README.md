@@ -27,6 +27,13 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 2 Round 10 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `invariant-severity-parser-boundaries-v0.md` | done | PINV-1..4 + TINV-1..3 PASS; Stage 1 + OLAP/Stream proofs PASS |
+| `stage2-round10-map-and-role-profile-refresh-v0.md` | done | R10 map sync — this track |
+
 ## Stage 2 Round 9 Evidence
 
 | Track | Status | Notes |
@@ -89,21 +96,31 @@ assembler.rb              (R9) — NEW; .igapp/ assembler boundary
 | `compiler-orchestrator-v0` | Wire Parser → Classifier → TypeChecker → SemanticIREmitter → Assembler behind production boundary | Research Agent |
 | `stream-semanticir-surface-lowering-v0` | stream_input_node / fold_stream_node emitter lowering | Compiler/Grammar Expert |
 | `production-tbackend-adapter-fixture-v0` | Proof-local AdapterRegistry + CompatibilityReport persistence | Research Agent |
-| `invariant-severity-parser-impl-v0` | PINV-1..4 + TINV-1..3 implementation (Tier 1) | Compiler/Grammar Expert |
+| `invariant-severity-semanticir-lowering-v0` | invariant_node / invariant_violation_node emission | Compiler/Grammar Expert |
 
 ---
 
 ## Handoff Template
 
 ```text
-[Role]
-Track:
 Card:
+Agent: [Igniter-Lang <Agent Name>]
+Role: <role-profile-id>
+Track:
 Status:
 
 [D] Decisions
+- ...
+
 [S] Shipped / Signals
+- ...
+
 [T] Tests / Proofs
+- ...
+
 [R] Risks / Recommendations
+- ...
+
 [Next] Suggested next slice
+- ...
 ```

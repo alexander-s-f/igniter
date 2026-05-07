@@ -157,24 +157,18 @@ Role: <role-profile-id>
 Track: igniter-lang/<track-name>
 Status: done | partial | blocked
 
-[D] Decisions:
+[D] Decisions
 - ...
 
-[R] Recommendations:
+[S] Shipped / Signals
 - ...
 
-[S] Signals:
+[T] Tests / Proofs
 - ...
 
-[T] Tests / Proofs:
+[R] Risks / Recommendations
 - ...
 
-[Q] Open Questions:
-- ...
-
-[X] Rejected:
-- ...
-
-[Next] Proposed next slice:
+[Next] Suggested next slice
 - ...
 ```
