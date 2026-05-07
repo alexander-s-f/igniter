@@ -185,6 +185,10 @@
           "status": "PASS"
         },
         {
+          "name": "negative.stream_escape_in_fold_oof_s3",
+          "status": "PASS"
+        },
+        {
           "name": "semanticir.not_emitted",
           "status": "PASS"
         },
@@ -225,6 +229,7 @@
         "negative.bihistory_missing_vt: ok",
         "negative.bihistory_missing_tt: ok",
         "negative.bihistory_wrong_axis_type: ok",
+        "negative.stream_escape_in_fold_oof_s3: ok",
         "semanticir.not_emitted: ok",
         "boundary.classified_inputs_present: ok",
         "boundary.classified_program_input_only: ok",

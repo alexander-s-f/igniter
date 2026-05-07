@@ -6,9 +6,12 @@ require "fileutils"
 require "json"
 require "time"
 
+require_relative "../temporal_access_runtime/temporal_access_runtime"
+
 module RuntimeMachineMemoryProof
   PROOF_AS_OF = "2026-05-05T10:42:00Z"
   RULE_VERSION = "toy_dispatch@1"
+  TemporalRuntime = IgniterLang::TemporalAccessRuntime
 
   module Canonical
     module_function
@@ -252,6 +255,45 @@ module RuntimeMachineMemoryProof
     end
   end
 
+  class MemoryTemporalAccessAdapter
+    attr_reader :capabilities
+
+    def initialize(backend, capabilities: [TemporalRuntime::Capabilities::HISTORY_READ])
+      @backend = backend
+      @capabilities = capabilities
+    end
+
+    def supports_capability?(capability)
+      @capabilities.include?(capability)
+    end
+
+    def read_as_of(subject, as_of)
+      packet = @backend.read(subject: subject, as_of: as_of)
+      result = packet ? TemporalRuntime::Option.some(packet.payload) : TemporalRuntime::Option.none
+      observation = {
+        "kind" => "runtime_machine_temporal_access_observation",
+        "subject" => subject,
+        "as_of" => as_of,
+        "selected_append_ref" => packet&.id,
+        "result" => result
+      }
+      observation["observation_id"] = "obs/runtime_temporal_access/#{TemporalRuntime::Canonical.short_hash(observation)}"
+      [result, observation]
+    end
+  end
+
+  class MissingReadAsOfTemporalAdapter
+    attr_reader :capabilities
+
+    def initialize
+      @capabilities = [TemporalRuntime::Capabilities::HISTORY_READ]
+    end
+
+    def supports_capability?(capability)
+      @capabilities.include?(capability)
+    end
+  end
+
   class ToyDispatchContract
     attr_reader :compiled_graph_hash
 
@@ -329,12 +371,163 @@ module RuntimeMachineMemoryProof
     end
   end
 
+  class TemporalDispatchContract
+    attr_reader :compiled_graph_hash
+
+    def initialize
+      @compiled_graph_hash = Canonical.hash(descriptor_payload)
+    end
+
+    def contract_subject
+      "contract/temporal-dispatch"
+    end
+
+    def fragment_subject
+      "fragment/temporal-dispatch"
+    end
+
+    def fragment_class
+      "ESCAPE"
+    end
+
+    def required_escapes
+      ["history_read"]
+    end
+
+    def descriptor_payload
+      {
+        name: "TemporalDispatchContract",
+        version: "temporal-dispatch-contract-v0",
+        fragment_class: fragment_class,
+        required_escapes: required_escapes,
+        capabilities: [TemporalRuntime::Capabilities::HISTORY_READ],
+        nodes: semantic_contract.fetch("nodes").map { |node| node.fetch("kind") },
+        output: "Option[ScheduleSlot]"
+      }
+    end
+
+    def schema_descriptor
+      surface = {
+        schema_version: "0.0.0",
+        port_surface: [
+          { dir: "in", name: "technician_id", type_tag: "String", lifecycle: "local", required: true },
+          { dir: "in", name: "as_of", type_tag: "DateTime", lifecycle: "local", required: true },
+          { dir: "out", name: "schedule_slot", type_tag: "Option[ScheduleSlot]", lifecycle: "session" }
+        ],
+        type_env: ["Option[ScheduleSlot]", "String", "DateTime"],
+        trait_bounds: []
+      }
+      Canonical.normalize(surface.merge(schema_fingerprint: Canonical.hash(surface), migrations: []))
+    end
+
+    def runtime_requirements
+      { "capabilities" => { "required_caps" => [TemporalRuntime::Capabilities::HISTORY_READ] } }
+    end
+
+    def semantic_contract
+      {
+        "kind" => "contract_ir",
+        "contract_name" => "TemporalDispatchContract",
+        "fragment_class" => "escape",
+        "nodes" => [
+          {
+            "kind" => "temporal_input_node",
+            "name" => "schedule_slot_history",
+            "type" => { "constructor" => "History", "element_type" => "ScheduleSlot" },
+            "axis" => "single",
+            "store_ref" => "schedule-slot/{technician_id}/{as_of}",
+            "as_of_ref" => "as_of",
+            "fragment" => "escape",
+            "required_caps" => [TemporalRuntime::Capabilities::HISTORY_READ]
+          },
+          {
+            "kind" => "temporal_access_node",
+            "name" => "schedule_slot_at",
+            "source_ref" => "schedule_slot_history",
+            "access" => "point",
+            "time_ref" => "as_of",
+            "result_type" => { "constructor" => "Option", "element_type" => "ScheduleSlot" },
+            "fragment" => "escape",
+            "evidence_policy" => "link_selected_append_observation"
+          }
+        ]
+      }
+    end
+  end
+
+  module TemporalRuntimeErrorShape
+    module_function
+
+    def from_load_check(load_check)
+      check = load_check.fetch("checks", []).find { |candidate| candidate.fetch("status") == "blocked" } || {}
+      if check.fetch("missing_capabilities", []).any?
+        {
+          "reason_code" => "temporal_access.missing_capability",
+          "message" => "temporal access capability is unavailable",
+          "capability" => check.fetch("missing_capabilities").first,
+          "node" => check["node"],
+          "axis" => check["axis"]
+        }
+      elsif check.fetch("missing_backend_methods", []).any?
+        {
+          "reason_code" => "temporal_access.backend_contract_missing",
+          "message" => "temporal backend adapter is missing required method",
+          "backend_method" => check.fetch("missing_backend_methods").first,
+          "node" => check["node"],
+          "axis" => check["axis"]
+        }
+      elsif check.fetch("missing_declared_capabilities", []).any?
+        {
+          "reason_code" => "temporal_access.missing_declared_capability",
+          "message" => "contract requirements do not declare temporal access capability",
+          "capability" => check.fetch("missing_declared_capabilities").first,
+          "node" => check["node"],
+          "axis" => check["axis"]
+        }
+      else
+        {
+          "reason_code" => "temporal_access.hook_blocked",
+          "message" => "temporal access hook load check blocked",
+          "node" => check["node"],
+          "axis" => check["axis"]
+        }
+      end
+    end
+
+    def from_exception(error, node:)
+      case error
+      when TemporalRuntime::CapabilityError
+        {
+          "reason_code" => "temporal_access.missing_capability",
+          "message" => error.message,
+          "capability" => error.capability,
+          "node" => node
+        }
+      when TemporalRuntime::BackendContractError
+        {
+          "reason_code" => "temporal_access.backend_contract_missing",
+          "message" => error.message,
+          "backend_method" => error.method_name.to_s,
+          "axis" => error.axis,
+          "node" => node
+        }
+      else
+        {
+          "reason_code" => "temporal_access.evaluate_failed",
+          "message" => error.message,
+          "node" => node
+        }
+      end
+    end
+  end
+
   class RuntimeMachine
     attr_reader :machine_id, :session_id, :backend, :state, :loaded_unit
     attr_reader :loaded_schema_descriptor
     attr_reader :axiom_descriptor_ref, :runtime_contract_ref
     attr_reader :execution_environment_ref, :tbackend_descriptor_ref
     attr_reader :last_value_packet, :last_result_hash
+    attr_reader :temporal_access_hook_check
 
     def initialize(machine_id:, session_id:, backend:, runtime_version: "proof-runtime-v1")
       @machine_id = machine_id
@@ -345,6 +538,9 @@ module RuntimeMachineMemoryProof
       @loaded_unit = nil
       @loaded_schema_descriptor = nil
       @contract = nil
+      @temporal_access_hook = nil
+      @temporal_contract = nil
+      @temporal_access_hook_check = nil
       @last_value_packet = nil
       @last_result_hash = nil
     end
@@ -424,12 +620,12 @@ module RuntimeMachineMemoryProof
       { status: "ok", receipt: receipt }
     end
 
-    def load(contract)
+    def load(contract, temporal_backend: nil)
       return failure("runtime.invalid_transition", "load requires booted machine") unless %w[booted loaded].include?(@state)
 
       descriptor = packet(
         kind: "descriptor_observation",
-        subject: "contract/toy-dispatch",
+        subject: contract.respond_to?(:contract_subject) ? contract.contract_subject : "contract/toy-dispatch",
         payload: contract.descriptor_payload.merge(compiled_graph_hash: contract.compiled_graph_hash),
         temporal: { as_of: PROOF_AS_OF, lifecycle: "load" },
         links: evidence_links
@@ -438,16 +634,38 @@ module RuntimeMachineMemoryProof
 
       fragment = packet(
         kind: "descriptor_observation",
-        subject: "fragment/toy-dispatch",
+        subject: contract.respond_to?(:fragment_subject) ? contract.fragment_subject : "fragment/toy-dispatch",
         payload: {
-          fragment_class: "CORE",
-          required_escapes: [],
+          fragment_class: contract.respond_to?(:fragment_class) ? contract.fragment_class : "CORE",
+          required_escapes: contract.respond_to?(:required_escapes) ? contract.required_escapes : [],
           compiled_graph_hash: contract.compiled_graph_hash
         },
         temporal: { as_of: PROOF_AS_OF, lifecycle: "load" },
         links: evidence_links + [link("describes", descriptor.id)]
       )
       @backend.append(fragment, idempotency_key: fragment.id)
+
+      temporal_hook = nil
+      temporal_hook_check = nil
+      if contract.respond_to?(:semantic_contract)
+        temporal_backend ||= MemoryTemporalAccessAdapter.new(@backend)
+        temporal_hook = TemporalRuntime::RuntimeMachineHook.new(
+          backend: temporal_backend,
+          capabilities: temporal_backend.respond_to?(:capabilities) ? temporal_backend.capabilities : nil
+        )
+        temporal_hook_check = temporal_hook.load_check(
+          contract: contract.semantic_contract,
+          requirements: contract.respond_to?(:runtime_requirements) ? contract.runtime_requirements : {}
+        )
+        unless temporal_hook_check.fetch("status") == "ok"
+          error_shape = TemporalRuntimeErrorShape.from_load_check(temporal_hook_check)
+          return failure(
+            error_shape.fetch("reason_code"),
+            error_shape.fetch("message"),
+            context: { error: error_shape, temporal_access_hook: temporal_hook_check, as_of: PROOF_AS_OF }
+          )
+        end
+      end
 
       @loaded_schema_descriptor = schema_descriptor_for(contract)
       migration_descriptor_refs_by_id = emit_migration_descriptors(@loaded_schema_descriptor.fetch("migrations", []))
@@ -457,13 +675,17 @@ module RuntimeMachineMemoryProof
         contract_descriptor_ref: descriptor.id,
         fragment_descriptor_ref: fragment.id,
         compiled_graph_hash: contract.compiled_graph_hash,
-        fragment_class: "CORE",
+        fragment_class: contract.respond_to?(:fragment_class) ? contract.fragment_class : "CORE",
         schema_version: @loaded_schema_descriptor.fetch("schema_version"),
         schema_fingerprint: @loaded_schema_descriptor.fetch("schema_fingerprint"),
         migration_descriptor_refs: migration_descriptor_refs,
         migration_descriptor_refs_by_id: migration_descriptor_refs_by_id
       }
+      @loaded_unit[:temporal_access_hook] = temporal_hook_check if temporal_hook_check
       @contract = contract
+      @temporal_access_hook = temporal_hook
+      @temporal_contract = contract.semantic_contract if contract.respond_to?(:semantic_contract)
+      @temporal_access_hook_check = temporal_hook_check
 
       receipt = packet(
         kind: "receipt_observation",
@@ -626,6 +848,66 @@ module RuntimeMachineMemoryProof
         result_hash: value.payload_hash,
         receipt: receipt
       }
+    end
+
+    def evaluate_temporal_access(node_name:, inputs:, as_of:, rule_version:)
+      return failure("runtime.invalid_transition", "temporal access evaluate requires loaded machine") unless @state == "loaded"
+      return failure("temporal_access.hook_missing", "temporal access hook is not loaded") unless @temporal_access_hook
+
+      @state = "evaluating"
+      access_node = @temporal_contract.fetch("nodes").find do |node|
+        node.fetch("kind") == "temporal_access_node" && node.fetch("name") == node_name
+      end
+      return failure("temporal_access.node_missing", "temporal access node is not present", context: { node: node_name }) unless access_node
+
+      temporal_inputs = @temporal_contract.fetch("nodes")
+        .select { |node| node.fetch("kind") == "temporal_input_node" }
+        .to_h { |node| [node.fetch("name"), node] }
+
+      access_eval = @temporal_access_hook.evaluate(access_node, temporal_inputs: temporal_inputs, inputs: inputs)
+      value = packet(
+        kind: "value_observation",
+        subject: "temporal-access/#{node_name}",
+        payload: {
+          temporal_access_loader: "TemporalAccessRuntime::RuntimeMachineHook",
+          node: node_name,
+          result: access_eval.fetch("result"),
+          observation: access_eval.fetch("observation"),
+          evidence_links: access_eval.fetch("evidence_links")
+        },
+        temporal: { as_of: as_of, rule_version: rule_version },
+        links: evidence_links + access_eval.fetch("evidence_links").map do |link_payload|
+          link(link_payload.fetch("rel"), link_payload.fetch("to"))
+        end
+      )
+      @backend.append(value)
+
+      receipt = packet(
+        kind: "receipt_observation",
+        subject: "runtime-machine/#{@machine_id}/temporal-access",
+        payload: {
+          transition: "evaluate_temporal_access",
+          status: "ok",
+          value_ref: value.id,
+          result_hash: value.payload_hash,
+          temporal_access_hook: @temporal_access_hook_check
+        },
+        temporal: { as_of: as_of, rule_version: rule_version },
+        links: evidence_links + [link("caused_by", value.id)]
+      )
+      @backend.append(receipt)
+
+      @state = "loaded"
+      {
+        status: "ok",
+        temporal_access: access_eval,
+        value_packet: value,
+        result_hash: value.payload_hash,
+        receipt: receipt
+      }
+    rescue TemporalRuntime::CapabilityError, TemporalRuntime::BackendContractError => e
+      error_shape = TemporalRuntimeErrorShape.from_exception(e, node: node_name)
+      failure(error_shape.fetch("reason_code"), error_shape.fetch("message"), context: { error: error_shape, as_of: as_of })
     end
 
     def checkpoint(horizon:)
@@ -1336,6 +1618,7 @@ module RuntimeMachineMemoryProof
     def run(print_summary: true)
       @print_summary = print_summary
       @golden = run_golden_path
+      run_temporal_access_hook_integration
       run_negative_ambient_time
       run_negative_empty_backend_resume
       run_negative_runtime_drift
@@ -1438,6 +1721,93 @@ module RuntimeMachineMemoryProof
         resumed_value_packet: eval_b.fetch(:value_packet),
         evidence_status: evidence
       }
+    end
+
+    def run_temporal_access_hook_integration
+      backend = MemoryTBackend.new
+      machine = RuntimeMachine.new(
+        machine_id: "runtime-machine/temporal-access",
+        session_id: "session/temporal-access",
+        backend: backend
+      )
+      contract = TemporalDispatchContract.new
+      machine.boot
+      Fixture.seed(machine)
+
+      load = machine.load(contract)
+      hook_check = load.fetch(:loaded_unit).fetch(:temporal_access_hook)
+      eval = machine.evaluate_temporal_access(
+        node_name: "schedule_slot_at",
+        inputs: { "technician_id" => "tech/t-17", "as_of" => PROOF_AS_OF },
+        as_of: PROOF_AS_OF,
+        rule_version: RULE_VERSION
+      )
+      result = eval.dig(:temporal_access, "result")
+      selected_ref = eval.dig(:temporal_access, "evidence_links", 0, "to")
+
+      check(
+        "temporal_access.load_hook_check",
+        load.fetch(:status) == "ok" &&
+          hook_check.fetch("status") == "ok" &&
+          hook_check.fetch("checks").first.fetch("required_capabilities") == [TemporalRuntime::Capabilities::HISTORY_READ]
+      )
+      check(
+        "temporal_access.resolver_hook_evaluate",
+        eval.fetch(:status) == "ok" &&
+          eval.fetch(:value_packet).payload.fetch("temporal_access_loader") == "TemporalAccessRuntime::RuntimeMachineHook" &&
+          result.fetch("kind") == "some" &&
+          result.dig("value", "occupied") == false
+      )
+      check(
+        "temporal_access.evidence_link_selected_append",
+        selected_ref.to_s.start_with?("obs/")
+      )
+
+      run_negative_temporal_missing_capability(contract)
+      run_negative_temporal_missing_backend_method(contract)
+    end
+
+    def run_negative_temporal_missing_capability(contract)
+      backend = MemoryTBackend.new
+      machine = RuntimeMachine.new(
+        machine_id: "runtime-machine/temporal-missing-capability",
+        session_id: "session/temporal-missing-capability",
+        backend: backend
+      )
+      machine.boot
+      load = machine.load(
+        contract,
+        temporal_backend: MemoryTemporalAccessAdapter.new(backend, capabilities: [])
+      )
+
+      @negative_failures["temporal_missing_capability"] = load.fetch(:packet).to_h
+      error = load.fetch(:packet).payload.fetch("context").fetch("error")
+      check(
+        "negative.temporal_missing_capability_blocked",
+        load.fetch(:status) == "blocked" &&
+          load.fetch(:reason_code) == "temporal_access.missing_capability" &&
+          error.fetch("capability") == TemporalRuntime::Capabilities::HISTORY_READ
+      )
+    end
+
+    def run_negative_temporal_missing_backend_method(contract)
+      backend = MemoryTBackend.new
+      machine = RuntimeMachine.new(
+        machine_id: "runtime-machine/temporal-missing-backend-method",
+        session_id: "session/temporal-missing-backend-method",
+        backend: backend
+      )
+      machine.boot
+      load = machine.load(contract, temporal_backend: MissingReadAsOfTemporalAdapter.new)
+
+      @negative_failures["temporal_missing_backend_method"] = load.fetch(:packet).to_h
+      error = load.fetch(:packet).payload.fetch("context").fetch("error")
+      check(
+        "negative.temporal_missing_backend_method_blocked",
+        load.fetch(:status) == "blocked" &&
+          load.fetch(:reason_code) == "temporal_access.backend_contract_missing" &&
+          error.fetch("backend_method") == "read_as_of"
+      )
     end
 
     def run_negative_ambient_time

@@ -1,0 +1,115 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/93e2aea104a548d4",
+  "classified_program_id": "classifier_pass/oof_s3_escape_in_fold_body",
+  "source_path": "igniter-lang/experiments/typechecker_proof/classified/negative_stream_escape_in_fold.ig",
+  "source_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.TypeChecker.OOF_S3",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Fixture.TypeChecker.OOF_S3.StreamEscapeInFold",
+      "name": "StreamEscapeInFold",
+      "status": "blocked",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "bad_total",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "device_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "readings",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:device_id",
+          "kind": "input",
+          "name": "device_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "stream:readings",
+          "kind": "stream",
+          "name": "readings",
+          "fragment_class": "escape",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "fold_stream:bad_total",
+          "kind": "fold_stream",
+          "name": "bad_total",
+          "fragment_class": "core",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": [
+            "fold_stream",
+            "readings",
+            "acc"
+          ]
+        },
+        {
+          "decl_id": "output:bad_total",
+          "kind": "output",
+          "name": "bad_total",
+          "fragment_class": "core",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": [
+            "bad_total"
+          ]
+        }
+      ],
+      "type_errors": [
+        {
+          "rule": "OOF-S3",
+          "message": "fold_stream accumulator must be CORE - found ESCAPE: readings",
+          "node": "bad_total",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "type_errors": [
+    {
+      "rule": "OOF-S3",
+      "message": "fold_stream accumulator must be CORE - found ESCAPE: readings",
+      "node": "bad_total",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

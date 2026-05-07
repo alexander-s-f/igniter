@@ -9,6 +9,7 @@ require_relative "diagnostics"
 require_relative "../../lib/igniter_lang/parser"
 require_relative "../../lib/igniter_lang/compiler_result"
 require_relative "../../lib/igniter_lang/compilation_report"
+require_relative "../../lib/igniter_lang/semanticir_emitter"
 require_relative "../source_to_semanticir_fixture/source_to_semanticir_fixture"
 require_relative "../igapp_assembler_proof/igapp_assembler_proof"
 
@@ -16,7 +17,7 @@ module ProductionCompilerCLI
   ROOT = Pathname.new(File.expand_path("../../..", __dir__))
   LANG_ROOT = ROOT / "igniter-lang"
   PROOF_AS_OF = RuntimeMachineMemoryProof::PROOF_AS_OF
-  FORMAT_VERSION = SourceToSemanticIRFixture::FORMAT_VERSION
+  FORMAT_VERSION = IgniterLang::SemanticIREmitter::FORMAT_VERSION
 
   module JSONIO
     module_function
@@ -34,7 +35,7 @@ module ProductionCompilerCLI
       return parse_failure(parsed, source_path, out_path) unless parsed.fetch("parse_errors").empty?
 
       sample_input = sample_input_for(parsed)
-      compilation = SourceToSemanticIRFixture::TinyCompiler.new.compile(parsed, sample_input: sample_input)
+      compilation = IgniterLang::SemanticIREmitter.new.emit(parsed, sample_input: sample_input)
       report = IgniterLang::CompilationReport.enrich(
         report: compilation.fetch("compilation_report"),
         parsed: parsed

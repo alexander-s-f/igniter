@@ -1,0 +1,71 @@
+{
+  "contracts": [
+    {
+      "contract_name": "RegionalDailyRevenuePoint",
+      "fragment_class": "escape",
+      "kind": "contract_ir",
+      "nodes": [
+        {
+          "kind": "olap_access_node",
+          "name": "revenue_point",
+          "olap_ref": "Revenue",
+          "operation": "point",
+          "resolved_type": "Decimal[2]",
+          "result_type": {
+            "constructor": "OLAPPoint",
+            "dims_record": {
+              "dims": {
+                "channel": "String",
+                "date": "String",
+                "region": "String"
+              },
+              "kind": "dims_record"
+            },
+            "measure": "Decimal[2]"
+          },
+          "slices": [
+            {
+              "dim": "channel",
+              "value_ref": "channel",
+              "value_type": "String"
+            },
+            {
+              "dim": "date",
+              "value_ref": "date",
+              "value_type": "String"
+            },
+            {
+              "dim": "region",
+              "value_ref": "region",
+              "value_type": "String"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "olap_points": [
+    {
+      "dimensions": {
+        "channel": "String",
+        "date": "String",
+        "region": "String"
+      },
+      "granularity": {
+        "date": "daily"
+      },
+      "indexed": [
+        "date",
+        "region"
+      ],
+      "kind": "olap_point_decl",
+      "measure_type": "Decimal[2]",
+      "name": "Revenue",
+      "source_ref": "synthetic_fulfilled_order_facts"
+    }
+  ],
+  "program_id": "semanticir/olap_boundary/d58401d42d50c708",
+  "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig"
+}

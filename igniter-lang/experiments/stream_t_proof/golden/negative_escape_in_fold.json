@@ -1,0 +1,26 @@
+{
+  "case_id": "negative_escape_in_fold",
+  "diagnostics": [
+    {
+      "category": "stream_oof",
+      "contract": "IntegerWindowSum",
+      "diagnostic": "stream.escape_in_fold_body",
+      "message": "fold_stream accumulator must be CORE - found ESCAPE: readings",
+      "node": "bad_total",
+      "path": "contract:IntegerWindowSum/fold_stream:bad_total",
+      "rule": "OOF-S3",
+      "severity": "error",
+      "span": null
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "semantic_ir_ref": null,
+  "stages": {
+    "classify": "ok",
+    "emit": "skipped",
+    "parse": "proof_local_sketch",
+    "typecheck": "oof"
+  }
+}

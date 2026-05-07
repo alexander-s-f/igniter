@@ -76,6 +76,12 @@ module TypecheckerProof
       expected_contract: "BiHistoryWrongAxisType",
       expected_status: "blocked",
       expected_rules: ["OOF-BT4"]
+    },
+    "negative_stream_escape_in_fold" => {
+      classified: "negative_stream_escape_in_fold.classified.json",
+      expected_contract: "StreamEscapeInFold",
+      expected_status: "blocked",
+      expected_rules: ["OOF-S3"]
     }
   }.freeze
 
@@ -128,6 +134,7 @@ module TypecheckerProof
       "negative.bihistory_missing_vt" => blocked_with_rules?(outputs, "negative_bihistory_missing_vt"),
       "negative.bihistory_missing_tt" => blocked_with_rules?(outputs, "negative_bihistory_missing_tt"),
       "negative.bihistory_wrong_axis_type" => blocked_with_rules?(outputs, "negative_bihistory_wrong_axis_type"),
+      "negative.stream_escape_in_fold_oof_s3" => blocked_with_rules?(outputs, "negative_stream_escape_in_fold"),
       "semanticir.not_emitted" => outputs.values.all? { |result| result.fetch(:typed).fetch("semantic_ir_ref").nil? },
       "boundary.classified_inputs_present" => classified_inputs_present?(classified_dir),
       "boundary.classified_program_input_only" => classified_program_input_only?(outputs),

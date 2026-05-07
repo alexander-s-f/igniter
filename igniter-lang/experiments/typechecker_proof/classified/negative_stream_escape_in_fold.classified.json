@@ -1,0 +1,133 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/oof_s3_escape_in_fold_body",
+  "source_path": "igniter-lang/experiments/typechecker_proof/classified/negative_stream_escape_in_fold.ig",
+  "source_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.TypeChecker.OOF_S3",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.TypeChecker.OOF_S3.StreamEscapeInFold",
+      "name": "StreamEscapeInFold",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "device_id",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "readings",
+          "kind": "stream",
+          "fragment_class": "escape"
+        },
+        {
+          "name": "bad_total",
+          "kind": "fold_stream",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:device_id",
+          "kind": "input",
+          "name": "device_id",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "stream:readings",
+          "kind": "stream",
+          "name": "readings",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        },
+        {
+          "decl_id": "window:integer/{device_id}",
+          "kind": "window",
+          "name": "integer/{device_id}",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "fold_stream:bad_total",
+          "kind": "fold_stream",
+          "name": "bad_total",
+          "fragment_class": "core",
+          "deps": [
+            "fold_stream",
+            "readings",
+            "acc"
+          ],
+          "missing_refs": [],
+          "expr_kind": "call",
+          "expr": {
+            "kind": "call",
+            "fn": "fold_stream",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "readings"
+              },
+              {
+                "kind": "literal",
+                "value": 0,
+                "type_tag": "Integer"
+              },
+              {
+                "kind": "lambda",
+                "params": [
+                  "acc"
+                ],
+                "body": {
+                  "kind": "binary_op",
+                  "op": "+",
+                  "left": {
+                    "kind": "ref",
+                    "name": "acc"
+                  },
+                  "right": {
+                    "kind": "ref",
+                    "name": "readings"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "decl_id": "output:bad_total",
+          "kind": "output",
+          "name": "bad_total",
+          "fragment_class": "core",
+          "deps": [
+            "bad_total"
+          ],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:device_id",
+          "stream:readings",
+          "window:integer/{device_id}",
+          "fold_stream:bad_total",
+          "output:bad_total"
+        ],
+        "edges": []
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}

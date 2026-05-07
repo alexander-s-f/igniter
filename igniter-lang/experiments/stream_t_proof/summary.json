@@ -6,6 +6,7 @@
     "history.relationship_documented": true,
     "negative.oof_s1_unbounded_fold": true,
     "negative.oof_s2_missing_window": true,
+    "negative.oof_s3_escape_in_fold": true,
     "negative.oof_s4_direct_stream_use": true,
     "runtime.finite_replay_window_closed": true,
     "runtime.fold_stream_sum": true,
@@ -235,6 +236,32 @@
         "emit": "skipped",
         "parse": "proof_local_sketch",
         "typecheck": "skipped"
+      }
+    },
+    {
+      "case_id": "negative_escape_in_fold",
+      "diagnostics": [
+        {
+          "category": "stream_oof",
+          "contract": "IntegerWindowSum",
+          "diagnostic": "stream.escape_in_fold_body",
+          "message": "fold_stream accumulator must be CORE - found ESCAPE: readings",
+          "node": "bad_total",
+          "path": "contract:IntegerWindowSum/fold_stream:bad_total",
+          "rule": "OOF-S3",
+          "severity": "error",
+          "span": null
+        }
+      ],
+      "format_version": "0.1.0",
+      "kind": "compilation_report",
+      "pass_result": "oof",
+      "semantic_ir_ref": null,
+      "stages": {
+        "classify": "ok",
+        "emit": "skipped",
+        "parse": "proof_local_sketch",
+        "typecheck": "oof"
       }
     }
   ],

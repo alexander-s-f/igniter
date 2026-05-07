@@ -34,8 +34,8 @@ History[T]+BiHistory[T]  PROP-022  history+bihistory proofs PASS        ✅ full
   + Temporal access hook           RuntimeMachineHook wired              ✅ hook proof PASS
                                    valid-time + bitemporal paths PASS     ⏳ production RM next
 stream T                 PROP-023  stream_t_proof/ PASS                 ✅ runtime proof PASS
-  + OOF-S1/2                       OOF-S2 missing-window classifier      ✅ OOF-S2 PASS
-                                   (OOF-S3 ESCAPE-in-fold TypeChecker    ⏳ OOF-S3 next)
+  + OOF-S1..S5                      OOF-S2 missing-window classifier      ✅ OOF-S2 PASS
+                                    OOF-S3 ESCAPE-in-fold TypeChecker     ✅ OOF-S3 PASS (R8)
 OLAPPoint[T,Dims]        PROP-024  olap_point_proof/ PASS (21 checks)   ✅ PASS + grammar spec
   + parser impl                    revenue_point.ig parses live          ✅ parser impl PASS
                                    (TypeChecker/SemanticIR next)         ⏳ OLAP TC/IR next
@@ -45,7 +45,7 @@ Parser OOF hardening     PROP-026  parser_oof_hardening_stage2_proof/   ✅ PASS
 Runtime eval surface     —         igapp_assembler_proof/               ✅ closed_in_proof
 ────────────────────────────────────────────────────────────────────────────────
 STAGE 2 CLOSED:   NO
-Active priority:  SemanticIR emitter extraction → OLAP TypeChecker/SemanticIR → stream OOF-S3
+Active priority:  SemanticIR emitter extraction → OLAP TypeChecker/SemanticIR
 New PROPs:        start from PROP-028
 ```
 
@@ -70,7 +70,7 @@ typechecker.rb            (R7) — NEW; TypedProgram boundary
 ```text
 PROP-022   History[T] / BiHistory[T]     full proof stack PASS; hook proof PASS
 PROP-022A  .igapp assembler contract     Stage 1 frozen (accepted/)
-PROP-023   stream T                      ✅ runtime + SC-1/2/3 + OOF-S2 PASS; OOF-S3 next
+PROP-023   stream T                      ✅ runtime + SC-1/2/3 + OOF-S1..S5 PASS (all stream OOF done)
 PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
 PROP-024   OLAPPoint[T,Dims]             ✅ proof + grammar spec + parser impl PASS; TC/IR next
 PROP-025   Invariant severity            ✅ proof + spec PASS; impl deferred (Tier 1)
@@ -92,8 +92,8 @@ PROP-028+  next available
    Next: olap-point-typechecker-semanticir-v0 (OOF-O2..O5; olap_access_node lowering).
 
 3. stream T OOF-S3 (ESCAPE in fold fn body)
-   OOF-S2 PASS. OOF-S3 is TypeChecker-owned — wait for typechecker.rb stability.
-   Next: stream-oof-s3-typechecker-v0.
+   ✅ DONE (S2-R8-C3-P). All five stream OOF rules implemented and proven.
+   Remaining: window_ref grammar matching (deferred); SemanticIR emission.
 
 4. Production RuntimeMachine temporal integration
    Hook proof PASS (history + bitemporal paths). Production TBackend adapter remains.

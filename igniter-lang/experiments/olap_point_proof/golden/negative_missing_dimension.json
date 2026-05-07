@@ -17,7 +17,7 @@
         "date": "2026-05-07",
         "region": "west"
       },
-      "rule": "OOF-O-T1",
+      "rule": "OOF-O4",
       "severity": "error",
       "span": null
     }

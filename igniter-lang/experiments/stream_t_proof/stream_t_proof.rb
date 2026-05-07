@@ -370,6 +370,12 @@ module StreamTProof
         "OOF-S4",
         "stream.direct_access",
         "stream 'readings' must be consumed via fold_stream - direct access is OOF"
+      ),
+      oof_report_typechecker(
+        "negative_escape_in_fold",
+        "OOF-S3",
+        "stream.escape_in_fold_body",
+        "fold_stream accumulator must be CORE - found ESCAPE: readings"
       )
     ]
   end
@@ -403,6 +409,36 @@ module StreamTProof
     }
   end
 
+  # OOF-S3 is TypeChecker-owned: classify passes, typecheck blocks.
+  def oof_report_typechecker(case_id, rule, diagnostic, message)
+    {
+      "kind" => "compilation_report",
+      "format_version" => FORMAT_VERSION,
+      "case_id" => case_id,
+      "pass_result" => "oof",
+      "semantic_ir_ref" => nil,
+      "stages" => {
+        "parse" => "proof_local_sketch",
+        "classify" => "ok",
+        "typecheck" => "oof",
+        "emit" => "skipped"
+      },
+      "diagnostics" => [
+        {
+          "category" => "stream_oof",
+          "rule" => rule,
+          "severity" => "error",
+          "diagnostic" => diagnostic,
+          "message" => message,
+          "contract" => "IntegerWindowSum",
+          "node" => "bad_total",
+          "path" => "contract:IntegerWindowSum/fold_stream:bad_total",
+          "span" => nil
+        }
+      ]
+    }
+  end
+
   def checks(semantic_ir, finite_result, open_live, negatives)
     consumed = finite_result.dig("window", "observation", "consumed_event_refs")
     {
@@ -422,6 +458,8 @@ module StreamTProof
         open_live.fetch("trusted_output") == false,
       "negative.oof_s1_unbounded_fold" => negative_rule?(negatives, "negative_unbounded_fold", "OOF-S1"),
       "negative.oof_s2_missing_window" => negative_rule?(negatives, "negative_missing_window", "OOF-S2"),
+      "negative.oof_s3_escape_in_fold" => negative_rule?(negatives, "negative_escape_in_fold", "OOF-S3") &&
+        negative_typechecker_stage?(negatives, "negative_escape_in_fold"),
       "negative.oof_s4_direct_stream_use" => negative_rule?(negatives, "negative_direct_stream_use", "OOF-S4"),
       "history.relationship_documented" => true
     }
@@ -433,6 +471,12 @@ module StreamTProof
       report.fetch("pass_result") == "oof" &&
       report.fetch("semantic_ir_ref").nil? &&
       report.fetch("diagnostics").any? { |diagnostic| diagnostic.fetch("rule") == rule }
+  end
+
+  # Verifies that the negative report fires at the typecheck stage (TypeChecker-owned rule).
+  def negative_typechecker_stage?(negatives, case_id)
+    report = negatives.find { |candidate| candidate.fetch("case_id") == case_id }
+    report&.dig("stages", "typecheck") == "oof"
   end
 
   def write_outputs(summary)

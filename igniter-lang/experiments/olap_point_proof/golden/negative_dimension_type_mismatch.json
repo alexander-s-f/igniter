@@ -10,7 +10,7 @@
       "node": "revenue_point",
       "path": "contract:RegionalDailyRevenuePoint/olap:revenue_point",
       "received_type": "Integer",
-      "rule": "OOF-O-T2",
+      "rule": "OOF-O5",
       "severity": "error",
       "span": null
     }

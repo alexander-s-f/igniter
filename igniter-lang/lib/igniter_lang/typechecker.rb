@@ -12,11 +12,13 @@ module IgniterLang
 
     def typecheck(classified_program)
       @type_shapes = type_shapes(classified_program)
+      @olap_env = olap_env(classified_program.fetch("olap_points", []))
+      @olap_errors = olap_declaration_errors(@olap_env)
       typed_contracts = classified_program.fetch("contracts").map do |contract|
         typecheck_contract(contract)
       end
 
-      {
+      result = {
         "kind" => "typed_program",
         "typechecker_version" => @typechecker_version,
         "program_id" => program_id(classified_program),
@@ -30,6 +32,10 @@ module IgniterLang
         "type_errors" => typed_contracts.flat_map { |contract| contract.fetch("type_errors") },
         "semantic_ir_ref" => nil
       }
+      result["olap_points"] = @olap_env.values.map { |decl| decl.fetch("semantic_node") } unless @olap_env.empty?
+      type_warnings = typed_contracts.flat_map { |contract| contract.fetch("type_warnings", []) }
+      result["type_warnings"] = type_warnings unless type_warnings.empty?
+      result
     end
 
     private
@@ -53,7 +59,8 @@ module IgniterLang
 
     def typecheck_contract(classified_contract)
       declared_oofs = classified_contract.fetch("oof_log")
-      type_errors = declared_oofs.dup
+      type_errors = declared_oofs + @olap_errors
+      type_warnings = []
       symbol_types = {}
       typed_decls = []
 
@@ -67,8 +74,21 @@ module IgniterLang
           type = type_ir(decl.fetch("type_annotation"))
           symbol_types[decl.fetch("name")] = type
           typed_decls << typed_decl(decl, type, nil, [])
+        when "stream"
+          # stream declarations are ESCAPE; register their type for body-escape checks
+          type = decl.key?("type_annotation") ? type_ir(decl.fetch("type_annotation")) : type_ir("Unknown")
+          symbol_types[decl.fetch("name")] = type
+          typed_decls << typed_decl(decl, type, nil, [])
+        when "fold_stream"
+          # OOF-S3: ESCAPE construct (stream ref) inside fold_stream accumulator function body
+          stream_symbols = stream_symbol_names(classified_contract)
+          check_fold_stream_body(decl, stream_symbols, type_errors)
+          result_type = fold_stream_result_type(decl)
+          symbol_types[decl.fetch("name")] = result_type
+          typed_decls << typed_decl(decl, result_type, nil, decl.fetch("deps", []))
         when "compute"
-          typed_expr = infer_expr(decl.fetch("expr"), symbol_types, type_errors, decl.fetch("name"))
+          typed_expr = infer_expr(decl.fetch("expr"), symbol_types, type_errors, type_warnings, decl.fetch("name"))
+          validate_declared_olap_type(decl, typed_expr, type_errors)
           symbol_types[decl.fetch("name")] = typed_expr.fetch("resolved_type")
           typed_decls << typed_decl(decl, typed_expr.fetch("resolved_type"), typed_expr, typed_expr.fetch("deps"))
         when "output"
@@ -82,7 +102,7 @@ module IgniterLang
       end
 
       status = type_errors.empty? ? "accepted" : "blocked"
-      {
+      result = {
         "kind" => "typed_contract",
         "contract_id" => classified_contract.fetch("contract_id"),
         "name" => classified_contract.fetch("name"),
@@ -94,6 +114,9 @@ module IgniterLang
         "declarations" => typed_decls,
         "type_errors" => dedupe_errors(type_errors)
       }
+      warnings = dedupe_errors(type_warnings)
+      result["type_warnings"] = warnings unless warnings.empty?
+      result
     end
 
     def typed_decl(decl, type, expr, deps)
@@ -106,21 +129,24 @@ module IgniterLang
         "deps" => deps
       }
       result["expr"] = expr if expr
+      result["semantic_node"] = expr.fetch("semantic_node") if expr&.key?("semantic_node")
       result
     end
 
-    def infer_expr(expr, symbol_types, type_errors, node_name)
+    def infer_expr(expr, symbol_types, type_errors, type_warnings, node_name)
       case expr.fetch("kind")
       when "literal"
         type = type_ir(expr.fetch("type_tag"))
         typed_expr("literal", type, [], "value" => expr.fetch("value"), "literal_type" => literal_type(type_name(type)))
+      when "symbol"
+        typed_expr("symbol", type_ir("Symbol"), [], "value" => expr.fetch("value"))
       when "ref"
         name = expr.fetch("name")
-        type = symbol_types.fetch(name, type_ir("Unknown"))
+        type = symbol_types.fetch(name, @olap_env.fetch(name, {}).fetch("type", type_ir("Unknown")))
         type_errors << oof("OOF-P1", "Unresolved symbol: #{name}", node_name) if type_name(type) == "Unknown" && !rule_present?(type_errors, "OOF-P1")
         typed_expr("ref", type, [name], "name" => name)
       when "field_access"
-        object = infer_expr(expr.fetch("object"), symbol_types, type_errors, node_name)
+        object = infer_expr(expr.fetch("object"), symbol_types, type_errors, type_warnings, node_name)
         object_type = type_name(object.fetch("resolved_type"))
         field_type = @type_shapes.fetch(object_type, {})[expr.fetch("field")] || type_ir("Unknown")
         if type_name(field_type) == "Unknown"
@@ -134,37 +160,41 @@ module IgniterLang
           "field" => expr.fetch("field")
         )
       when "binary_op"
-        infer_binary(expr, symbol_types, type_errors, node_name)
+        infer_binary(expr, symbol_types, type_errors, type_warnings, node_name)
       when "call"
-        infer_call(expr, symbol_types, type_errors, node_name)
+        infer_call(expr, symbol_types, type_errors, type_warnings, node_name)
+      when "index_access"
+        infer_index_access(expr, symbol_types, type_errors, type_warnings, node_name)
       else
         type_errors << oof("OOF-TY0", "Unsupported expression kind: #{expr.fetch("kind")}", node_name)
         typed_expr("unsupported", type_ir("Unknown"), [], "source_kind" => expr.fetch("kind"))
       end
     end
 
-    def infer_call(expr, symbol_types, type_errors, node_name)
+    def infer_call(expr, symbol_types, type_errors, type_warnings, node_name)
       fn = expr.fetch("fn")
       args = expr.fetch("args")
       case fn
       when "history_at"
-        infer_history_at(fn, args, symbol_types, type_errors, node_name)
+        infer_history_at(fn, args, symbol_types, type_errors, type_warnings, node_name)
       when "bihistory_at"
-        infer_bihistory_at(fn, args, symbol_types, type_errors, node_name)
+        infer_bihistory_at(fn, args, symbol_types, type_errors, type_warnings, node_name)
+      when "olap_rollup"
+        infer_olap_rollup(fn, args, symbol_types, type_errors, type_warnings, node_name)
       else
         type_errors << oof("OOF-TY0", "Unknown function: #{fn}", node_name)
         typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
       end
     end
 
-    def infer_history_at(fn, args, symbol_types, type_errors, node_name)
+    def infer_history_at(fn, args, symbol_types, type_errors, type_warnings, node_name)
       if args.length < 2
         type_errors << oof("OOF-H1", "history_at requires as_of argument", node_name)
         return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
       end
 
-      history_ref = infer_expr(args[0], symbol_types, type_errors, node_name)
-      as_of_ref = infer_expr(args[1], symbol_types, type_errors, node_name)
+      history_ref = infer_expr(args[0], symbol_types, type_errors, type_warnings, node_name)
+      as_of_ref = infer_expr(args[1], symbol_types, type_errors, type_warnings, node_name)
       unless type_name(as_of_ref.fetch("resolved_type")) == "DateTime" ||
              type_name(as_of_ref.fetch("resolved_type")) == "Unknown"
         type_errors << oof("OOF-BT1", "history_at: as_of must be DateTime, got #{type_name(as_of_ref.fetch("resolved_type"))}", node_name)
@@ -179,7 +209,7 @@ module IgniterLang
       )
     end
 
-    def infer_bihistory_at(fn, args, symbol_types, type_errors, node_name)
+    def infer_bihistory_at(fn, args, symbol_types, type_errors, type_warnings, node_name)
       if args.length < 2
         type_errors << oof("OOF-BT2", "bihistory_at requires valid_time (vt) argument", node_name)
         return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
@@ -189,9 +219,9 @@ module IgniterLang
         return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
       end
 
-      history_ref = infer_expr(args[0], symbol_types, type_errors, node_name)
-      vt_ref = infer_expr(args[1], symbol_types, type_errors, node_name)
-      tt_ref = infer_expr(args[2], symbol_types, type_errors, node_name)
+      history_ref = infer_expr(args[0], symbol_types, type_errors, type_warnings, node_name)
+      vt_ref = infer_expr(args[1], symbol_types, type_errors, type_warnings, node_name)
+      tt_ref = infer_expr(args[2], symbol_types, type_errors, type_warnings, node_name)
       [vt_ref, tt_ref].each_with_index do |axis_ref, idx|
         axis_name = idx.zero? ? "valid_time" : "transaction_time"
         unless type_name(axis_ref.fetch("resolved_type")) == "DateTime" ||
@@ -209,15 +239,107 @@ module IgniterLang
       )
     end
 
+    def infer_index_access(expr, symbol_types, type_errors, type_warnings, node_name)
+      object = expr.fetch("object")
+      return unsupported_index_access(expr, type_errors, node_name) unless object.fetch("kind") == "ref"
+
+      olap_name = object.fetch("name")
+      olap_decl = @olap_env[olap_name]
+      return unsupported_index_access(expr, type_errors, node_name) unless olap_decl
+
+      index = expr.fetch("index")
+      unless index.fetch("kind") == "slice_record"
+        type_errors << oof("OOF-O4", "OLAPPoint access requires a dimension slice record", node_name)
+        return typed_expr("index_access", type_ir("Unknown"), [olap_name], "object" => typed_expr("ref", olap_decl.fetch("type"), [olap_name], "name" => olap_name))
+      end
+
+      slices = index.fetch("fields")
+      dims = olap_decl.fetch("dimensions")
+      missing = dims.keys.sort - slices.keys.sort
+      missing.each do |dim|
+        type_errors << oof("OOF-O4", "OLAPPoint access missing required dimension: #{dim}", node_name)
+      end
+
+      typed_slices = slices.keys.sort.map do |dim|
+        expected = dims[dim]
+        value = infer_expr(slices.fetch(dim), symbol_types, type_errors, type_warnings, node_name)
+        if expected && !unknown?(value.fetch("resolved_type")) && !same_type?(expected, value.fetch("resolved_type"))
+          type_errors << oof("OOF-O5", "OLAPPoint dimension '#{dim}' expected #{type_display(expected)}, got #{type_display(value.fetch("resolved_type"))}", node_name)
+        end
+        {
+          "dim" => dim,
+          "value" => value,
+          "value_ref" => slice_value_ref(slices.fetch(dim)),
+          "expected_type" => expected || type_ir("Unknown")
+        }
+      end
+
+      semantic_node = olap_access_node(node_name, olap_decl, typed_slices)
+      typed_expr(
+        "index_access",
+        olap_decl.fetch("measure_type"),
+        typed_slices.flat_map { |slice| slice.fetch("value").fetch("deps") },
+        "object" => typed_expr("ref", olap_decl.fetch("type"), [olap_name], "name" => olap_name),
+        "slices" => typed_slices,
+        "semantic_node" => semantic_node
+      )
+    end
+
+    def unsupported_index_access(expr, type_errors, node_name)
+      type_errors << oof("OOF-TY0", "Unsupported index access", node_name)
+      typed_expr("index_access", type_ir("Unknown"), [], "source_kind" => expr.fetch("kind"))
+    end
+
+    def infer_olap_rollup(fn, args, symbol_types, type_errors, type_warnings, node_name)
+      if args.length < 2
+        type_errors << oof("OOF-O4", "olap_rollup requires point and dimension arguments", node_name)
+        return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
+      end
+
+      olap_ref = args[0]
+      dim_arg = args[1]
+      unless olap_ref.fetch("kind") == "ref" && dim_arg.fetch("kind") == "symbol"
+        type_errors << oof("OOF-O4", "olap_rollup requires a named OLAPPoint and dimension symbol", node_name)
+        return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
+      end
+
+      olap_decl = @olap_env[olap_ref.fetch("name")]
+      unless olap_decl
+        type_errors << oof("OOF-P1", "Unresolved symbol: #{olap_ref.fetch("name")}", node_name)
+        return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
+      end
+
+      dim = dim_arg.fetch("value")
+      unless olap_decl.fetch("dimensions").key?(dim)
+        type_errors << oof("OOF-O4", "OLAPPoint access missing required dimension: #{dim}", node_name)
+      end
+      unless olap_decl.fetch("indexed").include?(dim) || explicit_scatter_gather?(args)
+        type_warnings << oof("OOF-O2", "rollup over non-indexed dimension may be slow; add to indexed:", node_name).merge("severity" => "warning")
+      end
+
+      remaining_dims = olap_decl.fetch("dimensions").reject { |name, _type| name == dim }
+      result_type = olap_type(olap_decl.fetch("measure_type"), remaining_dims)
+      typed_expr(
+        "call",
+        result_type,
+        [olap_decl.fetch("name")],
+        "fn" => fn,
+        "args" => [
+          typed_expr("ref", olap_decl.fetch("type"), [olap_decl.fetch("name")], "name" => olap_decl.fetch("name")),
+          typed_expr("symbol", type_ir("Symbol"), [], "value" => dim)
+        ]
+      )
+    end
+
     def option_type_from(history_type)
       inner = history_type.fetch("params", []).first
       inner_name = inner.is_a?(Hash) ? inner.fetch("name", "Unknown") : (inner || "Unknown")
       { "name" => "Option", "params" => [{ "name" => inner_name, "params" => [] }] }
     end
 
-    def infer_binary(expr, symbol_types, type_errors, node_name)
-      left = infer_expr(expr.fetch("left"), symbol_types, type_errors, node_name)
-      right = infer_expr(expr.fetch("right"), symbol_types, type_errors, node_name)
+    def infer_binary(expr, symbol_types, type_errors, type_warnings, node_name)
+      left = infer_expr(expr.fetch("left"), symbol_types, type_errors, type_warnings, node_name)
+      right = infer_expr(expr.fetch("right"), symbol_types, type_errors, type_warnings, node_name)
       operator, result_type = operator_type(expr.fetch("op"), left.fetch("resolved_type"), right.fetch("resolved_type"), type_errors, node_name)
       typed_expr(
         "call",
@@ -259,6 +381,134 @@ module IgniterLang
       { "name" => name, "params" => params }
     end
 
+    def dims_record_type(dims)
+      {
+        "name" => "DimsRecord",
+        "params" => [],
+        "dims" => dims.transform_values { |type| type_ir(type) }
+      }
+    end
+
+    def olap_type(measure_type, dims)
+      {
+        "name" => "OLAPPoint",
+        "params" => [measure_type, dims_record_type(dims)]
+      }
+    end
+
+    def olap_env(olap_points)
+      olap_points.each_with_object({}) do |point, env|
+        dimensions = point.fetch("dimensions", {}).transform_values { |type| type_ir(type) }
+        measure_type = type_ir(point.fetch("measure", point.fetch("measure_type", "Unknown")))
+        name = point.fetch("name")
+        semantic_node = {
+          "kind" => "olap_point_decl",
+          "name" => name,
+          "dimensions" => dimensions.transform_values { |type| type_display(type) },
+          "measure_type" => type_display(measure_type),
+          "granularity" => point.fetch("granularity", {}),
+          "source_ref" => point.fetch("source_ref", nil),
+          "indexed" => point.fetch("indexed", [])
+        }
+        env[name] = {
+          "name" => name,
+          "dimensions" => dimensions,
+          "measure_type" => measure_type,
+          "granularity" => point.fetch("granularity", {}),
+          "source" => point.fetch("source", nil),
+          "source_ref" => point.fetch("source_ref", nil),
+          "seeded_data" => point.fetch("seeded_data", false),
+          "indexed" => point.fetch("indexed", []),
+          "type" => olap_type(measure_type, dimensions),
+          "semantic_node" => semantic_node
+        }
+      end
+    end
+
+    def olap_declaration_errors(olap_env)
+      olap_env.values.filter_map do |point|
+        next if point.fetch("source") || point.fetch("source_ref") || point.fetch("seeded_data")
+
+        oof("OOF-O3", "OLAPPoint must declare a source function or be populated via stream snapshot", point.fetch("name"))
+      end
+    end
+
+    def validate_declared_olap_type(decl, typed_expr, type_errors)
+      annotation = decl["type_annotation"]
+      return unless annotation.is_a?(Hash) && annotation.fetch("name", nil) == "OLAPPoint"
+
+      expected = type_ir(annotation)
+      actual_node = typed_expr.fetch("semantic_node", nil)
+      return unless actual_node
+
+      measure = expected.fetch("params", []).fetch(0, type_ir("Unknown"))
+      if type_display(measure) != actual_node.dig("result_type", "measure")
+        type_errors << oof("OOF-TY0", "OLAPPoint measure expected #{type_display(measure)}, got #{actual_node.dig("result_type", "measure")}", decl.fetch("name"))
+      end
+      dims = dims_from_type(expected)
+      actual_dims = actual_node.dig("result_type", "dims_record", "dims") || {}
+      dims.each do |dim, expected_type|
+        actual_type = actual_dims[dim]
+        next if actual_type.nil? || type_display(expected_type) == actual_type
+
+        type_errors << oof("OOF-O5", "OLAPPoint dimension '#{dim}' expected #{type_display(expected_type)}, got #{actual_type}", decl.fetch("name"))
+      end
+    end
+
+    def dims_from_type(type)
+      dims_record = type.fetch("params", []).find { |param| param.is_a?(Hash) && (param.fetch("kind", nil) == "dims_record" || param.fetch("name", nil) == "DimsRecord") }
+      return {} unless dims_record
+
+      dims_record.fetch("dims", {}).transform_values { |dim_type| type_ir(dim_type) }
+    end
+
+    def olap_access_node(node_name, olap_decl, typed_slices)
+      {
+        "kind" => "olap_access_node",
+        "name" => node_name,
+        "olap_ref" => olap_decl.fetch("name"),
+        "slices" => typed_slices.map do |slice|
+          {
+            "dim" => slice.fetch("dim"),
+            "value_ref" => slice.fetch("value_ref"),
+            "value_type" => type_display(slice.fetch("value").fetch("resolved_type"))
+          }
+        end,
+        "operation" => "point",
+        "result_type" => {
+          "constructor" => "OLAPPoint",
+          "measure" => type_display(olap_decl.fetch("measure_type")),
+          "dims_record" => {
+            "kind" => "dims_record",
+            "dims" => olap_decl.fetch("dimensions").transform_values { |type| type_display(type) }
+          }
+        },
+        "resolved_type" => type_display(olap_decl.fetch("measure_type"))
+      }
+    end
+
+    def slice_value_ref(expr)
+      expr.fetch("kind") == "ref" ? expr.fetch("name") : nil
+    end
+
+    def explicit_scatter_gather?(args)
+      args.any? { |arg| arg.fetch("kind", nil) == "symbol" && arg.fetch("value") == "scatter_gather" }
+    end
+
+    def same_type?(expected, actual)
+      type_display(expected) == type_display(actual)
+    end
+
+    def type_display(type)
+      return type.to_s unless type.is_a?(Hash)
+
+      params = type.fetch("params", [])
+      return type.fetch("name") if params.empty?
+
+      rendered = params.map { |param| param.is_a?(Hash) ? type_display(param) : param.to_s }.join(",")
+      "#{type.fetch("name")}[#{rendered}]"
+    end
+
     def type_name(type)
       type.fetch("name")
     end
@@ -294,7 +544,80 @@ module IgniterLang
     end
 
     def blocking_rule_present?(errors)
-      %w[OOF-P1 OOF-CE4 OOF-OS2 OOF-H1 OOF-BT2 OOF-BT3 OOF-BT4].any? { |rule| rule_present?(errors, rule) }
+      %w[OOF-P1 OOF-CE4 OOF-OS2 OOF-H1 OOF-BT2 OOF-BT3 OOF-BT4 OOF-S3 OOF-O3 OOF-O4 OOF-O5].any? { |rule| rule_present?(errors, rule) }
+    end
+
+    # OOF-S3 helpers -------------------------------------------------------
+
+    # Collect the names of all stream-kind symbols in the classified contract.
+    def stream_symbol_names(classified_contract)
+      classified_contract.fetch("symbols", []).filter_map do |sym|
+        sym.fetch("name") if sym.fetch("kind") == "stream"
+      end.to_set
+    end
+
+    # Walk the fold_stream accumulator lambda body and emit OOF-S3 for any
+    # ref that names a stream symbol (ESCAPE construct inside CORE-required fn).
+    def check_fold_stream_body(decl, stream_symbols, type_errors)
+      return if stream_symbols.empty?
+      return unless decl.fetch("expr", nil)&.fetch("kind", nil) == "call"
+
+      call = decl.fetch("expr")
+      lambda_arg = call.fetch("args", []).find { |arg| arg.fetch("kind", nil) == "lambda" }
+      return unless lambda_arg
+
+      body = lambda_arg.fetch("body", nil)
+      return unless body
+
+      lambda_params = lambda_arg.fetch("params", []).map(&:to_s).to_set
+      escape_refs = collect_escape_refs(body, stream_symbols, lambda_params)
+      escape_refs.each do |ref_name|
+        type_errors << oof(
+          "OOF-S3",
+          "fold_stream accumulator must be CORE - found ESCAPE: #{ref_name}",
+          decl.fetch("name")
+        )
+      end
+    end
+
+    # Recursively collect ref-names from the body AST that are stream symbols
+    # but NOT lambda parameters (those shadow the outer stream names).
+    def collect_escape_refs(node, stream_symbols, lambda_params)
+      return [] unless node.is_a?(Hash)
+
+      case node.fetch("kind", nil)
+      when "ref"
+        name = node.fetch("name")
+        stream_symbols.include?(name) && !lambda_params.include?(name) ? [name] : []
+      when "lambda"
+        # Nested lambda: extend lambda_params with inner params to avoid false positives
+        inner_params = lambda_params + node.fetch("params", []).map(&:to_s)
+        collect_escape_refs(node.fetch("body", {}), stream_symbols, inner_params)
+      when "binary_op"
+        collect_escape_refs(node.fetch("left", {}), stream_symbols, lambda_params) +
+          collect_escape_refs(node.fetch("right", {}), stream_symbols, lambda_params)
+      when "call"
+        node.fetch("args", []).flat_map { |arg| collect_escape_refs(arg, stream_symbols, lambda_params) } +
+          collect_escape_refs(node.fetch("object", {}), stream_symbols, lambda_params)
+      when "field_access"
+        collect_escape_refs(node.fetch("object", {}), stream_symbols, lambda_params)
+      else
+        # Walk all Hash values for any other node kinds
+        node.values.flat_map { |v| v.is_a?(Hash) ? collect_escape_refs(v, stream_symbols, lambda_params) : [] }
+      end.uniq
+    end
+
+    # Determine the fold_stream result type from the init literal or annotation.
+    # Returns Unknown if the init expression does not carry a type_tag.
+    def fold_stream_result_type(decl)
+      expr = decl.fetch("expr", nil)
+      return type_ir("Unknown") unless expr&.fetch("kind", nil) == "call"
+
+      args = expr.fetch("args", [])
+      init_arg = args[1] # args[0]=stream_ref, args[1]=init, args[2]=lambda
+      return type_ir("Unknown") unless init_arg&.fetch("kind", nil) == "literal"
+
+      type_ir(init_arg.fetch("type_tag", "Unknown"))
     end
 
     def dedupe_errors(errors)

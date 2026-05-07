@@ -7,6 +7,9 @@ require "fileutils"
 require "json"
 require "pathname"
 
+require_relative "../../lib/igniter_lang/parser"
+require_relative "../../lib/igniter_lang/typechecker"
+
 module OLAPPointProof
   ROOT = Pathname.new(File.expand_path("../../..", __dir__))
   LANG_ROOT = ROOT / "igniter-lang"
@@ -156,11 +159,13 @@ module OLAPPointProof
     })
     rollup = backend.local_rollup(cells, keep: ["date", "region"])
     negatives = negative_reports
+    typechecker_boundary = build_typechecker_boundary
+    proof_checks = checks(semantic_ir, backend, cells, point, rollup, negatives, typechecker_boundary)
     summary = {
       "kind" => "olap_point_proof_summary",
       "format_version" => FORMAT_VERSION,
       "track" => TRACK,
-      "status" => checks(semantic_ir, backend, cells, point, rollup, negatives).values.all? ? "PASS" : "FAIL",
+      "status" => proof_checks.values.all? ? "PASS" : "FAIL",
       "relationship_map" => {
         "stream_t" => "ingress_flow_that_may_populate_cells_on_window_close",
         "history_t" => "durable_time_axis_memory_equivalent_to_olap_time_dimension",
@@ -173,7 +178,8 @@ module OLAPPointProof
       "rollup_result" => rollup,
       "observations" => backend.cell_observations,
       "negative_reports" => negatives,
-      "checks" => checks(semantic_ir, backend, cells, point, rollup, negatives)
+      "typechecker_boundary" => typechecker_boundary,
+      "checks" => proof_checks
     }
     write_outputs(summary)
     print_summary(summary)
@@ -263,7 +269,7 @@ module OLAPPointProof
     [
       oof_report(
         "negative_missing_dimension",
-        "OOF-O-T1",
+        "OOF-O4",
         "olap.dimension_missing",
         "OLAPPoint access missing required dimension: channel",
         node: "revenue_point",
@@ -272,7 +278,7 @@ module OLAPPointProof
       ),
       oof_report(
         "negative_dimension_type_mismatch",
-        "OOF-O-T2",
+        "OOF-O5",
         "olap.dimension_type_mismatch",
         "OLAPPoint dimension 'date' expected String, got Integer",
         node: "revenue_point",
@@ -299,8 +305,7 @@ module OLAPPointProof
       "stages" => {
         "parse" => "proof_local_sketch",
         "classify" => "ok",
-        # OOF-O1 is Parser-owned (Stage 1 gate). All other OOF-O* codes are TypeChecker-owned.
-        "typecheck" => (rule.start_with?("OOF-O-T") || (rule.start_with?("OOF-O") && rule != "OOF-O1")) ? "oof" : "skipped",
+        "typecheck" => (rule.start_with?("OOF-O") && rule != "OOF-O1") ? "oof" : "skipped",
         "emit" => "skipped"
       },
       "diagnostics" => [
@@ -319,7 +324,7 @@ module OLAPPointProof
     }
   end
 
-  def checks(semantic_ir, backend, cells, point, rollup, negatives)
+  def checks(semantic_ir, backend, cells, point, rollup, negatives, typechecker_boundary)
     {
       "semanticir.olap_point_decl" => semantic_ir.fetch("olap_points").first.fetch("kind") == "olap_point_decl",
       "semanticir.olap_access_node" => semantic_ir.dig("contracts", 0, "nodes").any? { |node| node.fetch("kind") == "olap_access_node" },
@@ -340,11 +345,12 @@ module OLAPPointProof
       "runtime.local_rollup_no_scatter_gather" => rollup.fetch("execution_plan") == "local_single_node_no_scatter_gather" &&
         rollup.fetch("rows").any? { |row| row.fetch("dimensions") == { "date" => "2026-05-07", "region" => "west" } && row.fetch("measure") == "45.00" },
       "evidence.cell_observations_link_sources" => backend.cell_observations.all? { |obs| obs.fetch("source_fact_refs").any? },
-      "negative.dimension_missing_oof" => negative_rule?(negatives, "negative_missing_dimension", "OOF-O-T1"),
-      "negative.dimension_type_mismatch_oof" => negative_rule?(negatives, "negative_dimension_type_mismatch", "OOF-O-T2"),
+      "negative.dimension_missing_oof" => negative_rule?(negatives, "negative_missing_dimension", "OOF-O4"),
+      "negative.dimension_type_mismatch_oof" => negative_rule?(negatives, "negative_dimension_type_mismatch", "OOF-O5"),
       "negative.empty_without_source_oof_o3" => negative_rule?(negatives, "negative_empty_without_source_or_data", "OOF-O3"),
       "relationship.stream_history_olap_documented" => true
     }.merge(grammar_boundary_checks(semantic_ir, negatives))
+      .merge(typechecker_semanticir_boundary_checks(typechecker_boundary))
   end
 
   # Grammar/TypeChecker boundary checks — added by track olap-point-parser-typechecker-boundary-v0.
@@ -378,15 +384,15 @@ module OLAPPointProof
       decl.fetch("measure_type", nil)&.is_a?(String) &&
       !decl.fetch("measure_type").empty?
 
-    # §4 OOF-O4 formally assigned: missing-dimension error code is OOF-O-T1 (proof-local alias),
-    # verify the proof uses the TypeChecker-stage marker (typecheck: oof)
+    # §4 OOF-O4 formally assigned: missing-dimension error code.
     oof_o4_typechecker_owned =
-      negative_report_typechecker_stage?(negatives, "negative_missing_dimension")
+      negative_report_typechecker_stage?(negatives, "negative_missing_dimension") &&
+      negative_rule?(negatives, "negative_missing_dimension", "OOF-O4")
 
-    # §4 OOF-O5 formally assigned: dimension-type-mismatch code is OOF-O-T2 (proof-local alias),
-    # verify TypeChecker stage
+    # §4 OOF-O5 formally assigned: dimension-type-mismatch error code.
     oof_o5_typechecker_owned =
-      negative_report_typechecker_stage?(negatives, "negative_dimension_type_mismatch")
+      negative_report_typechecker_stage?(negatives, "negative_dimension_type_mismatch") &&
+      negative_rule?(negatives, "negative_dimension_type_mismatch", "OOF-O5")
 
     # §4 OOF-O3 TypeChecker-owned: empty point without source fires at typecheck stage
     oof_o3_ownership_typechecker =
@@ -441,12 +447,223 @@ module OLAPPointProof
     report&.dig("stages", "typecheck") == "oof"
   end
 
+  def build_typechecker_boundary
+    parsed = live_parsed_program
+    positive = typecheck_case(classified_from_parsed(parsed, source_ref: "synthetic_fulfilled_order_facts"))
+    missing_dimension = typecheck_case(classified_from_parsed(parsed, source_ref: "synthetic_fulfilled_order_facts") do |body|
+      compute = body.find { |node| node.fetch("kind") == "compute" }
+      compute.dig("expr", "index", "fields").delete("channel")
+    end)
+    dimension_type_mismatch = typecheck_case(classified_from_parsed(parsed, source_ref: "synthetic_fulfilled_order_facts") do |body|
+      input = body.find { |node| node.fetch("kind") == "input" && node.fetch("name") == "date" }
+      input["type_annotation"] = "Integer"
+    end)
+    empty_without_source = typecheck_case(classified_from_parsed(parsed))
+    rollup_warning = typecheck_case(classified_from_parsed(parsed, source_ref: "synthetic_fulfilled_order_facts") do |body|
+      compute = body.find { |node| node.fetch("kind") == "compute" }
+      compute["name"] = "channel_rollup"
+      compute["expr"] = {
+        "kind" => "call",
+        "fn" => "olap_rollup",
+        "args" => [
+          { "kind" => "ref", "name" => "Revenue" },
+          { "kind" => "symbol", "value" => "channel" }
+        ]
+      }
+      compute.delete("type_annotation")
+      body.reject! { |node| node.fetch("kind") == "output" }
+    end)
+
+    semantic_ir = semantic_ir_from_typed(positive)
+    {
+      "kind" => "olap_typechecker_semanticir_boundary",
+      "parsed" => parsed,
+      "positive_typed" => positive,
+      "semantic_ir" => semantic_ir,
+      "negative_missing_dimension" => missing_dimension,
+      "negative_dimension_type_mismatch" => dimension_type_mismatch,
+      "negative_empty_without_source" => empty_without_source,
+      "rollup_warning" => rollup_warning
+    }
+  end
+
+  def live_parsed_program
+    IgniterLang::ParsedProgram.parse(File.read(SOURCE_PATH), source_path: SOURCE_PATH.relative_path_from(ROOT).to_s).to_h
+  end
+
+  def typecheck_case(classified)
+    IgniterLang::TypeChecker.new.typecheck(classified)
+  end
+
+  def classified_from_parsed(parsed, source_ref: nil)
+    body = deep_copy(parsed.dig("contracts", 0, "body"))
+    yield body if block_given?
+    olap_points = deep_copy(parsed.fetch("olap_points"))
+    olap_points.each { |point| point["source_ref"] = source_ref if source_ref }
+    contract_name = parsed.dig("contracts", 0, "name")
+    declarations = body.map { |node| classified_decl_from_parsed_node(node) }.compact
+    {
+      "kind" => "classified_program",
+      "classifier_version" => "olap-proof-local-classifier-v0",
+      "program_id" => "classifier_pass/olap_#{Canonical.short_hash(parsed)}",
+      "source_path" => parsed.fetch("source_path"),
+      "source_hash" => parsed.fetch("source_hash"),
+      "grammar_version" => parsed.fetch("grammar_version"),
+      "module" => parsed.fetch("module"),
+      "type_declarations" => [],
+      "olap_points" => olap_points,
+      "contracts" => [
+        {
+          "kind" => "classified_contract",
+          "contract_id" => "Fixture.OLAPPoint.#{contract_name}",
+          "name" => contract_name,
+          "fragment_class" => "escape",
+          "symbols" => classified_symbols(body),
+          "declarations" => declarations,
+          "dependency_graph" => { "nodes" => declarations.map { |decl| decl.fetch("decl_id") }, "edges" => [] },
+          "oof_log" => []
+        }
+      ],
+      "oof_log" => [],
+      "semantic_ir_ref" => nil
+    }
+  end
+
+  def classified_decl_from_parsed_node(node)
+    case node.fetch("kind")
+    when "input"
+      {
+        "decl_id" => "input:#{node.fetch("name")}",
+        "kind" => "input",
+        "name" => node.fetch("name"),
+        "fragment_class" => "core",
+        "deps" => [],
+        "missing_refs" => [],
+        "type_annotation" => node.fetch("type_annotation")
+      }
+    when "compute"
+      result = {
+        "decl_id" => "compute:#{node.fetch("name")}",
+        "kind" => "compute",
+        "name" => node.fetch("name"),
+        "fragment_class" => "escape",
+        "deps" => expr_refs(node.fetch("expr")),
+        "missing_refs" => [],
+        "expr_kind" => node.fetch("expr").fetch("kind"),
+        "expr" => node.fetch("expr")
+      }
+      result["type_annotation"] = node.fetch("type_annotation") if node.key?("type_annotation")
+      result
+    when "output"
+      {
+        "decl_id" => "output:#{node.fetch("name")}",
+        "kind" => "output",
+        "name" => node.fetch("name"),
+        "fragment_class" => "core",
+        "deps" => [node.fetch("name")],
+        "missing_refs" => [],
+        "type_annotation" => node.fetch("type_annotation")
+      }
+    end
+  end
+
+  def classified_symbols(body)
+    symbols = body.filter_map do |node|
+      case node.fetch("kind")
+      when "input"
+        { "name" => node.fetch("name"), "kind" => "input", "fragment_class" => "core" }
+      when "compute"
+        { "name" => node.fetch("name"), "kind" => "compute", "fragment_class" => "escape" }
+      end
+    end
+    symbols << { "name" => "Revenue", "kind" => "olap_point", "fragment_class" => "escape" }
+    symbols.sort_by { |symbol| symbol.fetch("name") }
+  end
+
+  def expr_refs(expr)
+    case expr.fetch("kind")
+    when "ref"
+      [expr.fetch("name")]
+    when "index_access"
+      expr_refs(expr.fetch("object")) + expr.fetch("index").fetch("fields", {}).values.flat_map { |value| expr_refs(value) }
+    when "call"
+      [expr.fetch("fn")] + expr.fetch("args", []).flat_map { |arg| expr_refs(arg) }
+    when "literal", "symbol"
+      []
+    else
+      expr.values.flat_map { |value| value.is_a?(Hash) && value.key?("kind") ? expr_refs(value) : [] }
+    end.uniq
+  end
+
+  def semantic_ir_from_typed(typed)
+    contract = typed.fetch("contracts").first
+    {
+      "kind" => "semantic_ir_program",
+      "format_version" => FORMAT_VERSION,
+      "program_id" => "semanticir/olap_boundary/#{Canonical.short_hash(typed)}",
+      "source_path" => typed.fetch("source_path"),
+      "olap_points" => typed.fetch("olap_points"),
+      "contracts" => [
+        {
+          "kind" => "contract_ir",
+          "contract_name" => contract.fetch("name"),
+          "fragment_class" => contract.fetch("fragment_class"),
+          "nodes" => contract.fetch("declarations").filter_map { |decl| decl.fetch("semantic_node", nil) }
+        }
+      ]
+    }
+  end
+
+  def typechecker_semanticir_boundary_checks(boundary)
+    positive = boundary.fetch("positive_typed")
+    semantic_ir = boundary.fetch("semantic_ir")
+    missing = boundary.fetch("negative_missing_dimension")
+    mismatch = boundary.fetch("negative_dimension_type_mismatch")
+    empty = boundary.fetch("negative_empty_without_source")
+    rollup = boundary.fetch("rollup_warning")
+    access_node = semantic_ir.dig("contracts", 0, "nodes", 0)
+    {
+      "parser.live_revenue_point_parses" => boundary.dig("parsed", "parse_errors").empty? &&
+        boundary.dig("parsed", "olap_points", 0, "name") == "Revenue",
+      "typechecker.olap_positive_accepted" => positive.dig("contracts", 0, "status") == "accepted" &&
+        positive.fetch("type_errors").empty?,
+      "typechecker.measure_decimal_validated" => positive.dig("olap_points", 0, "measure_type") == "Decimal[2]" &&
+        access_node.dig("result_type", "measure") == "Decimal[2]",
+      "typechecker.dims_record_validated" => access_node.dig("result_type", "dims_record", "dims") == {
+        "date" => "String",
+        "region" => "String",
+        "channel" => "String"
+      },
+      "typechecker.oof_o2_warning_nonblocking" => rollup.dig("contracts", 0, "status") == "accepted" &&
+        typed_rules(rollup, "type_warnings").include?("OOF-O2") &&
+        !typed_rules(rollup, "type_errors").include?("OOF-O2"),
+      "typechecker.oof_o3_empty_without_source" => typed_rules(empty, "type_errors") == ["OOF-O3"],
+      "typechecker.oof_o4_missing_dimension" => typed_rules(missing, "type_errors") == ["OOF-O4"],
+      "typechecker.oof_o5_dimension_type_mismatch" => typed_rules(mismatch, "type_errors") == ["OOF-O5"],
+      "semanticir.boundary_olap_point_decl_from_typed" => semantic_ir.dig("olap_points", 0, "kind") == "olap_point_decl",
+      "semanticir.boundary_olap_access_node_from_typed" => access_node.fetch("kind") == "olap_access_node",
+      "semanticir.boundary_dims_record_lowered" => access_node.dig("result_type", "dims_record", "kind") == "dims_record"
+    }
+  end
+
+  def typed_rules(typed, key)
+    typed.fetch(key, typed.fetch("contracts").flat_map { |contract| contract.fetch(key, []) })
+      .map { |entry| entry.fetch("rule") }
+      .uniq
+  end
+
+  def deep_copy(value)
+    JSON.parse(JSON.generate(value))
+  end
+
   def write_outputs(summary)
     write_json(SUMMARY_PATH, summary)
     write_json(GOLDEN_DIR / "semantic_ir_program.json", summary.fetch("semantic_ir_program"))
     write_json(GOLDEN_DIR / "point_result.json", summary.fetch("point_result"))
     write_json(GOLDEN_DIR / "rollup_result.json", summary.fetch("rollup_result"))
     write_json(GOLDEN_DIR / "cells.json", summary.fetch("cells"))
+    write_json(GOLDEN_DIR / "typechecker_boundary.json", summary.fetch("typechecker_boundary"))
+    write_json(GOLDEN_DIR / "semantic_ir_boundary.json", summary.dig("typechecker_boundary", "semantic_ir"))
     summary.fetch("negative_reports").each do |report|
       write_json(GOLDEN_DIR / "#{report.fetch("case_id")}.json", report)
     end
