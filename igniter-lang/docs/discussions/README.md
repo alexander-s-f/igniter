@@ -132,6 +132,7 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 | [temporal-manifest-and-cache-boundary-pressure-v0.md](temporal-manifest-and-cache-boundary-pressure-v0.md) | S3-R3-X1-S | Does TEMPORAL survive Classifier → SemanticIR → Assembler → RuntimeMachine? | complete — routed |
 | [temporal-igapp-runtime-boundary-pressure-v0.md](temporal-igapp-runtime-boundary-pressure-v0.md) | S3-R4-X1-S | Did S3-R4 make temporal `.igapp/` safe enough for proof-local RuntimeMachine loading? | complete — routed |
 | [agent-role-optimization-v0.md](agent-role-optimization-v0.md) | off-track | Agent role blind zones, diluted responsibilities, and three targeted optimizations | complete — routes to Architect Supervisor |
+| [typed-emission-and-temporal-loader-pressure-v0.md](typed-emission-and-temporal-loader-pressure-v0.md) | S3-R5-X1-S | Are typed emission + temporal manifest index safe as the Stage 3 artifact path? | complete — routed |
 
 ---
 
