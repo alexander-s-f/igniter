@@ -19,6 +19,7 @@ Documents that govern active Stage 3 work.
 | [Syntax Pressure Specimens](syntax-pressure-specimens-v0.md) | research-fixtures | Field Supply Watch v3 and Primitive Surface pressure specimens with evaluator guides; no canon promotion |
 | [Syntax Pressure Review Results](syntax-pressure-review-results-v0.md) | research-review | Review of S3-R3 pressure specimens: routes constructs to proposal, pressure, another specimen, or reject/defer without canon promotion |
 | [External GitHub Repo Review Signal](external-github-repo-review-signal-v0.md) | research-signal | Off-track external repo review signal: ECL positioning validates externally while source surface, runtime guards, examples, and onboarding remain Stage 3 pressure |
+| [External Syntax Monotony Review Signal](external-syntax-monotony-review-signal-v0.md) | research-signal | Off-track syntax review signal: flat declaration-plane pressure, section/phase grouping, block compute, validate/observe, and pipeline experiments without canon promotion |
 
 ---
 

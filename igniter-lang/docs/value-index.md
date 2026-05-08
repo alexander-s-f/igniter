@@ -114,8 +114,9 @@ Source:
 ### CompatibilityReport Is Report-Only Before Gate 3
 
 Signal: CompatibilityReport can reason about readiness, but neither capability
-metadata nor positive executor/live-binding flags authorize live temporal reads,
-replay, cache, or Ledger binding.
+metadata, ratified package descriptor metadata, approval tokens, nor positive
+executor/live-binding flags authorize live temporal reads, replay, cache, or
+Ledger binding.
 
 Status: current
 
@@ -123,6 +124,7 @@ Source:
 - [tracks/runtime-compatibility-report-temporal-load-check-v0.md](tracks/runtime-compatibility-report-temporal-load-check-v0.md)
 - [tracks/runtime-compatibility-report-executor-boundary-v0.md](tracks/runtime-compatibility-report-executor-boundary-v0.md)
 - [tracks/descriptor-compatibility-package-consumption-v0.md](tracks/descriptor-compatibility-package-consumption-v0.md)
+- [tracks/compatibility-report-package-descriptor-consumption-v0.md](tracks/compatibility-report-package-descriptor-consumption-v0.md)
 - [discussions/runtime-compatibility-and-typed-delta-pressure-v0.md](discussions/runtime-compatibility-and-typed-delta-pressure-v0.md)
 
 ### Executor Approval Token Is A Gate 3 Prerequisite
@@ -135,6 +137,8 @@ Status: current
 
 Source:
 - [proposals/PROP-030-executor-approval-token-contract-v0.md](proposals/PROP-030-executor-approval-token-contract-v0.md)
+- [tracks/executor-approval-token-report-proof-v0.md](tracks/executor-approval-token-report-proof-v0.md)
+- [tracks/guarded-runtime-executor-approval-enforcement-v0.md](tracks/guarded-runtime-executor-approval-enforcement-v0.md)
 - [tracks/runtime-compatibility-report-executor-boundary-v0.md](tracks/runtime-compatibility-report-executor-boundary-v0.md)
 - [discussions/stage3-round8-pre-gate3-pressure-v0.md](discussions/stage3-round8-pre-gate3-pressure-v0.md)
 
@@ -179,6 +183,18 @@ Source:
 - [tracks/stream-replay-metadata-emission-v0.md](tracks/stream-replay-metadata-emission-v0.md)
 - [tracks/runtime-smoke-post-switch-full-coverage-v0.md](tracks/runtime-smoke-post-switch-full-coverage-v0.md)
 - [spec/ch6-semanticir.md](spec/ch6-semanticir.md)
+
+### Invariant Source Metadata Is Descriptive Evidence
+
+Signal: Invariant source metadata and start spans now survive the compiler
+pipeline into SemanticIR/report coverage as descriptive evidence, not new
+runtime enforcement.
+
+Status: current
+
+Source:
+- [tracks/invariant-source-metadata-preservation-v0.md](tracks/invariant-source-metadata-preservation-v0.md)
+- [tracks/invariant-typed-shape-discharge-v0.md](tracks/invariant-typed-shape-discharge-v0.md)
 
 ---
 

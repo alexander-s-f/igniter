@@ -28,6 +28,16 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 10 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `executor-approval-token-report-proof-v0.md` | done | PROP-030 token validation matrix covered in report-only CompatibilityReport; valid token still blocks while Gate 3 is closed; no executor/TBackend/Ledger/cache call attempted |
+| `guarded-runtime-executor-approval-enforcement-v0.md` | done | proof-local GuardedRuntimeMachine enforces missing approval, Gate 3 closed, and CORE-shaped TEMPORAL cache-key refusal before executor/cache/backend paths |
+| `compatibility-report-package-descriptor-consumption-v0.md` | done | ratified Gate 2 package descriptor metadata consumed into report-only `backend_check.temporal_backend_descriptor`; `runtime_enforced=false`; Gate 3 closed |
+| `invariant-source-metadata-preservation-v0.md` | done | parser/classifier/typechecker/SemanticIR preserve descriptive invariant source metadata and start span; no new invariant semantics |
+| `stage3-round10-status-curation-v0.md` | done | R10 status/index/context sync — this track |
+
 ## Stage 3 Round 9 Evidence
 
 | Track | Status | Notes |
@@ -81,11 +91,11 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Surface | Freshness | Anchor | Notes |
 |---------|-----------|--------|-------|
-| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget; S3-R9 next movement refreshed |
+| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget; S3-R10 next movement refreshed |
 | `docs/spec/ch4-fragment-classification.md` | synced | `spec-ch4-temporal-fragment-sync-v0.md` | TEMPORAL fragment and node/value split current |
-| `docs/spec/ch5-compiler-pipeline.md` | synced + discharged | `spec-ch5-emit-typed-sync-v0.md`; `invariant-typed-shape-discharge-v0.md` | `emit_typed` production path current; `invariant_valid` typed-shape delta accepted as production shape |
-| `docs/spec/ch6-semanticir.md` | synced + stream metadata | `spec-ch6-semanticir-temporal-sync-v0.md`; `stream-replay-metadata-emission-v0.md` | TEMPORAL shape current; STREAM replay metadata emitted in SemanticIR and assembled `stream_nodes` |
-| `docs/spec/ch7-runtime.md` | synced + R9 prerequisite proofs | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `executor-boundary-cache-key-contract-v0.md`; `guarded-runtime-c2-profile-consistency-v0.md`; `prop-030-executor-approval-token-contract-v0.md` | Gate 3 prerequisite package landed; production executor/cache still closed |
+| `docs/spec/ch5-compiler-pipeline.md` | synced + discharged + metadata | `spec-ch5-emit-typed-sync-v0.md`; `invariant-typed-shape-discharge-v0.md`; `invariant-source-metadata-preservation-v0.md` | `emit_typed` production path current; invariant source metadata preservation landed |
+| `docs/spec/ch6-semanticir.md` | synced + stream/invariant metadata | `spec-ch6-semanticir-temporal-sync-v0.md`; `stream-replay-metadata-emission-v0.md`; `invariant-source-metadata-preservation-v0.md` | STREAM replay metadata emitted; invariant source_metadata/source_span needs spec sync |
+| `docs/spec/ch7-runtime.md` | synced + R10 prerequisite proofs | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `executor-approval-token-report-proof-v0.md`; `guarded-runtime-executor-approval-enforcement-v0.md`; `compatibility-report-package-descriptor-consumption-v0.md` | report/token/guard/package metadata proofs current; production executor/cache still closed |
 | `docs/proposals/README.md` | synced | `proposal-lifecycle-index-sync-v0.md`; `prop-029-entrypoint-section-surface-v0.md`; `prop-030-executor-approval-token-contract-v0.md` | Stage 2 closed, PROP-028 implementation-partial, PROP-022A experiment-pass, PROP-029/030 proposal-only |
 
 ---
@@ -274,11 +284,11 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `compatibility-report-package-descriptor-consumption-v0` | Consume ratified Gate 2 descriptor metadata into report-only CompatibilityReport backend_check; preserve non-authorization and `runtime_enforced=false` | Bridge Agent | recommended |
-| `executor-approval-token-report-proof-v0` | Extend CompatibilityReport with PROP-030 token validation matrix; prove no executor/TBackend/Ledger call is attempted | Research Agent + Bridge Agent | prerequisite proof |
-| `guarded-runtime-executor-approval-enforcement-v0` | Prove GuardedRuntimeMachine enforces the PROP-030 token/report decision and refuses valid-token/Gate-3-closed | Research Agent | prerequisite proof |
 | `runtime-report-enforcement-preflight-v0` | Define/verify that future RuntimeMachine checks `evaluation_readiness` before executor/cache use | Research Agent / Runtime Agent | pre-Gate-3 |
-| `invariant-source-metadata-preservation-v0` | Preserve invariant severity metadata from source/classifier path so runtime smoke no longer needs typed-fixture-only metadata | Compiler/Grammar Expert | recommended |
+| `compatibility-report-package-adoption-v0` | Package/Bridge adoption of report-only descriptor consumption shape while preserving `runtime_enforced=false` and no live binding | Bridge Agent / Package Agent | recommended |
+| `executor-approval-authority-registry-v0` | Define production trusted authority/revocation source for PROP-030 tokens; no executor implementation | Bridge Agent + Research Agent | pre-Gate-3 |
+| `compatibility-report-persistence-audit-v0` | Persist report decisions and audit receipts without runtime enforcement or live operations | Research Agent / Bridge Agent | recommended |
+| `spec-ch6-invariant-source-metadata-sync-v0` | Document optional `source_metadata` / `source_span` on `invariant_node` and invariant coverage report entries | Compiler/Grammar Expert | docs/spec sync |
 | `entrypoint-section-parser-typechecker-v0` | Implement and prove PROP-029 contextual parser/typechecker behavior only after proposal acceptance | Compiler/Grammar Expert | gated |
 | `runtime-temporal-executor-gate3-request-v0` | Prepare, not implement, the explicit Gate 3 question for live temporal executor/TBackend binding and required proof list | Bridge Agent + Research Agent | still closed/gated |
 | `gem-release-ci-wiring-v0` | Wire `bin/release-gate` into CI or preserve release artifacts/checksum under an approved release record; publish remains gated | Research Agent | optional |

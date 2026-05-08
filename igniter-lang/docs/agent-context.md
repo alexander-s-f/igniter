@@ -78,11 +78,14 @@ Source .ig
   -> RuntimeMachine
        load TEMPORAL for inspection             ✅ proof-local + report shape
        CompatibilityReport load/eval split      ✅ report-only
+       package descriptor backend_check         ✅ report-only
        full post-switch smoke                   ✅ all six emit_typed surfaces
        executor/live-binding report profiles    ✅ modeled; still blocked
        ExecutorApprovalToken proposal           ✅ prerequisite only
+       ExecutorApprovalToken report matrix      ✅ report-only
        executor cache-key boundary              ✅ TEMPORAL key or L-T5 refusal
        C2 guarded-runtime consistency           ✅ mapped refusal
+       guarded approval enforcement             ✅ proof-local refusal
        evaluate TEMPORAL                        🚫 refused until executor/TBackend
        memoize TEMPORAL                         🚫 proof-local only
   -> Ledger / TBackend
@@ -93,6 +96,9 @@ Source .ig
   -> Stream replay
        assembled stream_nodes metadata          ✅ emitted
        production stream executor               🚫 not authorized
+  -> Invariant metadata
+       source_metadata/source_span              ✅ preserved
+       runtime persistence                      🚫 still open
   -> Release
        release-gate artifact/checksum           ✅ PASS
        RubyGems publish                         🚫 approval/MFA required
@@ -122,7 +128,7 @@ legacy/internal comparison, not the production path.
 | Runtime cache | PROOF-LOCAL | Cache key/memoization proofs exist; no production cache. |
 | TBackend Gate 1 | PASS | Report-only descriptor consumption fixture. |
 | TBackend Gate 2 | RATIFIED | Metadata-only package descriptor exposure and report-only descriptor mapping are trusted report metadata; no runtime authority. |
-| Gate 3 prerequisite package | LANDED | Gate 2 ratified, PROP-030 drafted, executor cache-key proof and guarded-runtime consistency landed; this is not Gate 3 authorization. |
+| Gate 3 prerequisite package | LANDED | Gate 2 ratified, PROP-030 drafted, token report proof, guarded enforcement, executor cache-key proof, and package descriptor report consumption landed; this is not Gate 3 authorization. |
 | TBackend Gate 3 | CLOSED | No Ledger read/write/replay/runtime binding. |
 | Release publish | CLOSED | `bin/release-gate` may build artifacts; RubyGems publish needs explicit approval and MFA owner action. |
 | Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; no syntax is canon without proposal/proof. |
@@ -208,11 +214,11 @@ Do not run broad expensive suites just to curate maps.
 
 Recommended next routing from the latest status map:
 
-1. `compatibility-report-package-descriptor-consumption-v0`
-2. `executor-approval-token-report-proof-v0`
-3. `guarded-runtime-executor-approval-enforcement-v0`
-4. `runtime-report-enforcement-preflight-v0`
-5. `invariant-source-metadata-preservation-v0`
+1. `runtime-report-enforcement-preflight-v0`
+2. `compatibility-report-package-adoption-v0`
+3. `executor-approval-authority-registry-v0`
+4. `compatibility-report-persistence-audit-v0`
+5. `spec-ch6-invariant-source-metadata-sync-v0`
 6. `entrypoint-section-parser-typechecker-v0`
 7. `runtime-temporal-executor-gate3-request-v0`
 8. `gem-release-ci-wiring-v0`
