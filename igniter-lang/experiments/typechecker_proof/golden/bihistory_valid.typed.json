@@ -14,7 +14,7 @@
       "contract_id": "Fixture.BiHistoryAxes.BiHistoryAxesTest",
       "name": "BiHistoryAxesTest",
       "status": "accepted",
-      "fragment_class": "escape",
+      "fragment_class": "temporal",
       "symbols": [
         {
           "name": "avail_at",
@@ -107,7 +107,7 @@
           "decl_id": "read:avail_history",
           "kind": "read",
           "name": "avail_history",
-          "fragment_class": "escape",
+          "fragment_class": "temporal",
           "type": {
             "kind": "type_ref",
             "name": "BiHistory",
@@ -119,13 +119,17 @@
               }
             ]
           },
-          "deps": []
+          "deps": [],
+          "node_fragment_class": "temporal",
+          "value_fragment_class": "core",
+          "required_capability": "bihistory_read",
+          "temporal_axis": "bitemporal"
         },
         {
           "decl_id": "compute:avail_at",
           "kind": "compute",
           "name": "avail_at",
-          "fragment_class": "escape",
+          "fragment_class": "core",
           "type": {
             "name": "Option",
             "params": [
@@ -205,7 +209,7 @@
           "decl_id": "output:avail_at",
           "kind": "output",
           "name": "avail_at",
-          "fragment_class": "escape",
+          "fragment_class": "core",
           "type": {
             "kind": "type_ref",
             "name": "Option",

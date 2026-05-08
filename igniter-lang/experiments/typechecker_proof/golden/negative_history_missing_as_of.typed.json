@@ -1,23 +1,23 @@
 {
   "kind": "typed_program",
   "typechecker_version": "typed-pass-executable-proof-v0",
-  "program_id": "typed_pass/378834db3f59edd5",
-  "classified_program_id": "classifier_pass/8fe35a4887faeabf",
-  "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/negative_bihistory_missing_vt.ig",
-  "source_hash": "sha256:8fe35a4887faeabf272e07dd5a8278b02b05ec3aeb0ce458e613bd6da36f6fe1",
+  "program_id": "typed_pass/d22dcf41c2565379",
+  "classified_program_id": "classifier_pass/negative_history_missing_as_of_temporal",
+  "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/negative_history_missing_as_of.ig",
+  "source_hash": "sha256:negative-history-missing-as-of-temporal-fixture",
   "grammar_version": "0.1.0",
-  "module": "Fixture.BiHistoryAxes",
+  "module": "Fixture.HistoryAxes",
   "type_env": {},
   "contracts": [
     {
       "kind": "typed_contract",
-      "contract_id": "Fixture.BiHistoryAxes.BiHistoryMissingVt",
-      "name": "BiHistoryMissingVt",
+      "contract_id": "Fixture.HistoryAxes.HistoryMissingAsOf",
+      "name": "HistoryMissingAsOf",
       "status": "blocked",
       "fragment_class": "temporal",
       "symbols": [
         {
-          "name": "avail_at",
+          "name": "price_at",
           "type": {
             "name": "Unknown",
             "params": []
@@ -25,10 +25,10 @@
           "resolved": false
         },
         {
-          "name": "avail_history",
+          "name": "price_history",
           "type": {
             "kind": "type_ref",
-            "name": "BiHistory",
+            "name": "History",
             "params": [
               {
                 "kind": "type_ref",
@@ -40,7 +40,7 @@
           "resolved": true
         },
         {
-          "name": "technician_id",
+          "name": "sku",
           "type": {
             "name": "String",
             "params": []
@@ -50,9 +50,9 @@
       ],
       "declarations": [
         {
-          "decl_id": "input:technician_id",
+          "decl_id": "input:sku",
           "kind": "input",
-          "name": "technician_id",
+          "name": "sku",
           "fragment_class": "core",
           "type": {
             "name": "String",
@@ -61,13 +61,13 @@
           "deps": []
         },
         {
-          "decl_id": "read:avail_history",
+          "decl_id": "read:price_history",
           "kind": "read",
-          "name": "avail_history",
+          "name": "price_history",
           "fragment_class": "temporal",
           "type": {
             "kind": "type_ref",
-            "name": "BiHistory",
+            "name": "History",
             "params": [
               {
                 "kind": "type_ref",
@@ -79,13 +79,13 @@
           "deps": [],
           "node_fragment_class": "temporal",
           "value_fragment_class": "core",
-          "required_capability": "bihistory_read",
-          "temporal_axis": "bitemporal"
+          "required_capability": "history_read",
+          "temporal_axis": "valid_time"
         },
         {
-          "decl_id": "compute:avail_at",
+          "decl_id": "compute:price_at",
           "kind": "compute",
-          "name": "avail_at",
+          "name": "price_at",
           "fragment_class": "core",
           "type": {
             "name": "Unknown",
@@ -94,7 +94,7 @@
           "deps": [],
           "expr": {
             "kind": "call",
-            "fn": "bihistory_at",
+            "fn": "history_at",
             "args": [],
             "resolved_type": {
               "name": "Unknown",
@@ -104,9 +104,9 @@
           }
         },
         {
-          "decl_id": "output:avail_at",
+          "decl_id": "output:price_at",
           "kind": "output",
-          "name": "avail_at",
+          "name": "price_at",
           "fragment_class": "core",
           "type": {
             "kind": "type_ref",
@@ -120,18 +120,18 @@
             ]
           },
           "deps": [
-            "avail_at"
+            "price_at"
           ]
         }
       ],
       "type_errors": [
         {
-          "rule": "OOF-BT2",
-          "message": "bihistory_at requires valid_time (vt) argument",
-          "node": "avail_at",
+          "rule": "OOF-H1",
+          "message": "history_at requires as_of argument",
+          "node": "price_at",
           "line": null,
           "aliases": [
-            "OOF-TM4"
+            "OOF-TM1"
           ]
         }
       ]
@@ -139,12 +139,12 @@
   ],
   "type_errors": [
     {
-      "rule": "OOF-BT2",
-      "message": "bihistory_at requires valid_time (vt) argument",
-      "node": "avail_at",
+      "rule": "OOF-H1",
+      "message": "history_at requires as_of argument",
+      "node": "price_at",
       "line": null,
       "aliases": [
-        "OOF-TM4"
+        "OOF-TM1"
       ]
     }
   ],

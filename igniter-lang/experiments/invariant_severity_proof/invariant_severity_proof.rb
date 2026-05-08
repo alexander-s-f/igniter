@@ -637,7 +637,8 @@ module InvariantSeverityProof
 
   def checks(cases, report)
     {
-      "semanticir.emitter_typed_program_ref" => contract_fixture.fetch("program_id").start_with?("semanticir/typed/"),
+      "semanticir.emitter_typed_program_ref" => contract_fixture.fetch("program_id") ==
+        "semanticir/#{invariant_typed_program.fetch("source_hash").delete_prefix("sha256:")[0, 16]}",
       "semanticir.invariant_nodes_from_typed" => contract_fixture.fetch("invariants").length == 4 &&
         contract_fixture.fetch("invariants").all? { |node| node.fetch("kind") == "invariant_node" },
       "semanticir.output_effect_preserved" => contract_fixture.fetch("invariants").map { |node| node.fetch("output_effect") }.sort == %w[blocks metric uncertain warns],

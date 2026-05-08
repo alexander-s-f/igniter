@@ -1,23 +1,31 @@
 {
   "kind": "typed_program",
   "typechecker_version": "typed-pass-executable-proof-v0",
-  "program_id": "typed_pass/e13be444d59d048a",
-  "classified_program_id": "classifier_pass/9e1a22debebf016b",
-  "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/negative_bihistory_wrong_axis_type.ig",
-  "source_hash": "sha256:9e1a22debebf016bb3d8d20090035252b6b5e0a72f752c4f59c9c1d712803bdc",
+  "program_id": "typed_pass/2ad653d7a514aa9e",
+  "classified_program_id": "classifier_pass/negative_history_wrong_as_of_type_temporal",
+  "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/negative_history_wrong_as_of_type.ig",
+  "source_hash": "sha256:negative-history-wrong-as-of-type-temporal-fixture",
   "grammar_version": "0.1.0",
-  "module": "Fixture.BiHistoryAxes",
+  "module": "Fixture.HistoryAxes",
   "type_env": {},
   "contracts": [
     {
       "kind": "typed_contract",
-      "contract_id": "Fixture.BiHistoryAxes.BiHistoryWrongAxisType",
-      "name": "BiHistoryWrongAxisType",
+      "contract_id": "Fixture.HistoryAxes.HistoryWrongAsOfType",
+      "name": "HistoryWrongAsOfType",
       "status": "blocked",
       "fragment_class": "temporal",
       "symbols": [
         {
-          "name": "avail_at",
+          "name": "as_of",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "price_at",
           "type": {
             "name": "Option",
             "params": [
@@ -30,10 +38,10 @@
           "resolved": true
         },
         {
-          "name": "avail_history",
+          "name": "price_history",
           "type": {
             "kind": "type_ref",
-            "name": "BiHistory",
+            "name": "History",
             "params": [
               {
                 "kind": "type_ref",
@@ -45,25 +53,9 @@
           "resolved": true
         },
         {
-          "name": "bad_axis",
+          "name": "sku",
           "type": {
             "name": "String",
-            "params": []
-          },
-          "resolved": true
-        },
-        {
-          "name": "technician_id",
-          "type": {
-            "name": "String",
-            "params": []
-          },
-          "resolved": true
-        },
-        {
-          "name": "transaction_time",
-          "type": {
-            "name": "DateTime",
             "params": []
           },
           "resolved": true
@@ -71,9 +63,9 @@
       ],
       "declarations": [
         {
-          "decl_id": "input:technician_id",
+          "decl_id": "input:sku",
           "kind": "input",
-          "name": "technician_id",
+          "name": "sku",
           "fragment_class": "core",
           "type": {
             "name": "String",
@@ -82,9 +74,9 @@
           "deps": []
         },
         {
-          "decl_id": "input:bad_axis",
+          "decl_id": "input:as_of",
           "kind": "input",
-          "name": "bad_axis",
+          "name": "as_of",
           "fragment_class": "core",
           "type": {
             "name": "String",
@@ -93,24 +85,13 @@
           "deps": []
         },
         {
-          "decl_id": "input:transaction_time",
-          "kind": "input",
-          "name": "transaction_time",
-          "fragment_class": "core",
-          "type": {
-            "name": "DateTime",
-            "params": []
-          },
-          "deps": []
-        },
-        {
-          "decl_id": "read:avail_history",
+          "decl_id": "read:price_history",
           "kind": "read",
-          "name": "avail_history",
+          "name": "price_history",
           "fragment_class": "temporal",
           "type": {
             "kind": "type_ref",
-            "name": "BiHistory",
+            "name": "History",
             "params": [
               {
                 "kind": "type_ref",
@@ -122,13 +103,13 @@
           "deps": [],
           "node_fragment_class": "temporal",
           "value_fragment_class": "core",
-          "required_capability": "bihistory_read",
-          "temporal_axis": "bitemporal"
+          "required_capability": "history_read",
+          "temporal_axis": "valid_time"
         },
         {
-          "decl_id": "compute:avail_at",
+          "decl_id": "compute:price_at",
           "kind": "compute",
-          "name": "avail_at",
+          "name": "price_at",
           "fragment_class": "core",
           "type": {
             "name": "Option",
@@ -140,20 +121,19 @@
             ]
           },
           "deps": [
-            "avail_history",
-            "bad_axis",
-            "transaction_time"
+            "price_history",
+            "as_of"
           ],
           "expr": {
             "kind": "call",
-            "fn": "bihistory_at",
+            "fn": "history_at",
             "args": [
               {
                 "kind": "ref",
-                "name": "avail_history",
+                "name": "price_history",
                 "resolved_type": {
                   "kind": "type_ref",
-                  "name": "BiHistory",
+                  "name": "History",
                   "params": [
                     {
                       "kind": "type_ref",
@@ -163,29 +143,18 @@
                   ]
                 },
                 "deps": [
-                  "avail_history"
+                  "price_history"
                 ]
               },
               {
                 "kind": "ref",
-                "name": "bad_axis",
+                "name": "as_of",
                 "resolved_type": {
                   "name": "String",
                   "params": []
                 },
                 "deps": [
-                  "bad_axis"
-                ]
-              },
-              {
-                "kind": "ref",
-                "name": "transaction_time",
-                "resolved_type": {
-                  "name": "DateTime",
-                  "params": []
-                },
-                "deps": [
-                  "transaction_time"
+                  "as_of"
                 ]
               }
             ],
@@ -199,16 +168,15 @@
               ]
             },
             "deps": [
-              "avail_history",
-              "bad_axis",
-              "transaction_time"
+              "price_history",
+              "as_of"
             ]
           }
         },
         {
-          "decl_id": "output:avail_at",
+          "decl_id": "output:price_at",
           "kind": "output",
-          "name": "avail_at",
+          "name": "price_at",
           "fragment_class": "core",
           "type": {
             "kind": "type_ref",
@@ -222,18 +190,18 @@
             ]
           },
           "deps": [
-            "avail_at"
+            "price_at"
           ]
         }
       ],
       "type_errors": [
         {
-          "rule": "OOF-BT4",
-          "message": "bihistory_at: valid_time must be DateTime, got String",
-          "node": "avail_at",
+          "rule": "OOF-BT1",
+          "message": "history_at: as_of must be DateTime, got String",
+          "node": "price_at",
           "line": null,
           "aliases": [
-            "OOF-TM6"
+            "OOF-TM3"
           ]
         }
       ]
@@ -241,12 +209,12 @@
   ],
   "type_errors": [
     {
-      "rule": "OOF-BT4",
-      "message": "bihistory_at: valid_time must be DateTime, got String",
-      "node": "avail_at",
+      "rule": "OOF-BT1",
+      "message": "history_at: as_of must be DateTime, got String",
+      "node": "price_at",
       "line": null,
       "aliases": [
-        "OOF-TM6"
+        "OOF-TM3"
       ]
     }
   ],

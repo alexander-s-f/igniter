@@ -1,0 +1,67 @@
+{
+  "kind": "parsed_program",
+  "source_path": "igniter-lang/experiments/classifier_pass_proof/fixtures/temporal_history_read.ig",
+  "source_hash": "sha256:temporal-history-read-classifier-fixture",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.Classifier.Temporal",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "TemporalHistoryRead",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "sku",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "input",
+          "name": "as_of",
+          "type_annotation": "DateTime"
+        },
+        {
+          "kind": "read",
+          "name": "price_history",
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "from": "sku/{sku}/price",
+          "lifecycle": "durable"
+        },
+        {
+          "kind": "output",
+          "name": "price_history",
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "olap_points": [],
+  "parse_errors": []
+}

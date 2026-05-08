@@ -505,7 +505,8 @@ module StreamTProof
       "semanticir.stream_input_node" => semantic_ir.dig("contracts", 0, "nodes").any? { |node| node.fetch("kind") == "stream_input_node" },
       "semanticir.window_decl_node" => semantic_ir.dig("contracts", 0, "nodes").any? { |node| node.fetch("kind") == "window_decl_node" },
       "semanticir.fold_stream_node" => semantic_ir.dig("contracts", 0, "nodes").any? { |node| node.fetch("kind") == "fold_stream_node" },
-      "semanticir.emitter_typed_program_ref" => semantic_ir.fetch("program_id").start_with?("semanticir/typed/"),
+      "semanticir.emitter_typed_program_ref" => semantic_ir.fetch("program_id") ==
+        "semanticir/#{semantic_ir.fetch("source_hash").delete_prefix("sha256:")[0, 16]}",
       "classification.stream_is_escape" => finite_result.fetch("stream_classification") == "escape",
       "classification.fold_result_is_core" => finite_result.fetch("fold_result_classification") == "core",
       "runtime.finite_replay_window_closed" => finite_result.dig("window", "source_mode") == "finite_replay" &&

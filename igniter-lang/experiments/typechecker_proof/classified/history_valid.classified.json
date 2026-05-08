@@ -1,74 +1,78 @@
 {
   "kind": "classified_program",
   "classifier_version": "classifier-pass-executable-proof-v0",
-  "program_id": "classifier_pass/6f8e8dd25c1327c8",
-  "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/negative_bihistory_missing_tt.ig",
-  "source_hash": "sha256:6f8e8dd25c1327c86c21b7e10c9894e7121c5e16466f33fa516ba1e4e83c61c6",
+  "program_id": "classifier_pass/history_valid_temporal",
+  "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/history_valid.ig",
+  "source_hash": "sha256:history-valid-temporal-fixture",
   "grammar_version": "0.1.0",
-  "module": "Fixture.BiHistoryAxes",
+  "module": "Fixture.HistoryAxes",
   "type_declarations": [],
   "contracts": [
     {
       "kind": "classified_contract",
-      "contract_id": "Fixture.BiHistoryAxes.BiHistoryMissingTt",
-      "name": "BiHistoryMissingTt",
+      "contract_id": "Fixture.HistoryAxes.HistoryAxesTest",
+      "name": "HistoryAxesTest",
       "fragment_class": "temporal",
       "symbols": [
         {
-          "name": "technician_id",
+          "name": "sku",
           "kind": "input",
           "fragment_class": "core"
         },
         {
-          "name": "valid_time",
+          "name": "as_of",
           "kind": "input",
           "fragment_class": "core"
         },
         {
-          "name": "avail_history",
+          "name": "price_history",
           "kind": "temporal_read",
           "fragment_class": "core"
         },
         {
-          "name": "avail_at",
+          "name": "price_at",
           "kind": "compute",
           "fragment_class": "core"
         },
         {
-          "name": "avail_at",
+          "name": "price_at",
           "kind": "output",
           "fragment_class": "core"
         }
       ],
       "declarations": [
         {
-          "decl_id": "input:technician_id",
+          "decl_id": "input:sku",
           "kind": "input",
-          "name": "technician_id",
+          "name": "sku",
           "fragment_class": "core",
           "deps": [],
           "missing_refs": [],
           "type_annotation": "String"
         },
         {
-          "decl_id": "input:valid_time",
+          "decl_id": "input:as_of",
           "kind": "input",
-          "name": "valid_time",
+          "name": "as_of",
           "fragment_class": "core",
           "deps": [],
           "missing_refs": [],
           "type_annotation": "DateTime"
         },
         {
-          "decl_id": "read:avail_history",
+          "decl_id": "read:price_history",
           "kind": "read",
-          "name": "avail_history",
+          "name": "price_history",
           "fragment_class": "temporal",
+          "node_fragment_class": "temporal",
+          "value_fragment_class": "core",
+          "required_capability": "history_read",
+          "temporal_axis": "valid_time",
           "deps": [],
           "missing_refs": [],
           "type_annotation": {
             "kind": "type_ref",
-            "name": "BiHistory",
+            "name": "History",
             "params": [
               {
                 "kind": "type_ref",
@@ -77,45 +81,41 @@
               }
             ]
           },
-          "from": "t/{technician_id}/avail",
-          "lifecycle": "durable",
-          "node_fragment_class": "temporal",
-          "value_fragment_class": "core",
-          "required_capability": "bihistory_read",
-          "temporal_axis": "bitemporal"
+          "from": "sku/{sku}/price",
+          "lifecycle": "durable"
         },
         {
-          "decl_id": "compute:avail_at",
+          "decl_id": "compute:price_at",
           "kind": "compute",
-          "name": "avail_at",
+          "name": "price_at",
           "fragment_class": "core",
           "deps": [
-            "avail_history",
-            "valid_time"
+            "price_history",
+            "as_of"
           ],
           "missing_refs": [],
           "expr": {
             "kind": "call",
-            "fn": "bihistory_at",
+            "fn": "history_at",
             "args": [
               {
                 "kind": "ref",
-                "name": "avail_history"
+                "name": "price_history"
               },
               {
                 "kind": "ref",
-                "name": "valid_time"
+                "name": "as_of"
               }
             ]
           }
         },
         {
-          "decl_id": "output:avail_at",
+          "decl_id": "output:price_at",
           "kind": "output",
-          "name": "avail_at",
+          "name": "price_at",
           "fragment_class": "core",
           "deps": [
-            "avail_at"
+            "price_at"
           ],
           "missing_refs": [],
           "type_annotation": {

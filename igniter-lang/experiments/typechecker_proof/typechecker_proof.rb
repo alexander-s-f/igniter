@@ -52,6 +52,25 @@ module TypecheckerProof
       expected_status: "blocked",
       expected_rules: ["OOF-CE4"]
     },
+    "history_valid" => {
+      classified: "history_valid.classified.json",
+      expected_contract: "HistoryAxesTest",
+      expected_status: "accepted",
+      expected_rules: [],
+      expected_outputs: { "price_at" => "Option" }
+    },
+    "negative_history_missing_as_of" => {
+      classified: "negative_history_missing_as_of.classified.json",
+      expected_contract: "HistoryMissingAsOf",
+      expected_status: "blocked",
+      expected_rules: ["OOF-H1"]
+    },
+    "negative_history_wrong_as_of_type" => {
+      classified: "negative_history_wrong_as_of_type.classified.json",
+      expected_contract: "HistoryWrongAsOfType",
+      expected_status: "blocked",
+      expected_rules: ["OOF-BT1"]
+    },
     "bihistory_valid" => {
       classified: "bihistory_valid.classified.json",
       expected_contract: "BiHistoryAxesTest",
@@ -145,14 +164,22 @@ module TypecheckerProof
       "typed.add" => accepted_with_outputs?(outputs, "add"),
       "typed.claim_evidence" => accepted_with_outputs?(outputs, "claim_evidence"),
       "typed.evidence_linked_alert" => accepted_with_outputs?(outputs, "evidence_linked_alert"),
+      "typed.history_valid" => accepted_with_outputs?(outputs, "history_valid"),
       "typed.bihistory_valid" => accepted_with_outputs?(outputs, "bihistory_valid"),
+      "temporal.history_node_value_contract_split" => temporal_node_value_contract_split?(outputs, "history_valid", "price_history"),
+      "temporal.bihistory_node_value_contract_split" => temporal_node_value_contract_split?(outputs, "bihistory_valid", "avail_history"),
       "typed.accepted_no_unresolved_types" => accepted_no_unresolved_types?(outputs),
       "negative.unresolved_symbol_blocked" => blocked_with_rules?(outputs, "negative_unresolved_symbol"),
       "negative.evidence_less_alert_blocked" => blocked_with_rules?(outputs, "negative_evidence_less_alert"),
       "negative.confidence_bool_blocked" => blocked_with_rules?(outputs, "negative_confidence_bool"),
+      "negative.history_missing_as_of_oof_tm1_alias" => blocked_with_alias?(outputs, "negative_history_missing_as_of", "OOF-H1", "OOF-TM1"),
+      "negative.history_wrong_as_of_type_oof_tm3_alias" => blocked_with_alias?(outputs, "negative_history_wrong_as_of_type", "OOF-BT1", "OOF-TM3"),
       "negative.bihistory_missing_vt" => blocked_with_rules?(outputs, "negative_bihistory_missing_vt"),
       "negative.bihistory_missing_tt" => blocked_with_rules?(outputs, "negative_bihistory_missing_tt"),
       "negative.bihistory_wrong_axis_type" => blocked_with_rules?(outputs, "negative_bihistory_wrong_axis_type"),
+      "negative.bihistory_missing_vt_oof_tm4_alias" => blocked_with_alias?(outputs, "negative_bihistory_missing_vt", "OOF-BT2", "OOF-TM4"),
+      "negative.bihistory_missing_tt_oof_tm5_alias" => blocked_with_alias?(outputs, "negative_bihistory_missing_tt", "OOF-BT3", "OOF-TM5"),
+      "negative.bihistory_wrong_axis_type_oof_tm6_alias" => blocked_with_alias?(outputs, "negative_bihistory_wrong_axis_type", "OOF-BT4", "OOF-TM6"),
       "negative.stream_escape_in_fold_oof_s3" => blocked_with_rules?(outputs, "negative_stream_escape_in_fold"),
       "typed.invariant_severity_valid" => accepted_with_outputs?(outputs, "invariant_severity_valid"),
       "invariant.tinv1_output_has_warnings_from" => invariant_output_effect?(outputs, "invariant_severity_valid", "interaction_warn"),
@@ -190,6 +217,26 @@ module TypecheckerProof
     contract = only_contract(result)
     actual_rules = result.fetch(:typed).fetch("type_errors").map { |entry| entry.fetch("rule") }.uniq
     contract.fetch("status") == "blocked" && actual_rules == result.fetch(:config).fetch(:expected_rules)
+  end
+
+  def blocked_with_alias?(outputs, case_id, primary_rule, alias_rule)
+    result = outputs.fetch(case_id)
+    contract = only_contract(result)
+    contract.fetch("status") == "blocked" &&
+      result.fetch(:typed).fetch("type_errors").any? do |entry|
+        entry.fetch("rule") == primary_rule && Array(entry["aliases"]).include?(alias_rule)
+      end
+  end
+
+  def temporal_node_value_contract_split?(outputs, case_id, read_name)
+    contract = only_contract(outputs.fetch(case_id))
+    read_decl = contract.fetch("declarations").find { |decl| decl.fetch("kind") == "read" && decl.fetch("name") == read_name }
+    downstream = contract.fetch("declarations").select { |decl| %w[compute output].include?(decl.fetch("kind")) }
+    contract.fetch("fragment_class") == "temporal" &&
+      read_decl&.fetch("fragment_class") == "temporal" &&
+      read_decl.fetch("node_fragment_class") == "temporal" &&
+      read_decl.fetch("value_fragment_class") == "core" &&
+      downstream.all? { |decl| decl.fetch("fragment_class") == "core" }
   end
 
   # Checks that the named invariant appears in warnings_from on any output decl (TINV-4).

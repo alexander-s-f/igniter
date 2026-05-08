@@ -35,6 +35,14 @@
           "status": "PASS"
         },
         {
+          "name": "classified.temporal_history_read",
+          "status": "PASS"
+        },
+        {
+          "name": "classified.temporal_bihistory_read",
+          "status": "PASS"
+        },
+        {
           "name": "classified.stream_ingress_escape",
           "status": "PASS"
         },
@@ -52,6 +60,14 @@
         },
         {
           "name": "core.evidence_linked_alert_propagates",
+          "status": "PASS"
+        },
+        {
+          "name": "temporal.history_read_node_temporal_value_core",
+          "status": "PASS"
+        },
+        {
+          "name": "temporal.bihistory_read_node_temporal_value_core",
           "status": "PASS"
         },
         {
@@ -107,11 +123,15 @@
         "classified.add: ok",
         "classified.claim_evidence: ok",
         "classified.evidence_linked_alert: ok",
+        "classified.temporal_history_read: ok",
+        "classified.temporal_bihistory_read: ok",
         "classified.stream_ingress_escape: ok",
         "classified.stream_fold_core: ok",
         "core.add_propagates: ok",
         "core.claim_evidence_propagates: ok",
         "core.evidence_linked_alert_propagates: ok",
+        "temporal.history_read_node_temporal_value_core: ok",
+        "temporal.bihistory_read_node_temporal_value_core: ok",
         "stream.sc1_ingress_escape: ok",
         "stream.sc2_direct_use_oof_s4: ok",
         "stream.sc3_fold_result_core: ok",
@@ -153,7 +173,19 @@
           "status": "PASS"
         },
         {
+          "name": "typed.history_valid",
+          "status": "PASS"
+        },
+        {
           "name": "typed.bihistory_valid",
+          "status": "PASS"
+        },
+        {
+          "name": "temporal.history_node_value_contract_split",
+          "status": "PASS"
+        },
+        {
+          "name": "temporal.bihistory_node_value_contract_split",
           "status": "PASS"
         },
         {
@@ -173,6 +205,14 @@
           "status": "PASS"
         },
         {
+          "name": "negative.history_missing_as_of_oof_tm1_alias",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.history_wrong_as_of_type_oof_tm3_alias",
+          "status": "PASS"
+        },
+        {
           "name": "negative.bihistory_missing_vt",
           "status": "PASS"
         },
@@ -182,6 +222,18 @@
         },
         {
           "name": "negative.bihistory_wrong_axis_type",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.bihistory_missing_vt_oof_tm4_alias",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.bihistory_missing_tt_oof_tm5_alias",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.bihistory_wrong_axis_type_oof_tm6_alias",
           "status": "PASS"
         },
         {
@@ -237,14 +289,22 @@
         "typed.add: ok",
         "typed.claim_evidence: ok",
         "typed.evidence_linked_alert: ok",
+        "typed.history_valid: ok",
         "typed.bihistory_valid: ok",
+        "temporal.history_node_value_contract_split: ok",
+        "temporal.bihistory_node_value_contract_split: ok",
         "typed.accepted_no_unresolved_types: ok",
         "negative.unresolved_symbol_blocked: ok",
         "negative.evidence_less_alert_blocked: ok",
         "negative.confidence_bool_blocked: ok",
+        "negative.history_missing_as_of_oof_tm1_alias: ok",
+        "negative.history_wrong_as_of_type_oof_tm3_alias: ok",
         "negative.bihistory_missing_vt: ok",
         "negative.bihistory_missing_tt: ok",
         "negative.bihistory_wrong_axis_type: ok",
+        "negative.bihistory_missing_vt_oof_tm4_alias: ok",
+        "negative.bihistory_missing_tt_oof_tm5_alias: ok",
+        "negative.bihistory_wrong_axis_type_oof_tm6_alias: ok",
         "negative.stream_escape_in_fold_oof_s3: ok",
         "typed.invariant_severity_valid: ok",
         "invariant.tinv1_output_has_warnings_from: ok",

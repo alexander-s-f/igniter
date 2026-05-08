@@ -80,9 +80,10 @@ module IgniterLang
           symbol_kinds[node.fetch("name")] = "stream"
           declarations << classified_decl(node, "escape", [], [])
         when "read"
-          symbol_fragments[node.fetch("name")] = "escape"
-          symbol_kinds[node.fetch("name")] = "read"
-          declarations << classified_decl(node, "escape", [], [])
+          fragment = temporal_type?(node["type_annotation"]) ? "temporal" : "escape"
+          symbol_fragments[node.fetch("name")] = fragment == "temporal" ? "core" : "escape"
+          symbol_kinds[node.fetch("name")] = fragment == "temporal" ? "temporal_read" : "read"
+          declarations << classified_decl(node, fragment, [], []).merge(value_fragment_metadata(fragment, node["type_annotation"]))
         when "window"
           window_declarations << node
           declarations << classified_decl(node.merge("name" => node.fetch("label", "_window")), "escape", [], [])
@@ -144,6 +145,8 @@ module IgniterLang
     def contract_fragment_for(declarations, diagnostics)
       return "oof" unless diagnostics.empty?
       return "core" if declarations.all? { |decl| decl.fetch("fragment_class") == "core" }
+      return "temporal" if declarations.any? { |decl| decl.fetch("fragment_class") == "temporal" } &&
+                           declarations.none? { |decl| decl.fetch("fragment_class") == "oof" }
       return "escape" if declarations.any? { |decl| decl.fetch("fragment_class") == "escape" } &&
                          declarations.none? { |decl| decl.fetch("fragment_class") == "oof" }
 
@@ -177,6 +180,26 @@ module IgniterLang
         result["expr"] = node.fetch("expr")
       end
       result
+    end
+
+    def value_fragment_metadata(fragment, type)
+      return {} unless fragment == "temporal"
+
+      type_name = normalize_type(type)
+      {
+        "node_fragment_class" => "temporal",
+        "value_fragment_class" => "core",
+        "required_capability" => temporal_capability(type_name),
+        "temporal_axis" => temporal_axis(type_name)
+      }
+    end
+
+    def temporal_capability(type_name)
+      type_name == "BiHistory" ? "bihistory_read" : "history_read"
+    end
+
+    def temporal_axis(type_name)
+      type_name == "BiHistory" ? "bitemporal" : "valid_time"
     end
 
     def decl_id(node)
@@ -266,6 +289,10 @@ module IgniterLang
 
     def normalize_type(type)
       type.is_a?(Hash) ? type.fetch("name") : type.to_s
+    end
+
+    def temporal_type?(type)
+      %w[History BiHistory].include?(normalize_type(type))
     end
 
     def oof(rule, message, node_name)

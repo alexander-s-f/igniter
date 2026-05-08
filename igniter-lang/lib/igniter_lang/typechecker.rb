@@ -136,6 +136,9 @@ module IgniterLang
       }
       result["expr"] = expr if expr
       result["semantic_node"] = expr.fetch("semantic_node") if expr&.key?("semantic_node")
+      %w[node_fragment_class value_fragment_class required_capability temporal_axis].each do |key|
+        result[key] = decl.fetch(key) if decl.key?(key)
+      end
       result
     end
 
@@ -195,7 +198,7 @@ module IgniterLang
 
     def infer_history_at(fn, args, symbol_types, type_errors, type_warnings, node_name)
       if args.length < 2
-        type_errors << oof("OOF-H1", "history_at requires as_of argument", node_name)
+        type_errors << oof_alias("OOF-H1", "history_at requires as_of argument", node_name, ["OOF-TM1"])
         return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
       end
 
@@ -203,7 +206,7 @@ module IgniterLang
       as_of_ref = infer_expr(args[1], symbol_types, type_errors, type_warnings, node_name)
       unless type_name(as_of_ref.fetch("resolved_type")) == "DateTime" ||
              type_name(as_of_ref.fetch("resolved_type")) == "Unknown"
-        type_errors << oof("OOF-BT1", "history_at: as_of must be DateTime, got #{type_name(as_of_ref.fetch("resolved_type"))}", node_name)
+        type_errors << oof_alias("OOF-BT1", "history_at: as_of must be DateTime, got #{type_name(as_of_ref.fetch("resolved_type"))}", node_name, ["OOF-TM3"])
       end
       result_type = option_type_from(history_ref.fetch("resolved_type"))
       typed_expr(
@@ -217,11 +220,11 @@ module IgniterLang
 
     def infer_bihistory_at(fn, args, symbol_types, type_errors, type_warnings, node_name)
       if args.length < 2
-        type_errors << oof("OOF-BT2", "bihistory_at requires valid_time (vt) argument", node_name)
+        type_errors << oof_alias("OOF-BT2", "bihistory_at requires valid_time (vt) argument", node_name, ["OOF-TM4"])
         return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
       end
       if args.length < 3
-        type_errors << oof("OOF-BT3", "bihistory_at requires transaction_time (tt) argument", node_name)
+        type_errors << oof_alias("OOF-BT3", "bihistory_at requires transaction_time (tt) argument", node_name, ["OOF-TM5"])
         return typed_expr("call", type_ir("Unknown"), [], "fn" => fn, "args" => [])
       end
 
@@ -232,7 +235,7 @@ module IgniterLang
         axis_name = idx.zero? ? "valid_time" : "transaction_time"
         unless type_name(axis_ref.fetch("resolved_type")) == "DateTime" ||
                type_name(axis_ref.fetch("resolved_type")) == "Unknown"
-          type_errors << oof("OOF-BT4", "bihistory_at: #{axis_name} must be DateTime, got #{type_name(axis_ref.fetch("resolved_type"))}", node_name)
+          type_errors << oof_alias("OOF-BT4", "bihistory_at: #{axis_name} must be DateTime, got #{type_name(axis_ref.fetch("resolved_type"))}", node_name, ["OOF-TM6"])
         end
       end
       result_type = option_type_from(history_ref.fetch("resolved_type"))
@@ -545,12 +548,16 @@ module IgniterLang
       { "rule" => rule, "message" => message, "node" => node_name, "line" => nil }
     end
 
+    def oof_alias(rule, message, node_name, aliases)
+      oof(rule, message, node_name).merge("aliases" => aliases)
+    end
+
     def rule_present?(errors, rule)
       errors.any? { |entry| entry.fetch("rule") == rule }
     end
 
     def blocking_rule_present?(errors)
-      %w[OOF-P1 OOF-CE4 OOF-OS2 OOF-H1 OOF-BT2 OOF-BT3 OOF-BT4 OOF-S3 OOF-O3 OOF-O4 OOF-O5 OOF-IV3].any? { |rule| rule_present?(errors, rule) }
+      %w[OOF-P1 OOF-CE4 OOF-OS2 OOF-H1 OOF-BT1 OOF-BT2 OOF-BT3 OOF-BT4 OOF-TM1 OOF-TM3 OOF-TM4 OOF-TM5 OOF-TM6 OOF-S3 OOF-O3 OOF-O4 OOF-O5 OOF-IV3].any? { |rule| rule_present?(errors, rule) }
     end
 
     # OOF-IV helpers -------------------------------------------------------

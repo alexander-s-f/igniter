@@ -29,6 +29,7 @@ module GemNativePackageBoundarySpecs
 
     checks = []
     checks << gem_build_check
+    checks << gemspec_metadata_check
     checks << gem_install_check if pass?(checks)
     checks << require_check if pass?(checks)
     direct_compile = pass?(checks) ? direct_compile_check : skipped_check("direct_compile_package_boundary")
@@ -81,6 +82,32 @@ module GemNativePackageBoundarySpecs
       "stdout" => stdout.lines.map(&:chomp),
       "stderr" => stderr.lines.map(&:chomp),
       "exit_status" => status.exitstatus
+    )
+  end
+
+  def gemspec_metadata_check
+    spec = Gem::Specification.load((PACKAGE_ROOT / "igniter_lang.gemspec").to_s)
+    expected_homepage = "https://github.com/alexander-s-f/igniter"
+    expected_source = "#{expected_homepage}/tree/main/igniter-lang"
+    metadata = spec.metadata
+    check(
+      "gemspec_release_metadata",
+      spec.summary.to_s.include?("Contract-native language compiler") &&
+        spec.authors == ["Alexander"] &&
+        spec.email == ["alexander.s.fokin@gmail.com"] &&
+        spec.license == "MIT" &&
+        spec.homepage == expected_homepage &&
+        metadata["homepage_uri"] == expected_homepage &&
+        metadata["source_code_uri"] == expected_source &&
+        metadata["rubygems_mfa_required"] == "true",
+      "name" => spec.name,
+      "version" => spec.version.to_s,
+      "summary" => spec.summary,
+      "authors" => spec.authors,
+      "email" => spec.email,
+      "license" => spec.license,
+      "homepage" => spec.homepage,
+      "metadata" => metadata
     )
   end
 
@@ -258,8 +285,8 @@ module GemNativePackageBoundarySpecs
     [
       {
         "id" => "final_gem_metadata",
-        "status" => "open",
-        "summary" => "Gemspec still uses placeholder homepage/source_code_uri/contact metadata."
+        "status" => "ready",
+        "summary" => "Gemspec has non-placeholder homepage/source_code_uri/contact/license/summary metadata."
       },
       {
         "id" => "gem_native_ci",
@@ -273,8 +300,8 @@ module GemNativePackageBoundarySpecs
       },
       {
         "id" => "release_policy",
-        "status" => "open",
-        "summary" => "No RubyGems publish policy, signing/checksum policy, or release automation is defined."
+        "status" => "defined",
+        "summary" => "RubyGems publish policy and checksum/artifact expectations are defined in gem-release-policy-v0; release automation remains open."
       }
     ]
   end

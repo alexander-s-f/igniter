@@ -1,5 +1,5 @@
 {
-  "compilation_report_ref": "compilation_report/typed_a6cfe567b84eabe5",
+  "compilation_report_ref": "compilation_report/bcd96b852717defc",
   "contracts": [
     {
       "contract_name": "IntegerWindowSum",
@@ -83,7 +83,7 @@
   "grammar_version": "0.1.0",
   "kind": "semantic_ir_program",
   "module": "Fixture.StreamT",
-  "program_id": "semanticir/typed/63d73b83fa2e0ff4",
+  "program_id": "semanticir/bcd96b852717defc",
   "source_hash": "sha256:bcd96b852717defcecf4221d622a71d5859f362e654ed7f571c2a717636ac2cf",
   "source_path": "experiments/stream_t_proof/stream_integer_window.ig"
 }

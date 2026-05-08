@@ -123,14 +123,11 @@ module IgniterLang
     end
 
     def typed_program_id(typed_program)
-      "semanticir/typed/#{Digest::SHA256.hexdigest(canonical_json(typed_program))[0, 16]}"
+      program_id(typed_program)
     end
 
     def typed_compilation_report_id(typed_program)
-      "compilation_report/typed_#{Digest::SHA256.hexdigest(canonical_json([
-        typed_program.fetch("program_id"),
-        typed_program.fetch("source_hash")
-      ]))[0, 16]}"
+      compilation_report_id(typed_program)
     end
 
     def source_path(parsed_program)
@@ -188,7 +185,7 @@ module IgniterLang
           {
             "kind" => "compute",
             "name" => decl.fetch("name"),
-            "expr" => decl.fetch("expr"),
+            "expr" => semantic_expr(decl.fetch("expr")),
             "type" => decl.fetch("type"),
             "deps" => decl.fetch("deps", []),
             "fragment" => decl.fetch("fragment_class")
@@ -200,6 +197,21 @@ module IgniterLang
     def typed_program_invariants(contracts)
       contracts.flat_map do |contract|
         contract.fetch("nodes").select { |node| node.fetch("kind") == "invariant_node" }
+      end
+    end
+
+    def semantic_expr(expr)
+      case expr
+      when Hash
+        expr.each_with_object({}) do |(key, value), result|
+          next if key == "deps"
+
+          result[key] = semantic_expr(value)
+        end
+      when Array
+        expr.map { |item| semantic_expr(item) }
+      else
+        expr
       end
     end
 

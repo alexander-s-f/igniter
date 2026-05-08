@@ -5,11 +5,11 @@ require_relative "lib/igniter_lang/version"
 Gem::Specification.new do |spec|
   spec.name = "igniter_lang"
   spec.version = IgniterLang::VERSION
-  spec.summary = "Igniter-Lang compiler proof package skeleton"
-  spec.description = "Minimal Stage 2 compiler package skeleton for Igniter-Lang."
-  spec.authors = ["Igniter"]
-  spec.email = ["dev@igniter.local"]
-  spec.homepage = "https://example.invalid/igniter-lang"
+  spec.summary = "Contract-native language compiler for Igniter"
+  spec.description = "Igniter-Lang provides the packageable compiler facade and CLI for the Igniter contract-native language research workspace."
+  spec.authors = ["Alexander"]
+  spec.email = ["alexander.s.fokin@gmail.com"]
+  spec.homepage = "https://github.com/alexander-s-f/igniter"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
 
@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.metadata = {
     "rubygems_mfa_required" => "true",
-    "source_code_uri" => "https://example.invalid/igniter-lang"
+    "homepage_uri" => spec.homepage,
+    "source_code_uri" => "#{spec.homepage}/tree/main/igniter-lang"
   }
 end

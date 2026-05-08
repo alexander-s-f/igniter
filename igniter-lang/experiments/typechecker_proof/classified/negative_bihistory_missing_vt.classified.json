@@ -12,7 +12,7 @@
       "kind": "classified_contract",
       "contract_id": "Fixture.BiHistoryAxes.BiHistoryMissingVt",
       "name": "BiHistoryMissingVt",
-      "fragment_class": "escape",
+      "fragment_class": "temporal",
       "symbols": [
         {
           "name": "technician_id",
@@ -21,18 +21,18 @@
         },
         {
           "name": "avail_history",
-          "kind": "read",
-          "fragment_class": "escape"
+          "kind": "temporal_read",
+          "fragment_class": "core"
         },
         {
           "name": "avail_at",
           "kind": "compute",
-          "fragment_class": "escape"
+          "fragment_class": "core"
         },
         {
           "name": "avail_at",
           "kind": "output",
-          "fragment_class": "escape"
+          "fragment_class": "core"
         }
       ],
       "declarations": [
@@ -46,18 +46,10 @@
           "type_annotation": "String"
         },
         {
-          "decl_id": "escape:history_read",
-          "kind": "escape",
-          "name": "history_read",
-          "fragment_class": "escape",
-          "deps": [],
-          "missing_refs": []
-        },
-        {
           "decl_id": "read:avail_history",
           "kind": "read",
           "name": "avail_history",
-          "fragment_class": "escape",
+          "fragment_class": "temporal",
           "deps": [],
           "missing_refs": [],
           "type_annotation": {
@@ -72,13 +64,17 @@
             ]
           },
           "from": "t/{technician_id}/avail",
-          "lifecycle": "durable"
+          "lifecycle": "durable",
+          "node_fragment_class": "temporal",
+          "value_fragment_class": "core",
+          "required_capability": "bihistory_read",
+          "temporal_axis": "bitemporal"
         },
         {
           "decl_id": "compute:avail_at",
           "kind": "compute",
           "name": "avail_at",
-          "fragment_class": "escape",
+          "fragment_class": "core",
           "deps": [
             "avail_history"
           ],
@@ -98,7 +94,7 @@
           "decl_id": "output:avail_at",
           "kind": "output",
           "name": "avail_at",
-          "fragment_class": "escape",
+          "fragment_class": "core",
           "deps": [
             "avail_at"
           ],

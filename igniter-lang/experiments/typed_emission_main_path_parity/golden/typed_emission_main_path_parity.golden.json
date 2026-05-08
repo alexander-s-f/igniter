@@ -20,7 +20,7 @@
       "expect_typed_node_kinds": [
         "compute"
       ],
-      "status": "FAIL",
+      "status": "PASS",
       "parsed_path": {
         "pass_result": "ok",
         "semantic_ir_present": true,
@@ -64,9 +64,9 @@
       "typed_path": {
         "pass_result": "ok",
         "semantic_ir_present": true,
-        "program_id": "semanticir/typed/d7834436936cd997",
-        "semantic_ir_ref": "semanticir/typed/d7834436936cd997",
-        "report_program_id": "compilation_report/typed_b692b29c28809617",
+        "program_id": "semanticir/e9664d5446df4e46",
+        "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+        "report_program_id": "compilation_report/e9664d5446df4e46",
         "report_keys": [
           "diagnostics",
           "format_version",
@@ -97,30 +97,11 @@
           "compute"
         ],
         "diagnostic_rules": [],
-        "shape_hash": "sha256:16b04de03215ef174098e4648f04db644519f5c286f14c01566d63f4b308d16f",
+        "shape_hash": "sha256:02d34c34ff575f8d2d3aa57412b9b5eb5b5fe666476f8fa2c47ca7a1004daabb",
         "report_shape_hash": "sha256:9410f9b5f18082fab867394032e3763a17bf6e87695327edc22c3c861b67e1a2",
         "status": "ok"
       },
-      "deltas": [
-        {
-          "kind": "semantic_ir_shape_delta",
-          "summary": "SemanticIR differs after identity fields are normalized.",
-          "paths": [
-            {
-              "path": "$.contracts[0].nodes[0].expr.deps",
-              "delta": "missing_in_parsed"
-            },
-            {
-              "path": "$.contracts[0].nodes[0].expr.args[0].deps",
-              "delta": "missing_in_parsed"
-            },
-            {
-              "path": "$.contracts[0].nodes[0].expr.args[1].deps",
-              "delta": "missing_in_parsed"
-            }
-          ]
-        }
-      ]
+      "deltas": []
     },
     {
       "id": "invariant_valid",
@@ -179,9 +160,9 @@
       "typed_path": {
         "pass_result": "ok",
         "semantic_ir_present": true,
-        "program_id": "semanticir/typed/a5e3f7bd1e5519ca",
-        "semantic_ir_ref": "semanticir/typed/a5e3f7bd1e5519ca",
-        "report_program_id": "compilation_report/typed_d124bec312d056c7",
+        "program_id": "semanticir/2251ce26b7a9f9ab",
+        "semantic_ir_ref": "semanticir/2251ce26b7a9f9ab",
+        "report_program_id": "compilation_report/2251ce26b7a9f9ab",
         "report_keys": [
           "diagnostics",
           "format_version",
@@ -212,21 +193,11 @@
           "compute"
         ],
         "diagnostic_rules": [],
-        "shape_hash": "sha256:2ed093df52aaddc0f32af99050b74011126983ce484e8447534f561f5f2f5236",
+        "shape_hash": "sha256:8dae920eef7087764c978add5cd8e49b86cac2b5230016e512a94e9277e4d5a7",
         "report_shape_hash": "sha256:28c8be5226df86d650e6a30401fbef2fff6a798ec3985755166c27bd5379fc6b",
         "status": "ok"
       },
       "deltas": [
-        {
-          "kind": "semantic_ir_shape_delta",
-          "summary": "SemanticIR differs after identity fields are normalized.",
-          "paths": [
-            {
-              "path": "$.contracts[0].nodes[0].expr.deps",
-              "delta": "missing_in_parsed"
-            }
-          ]
-        },
         {
           "kind": "typed_expected_nodes_missing",
           "missing": [
@@ -362,7 +333,7 @@
         "semantic_ir_present": false,
         "program_id": null,
         "semantic_ir_ref": null,
-        "report_program_id": "compilation_report/typed_f3d4bb01b5d22bf7",
+        "report_program_id": "compilation_report/096b47d88eccf388",
         "report_keys": [
           "diagnostics",
           "format_version",
@@ -442,46 +413,6 @@
     }
   ],
   "blocked_items": [
-    {
-      "case": "package_facade_add",
-      "surface": "package_facade",
-      "kind": "semantic_ir_shape_delta",
-      "summary": "SemanticIR differs after identity fields are normalized.",
-      "details": {
-        "kind": "semantic_ir_shape_delta",
-        "summary": "SemanticIR differs after identity fields are normalized.",
-        "paths": [
-          {
-            "path": "$.contracts[0].nodes[0].expr.deps",
-            "delta": "missing_in_parsed"
-          },
-          {
-            "path": "$.contracts[0].nodes[0].expr.args[0].deps",
-            "delta": "missing_in_parsed"
-          },
-          {
-            "path": "$.contracts[0].nodes[0].expr.args[1].deps",
-            "delta": "missing_in_parsed"
-          }
-        ]
-      }
-    },
-    {
-      "case": "invariant_valid",
-      "surface": "invariant_runtime_observations",
-      "kind": "semantic_ir_shape_delta",
-      "summary": "SemanticIR differs after identity fields are normalized.",
-      "details": {
-        "kind": "semantic_ir_shape_delta",
-        "summary": "SemanticIR differs after identity fields are normalized.",
-        "paths": [
-          {
-            "path": "$.contracts[0].nodes[0].expr.deps",
-            "delta": "missing_in_parsed"
-          }
-        ]
-      }
-    },
     {
       "case": "invariant_valid",
       "surface": "invariant_runtime_observations",

@@ -34,8 +34,8 @@
   ],
   "kind": "compilation_report",
   "pass_result": "ok",
-  "program_id": "compilation_report/typed_d99cf84965faa446",
-  "semantic_ir_ref": "semanticir/typed/2ab52533d8d441d4",
+  "program_id": "compilation_report/95394d2fa119a6ad",
+  "semantic_ir_ref": "semanticir/95394d2fa119a6ad",
   "source_hash": "sha256:95394d2fa119a6ad9000ba9e32ef713a17d96b6646a23fda7f66df6b4bd818fa",
   "source_path": "experiments/invariant_severity_proof/invariant_severity.ig",
   "stages": {

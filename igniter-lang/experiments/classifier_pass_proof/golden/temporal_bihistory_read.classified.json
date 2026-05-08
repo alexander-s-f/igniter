@@ -1,0 +1,106 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/1eeac6aadb9cc4aa",
+  "source_path": "igniter-lang/experiments/classifier_pass_proof/fixtures/temporal_bihistory_read.ig",
+  "source_hash": "sha256:temporal-bihistory-read-classifier-fixture",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.Classifier.Temporal",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Fixture.Classifier.Temporal.TemporalBiHistoryRead",
+      "name": "TemporalBiHistoryRead",
+      "fragment_class": "temporal",
+      "symbols": [
+        {
+          "name": "avail_history",
+          "kind": "temporal_read",
+          "fragment_class": "core"
+        },
+        {
+          "name": "technician_id",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "transaction_time",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "valid_time",
+          "kind": "input",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:technician_id",
+          "kind": "input",
+          "name": "technician_id",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "input:valid_time",
+          "kind": "input",
+          "name": "valid_time",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "DateTime"
+        },
+        {
+          "decl_id": "input:transaction_time",
+          "kind": "input",
+          "name": "transaction_time",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "DateTime"
+        },
+        {
+          "decl_id": "read:avail_history",
+          "kind": "read",
+          "name": "avail_history",
+          "fragment_class": "temporal",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "BiHistory",
+          "node_fragment_class": "temporal",
+          "value_fragment_class": "core",
+          "required_capability": "bihistory_read",
+          "temporal_axis": "bitemporal"
+        },
+        {
+          "decl_id": "output:avail_history",
+          "kind": "output",
+          "name": "avail_history",
+          "fragment_class": "core",
+          "deps": [
+            "avail_history"
+          ],
+          "missing_refs": [],
+          "type_annotation": "BiHistory"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:technician_id",
+          "input:valid_time",
+          "input:transaction_time",
+          "read:avail_history",
+          "output:avail_history"
+        ],
+        "edges": []
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}

@@ -11,6 +11,7 @@ module ClassifierPassProof
   ROOT = File.expand_path("../../..", __dir__)
   FIXTURE_INPUT_DIR = File.expand_path("../source_to_semanticir_fixture", __dir__)
   PARSED_DIR = File.join(FIXTURE_INPUT_DIR, "golden")
+  LOCAL_FIXTURE_DIR = File.join(__dir__, "fixtures")
   GOLDEN_DIR = File.join(__dir__, "golden")
   CLASSIFIER_VERSION = IgniterLang::Classifier::DEFAULT_VERSION
 
@@ -90,6 +91,24 @@ module ClassifierPassProof
         }
       }
     },
+    "temporal_history_read" => {
+      parsed_path: File.join(LOCAL_FIXTURE_DIR, "temporal_history_read.parsed_ast.json"),
+      expected_contract: "TemporalHistoryRead",
+      expected_fragment: "temporal",
+      expected_rules: [],
+      sample_input: { "sku" => "sku-001", "as_of" => "2026-05-08T12:00:00Z" }
+    },
+    "temporal_bihistory_read" => {
+      parsed_path: File.join(LOCAL_FIXTURE_DIR, "temporal_bihistory_read.parsed_ast.json"),
+      expected_contract: "TemporalBiHistoryRead",
+      expected_fragment: "temporal",
+      expected_rules: [],
+      sample_input: {
+        "technician_id" => "tech-001",
+        "valid_time" => "2026-05-08T12:00:00Z",
+        "transaction_time" => "2026-05-08T13:00:00Z"
+      }
+    },
     "stream_ingress_escape" => {
       parsed: "stream_ingress_escape.parsed_ast.json",
       expected_contract: "StreamIngressEscape",
@@ -142,7 +161,7 @@ module ClassifierPassProof
   def build_outputs
     classifier = IgniterLang::Classifier.new(classifier_version: CLASSIFIER_VERSION)
     CASES.each_with_object({}) do |(case_id, config), outputs|
-      parsed = read_json(File.join(PARSED_DIR, config.fetch(:parsed)))
+      parsed = read_json(config.fetch(:parsed_path, File.join(PARSED_DIR, config.fetch(:parsed, ""))))
       classified = classifier.classify(parsed, sample_input: config.fetch(:sample_input))
       outputs[case_id] = { parsed: parsed, classified: classified, config: config }
     end
@@ -159,11 +178,15 @@ module ClassifierPassProof
       "classified.add" => classified_ok?(outputs, "add"),
       "classified.claim_evidence" => classified_ok?(outputs, "claim_evidence"),
       "classified.evidence_linked_alert" => classified_ok?(outputs, "evidence_linked_alert"),
+      "classified.temporal_history_read" => classified_ok?(outputs, "temporal_history_read"),
+      "classified.temporal_bihistory_read" => classified_ok?(outputs, "temporal_bihistory_read"),
       "classified.stream_ingress_escape" => classified_ok?(outputs, "stream_ingress_escape"),
       "classified.stream_fold_core" => classified_ok?(outputs, "stream_fold_core"),
       "core.add_propagates" => core_propagates?(outputs, "add"),
       "core.claim_evidence_propagates" => core_propagates?(outputs, "claim_evidence"),
       "core.evidence_linked_alert_propagates" => core_propagates?(outputs, "evidence_linked_alert"),
+      "temporal.history_read_node_temporal_value_core" => temporal_read_node_value_split?(outputs, "temporal_history_read", "price_history", "history_read", "valid_time"),
+      "temporal.bihistory_read_node_temporal_value_core" => temporal_read_node_value_split?(outputs, "temporal_bihistory_read", "avail_history", "bihistory_read", "bitemporal"),
       "stream.sc1_ingress_escape" => stream_ingress_escape?(outputs),
       "stream.sc2_direct_use_oof_s4" => rules_match?(outputs, "negative_stream_direct_use"),
       "stream.sc3_fold_result_core" => stream_fold_result_core?(outputs),
@@ -196,6 +219,20 @@ module ClassifierPassProof
     result = outputs.fetch(case_id)
     actual = result.fetch(:classified).fetch("oof_log").map { |entry| entry.fetch("rule") }.uniq
     actual == result.fetch(:config).fetch(:expected_rules)
+  end
+
+  def temporal_read_node_value_split?(outputs, case_id, read_name, capability, axis)
+    contract = only_contract(outputs.fetch(case_id))
+    read_decl = contract.fetch("declarations").find { |decl| decl.fetch("kind") == "read" && decl.fetch("name") == read_name }
+    symbol = contract.fetch("symbols").find { |entry| entry.fetch("name") == read_name }
+    contract.fetch("fragment_class") == "temporal" &&
+      read_decl&.fetch("fragment_class") == "temporal" &&
+      read_decl.fetch("node_fragment_class") == "temporal" &&
+      read_decl.fetch("value_fragment_class") == "core" &&
+      read_decl.fetch("required_capability") == capability &&
+      read_decl.fetch("temporal_axis") == axis &&
+      symbol&.fetch("kind") == "temporal_read" &&
+      symbol.fetch("fragment_class") == "core"
   end
 
   def build_golden_checks(outputs)

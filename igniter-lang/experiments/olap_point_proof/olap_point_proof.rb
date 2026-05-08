@@ -630,9 +630,13 @@ module OLAPPointProof
       "semanticir.boundary_olap_point_decl_from_typed" => semantic_ir.dig("olap_points", 0, "kind") == "olap_point_decl",
       "semanticir.boundary_olap_access_node_from_typed" => access_node.fetch("kind") == "olap_access_node",
       "semanticir.boundary_dims_record_lowered" => access_node.dig("result_type", "dims_record", "kind") == "dims_record",
-      "semanticir.emitter_typed_program_ref" => semantic_ir.fetch("program_id").start_with?("semanticir/typed/") &&
-        semantic_ir.fetch("compilation_report_ref").start_with?("compilation_report/typed_")
+      "semanticir.emitter_typed_program_ref" => semantic_ir.fetch("program_id") == source_identity(semantic_ir, "semanticir") &&
+        semantic_ir.fetch("compilation_report_ref") == source_identity(semantic_ir, "compilation_report")
     }
+  end
+
+  def source_identity(semantic_ir, prefix)
+    "#{prefix}/#{semantic_ir.fetch("source_hash").delete_prefix("sha256:")[0, 16]}"
   end
 
   def typed_rules(typed, key)

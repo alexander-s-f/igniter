@@ -1,0 +1,72 @@
+{
+  "kind": "parsed_program",
+  "source_path": "igniter-lang/experiments/classifier_pass_proof/fixtures/temporal_bihistory_read.ig",
+  "source_hash": "sha256:temporal-bihistory-read-classifier-fixture",
+  "grammar_version": "0.1.0",
+  "module": "Fixture.Classifier.Temporal",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "TemporalBiHistoryRead",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "technician_id",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "input",
+          "name": "valid_time",
+          "type_annotation": "DateTime"
+        },
+        {
+          "kind": "input",
+          "name": "transaction_time",
+          "type_annotation": "DateTime"
+        },
+        {
+          "kind": "read",
+          "name": "avail_history",
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "BiHistory",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "from": "technician/{technician_id}/availability",
+          "lifecycle": "durable"
+        },
+        {
+          "kind": "output",
+          "name": "avail_history",
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "BiHistory",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "olap_points": [],
+  "parse_errors": []
+}
