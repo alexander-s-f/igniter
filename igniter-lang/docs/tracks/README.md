@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-07
+Last updated: 2026-05-08
 
 ---
 
@@ -26,6 +26,18 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 | Historical archaeology | `../archive/` or git history |
 
 ---
+
+## Stage 3 Round 2 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `typed-emission-canonical-shape-v0.md` | done/blocked | source-hash public identity and canonical compute JSON shape fixed; `package_facade_add` parity PASS; overall verdict still blocked with 7 remaining source-path blockers |
+| `temporal-fragment-classifier-typechecker-v0.md` | done | PROP-028 first implementation boundary: History/BiHistory reads classify as TEMPORAL nodes that bind CORE values; TypeChecker preserves temporal metadata; SemanticIR/runtime/parser syntax still open |
+| `temporal-cache-key-proof-v0.md` | done | proof-local CORE vs TEMPORAL cache-key model PASS; CORE-shaped keys for temporal evaluation are stale-collision bugs; no RuntimeMachine memoization added |
+| `gem-release-policy-v0.md` | done | gem metadata placeholders closed; local release gate named; RubyGems publish requires Architect approval and human owner; CI/release automation still open |
+| `../bridge/compatibility-report-descriptor-consumption-v0.md` | done | report-only bridge proposal: CompatibilityReport may consume descriptor metadata as backend evidence with `runtime_enforced: false`; no Ledger read/write/replay/runtime binding |
+| `../meta-proposals/syntax-pressure-registry-v0.md` | research-registry | comprehension fixtures indexed as canon/proposal/pressure/non-canon experiment; no fixture syntax promoted to canon |
+| `stage3-round2-status-curation-v0.md` | done | S3-R2 map sync and R3 prep — this track |
 
 ## Stage 3 Round 1 Evidence
 
@@ -154,17 +166,17 @@ compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
 
 ---
 
-## Stage 3 Round 2 Recommendations
+## Stage 3 Round 3 Recommendations
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `typed-emission-canonical-shape-v0` | Decide typed identity mode, normalize core compute JSON shape, and rerun parity before touching `CompilerOrchestrator` | Research Agent | recommended |
-| `temporal-fragment-classifier-typechecker-v0` | Implement/prove PROP-028 node/value/contract fragment split and TEMPORAL diagnostics | Compiler/Grammar Expert | recommended |
-| `temporal-cache-key-proof-v0` | Prove CORE vs TEMPORAL cache-key separation before temporal memoization | Research Agent | recommended |
-| `gem-release-policy-v0` | Resolve final gem metadata, CI, and RubyGems publishing policy; publish still requires Architect approval | Research Agent | authorized |
-| `compatibility-report-descriptor-consumption-v0` | CompatibilityReport consumption of descriptor evidence without Ledger reads/writes/runtime binding | Bridge Agent | authorized |
-| `invariant-persistence-boundary-v0` | Production RuntimeMachine invariant observation persistence boundary | Research Agent | authorized |
-| `syntax-pressure-registry-v0` | Register human-agent syntax fixtures as pressure artifacts only, not canon | Compiler/Grammar Expert | research |
+| `typed-emission-stage2-source-lowering-parity-v0` | Resolve remaining invariant, OLAP, stream, and history source-path blockers before switching `CompilerOrchestrator` to `emit_typed` | Research Agent | recommended |
+| `temporal-semanticir-access-node-v0` | Lower typed temporal read metadata into `temporal_access_node` and carry temporal cache-policy metadata without RuntimeMachine memoization | Compiler/Grammar Expert | recommended |
+| `runtime-temporal-cache-contract-v0` | Promote cache-key proof into RuntimeMachine memoization contract planning: entry envelope, freshness states, and cache-hit observation shape | Research Agent | recommended |
+| `compatibility-report-descriptor-consumption-fixture-v0` | Implement proof-local CompatibilityReport descriptor-consumption fixture only after Architect approval; keep `runtime_enforced: false` | Bridge Agent | gated |
+| `gem-release-automation-v0` | Add package-local release task/gate/checksum flow that stops before publish unless Architect approval is present | Research Agent | authorized |
+| `invariant-persistence-boundary-v0` | Production RuntimeMachine invariant observation persistence boundary remains open from Stage 3 intake | Research Agent | authorized |
+| `syntax-pressure-specimens-v0` | Draft next pressure specimens from registry (Field Supply Watch v3, Proof Sorting v1, Primitive Surface) without canon promotion | Archive/Form Expert + Compiler/Grammar Expert | research |
 | `ai-soi-proposal-review-template-v0` | Add a lightweight optional АИ/СОИ prompt for Stage 3 proposal/research review | Meta Expert / Archive-Form Expert | optional |
 
 ---

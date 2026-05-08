@@ -75,12 +75,16 @@ Governance: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 ```text
 Lane              Status    First Track
 ─────────────────────────────────────────────────────────────────
-Release           ⏳ open   gem-release-policy-v0
-TBackend          ⏳ open   compatibility-report-descriptor-consumption-v0
+Release           ✅ policy gem-release-policy-v0 done; CI/release automation open
+TBackend          ✅ bridge compatibility-report-descriptor-consumption-v0 done;
+                            report-only descriptor metadata, no runtime binding
 Runtime           ⏳ open   invariant-persistence-boundary-v0
-Language          ⏳ open   PROP-028 written; implementation/proof next
+                            temporal-cache-key-proof-v0 done; no memoization yet
+Language          ⚙️ partial PROP-028 classifier/typechecker proof done;
+                            SemanticIR temporal_access_node/runtime/parser syntax open
                             spec-entrypoint-sync-v0 (prereq for PROP-029)
-Compiler Internals ⚠️ blocked typed-emission parity PASS / verdict blocked
+Compiler Internals ⚠️ blocked typed-emission canonical shape fixed;
+                            parity PASS / verdict blocked / 7 blockers
 ─────────────────────────────────────────────────────────────────
 STAGE 3 CLOSED:   NO
 Round 1 landed:
@@ -89,6 +93,13 @@ Round 1 landed:
   S3-R1-C3-P: typed-emission-main-path-parity   ⚠️ PASS runner / verdict blocked / 9 blockers
   S3-R1-C4-P: stage2-close-snapshot-archive     ✅ cold archive done
   S3-R1-C5-P: axiomatic/system-forming lens     ✅ research note
+Round 2 landed:
+  S3-R2-C1-P: typed-emission-canonical-shape    ⚠️ Add parity PASS; verdict blocked / 7 blockers
+  S3-R2-C2-P: temporal classifier/typechecker   ✅ PROP-028 first implementation boundary
+  S3-R2-C3-P: temporal-cache-key-proof          ✅ CORE vs TEMPORAL key proof
+  S3-R2-C4-P: gem-release-policy-v0             ✅ release policy + metadata; publish gated
+  S3-R2-C5-P: compatibility-report descriptor   ✅ report-only bridge proposal; no binding
+  S3-R2-C6-P: syntax-pressure-registry-v0       ✅ pressure registry; no canon promotion
 New PROPs:        start from PROP-028
 Arch approval required for: gem publish, Ledger read/write, MCP/mesh
 ```
@@ -99,13 +110,16 @@ Arch approval required for: gem publish, Ledger read/write, MCP/mesh
 IgniterLang::VERSION: 0.1.0.pre.stage2
 Compiler pipeline:   Parser → Classifier → TypeChecker → SemanticIREmitter → Assembler
 emit_typed:          exists in semanticir_emitter.rb ⏳ not yet wired in orchestrator
-typed emission path: parity runner PASS, verdict blocked, 9 blockers; do not switch orchestrator yet
+typed emission path: canonical identity/shape fixed; parity runner PASS, verdict blocked, 7 blockers; do not switch orchestrator yet
 Ledger descriptor:   metadata-only ✅ package specs PASS
+CompatibilityReport: descriptor-consumption bridge proposal ✅ report-only metadata; runtime_enforced false
 Runtime observations: proof-backed ⏳ production persistence open
+Temporal cache key:  proof PASS; CORE key for TEMPORAL is semantic bug; RuntimeMachine memoization not implemented
 Stage 2 close:       PASS (stage2_close_candidate.json)
 Stage 1 regression:  PASS
 Archive:             Stage 2 close snapshot ✅ docs/archive/snapshots/2026-05-07-stage2-close/
 АИ/СОИ lens:         soft Stage 3 governance/review vocabulary; not a hard gate
+Syntax pressure:     registry done; fixture spellings remain pressure/non-canon unless promoted by proposal/proof
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -131,7 +145,8 @@ PROP-024   OLAPPoint[T,Dims]             ✅ CLOSED IN STAGE 2 (parser + TC + Se
 PROP-025   Invariant severity            ✅ CLOSED IN STAGE 2 (partial: OOF-I1/I3/I5 deferred)
 PROP-026   Parser OOF hardening          ✅ CLOSED IN STAGE 2
 PROP-027   Production compiler           ✅ CLOSED IN STAGE 2 (package + facade + igc)
-PROP-028   TEMPORAL fragment class       ✅ proposal written; implementation/proof next
+PROP-028   TEMPORAL fragment class       ⚙️ proposal + classifier/typechecker + cache-key proof done;
+                                         SemanticIR/runtime/parser coordinates pending
 PROP-029+  Stage 3 — not open without governance/prerequisite track
 ```
 
