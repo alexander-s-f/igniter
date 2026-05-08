@@ -134,6 +134,7 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 | [agent-role-optimization-v0.md](agent-role-optimization-v0.md) | off-track | Agent role blind zones, diluted responsibilities, and three targeted optimizations | complete — routes to Architect Supervisor |
 | [typed-emission-and-temporal-loader-pressure-v0.md](typed-emission-and-temporal-loader-pressure-v0.md) | S3-R5-X1-S | Are typed emission + temporal manifest index safe as the Stage 3 artifact path? | complete — routed |
 | [docs-context-and-spec-sync-pressure-v0.md](docs-context-and-spec-sync-pressure-v0.md) | S3-R6-X1-S | Will a fresh agent starting from agent-context/current-status/spec avoid full project reconstruction? | complete — routed |
+| [runtime-compatibility-and-typed-delta-pressure-v0.md](runtime-compatibility-and-typed-delta-pressure-v0.md) | S3-R7-X1-S | Are S3-R7 C1-C3 runtime/compatibility/typed-delta results safe as a pre-Gate-3 boundary layer? | complete — routed |
 
 ---
 
