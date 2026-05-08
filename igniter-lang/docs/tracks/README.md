@@ -28,6 +28,17 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 9 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `descriptor-gate2-architect-ratification-record-v0.md` | ratified | Gate 2 ratified for metadata-only descriptor exposure; trusted report metadata only; Gate 3 closed |
+| `prop-030-executor-approval-token-contract-v0.md` | done | PROP-030 drafted; ExecutorApprovalToken is a Gate 3 prerequisite backed by Architect authority; proposal-only, no executor implementation |
+| `executor-boundary-cache-key-contract-v0.md` | done | executor boundary must use `manifest.contract_index.cache_key_schema_hint`; TEMPORAL keys require temporal coordinates; CORE-shaped TEMPORAL keys refuse with L-T5-style fault |
+| `guarded-runtime-c2-profile-consistency-v0.md` | done | S3-R8 C2 claimed-executor and approved-placeholder profiles are blocked in CompatibilityReport and refused by GuardedRuntimeMachine with explicit reason mapping |
+| `stream-replay-metadata-emission-v0.md` | done | stream replay metadata now emitted into SemanticIR nodes and assembled `stream_nodes`; full smoke uses assembled metadata, no proof-local defaults |
+| `stage3-round9-status-curation-v0.md` | done | R9 status/index/context sync — this track |
+
 ## Stage 3 Round 8 Evidence
 
 | Track | Status | Notes |
@@ -36,6 +47,7 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 | `runtime-compatibility-report-executor-boundary-v0.md` | done | positive executor/live-binding report profiles added; capability flags and approved placeholder remain blocked without explicit approval and Gate 3 authorization; no live operations attempted |
 | `descriptor-gate2-ratification-decision-v0.md` | ratify-recommended | Bridge recommendation for formal Gate 2 ratification; metadata-only descriptor exposure/report use allowed if Architect ratifies; Gate 3 closed |
 | `prop-029-entrypoint-section-surface-v0.md` | done | PROP-029 authored; `entrypoint` proposed as named evaluation/run profile over existing contract, `section` as grouping-only source organization; no parser implementation |
+| `../discussions/stage3-round8-pre-gate3-pressure-v0.md` | complete — routed | X1 grouped executor approval token, executor cache-key proof, report/runtime enforcement, and stream metadata as pre-Gate-3 prerequisite package |
 | `stage3-round8-status-curation-v0.md` | done | R8 status/index/context sync — this track |
 
 ## Stage 3 Round 7 Evidence
@@ -69,12 +81,12 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Surface | Freshness | Anchor | Notes |
 |---------|-----------|--------|-------|
-| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget; S3-R8 next movement refreshed |
+| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget; S3-R9 next movement refreshed |
 | `docs/spec/ch4-fragment-classification.md` | synced | `spec-ch4-temporal-fragment-sync-v0.md` | TEMPORAL fragment and node/value split current |
 | `docs/spec/ch5-compiler-pipeline.md` | synced + discharged | `spec-ch5-emit-typed-sync-v0.md`; `invariant-typed-shape-discharge-v0.md` | `emit_typed` production path current; `invariant_valid` typed-shape delta accepted as production shape |
-| `docs/spec/ch6-semanticir.md` | synced | `spec-ch6-semanticir-temporal-sync-v0.md` | TEMPORAL SemanticIR/.igapp/manifest/guard current |
-| `docs/spec/ch7-runtime.md` | synced + R8 boundary proofs | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `runtime-smoke-post-switch-full-coverage-v0.md`; `runtime-compatibility-report-executor-boundary-v0.md` | full post-switch smoke and executor-boundary report current; production executor/cache still closed |
-| `docs/proposals/README.md` | synced | `proposal-lifecycle-index-sync-v0.md`; `prop-029-entrypoint-section-surface-v0.md` | Stage 2 closed, PROP-028 implementation-partial, PROP-022A experiment-pass, PROP-029 proposal-only |
+| `docs/spec/ch6-semanticir.md` | synced + stream metadata | `spec-ch6-semanticir-temporal-sync-v0.md`; `stream-replay-metadata-emission-v0.md` | TEMPORAL shape current; STREAM replay metadata emitted in SemanticIR and assembled `stream_nodes` |
+| `docs/spec/ch7-runtime.md` | synced + R9 prerequisite proofs | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `executor-boundary-cache-key-contract-v0.md`; `guarded-runtime-c2-profile-consistency-v0.md`; `prop-030-executor-approval-token-contract-v0.md` | Gate 3 prerequisite package landed; production executor/cache still closed |
+| `docs/proposals/README.md` | synced | `proposal-lifecycle-index-sync-v0.md`; `prop-029-entrypoint-section-surface-v0.md`; `prop-030-executor-approval-token-contract-v0.md` | Stage 2 closed, PROP-028 implementation-partial, PROP-022A experiment-pass, PROP-029/030 proposal-only |
 
 ---
 
@@ -262,13 +274,13 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `descriptor-gate2-architect-ratification-record-v0` | Architect Supervisor records Gate 2 as ratified or redirects the metadata-only descriptor exposure decision | Architect Supervisor / Bridge Agent | approval |
-| `compatibility-report-package-descriptor-consumption-v0` | Implement metadata-only package descriptor consumption in CompatibilityReport after Gate 2 ratification; keep `runtime_enforced=false` | Bridge Agent | gated on ratification |
-| `runtime-executor-approval-token-contract-v0` | Define the production executor approval token/field that replaces proof-only `approved_placeholder`; still no live execution | Research Agent + Bridge Agent | pre-Gate-3 |
-| `stream-replay-metadata-emission-v0` | Make stream replay metadata explicit in emitted SemanticIR/.igapp instead of proof-local smoke defaults | Compiler/Grammar Expert + Research Agent | recommended |
+| `compatibility-report-package-descriptor-consumption-v0` | Consume ratified Gate 2 descriptor metadata into report-only CompatibilityReport backend_check; preserve non-authorization and `runtime_enforced=false` | Bridge Agent | recommended |
+| `executor-approval-token-report-proof-v0` | Extend CompatibilityReport with PROP-030 token validation matrix; prove no executor/TBackend/Ledger call is attempted | Research Agent + Bridge Agent | prerequisite proof |
+| `guarded-runtime-executor-approval-enforcement-v0` | Prove GuardedRuntimeMachine enforces the PROP-030 token/report decision and refuses valid-token/Gate-3-closed | Research Agent | prerequisite proof |
+| `runtime-report-enforcement-preflight-v0` | Define/verify that future RuntimeMachine checks `evaluation_readiness` before executor/cache use | Research Agent / Runtime Agent | pre-Gate-3 |
 | `invariant-source-metadata-preservation-v0` | Preserve invariant severity metadata from source/classifier path so runtime smoke no longer needs typed-fixture-only metadata | Compiler/Grammar Expert | recommended |
 | `entrypoint-section-parser-typechecker-v0` | Implement and prove PROP-029 contextual parser/typechecker behavior only after proposal acceptance | Compiler/Grammar Expert | gated |
-| `runtime-temporal-executor-gate3-request-v0` | Prepare, not implement, the explicit Gate 3 question for live temporal executor/TBackend binding and required proof list | Bridge Agent + Research Agent | still gated |
+| `runtime-temporal-executor-gate3-request-v0` | Prepare, not implement, the explicit Gate 3 question for live temporal executor/TBackend binding and required proof list | Bridge Agent + Research Agent | still closed/gated |
 | `gem-release-ci-wiring-v0` | Wire `bin/release-gate` into CI or preserve release artifacts/checksum under an approved release record; publish remains gated | Research Agent | optional |
 | `syntax-thresholds-and-constants-prop-v0` | Draft proposal for named thresholds/constants from S3-R4 review signals; no parser implementation yet | Compiler/Grammar Expert | proposal |
 | `syntax-external-pure-helper-signatures-prop-v0` | Draft proposal for `external pure fn(...) -> T` helper signatures and effect/evidence annotations | Compiler/Grammar Expert + Bridge Agent | proposal |

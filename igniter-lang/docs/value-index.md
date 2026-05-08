@@ -153,14 +153,32 @@ Source:
 
 Signal: CORE cache key is `f(inputs)`; TEMPORAL cache key is
 `f(inputs, as_of/Tt)`. Any CORE-shaped cache key for TEMPORAL is a silent
-staleness bug.
+staleness bug and must refuse at the executor boundary.
 
 Status: current
 
 Source:
 - [proposals/PROP-028-temporal-fragment-class-v0.md](proposals/PROP-028-temporal-fragment-class-v0.md)
 - [tracks/temporal-cache-key-proof-v0.md](tracks/temporal-cache-key-proof-v0.md)
+- [tracks/executor-boundary-cache-key-contract-v0.md](tracks/executor-boundary-cache-key-contract-v0.md)
 - [spec/ch7-runtime.md](spec/ch7-runtime.md)
+
+---
+
+## Compiler Boundary
+
+### Stream Replay Metadata Lives In SemanticIR And `.igapp`
+
+Signal: The current stream replay contract is explicit in SemanticIR nodes and
+assembled `stream_nodes`; runtime smoke no longer depends on hidden
+proof-local stream defaults.
+
+Status: current
+
+Source:
+- [tracks/stream-replay-metadata-emission-v0.md](tracks/stream-replay-metadata-emission-v0.md)
+- [tracks/runtime-smoke-post-switch-full-coverage-v0.md](tracks/runtime-smoke-post-switch-full-coverage-v0.md)
+- [spec/ch6-semanticir.md](spec/ch6-semanticir.md)
 
 ---
 
@@ -207,12 +225,13 @@ Source:
 
 ### Gate 2 And Gate 3 Must Stay Separate
 
-Signal: Gate 2 allows metadata-only descriptor exposure; Gate 3 is live
-Ledger/TBackend read/write/replay/runtime binding and remains closed.
+Signal: Gate 2 is ratified for metadata-only descriptor exposure; Gate 3 is
+live Ledger/TBackend read/write/replay/runtime binding and remains closed.
 
 Status: current
 
 Source:
+- [tracks/descriptor-gate2-architect-ratification-record-v0.md](tracks/descriptor-gate2-architect-ratification-record-v0.md)
 - [tracks/descriptor-package-exposure-gate2-ratification-v0.md](tracks/descriptor-package-exposure-gate2-ratification-v0.md)
 - [tracks/descriptor-compatibility-package-consumption-v0.md](tracks/descriptor-compatibility-package-consumption-v0.md)
 - [agent-context.md](agent-context.md)

@@ -80,6 +80,9 @@ Source .ig
        CompatibilityReport load/eval split      ✅ report-only
        full post-switch smoke                   ✅ all six emit_typed surfaces
        executor/live-binding report profiles    ✅ modeled; still blocked
+       ExecutorApprovalToken proposal           ✅ prerequisite only
+       executor cache-key boundary              ✅ TEMPORAL key or L-T5 refusal
+       C2 guarded-runtime consistency           ✅ mapped refusal
        evaluate TEMPORAL                        🚫 refused until executor/TBackend
        memoize TEMPORAL                         🚫 proof-local only
   -> Ledger / TBackend
@@ -87,6 +90,9 @@ Source .ig
        descriptor report mapping                ✅ report-only
        Gate 2 ratification record               ✅ ratified
        live operations                          🚫 Gate 3 closed
+  -> Stream replay
+       assembled stream_nodes metadata          ✅ emitted
+       production stream executor               🚫 not authorized
   -> Release
        release-gate artifact/checksum           ✅ PASS
        RubyGems publish                         🚫 approval/MFA required
@@ -116,6 +122,7 @@ legacy/internal comparison, not the production path.
 | Runtime cache | PROOF-LOCAL | Cache key/memoization proofs exist; no production cache. |
 | TBackend Gate 1 | PASS | Report-only descriptor consumption fixture. |
 | TBackend Gate 2 | RATIFIED | Metadata-only package descriptor exposure and report-only descriptor mapping are trusted report metadata; no runtime authority. |
+| Gate 3 prerequisite package | LANDED | Gate 2 ratified, PROP-030 drafted, executor cache-key proof and guarded-runtime consistency landed; this is not Gate 3 authorization. |
 | TBackend Gate 3 | CLOSED | No Ledger read/write/replay/runtime binding. |
 | Release publish | CLOSED | `bin/release-gate` may build artifacts; RubyGems publish needs explicit approval and MFA owner action. |
 | Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; no syntax is canon without proposal/proof. |
@@ -202,10 +209,11 @@ Do not run broad expensive suites just to curate maps.
 Recommended next routing from the latest status map:
 
 1. `compatibility-report-package-descriptor-consumption-v0`
-2. `runtime-executor-approval-token-contract-v0`
-3. `stream-replay-metadata-emission-v0`
-4. `invariant-source-metadata-preservation-v0`
-5. `entrypoint-section-parser-typechecker-v0`
-6. `runtime-temporal-executor-gate3-request-v0`
-7. `gem-release-ci-wiring-v0`
-8. `invariant-persistence-boundary-v0`
+2. `executor-approval-token-report-proof-v0`
+3. `guarded-runtime-executor-approval-enforcement-v0`
+4. `runtime-report-enforcement-preflight-v0`
+5. `invariant-source-metadata-preservation-v0`
+6. `entrypoint-section-parser-typechecker-v0`
+7. `runtime-temporal-executor-gate3-request-v0`
+8. `gem-release-ci-wiring-v0`
+9. `invariant-persistence-boundary-v0`

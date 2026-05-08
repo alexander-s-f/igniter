@@ -82,7 +82,8 @@ TBackend          ✅ gate2   descriptor package exposure ratified;
                             Gate 2 record landed; Gate 3 closed
 Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             executor/live-binding report flags still blocked;
-                            PROP-030 approval token drafted; no prod execution/cache
+                            Gate 3 prerequisite package landed;
+                            no prod execution/cache
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open
@@ -151,6 +152,10 @@ Round 8 landed:
   S3-R8-C4-P: PROP-029 entrypoint/section       ✅ proposal drafted; no parser implementation
 Round 9 landed:
   S3-R9-C1-G: descriptor Gate 2 record          ✅ ratified; metadata-only; Gate 3 closed
+  S3-R9-C2-P: PROP-030 approval token           ✅ proposal drafted; Gate 3 prerequisite, not auth
+  S3-R9-C3-P: executor cache-key contract       ✅ TEMPORAL keys required; CORE-shaped keys refused
+  S3-R9-C4-P: guarded runtime consistency       ✅ C2 profiles blocked in report and runtime guard
+  S3-R9-C5-P: stream replay metadata            ✅ stream_nodes emitted; smoke uses assembled metadata
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token;
                   other syntax candidates require proposal tracks
@@ -191,6 +196,9 @@ Source .ig
        CompatibilityReport load/eval split      ✅ S3-R7-C1
        six-surface post-switch smoke            ✅ S3-R8-C1
        executor/live-binding positive flags     ✅ modeled; still blocked
+       ExecutorApprovalToken proposal           ✅ S3-R9-C2; prerequisite only
+       executor cache-key boundary              ✅ S3-R9-C3; TEMPORAL key or L-T5 refusal
+       guarded runtime C2 consistency           ✅ S3-R9-C4; mapped refusal
        evaluate TEMPORAL                        🚫 refused until runtime executor/TBackend
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
@@ -198,6 +206,9 @@ Source .ig
        descriptor report mapping                ✅ report-only; runtime_enforced=false
        Gate 2 ratification record               ✅ ratified; metadata-only
        live reads/writes/replay                 🚫 Gate 3 closed
+  -> Stream replay
+       stream_nodes metadata                    ✅ emitted in SemanticIR/.igapp
+       production stream executor               🚫 not authorized
   -> Release
        release-gate + artifact/checksum         ✅ PASS
        RubyGems publish                         🚫 approval/MFA required
@@ -215,6 +226,7 @@ invariant_valid delta: accepted/discharged ✅ typed path adds invariant nodes +
 Ledger descriptor:   metadata-only ✅ package specs PASS
 CompatibilityReport: load/evaluate split + descriptor mapping ✅; report-only metadata; runtime_enforced false
 Executor boundary:   positive executor/live-binding flags modeled ✅; explicit approval + Gate 3 still required
+Gate 3 prerequisites: Gate 2 ratified ✅; PROP-030 drafted ✅; executor cache-key proof ✅; guard/report consistency ✅
 Runtime observations: proof-backed ⏳ production persistence open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; runtime evaluate refused by guard
@@ -230,19 +242,20 @@ Discussion pressure: S3-R4-X1 resolved to contract_index/load-guard tracks; both
 Runtime pressure:    S3-R7-X1 says no current production bug; expand smoke/report boundary before Gate 3
 S3-R8 runtime result: full smoke + executor-boundary report closed the named pre-Gate-3 pressure gaps;
                       Gate 3 itself remains closed
+S3-R9 package:        Gate 3 prerequisites landed as proposal/proofs/metadata; Gate 3 still not opened
 ```
 
 ### Spec Freshness
 
 | Surface | Freshness | Current anchor | Remaining doc debt |
 |---------|-----------|----------------|--------------------|
-| Agent context | ✅ current S3-R8 | `docs/agent-context.md` | Keep next movement in sync after each status round |
+| Agent context | ✅ current S3-R9 | `docs/agent-context.md` | Keep next movement in sync after each status round |
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R7 discharge | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0` | C-8 invariant typed-shape delta discharged; remaining legacy deltas are not production blockers |
-| Ch6 SemanticIR / .igapp | ✅ synced S3-R6 | `spec-ch6-semanticir-temporal-sync-v0` | Future runtime executor/Gate 3 changes will need another sync |
-| Ch7 Runtime | ✅ synced S3-R6 + R8 boundary proofs | `spec-ch7-runtime-temporal-cache-sync-v0`; `runtime-smoke-post-switch-full-coverage-v0`; `runtime-compatibility-report-executor-boundary-v0`; `PROP-030-executor-approval-token-contract-v0` | TBackend/live temporal executor remains closed; approval token is proposal-only until runtime proof |
-| Proposal index | ✅ synced S3-R8 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029 is proposal-only |
+| Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0` | Future production stream executor/live ingress still needs authorization |
+| Ch7 Runtime | ✅ synced S3-R9 prerequisite proofs | `spec-ch7-runtime-temporal-cache-sync-v0`; `PROP-030-executor-approval-token-contract-v0`; `executor-boundary-cache-key-contract-v0`; `guarded-runtime-c2-profile-consistency-v0` | TBackend/live temporal executor remains closed; approval token runtime proof/enforcement still future |
+| Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
 
@@ -250,10 +263,10 @@ S3-R8 runtime result: full smoke + executor-boundary report closed the named pre
 
 ```text
 DOC-DEBT-01  Update agent-context.md next movement after each status round.
-DOC-DEBT-02  Keep S3-R8 runtime follow-ups visible:
-             PROP-030 runtime proof slices, stream replay metadata,
-             invariant source/classifier metadata preservation.
-DOC-DEBT-03  Keep Gate 2/Gate 3 boundary visible after ratification:
+DOC-DEBT-02  Keep S3-R9 runtime follow-ups visible:
+             PROP-030 token report proof, guarded runtime approval enforcement,
+             production RuntimeMachine report enforcement, invariant metadata.
+DOC-DEBT-03  Keep Gate 2/Gate 3 boundary visible after Gate 2 ratification:
              descriptor metadata is not runtime authority.
 DOC-DEBT-04  Keep PROP-029 proposal-only until parser/typechecker proof acceptance.
 DOC-DEBT-05  Keep value-index.md compact; hoist durable signals, not routine evidence.
