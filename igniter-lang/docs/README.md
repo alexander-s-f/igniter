@@ -12,6 +12,7 @@ Last updated: 2026-05-08
 
 ```
 Agent current context       → agent-context.md  (read this first for current horizon + proof budget)
+Hoisted value index         → value-index.md  (durable ideas + links back to archaeology)
 Language reference             → language-spec.md
 Operating model                → operating-model.md
 Stage 1 spec (frozen)          → spec/  (ch1–ch9)
@@ -25,6 +26,7 @@ Human-agent vision            → meta-proposals/META-EXPERT-010-human-agent-sym
 External/cross-agent reviews   → reviews/README.md
 Stage 1 close snapshot         → archive/snapshots/2026-05-06-stage1-close/
 Pre-crystallization archive    → archive/snapshots/2026-05-06-stage1-pre-crystallization/
+Stage 3 R7 docs snapshot       → archive/snapshots/2026-05-08-stage3-r7-docs-snapshot/
 ```
 
 ---
@@ -119,6 +121,7 @@ ruby igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixt
 | Document | Purpose |
 |----------|---------|
 | [agent-context.md](agent-context.md) | Trusted current-context capsule: current horizon, source-of-truth hierarchy, active gates, proof/test budget |
+| [value-index.md](value-index.md) | Hoisted durable ideas by category, with links back to tracks/discussions/archive |
 | [current-status.md](current-status.md) | Scoreboard (Stage 1 closed state) |
 | [operating-model.md](operating-model.md) | Supervisor-owned agent/documentation flow |
 | [discussions/README.md](discussions/README.md) | Bounded debate format before proposal/track routing |
@@ -138,4 +141,7 @@ docs/archive/snapshots/2026-05-06-stage1-close/
 
 docs/archive/snapshots/2026-05-06-stage1-pre-crystallization/
   Pre-crystallization research archive (131 files: tracks, proposals, bridge, meta-proposals)
+
+docs/archive/snapshots/2026-05-08-stage3-r7-docs-snapshot/
+  Working-memory safety snapshot after Stage 3 Round 7, before value-hoisting/compaction
 ```

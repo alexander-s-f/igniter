@@ -32,6 +32,7 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Track | Status | Notes |
 |-------|--------|-------|
+| `docs-value-hoisting-micro-round-v0.md` | done | docs micro-round: cold snapshot after S3-R7 plus `../value-index.md` as hoisted durable-idea map |
 | `runtime-compatibility-report-temporal-load-check-v0.md` | done | CompatibilityReport-shaped boundary separates bundle load from evaluation readiness; TEMPORAL loads for inspection while evaluation remains blocked; report-only and `runtime_enforced=false` |
 | `invariant-typed-shape-discharge-v0.md` | done | `invariant_valid` typed shape accepted as production shape; C-8 delta discharged; no rollback to parsed emitter |
 | `runtime-smoke-temporal-post-switch-v0.md` | done | post-switch CORE Add bundle evaluates (`sum=42`); TEMPORAL BiHistory bundle loads for inspection and refuses evaluation structurally |

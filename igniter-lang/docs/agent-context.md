@@ -32,6 +32,11 @@ Every non-discussion slice should read, in order:
 7. assigned track/proposal/source files
 8. relevant spec chapters only when the card touches language semantics
 
+Read `igniter-lang/docs/value-index.md` when the card asks for strategy,
+documentation compaction, archaeology routing, applied pressure, or next-round
+planning. It is a hoisted durable-idea map, not required context for every
+implementation slice.
+
 Discussion cards should also read:
 
 ```text

@@ -210,6 +210,7 @@ Gate 2 descriptor:   ratification recommended ✅; Gate 3 production binding clo
 Stage 2 close:       PASS (stage2_close_candidate.json)
 Stage 1 regression:  PASS
 Archive:             Stage 2 close snapshot ✅ docs/archive/snapshots/2026-05-07-stage2-close/
+Docs memory:         S3-R7 docs snapshot ✅ + value-index hoisted memory layer ✅
 АИ/СОИ lens:         soft Stage 3 governance/review vocabulary; not a hard gate
 Syntax pressure:     registry + specimens + review routing done; threshold/external pure/entrypoint-section are proposal candidates, not parser canon
 Discussion pressure: S3-R4-X1 resolved to contract_index/load-guard tracks; both landed in R5
@@ -221,6 +222,7 @@ Runtime pressure:    S3-R7-X1 says no current production bug; expand smoke/repor
 | Surface | Freshness | Current anchor | Remaining doc debt |
 |---------|-----------|----------------|--------------------|
 | Agent context | ✅ current S3-R7 | `docs/agent-context.md` | Keep next movement in sync after each status round |
+| Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R7 discharge | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0` | C-8 invariant typed-shape delta discharged; remaining legacy deltas are not production blockers |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R6 | `spec-ch6-semanticir-temporal-sync-v0` | Future runtime executor/Gate 3 changes will need another sync |
@@ -236,6 +238,7 @@ DOC-DEBT-01  Update agent-context.md next movement after each status round.
 DOC-DEBT-02  Keep S3-R7 runtime pressure gaps visible until routed:
              full post-switch smoke, executor-boundary case, C1/C3 cross-check.
 DOC-DEBT-03  Keep entrypoint/section as proposal-candidate only until a PROP is accepted.
+DOC-DEBT-04  Keep value-index.md compact; hoist durable signals, not routine evidence.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
