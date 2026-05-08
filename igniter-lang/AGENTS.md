@@ -15,6 +15,7 @@ Current accepted default agent names:
 - `[Igniter-Lang Applied Pressure Agent]`
 - `[Igniter-Lang Meta Expert]`
 - `[Igniter-Lang Archive/Form Expert]`
+- `[Igniter-Lang External Pressure Reviewer]`
 
 Before authoring anything, read [roles/README.md](roles/README.md) and the
 role profile file for your assigned role.
@@ -111,6 +112,15 @@ Role details live in [roles/](roles/). Short map:
 - inherits Compiler/Grammar discipline as a filter: recovered ideas need
   parser/type/runtime/diagnostics/bridge pressure before promotion
 - does not write executable proofs or implementation directly
+
+`[Igniter-Lang External Pressure Reviewer]`
+
+- owns outside review pressure only: fresh-context critique, gap discovery,
+  comprehension testing, product/runtime/performance risks
+- does not write canon, status maps, formal PROP docs, executable proofs, or
+  implementation
+- its output must be routed through Architect Supervisor / Meta Expert before
+  becoming a track, proposal, backlog item, or rejection
 
 ## Research Policy
 
