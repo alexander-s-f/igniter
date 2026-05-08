@@ -1,0 +1,19 @@
+{
+  "canonical_artifact": "semantic_ir_program.json",
+  "canonical_semantic_ir_ref": "semanticir/history-valid-te",
+  "compilation_report_ref": "compilation_report/history-valid-te",
+  "format_version": "0.1.0",
+  "kind": "igapp_compatibility_metadata",
+  "loader_shape": "runtime_machine_memory_proof.prop0191_direct_v0",
+  "notes": [
+    "semantic_ir_program.json preserves PROP-019.1 envelope",
+    "RuntimeMachine proof loader reads semantic_ir_program.json directly",
+    "temporal_input_node and temporal_access_node are preserved as non-compute contract nodes",
+    "temporal runtime execution requires a separate RuntimeMachine temporal adapter/hook slice"
+  ],
+  "runtime_compatibility_artifact": null,
+  "runtime_execution": {
+    "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+    "status": "unsupported"
+  }
+}

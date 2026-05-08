@@ -1,0 +1,294 @@
+{
+  "kind": "temporal_requirements_from_escape_boundaries_proof",
+  "format_version": "0.1.0",
+  "track": "temporal-requirements-from-escape-boundaries-v0",
+  "status": "PASS",
+  "cases": {
+    "core_add": {
+      "semantic_ir_path": "igniter-lang/experiments/source_to_semanticir_fixture/golden/add.semantic_ir.json",
+      "fragments": [
+        "core"
+      ],
+      "escape_boundaries": [],
+      "expected_caps": [],
+      "requirements": {
+        "temporal": {
+          "requires_as_of": false,
+          "requires_valid_time": false,
+          "requires_transaction_time": false,
+          "requires_replay": false,
+          "requires_snapshot": false,
+          "min_consistency": "strong",
+          "axes": [],
+          "coordinate_refs": [],
+          "windows": [],
+          "slices": []
+        },
+        "lifecycle": {
+          "min_lifecycle": "local",
+          "has_audit": false,
+          "has_window": false
+        },
+        "fragments": [
+          "core"
+        ],
+        "capabilities": {
+          "required_caps": [],
+          "effect_kinds": []
+        },
+        "effects": [],
+        "ffi": [],
+        "required_tbackend_caps": {
+          "read_as_of": false,
+          "append_atomic": false,
+          "replay_enabled": false,
+          "snapshot_enabled": false,
+          "compact_enabled": false,
+          "subscribe_enabled": false,
+          "consistency": "strong"
+        }
+      }
+    },
+    "history_valid": {
+      "semantic_ir_path": "igniter-lang/experiments/temporal_semanticir_access_node/golden/history_valid.semantic_ir.json",
+      "fragments": [
+        "temporal"
+      ],
+      "escape_boundaries": [
+        {
+          "name": "history_read",
+          "required_caps": [
+            "history_read"
+          ],
+          "produces": [
+            "history_access_observation"
+          ]
+        }
+      ],
+      "expected_caps": [
+        "history_read"
+      ],
+      "requirements": {
+        "temporal": {
+          "requires_as_of": true,
+          "requires_valid_time": true,
+          "requires_transaction_time": false,
+          "requires_replay": false,
+          "requires_snapshot": false,
+          "min_consistency": "strong",
+          "axes": [
+            "valid_time"
+          ],
+          "coordinate_refs": [
+            {
+              "node": "price_at",
+              "axis": "valid_time",
+              "coordinates": {
+                "as_of": "as_of"
+              }
+            }
+          ],
+          "windows": [],
+          "slices": []
+        },
+        "lifecycle": {
+          "min_lifecycle": "local",
+          "has_audit": true,
+          "has_window": false
+        },
+        "fragments": [
+          "temporal"
+        ],
+        "capabilities": {
+          "required_caps": [
+            "history_read"
+          ],
+          "effect_kinds": [
+            "history_access_observation"
+          ]
+        },
+        "effects": [],
+        "ffi": [],
+        "required_tbackend_caps": {
+          "read_as_of": true,
+          "append_atomic": false,
+          "replay_enabled": false,
+          "snapshot_enabled": false,
+          "compact_enabled": false,
+          "subscribe_enabled": false,
+          "consistency": "strong"
+        }
+      }
+    },
+    "bihistory_valid": {
+      "semantic_ir_path": "igniter-lang/experiments/temporal_semanticir_access_node/golden/bihistory_valid.semantic_ir.json",
+      "fragments": [
+        "temporal"
+      ],
+      "escape_boundaries": [
+        {
+          "name": "bihistory_read",
+          "required_caps": [
+            "bihistory_read"
+          ],
+          "produces": [
+            "bihistory_access_observation"
+          ]
+        }
+      ],
+      "expected_caps": [
+        "bihistory_read"
+      ],
+      "requirements": {
+        "temporal": {
+          "requires_as_of": true,
+          "requires_valid_time": true,
+          "requires_transaction_time": true,
+          "requires_replay": true,
+          "requires_snapshot": false,
+          "min_consistency": "strong",
+          "axes": [
+            "bitemporal"
+          ],
+          "coordinate_refs": [
+            {
+              "node": "avail_at",
+              "axis": "bitemporal",
+              "coordinates": {
+                "valid_time": "valid_time",
+                "transaction_time": "transaction_time"
+              }
+            }
+          ],
+          "windows": [],
+          "slices": []
+        },
+        "lifecycle": {
+          "min_lifecycle": "local",
+          "has_audit": true,
+          "has_window": false
+        },
+        "fragments": [
+          "temporal"
+        ],
+        "capabilities": {
+          "required_caps": [
+            "bihistory_read"
+          ],
+          "effect_kinds": [
+            "bihistory_access_observation"
+          ]
+        },
+        "effects": [],
+        "ffi": [],
+        "required_tbackend_caps": {
+          "read_as_of": true,
+          "append_atomic": false,
+          "replay_enabled": true,
+          "snapshot_enabled": false,
+          "compact_enabled": false,
+          "subscribe_enabled": false,
+          "consistency": "strong"
+        }
+      }
+    },
+    "stream_window": {
+      "semantic_ir_path": "igniter-lang/experiments/stream_t_proof/golden/semantic_ir_program.json",
+      "fragments": [
+        "escape"
+      ],
+      "escape_boundaries": [
+        {
+          "name": "stream_input",
+          "produces": [
+            "stream_window_observation"
+          ],
+          "required_caps": [
+            "stream_input"
+          ]
+        }
+      ],
+      "expected_caps": [
+        "stream_input"
+      ],
+      "requirements": {
+        "temporal": {
+          "requires_as_of": false,
+          "requires_valid_time": false,
+          "requires_transaction_time": false,
+          "requires_replay": false,
+          "requires_snapshot": false,
+          "min_consistency": "strong",
+          "axes": [],
+          "coordinate_refs": [],
+          "windows": [],
+          "slices": []
+        },
+        "lifecycle": {
+          "min_lifecycle": "local",
+          "has_audit": false,
+          "has_window": true
+        },
+        "fragments": [
+          "escape"
+        ],
+        "capabilities": {
+          "required_caps": [
+            "stream_input"
+          ],
+          "effect_kinds": [
+            "stream_window_observation"
+          ]
+        },
+        "effects": [],
+        "ffi": [],
+        "required_tbackend_caps": {
+          "read_as_of": false,
+          "append_atomic": false,
+          "replay_enabled": false,
+          "snapshot_enabled": false,
+          "compact_enabled": false,
+          "subscribe_enabled": false,
+          "consistency": "strong"
+        }
+      }
+    }
+  },
+  "checks": {
+    "core_add.caps_from_escape_boundaries": true,
+    "core_add.expected_caps": true,
+    "core_add.expected_fragment": true,
+    "core_add.read_as_of": true,
+    "core_add.replay_enabled": true,
+    "core_add.has_window": true,
+    "history_valid.caps_from_escape_boundaries": true,
+    "history_valid.expected_caps": true,
+    "history_valid.expected_fragment": true,
+    "history_valid.read_as_of": true,
+    "history_valid.replay_enabled": true,
+    "history_valid.has_window": true,
+    "bihistory_valid.caps_from_escape_boundaries": true,
+    "bihistory_valid.expected_caps": true,
+    "bihistory_valid.expected_fragment": true,
+    "bihistory_valid.read_as_of": true,
+    "bihistory_valid.replay_enabled": true,
+    "bihistory_valid.has_window": true,
+    "stream_window.caps_from_escape_boundaries": true,
+    "stream_window.expected_caps": true,
+    "stream_window.expected_fragment": true,
+    "stream_window.read_as_of": true,
+    "stream_window.replay_enabled": true,
+    "stream_window.has_window": true,
+    "core_vs_history_requirements_differ": true,
+    "core_vs_bihistory_requirements_differ": true,
+    "core_vs_stream_requirements_differ": true,
+    "history_requires_valid_time_only": true,
+    "bihistory_requires_valid_and_transaction_time": true,
+    "stream_does_not_require_temporal_tbackend": true
+  },
+  "compatibility": {
+    "c1_temporal_semanticir_access_node": "Consumes SemanticIR escape_boundaries emitted beside temporal_access_node without changing node shape.",
+    "c2_runtime_temporal_cache_contract": "Records temporal capabilities only; no cache key, memoization, Ledger call, or live runtime enforcement is added.",
+    "compatibility_report_descriptor": "Provides descriptor-readable required_caps while remaining report-only."
+  }
+}

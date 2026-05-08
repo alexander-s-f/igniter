@@ -121,8 +121,9 @@ module IgniterLang
     def build_artifact(case_name, report, semantic_ir)
       contracts = semantic_ir.fetch("contracts").map { |contract| contract_file(contract) }
       contract_ids = contracts.map { |contract| contract.fetch("contract_id") }.sort
-      fragment_class = contracts.map { |contract| contract.fetch("fragment_class") }.uniq == ["core"] ? "core" : "mixed"
-      requirements = requirements_for
+      fragment_classes = contracts.map { |contract| contract.fetch("fragment_class") }.uniq
+      fragment_class = fragment_classes.length == 1 ? fragment_classes.first : "mixed"
+      requirements = requirements_for(semantic_ir)
       classified_ast = classified_ast_for(report, semantic_ir, contract_ids, fragment_class)
       diagnostics = { "diagnostics" => report.fetch("diagnostics") }
       compatibility_metadata = compatibility_metadata_for(report, semantic_ir)
@@ -182,7 +183,10 @@ module IgniterLang
       contract_id = contract_ir.fetch("contract_name")
       input_ports = ports(contract_ir.fetch("inputs"))
       output_ports = ports(contract_ir.fetch("outputs"))
-      compute_nodes = contract_ir.fetch("nodes").map do |node|
+      semantic_nodes = contract_ir.fetch("nodes")
+      compute_nodes = semantic_nodes.filter_map do |node|
+        next unless compute_node?(node)
+
         {
           "node_id" => "node_#{node.fetch("name")}",
           "name" => node.fetch("name"),
@@ -195,8 +199,13 @@ module IgniterLang
           "expression" => compat_expr(node.fetch("expr"))
         }
       end
+      temporal_nodes = semantic_nodes.filter_map do |node|
+        next unless temporal_node?(node)
 
-      {
+        temporal_node_file(node)
+      end
+
+      result = {
         "contract_id" => contract_id,
         "source_contract_ref" => contract_ir.fetch("contract_ref"),
         "name" => contract_id,
@@ -211,6 +220,48 @@ module IgniterLang
           "outputs" => output_ports.to_h { |port| [port.fetch("name"), port.fetch("type_tag")] }
         }
       }
+      result["temporal_nodes"] = temporal_nodes unless temporal_nodes.empty?
+      result
+    end
+
+    def compute_node?(node)
+      node.key?("expr") && node.key?("type")
+    end
+
+    def temporal_node?(node)
+      %w[temporal_input_node temporal_access_node].include?(node.fetch("kind", nil))
+    end
+
+    def temporal_node_file(node)
+      result = {
+        "node_id" => "node_#{node.fetch("name")}",
+        "name" => node.fetch("name"),
+        "kind" => node.fetch("kind"),
+        "fragment_class" => node.fetch("fragment", node.fetch("node_fragment_class", "temporal")),
+        "node_fragment_class" => node.fetch("node_fragment_class"),
+        "value_fragment_class" => node.fetch("value_fragment_class"),
+        "lifecycle" => node.fetch("lifecycle", "session"),
+        "obs_kind" => temporal_obs_kind(node),
+        "dependencies" => node.fetch("deps", []).map { |dep| "input:#{dep}" },
+        "required_capability" => node.fetch("required_capability"),
+        "required_caps" => node.fetch("required_caps", [node.fetch("required_capability")]),
+        "axis" => node.fetch("axis", node.fetch("temporal_axis", nil))
+      }
+      result["type_tag"] = type_name(node.fetch("type")) if node.key?("type")
+      result["result_type_tag"] = type_name(node.fetch("result_type")) if node.key?("result_type")
+      result["store_ref"] = node.fetch("store_ref") if node.key?("store_ref")
+      result["source_ref"] = node.fetch("source_ref") if node.key?("source_ref")
+      result["temporal_axis"] = node.fetch("temporal_axis") if node.key?("temporal_axis")
+      result["coordinate_refs"] = node.fetch("coordinate_refs") if node.key?("coordinate_refs")
+      result["as_of_ref"] = node.fetch("as_of_ref") if node.key?("as_of_ref")
+      result["valid_time_ref"] = node.fetch("valid_time_ref") if node.key?("valid_time_ref")
+      result["transaction_time_ref"] = node.fetch("transaction_time_ref") if node.key?("transaction_time_ref")
+      result["evidence_policy"] = node.fetch("evidence_policy") if node.key?("evidence_policy")
+      result
+    end
+
+    def temporal_obs_kind(node)
+      node.fetch("kind") == "temporal_input_node" ? "temporal_source_observation" : "temporal_access_observation"
     end
 
     def ports(port_irs)
@@ -250,6 +301,10 @@ module IgniterLang
 
     def type_name(type)
       return type if type.is_a?(String)
+      if type.key?("constructor")
+        element = type.fetch("element_type", nil)
+        return element ? "#{type.fetch("constructor")}[#{type_name(element)}]" : type.fetch("constructor")
+      end
 
       params = type.fetch("params", [])
       return type.fetch("name") if params.empty?
@@ -257,37 +312,62 @@ module IgniterLang
       "#{type.fetch("name")}[#{params.map { |param| type_name(param) }.join(",")}]"
     end
 
-    def requirements_for
+    def requirements_for(semantic_ir)
+      boundaries = semantic_ir.fetch("contracts").flat_map { |contract| contract.fetch("escape_boundaries", []) }
+      required_caps = boundaries.flat_map { |boundary| boundary.fetch("required_caps", []) }.uniq.sort
+      fragments = semantic_ir.fetch("contracts").map { |contract| contract.fetch("fragment_class") }.uniq.sort
+      temporal_nodes = semantic_ir.fetch("contracts").flat_map { |contract| contract.fetch("nodes", []) }
+        .select { |node| temporal_node?(node) }
+      temporal_access_nodes = temporal_nodes.select { |node| node.fetch("kind") == "temporal_access_node" }
+      temporal_axes = temporal_nodes.map { |node| node.fetch("axis", node.fetch("temporal_axis", nil)) }.compact.uniq.sort
+      temporal_caps = required_caps & %w[history_read bihistory_read]
+      stream_caps = required_caps & %w[stream_input]
+
       {
         "temporal" => {
-          "requires_as_of" => true,
-          "requires_replay" => false,
+          "requires_as_of" => temporal_caps.any?,
+          "requires_valid_time" => temporal_caps.any?,
+          "requires_transaction_time" => required_caps.include?("bihistory_read"),
+          "requires_replay" => required_caps.include?("bihistory_read"),
           "requires_snapshot" => false,
           "min_consistency" => "strong",
+          "axes" => temporal_axes,
+          "coordinate_refs" => temporal_access_nodes.map do |node|
+            {
+              "node" => node.fetch("name"),
+              "axis" => node.fetch("axis", node.fetch("temporal_axis")),
+              "coordinates" => node.fetch("coordinate_refs", {})
+            }
+          end,
           "windows" => [],
           "slices" => []
         },
         "lifecycle" => {
           "min_lifecycle" => "local",
-          "has_audit" => false,
-          "has_window" => false
+          "has_audit" => temporal_caps.any?,
+          "has_window" => stream_caps.any?
         },
+        "fragments" => fragments,
         "capabilities" => {
-          "required_caps" => [],
-          "effect_kinds" => []
+          "required_caps" => required_caps,
+          "effect_kinds" => effect_kinds_for(boundaries)
         },
         "effects" => [],
         "ffi" => [],
         "required_tbackend_caps" => {
-          "read_as_of" => true,
-          "append_atomic" => true,
-          "replay_enabled" => false,
+          "read_as_of" => temporal_caps.any?,
+          "append_atomic" => false,
+          "replay_enabled" => required_caps.include?("bihistory_read"),
           "snapshot_enabled" => false,
           "compact_enabled" => false,
           "subscribe_enabled" => false,
           "consistency" => "strong"
         }
       }
+    end
+
+    def effect_kinds_for(boundaries)
+      boundaries.flat_map { |boundary| boundary.fetch("produces", []) }.uniq.sort
     end
 
     def classified_ast_for(report, semantic_ir, contract_ids, fragment_class)
@@ -308,7 +388,7 @@ module IgniterLang
     end
 
     def compatibility_metadata_for(report, semantic_ir)
-      {
+      metadata = {
         "kind" => "igapp_compatibility_metadata",
         "format_version" => "0.1.0",
         "canonical_semantic_ir_ref" => semantic_ir.fetch("program_id"),
@@ -321,6 +401,23 @@ module IgniterLang
           "RuntimeMachine proof loader reads semantic_ir_program.json directly"
         ]
       }
+      if temporal_artifact?(semantic_ir)
+        metadata["runtime_execution"] = {
+          "status" => "unsupported",
+          "reason" => "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope"
+        }
+        metadata["notes"] += [
+          "temporal_input_node and temporal_access_node are preserved as non-compute contract nodes",
+          "temporal runtime execution requires a separate RuntimeMachine temporal adapter/hook slice"
+        ]
+      end
+      metadata
+    end
+
+    def temporal_artifact?(semantic_ir)
+      semantic_ir.fetch("contracts").any? do |contract|
+        contract.fetch("nodes", []).any? { |node| temporal_node?(node) }
+      end
     end
 
     def write_artifact(case_name, artifact)
@@ -357,7 +454,7 @@ module IgniterLang
       {
         "case" => case_name,
         "status" => "assembled",
-        "igapp_dir" => "experiments/igapp_assembler_proof/out/#{case_name}.igapp",
+        "igapp_dir" => (@out_dir / "#{case_name}.igapp").relative_path_from(ROOT).to_s,
         "program_id" => artifact.fetch("manifest").fetch("program_id"),
         "artifact_hash" => artifact.fetch("manifest").fetch("artifact_hash"),
         "semantic_ir_ref" => artifact.fetch("manifest").fetch("semantic_ir_ref"),

@@ -1,0 +1,436 @@
+{
+  "kind": "temporal_assembler_boundary_proof",
+  "format_version": "0.1.0",
+  "track": "temporal-assembler-boundary-v0",
+  "status": "PASS",
+  "artifact_placement": {
+    "contract_file": "temporal_input_node and temporal_access_node are preserved under contracts/*.json temporal_nodes",
+    "requirements": "required temporal capabilities, axes, and coordinate refs are copied into requirements.json",
+    "runtime_execution": "unsupported in this proof; compatibility_metadata.json carries an explicit guard"
+  },
+  "cases": {
+    "history_valid": {
+      "id": "history_valid",
+      "assembly": {
+        "case": "history_valid",
+        "status": "assembled",
+        "igapp_dir": "experiments/temporal_assembler_boundary/out/history_valid.igapp",
+        "program_id": "semanticir/history-valid-te",
+        "artifact_hash": "sha256:5d0582750cbd7146ed04266ef7fa72ad349d82f6b9f747d6a0798ca06ae3e888",
+        "semantic_ir_ref": "semanticir/history-valid-te",
+        "compilation_report_ref": "compilation_report/history-valid-te",
+        "contracts": [
+          "HistoryAxesTest"
+        ],
+        "files": [
+          "classified_ast.json",
+          "compatibility_metadata.json",
+          "compilation_report.json",
+          "contracts/history_axes_test.json",
+          "diagnostics.json",
+          "manifest.json",
+          "projections.json",
+          "requirements.json",
+          "semantic_ir_program.json"
+        ]
+      },
+      "manifest_fragment_class": "temporal",
+      "compiled_program_valid": true,
+      "compiled_program_validation_error": null,
+      "contract": {
+        "artifact_hash": "sha256:5d0582750cbd7146ed04266ef7fa72ad349d82f6b9f747d6a0798ca06ae3e888",
+        "compute_nodes": [],
+        "contract_id": "HistoryAxesTest",
+        "escape_set": [
+          {
+            "name": "history_read",
+            "produces": [
+              "history_access_observation"
+            ],
+            "required_caps": [
+              "history_read"
+            ]
+          }
+        ],
+        "fragment_class": "temporal",
+        "input_ports": [
+          {
+            "lifecycle": "local",
+            "name": "sku",
+            "required": true,
+            "type_tag": "String"
+          },
+          {
+            "lifecycle": "local",
+            "name": "as_of",
+            "required": true,
+            "type_tag": "DateTime"
+          }
+        ],
+        "lifecycle": "session",
+        "name": "HistoryAxesTest",
+        "output_ports": [
+          {
+            "lifecycle": "session",
+            "name": "price_at",
+            "required": true,
+            "type_tag": "Option[String]"
+          }
+        ],
+        "source_contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+        "temporal_nodes": [
+          {
+            "axis": "valid_time",
+            "dependencies": [],
+            "fragment_class": "temporal",
+            "kind": "temporal_input_node",
+            "lifecycle": "durable",
+            "name": "price_history",
+            "node_fragment_class": "temporal",
+            "node_id": "node_price_history",
+            "obs_kind": "temporal_source_observation",
+            "required_capability": "history_read",
+            "required_caps": [
+              "history_read"
+            ],
+            "store_ref": "sku/{sku}/price",
+            "type_tag": "History[String]",
+            "value_fragment_class": "core"
+          },
+          {
+            "as_of_ref": "as_of",
+            "axis": "valid_time",
+            "coordinate_refs": {
+              "as_of": "as_of"
+            },
+            "dependencies": [
+              "input:price_history",
+              "input:as_of"
+            ],
+            "evidence_policy": "link_selected_append_observation",
+            "fragment_class": "temporal",
+            "kind": "temporal_access_node",
+            "lifecycle": "session",
+            "name": "price_at",
+            "node_fragment_class": "temporal",
+            "node_id": "node_price_at",
+            "obs_kind": "temporal_access_observation",
+            "required_capability": "history_read",
+            "required_caps": [
+              "history_read"
+            ],
+            "result_type_tag": "Option[String]",
+            "source_ref": "price_history",
+            "temporal_axis": "valid_time",
+            "value_fragment_class": "core"
+          }
+        ],
+        "type_signature": {
+          "inputs": {
+            "as_of": "DateTime",
+            "sku": "String"
+          },
+          "outputs": {
+            "price_at": "Option[String]"
+          }
+        }
+      },
+      "requirements": {
+        "capabilities": {
+          "effect_kinds": [
+            "history_access_observation"
+          ],
+          "required_caps": [
+            "history_read"
+          ]
+        },
+        "effects": [],
+        "ffi": [],
+        "fragments": [
+          "temporal"
+        ],
+        "lifecycle": {
+          "has_audit": true,
+          "has_window": false,
+          "min_lifecycle": "local"
+        },
+        "required_tbackend_caps": {
+          "append_atomic": false,
+          "compact_enabled": false,
+          "consistency": "strong",
+          "read_as_of": true,
+          "replay_enabled": false,
+          "snapshot_enabled": false,
+          "subscribe_enabled": false
+        },
+        "temporal": {
+          "axes": [
+            "valid_time"
+          ],
+          "coordinate_refs": [
+            {
+              "axis": "valid_time",
+              "coordinates": {
+                "as_of": "as_of"
+              },
+              "node": "price_at"
+            }
+          ],
+          "min_consistency": "strong",
+          "requires_as_of": true,
+          "requires_replay": false,
+          "requires_snapshot": false,
+          "requires_transaction_time": false,
+          "requires_valid_time": true,
+          "slices": [],
+          "windows": []
+        }
+      },
+      "compatibility_metadata": {
+        "canonical_artifact": "semantic_ir_program.json",
+        "canonical_semantic_ir_ref": "semanticir/history-valid-te",
+        "compilation_report_ref": "compilation_report/history-valid-te",
+        "format_version": "0.1.0",
+        "kind": "igapp_compatibility_metadata",
+        "loader_shape": "runtime_machine_memory_proof.prop0191_direct_v0",
+        "notes": [
+          "semantic_ir_program.json preserves PROP-019.1 envelope",
+          "RuntimeMachine proof loader reads semantic_ir_program.json directly",
+          "temporal_input_node and temporal_access_node are preserved as non-compute contract nodes",
+          "temporal runtime execution requires a separate RuntimeMachine temporal adapter/hook slice"
+        ],
+        "runtime_compatibility_artifact": null,
+        "runtime_execution": {
+          "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+          "status": "unsupported"
+        }
+      }
+    },
+    "bihistory_valid": {
+      "id": "bihistory_valid",
+      "assembly": {
+        "case": "bihistory_valid",
+        "status": "assembled",
+        "igapp_dir": "experiments/temporal_assembler_boundary/out/bihistory_valid.igapp",
+        "program_id": "semanticir/a97da15bba17da42",
+        "artifact_hash": "sha256:453d97b33ae53496d2bb8de66b21a67a2374d68e8f801d6dc5b3b581fe9e0c6b",
+        "semantic_ir_ref": "semanticir/a97da15bba17da42",
+        "compilation_report_ref": "compilation_report/a97da15bba17da42",
+        "contracts": [
+          "BiHistoryAxesTest"
+        ],
+        "files": [
+          "classified_ast.json",
+          "compatibility_metadata.json",
+          "compilation_report.json",
+          "contracts/bi_history_axes_test.json",
+          "diagnostics.json",
+          "manifest.json",
+          "projections.json",
+          "requirements.json",
+          "semantic_ir_program.json"
+        ]
+      },
+      "manifest_fragment_class": "temporal",
+      "compiled_program_valid": true,
+      "compiled_program_validation_error": null,
+      "contract": {
+        "artifact_hash": "sha256:453d97b33ae53496d2bb8de66b21a67a2374d68e8f801d6dc5b3b581fe9e0c6b",
+        "compute_nodes": [],
+        "contract_id": "BiHistoryAxesTest",
+        "escape_set": [
+          {
+            "name": "bihistory_read",
+            "produces": [
+              "bihistory_access_observation"
+            ],
+            "required_caps": [
+              "bihistory_read"
+            ]
+          }
+        ],
+        "fragment_class": "temporal",
+        "input_ports": [
+          {
+            "lifecycle": "local",
+            "name": "technician_id",
+            "required": true,
+            "type_tag": "String"
+          },
+          {
+            "lifecycle": "local",
+            "name": "valid_time",
+            "required": true,
+            "type_tag": "DateTime"
+          },
+          {
+            "lifecycle": "local",
+            "name": "transaction_time",
+            "required": true,
+            "type_tag": "DateTime"
+          }
+        ],
+        "lifecycle": "session",
+        "name": "BiHistoryAxesTest",
+        "output_ports": [
+          {
+            "lifecycle": "session",
+            "name": "avail_at",
+            "required": true,
+            "type_tag": "Option[String]"
+          }
+        ],
+        "source_contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+        "temporal_nodes": [
+          {
+            "axis": "bitemporal",
+            "dependencies": [],
+            "fragment_class": "temporal",
+            "kind": "temporal_input_node",
+            "lifecycle": "durable",
+            "name": "avail_history",
+            "node_fragment_class": "temporal",
+            "node_id": "node_avail_history",
+            "obs_kind": "temporal_source_observation",
+            "required_capability": "bihistory_read",
+            "required_caps": [
+              "bihistory_read"
+            ],
+            "store_ref": "t/{technician_id}/avail",
+            "type_tag": "BiHistory[String]",
+            "value_fragment_class": "core"
+          },
+          {
+            "axis": "bitemporal",
+            "coordinate_refs": {
+              "transaction_time": "transaction_time",
+              "valid_time": "valid_time"
+            },
+            "dependencies": [
+              "input:avail_history",
+              "input:valid_time",
+              "input:transaction_time"
+            ],
+            "evidence_policy": "link_selected_event_observation",
+            "fragment_class": "temporal",
+            "kind": "temporal_access_node",
+            "lifecycle": "session",
+            "name": "avail_at",
+            "node_fragment_class": "temporal",
+            "node_id": "node_avail_at",
+            "obs_kind": "temporal_access_observation",
+            "required_capability": "bihistory_read",
+            "required_caps": [
+              "bihistory_read"
+            ],
+            "result_type_tag": "Option[String]",
+            "source_ref": "avail_history",
+            "temporal_axis": "bitemporal",
+            "transaction_time_ref": "transaction_time",
+            "valid_time_ref": "valid_time",
+            "value_fragment_class": "core"
+          }
+        ],
+        "type_signature": {
+          "inputs": {
+            "technician_id": "String",
+            "transaction_time": "DateTime",
+            "valid_time": "DateTime"
+          },
+          "outputs": {
+            "avail_at": "Option[String]"
+          }
+        }
+      },
+      "requirements": {
+        "capabilities": {
+          "effect_kinds": [
+            "bihistory_access_observation"
+          ],
+          "required_caps": [
+            "bihistory_read"
+          ]
+        },
+        "effects": [],
+        "ffi": [],
+        "fragments": [
+          "temporal"
+        ],
+        "lifecycle": {
+          "has_audit": true,
+          "has_window": false,
+          "min_lifecycle": "local"
+        },
+        "required_tbackend_caps": {
+          "append_atomic": false,
+          "compact_enabled": false,
+          "consistency": "strong",
+          "read_as_of": true,
+          "replay_enabled": true,
+          "snapshot_enabled": false,
+          "subscribe_enabled": false
+        },
+        "temporal": {
+          "axes": [
+            "bitemporal"
+          ],
+          "coordinate_refs": [
+            {
+              "axis": "bitemporal",
+              "coordinates": {
+                "transaction_time": "transaction_time",
+                "valid_time": "valid_time"
+              },
+              "node": "avail_at"
+            }
+          ],
+          "min_consistency": "strong",
+          "requires_as_of": true,
+          "requires_replay": true,
+          "requires_snapshot": false,
+          "requires_transaction_time": true,
+          "requires_valid_time": true,
+          "slices": [],
+          "windows": []
+        }
+      },
+      "compatibility_metadata": {
+        "canonical_artifact": "semantic_ir_program.json",
+        "canonical_semantic_ir_ref": "semanticir/a97da15bba17da42",
+        "compilation_report_ref": "compilation_report/a97da15bba17da42",
+        "format_version": "0.1.0",
+        "kind": "igapp_compatibility_metadata",
+        "loader_shape": "runtime_machine_memory_proof.prop0191_direct_v0",
+        "notes": [
+          "semantic_ir_program.json preserves PROP-019.1 envelope",
+          "RuntimeMachine proof loader reads semantic_ir_program.json directly",
+          "temporal_input_node and temporal_access_node are preserved as non-compute contract nodes",
+          "temporal runtime execution requires a separate RuntimeMachine temporal adapter/hook slice"
+        ],
+        "runtime_compatibility_artifact": null,
+        "runtime_execution": {
+          "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+          "status": "unsupported"
+        }
+      }
+    }
+  },
+  "checks": {
+    "history_valid.assembled": true,
+    "history_valid.compiled_program_validates": true,
+    "history_valid.manifest_fragment_temporal": true,
+    "history_valid.compute_nodes_empty": true,
+    "history_valid.temporal_nodes_in_contract_file": true,
+    "history_valid.temporal_node_metadata_preserved": true,
+    "history_valid.requirements_preserve_temporal_boundary": true,
+    "history_valid.runtime_execution_guard": true,
+    "bihistory_valid.assembled": true,
+    "bihistory_valid.compiled_program_validates": true,
+    "bihistory_valid.manifest_fragment_temporal": true,
+    "bihistory_valid.compute_nodes_empty": true,
+    "bihistory_valid.temporal_nodes_in_contract_file": true,
+    "bihistory_valid.temporal_node_metadata_preserved": true,
+    "bihistory_valid.requirements_preserve_temporal_boundary": true,
+    "bihistory_valid.runtime_execution_guard": true
+  }
+}
