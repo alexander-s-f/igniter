@@ -124,6 +124,14 @@ entrypoint-section-entity-surface-discussion-v0.md
 ledger-tbackend-runtime-binding-discussion-v0.md
 ```
 
+## Index
+
+| File | Card | Question | Status |
+|------|------|----------|--------|
+| [temporal-fragment-and-cache-key-pressure-discussion-v0.md](temporal-fragment-and-cache-key-pressure-discussion-v0.md) | S3-R2-X1-S | Do PROP-028 + temporal-cache-key-proof close the silent staleness class? | complete — routed |
+
+---
+
 ## Guardrails
 
 - Do not use discussions as a daily log.
