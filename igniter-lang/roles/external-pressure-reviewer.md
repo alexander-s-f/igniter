@@ -111,6 +111,7 @@ Allowed borrowed lenses:
 - `applied-pressure-agent`
 - `meta-expert`
 - `archive-form-expert`
+- `runtime-pressure`
 
 Not allowed:
 
@@ -124,6 +125,11 @@ Borrowing a lens means:
 - do not inherit that role's write authority;
 - do not update status maps, canonical specs, or implementation files;
 - end the handoff as External Pressure Reviewer.
+
+`runtime-pressure` means production/runtime risk review: proof-vs-production
+gaps, load/evaluate boundaries, cache semantics, compatibility enforcement,
+observability, and failure modes. It is a review lens only; it does not grant
+runtime implementation authority.
 
 Example:
 
@@ -202,6 +208,7 @@ Useful lanes:
 - future syntax comprehension
 - human-agent readability
 - runtime and cache semantics
+- runtime-pressure: production load/evaluate/cache/compatibility risk
 - Ledger/TBackend capability gaps
 - production performance risks
 - domain/product pressure such as Spark CRM, OSINT, mesh, or cluster use cases

@@ -37,11 +37,11 @@ explicitly asks for archaeology, bridge mapping, or package pressure.
 
 | Role | File | Primary Ownership |
 |------|------|-------------------|
-| `[Igniter-Lang Research Agent]` | [research-agent.md](research-agent.md) | practical research, proofs, fixtures, runtime pressure, status consolidation |
-| `[Igniter-Lang Compiler/Grammar Expert]` | [compiler-grammar-expert.md](compiler-grammar-expert.md) | formal semantics, grammar, type system, compiler boundaries, meta-corrections |
+| `[Igniter-Lang Research Agent]` | [research-agent.md](research-agent.md) | practical research, proofs, fixtures, runtime pressure, bridge-ready evidence |
+| `[Igniter-Lang Compiler/Grammar Expert]` | [compiler-grammar-expert.md](compiler-grammar-expert.md) | formal semantics, grammar, type system, compiler boundaries, spec-lag stewardship |
 | `[Igniter-Lang Bridge Agent]` | [bridge-agent.md](bridge-agent.md) | bridge notes from language research to Igniter platform packages |
 | `[Igniter-Lang Applied Pressure Agent]` | [applied-pressure-agent.md](applied-pressure-agent.md) | real-system pressure, domain scenarios, interop/tooling pressure, rebuild experiments |
-| `[Igniter-Lang Meta Expert]` | [meta-expert.md](meta-expert.md) | strategic analysis, gap identification, priority ordering, cross-cutting design, meta-proposals |
+| `[Igniter-Lang Meta Expert]` | [meta-expert.md](meta-expert.md) | strategic analysis, gap identification, priority ordering, round-close status curation, meta-proposals |
 | `[Igniter-Lang Archive/Form Expert]` | [archive-form-expert.md](archive-form-expert.md) | project archaeology, historical signal preservation, canon-vs-history indexing |
 | `[Igniter-Lang External Pressure Reviewer]` | [external-pressure-reviewer.md](external-pressure-reviewer.md) | outside review pressure, gap discovery, comprehension/product/runtime critique before internal routing |
 
@@ -73,6 +73,7 @@ Applied Pressure Agent
 Meta Expert
   -> identifies gaps, priorities, and cross-cutting design directions
   -> produces meta-proposals that request formal work from neighbors
+  -> owns Status Curator mode for current-status/tracks index consolidation
   -> writes to igniter-lang/docs/meta-proposals/
 
 Archive/Form Expert
@@ -82,6 +83,7 @@ Archive/Form Expert
 
 External Pressure Reviewer
   -> provides outside review pressure and fresh-context critique
+  -> may borrow runtime-pressure for load/evaluate/cache production-risk review
   -> does not author canon, update status, or implement code
   -> routes through Architect Supervisor and Meta Expert before becoming work
 ```

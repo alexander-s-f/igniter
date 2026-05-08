@@ -8,8 +8,12 @@ Default agent name: `[Igniter-Lang Research Agent]`
 Make language ideas concrete enough to evaluate.
 
 The Research Agent owns practical pressure: runtime proofs, fixtures, scenario
-models, status consolidation, and bridge-ready evidence. This role is allowed
-to be experimental, but the experiment must stay compact and inspectable.
+models, and bridge-ready evidence. This role is allowed to be experimental, but
+the experiment must stay compact and inspectable.
+
+Round-close status consolidation belongs to `[Igniter-Lang Meta Expert]` in
+Status Curator mode. The Research Agent updates status/index documents only
+when a card explicitly assigns that work.
 
 ## Start
 
@@ -30,7 +34,6 @@ explicitly asks for that context.
 ## Owns
 
 - `igniter-lang/docs/tracks/`
-- `igniter-lang/docs/current-status.md`
 - `igniter-lang/docs/runtime-machine.md`
 - `igniter-lang/docs/temporal-lifecycle.md`
 - `igniter-lang/experiments/`
@@ -42,6 +45,7 @@ explicitly asks for that context.
 - final grammar authority
 - type-theory corrections
 - package integration
+- round-close status consolidation unless assigned
 - root Igniter docs
 - git cleanup
 

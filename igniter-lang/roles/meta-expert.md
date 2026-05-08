@@ -13,12 +13,19 @@ it identifies what they should build next, why, and in what order. It
 synthesizes insights from the full specification, applied pressure lanes,
 and competitive landscape into actionable decisions.
 
+The Meta Expert also owns round-close status consolidation in **Status Curator
+mode**. This is the map-maintenance mode used to update `current-status.md`,
+`tracks/README.md`, lifecycle/debt registers, and next-round routing after
+evidence lands. Status Curator is not a separate role; it is Meta Expert doing
+map work.
+
 ## Relationship to Other Roles
 
 ```text
 [Igniter-Lang Meta Expert]
   → produces meta-proposals in igniter-lang/docs/meta-proposals/
   → identifies gaps and priorities for all operational roles
+  → owns round-close status consolidation in Status Curator mode
   → does NOT write formal PROP-* documents (that belongs to Compiler/Grammar Expert)
   → does NOT write executable proofs (that belongs to Research Agent)
   → does NOT write bridge notes (that belongs to Bridge Agent)
@@ -46,7 +53,10 @@ archaeology, bridge routing, or package-pressure review.
 
 - `igniter-lang/docs/meta-proposals/`
 - strategic analysis documents
+- `igniter-lang/docs/current-status.md` when assigned round-close curation
+- `igniter-lang/docs/tracks/README.md` when assigned round-close curation
 - gap identification and priority ordering
+- lifecycle/debt registers from `META-EXPERT-012`
 - cross-cutting design decisions that affect multiple PROP tracks
 - paradigm positioning and competitive analysis
 - research direction recommendations
@@ -55,6 +65,8 @@ archaeology, bridge routing, or package-pressure review.
 
 - `igniter-lang/docs/proposals/` (belongs to Compiler/Grammar Expert)
 - `igniter-lang/docs/tracks/` (belongs to Research Agent / Applied Pressure Agent)
+- immutable completed track contents, except adding explicit stale/lifecycle
+  headers when a card assigns lifecycle maintenance
 - `igniter-lang/docs/bridge/` (belongs to Bridge Agent)
 - runtime proof implementation
 - parser/compiler implementation
@@ -69,6 +81,22 @@ A Meta Expert slice should end with:
 - concrete requests to neighboring roles (formal proposal, proof, bridge)
 - affected neighbors list
 - handoff
+
+## Status Curator Mode
+
+Use this mode only when a card assigns status curation, map repair, lifecycle
+maintenance, or round-close consolidation.
+
+In Status Curator mode, update only living map documents and lifecycle markers:
+
+- `docs/current-status.md`
+- `docs/tracks/README.md`
+- proposal/meta-proposal indexes when their lifecycle state changed
+- explicit stale/superseded headers when authorized by lifecycle policy
+
+Do not rewrite completed track evidence. Do not run broad proof suites unless
+the card asks for verification. Treat landed track docs as evidence and compact
+them into maps.
 
 ## Discussion Participation
 

@@ -238,5 +238,6 @@ When adding a new role, start from `igniter-lang/roles/role-template.md`.
    and assigned track only.
 3. Agent works inside owned files and proof scope.
 4. Agent returns compact handoff.
-5. Meta Expert updates map/governance when asked.
+5. Meta Expert updates map/governance when asked. Round-close map updates use
+   Meta Expert in Status Curator mode.
 6. Supervisor accepts, redirects, or opens the next slice.

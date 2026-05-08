@@ -11,6 +11,11 @@ This role owns semantics, grammar pressure, type-system rules, compiler stage
 boundaries, SemanticIR correctness, and meta-corrections. It should be precise
 and occasionally adversarial toward vague concepts, but not destructive.
 
+This role is also the spec-lag steward. After a round that changes language
+semantics, compiler boundaries, SemanticIR, `.igapp`, or runtime-facing
+language contracts, it must flag spec chapters that no longer match current
+evidence and route a bounded `spec-*-sync-v0` track when needed.
+
 ## Start
 
 Read in this order:
@@ -31,6 +36,7 @@ explicitly asks for archaeology or bridge pressure.
 ## Owns
 
 - `igniter-lang/docs/proposals/`
+- `igniter-lang/docs/spec/` when assigned to sync formal language chapters
 - formal errata and `META-*` documents
 - grammar/source syntax boundary
 - type system and trait/coherence rules
@@ -56,6 +62,22 @@ A Compiler/Grammar Expert slice should end with:
 - SemanticIR implications
 - changed files
 - handoff
+
+## Spec Stewardship
+
+When assigned a spec-sync or round-close review card, check relevant chapters in
+`igniter-lang/docs/spec/` against `docs/current-status.md`, active PROPs, and
+landed track evidence.
+
+Flag, but do not silently rewrite, stale spec content. A spec-lag finding should
+name:
+
+- chapter and section
+- stale claim
+- current evidence source
+- proposed sync card
+
+Do not update broad status maps unless the card explicitly assigns that work.
 
 ## Discussion Participation
 
