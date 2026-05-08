@@ -73,18 +73,19 @@ IgniterLang::VERSION: 0.1.0.pre.stage2
 Governance: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 ```text
-Lane              Status    First Track
+Lane              Status    Current Evidence
 ─────────────────────────────────────────────────────────────────
-Release           ✅ policy gem-release-policy-v0 done; CI/release automation open
-TBackend          ✅ bridge compatibility-report-descriptor-consumption-v0 done;
-                            report-only descriptor metadata, no runtime binding
+Release           ✅ gate    gem-release-policy + release-gate PASS;
+                            local .gem/.sha256 built; publish not attempted
+TBackend          ✅ fixture CompatibilityReport descriptor fixture PASS;
+                            Gate 1 only, Gate 2/3 closed, no runtime binding
 Runtime           ⏳ open   invariant-persistence-boundary-v0
-                            temporal-cache-key-proof-v0 done; no memoization yet
-Language          ⚙️ partial PROP-028 classifier/typechecker proof done;
-                            SemanticIR temporal_access_node/runtime/parser syntax open
+                            runtime-temporal-cache-contract done; no memoization
+Language          ⚠️ partial TEMPORAL through SemanticIR done;
+                            assembler/.igapp boundary blocked by X1 pressure
                             spec-entrypoint-sync-v0 (prereq for PROP-029)
-Compiler Internals ⚠️ blocked typed-emission canonical shape fixed;
-                            parity PASS / verdict blocked / 7 blockers
+Compiler Internals ⚠️ blocked typed source blockers = 0;
+                            safe_to_switch_production_path=false
 ─────────────────────────────────────────────────────────────────
 STAGE 3 CLOSED:   NO
 Round 1 landed:
@@ -100,6 +101,14 @@ Round 2 landed:
   S3-R2-C4-P: gem-release-policy-v0             ✅ release policy + metadata; publish gated
   S3-R2-C5-P: compatibility-report descriptor   ✅ report-only bridge proposal; no binding
   S3-R2-C6-P: syntax-pressure-registry-v0       ✅ pressure registry; no canon promotion
+Round 3 landed:
+  S3-R3-C1-P: typed source lowering parity      ⚠️ typed blockers 0; legacy deltas 11; switch false
+  S3-R3-C2-P: temporal SemanticIR access node   ✅ temporal_input/access nodes; assembler open
+  S3-R3-C3-P: runtime temporal cache contract   ✅ design/proof; no production memoization
+  S3-R3-C4-P: gem release automation            ✅ release-gate PASS; publish not attempted
+  S3-R3-C5-P: descriptor consumption fixture    ✅ proof-local PASS; runtime_enforced false
+  S3-R3-C6-P: syntax pressure specimens         ✅ fixtures/guides; no canon promotion
+  S3-R3-X1-S: temporal manifest/cache pressure  ⚠️ assembler boundary blocker routed
 New PROPs:        start from PROP-028
 Arch approval required for: gem publish, Ledger read/write, MCP/mesh
 ```
@@ -110,16 +119,19 @@ Arch approval required for: gem publish, Ledger read/write, MCP/mesh
 IgniterLang::VERSION: 0.1.0.pre.stage2
 Compiler pipeline:   Parser → Classifier → TypeChecker → SemanticIREmitter → Assembler
 emit_typed:          exists in semanticir_emitter.rb ⏳ not yet wired in orchestrator
-typed emission path: canonical identity/shape fixed; parity runner PASS, verdict blocked, 7 blockers; do not switch orchestrator yet
+typed emission path: Stage 2 typed source blockers = 0; legacy parity deltas = 11; safe_to_switch=false
 Ledger descriptor:   metadata-only ✅ package specs PASS
-CompatibilityReport: descriptor-consumption bridge proposal ✅ report-only metadata; runtime_enforced false
+CompatibilityReport: descriptor-consumption fixture ✅ PASS; report-only metadata; runtime_enforced false
 Runtime observations: proof-backed ⏳ production persistence open
-Temporal cache key:  proof PASS; CORE key for TEMPORAL is semantic bug; RuntimeMachine memoization not implemented
+Temporal cache key:  proof + runtime contract ✅; RuntimeMachine memoization not implemented
+TEMPORAL lowering:   classifier/typechecker/SemanticIR ✅; assembler/.igapp manifest boundary ⚠️ blocked
+Release gate:        bin/release-gate ✅ PASS; local artifact + checksum built; publish.status=not_attempted
 Stage 2 close:       PASS (stage2_close_candidate.json)
 Stage 1 regression:  PASS
 Archive:             Stage 2 close snapshot ✅ docs/archive/snapshots/2026-05-07-stage2-close/
 АИ/СОИ lens:         soft Stage 3 governance/review vocabulary; not a hard gate
-Syntax pressure:     registry done; fixture spellings remain pressure/non-canon unless promoted by proposal/proof
+Syntax pressure:     registry + S3-R3 specimens done; fixture spellings remain pressure/non-canon
+Discussion pressure: S3-R3-X1 routes temporal assembler boundary as blocker; discussion does not authorize implementation
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -138,15 +150,15 @@ Syntax pressure:     registry done; fixture spellings remain pressure/non-canon 
 
 ```text
 PROP-022   History[T] / BiHistory[T]     ✅ CLOSED IN STAGE 2
-PROP-022A  .igapp assembler contract     Stage 1 frozen (accepted/)
+PROP-022A  .igapp assembler contract     Stage 1 frozen; TEMPORAL errata/boundary pressure open
 PROP-023   stream T                      ✅ CLOSED IN STAGE 2 (all OOF + SemanticIR)
 PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
 PROP-024   OLAPPoint[T,Dims]             ✅ CLOSED IN STAGE 2 (parser + TC + SemanticIR)
 PROP-025   Invariant severity            ✅ CLOSED IN STAGE 2 (partial: OOF-I1/I3/I5 deferred)
 PROP-026   Parser OOF hardening          ✅ CLOSED IN STAGE 2
 PROP-027   Production compiler           ✅ CLOSED IN STAGE 2 (package + facade + igc)
-PROP-028   TEMPORAL fragment class       ⚙️ proposal + classifier/typechecker + cache-key proof done;
-                                         SemanticIR/runtime/parser coordinates pending
+PROP-028   TEMPORAL fragment class       ⚙️ proposal + classifier/typechecker + SemanticIR + cache contract done;
+                                         assembler/runtime/parser coordinates pending
 PROP-029+  Stage 3 — not open without governance/prerequisite track
 ```
 
