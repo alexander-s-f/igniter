@@ -843,7 +843,16 @@
     "runtime.warn_allows_with_warning": true,
     "semanticir.emitter_typed_program_ref": true,
     "semanticir.invariant_nodes_from_typed": true,
-    "semanticir.output_effect_preserved": true
+    "semanticir.output_effect_preserved": true,
+    "source_metadata.classifier_preserves_author_intent": true,
+    "source_metadata.classifier_preserves_identity": true,
+    "source_metadata.parser_spans_present": true,
+    "source_metadata.report_coverage_preserves_author_intent": true,
+    "source_metadata.report_coverage_preserves_identity": true,
+    "source_metadata.semanticir_preserves_author_intent": true,
+    "source_metadata.semanticir_preserves_identity": true,
+    "source_metadata.typechecker_preserves_author_intent": true,
+    "source_metadata.typechecker_preserves_identity": true
   },
   "compilation_report": {
     "diagnostics": [],
@@ -852,6 +861,7 @@
     "invariant_coverage": [
       {
         "label": "CG-INTERACTION-01",
+        "message": "Contraindicated drug combination - order blocked",
         "name": "contraindicated_interaction_block",
         "output_effect": "blocks",
         "output_policy": "blocking",
@@ -859,6 +869,7 @@
       },
       {
         "label": "CG-INTERACTION-02",
+        "message": "Major drug interaction requires acknowledgement",
         "name": "major_interaction_acknowledgement",
         "output_effect": "warns",
         "output_policy": "non_blocking",
@@ -866,6 +877,7 @@
       },
       {
         "label": "CG-RENAL-CONF-01",
+        "message": "Low confidence renal function - dose is approximate",
         "name": "renal_confidence_gate",
         "output_effect": "uncertain",
         "output_policy": "non_blocking",
@@ -873,6 +885,7 @@
       },
       {
         "label": "PERF-DOSE-01",
+        "message": "Dose computation latency metric",
         "name": "latency_metric",
         "output_effect": "metric",
         "output_policy": "non_blocking",
@@ -1128,6 +1141,219 @@
     "node_kind": "invariant_violation_node",
     "observation_kind": "invariant_violation_observation",
     "source_node_kind": "invariant_node"
+  },
+  "source_metadata_pipeline": {
+    "classified": [
+      {
+        "message": "Safety block",
+        "name": "safety_block",
+        "severity": "error",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 6
+        }
+      },
+      {
+        "message": "Interaction warning",
+        "name": "interaction_warn",
+        "severity": "warn",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 11
+        }
+      },
+      {
+        "message": null,
+        "name": "confidence_soft",
+        "severity": "soft",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 16
+        }
+      },
+      {
+        "message": null,
+        "name": "latency_metric",
+        "severity": "metric",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 19
+        }
+      }
+    ],
+    "compilation_report": [
+      {
+        "message": "Safety block",
+        "name": "safety_block",
+        "severity": "error",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 6
+        }
+      },
+      {
+        "message": "Interaction warning",
+        "name": "interaction_warn",
+        "severity": "warn",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 11
+        }
+      },
+      {
+        "message": null,
+        "name": "confidence_soft",
+        "severity": "soft",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 16
+        }
+      },
+      {
+        "message": null,
+        "name": "latency_metric",
+        "severity": "metric",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 19
+        }
+      }
+    ],
+    "parsed": [
+      {
+        "message": "Safety block",
+        "name": "safety_block",
+        "severity": "error",
+        "source_path": null,
+        "source_span": {
+          "col": 13,
+          "line": 6
+        }
+      },
+      {
+        "message": "Interaction warning",
+        "name": "interaction_warn",
+        "severity": "warn",
+        "source_path": null,
+        "source_span": {
+          "col": 13,
+          "line": 11
+        }
+      },
+      {
+        "message": null,
+        "name": "confidence_soft",
+        "severity": "soft",
+        "source_path": null,
+        "source_span": {
+          "col": 13,
+          "line": 16
+        }
+      },
+      {
+        "message": null,
+        "name": "latency_metric",
+        "severity": "metric",
+        "source_path": null,
+        "source_span": {
+          "col": 13,
+          "line": 19
+        }
+      }
+    ],
+    "semantic_ir": [
+      {
+        "message": "Safety block",
+        "name": "safety_block",
+        "severity": "error",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 6
+        }
+      },
+      {
+        "message": "Interaction warning",
+        "name": "interaction_warn",
+        "severity": "warn",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 11
+        }
+      },
+      {
+        "message": null,
+        "name": "confidence_soft",
+        "severity": "soft",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 16
+        }
+      },
+      {
+        "message": null,
+        "name": "latency_metric",
+        "severity": "metric",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 19
+        }
+      }
+    ],
+    "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+    "typed": [
+      {
+        "message": "Safety block",
+        "name": "safety_block",
+        "severity": "error",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 6
+        }
+      },
+      {
+        "message": "Interaction warning",
+        "name": "interaction_warn",
+        "severity": "warn",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 11
+        }
+      },
+      {
+        "message": null,
+        "name": "confidence_soft",
+        "severity": "soft",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 16
+        }
+      },
+      {
+        "message": null,
+        "name": "latency_metric",
+        "severity": "metric",
+        "source_path": "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig",
+        "source_span": {
+          "col": 13,
+          "line": 19
+        }
+      }
+    ]
   },
   "status": "PASS",
   "track": "invariant-severity-proof-v0"

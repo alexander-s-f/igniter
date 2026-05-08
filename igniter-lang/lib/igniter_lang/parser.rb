@@ -906,7 +906,11 @@ module IgniterLang
         "severity"         => severity,
         "label"            => label,
         "message"          => message,
-        "overridable_with" => overridable_with
+        "overridable_with" => overridable_with,
+        "source_span"      => {
+          "line" => name_tok.line,
+          "col" => name_tok.col
+        }
       }
     end
 

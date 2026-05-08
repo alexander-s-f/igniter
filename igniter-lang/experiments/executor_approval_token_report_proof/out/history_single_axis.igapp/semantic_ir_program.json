@@ -1,0 +1,122 @@
+{
+  "compilation_report_ref": "compilation_report/096b47d88eccf388",
+  "contracts": [
+    {
+      "contract_name": "TechnicianJobCountAt",
+      "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+      "escape_boundaries": [
+        {
+          "name": "history_read",
+          "produces": [
+            "history_access_observation"
+          ],
+          "required_caps": [
+            "history_read"
+          ]
+        }
+      ],
+      "fragment_class": "temporal",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "technician_id",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "as_of",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "nodes": [
+        {
+          "axis": "valid_time",
+          "fragment": "temporal",
+          "kind": "temporal_input_node",
+          "lifecycle": "durable",
+          "name": "job_count_history",
+          "node_fragment_class": "temporal",
+          "required_capability": "history_read",
+          "required_caps": [
+            "history_read"
+          ],
+          "store_ref": null,
+          "type": {
+            "constructor": "History",
+            "element_type": "Integer"
+          },
+          "value_fragment_class": "core"
+        },
+        {
+          "as_of_ref": "as_of",
+          "axis": "valid_time",
+          "axis_refs": [
+            "as_of"
+          ],
+          "coordinate_refs": {
+            "as_of": "as_of"
+          },
+          "deps": [
+            "job_count_history",
+            "as_of"
+          ],
+          "evidence_policy": "link_selected_append_observation",
+          "fragment": "temporal",
+          "history_ref": "job_count_history",
+          "kind": "temporal_access_node",
+          "name": "current_count",
+          "node_fragment_class": "temporal",
+          "required_capability": "history_read",
+          "required_caps": [
+            "history_read"
+          ],
+          "result_type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          },
+          "source_ref": "job_count_history",
+          "temporal_axis": "valid_time",
+          "value_fragment_class": "core"
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "current_count",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "Fixture.HistoryTypeProof",
+  "program_id": "semanticir/096b47d88eccf388",
+  "source_hash": "sha256:096b47d88eccf388186cda7faddcfc7e2b3753ba63fea0e0b68f48afe63ed2fb",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/history_type_proof/history_integer_point_access.ig"
+}

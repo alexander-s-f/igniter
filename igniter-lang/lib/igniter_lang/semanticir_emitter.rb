@@ -222,13 +222,16 @@ module IgniterLang
       return [] unless semantic_ir
 
       typed_program_invariants(semantic_ir.fetch("contracts")).map do |node|
-        {
+        coverage = {
           "name" => node.fetch("name"),
           "severity" => node.fetch("severity"),
           "label" => node.fetch("label", nil),
+          "message" => node.fetch("message", nil),
           "output_policy" => node.fetch("severity") == "error" ? "blocking" : "non_blocking",
           "output_effect" => node.fetch("output_effect")
         }
+        coverage["source_metadata"] = node.fetch("source_metadata") if node.key?("source_metadata")
+        coverage
       end
     end
 
@@ -362,6 +365,8 @@ module IgniterLang
         "deps" => decl.fetch("deps", []),
         "fragment" => decl.fetch("fragment_class", "core")
       }
+      result["source_span"] = decl.fetch("source_span") if decl.key?("source_span")
+      result["source_metadata"] = decl.fetch("source_metadata") if decl.key?("source_metadata")
       result["threshold"] = decl.fetch("threshold") if decl.key?("threshold")
       result["threshold_ms"] = decl.fetch("threshold_ms") if decl.key?("threshold_ms")
       result

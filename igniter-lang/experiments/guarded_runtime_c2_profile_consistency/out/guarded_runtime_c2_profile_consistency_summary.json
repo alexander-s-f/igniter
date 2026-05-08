@@ -54,6 +54,7 @@
             "load": {
               "status": "loaded",
               "program_id": "semanticir/history-valid-te",
+              "artifact_ref": "igapp/semanticir/history-valid-te",
               "temporal_contracts": [
                 "HistoryAxesTest"
               ],
@@ -122,6 +123,7 @@
             "load": {
               "status": "loaded",
               "program_id": "semanticir/history-valid-te",
+              "artifact_ref": "igapp/semanticir/history-valid-te",
               "temporal_contracts": [
                 "HistoryAxesTest"
               ],
@@ -196,6 +198,7 @@
             "load": {
               "status": "loaded",
               "program_id": "semanticir/a97da15bba17da42",
+              "artifact_ref": "igapp/semanticir/a97da15bba17da42",
               "temporal_contracts": [
                 "BiHistoryAxesTest"
               ],
@@ -264,6 +267,7 @@
             "load": {
               "status": "loaded",
               "program_id": "semanticir/a97da15bba17da42",
+              "artifact_ref": "igapp/semanticir/a97da15bba17da42",
               "temporal_contracts": [
                 "BiHistoryAxesTest"
               ],

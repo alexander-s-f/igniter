@@ -1,0 +1,387 @@
+{
+  "kind": "guarded_runtime_executor_approval_enforcement_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R10-C2-P",
+  "track": "guarded-runtime-executor-approval-enforcement-v0",
+  "status": "PASS",
+  "policy": {
+    "approval_contract": "PROP-030 ExecutorApprovalToken",
+    "load_for_inspection_preserved": true,
+    "gate3_closed": true,
+    "live_executor": false,
+    "live_tbackend_binding": false,
+    "ledger_binding": false,
+    "production_cache": false
+  },
+  "mapping_table": [
+    {
+      "compatibility_report_reason_code": "runtime.temporal_executor_approval_missing",
+      "guarded_runtime_reason_code": "runtime.executor_approval_missing",
+      "alignment": "PROP-030 refines the C2 report reason into the canonical runtime approval refusal"
+    },
+    {
+      "compatibility_report_reason_code": "runtime.temporal_gate3_closed",
+      "guarded_runtime_reason_code": "runtime.temporal_gate3_closed",
+      "alignment": "identical"
+    },
+    {
+      "compatibility_report_reason_code": "runtime.temporal_cache_schema_mismatch",
+      "guarded_runtime_reason_code": "runtime.temporal_cache_schema_mismatch",
+      "alignment": "future CompatibilityReport cache dimension should use the same runtime refusal"
+    }
+  ],
+  "cases": {
+    "history_valid": {
+      "artifact_path": "igniter-lang/experiments/temporal_runtime_load_guard/out/assembled/history_valid.igapp",
+      "contract_id": "HistoryAxesTest",
+      "required_capability": "history_read",
+      "load_for_inspection": {
+        "status": "loaded",
+        "program_id": "semanticir/history-valid-te",
+        "artifact_ref": "igapp/semanticir/history-valid-te",
+        "temporal_contracts": [
+          "HistoryAxesTest"
+        ],
+        "runtime_execution": {
+          "evaluate": {
+            "decision": "refuse_temporal_contract",
+            "reason_code": "runtime.temporal_execution_unsupported"
+          },
+          "guard_at": "evaluate",
+          "guard_policy": "load_accept_evaluate_refuse",
+          "load": {
+            "decision": "accept_for_inspection",
+            "requires_contract_index": true
+          },
+          "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+          "status": "unsupported"
+        }
+      },
+      "missing_approval_token": {
+        "load": {
+          "status": "loaded",
+          "program_id": "semanticir/history-valid-te",
+          "artifact_ref": "igapp/semanticir/history-valid-te",
+          "temporal_contracts": [
+            "HistoryAxesTest"
+          ],
+          "runtime_execution": {
+            "evaluate": {
+              "decision": "refuse_temporal_contract",
+              "reason_code": "runtime.temporal_execution_unsupported"
+            },
+            "guard_at": "evaluate",
+            "guard_policy": "load_accept_evaluate_refuse",
+            "load": {
+              "decision": "accept_for_inspection",
+              "requires_contract_index": true
+            },
+            "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+            "status": "unsupported"
+          }
+        },
+        "evaluate": {
+          "kind": "evaluation_refusal",
+          "status": "blocked",
+          "guard_at": "evaluate",
+          "reason_code": "runtime.executor_approval_missing",
+          "message": "executor approval token is required before temporal evaluation",
+          "contract_id": "HistoryAxesTest",
+          "as_of": "2026-05-08T00:00:00Z",
+          "context": {
+            "required_gate": "tbackend_gate3",
+            "required_operation": "temporal_evaluate",
+            "required_capabilities": [
+              "history_read"
+            ]
+          }
+        },
+        "runtime_config": {
+          "approval_enforcement": true,
+          "gate3_authorized": false,
+          "requested_cache_key_fragment": "TEMPORAL",
+          "token_present": false
+        }
+      },
+      "valid_token_gate3_closed": {
+        "load": {
+          "status": "loaded",
+          "program_id": "semanticir/history-valid-te",
+          "artifact_ref": "igapp/semanticir/history-valid-te",
+          "temporal_contracts": [
+            "HistoryAxesTest"
+          ],
+          "runtime_execution": {
+            "evaluate": {
+              "decision": "refuse_temporal_contract",
+              "reason_code": "runtime.temporal_execution_unsupported"
+            },
+            "guard_at": "evaluate",
+            "guard_policy": "load_accept_evaluate_refuse",
+            "load": {
+              "decision": "accept_for_inspection",
+              "requires_contract_index": true
+            },
+            "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+            "status": "unsupported"
+          }
+        },
+        "evaluate": {
+          "kind": "evaluation_refusal",
+          "status": "blocked",
+          "guard_at": "evaluate",
+          "reason_code": "runtime.temporal_gate3_closed",
+          "message": "Gate 3 is closed for temporal evaluation",
+          "contract_id": "HistoryAxesTest",
+          "as_of": "2026-05-08T00:00:00Z",
+          "context": {
+            "gate": "tbackend_gate3",
+            "approval_token_ref": "approval/proof-local/HistoryAxesTest",
+            "guard_policy": "load_accept_evaluate_refuse"
+          }
+        },
+        "runtime_config": {
+          "approval_enforcement": true,
+          "gate3_authorized": false,
+          "requested_cache_key_fragment": "TEMPORAL",
+          "token_present": true
+        }
+      },
+      "core_shaped_cache_key": {
+        "load": {
+          "status": "loaded",
+          "program_id": "semanticir/history-valid-te",
+          "artifact_ref": "igapp/semanticir/history-valid-te",
+          "temporal_contracts": [
+            "HistoryAxesTest"
+          ],
+          "runtime_execution": {
+            "evaluate": {
+              "decision": "refuse_temporal_contract",
+              "reason_code": "runtime.temporal_execution_unsupported"
+            },
+            "guard_at": "evaluate",
+            "guard_policy": "load_accept_evaluate_refuse",
+            "load": {
+              "decision": "accept_for_inspection",
+              "requires_contract_index": true
+            },
+            "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+            "status": "unsupported"
+          }
+        },
+        "evaluate": {
+          "kind": "evaluation_refusal",
+          "status": "blocked",
+          "guard_at": "evaluate",
+          "reason_code": "runtime.temporal_cache_schema_mismatch",
+          "message": "TEMPORAL evaluation cannot use a CORE-shaped cache key",
+          "contract_id": "HistoryAxesTest",
+          "as_of": "2026-05-08T00:00:00Z",
+          "context": {
+            "gate": "L-T5",
+            "expected_cache_key_fragment": "TEMPORAL",
+            "requested_cache_key_fragment": "CORE",
+            "prevents": "PROP-028 silent staleness bug"
+          }
+        },
+        "runtime_config": {
+          "approval_enforcement": true,
+          "gate3_authorized": true,
+          "requested_cache_key_fragment": "CORE",
+          "token_present": true
+        }
+      },
+      "operation_check": {
+        "decision": "not_attempted",
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "production_cache_call_attempted": false,
+        "source": "proof-local GuardedRuntimeMachine refuses before live executor/cache/backend paths"
+      }
+    },
+    "bihistory_valid": {
+      "artifact_path": "igniter-lang/experiments/temporal_runtime_load_guard/out/assembled/bihistory_valid.igapp",
+      "contract_id": "BiHistoryAxesTest",
+      "required_capability": "bihistory_read",
+      "load_for_inspection": {
+        "status": "loaded",
+        "program_id": "semanticir/a97da15bba17da42",
+        "artifact_ref": "igapp/semanticir/a97da15bba17da42",
+        "temporal_contracts": [
+          "BiHistoryAxesTest"
+        ],
+        "runtime_execution": {
+          "evaluate": {
+            "decision": "refuse_temporal_contract",
+            "reason_code": "runtime.temporal_execution_unsupported"
+          },
+          "guard_at": "evaluate",
+          "guard_policy": "load_accept_evaluate_refuse",
+          "load": {
+            "decision": "accept_for_inspection",
+            "requires_contract_index": true
+          },
+          "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+          "status": "unsupported"
+        }
+      },
+      "missing_approval_token": {
+        "load": {
+          "status": "loaded",
+          "program_id": "semanticir/a97da15bba17da42",
+          "artifact_ref": "igapp/semanticir/a97da15bba17da42",
+          "temporal_contracts": [
+            "BiHistoryAxesTest"
+          ],
+          "runtime_execution": {
+            "evaluate": {
+              "decision": "refuse_temporal_contract",
+              "reason_code": "runtime.temporal_execution_unsupported"
+            },
+            "guard_at": "evaluate",
+            "guard_policy": "load_accept_evaluate_refuse",
+            "load": {
+              "decision": "accept_for_inspection",
+              "requires_contract_index": true
+            },
+            "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+            "status": "unsupported"
+          }
+        },
+        "evaluate": {
+          "kind": "evaluation_refusal",
+          "status": "blocked",
+          "guard_at": "evaluate",
+          "reason_code": "runtime.executor_approval_missing",
+          "message": "executor approval token is required before temporal evaluation",
+          "contract_id": "BiHistoryAxesTest",
+          "as_of": "2026-05-08T00:00:00Z",
+          "context": {
+            "required_gate": "tbackend_gate3",
+            "required_operation": "temporal_evaluate",
+            "required_capabilities": [
+              "bihistory_read"
+            ]
+          }
+        },
+        "runtime_config": {
+          "approval_enforcement": true,
+          "gate3_authorized": false,
+          "requested_cache_key_fragment": "TEMPORAL",
+          "token_present": false
+        }
+      },
+      "valid_token_gate3_closed": {
+        "load": {
+          "status": "loaded",
+          "program_id": "semanticir/a97da15bba17da42",
+          "artifact_ref": "igapp/semanticir/a97da15bba17da42",
+          "temporal_contracts": [
+            "BiHistoryAxesTest"
+          ],
+          "runtime_execution": {
+            "evaluate": {
+              "decision": "refuse_temporal_contract",
+              "reason_code": "runtime.temporal_execution_unsupported"
+            },
+            "guard_at": "evaluate",
+            "guard_policy": "load_accept_evaluate_refuse",
+            "load": {
+              "decision": "accept_for_inspection",
+              "requires_contract_index": true
+            },
+            "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+            "status": "unsupported"
+          }
+        },
+        "evaluate": {
+          "kind": "evaluation_refusal",
+          "status": "blocked",
+          "guard_at": "evaluate",
+          "reason_code": "runtime.temporal_gate3_closed",
+          "message": "Gate 3 is closed for temporal evaluation",
+          "contract_id": "BiHistoryAxesTest",
+          "as_of": "2026-05-08T00:00:00Z",
+          "context": {
+            "gate": "tbackend_gate3",
+            "approval_token_ref": "approval/proof-local/BiHistoryAxesTest",
+            "guard_policy": "load_accept_evaluate_refuse"
+          }
+        },
+        "runtime_config": {
+          "approval_enforcement": true,
+          "gate3_authorized": false,
+          "requested_cache_key_fragment": "TEMPORAL",
+          "token_present": true
+        }
+      },
+      "core_shaped_cache_key": {
+        "load": {
+          "status": "loaded",
+          "program_id": "semanticir/a97da15bba17da42",
+          "artifact_ref": "igapp/semanticir/a97da15bba17da42",
+          "temporal_contracts": [
+            "BiHistoryAxesTest"
+          ],
+          "runtime_execution": {
+            "evaluate": {
+              "decision": "refuse_temporal_contract",
+              "reason_code": "runtime.temporal_execution_unsupported"
+            },
+            "guard_at": "evaluate",
+            "guard_policy": "load_accept_evaluate_refuse",
+            "load": {
+              "decision": "accept_for_inspection",
+              "requires_contract_index": true
+            },
+            "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+            "status": "unsupported"
+          }
+        },
+        "evaluate": {
+          "kind": "evaluation_refusal",
+          "status": "blocked",
+          "guard_at": "evaluate",
+          "reason_code": "runtime.temporal_cache_schema_mismatch",
+          "message": "TEMPORAL evaluation cannot use a CORE-shaped cache key",
+          "contract_id": "BiHistoryAxesTest",
+          "as_of": "2026-05-08T00:00:00Z",
+          "context": {
+            "gate": "L-T5",
+            "expected_cache_key_fragment": "TEMPORAL",
+            "requested_cache_key_fragment": "CORE",
+            "prevents": "PROP-028 silent staleness bug"
+          }
+        },
+        "runtime_config": {
+          "approval_enforcement": true,
+          "gate3_authorized": true,
+          "requested_cache_key_fragment": "CORE",
+          "token_present": true
+        }
+      },
+      "operation_check": {
+        "decision": "not_attempted",
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "production_cache_call_attempted": false,
+        "source": "proof-local GuardedRuntimeMachine refuses before live executor/cache/backend paths"
+      }
+    }
+  },
+  "checks": {
+    "history_valid.load_for_inspection_preserved": true,
+    "history_valid.missing_approval_refused": true,
+    "history_valid.valid_token_gate3_closed_refused": true,
+    "history_valid.core_cache_key_refused": true,
+    "history_valid.no_live_operations_attempted": true,
+    "bihistory_valid.load_for_inspection_preserved": true,
+    "bihistory_valid.missing_approval_refused": true,
+    "bihistory_valid.valid_token_gate3_closed_refused": true,
+    "bihistory_valid.core_cache_key_refused": true,
+    "bihistory_valid.no_live_operations_attempted": true
+  }
+}

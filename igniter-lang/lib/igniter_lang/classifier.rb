@@ -111,6 +111,8 @@ module IgniterLang
             diagnostics << oof("OOF-P1", "Unresolved symbol: #{name}", node.fetch("name"))
           end
           declarations << classified_decl(node, missing.empty? ? "core" : "oof", deps, missing)
+            .merge(invariant_author_fields(node))
+            .merge("source_metadata" => invariant_source_metadata(parsed_program, node))
         when "compute"
           deps = expr_refs(node.fetch("expr"))
           missing = deps.reject { |dep| symbol_fragments.key?(dep) }
@@ -197,6 +199,24 @@ module IgniterLang
         result[key] = node.fetch(key) if node.key?(key)
       end
       result
+    end
+
+    def invariant_author_fields(node)
+      %w[predicate_ref severity label message overridable_with source_span threshold threshold_ms].each_with_object({}) do |key, result|
+        result[key] = node.fetch(key) if node.key?(key)
+      end
+    end
+
+    def invariant_source_metadata(parsed_program, node)
+      {
+        "kind" => "invariant",
+        "source_path" => parsed_program.fetch("source_path", nil),
+        "source_span" => node.fetch("source_span", nil),
+        "name" => node.fetch("name"),
+        "severity" => node.fetch("severity", "error"),
+        "label" => node.fetch("label", nil),
+        "message" => node.fetch("message", nil)
+      }
     end
 
     def value_fragment_metadata(fragment, type)

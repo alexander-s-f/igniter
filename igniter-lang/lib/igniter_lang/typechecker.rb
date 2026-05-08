@@ -644,7 +644,7 @@ module IgniterLang
       predicate_ref = decl.fetch("predicate_ref", nil)
       pred_type = predicate_ref ? symbol_types.fetch(predicate_ref, type_ir("Unknown")) : type_ir("Unknown")
       output_effect = invariant_output_effect(decl.fetch("severity", "error"))
-      {
+      result = {
         "decl_id"          => decl.fetch("decl_id"),
         "kind"             => "invariant",
         "name"             => decl.fetch("name"),
@@ -659,6 +659,11 @@ module IgniterLang
         "type"             => type_ir("Bool"),
         "deps"             => predicate_ref ? [predicate_ref] : []
       }
+      result["source_span"] = decl.fetch("source_span") if decl.key?("source_span")
+      result["source_metadata"] = decl.fetch("source_metadata") if decl.key?("source_metadata")
+      result["threshold"] = decl.fetch("threshold") if decl.key?("threshold")
+      result["threshold_ms"] = decl.fetch("threshold_ms") if decl.key?("threshold_ms")
+      result
     end
 
     # Typed output decl with invariant effect propagation (TINV-4).

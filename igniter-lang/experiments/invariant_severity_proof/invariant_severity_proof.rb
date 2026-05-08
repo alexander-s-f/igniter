@@ -6,6 +6,8 @@ require "fileutils"
 require "json"
 require "pathname"
 require_relative "../../lib/igniter_lang/parser"
+require_relative "../../lib/igniter_lang/classifier"
+require_relative "../../lib/igniter_lang/typechecker"
 require_relative "../../lib/igniter_lang/semanticir_emitter"
 
 module InvariantSeverityProof
@@ -271,7 +273,8 @@ module InvariantSeverityProof
     }
     report = semantic_boundary.fetch("compilation_report")
     pinv = parser_checks
-    all_checks = checks(cases, report).merge(pinv)
+    source_metadata = source_metadata_checks
+    all_checks = checks(cases, report).merge(pinv).merge(source_metadata.fetch("checks"))
     summary = {
       "kind" => "invariant_severity_proof_summary",
       "format_version" => FORMAT_VERSION,
@@ -289,6 +292,7 @@ module InvariantSeverityProof
         "node_kind" => "invariant_violation_node",
         "source_node_kind" => "invariant_node"
       },
+      "source_metadata_pipeline" => source_metadata.fetch("pipeline"),
       "cases" => cases,
       "checks" => all_checks
     }
@@ -592,6 +596,13 @@ module InvariantSeverityProof
     IgniterLang::ParsedProgram.parse(source)
   end
 
+  def parse_source_with_path(source)
+    IgniterLang::ParsedProgram.parse(
+      source,
+      source_path: "igniter-lang/experiments/invariant_severity_proof/source/valid_invariant.ig"
+    )
+  end
+
   def pinv_accepts?(source)
     result = parse_source(source)
     result.errors.none? { |e| e.is_a?(Hash) && e["rule"]&.start_with?("OOF-IV", "OOF-I4") }
@@ -633,6 +644,98 @@ module InvariantSeverityProof
     result.errors.any? { |e| e.is_a?(Hash) && e["rule"] == rule }
   rescue StandardError
     false
+  end
+
+  def source_metadata_pipeline
+    parsed = parse_source_with_path(VALID_INVARIANT_SOURCE).to_h
+    classified = IgniterLang::Classifier.new.classify(parsed, sample_input: {})
+    typed = IgniterLang::TypeChecker.new.typecheck(classified)
+    emitted = IgniterLang::SemanticIREmitter.new.emit_typed(typed)
+    {
+      "parsed" => parsed,
+      "classified" => classified,
+      "typed" => typed,
+      "semantic_ir" => emitted.fetch("semantic_ir"),
+      "compilation_report" => emitted.fetch("compilation_report")
+    }
+  end
+
+  def source_metadata_checks
+    pipeline = source_metadata_pipeline
+    parsed_invariants = invariant_decls_from_parsed(pipeline.fetch("parsed"))
+    classified_invariants = invariant_decls_from_contracts(pipeline.fetch("classified"), "declarations")
+    typed_invariants = invariant_decls_from_contracts(pipeline.fetch("typed"), "declarations")
+    semantic_invariants = pipeline.fetch("semantic_ir").fetch("invariants")
+    coverage = pipeline.fetch("compilation_report").fetch("invariant_coverage")
+    parsed_names = invariant_names(parsed_invariants)
+    checks = {
+      "source_metadata.parser_spans_present" => parsed_invariants.all? { |node| node.dig("source_span", "line") && node.dig("source_span", "col") },
+      "source_metadata.classifier_preserves_author_intent" => invariant_metadata_preserved?(classified_invariants),
+      "source_metadata.typechecker_preserves_author_intent" => invariant_metadata_preserved?(typed_invariants),
+      "source_metadata.semanticir_preserves_author_intent" => invariant_metadata_preserved?(semantic_invariants),
+      "source_metadata.report_coverage_preserves_author_intent" => invariant_metadata_preserved?(coverage),
+      "source_metadata.classifier_preserves_identity" => invariant_names(classified_invariants) == parsed_names,
+      "source_metadata.typechecker_preserves_identity" => invariant_names(typed_invariants) == parsed_names,
+      "source_metadata.semanticir_preserves_identity" => invariant_names(semantic_invariants) == parsed_names,
+      "source_metadata.report_coverage_preserves_identity" => invariant_names(coverage) == parsed_names
+    }
+    {
+      "pipeline" => {
+        "source_path" => pipeline.fetch("parsed").fetch("source_path"),
+        "parsed" => source_metadata_snapshot(parsed_invariants),
+        "classified" => source_metadata_snapshot(classified_invariants),
+        "typed" => source_metadata_snapshot(typed_invariants),
+        "semantic_ir" => source_metadata_snapshot(semantic_invariants),
+        "compilation_report" => source_metadata_snapshot(coverage)
+      },
+      "checks" => checks
+    }
+  rescue StandardError => e
+    {
+      "pipeline" => { "error" => "#{e.class}: #{e.message}" },
+      "checks" => {
+        "source_metadata.pipeline" => false
+      }
+    }
+  end
+
+  def invariant_decls_from_parsed(parsed)
+    parsed.fetch("contracts").flat_map { |contract| contract.fetch("body", []) }
+      .select { |node| node.fetch("kind", nil) == "invariant" }
+  end
+
+  def invariant_decls_from_contracts(program, declaration_key)
+    program.fetch("contracts").flat_map { |contract| contract.fetch(declaration_key, []) }
+      .select { |node| node.fetch("kind", nil) == "invariant" || node.fetch("kind", nil) == "invariant_node" }
+  end
+
+  def invariant_metadata_preserved?(nodes)
+    nodes.all? do |node|
+      metadata = node.fetch("source_metadata", {})
+      metadata.fetch("kind", nil) == "invariant" &&
+        metadata.fetch("source_path", nil) &&
+        metadata.fetch("name", nil) == node.fetch("name") &&
+        metadata.fetch("severity", nil) == node.fetch("severity") &&
+        metadata.key?("message") &&
+        metadata.dig("source_span", "line")
+    end
+  end
+
+  def invariant_names(nodes)
+    nodes.map { |node| node.fetch("name") }.sort
+  end
+
+  def source_metadata_snapshot(nodes)
+    nodes.map do |node|
+      metadata = node.fetch("source_metadata", node)
+      {
+        "name" => metadata.fetch("name"),
+        "severity" => metadata.fetch("severity"),
+        "source_path" => metadata.fetch("source_path", nil),
+        "message" => metadata.fetch("message", nil),
+        "source_span" => metadata.fetch("source_span", nil)
+      }
+    end
   end
 
   def checks(cases, report)

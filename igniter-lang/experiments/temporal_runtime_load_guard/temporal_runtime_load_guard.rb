@@ -31,11 +31,23 @@ module TemporalRuntimeLoadGuardProof
   ].freeze
 
   class GuardedRuntimeMachine
-    def initialize(temporal_runtime_supported:, temporal_capabilities:)
+    def initialize(
+      temporal_runtime_supported:,
+      temporal_capabilities:,
+      approval_enforcement: false,
+      executor_approval_token: nil,
+      gate3_authorized: false,
+      requested_cache_key_fragment: "TEMPORAL"
+    )
       @temporal_runtime_supported = temporal_runtime_supported
       @temporal_capabilities = temporal_capabilities
+      @approval_enforcement = approval_enforcement
+      @executor_approval_token = executor_approval_token
+      @gate3_authorized = gate3_authorized
+      @requested_cache_key_fragment = requested_cache_key_fragment
       @loaded_program = nil
       @loaded_metadata = nil
+      @loaded_artifact_ref = nil
     end
 
     def load_igapp(path)
@@ -47,9 +59,11 @@ module TemporalRuntimeLoadGuardProof
 
       @loaded_program = program
       @loaded_metadata = metadata
+      @loaded_artifact_ref = "igapp/#{program.program_id}"
       {
         "status" => "loaded",
         "program_id" => program.program_id,
+        "artifact_ref" => @loaded_artifact_ref,
         "temporal_contracts" => temporal_contracts(program).map { |contract| contract.fetch("contract_id") },
         "runtime_execution" => metadata.fetch("runtime_execution", {})
       }
@@ -99,6 +113,42 @@ module TemporalRuntimeLoadGuardProof
         )
       end
 
+      if @approval_enforcement
+        approval_refusal = validate_executor_approval(contract, required, as_of)
+        return approval_refusal if approval_refusal
+
+        unless @gate3_authorized == true
+          return blocked(
+            "runtime.temporal_gate3_closed",
+            "Gate 3 is closed for temporal evaluation",
+            contract_id: contract_id,
+            as_of: as_of,
+            context: {
+              "gate" => "tbackend_gate3",
+              "approval_token_ref" => @executor_approval_token.fetch("token_id", nil),
+              "guard_policy" => guard.fetch("guard_policy", nil)
+            }
+          )
+        end
+
+        cache_refusal = validate_temporal_cache_request(contract, as_of)
+        return cache_refusal if cache_refusal
+
+        if guard.dig("evaluate", "decision") == "refuse_temporal_contract"
+          return blocked(
+            guard.dig("evaluate", "reason_code") || "runtime.temporal_execution_unsupported",
+            "artifact guard_policy refuses temporal evaluation",
+            contract_id: contract_id,
+            as_of: as_of,
+            context: {
+              "guard_policy" => guard.fetch("guard_policy", nil),
+              "approval_token_ref" => @executor_approval_token.fetch("token_id", nil),
+              "gate3_authorized" => @gate3_authorized
+            }
+          )
+        end
+      end
+
       blocked(
         "runtime.temporal_execution_not_implemented",
         "temporal execution remains out of scope for this proof",
@@ -138,6 +188,91 @@ module TemporalRuntimeLoadGuardProof
         return refusal if refusal
       end
       nil
+    end
+
+    def validate_executor_approval(contract, required, as_of)
+      token = @executor_approval_token
+      contract_id = contract.fetch("contract_id")
+      unless token
+        return blocked(
+          "runtime.executor_approval_missing",
+          "executor approval token is required before temporal evaluation",
+          contract_id: contract_id,
+          as_of: as_of,
+          context: {
+            "required_gate" => "tbackend_gate3",
+            "required_operation" => "temporal_evaluate",
+            "required_capabilities" => required
+          }
+        )
+      end
+
+      unless token.is_a?(Hash)
+        return approval_block("runtime.executor_approval_malformed", "executor approval token must be an object", contract, as_of)
+      end
+
+      unless token.fetch("kind", nil) == "executor_approval_token" &&
+             token.fetch("version", nil) == "executor-approval-token-v1"
+        return approval_block("runtime.executor_approval_malformed", "executor approval token has invalid kind/version", contract, as_of)
+      end
+
+      unless token.fetch("gate", nil) == "tbackend_gate3"
+        return approval_block("runtime.executor_approval_wrong_gate", "executor approval token is scoped to the wrong gate", contract, as_of)
+      end
+
+      unless token.dig("scope", "operation") == "temporal_evaluate"
+        return approval_block("runtime.executor_approval_wrong_scope", "executor approval token is scoped to the wrong operation", contract, as_of)
+      end
+
+      unless token.fetch("artifact_ref", nil) == @loaded_artifact_ref
+        return approval_block("runtime.executor_approval_artifact_mismatch", "executor approval token artifact_ref does not match loaded artifact", contract, as_of)
+      end
+
+      contract_ref = contract_index_entry(contract.fetch("contract_id")).fetch("contract_ref")
+      unless Array(token.fetch("contract_refs", [])).include?(contract_ref)
+        return approval_block("runtime.executor_approval_contract_mismatch", "executor approval token does not include this contract", contract, as_of)
+      end
+
+      missing_caps = required - Array(token.fetch("capability_refs", []))
+      unless missing_caps.empty?
+        return approval_block(
+          "runtime.executor_approval_capability_mismatch",
+          "executor approval token is missing required capabilities",
+          contract,
+          as_of,
+          context: { "missing_capabilities" => missing_caps }
+        )
+      end
+
+      unless token.fetch("evidence_ref", nil)
+        return approval_block("runtime.executor_approval_evidence_missing", "executor approval token is missing evidence_ref", contract, as_of)
+      end
+
+      unless token.fetch("token_hash", nil) && token.fetch("signature", nil).is_a?(Hash)
+        return approval_block("runtime.executor_approval_signature_invalid", "executor approval token is missing token hash or signature", contract, as_of)
+      end
+
+      nil
+    end
+
+    def validate_temporal_cache_request(contract, as_of)
+      contract_id = contract.fetch("contract_id")
+      hint = contract_index_entry(contract_id).fetch("temporal").fetch("cache_key_schema_hint")
+      expected = hint.fetch("fragment")
+      return nil if @requested_cache_key_fragment == expected
+
+      blocked(
+        "runtime.temporal_cache_schema_mismatch",
+        "TEMPORAL evaluation cannot use a CORE-shaped cache key",
+        contract_id: contract_id,
+        as_of: as_of,
+        context: {
+          "gate" => "L-T5",
+          "expected_cache_key_fragment" => expected,
+          "requested_cache_key_fragment" => @requested_cache_key_fragment,
+          "prevents" => "PROP-028 silent staleness bug"
+        }
+      )
     end
 
     def validate_temporal_entry(program, contract, entry)
@@ -227,6 +362,22 @@ module TemporalRuntimeLoadGuardProof
         .map { |axis| axis == "as_of" ? "valid_time" : axis }
         .uniq
         .sort
+    end
+
+    def contract_index_entry(contract_id)
+      @loaded_program.manifest.fetch("contract_index").fetch(contract_id)
+    end
+
+    def approval_block(reason_code, message, contract, as_of, context: {})
+      blocked(
+        reason_code,
+        message,
+        contract_id: contract.fetch("contract_id"),
+        as_of: as_of,
+        context: {
+          "approval_token_ref" => @executor_approval_token.is_a?(Hash) ? @executor_approval_token.fetch("token_id", nil) : nil
+        }.merge(context)
+      )
     end
 
     def load_refusal(gate:, reason:, program_id:, contract_id: nil, context: {})

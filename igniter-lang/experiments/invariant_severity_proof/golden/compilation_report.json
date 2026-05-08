@@ -5,6 +5,7 @@
   "invariant_coverage": [
     {
       "label": "CG-INTERACTION-01",
+      "message": "Contraindicated drug combination - order blocked",
       "name": "contraindicated_interaction_block",
       "output_effect": "blocks",
       "output_policy": "blocking",
@@ -12,6 +13,7 @@
     },
     {
       "label": "CG-INTERACTION-02",
+      "message": "Major drug interaction requires acknowledgement",
       "name": "major_interaction_acknowledgement",
       "output_effect": "warns",
       "output_policy": "non_blocking",
@@ -19,6 +21,7 @@
     },
     {
       "label": "CG-RENAL-CONF-01",
+      "message": "Low confidence renal function - dose is approximate",
       "name": "renal_confidence_gate",
       "output_effect": "uncertain",
       "output_policy": "non_blocking",
@@ -26,6 +29,7 @@
     },
     {
       "label": "PERF-DOSE-01",
+      "message": "Dose computation latency metric",
       "name": "latency_metric",
       "output_effect": "metric",
       "output_policy": "non_blocking",

@@ -1,0 +1,560 @@
+{
+  "kind": "executor_approval_token_report_proof_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R10-C1-P",
+  "track": "executor-approval-token-report-proof-v0",
+  "status": "PASS",
+  "scope": {
+    "live_executor": false,
+    "live_tbackend": false,
+    "ledger_binding": false,
+    "production_cache": false,
+    "gate3_open": false
+  },
+  "context": {
+    "artifact_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/executor_approval_token_report_proof/out/history_single_axis.igapp",
+    "artifact_ref": "igapp/sha256:67a41017bbbf3b16f4089520bde64d75383f3333c88d7d34fa7a83bb0b44f462",
+    "contract_id": "TechnicianJobCountAt",
+    "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+    "required_capabilities": [
+      "history_read"
+    ],
+    "required_gate": "tbackend_gate3",
+    "required_operation": "temporal_evaluate",
+    "max_fragment_class": "TEMPORAL"
+  },
+  "reports": {
+    "missing": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "missing",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_missing",
+        "message": "ExecutorApprovalToken is missing",
+        "token_ref": null,
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_missing",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "malformed": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "malformed",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_malformed",
+        "message": "missing fields: version, token_id, authority_ref, gate, scope, artifact_ref, contract_refs, capability_refs, issued_at, expires_at, revocation, evidence_ref, token_hash, signature",
+        "token_ref": null,
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_malformed",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "invalid_hash": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "invalid_hash",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_signature_invalid",
+        "message": "token_hash does not match canonical token body",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_signature_invalid",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "invalid_signature": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "invalid_signature",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_signature_invalid",
+        "message": "signature does not match token_hash and authority",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_signature_invalid",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "untrusted_authority": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "untrusted_authority",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_authority_untrusted",
+        "message": "authority_ref is not trusted",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_authority_untrusted",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "expired": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "expired",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_expired",
+        "message": "token expired",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_expired",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "revoked": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "revoked",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_revoked",
+        "message": "token revoked",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_revoked",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "wrong_gate": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "wrong_gate",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_wrong_gate",
+        "message": "token gate is not tbackend_gate3",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_wrong_gate",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "wrong_scope": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "wrong_scope",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_wrong_scope",
+        "message": "token scope does not authorize temporal_evaluate TEMPORAL",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_wrong_scope",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "wrong_artifact": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "wrong_artifact",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_artifact_mismatch",
+        "message": "token artifact_ref does not match loaded artifact",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_artifact_mismatch",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "wrong_contract": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "wrong_contract",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_contract_mismatch",
+        "message": "token contract_refs do not cover target contract",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_contract_mismatch",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "wrong_capability": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "wrong_capability",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_capability_mismatch",
+        "message": "token capability_refs do not cover required capabilities",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_capability_mismatch",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "missing_evidence": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "missing_evidence",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_evidence_missing",
+        "message": "evidence_ref not found",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_evidence_missing",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    },
+    "valid_token_gate3_closed": {
+      "kind": "compatibility_report",
+      "format_version": "0.1.0",
+      "track": "executor-approval-token-report-proof-v0",
+      "case_id": "valid_token_gate3_closed",
+      "report_only": true,
+      "runtime_enforced": false,
+      "overall": "blocked",
+      "executor_approval_check": {
+        "decision": "ok",
+        "reason_code": "runtime.executor_approval_token_valid",
+        "token_ref": "approval/2026-05-08/gate3/proof-001",
+        "authority_ref": "architect-supervisor/proof-authority",
+        "evidence_ref": "decision/gate3/record/proof-001",
+        "runtime_enforced": false
+      },
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.temporal_gate3_closed",
+        "blocks_before_executor": true,
+        "gate3_open": false
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "cache_call_attempted": false
+      },
+      "non_authorization": {
+        "gate3_open": false,
+        "executor_authorized": false,
+        "live_tbackend_binding": false,
+        "ledger_reads": false,
+        "ledger_writes": false,
+        "ledger_replay": false
+      }
+    }
+  },
+  "checks": {
+    "missing.reason_code": true,
+    "malformed.reason_code": true,
+    "invalid_hash.reason_code": true,
+    "invalid_signature.reason_code": true,
+    "untrusted_authority.reason_code": true,
+    "expired.reason_code": true,
+    "revoked.reason_code": true,
+    "wrong_gate.reason_code": true,
+    "wrong_scope.reason_code": true,
+    "wrong_artifact.reason_code": true,
+    "wrong_contract.reason_code": true,
+    "wrong_capability.reason_code": true,
+    "missing_evidence.reason_code": true,
+    "valid_token_gate3_closed.reason_code": true,
+    "all_reports_block_before_executor": true,
+    "no_live_operation_attempted": true,
+    "all_reports_remain_report_only": true,
+    "valid_token_approval_ok_but_gate3_closed": true
+  },
+  "remaining_gate3_gaps": [
+    "RuntimeMachine must enforce this same approval decision before evaluator/cache/TBackend entry.",
+    "Gate 3 opening record must define trusted authorities and revocation registry.",
+    "Production signature verification must replace proof-local deterministic recorded-decision hash.",
+    "CompatibilityReport persistence/audit receipts remain unimplemented.",
+    "Executor cache-key boundary must remain ordered before cache lookup or TBackend access."
+  ]
+}

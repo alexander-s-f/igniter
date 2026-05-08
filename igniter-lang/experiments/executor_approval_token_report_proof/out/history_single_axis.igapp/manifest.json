@@ -1,0 +1,73 @@
+{
+  "artifact_hash": "sha256:67a41017bbbf3b16f4089520bde64d75383f3333c88d7d34fa7a83bb0b44f462",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/096b47d88eccf388",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "TechnicianJobCountAt": {
+      "contract_path": "contracts/technician_job_count_at.json",
+      "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+      "fragment_class": "temporal",
+      "temporal": {
+        "axes": [
+          "valid_time"
+        ],
+        "cache_key_schema_hint": {
+          "axis": "valid_time",
+          "coordinate_names": [
+            "as_of"
+          ],
+          "fragment": "TEMPORAL",
+          "schema": "runtime-cache-key-v1"
+        },
+        "coordinates": [
+          {
+            "axis": "valid_time",
+            "name": "as_of",
+            "source_ref": "input:as_of",
+            "type": "DateTime"
+          }
+        ],
+        "required_capabilities": [
+          "history_read"
+        ]
+      }
+    }
+  },
+  "contract_refs": {
+    "TechnicianJobCountAt": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572"
+  },
+  "contracts": [
+    "TechnicianJobCountAt"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "temporal",
+  "fragment_summary": {
+    "fragment_classes": [
+      "temporal"
+    ],
+    "max_fragment_class": "temporal",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/096b47d88eccf388",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/096b47d88eccf388",
+  "source_hash": "sha256:096b47d88eccf388186cda7faddcfc7e2b3753ba63fea0e0b68f48afe63ed2fb",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/history_type_proof/history_integer_point_access.ig",
+  "warnings": []
+}

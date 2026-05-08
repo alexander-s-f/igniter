@@ -1,0 +1,565 @@
+{
+  "kind": "compatibility_report_package_descriptor_consumption_summary",
+  "card": "S3-R10-C3-P",
+  "status": "PASS",
+  "gate": "gate_2_ratified_metadata_only",
+  "report_only": true,
+  "runtime_enforced": false,
+  "non_authorization": {
+    "live_package_binding": false,
+    "ledger_calls": false,
+    "temporal_reads": false,
+    "gate_3_opened": false
+  },
+  "cases": {
+    "trusted_metadata": {
+      "decision": "trusted_metadata",
+      "report_id": "compat/package_descriptor/019a4722a19d979a",
+      "runtime_enforced": false,
+      "report_only": true,
+      "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+      "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696",
+      "warnings": [
+        "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+      ],
+      "diagnostics": {
+        "package_descriptor": {
+          "kind": "ledger_tbackend_adapter_descriptor_diagnostics",
+          "status": "ok",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+          "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696"
+        },
+        "descriptor_shape": {
+          "kind": "package_descriptor_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "diagnostics_shape": {
+          "kind": "package_descriptor_diagnostics_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "missing_flags": [],
+          "violations": []
+        }
+      }
+    },
+    "missing_descriptor_hash": {
+      "decision": "blocked",
+      "report_id": "compat/package_descriptor/8de4061048af018f",
+      "runtime_enforced": false,
+      "report_only": true,
+      "descriptor_hash": null,
+      "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696",
+      "warnings": [
+        "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+      ],
+      "diagnostics": {
+        "package_descriptor": {
+          "kind": "ledger_tbackend_adapter_descriptor_diagnostics",
+          "status": "ok",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": null,
+          "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696"
+        },
+        "descriptor_shape": {
+          "kind": "package_descriptor_shape_diagnostic",
+          "status": "blocked",
+          "missing_fields": [
+            "descriptor_hash"
+          ],
+          "malformed_fields": []
+        },
+        "diagnostics_shape": {
+          "kind": "package_descriptor_diagnostics_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "missing_flags": [],
+          "violations": []
+        }
+      }
+    },
+    "missing_registry_hash": {
+      "decision": "blocked",
+      "report_id": "compat/package_descriptor/37618f9d19095506",
+      "runtime_enforced": false,
+      "report_only": true,
+      "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+      "descriptor_registry_hash": null,
+      "warnings": [
+        "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+      ],
+      "diagnostics": {
+        "package_descriptor": {
+          "kind": "ledger_tbackend_adapter_descriptor_diagnostics",
+          "status": "ok",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+          "descriptor_registry_hash": null
+        },
+        "descriptor_shape": {
+          "kind": "package_descriptor_shape_diagnostic",
+          "status": "blocked",
+          "missing_fields": [
+            "descriptor_registry_hash"
+          ],
+          "malformed_fields": []
+        },
+        "diagnostics_shape": {
+          "kind": "package_descriptor_diagnostics_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "missing_flags": [],
+          "violations": []
+        }
+      }
+    },
+    "missing_capability": {
+      "decision": "blocked",
+      "report_id": "compat/package_descriptor/28eaaeda36e2d29e",
+      "runtime_enforced": false,
+      "report_only": true,
+      "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+      "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696",
+      "warnings": [
+        "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+      ],
+      "diagnostics": {
+        "package_descriptor": {
+          "kind": "ledger_tbackend_adapter_descriptor_diagnostics",
+          "status": "blocked",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [
+            "bihistory_read"
+          ],
+          "missing_axes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+          "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696"
+        },
+        "descriptor_shape": {
+          "kind": "package_descriptor_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "diagnostics_shape": {
+          "kind": "package_descriptor_diagnostics_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "missing_flags": [],
+          "violations": []
+        }
+      }
+    },
+    "missing_axis": {
+      "decision": "blocked",
+      "report_id": "compat/package_descriptor/4cd8ebec5011c6fa",
+      "runtime_enforced": false,
+      "report_only": true,
+      "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+      "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696",
+      "warnings": [
+        "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+      ],
+      "diagnostics": {
+        "package_descriptor": {
+          "kind": "ledger_tbackend_adapter_descriptor_diagnostics",
+          "status": "blocked",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [
+            "transaction_time"
+          ],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+          "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696"
+        },
+        "descriptor_shape": {
+          "kind": "package_descriptor_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "diagnostics_shape": {
+          "kind": "package_descriptor_diagnostics_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "missing_flags": [],
+          "violations": []
+        }
+      }
+    },
+    "missing_cursor_policy": {
+      "decision": "blocked",
+      "report_id": "compat/package_descriptor/53ccc691651596eb",
+      "runtime_enforced": false,
+      "report_only": true,
+      "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+      "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696",
+      "warnings": [
+        "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+      ],
+      "diagnostics": {
+        "package_descriptor": {
+          "kind": "ledger_tbackend_adapter_descriptor_diagnostics",
+          "status": "ok",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+          "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696"
+        },
+        "descriptor_shape": {
+          "kind": "package_descriptor_shape_diagnostic",
+          "status": "blocked",
+          "missing_fields": [
+            "cursor_policy"
+          ],
+          "malformed_fields": [
+            "cursor_policy"
+          ]
+        },
+        "diagnostics_shape": {
+          "kind": "package_descriptor_diagnostics_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "missing_flags": [],
+          "violations": []
+        }
+      }
+    },
+    "missing_package_diagnostics": {
+      "decision": "blocked",
+      "report_id": "compat/package_descriptor/59ae3d1b18417f3f",
+      "runtime_enforced": false,
+      "report_only": true,
+      "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+      "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696",
+      "warnings": [
+        "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+      ],
+      "diagnostics": {
+        "package_descriptor": null,
+        "descriptor_shape": {
+          "kind": "package_descriptor_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "diagnostics_shape": {
+          "kind": "package_descriptor_diagnostics_shape_diagnostic",
+          "status": "blocked",
+          "missing_fields": [
+            "diagnostics"
+          ],
+          "malformed_fields": []
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "missing_flags": [],
+          "violations": []
+        }
+      }
+    },
+    "malformed_package_diagnostics": {
+      "decision": "blocked",
+      "report_id": "compat/package_descriptor/9f70e2de94ab8bd9",
+      "runtime_enforced": false,
+      "report_only": true,
+      "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+      "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696",
+      "warnings": [
+        "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+      ],
+      "diagnostics": {
+        "package_descriptor": {
+          "kind": "unexpected_diagnostics",
+          "status": "ok",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+          "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696"
+        },
+        "descriptor_shape": {
+          "kind": "package_descriptor_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "diagnostics_shape": {
+          "kind": "package_descriptor_diagnostics_shape_diagnostic",
+          "status": "blocked",
+          "missing_fields": [],
+          "malformed_fields": [
+            "kind"
+          ]
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "missing_flags": [],
+          "violations": []
+        }
+      }
+    },
+    "non_authorization_violation": {
+      "decision": "blocked",
+      "report_id": "compat/package_descriptor/e301ed664c455efc",
+      "runtime_enforced": false,
+      "report_only": true,
+      "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+      "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696",
+      "warnings": [
+        "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+      ],
+      "diagnostics": {
+        "package_descriptor": {
+          "kind": "ledger_tbackend_adapter_descriptor_diagnostics",
+          "status": "ok",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+          "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696"
+        },
+        "descriptor_shape": {
+          "kind": "package_descriptor_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "diagnostics_shape": {
+          "kind": "package_descriptor_diagnostics_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "blocked",
+          "missing_flags": [],
+          "violations": [
+            "ledger_reads"
+          ]
+        }
+      }
+    },
+    "bad_cache_policy": {
+      "decision": "blocked",
+      "report_id": "compat/package_descriptor/97b49b997f37ce56",
+      "runtime_enforced": false,
+      "report_only": true,
+      "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+      "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696",
+      "warnings": [
+        "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+      ],
+      "diagnostics": {
+        "package_descriptor": {
+          "kind": "ledger_tbackend_adapter_descriptor_diagnostics",
+          "status": "ok",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+          "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696"
+        },
+        "descriptor_shape": {
+          "kind": "package_descriptor_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "diagnostics_shape": {
+          "kind": "package_descriptor_diagnostics_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "blocked",
+          "rule": "OOF-TM9",
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "core"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "missing_flags": [],
+          "violations": []
+        }
+      }
+    },
+    "malformed_descriptor_kind": {
+      "decision": "blocked",
+      "report_id": "compat/package_descriptor/3b6daab491667226",
+      "runtime_enforced": false,
+      "report_only": true,
+      "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+      "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696",
+      "warnings": [
+        "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+      ],
+      "diagnostics": {
+        "package_descriptor": {
+          "kind": "ledger_tbackend_adapter_descriptor_diagnostics",
+          "status": "ok",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:feaa6fa32afe4d2b1aa42bc02e28e0cbd47e12336cc0bd352c57dadd06d2c189",
+          "descriptor_registry_hash": "sha256:fdd85a1e0f69bf4207fa8659a5cb7f57e63493b76038c161bf808b231aa35696"
+        },
+        "descriptor_shape": {
+          "kind": "package_descriptor_shape_diagnostic",
+          "status": "blocked",
+          "missing_fields": [],
+          "malformed_fields": [
+            "kind"
+          ]
+        },
+        "diagnostics_shape": {
+          "kind": "package_descriptor_diagnostics_shape_diagnostic",
+          "status": "ok",
+          "missing_fields": [],
+          "malformed_fields": []
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "missing_flags": [],
+          "violations": []
+        }
+      }
+    }
+  }
+}
