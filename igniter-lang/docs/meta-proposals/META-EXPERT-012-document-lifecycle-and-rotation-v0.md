@@ -1,389 +1,491 @@
-# META-EXPERT-012: Document Lifecycle and Rotation Methodology v0
+# META-EXPERT-012: Document Lifecycle, Actualization, Rotation, and Archivation v0
 
 Card: S3-R4-C4-S (внетрековая задача)
 Agent: [Igniter-Lang Meta Expert]
 Role: meta-expert
-Track: igniter-lang/docs/meta-proposals/META-EXPERT-012-document-lifecycle-and-rotation-v0.md
 Date: 2026-05-08
 Status: active governance
+Supersedes: nothing (new policy)
 
 ---
 
-## I. Проблема
+## I. Назначение
 
-По состоянию на S3-R4 накопились структурные дисфункции документооборота:
+Этот документ определяет методологию работы с документацией проекта по трём осям:
 
-```
-Симптом                                              Диагноз
-──────────────────────────────────────────────────────────────────────────────
-177 track-документов, ни один не в архиве            нет критерия ротации
-16 proposals со Status: proposal                     lifecycle не закрывается
-PROP-026, PROP-027 «закрыты» в README, файлы — нет  двойное состояние
-META-EXPERT-008 «superseded» в active section        нет разделения зон
-Spec ch4 (fragment class) последний раз обновлялся   spec дрейфует от кода
-  в S2-R7; TEMPORAL fragment в Stage 3 не отражён
-current-status.md обновляется каждый раунд           это работает ✅
-discussions/ всегда закрываются с маршрутом           это работает ✅
-```
+- **Актуализация** — как и когда документы обновляются
+- **Ротация** — как документы меняют жизненный статус (promoted, deprecated, superseded)
+- **Архивация** — когда и как документы уходят в архив, что живёт в `archive/`
 
-Корневая причина: документы имеют разные жизненные циклы, но единый статусный
-словарь не определён. Нет правил перехода между состояниями и нет
-per-round обязательств по актуализации.
+Все роли следуют этому словарю. Single source of truth по lifecycle.
 
 ---
 
-## II. Принципы
+## II. Диагноз текущего состояния
 
-**P1. Каждый тип документа имеет свой lifecycle, не один общий.**
-Track-документ «готов» после handoff и не должен обновляться.
-Spec-глава — живая и должна следовать за реализацией.
+По состоянию на S3-R4 накопились структурные дисфункции:
 
-**P2. Актуализация != переписывание.**
-Большинство переходов — это смена одного поля (Status) или добавление
-одной строки в индекс. Не нужна полная реструктуризация.
+```
+Симптом                                                  Диагноз
+─────────────────────────────────────────────────────────────────────────────
+177 track-документов, ни один не в архиве                нет правил архивации
+16 proposals со Status: proposal                         lifecycle не закрывается
+PROP-026/027 «закрыты» в README, файлы — нет             ротация не выполнена
+META-EXPERT-008 «superseded» без явного механизма        ротация не определена
+Spec ch4 не обновлялся с S2-R7 (TEMPORAL не отражён)    актуализация не триггерится
+Нет per-round обязанностей по lifecycle                  нет системы
+─────────────────────────────────────────────────────────────────────────────
+current-status.md обновляется каждый раунд               ✅ работает
+discussions/ всегда закрываются с маршрутом               ✅ работает
+```
 
-**P3. Ответственность за ротацию — per-round, не ad hoc.**
-Meta Expert проверяет lifecycle checklist в каждом round-curation слайсе.
+Корневая причина: три механизма (актуализация, ротация, архивация) не разграничены.
+Нет чёткого ответа на вопросы:
+- Кто обновляет этот документ и когда?
+- Что означает «устарел» vs «заменён» vs «архивный»?
+- Куда уходит документ, когда он больше не нужен в активном пространстве?
+
+---
+
+## III. Принципы
+
+**P1. Три механизма независимы.**
+Актуализация — это обновление содержимого живого документа.
+Ротация — это изменение его статуса в lifecycle.
+Архивация — это физическое перемещение из рабочего пространства.
+Документ может актуализироваться без ротации и архивации.
+
+**P2. Каждый тип документа имеет свой lifecycle.**
+Track-документ после `done` не обновляется — он неизменен как доказательство.
+Spec-глава после каждого раунда с изменениями в коде требует проверки.
+
+**P3. Ответственность фиксирована, не ad hoc.**
+За каждый тип документа назначен владелец процесса.
+Per-round checklist — это исполняемая обязанность Meta Expert, не «если не забыл».
 
 **P4. Архив — не мусоропровод.**
-Документ уходит в архив только когда замещён или доказательство неактуально.
-«Старый» ≠ «архивный».
+Документ уходит в архив только по одному из трёх критериев:
+- stage close (плановая архивация)
+- явная замена другим документом
+- доказательство, на которое документ ссылается, устарело
 
-**P5. Single source of truth по lifecycle — этот документ.**
-Все роли следуют этому словарю.
+«Старый» ≠ «архивный». Документ S2-R2 может оставаться живым сигналом в S3.
 
----
-
-## III. Типы документов и их lifecycle
-
-### 3.1 `current-status.md`
-
-**Тип:** живая доска  
-**Владелец:** Meta Expert + Supervisor  
-**Lifecycle:** один документ, не архивируется
-
-```
-Состояния: всегда active
-Обновляется: каждый round-curation слайс
-Триггер обновления: любой track или proposal меняет статус Stage 3
-Признак устаревания: последнее обновление > 2 rounds назад
-```
-
-→ **Не имеет archive-состояния.** Историческое состояние хранится в
-git history и в stage-close snapshots.
+**P5. Status: в файле = факт, не украшение.**
+Любое расхождение между Status: в файле и Status: в индексном README — это дефект,
+требующий исправления в текущем round.
 
 ---
 
-### 3.2 Track-документы (`docs/tracks/*.md`)
+## IV. Типы документов и lifecycle-словарь
 
-**Тип:** срезовое доказательство (slice evidence)  
-**Владелец:** назначенный агент на slice
+### 4.1 `current-status.md` — живая доска
+
+```
+Lifecycle:    один документ, всегда active, не ротируется, не архивируется
+Владелец:     Meta Expert + Supervisor
+```
+
+Не имеет версионирования и состояний. Историческое состояние хранится в git
+и в stage-close snapshots. Признак проблемы: не обновлялся > 2 rounds.
+
+---
+
+### 4.2 Track-документы (`docs/tracks/*.md`) — срезовые доказательства
 
 ```
 Состояния:
-  in_progress   написан, слайс ещё идёт
-  done          handoff закончен, доказательство зафиксировано
-  blocked       явно ждёт другого слайса
-  superseded    заменён более поздним треком (добавить ссылку)
-  archived      ушёл в archive/ (только stage-close или pre-crystallization)
-
-Переход done → archived:
-  - автоматически при stage close snapshot
-  - вручную если трек явно устарел (superseded > 2 rounds назад)
-  
-Переход done → superseded:
-  - когда вышел новый трек с тем же scope
-  - добавить в файл: [Superseded by: <track-name>]
+  in_progress    слайс идёт, документ пишется
+  done           handoff закончен, доказательство зафиксировано
+  blocked        явно ждёт разблокировки другим слайсом
+  superseded     заменён более поздним треком; поле "Superseded by: <name>"
+  archived       перемещён в archive/ при stage close
 ```
 
-**Правило:** track-документ не редактируется после статуса `done`.
-Если нужна корректировка — создаётся новый трек с `-errata-` или `-v1` суффиксом.
-
-**Ротация per-round (для Meta Expert):**
-- Отметить треки прошлых rounds как `done` если это не сделано.
-- Если round насчитывает >20 новых треков — создать sub-index в tracks/README.md.
-- При stage close: переместить все треки текущего stage в archive/snapshots/.
+Правило неизменности: track-документ **не редактируется** после `done`.
+Если нужна корректировка — новый трек с суффиксом `-errata-v0` или `-v1`.
 
 ---
 
-### 3.3 Proposals (`docs/proposals/PROP-*.md`)
-
-**Тип:** формальное языковое предложение  
-**Владелец:** Compiler/Grammar Expert (authorship); Meta Expert (lifecycle)
+### 4.3 Proposals (`docs/proposals/PROP-*.md`) — формальные предложения
 
 ```
-Lifecycle:
-  authored      написан, ещё не прошёл верификацию
-  proposal      принят к рассмотрению (текущий main state для большинства)
-  verified      прошёл experiment PASS (прим: PROP-026, PROP-027)
-  closed        доказательство принято, спецификация обновлена
-  rejected      формально отклонён с обоснованием
-  superseded    заменён более новым PROP (добавить ссылку)
-
-Текущий дефект (май 2026):
-  PROP-026 — Status: proposal, но verified/closed в README
-  PROP-027 — Status: proposal, но verified/closed в README
-  → Требуется разовая актуализация: обновить Status: в файлах до "closed"
-
-Правило:
-  Status: в файле PROP должен совпадать со статусом в proposals/README.md.
-  Расхождение = дефект.
+Состояния:
+  authored       написан, ещё без верификации
+  proposal       принят к рассмотрению
+  verified       experiment PASS, спецификация ещё не обновлена
+  closed         experiment PASS + spec обновлён/scheduled
+  rejected       формально отклонён (записать обоснование)
+  superseded     заменён новым PROP; поле "Superseded by: PROP-NNN"
 ```
 
-**Переход proposal → closed:**
-- Experiment PASS зафиксирован в track-документе.
-- Spec-глава обновлена (или scheduled к обновлению).
-- Meta Expert обновляет Status: в файле PROP.
-- proposals/README.md обновляется.
-
-**Переход → superseded:**
-- Новый PROP явно заменяет старый.
-- В старом файле добавить строку: `Superseded by: PROP-NNN`.
-- В README пометить как `superseded`.
-
-**Архивирование:** closed и superseded PROPs перемещаются в `accepted/` при
-stage close. `accepted/` — read-only.
+Правило синхронности: Status: в файле PROP = Status: в proposals/README.md.
+Расхождение — дефект текущего round.
 
 ---
 
-### 3.4 Spec-главы (`docs/spec/ch*.md`)
-
-**Тип:** канонический эталон языка  
-**Владелец:** Meta Expert + одобренный имплементатор
+### 4.4 Spec-главы (`docs/spec/ch*.md`) — канонический эталон
 
 ```
-Lifecycle:
-  draft         написана, ещё не соответствует implementation
-  current       соответствует текущей реализации
-  stale         реализация ушла вперёд, глава не обновлена
-  frozen        stage закрыт, глава заморожена (Stage 1 = frozen)
-
-Признаки stale:
-  - В classifier.rb есть fragment_class которого нет в ch4
-  - В SemanticIREmitter есть node types которых нет в ch6
-  - Раунд closed, новые nodes доказаны, глава не тронута
-
-Правило "spec lag":
-  Spec может отставать от реализации максимум на 1 stage.
-  Т.е. Stage 3 может начаться со stale spec из Stage 2.
-  Но к stage close spec должен быть current.
+Состояния:
+  draft          написана, пока не соответствует реализации
+  current        соответствует текущей реализации
+  stale          реализация ушла вперёд, глава не обновлена
+  frozen         stage закрыт, глава заморожена (Stage 1 = frozen)
 ```
 
-**Per-round trigger:**
-Если в round зафиксировано изменение в classifier/typechecker/emitter — Meta
-Expert добавляет запись в backlog обновлений spec. При наступлении `spec-sync`
-трека — обновление выполняется.
-
-**Текущий долг по spec (май 2026):**
-
-| Глава | Последнее обновление | Долг |
-|-------|---------------------|------|
-| ch4 (fragment classification) | S2-R7 | TEMPORAL fragment class (PROP-028) не отражён |
-| ch6 (semanticir) | S2-R9 | temporal_input_node / temporal_access_node не отражены |
-| ch5 (compiler pipeline) | S2-R7 | emit_typed path не описан |
-| ch7 (runtime) | S2-R6 | cache key contract (C3) не отражён |
-
-→ Требуется spec-sync трек в S3-R4 или S3-R5.
+Constraint «spec-lag»: spec может отставать не более чем на 1 stage.
+К stage close spec должен быть в состоянии `current`.
 
 ---
 
-### 3.5 Meta-proposals (`docs/meta-proposals/META-EXPERT-*.md`)
-
-**Тип:** стратегические решения и управление  
-**Владелец:** Meta Expert
+### 4.5 Meta-proposals (`docs/meta-proposals/META-EXPERT-*.md`) — управление
 
 ```
-Lifecycle:
-  active        текущее действующее решение
-  supporting    поддерживающий контекст для active
-  decision      принятое одноразовое решение (не меняется)
-  superseded    заменён более новым META-EXPERT
-  done          задача выполнена (процессный документ)
-  research-note не-governance материал, только давление
-  vision        стратегический horizon без governance force
-
-Правило active:
-  Только ONE META-EXPERT может иметь статус active на каждую тему.
-  META-EXPERT-008 (Stage 2 governance) = superseded.
-  META-EXPERT-011 (Stage 3 governance) = active.
-  Если оба в active section README — это дефект.
-
-Ротация:
-  При смене stage → архивировать завершённые governance документы.
-  При stage close → добавить в README секцию "Stage N Governance (closed)".
-  Superseded документы → перемещать в closed-секцию, не удалять.
+Состояния:
+  active         текущее действующее решение
+  supporting     поддерживающий контекст для active
+  decision       принятое одноразовое решение (не изменяется)
+  superseded     заменён более новым META-EXPERT
+  done           задача выполнена (процессный документ)
+  research-note  не-governance материал (давление, идеи)
+  vision         стратегический горизонт без governance force
 ```
 
-**Текущий дефект:** META-EXPERT-008 в README присвоен статус "superseded" но
-находится в секции "Stage 2 Governance (closed)", что фактически корректно.
-Дополнительно: signal-ledger-index.md не обновлялся с S2. Добавить признак stale.
+Правило уникальности: только ОДИН meta-proposal может иметь статус `active`
+на конкретную тему в конкретный момент.
 
 ---
 
-### 3.6 Discussions (`docs/discussions/*.md`)
-
-**Тип:** ограниченная дискуссия  
-**Владелец:** инициатор (Supervisor / Meta Expert / user)
+### 4.6 Discussions (`docs/discussions/*.md`) — ограниченные дискуссии
 
 ```
-Lifecycle:
-  open          дискуссия идёт
-  complete      закончена, маршрут определён (PROP / track / backlog / reject)
-
-Правило:
-  Discussion не переходит в archive.
-  После complete — остаётся в discussions/ как исторический сигнал.
-  Индексируется в discussions/README.md.
-  Не редактируется после complete.
+Состояния:
+  open       дискуссия идёт
+  complete   закончена, маршрут определён (PROP / track / backlog / reject)
 ```
 
-→ Текущий процесс работает корректно. Никаких изменений не требуется.
+После `complete` не редактируется. Не архивируется — остаётся как исторический
+сигнал в discussions/. Работает корректно; изменений не требуется.
 
 ---
 
-## IV. Per-Round Lifecycle Checklist
+## V. Актуализация
 
-Выполняется в каждом `*-status-curation-v0` слайсе Meta Expert.
+**Актуализация** — это обновление содержимого живого документа в ответ
+на изменение внешних фактов (код, эксперименты, решения).
+
+### Что актуализируется и когда
+
+| Документ | Триггер | Кто выполняет |
+|----------|---------|---------------|
+| `current-status.md` | каждый round-curation слайс | Meta Expert |
+| Spec-глава | в коде появился новый node type / fragment class | C/G Expert по запросу Meta Expert |
+| proposals/README.md | изменился статус любого PROP | Meta Expert |
+| PROP-файл | experiment PASS или PROP superseded | Meta Expert (Status строка) |
+| meta-proposals/README.md | появился новый META-EXPERT | Meta Expert |
+| tracks/README.md | добавлен новый трек | автор трека |
+
+### Что НЕ актуализируется (неизменяемые типы)
+
+- Track-документы после `done`
+- Discussions после `complete`
+- PROPs в `accepted/`
+- Документы в `archive/snapshots/`
+
+### Spec-backlog
+
+Когда Meta Expert видит изменение в classifier/emitter без соответствующего
+обновления spec-главы, он создаёт запись в spec-backlog (внутри текущего
+status-curation трека):
+
+```text
+spec-backlog (пример):
+  ch4: TEMPORAL fragment class — PROP-028 не отражён [S3-R2]
+  ch6: temporal_input_node / temporal_access_node [S3-R3-C2]
+  ch5: emit_typed path [S3-R2]
+  ch7: cache key contract [S3-R3-C3]
+```
+
+При накоплении ≥3 записей или при отставании > 2 rounds — создаётся
+`spec-stage3-sync-v0` трек [Compiler/Grammar Expert].
+
+---
+
+## VI. Ротация
+
+**Ротация** — это изменение lifecycle-статуса документа:
+продвижение (promoted), устаревание (deprecated), замена (superseded).
+
+Ротация не перемещает файлы физически (это задача архивации).
+Ротация меняет `Status:` в файле и запись в индексе.
+
+### Правила ротации по типу
+
+**Track-документы:**
+
+```
+in_progress → done         handoff написан, слайс закрыт
+done → superseded          вышел новый трек с тем же scope
+                           → добавить "Superseded by: <name>" в файл
+                           → обновить tracks/README.md
+blocked → done             разблокировка зафиксирована в handoff
+blocked → superseded       scope закрыт другим способом
+```
+
+**PROP-файлы:**
+
+```
+authored → proposal        принят в очередь рассмотрения
+proposal → verified        experiment PASS задокументирован в track
+verified → closed          spec обновлён или scheduled
+proposal/verified → rejected   решение отклонить; записать причину
+any → superseded           новый PROP явно заменяет; добавить ссылку
+```
+
+**Meta-proposals:**
+
+```
+active → superseded        новый META-EXPERT принимает управление по теме
+                           → переместить в секцию "Stage N Governance (closed)"
+                           → в новом META-EXPERT добавить "Supersedes: ME-NNN"
+decision / done            состояние финальное; не меняется
+```
+
+**Spec-главы:**
+
+```
+current → stale            код ушёл вперёд, глава не обновлена
+stale → current            spec-sync трек выполнен
+current → frozen           stage close (Meta Expert)
+```
+
+### Per-round ротационная проверка
+
+В каждом `status-curation` слайсе Meta Expert выполняет:
+
+```
+[ ] Все эксперименты с PASS → PROP Status обновлён до closed?
+[ ] Есть треки с done статусом > 2 rounds без superseded метки?
+[ ] Есть meta-proposals в active секции которые уже superseded?
+[ ] Есть spec-главы в current которые должны быть stale?
+[ ] tracks/README.md синхронизирован с новыми треками?
+```
+
+---
+
+## VII. Архивация
+
+**Архивация** — физическое перемещение документа из рабочего пространства
+в `docs/archive/`. Документы в архиве: read-only, исторический контекст,
+не требуют обслуживания.
+
+### Когда архивируется
+
+Три и только три критерия:
+
+```
+КРИТЕРИЙ A (плановый): Stage close
+  → все треки текущего stage переносятся в archive/snapshots/YYYY-MM-DD-stage-N-close/
+  → PROPs в статусе closed/superseded переносятся в proposals/accepted/
+  → spec-главы замораживаются (Status: frozen), физически не переносятся
+
+КРИТЕРИЙ B (замена): документ явно superseded + прошёл ≥ 1 full round
+  → track с superseded статусом + его заменитель уже имеет done
+  → meta-proposal с superseded из прошлого stage
+  → действие: перенести в archive/superseded/
+
+КРИТЕРИЙ C (утраченная актуальность): доказательство, на которое ссылается
+  документ, физически удалено или полностью переписано
+  → требует явного решения Meta Expert + Supervisor
+  → действие: перенести в archive/orphaned/ с пояснением причины
+```
+
+Всё остальное — не архивируется. «Старый трек» без явного критерия остаётся
+в tracks/ как исторический след.
+
+### Что куда переносится
+
+```
+docs/archive/
+  snapshots/
+    YYYY-MM-DD-stage-N-close/     ← полный срез при stage close
+      tracks/                     ← все треки закрытого stage
+      proposals/                  ← только accepted/ не переносятся, они уже там
+      meta-proposals/             ← historical governance docs
+      current-status.json         ← снимок scoreboard на момент close
+  superseded/
+    <document-name>.md            ← явно замещённые документы (Критерий B)
+  orphaned/
+    <document-name>.md            ← документы с утраченным контекстом (Критерий C)
+    reason.md                     ← обязательно: объяснение почему
+```
+
+### Что НЕ архивируется никогда
+
+- `current-status.md` — только git history
+- `docs/discussions/*.md` — остаются как исторические сигналы
+- Spec-главы — замораживаются (`frozen`), физически не перемещаются
+- `proposals/accepted/` — уже является финальным местом для closed PROPs
+
+### Stage close snapshot — процедура
+
+При каждом stage close Meta Expert выполняет:
+
+```
+1. Зафиксировать дату close: YYYY-MM-DD
+2. Создать директорию: archive/snapshots/YYYY-MM-DD-stageN-close/
+3. Скопировать (не переместить) все треки stage в snapshot/tracks/
+4. Скопировать meta-proposals governance docs в snapshot/meta-proposals/
+5. Записать current-status snapshot как stage-close-status.json
+6. Переместить closed/superseded PROPs в proposals/accepted/
+7. Заморозить spec: обновить Status: current → frozen для всех ch*.md
+8. Обновить meta-proposals/README.md: закрытый stage → archived section
+9. Создать stage-close-governance META-EXPERT (пример: META-EXPERT-009.1)
+```
+
+**Примечание:** при stage close используется копирование в snapshot,
+а не перемещение из tracks/. Треки физически остаются в tracks/ как
+активная история, но snapshot фиксирует полный состав на момент close.
+Ротация (superseded/archived статусы) выполняется отдельно от snapshot.
+
+---
+
+## VIII. Матрица ответственности
+
+| Документ | Создаёт | Актуализирует | Ротирует | Архивирует |
+|----------|---------|--------------|---------|------------|
+| current-status.md | Meta Expert | Meta Expert (каждый round) | — | — |
+| Track docs | назначенный агент | — (не редактируется) | Meta Expert | Meta Expert (stage close) |
+| PROP файлы | C/G Expert | C/G Expert (errata) | Meta Expert | Meta Expert (stage close → accepted/) |
+| proposals/README.md | C/G Expert | Meta Expert | Meta Expert | — |
+| Spec chapters | C/G Expert | C/G Expert по запросу Meta Expert | Meta Expert | — (frozen in place) |
+| Meta-proposals | Meta Expert | Meta Expert | Meta Expert | Meta Expert (stage close) |
+| Discussions | инициатор | — (не редактируется) | автор (complete) | — |
+
+---
+
+## IX. Per-Round Lifecycle Checklist
+
+Встроить в каждый `*-status-curation-v0` слайс Meta Expert.
 
 ```markdown
-## Round N Lifecycle Checklist
+## Lifecycle Checklist Round N
 
-### current-status.md
-- [ ] Все треки round N отражены в scoreboard
-- [ ] Статусы lanes актуальны
-- [ ] Дата "last updated" обновлена
+### Актуализация
+- [ ] current-status.md: все треки round N отражены, lanes актуальны, дата обновлена
+- [ ] tracks/README.md: добавлена секция Round N со всеми треками
+- [ ] proposals/README.md: синхронизирован с файлами PROP
 
-### Track docs
-- [ ] Все треки round N имеют Status: done / blocked
-- [ ] Если track superseded — добавить [Superseded by:]
-- [ ] tracks/README.md обновлён с новой секцией Round N
-
-### Proposals
-- [ ] proposals/README.md синхронизирован с файлами PROP
+### Ротация
 - [ ] Все PROP с experiment PASS обновлены до Status: closed
-- [ ] Нет расхождений между README и файлами
+- [ ] Нет расхождений между README и файлами PROP
+- [ ] Treки с done статусом проверены: нет тех, которые должны быть superseded
+- [ ] Meta-proposals/README.md: нет superseded документов в active section
+- [ ] spec-backlog: нет записей старше 2 rounds без scheduled трека
 
-### Spec
-- [ ] Определить какие spec-главы требуют обновления
-- [ ] Если долг > 1 round — запланировать spec-sync трек
-- [ ] ch4/ch6 проверить на соответствие с последними classifier/emitter изменениями
-
-### Meta-proposals
-- [ ] README.md отражает текущие active documents
-- [ ] Superseded documents в correct section
-- [ ] signal-ledger-index.md обновлён если были изменения в META-EXPERT
+### Архивация
+- [ ] Нет треков с Критерием B (superseded > 1 round) без архивации
+- [ ] При stage close: выполнена процедура snapshot (раздел VII)
+- [ ] При stage close: closed PROPs перемещены в accepted/
 ```
 
 ---
 
-## V. Матрица ответственности
+## X. Текущий Debt Register (S3-R4)
 
-| Документ | Создаёт | Закрывает/архивирует | Актуализирует |
-|----------|---------|---------------------|---------------|
-| current-status.md | Meta Expert | — | Meta Expert (каждый round) |
-| Track docs | назначенный агент | Meta Expert (stage close) | — (не редактируется) |
-| PROP files | Compiler/Grammar Expert | Meta Expert (lifecycle) | Compiler/Grammar Expert (minor errata) |
-| proposals/README.md | Compiler/Grammar Expert | Meta Expert | Meta Expert |
-| Spec chapters | Compiler/Grammar Expert | Meta Expert (stage close) | Compiler/Grammar Expert + Research Agent |
-| Meta-proposals | Meta Expert | Meta Expert | Meta Expert |
-| Discussions | инициатор | агент (после complete) | — (не редактируется) |
+### Критические (дефекты состояния — устранены в этом слайсе)
 
----
-
-## VI. Немедленные Действия (S3-R4 debt)
-
-Следующий status-curation слайс должен выполнить:
-
-### Критические (дефекты состояния):
-
-```text
-[1] PROP файлы — обновить Status:
-    PROP-026: Status: proposal → Status: closed
-    PROP-027: Status: proposal → Status: closed
-    (оба закрыты в Stage 2 по README, файлы не обновлены)
-
-[2] Spec backlog — создать spec-sync трек
-    ch4: добавить TEMPORAL fragment class (PROP-028)
-    ch6: добавить temporal_input_node / temporal_access_node
-    ch5: добавить emit_typed path description
-    ch7: добавить cache key contract outline
-    Трек: spec-stage3-sync-v0 [Compiler/Grammar Expert]
+```
+✅ PROP-026: Status: proposal → closed  (выполнено)
+✅ PROP-027: Status: proposal → closed  (выполнено)
+✅ meta-proposals/README.md: убран stale header "Active Governance (Stage 2)" (выполнено)
 ```
 
-### Умеренные (накопленный долг):
+### Умеренные (требуют трека)
 
-```text
-[3] signal-ledger-index.md — обновить или пометить как stale
-    Последнее обновление S2. Новые Stage 3 сигналы не отражены.
+```
+⏳ Spec backlog → spec-stage3-sync-v0 трек [C/G Expert]:
+     ch4: TEMPORAL fragment class (PROP-028)
+     ch6: temporal_input_node / temporal_access_node
+     ch5: emit_typed path в pipeline description
+     ch7: cache key contract outline
 
-[4] proposals/README.md header — обновить с "Stage 2 active" на "Stage 3"
-    (выявлено ранее в S3-R1-X1-S review)
+⏳ signal-ledger-index.md: добавить пометку stale, последнее обновление S2
 
-[5] META-EXPERT-008 в meta-proposals/README.md — убедиться что в "Stage 2
-    Governance (closed)" section, не в "Active". (текущий статус корректен,
-    требует проверки)
+⏳ proposals/README.md header: обновить с "Stage 2 active intake" → "Stage 3 active"
 ```
 
-### Отложенные (при stage close):
+### Плановые (при Stage 3 close)
 
-```text
-[6] При Stage 3 close → stage-close snapshot всех треков
-[7] При Stage 3 close → переместить closed PROPs в accepted/
-[8] При Stage 3 close → заморозить spec как frozen
+```
+⌛ Stage 3 close snapshot → archive/snapshots/YYYY-MM-DD-stage3-close/
+⌛ Closed PROPs (022–027, 028+) → proposals/accepted/
+⌛ Spec chapters → Status: frozen
+⌛ Треки Stage 3 (tracks/) → Status: archived + snapshot copy
 ```
 
 ---
 
-## VII. Правила новых документов
+## XI. Правила создания новых документов
 
-При создании любого нового документа:
+Обязательные поля в заголовке каждого нового документа:
 
 ```markdown
-Обязательные поля в заголовке:
-  Status: <lifecycle state>     ← один из словаря типа
-  Date: YYYY-MM-DD
-  [Owner/Agent field]
-  
-Для tracks:
-  Card: <S-R-C-suffix>         ← обязательно для трассируемости
-  
-Для PROPs:
-  Depends on: <PROP list>
-  Stage: <N>
-  
-Для meta-proposals:
-  Supersedes: <predecessor> | nothing
+# Для track-документов:
+Card: <S-R-C-suffix>
+Status: in_progress | done | blocked
+Date: YYYY-MM-DD
+
+# Для PROPs:
+Status: authored | proposal
+Date: YYYY-MM-DD
+Stage: <N>
+Depends on: <список PROP | nothing>
+
+# Для meta-proposals:
+Status: active | decision | research-note | ...
+Date: YYYY-MM-DD
+Supersedes: <ME-NNN> | nothing
+
+# Для discussions:
+Status: open
+Mode: discussion
+Date: YYYY-MM-DD
+Initiator: user | architect-supervisor | meta-expert
 ```
 
-Имена файлов:
-- Треки: `<topic>-v0.md` → при revision: `<topic>-v1.md` (не overwrite)
-- PROPs: `PROP-NNN-<topic>-v0.md`
-- Meta-proposals: `META-EXPERT-NNN-<topic>-v0.md`
-- Discussions: `<topic>-discussion-v0.md`
+Именование файлов:
+
+```
+Track:          <topic>-v0.md        → revision: <topic>-v1.md (не overwrite)
+PROP:           PROP-NNN-<topic>-v0.md
+Meta-proposal:  META-EXPERT-NNN-<topic>-v0.md
+Discussion:     <topic>-discussion-v0.md
+Errata:         <topic>-errata-v0.md (не изменять оригинал)
+```
 
 ---
 
-## VIII. Метрики здоровья документооборота
+## XII. Метрики здоровья документооборота
 
-Признаки здорового состояния:
-
-```text
-✅ current-status.md обновлён в этом round
-✅ proposals/README.md и файлы PROP синхронизированы по Status:
-✅ spec-lag ≤ 1 stage (отставание spec от реализации)
-✅ В active section meta-proposals/README.md только ОДИН active per-topic
-✅ tracks/README.md имеет запись для каждого нового трека
-✅ discussions/ закрыты с Route в течение одного round
 ```
+АКТУАЛИЗАЦИЯ                               РОТАЦИЯ
+✅ current-status.md обновлён этот round   ✅ PROP Status: = README Status:
+✅ tracks/README.md не отстаёт             ✅ Нет active META-EXPERT дублей
+✅ spec-backlog ≤ 2 round                  ✅ PROP PASS → closed в том же round
 
-Признаки долга:
+АРХИВАЦИЯ
+✅ Нет superseded треков > 1 round без архивации
+✅ При stage close: snapshot + accepted/ выполнены
 
-```text
-⚠️  proposals с Status: proposal после experiment PASS
-⚠️  spec-глава не обновлялась > 2 rounds при активных изменениях в коде
-⚠️  signal-ledger без обновлений при наличии новых META-EXPERT решений
-⚠️  tracks/README.md отстаёт от track файлов на > 1 round
-⚠️  Более 1 META-EXPERT в active статусе на одну тему
+ТРЕВОЖНЫЕ СИГНАЛЫ
+⚠️  PROP Status в файле ≠ Status в README
+⚠️  Spec-глава не обновлялась > 2 rounds при активных изменениях в коде
+⚠️  > 1 META-EXPERT с active на одну тему
+⚠️  tracks/README.md отстаёт от track-файлов на > 1 round
+⚠️  signal-ledger без обновлений при наличии новых ME-решений
+⚠️  Треки с Критерием B не архивированы > 1 round после superseded
 ```
 
 ---
@@ -398,26 +500,23 @@ Track: META-EXPERT-012-document-lifecycle-and-rotation-v0.md
 Status: done
 
 [D] Decisions
-- Определён единый lifecycle-словарь для 6 типов документов.
-- Per-round lifecycle checklist добавлен в обязательства Meta Expert.
-- Правила per-round: actuzalization, не ad hoc.
-- Spec lag ≤ 1 stage — новый governance constraint.
-- Status: в файлах PROP должен совпадать с proposals/README.md.
+- Три механизма разграничены: актуализация, ротация, архивация.
+- Per-round checklist разделён на три секции по механизму.
+- Три и только три критерия архивации: stage close / superseded / orphaned.
+- Stage close snapshot: копирование, а не перемещение треков.
+- Spec-lag constraint: ≤ 1 stage отставания от реализации.
+- Status: в файле PROP = Status: в README — нарушение = дефект текущего round.
 
 [S] Signals
-- 16 proposals в статусе "proposal" без закрытия — выявлен системный дефект.
-- PROP-026, PROP-027 — расхождение README vs файл — критический дефект.
-- Spec: ch4, ch5, ch6, ch7 — долг Stage 3 не отражён.
-- signal-ledger-index.md stale с S2.
-- 177 track docs — нет ротации, нет архивирования, нет критерия.
+- PROP-026/027 исправлены в этом слайсе (критический дефект устранён).
+- Spec backlog: ch4/ch5/ch6/ch7 — долг Stage 3, scheduled на spec-sync трек.
+- 177 track docs: нет архивации, но теперь есть критерии.
 
 [R] Recommendations
-- Создать spec-stage3-sync-v0 трек [Compiler/Grammar Expert] в S3-R4 или R5.
-- Выполнить PROP Status: обновление в следующем status-curation слайсе.
-- Добавить lifecycle checklist в template status-curation трека.
+- spec-stage3-sync-v0 [C/G Expert]: приоритет S3-R4 или R5.
+- Добавить Per-Round Lifecycle Checklist в шаблон status-curation трека.
 
-[Next] Suggested next slice
-- status-curation-v0 слайс: выполнить критические и умеренные debt items
-- spec-stage3-sync-v0: [Compiler/Grammar Expert]
-  scope: ch4 TEMPORAL, ch6 temporal nodes, ch5 emit_typed, ch7 cache key
+[Next] Suggested next slices
+- spec-stage3-sync-v0 [Compiler/Grammar Expert]
+- status-curation-v0 с embedded lifecycle checklist
 ```

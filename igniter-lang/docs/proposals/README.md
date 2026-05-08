@@ -1,8 +1,9 @@
 # Igniter-Lang Proposals Index
 
-Status: Stage 2 active intake
+Status: Stage 3 active intake
 Maintainer: `[Igniter-Lang Compiler/Grammar Expert]`
 Stage 1 closed: 2026-05-06 (META-EXPERT-007)
+Stage 2 closed: 2026-05-07 (META-EXPERT-009.1)
 
 ---
 
@@ -30,8 +31,8 @@ These proposals are the baseline for Stage 2 implementation work.
 | [PROP-010](PROP-010-temporal-lifecycle-retention-semantics-v0.md) | proposal | 6 lifecycle classes, flush semantics, semantic GC roots, downgrade rules |
 | [PROP-016](PROP-016-polymorphism-traits-contract-shapes-v0.md) | proposal | Generic contracts, traits, contract_shape, monomorphization |
 | [PROP-017](PROP-017-schema-evolution-contract-migration-v0.md) | proposal | SemVer versioning, schema_fingerprint, MigrationDecl, OOF-S1..S5 |
-| [PROP-026](PROP-026-parser-oof-hardening-spec-v0.md) | ✅ PASS | Parser OOF hardening — grammar rules, negative parse cases; proof PASS |
-| [PROP-027](PROP-027-production-compiler-diagnostics-contract-v0.md) | proposal | Production compiler diagnostics contract — CLI + diagnostics surface |
+| [PROP-026](PROP-026-parser-oof-hardening-spec-v0.md) | closed | Parser OOF hardening — grammar rules, negative parse cases; experiment PASS (META-EXPERT-009.1) |
+| [PROP-027](PROP-027-production-compiler-diagnostics-contract-v0.md) | closed | Production compiler diagnostics contract — CLI + diagnostics surface; experiment PASS (META-EXPERT-009.1) |
 | [PROP-028](PROP-028-temporal-fragment-class-v0.md) | proposal | **Stage 3**: TEMPORAL fragment class; node/value split; temporal cache keys |
 | [PROP-022](PROP-022-history-type-constructor-v0.md) | proposal | **Stage 2**: History[T]/BiHistory[T]; temporal operations; OLAPPoint unification |
 | [PROP-023](PROP-023-stream-input-surface-v0.md) | proposal | **Stage 2**: stream T ESCAPE input; window; fold_stream; KPN grounding |
@@ -71,6 +72,6 @@ production_compiler_assembly  Production CLI compiler package (not just proof ex
 authored → proposal → verification (experiment) → approved → spec chapter → implementation
 ```
 
-During Stage 2: `proposals/` is the active intake directory.
-New proposals: start from PROP-028.
+During Stage 3: `proposals/` is the active intake directory.
+New proposals: start from PROP-029.
 Accepted Stage 1 PROPs: see `accepted/` — read-only.

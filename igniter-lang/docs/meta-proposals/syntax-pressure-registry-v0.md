@@ -126,6 +126,35 @@ than rewriting archaeology.
 
 ---
 
+## S3-R4 Review Routing Snapshot
+
+Source: [Syntax Pressure Review Results](syntax-pressure-review-results-v0.md)
+
+| Construct | Route | Note |
+|-----------|-------|------|
+| `threshold name: T = value` | route_to_proposal | High verifiability gain, low runtime risk |
+| `external pure fn(...) -> T` | route_to_proposal | Needed for helper/FFI reasoning, purity, effects, evidence behavior |
+| `entrypoint` | route_to_proposal | Repeatedly reinforced as visible start surface |
+| `section` | route_to_proposal | Low-risk if organizational only, no namespace semantics |
+| declarative receipt identity | needs_another_specimen | Wait for evidence/receipt/proof/hash/signature separation |
+| `entity` | needs_another_specimen | Needs identity-over-time fixture tied to History/BiHistory/lifecycle |
+| map literal `{ k => v }` / `HashMap` | needs_another_specimen | Compare against record literal and JSON-like alternatives |
+| set literal `#{ ... }` / `Set[T]` / `in` | needs_another_specimen | Compare alternatives and typed lowering rules |
+| collection method chains | needs_another_specimen | Must preserve contract graph identity and evidence/proof edges |
+| `EvidenceRef`, `evidence_refs(...)`, `evidence [...]` | needs_another_specimen | Needs dedicated provenance/evidence fixture |
+| `accumulate` | keep_pressure | Compare with `fold_stream` and stream method chains |
+| `await_review` | keep_pressure | Needs suspend/resume/timeout/receipt model |
+| `delegate ... capability` | keep_pressure | Route through mesh/agent/tool/model vocabulary review |
+| `metric` | keep_pressure | Friendly alias over canonical OLAPPoint, not urgent |
+| `profile`, `packet`, `event`, `receipt`, `view` | keep_pressure | Strong data-role pressure, profile taxonomy not closed |
+| `let` as contract-body `compute` replacement | keep_pressure | Needs graph identity proof before proposal |
+| fixture-level `let` | keep_pressure | May belong in `fixture`/`sample` surface |
+| `assert` section | reject_defer | Keep as evaluator/test fixture syntax for now |
+
+No construct in this snapshot is promoted to canon.
+
+---
+
 ## Recommended Next Specimens
 
 ### 1. Field Supply Watch v3 — Verifiability Layer

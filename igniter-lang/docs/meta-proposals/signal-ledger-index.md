@@ -6,6 +6,13 @@ Track: `living-signal-ledger-index-v0`
 Status: index
 Date: 2026-05-07
 
+> ⚠️ **STALE — Stage 2 snapshot only.**
+> Last updated: 2026-05-07 (Stage 2 close, S2-R9).
+> Stage 3 signals (TEMPORAL, typed emission, temporal-assembler boundary, cache contract)
+> are **not** reflected here. Do not treat this index as current.
+> Refresh action: `archive-form-expert` to extend coverage through S3-R1..R4 when
+> a Stage 3 signal-ledger refresh is authorized.
+
 Sources:
 - [META-EXPERT-008.4](META-EXPERT-008.4-origin-temporal-concordance-v0.md)
 - [META-EXPERT-008.5](META-EXPERT-008.5-runtime-ledger-mesh-concordance-v0.md)

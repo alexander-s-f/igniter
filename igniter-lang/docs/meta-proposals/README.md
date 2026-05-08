@@ -17,6 +17,7 @@ Documents that govern active Stage 3 work.
 | [АИ/СОИ Design Lens](axiomatic-and-system-forming-ideas-lens-v0.md) | research-note | Axiomatic/system-forming ideas lens for Stage 3 synthesis: conditions of possibility plus organizing purpose, with examples across contracts, time, projections, RuntimeMachine, and human-agent symbiosis |
 | [Syntax Pressure Registry](syntax-pressure-registry-v0.md) | research-registry | Registry for syntax/comprehension fixtures as pressure artifacts only: construct status table and recommended next specimens |
 | [Syntax Pressure Specimens](syntax-pressure-specimens-v0.md) | research-fixtures | Field Supply Watch v3 and Primitive Surface pressure specimens with evaluator guides; no canon promotion |
+| [Syntax Pressure Review Results](syntax-pressure-review-results-v0.md) | research-review | Review of S3-R3 pressure specimens: routes constructs to proposal, pressure, another specimen, or reject/defer without canon promotion |
 
 ---
 
