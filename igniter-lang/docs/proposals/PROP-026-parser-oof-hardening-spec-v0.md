@@ -1,7 +1,8 @@
 # PROP-026: Parser OOF Hardening Spec v0
 
 Role: `[Igniter-Lang Compiler/Grammar Expert]`
-Status: proposal
+Status: closed
+Closed: 2026-05-07 (Stage 2 — experiment PASS, META-EXPERT-009.1)
 Date: 2026-05-07
 Track: igniter-lang/parser-oof-hardening-spec-v0
 Depends on: PROP-018 (pipeline), PROP-020 (classifier), PROP-021 (typechecker)

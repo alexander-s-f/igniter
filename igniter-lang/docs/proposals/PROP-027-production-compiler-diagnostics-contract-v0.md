@@ -1,7 +1,8 @@
 # PROP-027: Production Compiler Diagnostics Contract v0
 
 Role: `[Igniter-Lang Compiler/Grammar Expert]`
-Status: proposal
+Status: closed
+Closed: 2026-05-07 (Stage 2 — experiment PASS, META-EXPERT-009.1)
 Date: 2026-05-07
 Track: igniter-lang/production-compiler-diagnostics-contract-v0
 Depends on: PROP-019.1 (CompilationReport), PROP-022 (assembler refusal)
