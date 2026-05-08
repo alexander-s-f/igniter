@@ -125,6 +125,19 @@ Source:
 - [tracks/descriptor-compatibility-package-consumption-v0.md](tracks/descriptor-compatibility-package-consumption-v0.md)
 - [discussions/runtime-compatibility-and-typed-delta-pressure-v0.md](discussions/runtime-compatibility-and-typed-delta-pressure-v0.md)
 
+### Executor Approval Token Is A Gate 3 Prerequisite
+
+Signal: Explicit executor approval means a scoped `ExecutorApprovalToken`
+backed by a recorded authority decision; it is required before live TEMPORAL
+execution work, but it does not open Gate 3 by itself.
+
+Status: current
+
+Source:
+- [proposals/PROP-030-executor-approval-token-contract-v0.md](proposals/PROP-030-executor-approval-token-contract-v0.md)
+- [tracks/runtime-compatibility-report-executor-boundary-v0.md](tracks/runtime-compatibility-report-executor-boundary-v0.md)
+- [discussions/stage3-round8-pre-gate3-pressure-v0.md](discussions/stage3-round8-pre-gate3-pressure-v0.md)
+
 ### Full Post-Switch Smoke Is The Runtime Regression Baseline
 
 Signal: The current post-switch runtime baseline covers all six `emit_typed`

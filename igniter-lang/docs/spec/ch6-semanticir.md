@@ -100,7 +100,80 @@ STREAM or TEMPORAL.
 
 ---
 
-## 6.4 TEMPORAL SemanticIR Nodes
+## 6.4 STREAM Replay Metadata Nodes
+
+STREAM contracts lower their replay-relevant surface into explicit SemanticIR
+nodes. The nodes are not a production stream executor contract; they are the
+minimum metadata a loader/proof-local evaluator needs to replay a bounded
+window without hidden defaults.
+
+### `stream_input_node`
+
+```json
+{
+  "kind": "stream_input_node",
+  "name": "readings",
+  "type": "Integer",
+  "window_ref": "integer/{device_id}",
+  "escape_capability": "stream_input",
+  "fragment": "escape"
+}
+```
+
+### `window_decl_node`
+
+```json
+{
+  "kind": "window_decl_node",
+  "ref": "integer/{device_id}",
+  "key": "integer/{device_id}",
+  "window_kind": "count",
+  "size": 3,
+  "on_close": "snapshot",
+  "bounded": true
+}
+```
+
+`window_kind`, at least one bounding coordinate such as `size`, and
+`bounded: true` are required for replayable proof-local STREAM windows.
+
+### `fold_stream_node`
+
+```json
+{
+  "kind": "fold_stream_node",
+  "name": "total",
+  "stream_ref": "readings",
+  "init": {
+    "kind": "integer_literal",
+    "value": 0
+  },
+  "fn_ref": "integer_sum_lambda",
+  "bound": {
+    "kind": "window_bounded",
+    "window_ref": "integer/{device_id}"
+  },
+  "event_binding": {
+    "event_ref": "event",
+    "value_ref": "reading",
+    "value_path": ["value"]
+  },
+  "result_type": {
+    "name": "Integer",
+    "params": []
+  },
+  "escape_capability": "stream_input",
+  "result_fragment": "core"
+}
+```
+
+`init`, `fn_ref`, `bound.window_ref`, and `event_binding.value_path` are
+required metadata. Missing replay metadata is a compiler/assembler proof gap,
+not a runtime default.
+
+---
+
+## 6.5 TEMPORAL SemanticIR Nodes
 
 `History[T]` and `BiHistory[T]` lower to explicit temporal nodes in
 SemanticIR. The read node is TEMPORAL, but the value it binds is CORE-typed.
@@ -186,7 +259,7 @@ capability:
 
 ---
 
-## 6.5 Assembled .igapp Contract Artifacts
+## 6.6 Assembled .igapp Contract Artifacts
 
 The assembler writes `.igapp/` directories, not raw SemanticIR only. Stage 3
 TEMPORAL assembly preserves temporal nodes as a non-compute contract artifact
@@ -269,9 +342,57 @@ temporal nodes:
 `temporal_input_node` and `temporal_access_node`. It does not imply production
 runtime execution.
 
+STREAM contract artifacts analogously preserve replay metadata in
+`stream_nodes`:
+
+```json
+{
+  "stream_nodes": [
+    {
+      "kind": "stream_input_node",
+      "name": "readings",
+      "type_tag": "Integer",
+      "window_ref": "integer/{device_id}",
+      "obs_kind": "stream_replay_metadata"
+    },
+    {
+      "kind": "window_decl_node",
+      "name": "integer/{device_id}",
+      "ref": "integer/{device_id}",
+      "window_kind": "count",
+      "size": 3,
+      "bounded": true,
+      "on_close": "snapshot",
+      "obs_kind": "stream_window_observation"
+    },
+    {
+      "kind": "fold_stream_node",
+      "name": "total",
+      "stream_ref": "readings",
+      "init": { "kind": "integer_literal", "value": 0 },
+      "fn_ref": "integer_sum_lambda",
+      "bound": {
+        "kind": "window_bounded",
+        "window_ref": "integer/{device_id}"
+      },
+      "event_binding": {
+        "event_ref": "event",
+        "value_path": ["value"]
+      },
+      "result_type_tag": "Integer",
+      "obs_kind": "stream_replay_metadata"
+    }
+  ]
+}
+```
+
+This section is sufficient for proof-local finite replay to avoid defaults for
+window size/kind/boundedness, fold initial value/function reference, and event
+payload binding. It still does not authorize a production stream executor.
+
 ---
 
-## 6.6 Manifest Fragment Summary and Contract Index
+## 6.7 Manifest Fragment Summary and Contract Index
 
 PROP-022A Stage 3 errata adds a load-time manifest index. Contract files remain
 the canonical semantic source; the manifest index is the first load-time
@@ -325,7 +446,7 @@ dispatch. Loaders must use `manifest.contract_index`.
 
 ---
 
-## 6.7 requirements.json from escape_boundaries
+## 6.8 requirements.json from escape_boundaries
 
 `requirements.json` is derived from SemanticIR evidence, not static defaults.
 
@@ -407,7 +528,7 @@ not the semantic authority for temporal axes; it must agree with
 
 ---
 
-## 6.8 Compatibility Metadata Guard Policy
+## 6.9 Compatibility Metadata Guard Policy
 
 TEMPORAL `.igapp/` artifacts may load for inspection, descriptor checks, and
 compatibility reporting, but production evaluation is guarded until a future
@@ -439,7 +560,7 @@ reads, or production temporal execution.
 
 ---
 
-## 6.9 Assembler and Load Gates
+## 6.10 Assembler and Load Gates
 
 Stage 1 A1-A6 assembler gates are closed and no longer a pending spec blocker.
 Stage 3 extends them with TEMPORAL manifest/load checks:
@@ -464,7 +585,7 @@ Ledger   remains unbound
 
 ---
 
-## 6.10 Evidence References
+## 6.11 Evidence References
 
 | Evidence | What It Proves |
 | --- | --- |

@@ -1,0 +1,469 @@
+{
+  "kind": "executor_boundary_cache_key_contract_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R9-C3-P",
+  "track": "executor-boundary-cache-key-contract-v0",
+  "status": "PASS",
+  "scope": {
+    "live_executor": false,
+    "live_tbackend": false,
+    "production_cache": false,
+    "ledger_binding": false
+  },
+  "prop_028_link": "TEMPORAL cache key = hash(contract, inputs, temporal coordinates); CORE-shaped key for TEMPORAL is a silent staleness bug.",
+  "artifacts": {
+    "core_add": {
+      "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+      "igapp_path": "igniter-lang/experiments/executor_boundary_cache_key_contract/out/core_add.igapp",
+      "compile_status": "ok",
+      "pass_result": "ok",
+      "diagnostics": []
+    },
+    "history_single_axis": {
+      "source_path": "igniter-lang/experiments/history_type_proof/history_integer_point_access.ig",
+      "igapp_path": "igniter-lang/experiments/executor_boundary_cache_key_contract/out/history_single_axis.igapp",
+      "compile_status": "ok",
+      "pass_result": "ok",
+      "diagnostics": []
+    },
+    "bihistory_bitemporal": {
+      "source_path": "igniter-lang/experiments/typed_emission_main_path_parity/sparkcrm_bihistory_source.ig",
+      "igapp_path": "igniter-lang/experiments/executor_boundary_cache_key_contract/out/bihistory_bitemporal.igapp",
+      "compile_status": "ok",
+      "pass_result": "ok",
+      "diagnostics": []
+    }
+  },
+  "manifest_metadata": {
+    "core_add": {
+      "program_id": "semanticir/e9664d5446df4e46",
+      "contract_id": "Add",
+      "contract_ref": "contract/Add/sha256:7379226c21b2cdcd69464bb7",
+      "fragment": "core",
+      "manifest_fragment_class": "core",
+      "cache_key_schema_hint": {
+        "schema": "runtime-cache-key-v1",
+        "fragment": "CORE",
+        "axis": null,
+        "coordinate_names": []
+      },
+      "coordinate_names": [],
+      "coordinates": [],
+      "metadata_sources": {
+        "preferred": "manifest.contract_index",
+        "manifest": "igniter-lang/experiments/executor_boundary_cache_key_contract/out/core_add.igapp/manifest.json"
+      }
+    },
+    "history_single_axis": {
+      "program_id": "semanticir/096b47d88eccf388",
+      "contract_id": "TechnicianJobCountAt",
+      "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+      "fragment": "temporal",
+      "manifest_fragment_class": "temporal",
+      "cache_key_schema_hint": {
+        "axis": "valid_time",
+        "coordinate_names": [
+          "as_of"
+        ],
+        "fragment": "TEMPORAL",
+        "schema": "runtime-cache-key-v1"
+      },
+      "coordinate_names": [
+        "as_of"
+      ],
+      "coordinates": [
+        {
+          "axis": "valid_time",
+          "name": "as_of",
+          "source_ref": "input:as_of",
+          "type": "DateTime"
+        }
+      ],
+      "metadata_sources": {
+        "preferred": "manifest.contract_index",
+        "manifest": "igniter-lang/experiments/executor_boundary_cache_key_contract/out/history_single_axis.igapp/manifest.json"
+      }
+    },
+    "bihistory_bitemporal": {
+      "program_id": "semanticir/b6603c347619e2b6",
+      "contract_id": "SparkCRMBiHistorySourceParity",
+      "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+      "fragment": "temporal",
+      "manifest_fragment_class": "temporal",
+      "cache_key_schema_hint": {
+        "axis": "bitemporal",
+        "coordinate_names": [
+          "valid_time",
+          "transaction_time"
+        ],
+        "fragment": "TEMPORAL",
+        "schema": "runtime-cache-key-v1"
+      },
+      "coordinate_names": [
+        "valid_time",
+        "transaction_time"
+      ],
+      "coordinates": [
+        {
+          "axis": "valid_time",
+          "name": "valid_time",
+          "source_ref": "input:valid_time",
+          "type": "DateTime"
+        },
+        {
+          "axis": "transaction_time",
+          "name": "transaction_time",
+          "source_ref": "input:transaction_time",
+          "type": "DateTime"
+        }
+      ],
+      "metadata_sources": {
+        "preferred": "manifest.contract_index",
+        "manifest": "igniter-lang/experiments/executor_boundary_cache_key_contract/out/bihistory_bitemporal.igapp/manifest.json"
+      }
+    }
+  },
+  "examples": {
+    "core_add": {
+      "expected_shape": "CORE = contract + inputs",
+      "inputs": {
+        "a": 19,
+        "b": 23
+      },
+      "cache_key": {
+        "kind": "runtime_cache_key",
+        "key": "cache/0ab2e3824b196278",
+        "hash": "sha256:0ab2e3824b196278b451bb16f638e23ba2fc2844ae022f3aba4b02d42ddd0361",
+        "material": {
+          "contract_ref": "contract/Add/sha256:7379226c21b2cdcd69464bb7",
+          "fragment": "CORE",
+          "inputs": {
+            "a": 19,
+            "b": 23
+          },
+          "kind": "runtime_cache_key",
+          "schema": "runtime-cache-key-v1"
+        }
+      },
+      "validation": {
+        "kind": "cache_key_validation",
+        "status": "accepted",
+        "expected_key_hash": "sha256:0ab2e3824b196278b451bb16f638e23ba2fc2844ae022f3aba4b02d42ddd0361",
+        "requested_key_hash": "sha256:0ab2e3824b196278b451bb16f638e23ba2fc2844ae022f3aba4b02d42ddd0361",
+        "cache_key": {
+          "kind": "runtime_cache_key",
+          "key": "cache/0ab2e3824b196278",
+          "hash": "sha256:0ab2e3824b196278b451bb16f638e23ba2fc2844ae022f3aba4b02d42ddd0361",
+          "material": {
+            "contract_ref": "contract/Add/sha256:7379226c21b2cdcd69464bb7",
+            "fragment": "CORE",
+            "inputs": {
+              "a": 19,
+              "b": 23
+            },
+            "kind": "runtime_cache_key",
+            "schema": "runtime-cache-key-v1"
+          }
+        }
+      }
+    },
+    "history_single_axis": {
+      "expected_shape": "TEMPORAL = contract + non-temporal inputs + temporal coordinates",
+      "first_inputs": {
+        "technician_id": "tech-1",
+        "as_of": "2026-05-03T10:00:00Z"
+      },
+      "second_inputs": {
+        "technician_id": "tech-1",
+        "as_of": "2026-05-06T10:00:00Z"
+      },
+      "cache_key_schema_hint": {
+        "axis": "valid_time",
+        "coordinate_names": [
+          "as_of"
+        ],
+        "fragment": "TEMPORAL",
+        "schema": "runtime-cache-key-v1"
+      },
+      "temporal_key": {
+        "kind": "runtime_cache_key",
+        "key": "cache/4ef3d6b065c6a43f",
+        "hash": "sha256:4ef3d6b065c6a43ffc1babcea19eb24a020fc46b9f23fff1fc1e9c24d02879c1",
+        "material": {
+          "axis": "valid_time",
+          "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+          "fragment": "TEMPORAL",
+          "inputs": {
+            "technician_id": "tech-1"
+          },
+          "kind": "runtime_cache_key",
+          "schema": "runtime-cache-key-v1",
+          "temporal_coordinates": [
+            {
+              "axis": "valid_time",
+              "name": "as_of",
+              "value": "2026-05-03T10:00:00Z"
+            }
+          ]
+        }
+      },
+      "second_temporal_key": {
+        "kind": "runtime_cache_key",
+        "key": "cache/a2462c5fbf8f6a7c",
+        "hash": "sha256:a2462c5fbf8f6a7c5e376c9dc808d7104e6d8416a8bc2b4621994ca565a9ffea",
+        "material": {
+          "axis": "valid_time",
+          "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+          "fragment": "TEMPORAL",
+          "inputs": {
+            "technician_id": "tech-1"
+          },
+          "kind": "runtime_cache_key",
+          "schema": "runtime-cache-key-v1",
+          "temporal_coordinates": [
+            {
+              "axis": "valid_time",
+              "name": "as_of",
+              "value": "2026-05-06T10:00:00Z"
+            }
+          ]
+        }
+      },
+      "core_shaped_key_attempt": {
+        "kind": "runtime_cache_key",
+        "key": "cache/e9ec37002511ed42",
+        "hash": "sha256:e9ec37002511ed428087df1063a62673c92cfa6589b3ec07faad5f30b91fad78",
+        "material": {
+          "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+          "fragment": "CORE",
+          "inputs": {
+            "technician_id": "tech-1"
+          },
+          "kind": "runtime_cache_key",
+          "schema": "runtime-cache-key-v1"
+        }
+      },
+      "accepted_temporal_key": {
+        "kind": "cache_key_validation",
+        "status": "accepted",
+        "expected_key_hash": "sha256:4ef3d6b065c6a43ffc1babcea19eb24a020fc46b9f23fff1fc1e9c24d02879c1",
+        "requested_key_hash": "sha256:4ef3d6b065c6a43ffc1babcea19eb24a020fc46b9f23fff1fc1e9c24d02879c1",
+        "cache_key": {
+          "kind": "runtime_cache_key",
+          "key": "cache/4ef3d6b065c6a43f",
+          "hash": "sha256:4ef3d6b065c6a43ffc1babcea19eb24a020fc46b9f23fff1fc1e9c24d02879c1",
+          "material": {
+            "axis": "valid_time",
+            "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+            "fragment": "TEMPORAL",
+            "inputs": {
+              "technician_id": "tech-1"
+            },
+            "kind": "runtime_cache_key",
+            "schema": "runtime-cache-key-v1",
+            "temporal_coordinates": [
+              {
+                "axis": "valid_time",
+                "name": "as_of",
+                "value": "2026-05-03T10:00:00Z"
+              }
+            ]
+          }
+        }
+      },
+      "rejected_core_shaped_key": {
+        "kind": "cache_key_fault",
+        "status": "refused",
+        "gate": "L-T5",
+        "reason_code": "executor.cache_key_schema_mismatch",
+        "message": "executor boundary rejected CORE cache key for TEMPORAL contract",
+        "contract_id": "TechnicianJobCountAt",
+        "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+        "requested_key": {
+          "kind": "runtime_cache_key",
+          "key": "cache/e9ec37002511ed42",
+          "hash": "sha256:e9ec37002511ed428087df1063a62673c92cfa6589b3ec07faad5f30b91fad78",
+          "material": {
+            "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+            "fragment": "CORE",
+            "inputs": {
+              "technician_id": "tech-1"
+            },
+            "kind": "runtime_cache_key",
+            "schema": "runtime-cache-key-v1"
+          }
+        },
+        "prevents": "PROP-028 silent staleness bug: TEMPORAL result cached or reused under CORE key"
+      },
+      "silent_staleness_prevention": {
+        "core_shaped_hash_reused_across_time": true,
+        "temporal_hash_changes_across_time": true,
+        "meaning": "CORE-shaped key ignores temporal coordinates; TEMPORAL-shaped key separates evaluations by as_of/Tt."
+      }
+    },
+    "bihistory_bitemporal": {
+      "expected_shape": "TEMPORAL = contract + non-temporal inputs + temporal coordinates",
+      "first_inputs": {
+        "technician_id": "tech-17",
+        "valid_time": "2026-05-07T10:00:00Z",
+        "transaction_time": "2026-05-08T09:15:00Z"
+      },
+      "second_inputs": {
+        "technician_id": "tech-17",
+        "valid_time": "2026-05-07T10:00:00Z",
+        "transaction_time": "2026-05-08T12:30:00Z"
+      },
+      "cache_key_schema_hint": {
+        "axis": "bitemporal",
+        "coordinate_names": [
+          "valid_time",
+          "transaction_time"
+        ],
+        "fragment": "TEMPORAL",
+        "schema": "runtime-cache-key-v1"
+      },
+      "temporal_key": {
+        "kind": "runtime_cache_key",
+        "key": "cache/761fc7190a7375d5",
+        "hash": "sha256:761fc7190a7375d55aa9093e84d1c035348560232550e77960e78bad2c23c211",
+        "material": {
+          "axis": "bitemporal",
+          "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+          "fragment": "TEMPORAL",
+          "inputs": {
+            "technician_id": "tech-17"
+          },
+          "kind": "runtime_cache_key",
+          "schema": "runtime-cache-key-v1",
+          "temporal_coordinates": [
+            {
+              "axis": "valid_time",
+              "name": "valid_time",
+              "value": "2026-05-07T10:00:00Z"
+            },
+            {
+              "axis": "transaction_time",
+              "name": "transaction_time",
+              "value": "2026-05-08T09:15:00Z"
+            }
+          ]
+        }
+      },
+      "second_temporal_key": {
+        "kind": "runtime_cache_key",
+        "key": "cache/8dce7234084e7bde",
+        "hash": "sha256:8dce7234084e7bde0a57ebe8c269f05213b81eb881a7b0adb2fec45c5c160090",
+        "material": {
+          "axis": "bitemporal",
+          "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+          "fragment": "TEMPORAL",
+          "inputs": {
+            "technician_id": "tech-17"
+          },
+          "kind": "runtime_cache_key",
+          "schema": "runtime-cache-key-v1",
+          "temporal_coordinates": [
+            {
+              "axis": "valid_time",
+              "name": "valid_time",
+              "value": "2026-05-07T10:00:00Z"
+            },
+            {
+              "axis": "transaction_time",
+              "name": "transaction_time",
+              "value": "2026-05-08T12:30:00Z"
+            }
+          ]
+        }
+      },
+      "core_shaped_key_attempt": {
+        "kind": "runtime_cache_key",
+        "key": "cache/d73b5053120fafba",
+        "hash": "sha256:d73b5053120fafba053abad20216ee35895def22818f087ecb41adb70c1534de",
+        "material": {
+          "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+          "fragment": "CORE",
+          "inputs": {
+            "technician_id": "tech-17"
+          },
+          "kind": "runtime_cache_key",
+          "schema": "runtime-cache-key-v1"
+        }
+      },
+      "accepted_temporal_key": {
+        "kind": "cache_key_validation",
+        "status": "accepted",
+        "expected_key_hash": "sha256:761fc7190a7375d55aa9093e84d1c035348560232550e77960e78bad2c23c211",
+        "requested_key_hash": "sha256:761fc7190a7375d55aa9093e84d1c035348560232550e77960e78bad2c23c211",
+        "cache_key": {
+          "kind": "runtime_cache_key",
+          "key": "cache/761fc7190a7375d5",
+          "hash": "sha256:761fc7190a7375d55aa9093e84d1c035348560232550e77960e78bad2c23c211",
+          "material": {
+            "axis": "bitemporal",
+            "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+            "fragment": "TEMPORAL",
+            "inputs": {
+              "technician_id": "tech-17"
+            },
+            "kind": "runtime_cache_key",
+            "schema": "runtime-cache-key-v1",
+            "temporal_coordinates": [
+              {
+                "axis": "valid_time",
+                "name": "valid_time",
+                "value": "2026-05-07T10:00:00Z"
+              },
+              {
+                "axis": "transaction_time",
+                "name": "transaction_time",
+                "value": "2026-05-08T09:15:00Z"
+              }
+            ]
+          }
+        }
+      },
+      "rejected_core_shaped_key": {
+        "kind": "cache_key_fault",
+        "status": "refused",
+        "gate": "L-T5",
+        "reason_code": "executor.cache_key_schema_mismatch",
+        "message": "executor boundary rejected CORE cache key for TEMPORAL contract",
+        "contract_id": "SparkCRMBiHistorySourceParity",
+        "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+        "requested_key": {
+          "kind": "runtime_cache_key",
+          "key": "cache/d73b5053120fafba",
+          "hash": "sha256:d73b5053120fafba053abad20216ee35895def22818f087ecb41adb70c1534de",
+          "material": {
+            "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+            "fragment": "CORE",
+            "inputs": {
+              "technician_id": "tech-17"
+            },
+            "kind": "runtime_cache_key",
+            "schema": "runtime-cache-key-v1"
+          }
+        },
+        "prevents": "PROP-028 silent staleness bug: TEMPORAL result cached or reused under CORE key"
+      },
+      "silent_staleness_prevention": {
+        "core_shaped_hash_reused_across_time": true,
+        "temporal_hash_changes_across_time": true,
+        "meaning": "CORE-shaped key ignores temporal coordinates; TEMPORAL-shaped key separates evaluations by as_of/Tt."
+      }
+    }
+  },
+  "checks": {
+    "core.key_shape_contract_plus_inputs": true,
+    "core.requested_core_key_accepted": true,
+    "history.temporal_key_uses_manifest_hint": true,
+    "history.temporal_key_includes_valid_time": true,
+    "history.core_shaped_key_refused_l_t5": true,
+    "history.silent_staleness_prevented": true,
+    "bihistory.temporal_key_uses_manifest_hint": true,
+    "bihistory.temporal_key_includes_vt_and_tt": true,
+    "bihistory.core_shaped_key_refused_l_t5": true,
+    "bihistory.silent_staleness_prevented": true
+  }
+}

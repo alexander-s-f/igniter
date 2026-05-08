@@ -1,0 +1,108 @@
+{
+  "artifact_hash": "sha256:fc8ffd3f5b56db58ae864db7f25737b3b872d609f5b63e64ac6c8008745be4a8",
+  "compute_nodes": [],
+  "contract_id": "SparkCRMBiHistorySourceParity",
+  "escape_set": [
+    {
+      "name": "bihistory_read",
+      "produces": [
+        "bihistory_access_observation"
+      ],
+      "required_caps": [
+        "bihistory_read"
+      ]
+    }
+  ],
+  "fragment_class": "temporal",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "technician_id",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "valid_time",
+      "required": true,
+      "type_tag": "DateTime"
+    },
+    {
+      "lifecycle": "local",
+      "name": "transaction_time",
+      "required": true,
+      "type_tag": "DateTime"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "SparkCRMBiHistorySourceParity",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "availability_at",
+      "required": true,
+      "type_tag": "Option[String]"
+    }
+  ],
+  "source_contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+  "temporal_nodes": [
+    {
+      "axis": "bitemporal",
+      "dependencies": [],
+      "fragment_class": "temporal",
+      "kind": "temporal_input_node",
+      "lifecycle": "durable",
+      "name": "availability_history",
+      "node_fragment_class": "temporal",
+      "node_id": "node_availability_history",
+      "obs_kind": "temporal_source_observation",
+      "required_capability": "bihistory_read",
+      "required_caps": [
+        "bihistory_read"
+      ],
+      "store_ref": null,
+      "type_tag": "BiHistory[String]",
+      "value_fragment_class": "core"
+    },
+    {
+      "axis": "bitemporal",
+      "coordinate_refs": {
+        "transaction_time": "transaction_time",
+        "valid_time": "valid_time"
+      },
+      "dependencies": [
+        "input:availability_history",
+        "input:valid_time",
+        "input:transaction_time"
+      ],
+      "evidence_policy": "link_selected_event_observation",
+      "fragment_class": "temporal",
+      "kind": "temporal_access_node",
+      "lifecycle": "session",
+      "name": "availability_at",
+      "node_fragment_class": "temporal",
+      "node_id": "node_availability_at",
+      "obs_kind": "temporal_access_observation",
+      "required_capability": "bihistory_read",
+      "required_caps": [
+        "bihistory_read"
+      ],
+      "result_type_tag": "Option[String]",
+      "source_ref": "availability_history",
+      "temporal_axis": "bitemporal",
+      "transaction_time_ref": "transaction_time",
+      "valid_time_ref": "valid_time",
+      "value_fragment_class": "core"
+    }
+  ],
+  "type_signature": {
+    "inputs": {
+      "technician_id": "String",
+      "transaction_time": "DateTime",
+      "valid_time": "DateTime"
+    },
+    "outputs": {
+      "availability_at": "Option[String]"
+    }
+  }
+}

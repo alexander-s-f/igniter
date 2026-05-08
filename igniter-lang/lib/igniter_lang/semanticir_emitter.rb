@@ -399,6 +399,7 @@ module IgniterLang
       result["size"] = decl.fetch("size", decl.dig("options", "size")) if decl.key?("size") || decl.dig("options", "size")
       result["period"] = decl.fetch("period", decl.dig("options", "period")) if decl.key?("period") || decl.dig("options", "period")
       result["idle"] = decl.fetch("idle", decl.dig("options", "idle")) if decl.key?("idle") || decl.dig("options", "idle")
+      result["bounded"] = window_bounded?(result)
       result.compact
     end
 
@@ -411,7 +412,8 @@ module IgniterLang
         "stream_ref" => decl.fetch("stream_ref", ref_name(args[0])),
         "init" => decl.fetch("init", literal_node(args[1])),
         "fn_ref" => decl.fetch("fn_ref", lambda_ref(args[2])),
-        "bound" => decl.fetch("bound", stream_bound(decl, declarations)),
+        "bound" => fold_stream_bound(decl, declarations),
+        "event_binding" => stream_event_binding(args[2]),
         "result_type" => decl.fetch("type"),
         "escape_capability" => "stream_input",
         "result_fragment" => decl.fetch("fragment_class", "core")
@@ -432,6 +434,25 @@ module IgniterLang
         "kind" => decl.fetch("bound_kind", "window_bounded"),
         "window_ref" => decl.fetch("window_ref", first_window_ref(declarations))
       }
+    end
+
+    def fold_stream_bound(decl, declarations)
+      bound = decl.fetch("bound", stream_bound(decl, declarations)).dup
+      bound["window_ref"] ||= decl.fetch("window_ref", first_window_ref(declarations))
+      bound
+    end
+
+    def window_bounded?(window)
+      %w[size period idle].any? { |key| window.fetch(key, nil) }
+    end
+
+    def stream_event_binding(lambda_expr)
+      params = lambda_expr.is_a?(Hash) ? lambda_expr.fetch("params", []) : []
+      {
+        "event_ref" => "event",
+        "value_ref" => params[1],
+        "value_path" => ["value"]
+      }.compact
     end
 
     def ref_name(expr)

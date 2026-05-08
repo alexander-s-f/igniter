@@ -313,17 +313,22 @@ module RuntimeSmokePostSwitchFullCoverage
     program = load_program(OUT_DIR / "stream_fold.igapp")
     semantic_ir = program.semantic_ir_program
     contract = semantic_ir.fetch("contracts").first
-    stream_node = node_by_kind(contract, "stream_input_node")
-    window_node = node_by_kind(contract, "window_decl_node")
-    fold_node = node_by_kind(contract, "fold_stream_node")
-    window_size = window_node.fetch("size", STREAM_EVENTS.length)
-    initial_value = fold_node.dig("init", "value") || 0
+    assembled_contract = program.contracts.values.first
+    stream_nodes = assembled_contract.fetch("stream_nodes")
+    stream_node = node_by_kind_from(stream_nodes, "stream_input_node")
+    window_node = node_by_kind_from(stream_nodes, "window_decl_node")
+    fold_node = node_by_kind_from(stream_nodes, "fold_stream_node")
+    window_size = window_node.fetch("size")
+    initial_value = fold_node.fetch("init").fetch("value")
+    raise "unsupported fold_stream.fn_ref=#{fold_node.fetch("fn_ref")}" unless fold_node.fetch("fn_ref") == "integer_sum_lambda"
+
+    value_path = fold_node.fetch("event_binding").fetch("value_path")
     consumed = STREAM_EVENTS.first(window_size)
-    total = consumed.map { |event| event.fetch("value") }.reduce(initial_value, :+)
+    total = consumed.map { |event| value_at_path(event, value_path) }.reduce(initial_value, :+)
     observation = {
       "kind" => "stream_window_observation",
       "closed" => true,
-      "window_kind" => window_node.fetch("window_kind", "count"),
+      "window_kind" => window_node.fetch("window_kind"),
       "consumed_event_refs" => consumed.map { |event| event.fetch("event_id") }
     }
 
@@ -334,6 +339,7 @@ module RuntimeSmokePostSwitchFullCoverage
       "load_status" => "loaded",
       "fragment_class" => program.fragment_class,
       "node_kinds" => contract.fetch("nodes").map { |node| node.fetch("kind") },
+      "assembled_stream_node_kinds" => stream_nodes.map { |node| node.fetch("kind") },
       "evaluate_status" => "ok",
       "output" => {
         "total" => total,
@@ -341,6 +347,7 @@ module RuntimeSmokePostSwitchFullCoverage
         "stream_ref" => stream_node.fetch("name")
       },
       "runtime_note" => stream_metadata_note(window_node, fold_node),
+      "metadata_source" => "assembled_contract.stream_nodes",
       "observations" => [observation],
       "trusted" => true
     }
@@ -498,6 +505,9 @@ module RuntimeSmokePostSwitchFullCoverage
         cases.dig("core_add_compute", "outputs", "sum") == 42,
       "stream_fold.compile_load_evaluate" => cases.dig("stream_fold", "trusted") == true &&
         cases.dig("stream_fold", "output", "total") == 24,
+      "stream_fold.assembled_replay_metadata" =>
+        cases.dig("stream_fold", "runtime_note") == "assembled_stream_replay_metadata_complete" &&
+        cases.dig("stream_fold", "metadata_source") == "assembled_contract.stream_nodes",
       "olap_point.compile_load_evaluate" => cases.dig("olap_point", "trusted") == true &&
         cases.dig("olap_point", "output", "measure") == "20.00",
       "history_single_axis.load_refuse_eval" => temporal_refusal_ok?(cases.fetch("history_single_axis"), "history_read"),
@@ -530,7 +540,7 @@ module RuntimeSmokePostSwitchFullCoverage
   def remaining_gaps(cases)
     gaps = []
     stream_note = cases.dig("stream_fold", "runtime_note")
-    if stream_note && stream_note != "semantic_ir_stream_metadata_complete"
+    if stream_note && stream_note != "assembled_stream_replay_metadata_complete"
       gaps << {
         "surface" => "stream_fold",
         "gap" => stream_note,
@@ -568,12 +578,23 @@ module RuntimeSmokePostSwitchFullCoverage
       raise("missing #{kind}")
   end
 
+  def node_by_kind_from(nodes, kind)
+    nodes.find { |node| node.fetch("kind") == kind } || raise("missing #{kind}")
+  end
+
+  def value_at_path(event, path)
+    path.reduce(event) { |value, key| value.fetch(key) }
+  end
+
   def stream_metadata_note(window_node, fold_node)
     missing = []
     missing << "window.size" unless window_node.key?("size")
+    missing << "window.kind" unless window_node.key?("window_kind")
+    missing << "window.bounded" unless window_node.key?("bounded")
     missing << "fold_stream.init" unless fold_node.fetch("init", nil)
     missing << "fold_stream.fn_ref" unless fold_node.fetch("fn_ref", nil)
-    return "semantic_ir_stream_metadata_complete" if missing.empty?
+    missing << "fold_stream.event_binding" unless fold_node.fetch("event_binding", nil)
+    return "assembled_stream_replay_metadata_complete" if missing.empty?
 
     "proof-local finite replay used fixture defaults for #{missing.join(", ")}"
   end

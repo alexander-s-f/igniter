@@ -1,0 +1,98 @@
+{
+  "artifact_hash": "sha256:67a41017bbbf3b16f4089520bde64d75383f3333c88d7d34fa7a83bb0b44f462",
+  "compute_nodes": [],
+  "contract_id": "TechnicianJobCountAt",
+  "escape_set": [
+    {
+      "name": "history_read",
+      "produces": [
+        "history_access_observation"
+      ],
+      "required_caps": [
+        "history_read"
+      ]
+    }
+  ],
+  "fragment_class": "temporal",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "technician_id",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "as_of",
+      "required": true,
+      "type_tag": "DateTime"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "TechnicianJobCountAt",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "current_count",
+      "required": true,
+      "type_tag": "Option[Integer]"
+    }
+  ],
+  "source_contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+  "temporal_nodes": [
+    {
+      "axis": "valid_time",
+      "dependencies": [],
+      "fragment_class": "temporal",
+      "kind": "temporal_input_node",
+      "lifecycle": "durable",
+      "name": "job_count_history",
+      "node_fragment_class": "temporal",
+      "node_id": "node_job_count_history",
+      "obs_kind": "temporal_source_observation",
+      "required_capability": "history_read",
+      "required_caps": [
+        "history_read"
+      ],
+      "store_ref": null,
+      "type_tag": "History[Integer]",
+      "value_fragment_class": "core"
+    },
+    {
+      "as_of_ref": "as_of",
+      "axis": "valid_time",
+      "coordinate_refs": {
+        "as_of": "as_of"
+      },
+      "dependencies": [
+        "input:job_count_history",
+        "input:as_of"
+      ],
+      "evidence_policy": "link_selected_append_observation",
+      "fragment_class": "temporal",
+      "kind": "temporal_access_node",
+      "lifecycle": "session",
+      "name": "current_count",
+      "node_fragment_class": "temporal",
+      "node_id": "node_current_count",
+      "obs_kind": "temporal_access_observation",
+      "required_capability": "history_read",
+      "required_caps": [
+        "history_read"
+      ],
+      "result_type_tag": "Option[Integer]",
+      "source_ref": "job_count_history",
+      "temporal_axis": "valid_time",
+      "value_fragment_class": "core"
+    }
+  ],
+  "type_signature": {
+    "inputs": {
+      "as_of": "DateTime",
+      "technician_id": "String"
+    },
+    "outputs": {
+      "current_count": "Option[Integer]"
+    }
+  }
+}

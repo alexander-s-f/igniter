@@ -208,6 +208,11 @@ module IgniterLang
 
         temporal_node_file(node)
       end
+      stream_nodes = semantic_nodes.filter_map do |node|
+        next unless stream_node?(node)
+
+        stream_node_file(node)
+      end
 
       result = {
         "contract_id" => contract_id,
@@ -225,6 +230,7 @@ module IgniterLang
         }
       }
       result["temporal_nodes"] = temporal_nodes unless temporal_nodes.empty?
+      result["stream_nodes"] = stream_nodes unless stream_nodes.empty?
       result
     end
 
@@ -234,6 +240,10 @@ module IgniterLang
 
     def temporal_node?(node)
       %w[temporal_input_node temporal_access_node].include?(node.fetch("kind", nil))
+    end
+
+    def stream_node?(node)
+      %w[stream_input_node window_decl_node fold_stream_node].include?(node.fetch("kind", nil))
     end
 
     def temporal_node_file(node)
@@ -266,6 +276,32 @@ module IgniterLang
 
     def temporal_obs_kind(node)
       node.fetch("kind") == "temporal_input_node" ? "temporal_source_observation" : "temporal_access_observation"
+    end
+
+    def stream_node_file(node)
+      name = node.fetch("name", node.fetch("ref", nil))
+      result = {
+        "node_id" => "node_#{name}",
+        "name" => name,
+        "kind" => node.fetch("kind"),
+        "fragment_class" => node.fetch("fragment", node.fetch("result_fragment", "stream")),
+        "lifecycle" => "window",
+        "obs_kind" => stream_obs_kind(node),
+        "dependencies" => node.fetch("deps", []).map { |dep| "input:#{dep}" }
+      }
+      result["type_tag"] = type_name(node.fetch("type")) if node.key?("type")
+      result["result_type_tag"] = type_name(node.fetch("result_type")) if node.key?("result_type")
+      %w[
+        window_ref ref key window_kind bounded size period idle on_close stream_ref init fn_ref
+        bound event_binding escape_capability result_fragment
+      ].each do |key|
+        result[key] = node.fetch(key) if node.key?(key)
+      end
+      result
+    end
+
+    def stream_obs_kind(node)
+      node.fetch("kind") == "window_decl_node" ? "stream_window_observation" : "stream_replay_metadata"
     end
 
     def fragment_summary_for(contracts)
@@ -406,6 +442,9 @@ module IgniterLang
       temporal_axes = temporal_nodes.map { |node| node.fetch("axis", node.fetch("temporal_axis", nil)) }.compact.uniq.sort
       temporal_caps = required_caps & %w[history_read bihistory_read]
       stream_caps = required_caps & %w[stream_input]
+      stream_nodes = semantic_ir.fetch("contracts").flat_map { |contract| contract.fetch("nodes", []) }
+        .select { |node| stream_node?(node) }
+      stream_windows = stream_nodes.select { |node| node.fetch("kind") == "window_decl_node" }
 
       {
         "temporal" => {
@@ -423,7 +462,7 @@ module IgniterLang
               "coordinates" => node.fetch("coordinate_refs", {})
             }
           end,
-          "windows" => [],
+          "windows" => stream_windows.map { |node| stream_window_requirement(node) },
           "slices" => []
         },
         "lifecycle" => {
@@ -452,6 +491,18 @@ module IgniterLang
 
     def effect_kinds_for(boundaries)
       boundaries.flat_map { |boundary| boundary.fetch("produces", []) }.uniq.sort
+    end
+
+    def stream_window_requirement(node)
+      result = {
+        "ref" => node.fetch("ref"),
+        "kind" => node.fetch("window_kind", nil),
+        "bounded" => node.fetch("bounded", false)
+      }
+      %w[size period idle on_close].each do |key|
+        result[key] = node.fetch(key) if node.key?(key)
+      end
+      result.compact
     end
 
     def classified_ast_for(report, semantic_ir, contract_ids, fragment_class)

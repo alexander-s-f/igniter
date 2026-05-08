@@ -455,5 +455,7 @@ module RuntimeCompatibilityReportTemporalLoadCheckProof
   end
 end
 
-success = RuntimeCompatibilityReportTemporalLoadCheckProof.run
-exit(success ? 0 : 1)
+if $PROGRAM_NAME == __FILE__
+  success = RuntimeCompatibilityReportTemporalLoadCheckProof.run
+  exit(success ? 0 : 1)
+end

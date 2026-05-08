@@ -1,0 +1,52 @@
+{
+  "capabilities": {
+    "effect_kinds": [
+      "bihistory_access_observation"
+    ],
+    "required_caps": [
+      "bihistory_read"
+    ]
+  },
+  "effects": [],
+  "ffi": [],
+  "fragments": [
+    "temporal"
+  ],
+  "lifecycle": {
+    "has_audit": true,
+    "has_window": false,
+    "min_lifecycle": "local"
+  },
+  "required_tbackend_caps": {
+    "append_atomic": false,
+    "compact_enabled": false,
+    "consistency": "strong",
+    "read_as_of": true,
+    "replay_enabled": true,
+    "snapshot_enabled": false,
+    "subscribe_enabled": false
+  },
+  "temporal": {
+    "axes": [
+      "bitemporal"
+    ],
+    "coordinate_refs": [
+      {
+        "axis": "bitemporal",
+        "coordinates": {
+          "transaction_time": "transaction_time",
+          "valid_time": "valid_time"
+        },
+        "node": "availability_at"
+      }
+    ],
+    "min_consistency": "strong",
+    "requires_as_of": true,
+    "requires_replay": true,
+    "requires_snapshot": false,
+    "requires_transaction_time": true,
+    "requires_valid_time": true,
+    "slices": [],
+    "windows": []
+  }
+}

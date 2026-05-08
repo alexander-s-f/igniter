@@ -101,6 +101,9 @@
                 }
               }
             ]
+          },
+          "bound": {
+            "kind": "window_bounded"
           }
         },
         {

@@ -83,9 +83,9 @@ Source .ig
        evaluate TEMPORAL                        🚫 refused until executor/TBackend
        memoize TEMPORAL                         🚫 proof-local only
   -> Ledger / TBackend
-       descriptor metadata                      ✅ Gate 2 ratify recommended
+       descriptor metadata                      ✅ Gate 2 ratified
        descriptor report mapping                ✅ report-only
-       Gate 2 decision track                    ✅ ratify recommended
+       Gate 2 ratification record               ✅ ratified
        live operations                          🚫 Gate 3 closed
   -> Release
        release-gate artifact/checksum           ✅ PASS
@@ -115,7 +115,7 @@ legacy/internal comparison, not the production path.
 | TEMPORAL evaluate | CLOSED | Evaluation refuses until executor/TBackend work is approved; S3-R8 full smoke and executor-boundary evidence keep the refusal structured. |
 | Runtime cache | PROOF-LOCAL | Cache key/memoization proofs exist; no production cache. |
 | TBackend Gate 1 | PASS | Report-only descriptor consumption fixture. |
-| TBackend Gate 2 | RATIFY RECOMMENDED | Metadata-only package descriptor exposure and report-only descriptor mapping; Architect decision still needed. |
+| TBackend Gate 2 | RATIFIED | Metadata-only package descriptor exposure and report-only descriptor mapping are trusted report metadata; no runtime authority. |
 | TBackend Gate 3 | CLOSED | No Ledger read/write/replay/runtime binding. |
 | Release publish | CLOSED | `bin/release-gate` may build artifacts; RubyGems publish needs explicit approval and MFA owner action. |
 | Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; no syntax is canon without proposal/proof. |
@@ -201,12 +201,11 @@ Do not run broad expensive suites just to curate maps.
 
 Recommended next routing from the latest status map:
 
-1. `descriptor-gate2-architect-ratification-record-v0`
-2. `compatibility-report-package-descriptor-consumption-v0`
-3. `runtime-executor-approval-token-contract-v0`
-4. `stream-replay-metadata-emission-v0`
-5. `invariant-source-metadata-preservation-v0`
-6. `entrypoint-section-parser-typechecker-v0`
-7. `runtime-temporal-executor-gate3-request-v0`
-8. `gem-release-ci-wiring-v0`
-9. `invariant-persistence-boundary-v0`
+1. `compatibility-report-package-descriptor-consumption-v0`
+2. `runtime-executor-approval-token-contract-v0`
+3. `stream-replay-metadata-emission-v0`
+4. `invariant-source-metadata-preservation-v0`
+5. `entrypoint-section-parser-typechecker-v0`
+6. `runtime-temporal-executor-gate3-request-v0`
+7. `gem-release-ci-wiring-v0`
+8. `invariant-persistence-boundary-v0`

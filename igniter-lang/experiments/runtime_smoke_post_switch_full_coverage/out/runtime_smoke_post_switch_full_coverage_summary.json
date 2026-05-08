@@ -36,13 +36,19 @@
         "window_decl_node",
         "fold_stream_node"
       ],
+      "assembled_stream_node_kinds": [
+        "stream_input_node",
+        "window_decl_node",
+        "fold_stream_node"
+      ],
       "evaluate_status": "ok",
       "output": {
         "total": 24,
         "event_count": 3,
         "stream_ref": "readings"
       },
-      "runtime_note": "proof-local finite replay used fixture defaults for window.size, fold_stream.init, fold_stream.fn_ref",
+      "runtime_note": "assembled_stream_replay_metadata_complete",
+      "metadata_source": "assembled_contract.stream_nodes",
       "observations": [
         {
           "kind": "stream_window_observation",
@@ -246,11 +252,6 @@
   "uncovered_surfaces": [],
   "remaining_gaps": [
     {
-      "surface": "stream_fold",
-      "gap": "proof-local finite replay used fixture defaults for window.size, fold_stream.init, fold_stream.fn_ref",
-      "owner_hint": "Compiler/Grammar Expert"
-    },
-    {
       "surface": "invariant_severity",
       "gap": "runtime smoke uses the dedicated typed fixture for severity metadata; source-to-classifier metadata preservation should stay visible outside this runtime card",
       "owner_hint": "Compiler/Grammar Expert"
@@ -264,6 +265,7 @@
   "checks": {
     "core_add_compute.compile_load_evaluate": true,
     "stream_fold.compile_load_evaluate": true,
+    "stream_fold.assembled_replay_metadata": true,
     "olap_point.compile_load_evaluate": true,
     "history_single_axis.load_refuse_eval": true,
     "bihistory_bitemporal.load_refuse_eval": true,

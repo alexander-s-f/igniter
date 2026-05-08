@@ -88,7 +88,7 @@ module IgniterLang
           check_fold_stream_body(decl, stream_symbols, type_errors)
           result_type = fold_stream_result_type(decl)
           symbol_types[decl.fetch("name")] = result_type
-          typed_decls << typed_decl(decl, result_type, nil, decl.fetch("deps", []))
+          typed_decls << typed_decl(decl, result_type, decl.fetch("expr", nil), decl.fetch("deps", []))
         when "invariant"
           # TINV-1/2/3: Resolve predicate_ref, validate overridable_with, compute output_effect
           check_invariant(decl, symbol_types, type_errors, invariant_effects)
@@ -142,6 +142,9 @@ module IgniterLang
         result[key] = decl.fetch(key) if decl.key?(key)
       end
       %w[from lifecycle].each do |key|
+        result[key] = decl.fetch(key) if decl.key?(key)
+      end
+      %w[bound options window_ref key window_kind size period idle on_close fn_ref init stream_ref].each do |key|
         result[key] = decl.fetch(key) if decl.key?(key)
       end
       result

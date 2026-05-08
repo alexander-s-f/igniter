@@ -36,6 +36,14 @@
     "requires_transaction_time": false,
     "requires_valid_time": false,
     "slices": [],
-    "windows": []
+    "windows": [
+      {
+        "bounded": true,
+        "kind": "count",
+        "on_close": "snapshot",
+        "ref": "integer/{device_id}",
+        "size": 3
+      }
+    ]
   }
 }

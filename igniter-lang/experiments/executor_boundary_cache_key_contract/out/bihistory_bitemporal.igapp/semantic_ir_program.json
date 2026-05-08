@@ -1,0 +1,134 @@
+{
+  "compilation_report_ref": "compilation_report/b6603c347619e2b6",
+  "contracts": [
+    {
+      "contract_name": "SparkCRMBiHistorySourceParity",
+      "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+      "escape_boundaries": [
+        {
+          "name": "bihistory_read",
+          "produces": [
+            "bihistory_access_observation"
+          ],
+          "required_caps": [
+            "bihistory_read"
+          ]
+        }
+      ],
+      "fragment_class": "temporal",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "technician_id",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "valid_time",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "transaction_time",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "nodes": [
+        {
+          "axis": "bitemporal",
+          "fragment": "temporal",
+          "kind": "temporal_input_node",
+          "lifecycle": "durable",
+          "name": "availability_history",
+          "node_fragment_class": "temporal",
+          "required_capability": "bihistory_read",
+          "required_caps": [
+            "bihistory_read"
+          ],
+          "store_ref": null,
+          "type": {
+            "constructor": "BiHistory",
+            "element_type": "String"
+          },
+          "value_fragment_class": "core"
+        },
+        {
+          "axis": "bitemporal",
+          "axis_refs": [
+            "valid_time",
+            "transaction_time"
+          ],
+          "coordinate_refs": {
+            "transaction_time": "transaction_time",
+            "valid_time": "valid_time"
+          },
+          "deps": [
+            "availability_history",
+            "valid_time",
+            "transaction_time"
+          ],
+          "evidence_policy": "link_selected_event_observation",
+          "fragment": "temporal",
+          "history_ref": "availability_history",
+          "kind": "temporal_access_node",
+          "name": "availability_at",
+          "node_fragment_class": "temporal",
+          "required_capability": "bihistory_read",
+          "required_caps": [
+            "bihistory_read"
+          ],
+          "result_type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "source_ref": "availability_history",
+          "temporal_axis": "bitemporal",
+          "transaction_time_ref": "transaction_time",
+          "valid_time_ref": "valid_time",
+          "value_fragment_class": "core"
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "availability_at",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "Fixture.TypedEmissionParity",
+  "program_id": "semanticir/b6603c347619e2b6",
+  "source_hash": "sha256:b6603c347619e2b67adec81d31305ed961c8736f22b2c595d6abab5d83d22772",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/typed_emission_main_path_parity/sparkcrm_bihistory_source.ig"
+}

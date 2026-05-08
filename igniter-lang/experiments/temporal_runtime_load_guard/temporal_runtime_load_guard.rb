@@ -409,5 +409,7 @@ module TemporalRuntimeLoadGuardProof
   end
 end
 
-success = TemporalRuntimeLoadGuardProof.run
-exit(success ? 0 : 1)
+if $PROGRAM_NAME == __FILE__
+  success = TemporalRuntimeLoadGuardProof.run
+  exit(success ? 0 : 1)
+end

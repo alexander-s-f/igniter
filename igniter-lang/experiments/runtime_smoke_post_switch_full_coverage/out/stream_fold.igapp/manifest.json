@@ -1,17 +1,17 @@
 {
-  "artifact_hash": "sha256:12a6fc91fed4dc222ddbddddabadbd56f1589252e46767d15a765a8ac9b3bbd8",
+  "artifact_hash": "sha256:0423bb20b23b6e31c567f980035c1feb90f6166b16bbe39e44d7af84685a920a",
   "assembler": "igapp-assembler-proof-stage1-v0",
   "compilation_report_ref": "compilation_report/24ac47cf19b864a1",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
     "IntegerWindowSum": {
       "contract_path": "contracts/integer_window_sum.json",
-      "contract_ref": "contract/IntegerWindowSum/sha256:94985e21d730bdf7fa818e2c",
+      "contract_ref": "contract/IntegerWindowSum/sha256:97bb953bb0e7c4efab4b55de",
       "fragment_class": "escape"
     }
   },
   "contract_refs": {
-    "IntegerWindowSum": "contract/IntegerWindowSum/sha256:94985e21d730bdf7fa818e2c"
+    "IntegerWindowSum": "contract/IntegerWindowSum/sha256:97bb953bb0e7c4efab4b55de"
   },
   "contracts": [
     "IntegerWindowSum"

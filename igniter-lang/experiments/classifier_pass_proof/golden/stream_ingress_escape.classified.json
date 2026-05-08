@@ -58,7 +58,12 @@
           "name": "integer/{device_id}",
           "fragment_class": "escape",
           "deps": [],
-          "missing_refs": []
+          "missing_refs": [],
+          "options": {
+            "kind": "count",
+            "size": 3,
+            "on_close": "snapshot"
+          }
         },
         {
           "decl_id": "output:device_id",

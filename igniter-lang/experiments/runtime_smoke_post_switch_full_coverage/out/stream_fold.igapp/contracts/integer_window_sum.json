@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:12a6fc91fed4dc222ddbddddabadbd56f1589252e46767d15a765a8ac9b3bbd8",
+  "artifact_hash": "sha256:0423bb20b23b6e31c567f980035c1feb90f6166b16bbe39e44d7af84685a920a",
   "compute_nodes": [],
   "contract_id": "IntegerWindowSum",
   "escape_set": [
@@ -32,7 +32,65 @@
       "type_tag": "Integer"
     }
   ],
-  "source_contract_ref": "contract/IntegerWindowSum/sha256:94985e21d730bdf7fa818e2c",
+  "source_contract_ref": "contract/IntegerWindowSum/sha256:97bb953bb0e7c4efab4b55de",
+  "stream_nodes": [
+    {
+      "dependencies": [],
+      "escape_capability": "stream_input",
+      "fragment_class": "escape",
+      "kind": "stream_input_node",
+      "lifecycle": "window",
+      "name": "readings",
+      "node_id": "node_readings",
+      "obs_kind": "stream_replay_metadata",
+      "type_tag": "Integer",
+      "window_ref": "integer/{device_id}"
+    },
+    {
+      "bounded": true,
+      "dependencies": [],
+      "fragment_class": "stream",
+      "key": "integer/{device_id}",
+      "kind": "window_decl_node",
+      "lifecycle": "window",
+      "name": "integer/{device_id}",
+      "node_id": "node_integer/{device_id}",
+      "obs_kind": "stream_window_observation",
+      "on_close": "snapshot",
+      "ref": "integer/{device_id}",
+      "size": 3,
+      "window_kind": "count"
+    },
+    {
+      "bound": {
+        "kind": "window_bounded",
+        "window_ref": "integer/{device_id}"
+      },
+      "dependencies": [],
+      "escape_capability": "stream_input",
+      "event_binding": {
+        "event_ref": "event",
+        "value_path": [
+          "value"
+        ],
+        "value_ref": "reading"
+      },
+      "fn_ref": "integer_sum_lambda",
+      "fragment_class": "core",
+      "init": {
+        "kind": "integer_literal",
+        "value": 0
+      },
+      "kind": "fold_stream_node",
+      "lifecycle": "window",
+      "name": "total",
+      "node_id": "node_total",
+      "obs_kind": "stream_replay_metadata",
+      "result_fragment": "core",
+      "result_type_tag": "Integer",
+      "stream_ref": "readings"
+    }
+  ],
   "type_signature": {
     "inputs": {
       "device_id": "String"

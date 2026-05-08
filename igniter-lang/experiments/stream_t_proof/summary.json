@@ -312,7 +312,7 @@
     "contracts": [
       {
         "contract_name": "IntegerWindowSum",
-        "contract_ref": "contract/IntegerWindowSum/sha256:ca7a553c52af0e827186fee1",
+        "contract_ref": "contract/IntegerWindowSum/sha256:00c4ca24052196d33194b836",
         "escape_boundaries": [
           {
             "name": "stream_input",
@@ -346,6 +346,7 @@
             "window_ref": "integer_count_window"
           },
           {
+            "bounded": true,
             "key": "integer/{device_id}",
             "kind": "window_decl_node",
             "on_close": "snapshot",
@@ -359,6 +360,13 @@
               "window_ref": "integer_count_window"
             },
             "escape_capability": "stream_input",
+            "event_binding": {
+              "event_ref": "event",
+              "value_path": [
+                "value"
+              ],
+              "value_ref": "reading"
+            },
             "fn_ref": "integer_sum_lambda",
             "init": {
               "kind": "integer_literal",

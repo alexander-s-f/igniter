@@ -88,7 +88,40 @@
             "fold_stream",
             "readings",
             "acc"
-          ]
+          ],
+          "expr": {
+            "kind": "call",
+            "fn": "fold_stream",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "readings"
+              },
+              {
+                "kind": "literal",
+                "value": 0,
+                "type_tag": "Integer"
+              },
+              {
+                "kind": "lambda",
+                "params": [
+                  "acc"
+                ],
+                "body": {
+                  "kind": "binary_op",
+                  "op": "+",
+                  "left": {
+                    "kind": "ref",
+                    "name": "acc"
+                  },
+                  "right": {
+                    "kind": "ref",
+                    "name": "readings"
+                  }
+                }
+              }
+            ]
+          }
         },
         {
           "decl_id": "output:bad_total",

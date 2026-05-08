@@ -193,6 +193,9 @@ module IgniterLang
         result["expr_kind"] = node.fetch("expr").fetch("kind")
         result["expr"] = node.fetch("expr")
       end
+      %w[bound options].each do |key|
+        result[key] = node.fetch(key) if node.key?(key)
+      end
       result
     end
 
