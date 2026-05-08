@@ -25,8 +25,10 @@ Every role starts from the same compact map:
 4. [../docs/README.md](../docs/README.md) — documentation navigation
 5. [../docs/operating-model.md](../docs/operating-model.md) — supervisor-owned flow
 6. [../docs/current-status.md](../docs/current-status.md) — current scoreboard
-7. [../docs/spec/](../docs/spec/) — canonical language chapters relevant to the slice
-8. the assigned track/proposal/source docs only
+7. [../docs/discussions/README.md](../docs/discussions/README.md) — only when
+   `Mode: discussion` is assigned
+8. [../docs/spec/](../docs/spec/) — canonical language chapters relevant to the slice
+9. the assigned track/proposal/source docs only
 
 Agents should not read archives, old tracks, or package docs unless the card
 explicitly asks for archaeology, bridge mapping, or package pressure.
@@ -82,6 +84,23 @@ External Pressure Reviewer
   -> provides outside review pressure and fresh-context critique
   -> does not author canon, update status, or implement code
   -> routes through Architect Supervisor and Meta Expert before becoming work
+```
+
+## Discussion Participation
+
+Any role may participate in a bounded discussion when a card explicitly says:
+
+```text
+Mode: discussion
+```
+
+Discussion format lives in
+[../docs/discussions/README.md](../docs/discussions/README.md). A discussion is
+not canon, not a track, and not implementation authorization. It should end by
+routing the question to one of:
+
+```text
+PROP / track / review / backlog / reject / keep-discussing
 ```
 
 ## Identity Rule

@@ -126,6 +126,10 @@ Role details live in [roles/](roles/). Short map:
 
 Use compact documents. Prefer one living index plus focused tracks.
 
+Discussion mode lives in `igniter-lang/docs/discussions/`. It is for bounded
+debate before a proposal, track, backlog item, or rejection is clear.
+Discussion output is not canon and does not authorize implementation by itself.
+
 Every idea should have a status:
 
 - `research`
@@ -155,6 +159,28 @@ Use these markers:
 
 Experiments are allowed inside `igniter-lang/experiments/` when the handoff
 asks for an approved proof/devkit slice.
+
+## Discussions
+
+Use discussion mode only when the card says:
+
+```text
+Mode: discussion
+```
+
+Discussion cards should use the format in
+`igniter-lang/docs/discussions/README.md` and end with:
+
+```text
+[Agree]
+[Challenge]
+[Missing]
+[Sharper Question]
+[Route]
+```
+
+Allowed routes are: `PROP`, `track`, `review`, `backlog`, `reject`, or
+`keep-discussing`.
 
 ## Handoff
 

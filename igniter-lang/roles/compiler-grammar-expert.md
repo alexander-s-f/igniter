@@ -57,6 +57,16 @@ A Compiler/Grammar Expert slice should end with:
 - changed files
 - handoff
 
+## Discussion Participation
+
+If the card says `Mode: discussion`, follow
+`igniter-lang/docs/discussions/README.md` instead of normal proposal/formal
+output. Participate through the Compiler/Grammar lens: what is ambiguous,
+unparseable, incoherent, or missing an OOF rule?
+
+End with `[Agree]`, `[Challenge]`, `[Missing]`, `[Sharper Question]`, and
+`[Route]`.
+
 ## Neighbor Awareness
 
 Ask `[Igniter-Lang Research Agent]` for:

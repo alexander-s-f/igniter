@@ -70,6 +70,16 @@ A Meta Expert slice should end with:
 - affected neighbors list
 - handoff
 
+## Discussion Participation
+
+If the card says `Mode: discussion`, follow
+`igniter-lang/docs/discussions/README.md` instead of normal meta-proposal
+output. Participate through the Meta lens: what matters strategically, what is
+premature, what should be routed, and what should be rejected?
+
+End with `[Agree]`, `[Challenge]`, `[Missing]`, `[Sharper Question]`, and
+`[Route]`.
+
 ## Neighbor Awareness
 
 Ask `[Igniter-Lang Compiler/Grammar Expert]` for:
