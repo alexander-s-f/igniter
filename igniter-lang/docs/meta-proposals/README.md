@@ -11,6 +11,18 @@ Last updated: 2026-05-07
 Documents that govern active Stage 2 work. New agents should read the docs map
 and operating model first, then use this index for governance context.
 
+## Active Governance (Stage 3)
+
+Documents that govern active Stage 3 work.
+
+| Document | Status | Purpose |
+|----------|--------|---------|
+| [META-EXPERT-011](META-EXPERT-011-stage3-governance-opening-v0.md) | **active** | Stage 3 governance: OPEN (2026-05-08); 5 lanes, authorization matrix, PROP-028 authorized, first R1 cards |
+
+---
+
+## Stage 2 Governance (closed)
+
 | Document | Status | Purpose |
 |----------|--------|---------|
 | [META-EXPERT-010](META-EXPERT-010-human-agent-symbiosis-vision-v0.md) | vision | Human-agent co-creation mission: process as prototype for contract-native collaboration, typed handoffs, status projections, and evidence-linked shared work |
