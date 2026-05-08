@@ -130,6 +130,7 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 |------|------|----------|--------|
 | [temporal-fragment-and-cache-key-pressure-discussion-v0.md](temporal-fragment-and-cache-key-pressure-discussion-v0.md) | S3-R2-X1-S | Do PROP-028 + temporal-cache-key-proof close the silent staleness class? | complete — routed |
 | [temporal-manifest-and-cache-boundary-pressure-v0.md](temporal-manifest-and-cache-boundary-pressure-v0.md) | S3-R3-X1-S | Does TEMPORAL survive Classifier → SemanticIR → Assembler → RuntimeMachine? | complete — routed |
+| [temporal-igapp-runtime-boundary-pressure-v0.md](temporal-igapp-runtime-boundary-pressure-v0.md) | S3-R4-X1-S | Did S3-R4 make temporal `.igapp/` safe enough for proof-local RuntimeMachine loading? | complete — routed |
 
 ---
 
