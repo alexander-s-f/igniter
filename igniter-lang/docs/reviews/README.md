@@ -11,4 +11,4 @@ after Architect Supervisor routing.
 | File | Summary |
 |------|---------|
 | [2026-05-07-compiler-pipeline-gap-review.md](2026-05-07-compiler-pipeline-gap-review.md) | External agent review of compiler pipeline strengths and gaps: typed emission, sample_input, temporal fragment, future syntax parser gap, and .igapp capability negotiation |
-
+| [2026-05-08-agent-comprehension-ergonomics-review.md](2026-05-08-agent-comprehension-ergonomics-review.md) | External agent comprehension test: Field Supply Watch intent was correctly inferred; review raises ergonomics/human-delight pressure against Gleam/Roc references |

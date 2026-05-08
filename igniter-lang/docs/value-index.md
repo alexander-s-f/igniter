@@ -289,6 +289,18 @@ Source:
 - [meta-proposals/syntax-pressure-review-results-v0.md](meta-proposals/syntax-pressure-review-results-v0.md)
 - [tracks/future-syntax-pressure-formalization-v0.md](tracks/future-syntax-pressure-formalization-v0.md)
 
+### Semantic Density Passed, Ergonomics Now Needs A Lane
+
+Signal: an external agent correctly inferred Field Supply Watch's domain,
+evidence model, temporal model, and audit intent; the same review flagged
+large-file monotony and human delight as the next product pressure.
+
+Status: pressure
+
+Source:
+- [reviews/2026-05-08-agent-comprehension-ergonomics-review.md](reviews/2026-05-08-agent-comprehension-ergonomics-review.md)
+- [meta-proposals/human-agent-comprehension-synthesis-v0.md](meta-proposals/human-agent-comprehension-synthesis-v0.md)
+
 ---
 
 ## Applied Pressure
