@@ -22,13 +22,14 @@ Every role starts from the same compact map:
 1. [../AGENTS.md](../AGENTS.md) — workspace boundary and active identities
 2. [README.md](README.md) — role index and neighbor map
 3. the assigned role profile
-4. [../docs/README.md](../docs/README.md) — documentation navigation
-5. [../docs/operating-model.md](../docs/operating-model.md) — supervisor-owned flow
-6. [../docs/current-status.md](../docs/current-status.md) — current scoreboard
-7. [../docs/discussions/README.md](../docs/discussions/README.md) — only when
+4. [../docs/agent-context.md](../docs/agent-context.md) — trusted current context, gates, proof budget
+5. [../docs/README.md](../docs/README.md) — documentation navigation
+6. [../docs/operating-model.md](../docs/operating-model.md) — supervisor-owned flow
+7. [../docs/current-status.md](../docs/current-status.md) — current scoreboard
+8. [../docs/discussions/README.md](../docs/discussions/README.md) — only when
    `Mode: discussion` is assigned
-8. [../docs/spec/](../docs/spec/) — canonical language chapters relevant to the slice
-9. the assigned track/proposal/source docs only
+9. [../docs/spec/](../docs/spec/) — canonical language chapters relevant to the slice
+10. the assigned track/proposal/source docs only
 
 Agents should not read archives, old tracks, or package docs unless the card
 explicitly asks for archaeology, bridge mapping, or package pressure.

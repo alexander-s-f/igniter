@@ -1,22 +1,24 @@
 # Igniter-Lang — Documentation
 
 Stage 1 status: **CLOSED** (2026-05-06) — [META-EXPERT-007](meta-proposals/META-EXPERT-007-stage1-close-governance-v0.md)
-Stage 2 status: **OPEN** (2026-05-06) — [META-EXPERT-008](meta-proposals/META-EXPERT-008-stage2-implementation-governance-v0.md)
+Stage 2 status: **CLOSED** (2026-05-07) — [META-EXPERT-009.1](meta-proposals/META-EXPERT-009.1-stage2-close-decision-v0.md)
+Stage 3 status: **OPEN** (2026-05-08) — [META-EXPERT-011](meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md)
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-07
+Last updated: 2026-05-08
 
 ---
 
 ## Navigation
 
 ```
+Agent current context       → agent-context.md  (read this first for current horizon + proof budget)
 Language reference             → language-spec.md
 Operating model                → operating-model.md
 Stage 1 spec (frozen)          → spec/  (ch1–ch9)
 Current scoreboard             → current-status.md
 Track index                    → tracks/README.md
 Discussion format             → discussions/README.md
-Stage 2 active proposals       → proposals/README.md  (PROP-022..027, new from PROP-028)
+Proposal queue                 → proposals/README.md
 Accepted Stage 1 PROPs         → proposals/accepted/  (read-only)
 Governance                     → meta-proposals/README.md
 Human-agent vision            → meta-proposals/META-EXPERT-010-human-agent-symbiosis-vision-v0.md
@@ -65,12 +67,13 @@ ruby igniter-lang/experiments/stdlib_execution_kernel_stage1/stdlib_execution_ke
 
 ---
 
-## Stage 2 — OPEN
+## Stage 2 — CLOSED / Stage 3 Intake
 
-Stage 2 is implementation-oriented. New work should preserve Stage 1 semantics
-while moving proofs into reusable production package surfaces.
+Stage 2 closed on 2026-05-07. This section is retained as the Stage 2 baseline
+navigation; current work should start from `agent-context.md` and
+`current-status.md`.
 
-Active intake baseline (authors of new Stage 2 PROPs start from PROP-028):
+Active intake baseline (Stage 3 proposal work starts from PROP-028):
 
 | PROP | Topic |
 |------|-------|
@@ -115,6 +118,7 @@ ruby igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixt
 
 | Document | Purpose |
 |----------|---------|
+| [agent-context.md](agent-context.md) | Trusted current-context capsule: current horizon, source-of-truth hierarchy, active gates, proof/test budget |
 | [current-status.md](current-status.md) | Scoreboard (Stage 1 closed state) |
 | [operating-model.md](operating-model.md) | Supervisor-owned agent/documentation flow |
 | [discussions/README.md](discussions/README.md) | Bounded debate format before proposal/track routing |
