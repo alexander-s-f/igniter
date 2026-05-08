@@ -1,0 +1,579 @@
+{
+  "kind": "typed_emission_main_path_parity",
+  "format_version": "0.1.0",
+  "track": "typed-emission-main-path-parity-v0",
+  "status": "PASS",
+  "verdict": "blocked",
+  "safe_to_switch_production_path": false,
+  "cases_run": 5,
+  "current_main_path": "SemanticIREmitter#emit(parsed_program, sample_input:)",
+  "candidate_main_path": "SemanticIREmitter#emit_typed(typed_program)",
+  "source_cases": [
+    {
+      "id": "package_facade_add",
+      "surface": "package_facade",
+      "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+      "sample_input": {
+        "a": 1,
+        "b": 2
+      },
+      "expect_typed_node_kinds": [
+        "compute"
+      ],
+      "status": "FAIL",
+      "parsed_path": {
+        "pass_result": "ok",
+        "semantic_ir_present": true,
+        "program_id": "semanticir/e9664d5446df4e46",
+        "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+        "report_program_id": "compilation_report/e9664d5446df4e46",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [
+          "compilation_report_ref",
+          "contracts",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "module",
+          "program_id",
+          "source_hash",
+          "source_path"
+        ],
+        "contract_names": [
+          "Add"
+        ],
+        "node_kinds": [
+          "compute"
+        ],
+        "diagnostic_rules": [],
+        "shape_hash": "sha256:02d34c34ff575f8d2d3aa57412b9b5eb5b5fe666476f8fa2c47ca7a1004daabb",
+        "report_shape_hash": "sha256:9410f9b5f18082fab867394032e3763a17bf6e87695327edc22c3c861b67e1a2",
+        "status": "ok"
+      },
+      "typed_path": {
+        "pass_result": "ok",
+        "semantic_ir_present": true,
+        "program_id": "semanticir/typed/d7834436936cd997",
+        "semantic_ir_ref": "semanticir/typed/d7834436936cd997",
+        "report_program_id": "compilation_report/typed_b692b29c28809617",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [
+          "compilation_report_ref",
+          "contracts",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "module",
+          "program_id",
+          "source_hash",
+          "source_path"
+        ],
+        "contract_names": [
+          "Add"
+        ],
+        "node_kinds": [
+          "compute"
+        ],
+        "diagnostic_rules": [],
+        "shape_hash": "sha256:16b04de03215ef174098e4648f04db644519f5c286f14c01566d63f4b308d16f",
+        "report_shape_hash": "sha256:9410f9b5f18082fab867394032e3763a17bf6e87695327edc22c3c861b67e1a2",
+        "status": "ok"
+      },
+      "deltas": [
+        {
+          "kind": "semantic_ir_shape_delta",
+          "summary": "SemanticIR differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.contracts[0].nodes[0].expr.deps",
+              "delta": "missing_in_parsed"
+            },
+            {
+              "path": "$.contracts[0].nodes[0].expr.args[0].deps",
+              "delta": "missing_in_parsed"
+            },
+            {
+              "path": "$.contracts[0].nodes[0].expr.args[1].deps",
+              "delta": "missing_in_parsed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "invariant_valid",
+      "surface": "invariant_runtime_observations",
+      "source_path": "igniter-lang/experiments/invariant_severity_proof/invariant_severity.ig",
+      "source": "module Fixture.InvariantSeverity\ncontract DrugOrderGate {\n  input is_safe: Bool\n  input has_warning: Bool\n  compute approved = is_safe\n  invariant safety_block\n    predicate: approved\n    severity: :error\n    label: \"REQ-SAFE-01\"\n    message: \"Safety block\"\n  invariant interaction_warn\n    predicate: has_warning\n    severity: :warn\n    message: \"Interaction warning\"\n    overridable_with: :documented_justification\n  invariant confidence_soft\n    predicate: is_safe\n    severity: :soft\n  invariant latency_metric\n    predicate: has_warning\n    severity: :metric\n  output approved: Bool\n}\n",
+      "sample_input": {
+        "is_safe": true,
+        "has_warning": false
+      },
+      "expect_typed_node_kinds": [
+        "compute",
+        "invariant_node"
+      ],
+      "status": "FAIL",
+      "parsed_path": {
+        "pass_result": "ok",
+        "semantic_ir_present": true,
+        "program_id": "semanticir/2251ce26b7a9f9ab",
+        "semantic_ir_ref": "semanticir/2251ce26b7a9f9ab",
+        "report_program_id": "compilation_report/2251ce26b7a9f9ab",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [
+          "compilation_report_ref",
+          "contracts",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "module",
+          "program_id",
+          "source_hash",
+          "source_path"
+        ],
+        "contract_names": [
+          "DrugOrderGate"
+        ],
+        "node_kinds": [
+          "compute"
+        ],
+        "diagnostic_rules": [],
+        "shape_hash": "sha256:8dae920eef7087764c978add5cd8e49b86cac2b5230016e512a94e9277e4d5a7",
+        "report_shape_hash": "sha256:28c8be5226df86d650e6a30401fbef2fff6a798ec3985755166c27bd5379fc6b",
+        "status": "ok"
+      },
+      "typed_path": {
+        "pass_result": "ok",
+        "semantic_ir_present": true,
+        "program_id": "semanticir/typed/a5e3f7bd1e5519ca",
+        "semantic_ir_ref": "semanticir/typed/a5e3f7bd1e5519ca",
+        "report_program_id": "compilation_report/typed_d124bec312d056c7",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [
+          "compilation_report_ref",
+          "contracts",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "module",
+          "program_id",
+          "source_hash",
+          "source_path"
+        ],
+        "contract_names": [
+          "DrugOrderGate"
+        ],
+        "node_kinds": [
+          "compute"
+        ],
+        "diagnostic_rules": [],
+        "shape_hash": "sha256:2ed093df52aaddc0f32af99050b74011126983ce484e8447534f561f5f2f5236",
+        "report_shape_hash": "sha256:28c8be5226df86d650e6a30401fbef2fff6a798ec3985755166c27bd5379fc6b",
+        "status": "ok"
+      },
+      "deltas": [
+        {
+          "kind": "semantic_ir_shape_delta",
+          "summary": "SemanticIR differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.contracts[0].nodes[0].expr.deps",
+              "delta": "missing_in_parsed"
+            }
+          ]
+        },
+        {
+          "kind": "typed_expected_nodes_missing",
+          "missing": [
+            "invariant_node"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "olap_point",
+      "surface": "olap_point",
+      "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
+      "sample_input": {
+        "date": "2026-05-08",
+        "region": "north",
+        "channel": "field"
+      },
+      "expect_typed_node_kinds": [
+        "olap_access_node"
+      ],
+      "status": "FAIL",
+      "parsed_path": {
+        "pass_result": "oof",
+        "semantic_ir_present": false,
+        "program_id": null,
+        "semantic_ir_ref": null,
+        "report_program_id": "compilation_report/8ae0d8de45a3602a",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [],
+        "contract_names": [],
+        "node_kinds": [],
+        "diagnostic_rules": [
+          "OOF-P0",
+          "OOF-TY0"
+        ],
+        "shape_hash": null,
+        "report_shape_hash": "sha256:3c094df717e8f5628a24f083be202d60b9225baf679ce9524a00196750782e6b",
+        "status": "ok"
+      },
+      "typed_path": {
+        "status": "error",
+        "error": "KeyError: key not found: \"kind\""
+      },
+      "deltas": [
+        {
+          "kind": "typed_path_error",
+          "summary": "KeyError: key not found: \"kind\""
+        }
+      ]
+    },
+    {
+      "id": "stream_fold",
+      "surface": "stream_fold",
+      "source_path": "igniter-lang/experiments/stream_t_proof/stream_integer_window.ig",
+      "sample_input": {
+        "device_id": "device-1"
+      },
+      "expect_typed_node_kinds": [
+        "stream_input_node",
+        "window_decl_node",
+        "fold_stream_node"
+      ],
+      "status": "FAIL",
+      "parsed_path": {
+        "status": "parse_error",
+        "error": "IgniterLang::ParseError: Expected name, got comma(,)"
+      },
+      "typed_path": {
+        "status": "parse_error",
+        "error": "IgniterLang::ParseError: Expected name, got comma(,)"
+      },
+      "deltas": [
+        {
+          "kind": "parse_exception",
+          "summary": "IgniterLang::ParseError: Expected name, got comma(,)"
+        }
+      ]
+    },
+    {
+      "id": "history_access",
+      "surface": "history_bihistory_temporal_access",
+      "source_path": "igniter-lang/experiments/history_type_proof/history_integer_point_access.ig",
+      "sample_input": {
+        "technician_id": "tech-1",
+        "as_of": "2026-05-08T00:00:00Z"
+      },
+      "expect_typed_node_kinds": [
+        "temporal_access_node"
+      ],
+      "status": "FAIL",
+      "parsed_path": {
+        "pass_result": "oof",
+        "semantic_ir_present": false,
+        "program_id": null,
+        "semantic_ir_ref": null,
+        "report_program_id": "compilation_report/096b47d88eccf388",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [],
+        "contract_names": [],
+        "node_kinds": [],
+        "diagnostic_rules": [
+          "OOF-P1",
+          "OOF-TY0"
+        ],
+        "shape_hash": null,
+        "report_shape_hash": "sha256:a0599bb531e0445651f1052289d1f54bfee27ddb8742dd10447fd47035e604e2",
+        "status": "ok"
+      },
+      "typed_path": {
+        "pass_result": "oof",
+        "semantic_ir_present": false,
+        "program_id": null,
+        "semantic_ir_ref": null,
+        "report_program_id": "compilation_report/typed_f3d4bb01b5d22bf7",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [],
+        "contract_names": [],
+        "node_kinds": [],
+        "diagnostic_rules": [
+          "OOF-P1"
+        ],
+        "shape_hash": null,
+        "report_shape_hash": "sha256:d9f42c281d489a5260c8502f92130c9602f9f70e9045c8cedbb481afbd8a251c",
+        "status": "ok"
+      },
+      "deltas": [
+        {
+          "kind": "report_shape_delta",
+          "summary": "CompilationReport differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.diagnostics",
+              "delta": "length",
+              "parsed": 2,
+              "typed": 1
+            },
+            {
+              "path": "$.diagnostics[0].message",
+              "delta": "value",
+              "parsed": "Unresolved function: history_at",
+              "typed": "Unresolved symbol: history_at"
+            },
+            {
+              "path": "$.stages.classify",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.typecheck",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "oof"
+            }
+          ]
+        },
+        {
+          "kind": "typed_expected_nodes_missing",
+          "missing": [
+            "temporal_access_node"
+          ]
+        }
+      ]
+    }
+  ],
+  "proof_local_cases": [
+    {
+      "id": "sparkcrm_bihistory",
+      "surface": "history_bihistory_temporal_access",
+      "source_path": null,
+      "status": "NOT_COMPARABLE",
+      "reason": "Stage 2 close uses a proof-local Ruby fixture; there is no .ig source fixture to run through parsed and typed emit paths."
+    },
+    {
+      "id": "ledger_tbackend_descriptor",
+      "surface": "ledger_tbackend_descriptor",
+      "source_path": null,
+      "status": "NOT_COMPARABLE",
+      "reason": "Descriptor fixture is metadata-only TBackend evidence, not a SemanticIR emission source."
+    }
+  ],
+  "blocked_items": [
+    {
+      "case": "package_facade_add",
+      "surface": "package_facade",
+      "kind": "semantic_ir_shape_delta",
+      "summary": "SemanticIR differs after identity fields are normalized.",
+      "details": {
+        "kind": "semantic_ir_shape_delta",
+        "summary": "SemanticIR differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.contracts[0].nodes[0].expr.deps",
+            "delta": "missing_in_parsed"
+          },
+          {
+            "path": "$.contracts[0].nodes[0].expr.args[0].deps",
+            "delta": "missing_in_parsed"
+          },
+          {
+            "path": "$.contracts[0].nodes[0].expr.args[1].deps",
+            "delta": "missing_in_parsed"
+          }
+        ]
+      }
+    },
+    {
+      "case": "invariant_valid",
+      "surface": "invariant_runtime_observations",
+      "kind": "semantic_ir_shape_delta",
+      "summary": "SemanticIR differs after identity fields are normalized.",
+      "details": {
+        "kind": "semantic_ir_shape_delta",
+        "summary": "SemanticIR differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.contracts[0].nodes[0].expr.deps",
+            "delta": "missing_in_parsed"
+          }
+        ]
+      }
+    },
+    {
+      "case": "invariant_valid",
+      "surface": "invariant_runtime_observations",
+      "kind": "typed_expected_nodes_missing",
+      "summary": "shape delta",
+      "details": {
+        "kind": "typed_expected_nodes_missing",
+        "missing": [
+          "invariant_node"
+        ]
+      }
+    },
+    {
+      "case": "olap_point",
+      "surface": "olap_point",
+      "kind": "typed_path_error",
+      "summary": "KeyError: key not found: \"kind\"",
+      "details": {
+        "kind": "typed_path_error",
+        "summary": "KeyError: key not found: \"kind\""
+      }
+    },
+    {
+      "case": "stream_fold",
+      "surface": "stream_fold",
+      "kind": "parse_exception",
+      "summary": "IgniterLang::ParseError: Expected name, got comma(,)",
+      "details": {
+        "kind": "parse_exception",
+        "summary": "IgniterLang::ParseError: Expected name, got comma(,)"
+      }
+    },
+    {
+      "case": "history_access",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.diagnostics",
+            "delta": "length",
+            "parsed": 2,
+            "typed": 1
+          },
+          {
+            "path": "$.diagnostics[0].message",
+            "delta": "value",
+            "parsed": "Unresolved function: history_at",
+            "typed": "Unresolved symbol: history_at"
+          },
+          {
+            "path": "$.stages.classify",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.typecheck",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "oof"
+          }
+        ]
+      }
+    },
+    {
+      "case": "history_access",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "typed_expected_nodes_missing",
+      "summary": "shape delta",
+      "details": {
+        "kind": "typed_expected_nodes_missing",
+        "missing": [
+          "temporal_access_node"
+        ]
+      }
+    },
+    {
+      "case": "sparkcrm_bihistory",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "not_source_comparable",
+      "summary": "Stage 2 close uses a proof-local Ruby fixture; there is no .ig source fixture to run through parsed and typed emit paths."
+    },
+    {
+      "case": "ledger_tbackend_descriptor",
+      "surface": "ledger_tbackend_descriptor",
+      "kind": "not_source_comparable",
+      "summary": "Descriptor fixture is metadata-only TBackend evidence, not a SemanticIR emission source."
+    }
+  ],
+  "recommendation": "Do not switch CompilerOrchestrator yet; resolve blocked_items first."
+}
