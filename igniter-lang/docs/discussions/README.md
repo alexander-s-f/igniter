@@ -136,6 +136,7 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 | [docs-context-and-spec-sync-pressure-v0.md](docs-context-and-spec-sync-pressure-v0.md) | S3-R6-X1-S | Will a fresh agent starting from agent-context/current-status/spec avoid full project reconstruction? | complete — routed |
 | [runtime-compatibility-and-typed-delta-pressure-v0.md](runtime-compatibility-and-typed-delta-pressure-v0.md) | S3-R7-X1-S | Are S3-R7 C1-C3 runtime/compatibility/typed-delta results safe as a pre-Gate-3 boundary layer? | complete — routed |
 | [stage3-round8-pre-gate3-pressure-v0.md](stage3-round8-pre-gate3-pressure-v0.md) | S3-R8-X1-S | Are S3-R8 C1-C2 full-coverage smoke and executor-boundary report sufficient before Gate 3? | complete — routed |
+| [gate3-prerequisite-package-pressure-v0.md](gate3-prerequisite-package-pressure-v0.md) | S3-R9-X1-S | Is the S3-R9 Gate 3 prerequisite package coherent enough to prepare a Gate 3 opening request? | complete — routed |
 
 ---
 
