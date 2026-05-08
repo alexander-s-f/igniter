@@ -11,7 +11,7 @@ Last updated: 2026-05-08
 Track documents are slice evidence, not the global project log.
 
 New agents should start from `docs/README.md`, `docs/operating-model.md`,
-`docs/current-status.md`, and the assigned track only.
+`docs/agent-context.md`, `docs/current-status.md`, and the assigned track only.
 
 ---
 
@@ -19,6 +19,7 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Need | Start here |
 |------|------------|
+| Trusted current context | `../agent-context.md` |
 | Current language state | `../current-status.md` |
 | Process / handoff rules | `../operating-model.md` |
 | Canonical spec | `../spec/` |
@@ -31,7 +32,26 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Track | Status | Notes |
 |-------|--------|-------|
+| `../agent-context.md` | done | trusted first context layer added: read order, do-not-reread guard, active gates, conflict rule, ownership reminders, proof/test budget |
+| `spec-ch6-semanticir-temporal-sync-v0.md` | done | Ch6 synced to current Stage 3 SemanticIR/.igapp shape: temporal nodes, `temporal_nodes`, `fragment_summary`, `contract_index`, requirements derivation, guard policy |
+| `spec-ch4-temporal-fragment-sync-v0.md` | done | Ch4 synced with TEMPORAL as first-class fragment, node/value/contract split, History/BiHistory classification, OOF-TM aliases, parser syntax caveat |
+| `spec-ch7-runtime-temporal-cache-sync-v0.md` | done | Ch7 synced with CORE/TEMPORAL cache key schemas, freshness states, and `load_accept_evaluate_refuse` policy; no production cache/executor |
+| `spec-ch5-emit-typed-sync-v0.md` | done | Ch5 synced after `CompilerOrchestrator` switch; `emit_typed` is production path and parsed emitter is Stage 1 legacy/comparison |
+| `parity-track-stale-header-sweep-v0.md` | done | stale/superseded headers added to 4 old parity/cache tracks so old blocked states are not treated as current truth |
 | `proposal-lifecycle-index-sync-v0.md` | done | PROP-022..025 → closed (Stage 2 PASS); PROP-028 → implementation-partial; PROP-022A added to index as experiment-pass; proposals/README.md restructured into 3 sections with lifecycle vocabulary; Stage 1 deferred gap resolved |
+| `../discussions/docs-context-and-spec-sync-pressure-v0.md` | complete — routed | X1 confirmed spec ch4–ch7 and role profiles are fresh; routed remaining scoreboard/agent-context/invariant/entrypoint doc debt |
+| `stage3-round6-docs-status-curation-v0.md` | done | R6 docs round close map sync — this track |
+
+## Spec Freshness Table
+
+| Surface | Freshness | Anchor | Notes |
+|---------|-----------|--------|-------|
+| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget |
+| `docs/spec/ch4-fragment-classification.md` | synced | `spec-ch4-temporal-fragment-sync-v0.md` | TEMPORAL fragment and node/value split current |
+| `docs/spec/ch5-compiler-pipeline.md` | synced | `spec-ch5-emit-typed-sync-v0.md` | `emit_typed` production path current; invariant shape discharge remains doc debt |
+| `docs/spec/ch6-semanticir.md` | synced | `spec-ch6-semanticir-temporal-sync-v0.md` | TEMPORAL SemanticIR/.igapp/manifest/guard current |
+| `docs/spec/ch7-runtime.md` | synced | `spec-ch7-runtime-temporal-cache-sync-v0.md` | temporal load/cache policy current; production executor/cache still closed |
+| `docs/proposals/README.md` | synced | `proposal-lifecycle-index-sync-v0.md` | Stage 2 closed, PROP-028 implementation-partial, PROP-022A experiment-pass |
 
 ---
 
@@ -219,8 +239,10 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
+| `invariant-typed-shape-discharge-v0` | Discharge or qualify the remaining Ch5 C-8 invariant typed-shape delta after the emit_typed switch | Research Agent + Compiler/Grammar Expert | recommended |
 | `runtime-compatibility-report-temporal-load-check-v0` | Bind report-only RuntimeMachine compatibility checks to `guard_policy`, `manifest.contract_index`, and temporal required caps without enabling execution | Research Agent / Bridge Agent | recommended |
 | `descriptor-compatibility-package-consumption-v0` | Let report-only CompatibilityReport consume the Gate 2-ratified package descriptor metadata; keep `runtime_enforced=false` and Gate 3 closed | Bridge Agent | gated |
+| `spec-entrypoint-sync-disposition-v0` | Mark the long-carried `spec-entrypoint-sync-v0` item as deferred, merged, or closed so it stops causing archaeology | Meta Expert / Compiler/Grammar Expert | docs-debt |
 | `typed-emission-post-switch-baseline-v0` | Archive/normalize post-switch public compile goldens and document parsed emitter as Stage 1 legacy comparison only | Research Agent | recommended |
 | `runtime-temporal-executor-gate3-request-v0` | Prepare, not implement, the explicit Gate 3 question for live temporal executor/TBackend binding and required proof list | Bridge Agent + Research Agent | gated |
 | `gem-release-ci-wiring-v0` | Wire `bin/release-gate` into CI or preserve release artifacts/checksum under an approved release record; publish remains gated | Research Agent | optional |

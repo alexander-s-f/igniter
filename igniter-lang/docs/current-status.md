@@ -125,9 +125,35 @@ Round 5 landed:
   S3-R5-C3-P: BiHistory source parity gate      ✅ sparkcrm_bihistory measured; gate PROCEED
   S3-R5-C4-P: orchestrator emit_typed switch    ✅ production path switched; Stage 1/2 PASS
   S3-R5-C5-G: descriptor Gate 2 ratification    ✅ recommend ratify; package spec 9/0 PASS
+Round 6 landed:
+  S3-R6-C2-S: agent context capsule             ✅ trusted read order + gates + proof budget
+  S3-R6-C3-P: spec ch6 SemanticIR sync          ✅ temporal nodes + manifest + guard synced
+  S3-R6-C4-P: spec ch4 fragment sync            ✅ TEMPORAL class + node/value split synced
+  S3-R6-C5-P: spec ch7 runtime/cache sync       ✅ cache schema + load guard synced
+  S3-R6-C6-P: spec ch5 emit_typed sync          ✅ production typed pipeline synced
+  S3-R6-C7-S: parity stale header sweep         ✅ 4 superseded parity/cache tracks marked stale
+  S3-R6-C8-S: proposal lifecycle index sync     ✅ PROP-022..025 closed; PROP-028 partial
+  S3-R6-X1-S: docs context/spec sync pressure   ✅ docs layer reviewed; remaining debt routed
 Active PROPs:     PROP-028 + PROP-022A temporal errata; new syntax candidates require proposal tracks
 Arch approval required for: gem publish, Ledger read/write, MCP/mesh
 ```
+
+### Trusted Read Order
+
+```text
+1. igniter-lang/AGENTS.md
+2. igniter-lang/roles/README.md
+3. assigned role profile
+4. igniter-lang/docs/agent-context.md
+5. igniter-lang/docs/current-status.md
+6. igniter-lang/docs/operating-model.md
+7. assigned track/proposal/source files
+8. relevant spec chapters only when the card touches language semantics
+```
+
+Do not reread archives, old tracks, package docs, or broad proof history unless
+the card explicitly asks. `agent-context.md` is the trusted compact context
+capsule; `current-status.md` is the fuller scoreboard.
 
 ### Current Horizon Diagram
 
@@ -174,6 +200,28 @@ Archive:             Stage 2 close snapshot ✅ docs/archive/snapshots/2026-05-0
 АИ/СОИ lens:         soft Stage 3 governance/review vocabulary; not a hard gate
 Syntax pressure:     registry + specimens + review routing done; threshold/external pure/entrypoint-section are proposal candidates, not canon
 Discussion pressure: S3-R4-X1 resolved to contract_index/load-guard tracks; both landed in R5
+```
+
+### Spec Freshness
+
+| Surface | Freshness | Current anchor | Remaining doc debt |
+|---------|-----------|----------------|--------------------|
+| Agent context | ✅ current | `docs/agent-context.md` | Keep next movement in sync after each status round |
+| Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
+| Ch5 Compiler Pipeline | ✅ synced S3-R6 | `spec-ch5-emit-typed-sync-v0` | C-8 invariant shape delta needs explicit discharge or qualification |
+| Ch6 SemanticIR / .igapp | ✅ synced S3-R6 | `spec-ch6-semanticir-temporal-sync-v0` | Future runtime executor/Gate 3 changes will need another sync |
+| Ch7 Runtime | ✅ synced S3-R6 | `spec-ch7-runtime-temporal-cache-sync-v0` | TBackend/live temporal executor remains closed; no production cache |
+| Proposal index | ✅ synced S3-R6 | `proposal-lifecycle-index-sync-v0` | PROP-028/022A close awaits parser syntax/runtime decision |
+| Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
+| Entrypoint/section syntax | ⏳ deferred | S3-R4 syntax review routing | Needs proposal track; not current canon |
+
+### Remaining Doc Debt Only
+
+```text
+DOC-DEBT-01  Update agent-context.md next movement after each status round.
+DOC-DEBT-02  Discharge or qualify Ch5 C-8 invariant typed-shape delta.
+DOC-DEBT-03  Give spec-entrypoint-sync-v0 a disposition: deferred, merged, or closed.
+DOC-DEBT-04  Keep S3-R6-C1 runtime compatibility load check visible as open next work.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
