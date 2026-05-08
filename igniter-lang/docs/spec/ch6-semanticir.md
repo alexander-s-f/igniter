@@ -1,129 +1,477 @@
-# Ch6: SemanticIR and CompilationReport
+# Ch6: SemanticIR, CompilationReport, and .igapp Artifacts
 
-Source PROPs: PROP-019, PROP-019.1
-Status: ✅ PASS — `--check-golden` PASS; negative `*.semantic_ir.json` absent; CompilationReport artifacts present
-Proof: experiments/source_to_semanticir_fixture/ — golden check PASS (canonical + compilation_reports + negative_semanticir_absent)
-Assembler: ✅ PASS — experiments/igapp_assembler_proof/ — A1-A6 all ok; assembled_add.igapp → RuntimeMachine.load → evaluate → trusted
+Source PROPs: PROP-019, PROP-019.1, PROP-022A, PROP-028
+Status: synced for Stage 3 TEMPORAL boundary (2026-05-08)
+Primary evidence:
+
+- `experiments/source_to_semanticir_fixture/` — Stage 1 SemanticIR golden PASS
+- `experiments/temporal_semanticir_access_node/` — TEMPORAL SemanticIR PASS
+- `experiments/temporal_assembler_boundary/` — TEMPORAL `.igapp/` assembly PASS
+- `experiments/temporal_requirements_from_escape_boundaries/` — requirements derivation PASS
+- `experiments/temporal_runtime_load_guard/` — load guard PASS
 
 ---
 
-## 6.1 CompilationReport (PROP-019.1 §Part 2)
+## 6.1 CompilationReport
 
-**Always written**, regardless of success or failure.
+The compiler writes a `CompilationReport` for every attempted compile,
+including OOF/error cases.
 
 ```json
 {
-  "kind":              "compilation_report",
-  "format_version":   "0.1.0",
-  "program_id":       "report/<prefix16>",
-  "source_path":      "source/add.ig",
-  "source_hash":      "sha256:<hex>",
-  "pass_result":      "ok | oof | error",
-  "semantic_ir_ref":  "<program_id> | null",
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "report/<prefix16>",
+  "source_path": "source/add.ig",
+  "source_hash": "sha256:<hex>",
+  "pass_result": "ok | oof | error",
+  "semantic_ir_ref": "<program_id> | null",
   "diagnostics": [
     {
-      "rule":     "OOF-P1",
+      "rule": "OOF-P1",
       "severity": "error | warning",
-      "message":  "Unresolved symbol: vendor_fetch",
-      "node":     "compute:vendor",
-      "path":     "contract:VendorLookup/compute:vendor",
-      "line":     12
+      "message": "Unresolved symbol: vendor_fetch",
+      "node": "compute:vendor",
+      "path": "contract:VendorLookup/compute:vendor",
+      "line": 12
     }
   ]
 }
 ```
 
-**semantic_ir_ref**: non-null only when `pass_result == "ok"`.
-Points to the `SemanticIRProgram.program_id`.
-
-**Negative case fixtures**: must have ONLY `*.compilation_report.json` with
-`pass_result: "oof"`. No `*.semantic_ir.json` for negative cases.
+`semantic_ir_ref` is non-null only when `pass_result == "ok"`. Negative cases
+produce a report and no `SemanticIRProgram`.
 
 ---
 
-## 6.2 SemanticIRProgram (PROP-019.1 §Part 4)
+## 6.2 SemanticIRProgram
 
-**Only written when** `pass_result == "ok"`. Contains ONLY clean contracts.
+`SemanticIRProgram` is emitted only for clean programs.
 
 ```json
 {
-  "kind":                   "semantic_ir_program",
-  "format_version":         "0.1.0",
-  "program_id":             "semanticir/<prefix16>",
-  "grammar_version":        "0.1.0",
-  "source_hash":            "sha256:<hex>",
-  "source_path":            "source/add.ig",
-  "module":                 "Lang.Examples.Add",
-  "compilation_report_ref": "<report_program_id>",
-  "contracts":              [ <ContractIR> ]
+  "kind": "semantic_ir_program",
+  "format_version": "0.1.0",
+  "program_id": "semanticir/<prefix16>",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:<hex>",
+  "source_path": "source/add.ig",
+  "module": "Lang.Examples.Add",
+  "compilation_report_ref": "compilation_report/<prefix16>",
+  "contracts": ["<ContractIR>"]
 }
 ```
 
-**Removed from v0.1** (PROP-019.1 errata):
-- `oof_log` — removed from SemanticIRProgram (top-level AND ContractIR)
-- OOF diagnostics live in CompilationReport ONLY
+OOF diagnostics do not live in `SemanticIRProgram`; they live in
+`CompilationReport`.
 
 ---
 
-## 6.3 ContractIR Shape (PROP-019 §ContractIR)
+## 6.3 ContractIR
+
+A SemanticIR contract carries the contract-level fragment class and the node
+set needed by later assembly/runtime gates.
 
 ```json
 {
-  "kind":           "contract_ir",
-  "name":           "Add",
-  "fragment_class": "core | escape",
-  "module":         "Lang.Examples.Add",
-  "nodes": [
-    { "kind": "input_node",   "name": "a",
-      "type": "Integer" },
-    { "kind": "input_node",   "name": "b",
-      "type": "Integer" },
-    { "kind": "compute_node", "name": "sum",
-      "type": "Integer",
-      "operator": "stdlib.integer.add",
-      "arg_refs": ["a", "b"] },
-    { "kind": "output_node",  "name": "result",
-      "type": "Integer",
-      "source_ref": "sum" }
+  "kind": "contract_ir",
+  "contract_ref": "contract/Add/sha256:<prefix24>",
+  "contract_name": "Add",
+  "specialization_of": null,
+  "type_args": {},
+  "fragment_class": "core | stream | temporal | escape",
+  "inputs": ["<PortIR>"],
+  "outputs": ["<PortIR>"],
+  "nodes": ["<NodeIR>"],
+  "escape_boundaries": ["<EscapeBoundaryIR>"]
+}
+```
+
+`fragment_class: "oof"` is forbidden in a loadable SemanticIR contract.
+
+For Stage 3, TEMPORAL is first-class:
+
+```text
+OOF > TEMPORAL > STREAM > ESCAPE > CORE
+```
+
+`ESCAPE` remains the legacy non-core class for surfaces not yet refined into
+STREAM or TEMPORAL.
+
+---
+
+## 6.4 TEMPORAL SemanticIR Nodes
+
+`History[T]` and `BiHistory[T]` lower to explicit temporal nodes in
+SemanticIR. The read node is TEMPORAL, but the value it binds is CORE-typed.
+
+### `temporal_input_node`
+
+```json
+{
+  "kind": "temporal_input_node",
+  "name": "price_history",
+  "type": {
+    "constructor": "History",
+    "element_type": "String"
+  },
+  "store_ref": "sku/{sku}/price",
+  "lifecycle": "durable",
+  "axis": "valid_time",
+  "node_fragment_class": "temporal",
+  "value_fragment_class": "core",
+  "required_capability": "history_read",
+  "required_caps": ["history_read"],
+  "fragment": "temporal"
+}
+```
+
+### `temporal_access_node`
+
+```json
+{
+  "kind": "temporal_access_node",
+  "name": "price_at",
+  "source_ref": "price_history",
+  "temporal_axis": "valid_time",
+  "axis_refs": ["as_of"],
+  "coordinate_refs": {
+    "as_of": "as_of"
+  },
+  "result_type": {
+    "name": "Option",
+    "params": [
+      {
+        "name": "String",
+        "params": []
+      }
+    ]
+  },
+  "node_fragment_class": "temporal",
+  "value_fragment_class": "core",
+  "required_capability": "history_read",
+  "required_caps": ["history_read"],
+  "evidence_policy": "link_selected_append_observation",
+  "fragment": "temporal",
+  "as_of_ref": "as_of"
+}
+```
+
+BiHistory uses:
+
+```json
+{
+  "temporal_axis": "bitemporal",
+  "coordinate_refs": {
+    "valid_time": "valid_time",
+    "transaction_time": "transaction_time"
+  },
+  "valid_time_ref": "valid_time",
+  "transaction_time_ref": "transaction_time",
+  "required_capability": "bihistory_read",
+  "required_caps": ["bihistory_read"]
+}
+```
+
+The contract also carries an `escape_boundaries` entry for the temporal
+capability:
+
+```json
+{
+  "name": "history_read",
+  "required_caps": ["history_read"],
+  "produces": ["history_access_observation"]
+}
+```
+
+---
+
+## 6.5 Assembled .igapp Contract Artifacts
+
+The assembler writes `.igapp/` directories, not raw SemanticIR only. Stage 3
+TEMPORAL assembly preserves temporal nodes as a non-compute contract artifact
+section.
+
+```text
+.igapp/
+  manifest.json
+  compilation_report.json
+  semantic_ir_program.json
+  requirements.json
+  compatibility_metadata.json
+  contracts/
+    <contract>.json
+```
+
+### `contracts/<contract>.json`
+
+Assembled contract files separate executable compute nodes from non-compute
+temporal nodes:
+
+```json
+{
+  "contract_id": "HistoryAxesTest",
+  "source_contract_ref": "contract/HistoryAxesTest/sha256:<prefix24>",
+  "fragment_class": "temporal",
+  "input_ports": [
+    {
+      "name": "as_of",
+      "type_tag": "DateTime",
+      "lifecycle": "local",
+      "required": true
+    }
   ],
-  "resolution_order": ["a", "b", "sum", "result"]
+  "output_ports": [
+    {
+      "name": "price_at",
+      "type_tag": "Option[String]",
+      "lifecycle": "session",
+      "required": true
+    }
+  ],
+  "compute_nodes": [],
+  "temporal_nodes": [
+    {
+      "kind": "temporal_input_node",
+      "name": "price_history",
+      "type_tag": "History[String]",
+      "axis": "valid_time",
+      "node_fragment_class": "temporal",
+      "value_fragment_class": "core",
+      "required_capability": "history_read",
+      "required_caps": ["history_read"],
+      "obs_kind": "temporal_source_observation"
+    },
+    {
+      "kind": "temporal_access_node",
+      "name": "price_at",
+      "source_ref": "price_history",
+      "temporal_axis": "valid_time",
+      "coordinate_refs": {
+        "as_of": "as_of"
+      },
+      "required_capability": "history_read",
+      "required_caps": ["history_read"],
+      "obs_kind": "temporal_access_observation"
+    }
+  ],
+  "escape_set": [
+    {
+      "name": "history_read",
+      "required_caps": ["history_read"],
+      "produces": ["history_access_observation"]
+    }
+  ]
 }
 ```
 
-**resolution_order** = topological sort of the dependency DAG.
-This IS the Datalog stratification (PROP-001 §formal identity #4).
+`temporal_nodes` is the canonical assembled contract artifact section for
+`temporal_input_node` and `temporal_access_node`. It does not imply production
+runtime execution.
 
 ---
 
-## 6.4 Assembler Acceptance Criteria A1–A6 (PROP-019.1 §Part 7)
+## 6.6 Manifest Fragment Summary and Contract Index
 
-The `.igapp/` assembler is accepted when:
+PROP-022A Stage 3 errata adds a load-time manifest index. Contract files remain
+the canonical semantic source; the manifest index is the first load-time
+dispatch projection and must validate against contract files.
 
+```json
+{
+  "kind": "igapp_manifest",
+  "format_version": "0.1.0",
+  "fragment_class": "temporal",
+  "fragment_summary": {
+    "fragment_classes": ["temporal"],
+    "max_fragment_class": "temporal",
+    "precedence_high_to_low": ["oof", "temporal", "stream", "escape", "core"]
+  },
+  "contracts": ["HistoryAxesTest"],
+  "contract_index": {
+    "HistoryAxesTest": {
+      "contract_ref": "contract/HistoryAxesTest/sha256:<prefix24>",
+      "contract_path": "contracts/history_axes_test.json",
+      "fragment_class": "temporal",
+      "temporal": {
+        "axes": ["valid_time"],
+        "required_capabilities": ["history_read"],
+        "coordinates": [
+          {
+            "name": "as_of",
+            "axis": "valid_time",
+            "source_ref": "input:as_of",
+            "type": "DateTime"
+          }
+        ],
+        "cache_key_schema_hint": {
+          "schema": "runtime-cache-key-v1",
+          "fragment": "TEMPORAL",
+          "axis": "valid_time",
+          "coordinate_names": ["as_of"]
+        }
+      }
+    }
+  }
+}
 ```
-A1  Reads CompilationReport; rejects (exit != 0) if pass_result != "ok"
-A2  Locates SemanticIRProgram via compilation_report_ref;
-    verifies kind == "semantic_ir_program"
-A3  Iterates contracts; rejects if any fragment_class == "oof" (defensive)
-A4  Writes .igapp/ directory:
-      .igapp/manifest.json          — program_id, grammar_version, contract names
-      .igapp/contracts/<Name>.json  — one ContractIR per contract
-      .igapp/compilation_report.json — copied from CompilationReport
-A5  RuntimeMachine loads .igapp/ via manifest.json →
-    trusted CompatibilityReport (no OOF check needed: A3 guarantees clean)
-A6  Negative: given pass_result: "oof" → refuses to write .igapp/; exit != 0
-```
 
-**Current status**: ✅ PASS — A1–A6 all proven (S2-R9, igapp_assembler_proof).
-Temporal assembler (temporal_nodes + requirements.temporal.*) PASS (S3-R4-C1).
+For BiHistory, `temporal.axes` is `["valid_time", "transaction_time"]` and
+`cache_key_schema_hint.axis` is `"bitemporal"`.
+
+`manifest.fragment_class: "mixed"` may remain as a backward-compatible package
+summary for mixed bundles, but it is not authoritative for TEMPORAL load/cache
+dispatch. Loaders must use `manifest.contract_index`.
 
 ---
 
-## 6.5 Golden File Migration Gate (PROP-019.1 §Part 6)
+## 6.7 requirements.json from escape_boundaries
 
-> ✅ **Gate: CLEARED (S2-R8).** `source_to_semanticir_fixture.rb` PASS on migrated files.
-> Assembler A1–A6 PASS. This section describes a resolved blocker; preserved for archaeology.
->
-> For Stage 3 assembler extensions (temporal_nodes, manifest contract_index, guard_policy),
-> see: `tracks/temporal-assembler-boundary-v0.md`, `tracks/prop-022a-temporal-manifest-errata-v0.md`,
-> `tracks/temporal-assembler-manifest-contract-index-v0.md`.
-> Full spec update pending: card `spec-ch6-semanticir-temporal-sync-v0`.
+`requirements.json` is derived from SemanticIR evidence, not static defaults.
+
+Source of truth:
+
+- `contracts[].escape_boundaries[].required_caps`
+- `contracts[].escape_boundaries[].produces`
+- temporal node axes and coordinate refs
+- contract `fragment_class`
+
+History example:
+
+```json
+{
+  "capabilities": {
+    "effect_kinds": ["history_access_observation"],
+    "required_caps": ["history_read"]
+  },
+  "fragments": ["temporal"],
+  "required_tbackend_caps": {
+    "append_atomic": false,
+    "read_as_of": true,
+    "replay_enabled": false
+  },
+  "temporal": {
+    "axes": ["valid_time"],
+    "requires_valid_time": true,
+    "requires_transaction_time": false,
+    "requires_replay": false,
+    "coordinate_refs": [
+      {
+        "axis": "valid_time",
+        "node": "price_at",
+        "coordinates": {
+          "as_of": "as_of"
+        }
+      }
+    ]
+  }
+}
+```
+
+BiHistory example:
+
+```json
+{
+  "capabilities": {
+    "effect_kinds": ["bihistory_access_observation"],
+    "required_caps": ["bihistory_read"]
+  },
+  "fragments": ["temporal"],
+  "required_tbackend_caps": {
+    "append_atomic": false,
+    "read_as_of": true,
+    "replay_enabled": true
+  },
+  "temporal": {
+    "axes": ["bitemporal"],
+    "requires_valid_time": true,
+    "requires_transaction_time": true,
+    "requires_replay": true,
+    "coordinate_refs": [
+      {
+        "axis": "bitemporal",
+        "node": "avail_at",
+        "coordinates": {
+          "valid_time": "valid_time",
+          "transaction_time": "transaction_time"
+        }
+      }
+    ]
+  }
+}
+```
+
+`requirements.json` is a package-level capability negotiation summary. It is
+not the semantic authority for temporal axes; it must agree with
+`manifest.contract_index` and the contract file.
+
+---
+
+## 6.8 Compatibility Metadata Guard Policy
+
+TEMPORAL `.igapp/` artifacts may load for inspection, descriptor checks, and
+compatibility reporting, but production evaluation is guarded until a future
+RuntimeMachine temporal executor/TBackend adapter is approved.
+
+`compatibility_metadata.json` carries the machine-readable policy:
+
+```json
+{
+  "kind": "igapp_compatibility_metadata",
+  "runtime_execution": {
+    "status": "unsupported",
+    "guard_policy": "load_accept_evaluate_refuse",
+    "guard_at": "evaluate",
+    "load": {
+      "decision": "accept_for_inspection",
+      "requires_contract_index": true
+    },
+    "evaluate": {
+      "decision": "refuse_temporal_contract",
+      "reason_code": "runtime.temporal_execution_unsupported"
+    }
+  }
+}
+```
+
+This guard does not authorize runtime cache, Ledger binding, live TBackend
+reads, or production temporal execution.
+
+---
+
+## 6.9 Assembler and Load Gates
+
+Stage 1 A1-A6 assembler gates are closed and no longer a pending spec blocker.
+Stage 3 extends them with TEMPORAL manifest/load checks:
+
+```text
+L-T1  TEMPORAL contract requires manifest.contract_index entry.
+L-T2  manifest temporal entry must match contract fragment_class.
+L-T3  temporal axes in manifest must match temporal access nodes.
+L-T4  temporal required_capabilities must match escape_boundaries/node caps.
+L-T5  TEMPORAL cache_key_schema_hint must use runtime-cache-key-v1 + TEMPORAL.
+L-T6  TEMPORAL entries require explicit temporal coordinates.
+```
+
+Runtime policy:
+
+```text
+load     accepts valid TEMPORAL artifacts for inspection
+evaluate refuses TEMPORAL contracts without approved runtime support/caps
+cache    remains disabled for production TEMPORAL execution
+Ledger   remains unbound
+```
+
+---
+
+## 6.10 Evidence References
+
+| Evidence | What It Proves |
+| --- | --- |
+| `tracks/temporal-semanticir-access-node-v0.md` | S3-R3-C2: `temporal_input_node` / `temporal_access_node` in SemanticIR |
+| `tracks/runtime-temporal-cache-contract-v0.md` | S3-R3-C3: CORE vs TEMPORAL cache-key contract, no production memoization |
+| `tracks/temporal-assembler-boundary-v0.md` | S3-R4-C1: temporal nodes assemble into contract `temporal_nodes` |
+| `tracks/prop-022a-temporal-manifest-errata-v0.md` | S3-R4-C2: dual-index manifest decision |
+| `tracks/temporal-requirements-from-escape-boundaries-v0.md` | S3-R4-C3: `requirements.json` derived from `escape_boundaries` |
+| `tracks/temporal-assembler-manifest-contract-index-v0.md` | S3-R5-C1: manifest `fragment_summary` + `contract_index` PASS |
+| `tracks/temporal-runtime-load-guard-v0.md` | S3-R5-C2: load accepts for inspection, evaluate refuses unsupported TEMPORAL |
