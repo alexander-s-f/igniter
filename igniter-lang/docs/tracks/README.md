@@ -27,6 +27,14 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 6 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `proposal-lifecycle-index-sync-v0.md` | done | PROP-022..025 → closed (Stage 2 PASS); PROP-028 → implementation-partial; PROP-022A added to index as experiment-pass; proposals/README.md restructured into 3 sections with lifecycle vocabulary; Stage 1 deferred gap resolved |
+
+---
+
 ## Stage 3 Round 5 Evidence
 
 | Track | Status | Notes |

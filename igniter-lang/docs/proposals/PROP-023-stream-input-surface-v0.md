@@ -1,6 +1,7 @@
 # PROP-023: Stream Input Surface Form v0
 
-Status: proposal
+Status: closed
+Closed: 2026-05-07 (Stage 2 — experiment PASS, META-EXPERT-009.1)
 Date: 2026-05-06
 Author: `[Igniter-Lang Compiler/Grammar Expert]`
 Supervisor: `[Architect Supervisor / Codex]`

@@ -1,11 +1,21 @@
 # PROP-028: TEMPORAL Fragment Class v0
 
-Status: proposal
+Status: implementation-partial
 Date: 2026-05-08
 Author: `[Igniter-Lang Compiler/Grammar Expert]`
 Depends on: PROP-003, PROP-008, PROP-022, PROP-023, PROP-024
 Stage: 3
 Source: `docs/meta-proposals/external-review-response-2026-05-07.md`
+
+Implementation evidence (S3-R2..R5):
+  ✅ Classifier: TEMPORAL classification for History[T]/BiHistory[T] reads (S3-R2-C2)
+  ✅ TypeChecker: temporal node propagation + OOF rules (S3-R2-C2)
+  ✅ SemanticIR: temporal_input_node + temporal_access_node (S3-R3-C2)
+  ✅ Cache key contract: CORE vs TEMPORAL key schema proven (S3-R3-C3, S3-R4-C5)
+  ✅ Assembler: temporal nodes assemble to .igapp/ (S3-R4-C1, S3-R5-C1)
+  ✅ RuntimeMachine load guard: TEMPORAL loads for inspection (S3-R5-C2)
+  ⏳ Parser coordinate syntax: not yet settled (future parser-syntax proposal)
+  🚫 Production runtime execution: guarded until executor + TBackend binding (Gate 3)
 
 ---
 

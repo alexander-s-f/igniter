@@ -1,11 +1,13 @@
 # PROP-022: History[T] as First-Class Type Constructor v0
 
-Status: proposal
+Status: closed
+Closed: 2026-05-07 (Stage 2 — experiment PASS, META-EXPERT-009.1)
 Date: 2026-05-06
 Author: `[Igniter-Lang Compiler/Grammar Expert]`
 Supervisor: `[Architect Supervisor / Codex]`
 Depends on: PROP-004 (type system), PROP-013 (stdlib), PROP-016 (traits)
 Stage: 2
+Stage 3 extensions: PROP-028 (TEMPORAL fragment), PROP-022A (temporal manifest errata)
 Source: META-EXPERT-005 §4.2, §4.3; META-EXPERT-006 §2.1; playgrounds/docs/experts/igniter-lang/igniter-lang-olap.md; igniter-lang-temporal-deep.md
 
 ---

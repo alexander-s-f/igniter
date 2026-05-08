@@ -1,12 +1,15 @@
 # PROP-022A Errata: TEMPORAL Manifest Contract v0
 
-Status: proposal errata
+Status: experiment-pass
+Proven: 2026-05-08 (S3-R5-C1 — manifest.fragment_summary + contract_index PASS)
 Date: 2026-05-08
 Author: `[Igniter-Lang Compiler/Grammar Expert]`
 Amends: `accepted/PROP-022A-igapp-assembler-contract-v0.md`
 Depends on: PROP-022, PROP-028
 Stage: 3
 Source: `docs/discussions/temporal-manifest-and-cache-boundary-pressure-v0.md`
+Track evidence: `docs/tracks/prop-022a-temporal-manifest-errata-v0.md` (S3-R4-C2)
+               `docs/tracks/temporal-assembler-manifest-contract-index-v0.md` (S3-R5-C1)
 
 ---
 
