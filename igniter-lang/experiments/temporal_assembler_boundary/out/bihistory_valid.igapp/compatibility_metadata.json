@@ -13,6 +13,16 @@
   ],
   "runtime_compatibility_artifact": null,
   "runtime_execution": {
+    "evaluate": {
+      "decision": "refuse_temporal_contract",
+      "reason_code": "runtime.temporal_execution_unsupported"
+    },
+    "guard_at": "evaluate",
+    "guard_policy": "load_accept_evaluate_refuse",
+    "load": {
+      "decision": "accept_for_inspection",
+      "requires_contract_index": true
+    },
     "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
     "status": "unsupported"
   }

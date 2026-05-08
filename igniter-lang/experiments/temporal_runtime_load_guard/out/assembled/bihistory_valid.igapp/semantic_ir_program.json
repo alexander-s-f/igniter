@@ -1,0 +1,134 @@
+{
+  "compilation_report_ref": "compilation_report/a97da15bba17da42",
+  "contracts": [
+    {
+      "contract_name": "BiHistoryAxesTest",
+      "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+      "escape_boundaries": [
+        {
+          "name": "bihistory_read",
+          "produces": [
+            "bihistory_access_observation"
+          ],
+          "required_caps": [
+            "bihistory_read"
+          ]
+        }
+      ],
+      "fragment_class": "temporal",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "technician_id",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "valid_time",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "transaction_time",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "nodes": [
+        {
+          "axis": "bitemporal",
+          "fragment": "temporal",
+          "kind": "temporal_input_node",
+          "lifecycle": "durable",
+          "name": "avail_history",
+          "node_fragment_class": "temporal",
+          "required_capability": "bihistory_read",
+          "required_caps": [
+            "bihistory_read"
+          ],
+          "store_ref": "t/{technician_id}/avail",
+          "type": {
+            "constructor": "BiHistory",
+            "element_type": "String"
+          },
+          "value_fragment_class": "core"
+        },
+        {
+          "axis": "bitemporal",
+          "axis_refs": [
+            "valid_time",
+            "transaction_time"
+          ],
+          "coordinate_refs": {
+            "transaction_time": "transaction_time",
+            "valid_time": "valid_time"
+          },
+          "deps": [
+            "avail_history",
+            "valid_time",
+            "transaction_time"
+          ],
+          "evidence_policy": "link_selected_event_observation",
+          "fragment": "temporal",
+          "history_ref": "avail_history",
+          "kind": "temporal_access_node",
+          "name": "avail_at",
+          "node_fragment_class": "temporal",
+          "required_capability": "bihistory_read",
+          "required_caps": [
+            "bihistory_read"
+          ],
+          "result_type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "source_ref": "avail_history",
+          "temporal_axis": "bitemporal",
+          "transaction_time_ref": "transaction_time",
+          "valid_time_ref": "valid_time",
+          "value_fragment_class": "core"
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "avail_at",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "Fixture.BiHistoryAxes",
+  "program_id": "semanticir/a97da15bba17da42",
+  "source_hash": "sha256:a97da15bba17da42b22aa608761be27f282d4ac779b240cbf0abae223aae40e3",
+  "source_path": "experiments/typechecker_proof/fixtures/bihistory_valid.ig"
+}

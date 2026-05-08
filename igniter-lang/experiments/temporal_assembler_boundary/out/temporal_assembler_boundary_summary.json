@@ -16,7 +16,7 @@
         "status": "assembled",
         "igapp_dir": "experiments/temporal_assembler_boundary/out/history_valid.igapp",
         "program_id": "semanticir/history-valid-te",
-        "artifact_hash": "sha256:5d0582750cbd7146ed04266ef7fa72ad349d82f6b9f747d6a0798ca06ae3e888",
+        "artifact_hash": "sha256:a23d58b71650fc7e1fb5595fef11f888e89f85efb3691a88255dbed4b586b3c7",
         "semantic_ir_ref": "semanticir/history-valid-te",
         "compilation_report_ref": "compilation_report/history-valid-te",
         "contracts": [
@@ -35,10 +35,83 @@
         ]
       },
       "manifest_fragment_class": "temporal",
+      "manifest": {
+        "artifact_hash": "sha256:a23d58b71650fc7e1fb5595fef11f888e89f85efb3691a88255dbed4b586b3c7",
+        "assembler": "igapp-assembler-proof-stage1-v0",
+        "compilation_report_ref": "compilation_report/history-valid-te",
+        "compiled_at": "2026-05-06T00:00:00Z",
+        "contract_index": {
+          "HistoryAxesTest": {
+            "contract_path": "contracts/history_axes_test.json",
+            "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+            "fragment_class": "temporal",
+            "temporal": {
+              "axes": [
+                "valid_time"
+              ],
+              "cache_key_schema_hint": {
+                "axis": "valid_time",
+                "coordinate_names": [
+                  "as_of"
+                ],
+                "fragment": "TEMPORAL",
+                "schema": "runtime-cache-key-v1"
+              },
+              "coordinates": [
+                {
+                  "axis": "valid_time",
+                  "name": "as_of",
+                  "source_ref": "input:as_of",
+                  "type": "DateTime"
+                }
+              ],
+              "required_capabilities": [
+                "history_read"
+              ]
+            }
+          }
+        },
+        "contract_refs": {
+          "HistoryAxesTest": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d"
+        },
+        "contracts": [
+          "HistoryAxesTest"
+        ],
+        "diagnostics": [],
+        "format": "igapp_dir",
+        "format_version": "0.1.0",
+        "fragment_class": "temporal",
+        "fragment_summary": {
+          "fragment_classes": [
+            "temporal"
+          ],
+          "max_fragment_class": "temporal",
+          "precedence_high_to_low": [
+            "oof",
+            "temporal",
+            "stream",
+            "escape",
+            "core"
+          ]
+        },
+        "grammar_version": "0.1.0",
+        "kind": "igapp_manifest",
+        "language_version": "0.1.0",
+        "program_id": "semanticir/history-valid-te",
+        "schema_descriptor": {
+          "migrations": [],
+          "trait_bounds": []
+        },
+        "schema_version": "0.1.0",
+        "semantic_ir_ref": "semanticir/history-valid-te",
+        "source_hash": "sha256:history-valid-temporal-fixture",
+        "source_path": "experiments/typechecker_proof/fixtures/history_valid.ig",
+        "warnings": []
+      },
       "compiled_program_valid": true,
       "compiled_program_validation_error": null,
       "contract": {
-        "artifact_hash": "sha256:5d0582750cbd7146ed04266ef7fa72ad349d82f6b9f747d6a0798ca06ae3e888",
+        "artifact_hash": "sha256:a23d58b71650fc7e1fb5595fef11f888e89f85efb3691a88255dbed4b586b3c7",
         "compute_nodes": [],
         "contract_id": "HistoryAxesTest",
         "escape_set": [
@@ -201,6 +274,16 @@
         ],
         "runtime_compatibility_artifact": null,
         "runtime_execution": {
+          "evaluate": {
+            "decision": "refuse_temporal_contract",
+            "reason_code": "runtime.temporal_execution_unsupported"
+          },
+          "guard_at": "evaluate",
+          "guard_policy": "load_accept_evaluate_refuse",
+          "load": {
+            "decision": "accept_for_inspection",
+            "requires_contract_index": true
+          },
           "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
           "status": "unsupported"
         }
@@ -213,7 +296,7 @@
         "status": "assembled",
         "igapp_dir": "experiments/temporal_assembler_boundary/out/bihistory_valid.igapp",
         "program_id": "semanticir/a97da15bba17da42",
-        "artifact_hash": "sha256:453d97b33ae53496d2bb8de66b21a67a2374d68e8f801d6dc5b3b581fe9e0c6b",
+        "artifact_hash": "sha256:71c67ed4e7b0d2068ccbfb65978ace7861830d0cfb75dce41b9c13411540ea46",
         "semantic_ir_ref": "semanticir/a97da15bba17da42",
         "compilation_report_ref": "compilation_report/a97da15bba17da42",
         "contracts": [
@@ -232,10 +315,91 @@
         ]
       },
       "manifest_fragment_class": "temporal",
+      "manifest": {
+        "artifact_hash": "sha256:71c67ed4e7b0d2068ccbfb65978ace7861830d0cfb75dce41b9c13411540ea46",
+        "assembler": "igapp-assembler-proof-stage1-v0",
+        "compilation_report_ref": "compilation_report/a97da15bba17da42",
+        "compiled_at": "2026-05-06T00:00:00Z",
+        "contract_index": {
+          "BiHistoryAxesTest": {
+            "contract_path": "contracts/bi_history_axes_test.json",
+            "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+            "fragment_class": "temporal",
+            "temporal": {
+              "axes": [
+                "valid_time",
+                "transaction_time"
+              ],
+              "cache_key_schema_hint": {
+                "axis": "bitemporal",
+                "coordinate_names": [
+                  "valid_time",
+                  "transaction_time"
+                ],
+                "fragment": "TEMPORAL",
+                "schema": "runtime-cache-key-v1"
+              },
+              "coordinates": [
+                {
+                  "axis": "valid_time",
+                  "name": "valid_time",
+                  "source_ref": "input:valid_time",
+                  "type": "DateTime"
+                },
+                {
+                  "axis": "transaction_time",
+                  "name": "transaction_time",
+                  "source_ref": "input:transaction_time",
+                  "type": "DateTime"
+                }
+              ],
+              "required_capabilities": [
+                "bihistory_read"
+              ]
+            }
+          }
+        },
+        "contract_refs": {
+          "BiHistoryAxesTest": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02"
+        },
+        "contracts": [
+          "BiHistoryAxesTest"
+        ],
+        "diagnostics": [],
+        "format": "igapp_dir",
+        "format_version": "0.1.0",
+        "fragment_class": "temporal",
+        "fragment_summary": {
+          "fragment_classes": [
+            "temporal"
+          ],
+          "max_fragment_class": "temporal",
+          "precedence_high_to_low": [
+            "oof",
+            "temporal",
+            "stream",
+            "escape",
+            "core"
+          ]
+        },
+        "grammar_version": "0.1.0",
+        "kind": "igapp_manifest",
+        "language_version": "0.1.0",
+        "program_id": "semanticir/a97da15bba17da42",
+        "schema_descriptor": {
+          "migrations": [],
+          "trait_bounds": []
+        },
+        "schema_version": "0.1.0",
+        "semantic_ir_ref": "semanticir/a97da15bba17da42",
+        "source_hash": "sha256:a97da15bba17da42b22aa608761be27f282d4ac779b240cbf0abae223aae40e3",
+        "source_path": "experiments/typechecker_proof/fixtures/bihistory_valid.ig",
+        "warnings": []
+      },
       "compiled_program_valid": true,
       "compiled_program_validation_error": null,
       "contract": {
-        "artifact_hash": "sha256:453d97b33ae53496d2bb8de66b21a67a2374d68e8f801d6dc5b3b581fe9e0c6b",
+        "artifact_hash": "sha256:71c67ed4e7b0d2068ccbfb65978ace7861830d0cfb75dce41b9c13411540ea46",
         "compute_nodes": [],
         "contract_id": "BiHistoryAxesTest",
         "escape_set": [
@@ -409,6 +573,16 @@
         ],
         "runtime_compatibility_artifact": null,
         "runtime_execution": {
+          "evaluate": {
+            "decision": "refuse_temporal_contract",
+            "reason_code": "runtime.temporal_execution_unsupported"
+          },
+          "guard_at": "evaluate",
+          "guard_policy": "load_accept_evaluate_refuse",
+          "load": {
+            "decision": "accept_for_inspection",
+            "requires_contract_index": true
+          },
           "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
           "status": "unsupported"
         }
@@ -424,6 +598,10 @@
     "history_valid.temporal_node_metadata_preserved": true,
     "history_valid.requirements_preserve_temporal_boundary": true,
     "history_valid.runtime_execution_guard": true,
+    "history_valid.manifest_fragment_summary": true,
+    "history_valid.manifest_contract_index": true,
+    "history_valid.missing_contract_index_detected": true,
+    "history_valid.core_cache_hint_mismatch_detected": true,
     "bihistory_valid.assembled": true,
     "bihistory_valid.compiled_program_validates": true,
     "bihistory_valid.manifest_fragment_temporal": true,
@@ -431,6 +609,10 @@
     "bihistory_valid.temporal_nodes_in_contract_file": true,
     "bihistory_valid.temporal_node_metadata_preserved": true,
     "bihistory_valid.requirements_preserve_temporal_boundary": true,
-    "bihistory_valid.runtime_execution_guard": true
+    "bihistory_valid.runtime_execution_guard": true,
+    "bihistory_valid.manifest_fragment_summary": true,
+    "bihistory_valid.manifest_contract_index": true,
+    "bihistory_valid.missing_contract_index_detected": true,
+    "bihistory_valid.core_cache_hint_mismatch_detected": true
   }
 }

@@ -123,17 +123,21 @@ module TypedEmissionMainPathParity
       "source_path" => "igniter-lang/experiments/history_type_proof/history_integer_point_access.ig",
       "sample_input" => { "technician_id" => "tech-1", "as_of" => "2026-05-08T00:00:00Z" },
       "expect_typed_node_kinds" => ["temporal_access_node"]
+    },
+    {
+      "id" => "sparkcrm_bihistory",
+      "surface" => "history_bihistory_temporal_access",
+      "source_path" => "igniter-lang/experiments/typed_emission_main_path_parity/sparkcrm_bihistory_source.ig",
+      "sample_input" => {
+        "technician_id" => "tech-17",
+        "valid_time" => "2026-05-07T10:00:00Z",
+        "transaction_time" => "2026-05-08T09:15:00Z"
+      },
+      "expect_typed_node_kinds" => ["temporal_input_node", "temporal_access_node"]
     }
   ].freeze
 
   PROOF_LOCAL_CASES = [
-    {
-      "id" => "sparkcrm_bihistory",
-      "surface" => "history_bihistory_temporal_access",
-      "source_path" => nil,
-      "status" => "NOT_COMPARABLE",
-      "reason" => "Stage 2 close uses a proof-local Ruby fixture; there is no .ig source fixture to run through parsed and typed emit paths."
-    },
     {
       "id" => "ledger_tbackend_descriptor",
       "surface" => "ledger_tbackend_descriptor",
@@ -209,6 +213,7 @@ module TypedEmissionMainPathParity
 
     config.merge(
       "status" => deltas.empty? ? "PASS" : "FAIL",
+      "status_reason" => status_reason(deltas),
       "parsed_path" => parsed_summary,
       "typed_path" => typed_summary,
       "deltas" => deltas
@@ -231,6 +236,7 @@ module TypedEmissionMainPathParity
     blocked = blocked_items(source_cases)
     typed_source_blocked = typed_source_blocked_items(source_cases)
     legacy_parity_deltas = legacy_parity_delta_items(source_cases)
+    switch_gate = orchestrator_switch_gate(source_cases, typed_source_blocked)
     {
       "kind" => "typed_emission_main_path_parity",
       "format_version" => "0.1.0",
@@ -247,8 +253,28 @@ module TypedEmissionMainPathParity
       "blocked_items" => blocked,
       "typed_source_blocked_items" => typed_source_blocked,
       "legacy_parity_delta_items" => legacy_parity_deltas,
-      "recommendation" => blocked.empty? ? "Switch CompilerOrchestrator narrowly to emit_typed." : "Do not switch CompilerOrchestrator yet; resolve blocked_items first."
+      "orchestrator_switch_gate" => switch_gate,
+      "recommendation" => switch_gate.fetch("recommendation")
     }
+  end
+
+  def status_reason(deltas)
+    if deltas.empty?
+      return "parsed and typed emissions match after identity normalization; expected typed nodes are present"
+    end
+
+    deltas.map { |delta| delta_reason(delta) }.uniq.join("; ")
+  end
+
+  def delta_reason(delta)
+    if delta.fetch("kind") == "value_delta"
+      return "#{delta.fetch("path")}: parsed=#{delta.fetch("parsed").inspect}, typed=#{delta.fetch("typed").inspect}"
+    end
+    if delta.fetch("kind") == "typed_expected_nodes_missing"
+      return "typed expected nodes missing: #{delta.fetch("missing").join(", ")}"
+    end
+
+    delta.fetch("summary", delta.fetch("kind"))
   end
 
   def emission_summary(emission)
@@ -467,6 +493,25 @@ module TypedEmissionMainPathParity
         }
       end
     end
+  end
+
+  def orchestrator_switch_gate(source_cases, typed_source_blocked)
+    spark_case = source_cases.find { |source_case| source_case.fetch("id") == "sparkcrm_bihistory" }
+    spark_measured = spark_case && spark_case.fetch("status") != "NOT_COMPARABLE"
+    spark_typed_blocked = typed_source_blocked.any? { |item| item.fetch("case") == "sparkcrm_bihistory" }
+    proceed = spark_measured && !spark_typed_blocked && typed_source_blocked.empty?
+    {
+      "status" => proceed ? "PROCEED" : "DO_NOT_PROCEED",
+      "sparkcrm_bihistory_status" => spark_case ? spark_case.fetch("status") : "MISSING",
+      "sparkcrm_bihistory_reason" => spark_case ? spark_case.fetch("status_reason", "source fixture measured") : "source fixture missing",
+      "typed_source_blocked_items" => typed_source_blocked.length,
+      "legacy_parity_delta_items_are_switch_blockers" => false,
+      "recommendation" => if proceed
+                            "Proceed to a separate CompilerOrchestrator emit_typed switch card; do not switch in this parity-gate slice."
+                          else
+                            "Do not proceed to the CompilerOrchestrator switch until typed source blockers are cleared and sparkcrm_bihistory is source-measured."
+                          end
+    }
   end
 
   def write_summary(summary)

@@ -3,7 +3,7 @@
   "format_version": "0.1.0",
   "track": "gem-release-automation-v0",
   "status": "PASS",
-  "timestamp": "2026-05-08T10:02:20Z",
+  "timestamp": "2026-05-08T11:16:25Z",
   "package": {
     "name": "igniter_lang",
     "version": "0.1.0.pre.stage2",
@@ -96,7 +96,7 @@
     "status": "PASS",
     "gem_path": "/private/tmp/igniter_lang_release_gate/igniter_lang-0.1.0.pre.stage2.gem",
     "checksum_path": "/private/tmp/igniter_lang_release_gate/igniter_lang-0.1.0.pre.stage2.gem.sha256",
-    "sha256": "9ded66145c36ce08dfd9b2717f12c44896d575f39e116ca59aa99ae11ca30860",
+    "sha256": "e1ea1f3ae35aec24aa92b4b92f531f39d837f87019473a68e56e9c61d76a40b8",
     "build": {
       "id": "gem_build_release_artifact",
       "status": "PASS",

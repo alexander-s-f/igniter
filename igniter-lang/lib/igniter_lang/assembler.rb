@@ -139,6 +139,8 @@ module IgniterLang
       }
       artifact_hash = Canonical.hash(artifact_material)
       contracts = contracts.map { |contract| contract.merge("artifact_hash" => artifact_hash) }
+      fragment_summary = fragment_summary_for(contracts)
+      contract_index = contract_index_for(contracts)
 
       manifest = {
         "kind" => "igapp_manifest",
@@ -160,6 +162,8 @@ module IgniterLang
           [contract.fetch("contract_name"), contract.fetch("contract_ref")]
         end,
         "fragment_class" => fragment_class,
+        "fragment_summary" => fragment_summary,
+        "contract_index" => contract_index,
         "schema_descriptor" => { "trait_bounds" => [], "migrations" => [] },
         "warnings" => [],
         "diagnostics" => report.fetch("diagnostics")
@@ -264,6 +268,84 @@ module IgniterLang
       node.fetch("kind") == "temporal_input_node" ? "temporal_source_observation" : "temporal_access_observation"
     end
 
+    def fragment_summary_for(contracts)
+      fragment_classes = contracts.map { |contract| contract.fetch("fragment_class") }.uniq.sort
+      {
+        "fragment_classes" => fragment_classes,
+        "max_fragment_class" => max_fragment_class(fragment_classes),
+        "precedence_high_to_low" => fragment_precedence
+      }
+    end
+
+    def max_fragment_class(fragment_classes)
+      fragment_precedence.find { |fragment| fragment_classes.include?(fragment) } || "core"
+    end
+
+    def fragment_precedence
+      %w[oof temporal stream escape core]
+    end
+
+    def contract_index_for(contracts)
+      contracts.sort_by { |contract| contract.fetch("contract_id") }.to_h do |contract|
+        entry = {
+          "contract_ref" => contract.fetch("source_contract_ref"),
+          "contract_path" => "contracts/#{snake_case(contract.fetch("contract_id"))}.json",
+          "fragment_class" => contract.fetch("fragment_class")
+        }
+        entry["temporal"] = temporal_contract_index(contract) if contract.fetch("fragment_class") == "temporal"
+        [contract.fetch("contract_id"), entry]
+      end
+    end
+
+    def temporal_contract_index(contract)
+      temporal_nodes = contract.fetch("temporal_nodes", [])
+      access_nodes = temporal_nodes.select { |node| node.fetch("kind") == "temporal_access_node" }
+      coordinates = access_nodes.flat_map { |node| temporal_coordinates_for(contract, node) }
+      axes = coordinates.map { |coordinate| coordinate.fetch("axis") }.uniq
+      required_caps = (
+        contract.fetch("escape_set", []).flat_map { |boundary| boundary.fetch("required_caps", []) } +
+          temporal_nodes.flat_map { |node| node.fetch("required_caps", []) }
+      ).uniq.sort
+      hint_axis = access_nodes.map { |node| node.fetch("axis", node.fetch("temporal_axis", nil)) }.compact.uniq
+      {
+        "axes" => axes.sort_by { |axis| temporal_axis_sort_key(axis) },
+        "required_capabilities" => required_caps,
+        "coordinates" => coordinates,
+        "cache_key_schema_hint" => {
+          "schema" => "runtime-cache-key-v1",
+          "fragment" => "TEMPORAL",
+          "axis" => hint_axis.length == 1 ? hint_axis.first : "mixed",
+          "coordinate_names" => coordinates.map { |coord| coord.fetch("name") }
+        }
+      }
+    end
+
+    def temporal_coordinates_for(contract, access_node)
+      coordinate_refs = access_node.fetch("coordinate_refs", {})
+      coordinate_refs.map do |axis_name, input_name|
+        {
+          "name" => input_name,
+          "axis" => coordinate_axis(access_node, axis_name),
+          "source_ref" => "input:#{input_name}",
+          "type" => input_type(contract, input_name)
+        }
+      end.sort_by { |coordinate| temporal_axis_sort_key(coordinate.fetch("axis")) }
+    end
+
+    def coordinate_axis(access_node, axis_name)
+      access_axis = access_node.fetch("axis", access_node.fetch("temporal_axis", nil))
+      access_axis == "bitemporal" ? axis_name : access_axis
+    end
+
+    def temporal_axis_sort_key(axis)
+      %w[valid_time transaction_time bitemporal].index(axis) || 99
+    end
+
+    def input_type(contract, input_name)
+      port = contract.fetch("input_ports").find { |input| input.fetch("name") == input_name }
+      port ? port.fetch("type_tag") : "Unknown"
+    end
+
     def ports(port_irs)
       port_irs.map do |port|
         {
@@ -301,6 +383,8 @@ module IgniterLang
 
     def type_name(type)
       return type if type.is_a?(String)
+      return type.to_s unless type.is_a?(Hash)
+
       if type.key?("constructor")
         element = type.fetch("element_type", nil)
         return element ? "#{type.fetch("constructor")}[#{type_name(element)}]" : type.fetch("constructor")
@@ -404,6 +488,16 @@ module IgniterLang
       if temporal_artifact?(semantic_ir)
         metadata["runtime_execution"] = {
           "status" => "unsupported",
+          "guard_policy" => "load_accept_evaluate_refuse",
+          "guard_at" => "evaluate",
+          "load" => {
+            "decision" => "accept_for_inspection",
+            "requires_contract_index" => true
+          },
+          "evaluate" => {
+            "decision" => "refuse_temporal_contract",
+            "reason_code" => "runtime.temporal_execution_unsupported"
+          },
           "reason" => "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope"
         }
         metadata["notes"] += [

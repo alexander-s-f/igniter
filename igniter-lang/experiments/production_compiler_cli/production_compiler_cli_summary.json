@@ -62,7 +62,7 @@
   "negative": {
     "command": "igniter-lang/bin/igniter-lang compile igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig --out igniter-lang/experiments/production_compiler_cli/out/negative_unresolved_symbol.igapp",
     "exitstatus": 1,
-    "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"oof\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig\",\n  \"source_hash\": \"sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"parse\": \"ok\",\n    \"classify\": \"oof\",\n    \"typecheck\": \"skipped\",\n    \"emit\": \"skipped\",\n    \"assemble\": \"skipped\"\n  },\n  \"igapp_path\": null,\n  \"contracts\": [],\n  \"compilation_report_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/negative_unresolved_symbol.compilation_report.json\",\n  \"diagnostics\": [\n    {\n      \"rule\": \"OOF-P1\",\n      \"severity\": \"error\",\n      \"message\": \"Unresolved symbol: missing_b\",\n      \"node\": \"sum\",\n      \"path\": \"contract:BadUnresolvedSymbol/node:sum\",\n      \"category\": \"classifier_oof\",\n      \"contract\": \"BadUnresolvedSymbol\",\n      \"span\": null\n    }\n  ],\n  \"warnings\": []\n}\n",
+    "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"oof\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig\",\n  \"source_hash\": \"sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"parse\": \"ok\",\n    \"classify\": \"ok\",\n    \"typecheck\": \"oof\",\n    \"emit\": \"skipped\",\n    \"assemble\": \"skipped\"\n  },\n  \"igapp_path\": null,\n  \"contracts\": [],\n  \"compilation_report_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/negative_unresolved_symbol.compilation_report.json\",\n  \"diagnostics\": [\n    {\n      \"rule\": \"OOF-P1\",\n      \"severity\": \"error\",\n      \"message\": \"Unresolved symbol: missing_b\",\n      \"node\": \"sum\",\n      \"path\": \"contract:BadUnresolvedSymbol/node:sum\",\n      \"category\": \"typechecker_oof\",\n      \"contract\": \"BadUnresolvedSymbol\",\n      \"span\": null\n    }\n  ],\n  \"warnings\": []\n}\n",
     "stderr": "",
     "json": {
       "kind": "compiler_result",
@@ -74,8 +74,8 @@
       "grammar_version": "0.1.0",
       "stages": {
         "parse": "ok",
-        "classify": "oof",
-        "typecheck": "skipped",
+        "classify": "ok",
+        "typecheck": "oof",
         "emit": "skipped",
         "assemble": "skipped"
       },
@@ -89,7 +89,7 @@
           "message": "Unresolved symbol: missing_b",
           "node": "sum",
           "path": "contract:BadUnresolvedSymbol/node:sum",
-          "category": "classifier_oof",
+          "category": "typechecker_oof",
           "contract": "BadUnresolvedSymbol",
           "span": null
         }

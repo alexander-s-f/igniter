@@ -235,20 +235,24 @@ module RuntimeCacheProofLocalMemoization
   def temporal_metadata(case_id, contract_file)
     igapp_dir = ASSEMBLED_DIR / "#{case_id}.igapp"
     manifest = read_json(igapp_dir / "manifest.json")
-    requirements = read_json(igapp_dir / "requirements.json")
-    contract = read_json(igapp_dir / "contracts/#{contract_file}")
-    access_node = contract.fetch("temporal_nodes").find { |node| node.fetch("kind") == "temporal_access_node" }
-    coordinate_refs = access_node.fetch("coordinate_refs")
+    contract_id = manifest.fetch("contracts").first
+    index_entry = manifest.fetch("contract_index").fetch(contract_id)
+    temporal_index = index_entry.fetch("temporal")
+    coordinate_refs = temporal_index.fetch("coordinates").to_h do |coord|
+      [coord.fetch("axis"), coord.fetch("name")]
+    end
+    cache_hint = temporal_index.fetch("cache_key_schema_hint")
     {
       "program_id" => manifest.fetch("program_id"),
-      "contract_id" => contract.fetch("contract_id"),
-      "contract_ref" => contract.fetch("source_contract_ref"),
-      "fragment" => "TEMPORAL",
-      "axis" => access_node.fetch("axis"),
+      "contract_id" => contract_id,
+      "contract_ref" => index_entry.fetch("contract_ref"),
+      "fragment" => cache_hint.fetch("fragment"),
+      "axis" => cache_hint.fetch("axis"),
       "coordinate_refs" => coordinate_refs,
-      "coordinate_names" => coordinate_refs.values,
-      "required_caps" => requirements.dig("capabilities", "required_caps"),
+      "coordinate_names" => cache_hint.fetch("coordinate_names"),
+      "required_caps" => temporal_index.fetch("required_capabilities"),
       "metadata_sources" => {
+        "preferred" => "manifest.contract_index",
         "manifest" => (igapp_dir / "manifest.json").relative_path_from(ROOT).to_s,
         "contract" => (igapp_dir / "contracts/#{contract_file}").relative_path_from(ROOT).to_s,
         "requirements" => (igapp_dir / "requirements.json").relative_path_from(ROOT).to_s
@@ -432,25 +436,22 @@ module RuntimeCacheProofLocalMemoization
     {
       "current_assembler_inputs_used_by_proof" => [
         "manifest.program_id",
-        "manifest.fragment_class",
-        "contract.source_contract_ref",
-        "contract.fragment_class",
-        "contract.temporal_nodes[].kind",
-        "contract.temporal_nodes[].axis",
-        "contract.temporal_nodes[].coordinate_refs",
-        "contract.temporal_nodes[].required_caps",
-        "requirements.temporal.axes",
-        "requirements.temporal.coordinate_refs",
-        "requirements.capabilities.required_caps"
-      ],
-      "manifest_or_spec_fields_needed_before_production_runtime_cache" => [
         "manifest.contract_index[].fragment_class",
+        "manifest.contract_index[].contract_ref",
         "manifest.contract_index[].contract_path",
         "manifest.contract_index[].temporal.axes",
         "manifest.contract_index[].temporal.required_capabilities",
+        "manifest.contract_index[].temporal.coordinates",
         "manifest.contract_index[].temporal.cache_key_schema_hint.schema",
         "manifest.contract_index[].temporal.cache_key_schema_hint.fragment",
+        "manifest.contract_index[].temporal.cache_key_schema_hint.axis",
         "manifest.contract_index[].temporal.cache_key_schema_hint.coordinate_names"
+      ],
+      "supporting_artifacts_validated_before_runtime_cache" => [
+        "contracts/*.json fragment_class and temporal_nodes",
+        "requirements.temporal.axes",
+        "requirements.temporal.coordinate_refs",
+        "requirements.capabilities.required_caps"
       ],
       "cache_policy_required_before_runtime_enablement" => {
         "cache_policy" => "memoized",

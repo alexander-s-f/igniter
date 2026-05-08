@@ -1,8 +1,47 @@
 {
-  "artifact_hash": "sha256:453d97b33ae53496d2bb8de66b21a67a2374d68e8f801d6dc5b3b581fe9e0c6b",
+  "artifact_hash": "sha256:71c67ed4e7b0d2068ccbfb65978ace7861830d0cfb75dce41b9c13411540ea46",
   "assembler": "igapp-assembler-proof-stage1-v0",
   "compilation_report_ref": "compilation_report/a97da15bba17da42",
   "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "BiHistoryAxesTest": {
+      "contract_path": "contracts/bi_history_axes_test.json",
+      "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+      "fragment_class": "temporal",
+      "temporal": {
+        "axes": [
+          "valid_time",
+          "transaction_time"
+        ],
+        "cache_key_schema_hint": {
+          "axis": "bitemporal",
+          "coordinate_names": [
+            "valid_time",
+            "transaction_time"
+          ],
+          "fragment": "TEMPORAL",
+          "schema": "runtime-cache-key-v1"
+        },
+        "coordinates": [
+          {
+            "axis": "valid_time",
+            "name": "valid_time",
+            "source_ref": "input:valid_time",
+            "type": "DateTime"
+          },
+          {
+            "axis": "transaction_time",
+            "name": "transaction_time",
+            "source_ref": "input:transaction_time",
+            "type": "DateTime"
+          }
+        ],
+        "required_capabilities": [
+          "bihistory_read"
+        ]
+      }
+    }
+  },
   "contract_refs": {
     "BiHistoryAxesTest": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02"
   },
@@ -13,6 +52,19 @@
   "format": "igapp_dir",
   "format_version": "0.1.0",
   "fragment_class": "temporal",
+  "fragment_summary": {
+    "fragment_classes": [
+      "temporal"
+    ],
+    "max_fragment_class": "temporal",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
   "grammar_version": "0.1.0",
   "kind": "igapp_manifest",
   "language_version": "0.1.0",

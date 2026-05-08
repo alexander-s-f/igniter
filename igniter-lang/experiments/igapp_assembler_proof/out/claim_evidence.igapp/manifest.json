@@ -3,6 +3,13 @@
   "assembler": "igapp-assembler-proof-stage1-v0",
   "compilation_report_ref": "compilation_report/3996d52ebb40381b",
   "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "ClaimEvidenceBundle": {
+      "contract_path": "contracts/claim_evidence_bundle.json",
+      "contract_ref": "contract/ClaimEvidenceBundle/sha256:9223b4be6577dc58217eb6cd",
+      "fragment_class": "core"
+    }
+  },
   "contract_refs": {
     "ClaimEvidenceBundle": "contract/ClaimEvidenceBundle/sha256:9223b4be6577dc58217eb6cd"
   },
@@ -13,6 +20,19 @@
   "format": "igapp_dir",
   "format_version": "0.1.0",
   "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
   "grammar_version": "0.1.0",
   "kind": "igapp_manifest",
   "language_version": "0.1.0",

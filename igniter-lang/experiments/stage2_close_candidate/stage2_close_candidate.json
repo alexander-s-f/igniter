@@ -5,7 +5,7 @@
   "stage": "stage2",
   "status": "PASS",
   "verdict": "stage2_close_candidate",
-  "timestamp": "2026-05-08T10:03:04Z",
+  "timestamp": "2026-05-08T11:16:18Z",
   "facade": {
     "entrypoint": "IgniterLang.compile",
     "facade_version": "0.1.0.pre.stage2",
@@ -256,7 +256,7 @@
         "direct_api.status: ok",
         "load_path.stdout: compile=true",
         "orchestrator=constant",
-        "negative.category: classifier_oof",
+        "negative.category: typechecker_oof",
         "negative.report: /Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/negative_unresolved_symbol.compilation_report.json",
         "summary: igniter-lang/experiments/production_compiler_cli/production_compiler_cli_summary.json"
       ],

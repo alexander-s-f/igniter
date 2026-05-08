@@ -8,8 +8,8 @@
   "pass_result": "oof",
   "stages": {
     "parse": "ok",
-    "classify": "oof",
-    "typecheck": "skipped",
+    "classify": "ok",
+    "typecheck": "oof",
     "emit": "skipped"
   },
   "diagnostics": [
@@ -19,7 +19,7 @@
       "message": "Unresolved symbol: missing_b",
       "node": "sum",
       "path": "contract:BadUnresolvedSymbol/node:sum",
-      "category": "classifier_oof",
+      "category": "typechecker_oof",
       "contract": "BadUnresolvedSymbol",
       "span": null
     }

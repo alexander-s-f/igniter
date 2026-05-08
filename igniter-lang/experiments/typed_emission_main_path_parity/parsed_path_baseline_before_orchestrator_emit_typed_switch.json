@@ -1,0 +1,49 @@
+{
+  "kind": "parsed_path_baseline_before_orchestrator_emit_typed_switch",
+  "format_version": "0.1.0",
+  "track": "orchestrator-emit-typed-switch-v0",
+  "recorded_from": "typed_emission_main_path_parity before CompilerOrchestrator switch",
+  "strict_parity_verdict": "blocked",
+  "safe_to_switch_production_path": false,
+  "typed_source_blocked_items": 0,
+  "legacy_parity_delta_items": 14,
+  "orchestrator_switch_gate": "PROCEED",
+  "cases": [
+    {
+      "id": "package_facade_add",
+      "status": "PASS",
+      "baseline_signal": "core add parity already matches after identity normalization"
+    },
+    {
+      "id": "invariant_valid",
+      "status": "FAIL",
+      "baseline_signal": "typed path lowers invariant_node; parsed legacy shape differs"
+    },
+    {
+      "id": "olap_point",
+      "status": "FAIL",
+      "baseline_signal": "typed path lowers olap_access_node; parsed legacy path OOFs"
+    },
+    {
+      "id": "stream_fold",
+      "status": "FAIL",
+      "baseline_signal": "typed path lowers stream_input/window/fold nodes; parsed legacy path OOFs"
+    },
+    {
+      "id": "history_access",
+      "status": "FAIL",
+      "baseline_signal": "typed path lowers temporal_input_node and temporal_access_node; parsed legacy path OOFs"
+    },
+    {
+      "id": "sparkcrm_bihistory",
+      "status": "FAIL",
+      "baseline_signal": "typed path lowers bitemporal temporal_input_node and temporal_access_node; parsed legacy path OOFs"
+    },
+    {
+      "id": "ledger_tbackend_descriptor",
+      "status": "NOT_COMPARABLE",
+      "baseline_signal": "metadata-only descriptor evidence, not a SemanticIR emission source"
+    }
+  ],
+  "public_behavior_delta": "After the orchestrator switch, Stage 2 source surfaces that typed emission accepts can lower to SemanticIR instead of returning parsed-path OOF reports."
+}

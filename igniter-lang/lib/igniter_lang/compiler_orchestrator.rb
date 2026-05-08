@@ -37,7 +37,7 @@ module IgniterLang
       resolved_sample_input = sample_input || resolve_sample_input(parsed, sample_input_resolver)
       classified = @classifier.classify(parsed, sample_input: resolved_sample_input)
       typed = @typechecker.typecheck(classified)
-      compilation = @emitter.emit(parsed, sample_input: resolved_sample_input)
+      compilation = @emitter.emit_typed(typed)
       report = CompilationReport.enrich(
         report: compilation.fetch("compilation_report"),
         parsed: parsed

@@ -20,6 +20,7 @@ module TemporalAssemblerBoundaryProof
       "contract_file" => "history_axes_test.json",
       "capability" => "history_read",
       "axis" => "valid_time",
+      "manifest_axes" => ["valid_time"],
       "coordinate_refs" => { "as_of" => "as_of" }
     },
     {
@@ -28,6 +29,7 @@ module TemporalAssemblerBoundaryProof
       "contract_file" => "bi_history_axes_test.json",
       "capability" => "bihistory_read",
       "axis" => "bitemporal",
+      "manifest_axes" => ["valid_time", "transaction_time"],
       "coordinate_refs" => {
         "valid_time" => "valid_time",
         "transaction_time" => "transaction_time"
@@ -75,6 +77,7 @@ module TemporalAssemblerBoundaryProof
       "id" => config.fetch("id"),
       "assembly" => summary,
       "manifest_fragment_class" => manifest.fetch("fragment_class"),
+      "manifest" => manifest,
       "compiled_program_valid" => validation_error.nil?,
       "compiled_program_validation_error" => validation_error,
       "contract" => contract,
@@ -123,7 +126,95 @@ module TemporalAssemblerBoundaryProof
       checks["#{prefix}.runtime_execution_guard"] =
         metadata.dig("runtime_execution", "status") == "unsupported" &&
         metadata.dig("runtime_execution", "reason").include?("out of scope")
+      checks["#{prefix}.manifest_fragment_summary"] =
+        result.dig("manifest", "fragment_summary", "max_fragment_class") == "temporal" &&
+        result.dig("manifest", "fragment_summary", "fragment_classes") == ["temporal"]
+      checks["#{prefix}.manifest_contract_index"] = manifest_contract_index_valid?(
+        manifest: result.fetch("manifest"),
+        contracts: { contract.fetch("contract_id") => contract },
+        config: config
+      )
+      checks["#{prefix}.missing_contract_index_detected"] = manifest_index_errors(
+        manifest: result.fetch("manifest").reject { |key, _value| key == "contract_index" },
+        contracts: { contract.fetch("contract_id") => contract }
+      ).any? { |error| error.fetch("gate") == "L-T1" }
+      checks["#{prefix}.core_cache_hint_mismatch_detected"] = manifest_index_errors(
+        manifest: manifest_with_core_temporal_cache_hint(result.fetch("manifest"), contract.fetch("contract_id")),
+        contracts: { contract.fetch("contract_id") => contract }
+      ).any? { |error| error.fetch("gate") == "L-T5" }
     end
+  end
+
+  def manifest_contract_index_valid?(manifest:, contracts:, config:)
+    return false unless manifest_index_errors(manifest: manifest, contracts: contracts).empty?
+
+    entry = manifest.dig("contract_index", config.fetch("contract_id"))
+    return false unless entry
+
+    entry.fetch("fragment_class") == "temporal" &&
+      entry.dig("temporal", "axes") == config.fetch("manifest_axes") &&
+      entry.dig("temporal", "required_capabilities").include?(config.fetch("capability")) &&
+      entry.dig("temporal", "cache_key_schema_hint", "schema") == "runtime-cache-key-v1" &&
+      entry.dig("temporal", "cache_key_schema_hint", "fragment") == "TEMPORAL" &&
+      entry.dig("temporal", "cache_key_schema_hint", "axis") == config.fetch("axis") &&
+      entry.dig("temporal", "cache_key_schema_hint", "coordinate_names") == config.fetch("coordinate_refs").values
+  end
+
+  def manifest_index_errors(manifest:, contracts:)
+    errors = []
+    index = manifest["contract_index"]
+    temporal_contracts = contracts.select { |_id, contract| contract.fetch("fragment_class") == "temporal" }
+    if temporal_contracts.any? && !index.is_a?(Hash)
+      return [{ "gate" => "L-T1", "reason" => "temporal contract missing manifest.contract_index" }]
+    end
+
+    temporal_contracts.each do |contract_id, contract|
+      entry = index[contract_id]
+      unless entry
+        errors << { "gate" => "L-T1", "reason" => "temporal contract missing contract_index entry", "contract" => contract_id }
+        next
+      end
+      errors << { "gate" => "L-T2", "reason" => "fragment mismatch", "contract" => contract_id } unless entry.fetch("fragment_class") == contract.fetch("fragment_class")
+
+      expected = expected_temporal_index(contract)
+      temporal = entry.fetch("temporal", {})
+      errors << { "gate" => "L-T3", "reason" => "temporal axes mismatch", "contract" => contract_id } unless temporal.fetch("axes", []).sort == expected.fetch("axes").sort
+      unless temporal.fetch("required_capabilities", []).sort == expected.fetch("required_capabilities").sort
+        errors << { "gate" => "L-T4", "reason" => "temporal capability mismatch", "contract" => contract_id }
+      end
+      hint = temporal.fetch("cache_key_schema_hint", {})
+      unless hint.fetch("schema", nil) == "runtime-cache-key-v1" && hint.fetch("fragment", nil) == "TEMPORAL"
+        errors << { "gate" => "L-T5", "reason" => "temporal cache key schema hint mismatch", "contract" => contract_id }
+      end
+      if temporal.fetch("coordinates", []).empty? || hint.fetch("coordinate_names", []).empty?
+        errors << { "gate" => "L-T6", "reason" => "temporal coordinates missing", "contract" => contract_id }
+      end
+    end
+    errors
+  end
+
+  def expected_temporal_index(contract)
+    temporal_nodes = contract.fetch("temporal_nodes")
+    access_nodes = temporal_nodes.select { |node| node.fetch("kind") == "temporal_access_node" }
+    coordinates = access_nodes.flat_map do |node|
+      node.fetch("coordinate_refs").map do |axis_name, input_name|
+        {
+          "axis" => node.fetch("axis") == "bitemporal" ? axis_name : node.fetch("axis"),
+          "name" => input_name
+        }
+      end
+    end
+    {
+      "axes" => coordinates.map { |coord| coord.fetch("axis") }.uniq,
+      "required_capabilities" => temporal_nodes.flat_map { |node| node.fetch("required_caps") }.uniq.sort,
+      "coordinates" => coordinates
+    }
+  end
+
+  def manifest_with_core_temporal_cache_hint(manifest, contract_id)
+    copy = JSON.parse(JSON.generate(manifest))
+    copy.fetch("contract_index").fetch(contract_id).fetch("temporal").fetch("cache_key_schema_hint")["fragment"] = "CORE"
+    copy
   end
 
   def temporal_node_metadata_preserved?(input_node:, access_node:, config:)

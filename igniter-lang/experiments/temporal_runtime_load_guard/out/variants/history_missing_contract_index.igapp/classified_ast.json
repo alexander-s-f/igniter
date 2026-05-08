@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/history-valid-te",
+  "contracts": [
+    "HistoryAxesTest"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "temporal",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "HistoryAxesTest"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/history-valid-te",
+  "semantic_ir_ref": "semanticir/history-valid-te",
+  "source_hash": "sha256:history-valid-temporal-fixture",
+  "source_path": "experiments/typechecker_proof/fixtures/history_valid.ig"
+}

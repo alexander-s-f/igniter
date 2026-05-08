@@ -1,0 +1,73 @@
+{
+  "artifact_hash": "sha256:a23d58b71650fc7e1fb5595fef11f888e89f85efb3691a88255dbed4b586b3c7",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/history-valid-te",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "HistoryAxesTest": {
+      "contract_path": "contracts/history_axes_test.json",
+      "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+      "fragment_class": "temporal",
+      "temporal": {
+        "axes": [
+          "valid_time"
+        ],
+        "cache_key_schema_hint": {
+          "axis": "valid_time",
+          "coordinate_names": [
+            "as_of"
+          ],
+          "fragment": "CORE",
+          "schema": "runtime-cache-key-v1"
+        },
+        "coordinates": [
+          {
+            "axis": "valid_time",
+            "name": "as_of",
+            "source_ref": "input:as_of",
+            "type": "DateTime"
+          }
+        ],
+        "required_capabilities": [
+          "history_read"
+        ]
+      }
+    }
+  },
+  "contract_refs": {
+    "HistoryAxesTest": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d"
+  },
+  "contracts": [
+    "HistoryAxesTest"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "temporal",
+  "fragment_summary": {
+    "fragment_classes": [
+      "temporal"
+    ],
+    "max_fragment_class": "temporal",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/history-valid-te",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/history-valid-te",
+  "source_hash": "sha256:history-valid-temporal-fixture",
+  "source_path": "experiments/typechecker_proof/fixtures/history_valid.ig",
+  "warnings": []
+}

@@ -1,0 +1,175 @@
+{
+  "kind": "temporal_runtime_load_guard_proof",
+  "format_version": "0.1.0",
+  "track": "temporal-runtime-load-guard-v0",
+  "status": "PASS",
+  "policy": {
+    "guard_policy": "load_accept_evaluate_refuse",
+    "load": "validate manifest.contract_index and accept temporal artifacts for inspection only",
+    "evaluate": "refuse temporal contracts unless a future runtime adapter/executor is explicitly implemented",
+    "production_execution": false,
+    "ledger_binding": false,
+    "cache_enabled": false
+  },
+  "cases": {
+    "history_valid": {
+      "artifact_path": "igniter-lang/experiments/temporal_runtime_load_guard/out/assembled/history_valid.igapp",
+      "required_capability": "history_read",
+      "load_for_inspection": {
+        "status": "loaded",
+        "program_id": "semanticir/history-valid-te",
+        "temporal_contracts": [
+          "HistoryAxesTest"
+        ],
+        "runtime_execution": {
+          "evaluate": {
+            "decision": "refuse_temporal_contract",
+            "reason_code": "runtime.temporal_execution_unsupported"
+          },
+          "guard_at": "evaluate",
+          "guard_policy": "load_accept_evaluate_refuse",
+          "load": {
+            "decision": "accept_for_inspection",
+            "requires_contract_index": true
+          },
+          "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+          "status": "unsupported"
+        }
+      },
+      "unsupported_runtime_evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "evaluate",
+        "reason_code": "runtime.temporal_execution_unsupported",
+        "message": "temporal runtime execution is not supported by this RuntimeMachine",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-08T00:00:00Z",
+        "context": {
+          "guard_policy": "load_accept_evaluate_refuse",
+          "guard_at": "evaluate",
+          "required_capabilities": [
+            "history_read"
+          ]
+        }
+      },
+      "missing_capability_evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "evaluate",
+        "reason_code": "runtime.temporal_capability_missing",
+        "message": "temporal RuntimeMachine is missing required capability",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-08T00:00:00Z",
+        "context": {
+          "missing_capabilities": [
+            "history_read"
+          ],
+          "available_capabilities": []
+        }
+      }
+    },
+    "bihistory_valid": {
+      "artifact_path": "igniter-lang/experiments/temporal_runtime_load_guard/out/assembled/bihistory_valid.igapp",
+      "required_capability": "bihistory_read",
+      "load_for_inspection": {
+        "status": "loaded",
+        "program_id": "semanticir/a97da15bba17da42",
+        "temporal_contracts": [
+          "BiHistoryAxesTest"
+        ],
+        "runtime_execution": {
+          "evaluate": {
+            "decision": "refuse_temporal_contract",
+            "reason_code": "runtime.temporal_execution_unsupported"
+          },
+          "guard_at": "evaluate",
+          "guard_policy": "load_accept_evaluate_refuse",
+          "load": {
+            "decision": "accept_for_inspection",
+            "requires_contract_index": true
+          },
+          "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+          "status": "unsupported"
+        }
+      },
+      "unsupported_runtime_evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "evaluate",
+        "reason_code": "runtime.temporal_execution_unsupported",
+        "message": "temporal runtime execution is not supported by this RuntimeMachine",
+        "contract_id": "BiHistoryAxesTest",
+        "as_of": "2026-05-08T00:00:00Z",
+        "context": {
+          "guard_policy": "load_accept_evaluate_refuse",
+          "guard_at": "evaluate",
+          "required_capabilities": [
+            "bihistory_read"
+          ]
+        }
+      },
+      "missing_capability_evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "evaluate",
+        "reason_code": "runtime.temporal_capability_missing",
+        "message": "temporal RuntimeMachine is missing required capability",
+        "contract_id": "BiHistoryAxesTest",
+        "as_of": "2026-05-08T00:00:00Z",
+        "context": {
+          "missing_capabilities": [
+            "bihistory_read"
+          ],
+          "available_capabilities": []
+        }
+      }
+    },
+    "missing_contract_index": {
+      "artifact_path": "igniter-lang/experiments/temporal_runtime_load_guard/out/variants/history_missing_contract_index.igapp",
+      "load": {
+        "kind": "load_refusal",
+        "status": "refused",
+        "gate": "L-T1",
+        "reason": "TEMPORAL artifact requires manifest.contract_index object",
+        "program_id": "semanticir/history-valid-te",
+        "contract_id": null,
+        "context": {}
+      }
+    },
+    "malformed_contract_index": {
+      "artifact_path": "igniter-lang/experiments/temporal_runtime_load_guard/out/variants/history_malformed_contract_index.igapp",
+      "load": {
+        "kind": "load_refusal",
+        "status": "refused",
+        "gate": "L-T1",
+        "reason": "TEMPORAL artifact requires manifest.contract_index object",
+        "program_id": "semanticir/history-valid-te",
+        "contract_id": null,
+        "context": {}
+      }
+    },
+    "core_cache_hint_for_temporal": {
+      "artifact_path": "igniter-lang/experiments/temporal_runtime_load_guard/out/variants/history_core_cache_hint.igapp",
+      "load": {
+        "kind": "load_refusal",
+        "status": "refused",
+        "gate": "L-T5",
+        "reason": "TEMPORAL contract cannot use CORE or unknown cache key schema",
+        "program_id": "semanticir/history-valid-te",
+        "contract_id": "HistoryAxesTest",
+        "context": {}
+      }
+    }
+  },
+  "checks": {
+    "history_valid.load_accepts_for_inspection": true,
+    "history_valid.evaluate_refuses_unsupported_runtime": true,
+    "history_valid.evaluate_refuses_missing_capability": true,
+    "bihistory_valid.load_accepts_for_inspection": true,
+    "bihistory_valid.evaluate_refuses_unsupported_runtime": true,
+    "bihistory_valid.evaluate_refuses_missing_capability": true,
+    "missing_contract_index.load_refused": true,
+    "malformed_contract_index.load_refused": true,
+    "core_cache_hint_for_temporal.load_refused": true
+  }
+}

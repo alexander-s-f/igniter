@@ -5,8 +5,8 @@
   "status": "PASS",
   "verdict": "blocked",
   "safe_to_switch_production_path": false,
-  "cases_run": 5,
-  "timestamp": "2026-05-08T10:02:52Z",
+  "cases_run": 6,
+  "timestamp": "2026-05-08T11:11:29Z",
   "current_main_path": "SemanticIREmitter#emit(parsed_program, sample_input:)",
   "candidate_main_path": "SemanticIREmitter#emit_typed(typed_program)",
   "source_cases": [
@@ -22,6 +22,7 @@
         "compute"
       ],
       "status": "PASS",
+      "status_reason": "parsed and typed emissions match after identity normalization; expected typed nodes are present",
       "parsed_path": {
         "pass_result": "ok",
         "semantic_ir_present": true,
@@ -118,6 +119,7 @@
         "invariant_node"
       ],
       "status": "FAIL",
+      "status_reason": "SemanticIR differs after identity fields are normalized.; CompilationReport differs after identity fields are normalized.",
       "parsed_path": {
         "pass_result": "ok",
         "semantic_ir_present": true,
@@ -244,6 +246,7 @@
         "olap_access_node"
       ],
       "status": "FAIL",
+      "status_reason": "report.pass_result: parsed=\"oof\", typed=\"ok\"; semantic_ir.present: parsed=false, typed=true; CompilationReport differs after identity fields are normalized.",
       "parsed_path": {
         "pass_result": "oof",
         "semantic_ir_present": false,
@@ -379,6 +382,7 @@
         "fold_stream_node"
       ],
       "status": "FAIL",
+      "status_reason": "report.pass_result: parsed=\"oof\", typed=\"ok\"; semantic_ir.present: parsed=false, typed=true; CompilationReport differs after identity fields are normalized.",
       "parsed_path": {
         "pass_result": "oof",
         "semantic_ir_present": false,
@@ -512,6 +516,7 @@
         "temporal_access_node"
       ],
       "status": "FAIL",
+      "status_reason": "report.pass_result: parsed=\"oof\", typed=\"ok\"; semantic_ir.present: parsed=false, typed=true; CompilationReport differs after identity fields are normalized.",
       "parsed_path": {
         "pass_result": "oof",
         "semantic_ir_present": false,
@@ -632,16 +637,145 @@
           ]
         }
       ]
-    }
-  ],
-  "proof_local_cases": [
+    },
     {
       "id": "sparkcrm_bihistory",
       "surface": "history_bihistory_temporal_access",
-      "source_path": null,
-      "status": "NOT_COMPARABLE",
-      "reason": "Stage 2 close uses a proof-local Ruby fixture; there is no .ig source fixture to run through parsed and typed emit paths."
-    },
+      "source_path": "igniter-lang/experiments/typed_emission_main_path_parity/sparkcrm_bihistory_source.ig",
+      "sample_input": {
+        "technician_id": "tech-17",
+        "valid_time": "2026-05-07T10:00:00Z",
+        "transaction_time": "2026-05-08T09:15:00Z"
+      },
+      "expect_typed_node_kinds": [
+        "temporal_input_node",
+        "temporal_access_node"
+      ],
+      "status": "FAIL",
+      "status_reason": "report.pass_result: parsed=\"oof\", typed=\"ok\"; semantic_ir.present: parsed=false, typed=true; CompilationReport differs after identity fields are normalized.",
+      "parsed_path": {
+        "pass_result": "oof",
+        "semantic_ir_present": false,
+        "program_id": null,
+        "semantic_ir_ref": null,
+        "report_program_id": "compilation_report/b6603c347619e2b6",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [],
+        "contract_names": [],
+        "node_kinds": [],
+        "diagnostic_rules": [
+          "OOF-P1",
+          "OOF-TY0"
+        ],
+        "shape_hash": null,
+        "report_shape_hash": "sha256:f687dde81ad77315202af7b55c0e04738c5b71963f725ee53f9f00961abd1846",
+        "status": "ok"
+      },
+      "typed_path": {
+        "pass_result": "ok",
+        "semantic_ir_present": true,
+        "program_id": "semanticir/b6603c347619e2b6",
+        "semantic_ir_ref": "semanticir/b6603c347619e2b6",
+        "report_program_id": "compilation_report/b6603c347619e2b6",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [
+          "compilation_report_ref",
+          "contracts",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "module",
+          "program_id",
+          "source_hash",
+          "source_path"
+        ],
+        "contract_names": [
+          "SparkCRMBiHistorySourceParity"
+        ],
+        "node_kinds": [
+          "temporal_access_node",
+          "temporal_input_node"
+        ],
+        "diagnostic_rules": [],
+        "shape_hash": "sha256:d59e9fd4eb297e949c9b2b06613e619043885d19c75df33bd66be2b70d5573d1",
+        "report_shape_hash": "sha256:728d42eb343337f25e1c10ffff6d47f61474b18583941a86b16043c0c6f72be8",
+        "status": "ok"
+      },
+      "deltas": [
+        {
+          "kind": "value_delta",
+          "path": "report.pass_result",
+          "parsed": "oof",
+          "typed": "ok"
+        },
+        {
+          "kind": "value_delta",
+          "path": "semantic_ir.present",
+          "parsed": false,
+          "typed": true
+        },
+        {
+          "kind": "report_shape_delta",
+          "summary": "CompilationReport differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.diagnostics",
+              "delta": "length",
+              "parsed": 2,
+              "typed": 0
+            },
+            {
+              "path": "$.pass_result",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.classify",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.emit",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.typecheck",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "proof_local_cases": [
     {
       "id": "ledger_tbackend_descriptor",
       "surface": "ledger_tbackend_descriptor",
@@ -890,8 +1024,68 @@
     {
       "case": "sparkcrm_bihistory",
       "surface": "history_bihistory_temporal_access",
-      "kind": "not_source_comparable",
-      "summary": "Stage 2 close uses a proof-local Ruby fixture; there is no .ig source fixture to run through parsed and typed emit paths."
+      "kind": "value_delta",
+      "summary": "report.pass_result",
+      "details": {
+        "kind": "value_delta",
+        "path": "report.pass_result",
+        "parsed": "oof",
+        "typed": "ok"
+      }
+    },
+    {
+      "case": "sparkcrm_bihistory",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "value_delta",
+      "summary": "semantic_ir.present",
+      "details": {
+        "kind": "value_delta",
+        "path": "semantic_ir.present",
+        "parsed": false,
+        "typed": true
+      }
+    },
+    {
+      "case": "sparkcrm_bihistory",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.diagnostics",
+            "delta": "length",
+            "parsed": 2,
+            "typed": 0
+          },
+          {
+            "path": "$.pass_result",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.classify",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.emit",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.typecheck",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          }
+        ]
+      }
     },
     {
       "case": "ledger_tbackend_descriptor",
@@ -1137,7 +1331,81 @@
           }
         ]
       }
+    },
+    {
+      "case": "sparkcrm_bihistory",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "value_delta",
+      "summary": "report.pass_result",
+      "details": {
+        "kind": "value_delta",
+        "path": "report.pass_result",
+        "parsed": "oof",
+        "typed": "ok"
+      }
+    },
+    {
+      "case": "sparkcrm_bihistory",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "value_delta",
+      "summary": "semantic_ir.present",
+      "details": {
+        "kind": "value_delta",
+        "path": "semantic_ir.present",
+        "parsed": false,
+        "typed": true
+      }
+    },
+    {
+      "case": "sparkcrm_bihistory",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.diagnostics",
+            "delta": "length",
+            "parsed": 2,
+            "typed": 0
+          },
+          {
+            "path": "$.pass_result",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.classify",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.emit",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.typecheck",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          }
+        ]
+      }
     }
   ],
-  "recommendation": "Do not switch CompilerOrchestrator yet; resolve blocked_items first."
+  "orchestrator_switch_gate": {
+    "status": "PROCEED",
+    "sparkcrm_bihistory_status": "FAIL",
+    "sparkcrm_bihistory_reason": "report.pass_result: parsed=\"oof\", typed=\"ok\"; semantic_ir.present: parsed=false, typed=true; CompilationReport differs after identity fields are normalized.",
+    "typed_source_blocked_items": 0,
+    "legacy_parity_delta_items_are_switch_blockers": false,
+    "recommendation": "Proceed to a separate CompilerOrchestrator emit_typed switch card; do not switch in this parity-gate slice."
+  },
+  "recommendation": "Proceed to a separate CompilerOrchestrator emit_typed switch card; do not switch in this parity-gate slice."
 }
