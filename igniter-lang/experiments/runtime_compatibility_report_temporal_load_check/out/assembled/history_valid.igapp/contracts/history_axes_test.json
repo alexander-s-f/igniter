@@ -1,0 +1,98 @@
+{
+  "artifact_hash": "sha256:a23d58b71650fc7e1fb5595fef11f888e89f85efb3691a88255dbed4b586b3c7",
+  "compute_nodes": [],
+  "contract_id": "HistoryAxesTest",
+  "escape_set": [
+    {
+      "name": "history_read",
+      "produces": [
+        "history_access_observation"
+      ],
+      "required_caps": [
+        "history_read"
+      ]
+    }
+  ],
+  "fragment_class": "temporal",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "sku",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "as_of",
+      "required": true,
+      "type_tag": "DateTime"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "HistoryAxesTest",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "price_at",
+      "required": true,
+      "type_tag": "Option[String]"
+    }
+  ],
+  "source_contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+  "temporal_nodes": [
+    {
+      "axis": "valid_time",
+      "dependencies": [],
+      "fragment_class": "temporal",
+      "kind": "temporal_input_node",
+      "lifecycle": "durable",
+      "name": "price_history",
+      "node_fragment_class": "temporal",
+      "node_id": "node_price_history",
+      "obs_kind": "temporal_source_observation",
+      "required_capability": "history_read",
+      "required_caps": [
+        "history_read"
+      ],
+      "store_ref": "sku/{sku}/price",
+      "type_tag": "History[String]",
+      "value_fragment_class": "core"
+    },
+    {
+      "as_of_ref": "as_of",
+      "axis": "valid_time",
+      "coordinate_refs": {
+        "as_of": "as_of"
+      },
+      "dependencies": [
+        "input:price_history",
+        "input:as_of"
+      ],
+      "evidence_policy": "link_selected_append_observation",
+      "fragment_class": "temporal",
+      "kind": "temporal_access_node",
+      "lifecycle": "session",
+      "name": "price_at",
+      "node_fragment_class": "temporal",
+      "node_id": "node_price_at",
+      "obs_kind": "temporal_access_observation",
+      "required_capability": "history_read",
+      "required_caps": [
+        "history_read"
+      ],
+      "result_type_tag": "Option[String]",
+      "source_ref": "price_history",
+      "temporal_axis": "valid_time",
+      "value_fragment_class": "core"
+    }
+  ],
+  "type_signature": {
+    "inputs": {
+      "as_of": "DateTime",
+      "sku": "String"
+    },
+    "outputs": {
+      "price_at": "Option[String]"
+    }
+  }
+}

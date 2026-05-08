@@ -92,6 +92,35 @@ LetExpr       := "let" Name "=" Expr   -- inside Body only
 sufficient to produce SemanticIR for the two canonical fixture contracts
 (Add, AvailabilityProjection). Full grammar is a separate track.
 
+## 2.2.1 Entrypoint and Section Disposition (Stage 3 Candidate)
+
+`entrypoint` and `section` are not part of Grammar Kernel v0. They are Stage 3
+proposal candidates routed by syntax-pressure review, not current canonical
+syntax and not parser-supported declarations.
+
+Current source authors and proof fixtures should treat `contract` as the
+canonical computation boundary. Tooling that needs to choose what to compile or
+evaluate must use explicit invocation metadata, CLI/API arguments, or fixture
+metadata until an accepted PROP defines source-level entry selection.
+
+The current parser does not reserve `entrypoint` or `section` as hard keywords.
+Pressure fixtures may use those spellings to test human/agent comprehension,
+but those fixtures are non-canon and are not expected to parse.
+
+Collision risks for a future PROP:
+
+- `entrypoint` already has package/API meaning in compiler tooling, while a
+  source-level `entrypoint` could mean default contract, default output,
+  evaluation target, UI route, scheduler trigger, or fixture start. A PROP must
+  choose one meaning and name diagnostics around that choice.
+- `section` must not accidentally become `module`, namespace, visibility,
+  lifecycle, dependency, or evaluation-order syntax. If promoted, its default
+  recommended semantics are grouping-only with explicit flattening into normal
+  top-level declarations.
+- Reserving either spelling too early would collide with ordinary identifiers
+  without a proven AST shape. Keyword reservation belongs in the future PROP,
+  not in this spec sync.
+
 ---
 
 ## 2.3 ParsedProgram Shape (PROP-014 §Part 3, PROP-018 §Part 2)

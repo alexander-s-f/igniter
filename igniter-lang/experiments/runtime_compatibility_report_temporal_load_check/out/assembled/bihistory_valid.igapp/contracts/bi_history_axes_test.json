@@ -1,0 +1,108 @@
+{
+  "artifact_hash": "sha256:71c67ed4e7b0d2068ccbfb65978ace7861830d0cfb75dce41b9c13411540ea46",
+  "compute_nodes": [],
+  "contract_id": "BiHistoryAxesTest",
+  "escape_set": [
+    {
+      "name": "bihistory_read",
+      "produces": [
+        "bihistory_access_observation"
+      ],
+      "required_caps": [
+        "bihistory_read"
+      ]
+    }
+  ],
+  "fragment_class": "temporal",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "technician_id",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "valid_time",
+      "required": true,
+      "type_tag": "DateTime"
+    },
+    {
+      "lifecycle": "local",
+      "name": "transaction_time",
+      "required": true,
+      "type_tag": "DateTime"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "BiHistoryAxesTest",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "avail_at",
+      "required": true,
+      "type_tag": "Option[String]"
+    }
+  ],
+  "source_contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+  "temporal_nodes": [
+    {
+      "axis": "bitemporal",
+      "dependencies": [],
+      "fragment_class": "temporal",
+      "kind": "temporal_input_node",
+      "lifecycle": "durable",
+      "name": "avail_history",
+      "node_fragment_class": "temporal",
+      "node_id": "node_avail_history",
+      "obs_kind": "temporal_source_observation",
+      "required_capability": "bihistory_read",
+      "required_caps": [
+        "bihistory_read"
+      ],
+      "store_ref": "t/{technician_id}/avail",
+      "type_tag": "BiHistory[String]",
+      "value_fragment_class": "core"
+    },
+    {
+      "axis": "bitemporal",
+      "coordinate_refs": {
+        "transaction_time": "transaction_time",
+        "valid_time": "valid_time"
+      },
+      "dependencies": [
+        "input:avail_history",
+        "input:valid_time",
+        "input:transaction_time"
+      ],
+      "evidence_policy": "link_selected_event_observation",
+      "fragment_class": "temporal",
+      "kind": "temporal_access_node",
+      "lifecycle": "session",
+      "name": "avail_at",
+      "node_fragment_class": "temporal",
+      "node_id": "node_avail_at",
+      "obs_kind": "temporal_access_observation",
+      "required_capability": "bihistory_read",
+      "required_caps": [
+        "bihistory_read"
+      ],
+      "result_type_tag": "Option[String]",
+      "source_ref": "avail_history",
+      "temporal_axis": "bitemporal",
+      "transaction_time_ref": "transaction_time",
+      "valid_time_ref": "valid_time",
+      "value_fragment_class": "core"
+    }
+  ],
+  "type_signature": {
+    "inputs": {
+      "technician_id": "String",
+      "transaction_time": "DateTime",
+      "valid_time": "DateTime"
+    },
+    "outputs": {
+      "avail_at": "Option[String]"
+    }
+  }
+}

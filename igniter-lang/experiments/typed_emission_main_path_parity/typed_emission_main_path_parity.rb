@@ -202,21 +202,29 @@ module TypedEmissionMainPathParity
     parsed_summary = captured_emission_summary(parsed_emission)
     typed_summary = captured_emission_summary(typed_emission)
     deltas = captured_emission_deltas(parsed_emission, typed_emission)
+    accepted_deltas = accepted_delta_items(config, deltas)
+    unaccepted_deltas = deltas.reject { |delta| accepted_delta?(config, delta) }
 
     if typed_emission.fetch("status") == "ok"
       typed_missing = missing_expected_node_kinds(typed_summary, config.fetch("expect_typed_node_kinds", []))
-      deltas << {
+      missing_delta = {
         "kind" => "typed_expected_nodes_missing",
         "missing" => typed_missing
-      } unless typed_missing.empty?
+      }
+      unless typed_missing.empty?
+        deltas << missing_delta
+        unaccepted_deltas << missing_delta
+      end
     end
 
     config.merge(
-      "status" => deltas.empty? ? "PASS" : "FAIL",
-      "status_reason" => status_reason(deltas),
+      "status" => unaccepted_deltas.empty? ? "PASS" : "FAIL",
+      "status_reason" => status_reason(unaccepted_deltas, accepted_deltas),
       "parsed_path" => parsed_summary,
       "typed_path" => typed_summary,
-      "deltas" => deltas
+      "deltas" => deltas,
+      "accepted_deltas" => accepted_deltas,
+      "unaccepted_deltas" => unaccepted_deltas
     )
   rescue => e
     config.merge(
@@ -246,24 +254,29 @@ module TypedEmissionMainPathParity
       "safe_to_switch_production_path" => blocked.empty?,
       "cases_run" => source_cases.length,
       "timestamp" => Time.now.utc.iso8601,
-      "current_main_path" => "SemanticIREmitter#emit(parsed_program, sample_input:)",
+      "current_main_path" => "SemanticIREmitter#emit_typed(typed_program)",
+      "legacy_comparison_path" => "SemanticIREmitter#emit(parsed_program, sample_input:)",
       "candidate_main_path" => "SemanticIREmitter#emit_typed(typed_program)",
       "source_cases" => source_cases,
       "proof_local_cases" => PROOF_LOCAL_CASES,
       "blocked_items" => blocked,
       "typed_source_blocked_items" => typed_source_blocked,
       "legacy_parity_delta_items" => legacy_parity_deltas,
+      "accepted_delta_items" => accepted_delta_summary_items(source_cases),
       "orchestrator_switch_gate" => switch_gate,
       "recommendation" => switch_gate.fetch("recommendation")
     }
   end
 
-  def status_reason(deltas)
-    if deltas.empty?
+  def status_reason(unaccepted_deltas, accepted_deltas)
+    if unaccepted_deltas.empty? && accepted_deltas.empty?
       return "parsed and typed emissions match after identity normalization; expected typed nodes are present"
     end
+    if unaccepted_deltas.empty?
+      return "all deltas are accepted typed-production shape changes: #{accepted_deltas.map { |delta| delta.fetch("acceptance") }.uniq.join("; ")}"
+    end
 
-    deltas.map { |delta| delta_reason(delta) }.uniq.join("; ")
+    unaccepted_deltas.map { |delta| delta_reason(delta) }.uniq.join("; ")
   end
 
   def delta_reason(delta)
@@ -353,6 +366,35 @@ module TypedEmissionMainPathParity
     } unless report_paths.empty?
 
     deltas
+  end
+
+  def accepted_delta_items(config, deltas)
+    deltas.select { |delta| accepted_delta?(config, delta) }.map do |delta|
+      delta.merge(
+        "acceptance" => "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface"
+      )
+    end
+  end
+
+  def accepted_delta?(config, delta)
+    config.fetch("id") == "invariant_valid" && accepted_invariant_shape_delta?(delta)
+  end
+
+  def accepted_invariant_shape_delta?(delta)
+    case delta.fetch("kind")
+    when "semantic_ir_shape_delta"
+      paths = delta.fetch("paths", [])
+      paths == [
+        { "path" => "$.invariants", "delta" => "missing_in_parsed" },
+        { "path" => "$.contracts[0].nodes", "delta" => "length", "parsed" => 1, "typed" => 5 }
+      ]
+    when "report_shape_delta"
+      delta.fetch("paths", []) == [
+        { "path" => "$.invariant_coverage", "delta" => "missing_in_parsed" }
+      ]
+    else
+      false
+    end
   end
 
   def value_delta(path, parsed, typed)
@@ -461,7 +503,7 @@ module TypedEmissionMainPathParity
 
   def typed_source_blocked_items(source_cases)
     source_cases.flat_map do |source_case|
-      source_case.fetch("deltas", []).filter_map do |delta|
+      source_case.fetch("unaccepted_deltas", source_case.fetch("deltas", [])).filter_map do |delta|
         typed_source_blocking_delta?(delta) ? {
           "case" => source_case.fetch("id"),
           "surface" => source_case.fetch("surface"),
@@ -481,7 +523,7 @@ module TypedEmissionMainPathParity
 
   def legacy_parity_delta_items(source_cases)
     source_cases.flat_map do |source_case|
-      source_case.fetch("deltas", []).filter_map do |delta|
+      source_case.fetch("unaccepted_deltas", source_case.fetch("deltas", [])).filter_map do |delta|
         next if typed_source_blocking_delta?(delta)
 
         {
@@ -489,6 +531,21 @@ module TypedEmissionMainPathParity
           "surface" => source_case.fetch("surface"),
           "kind" => delta.fetch("kind"),
           "summary" => delta.fetch("summary", delta.fetch("path", "legacy/typed parity delta")),
+          "details" => delta
+        }
+      end
+    end
+  end
+
+  def accepted_delta_summary_items(source_cases)
+    source_cases.flat_map do |source_case|
+      source_case.fetch("accepted_deltas", []).map do |delta|
+        {
+          "case" => source_case.fetch("id"),
+          "surface" => source_case.fetch("surface"),
+          "kind" => delta.fetch("kind"),
+          "summary" => delta.fetch("summary", "accepted typed-production delta"),
+          "acceptance" => delta.fetch("acceptance"),
           "details" => delta
         }
       end
@@ -507,9 +564,9 @@ module TypedEmissionMainPathParity
       "typed_source_blocked_items" => typed_source_blocked.length,
       "legacy_parity_delta_items_are_switch_blockers" => false,
       "recommendation" => if proceed
-                            "Proceed to a separate CompilerOrchestrator emit_typed switch card; do not switch in this parity-gate slice."
+                            "Keep CompilerOrchestrator on emit_typed; typed source blockers are clear and legacy parsed-vs-typed deltas are not rollback reasons."
                           else
-                            "Do not proceed to the CompilerOrchestrator switch until typed source blockers are cleared and sparkcrm_bihistory is source-measured."
+                            "Do not rely on the typed production path until typed source blockers are cleared and sparkcrm_bihistory is source-measured."
                           end
     }
   end
@@ -537,6 +594,7 @@ module TypedEmissionMainPathParity
     puts "blocked_items: #{summary.fetch("blocked_items").length}"
     puts "typed_source_blocked_items: #{summary.fetch("typed_source_blocked_items").length}"
     puts "legacy_parity_delta_items: #{summary.fetch("legacy_parity_delta_items").length}"
+    puts "accepted_delta_items: #{summary.fetch("accepted_delta_items").length}"
     puts "summary: #{SUMMARY_PATH.relative_path_from(ROOT)}"
     puts "golden: #{GOLDEN_REPORT_PATH.relative_path_from(ROOT)}"
   end

@@ -83,7 +83,7 @@ Runtime           ⏳ open   invariant-persistence-boundary-v0
                             proof-local temporal load/cache guards PASS; no prod execution/cache
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
-                            spec-entrypoint-sync-v0 (prereq for PROP-029)
+                            entrypoint/section disposition set; PROP track still needed
 Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             parsed emitter retained as Stage 1 legacy/comparison
 ─────────────────────────────────────────────────────────────────
@@ -198,7 +198,7 @@ Stage 2 close:       PASS (stage2_close_candidate.json)
 Stage 1 regression:  PASS
 Archive:             Stage 2 close snapshot ✅ docs/archive/snapshots/2026-05-07-stage2-close/
 АИ/СОИ lens:         soft Stage 3 governance/review vocabulary; not a hard gate
-Syntax pressure:     registry + specimens + review routing done; threshold/external pure/entrypoint-section are proposal candidates, not canon
+Syntax pressure:     registry + specimens + review routing done; threshold/external pure/entrypoint-section are proposal candidates, not parser canon
 Discussion pressure: S3-R4-X1 resolved to contract_index/load-guard tracks; both landed in R5
 ```
 
@@ -213,15 +213,14 @@ Discussion pressure: S3-R4-X1 resolved to contract_index/load-guard tracks; both
 | Ch7 Runtime | ✅ synced S3-R6 | `spec-ch7-runtime-temporal-cache-sync-v0` | TBackend/live temporal executor remains closed; no production cache |
 | Proposal index | ✅ synced S3-R6 | `proposal-lifecycle-index-sync-v0` | PROP-028/022A close awaits parser syntax/runtime decision |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
-| Entrypoint/section syntax | ⏳ deferred | S3-R4 syntax review routing | Needs proposal track; not current canon |
+| Entrypoint/section syntax | ✅ disposition set S3-R7 | `spec-entrypoint-sync-v0` | Stage 3 proposal candidate; not parser/canon |
 
 ### Remaining Doc Debt Only
 
 ```text
 DOC-DEBT-01  Update agent-context.md next movement after each status round.
 DOC-DEBT-02  Discharge or qualify Ch5 C-8 invariant typed-shape delta.
-DOC-DEBT-03  Give spec-entrypoint-sync-v0 a disposition: deferred, merged, or closed.
-DOC-DEBT-04  Keep S3-R6-C1 runtime compatibility load check visible as open next work.
+DOC-DEBT-03  Keep S3-R6-C1 runtime compatibility load check visible as open next work.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes

@@ -6,7 +6,8 @@
   "verdict": "blocked",
   "safe_to_switch_production_path": false,
   "cases_run": 6,
-  "current_main_path": "SemanticIREmitter#emit(parsed_program, sample_input:)",
+  "current_main_path": "SemanticIREmitter#emit_typed(typed_program)",
+  "legacy_comparison_path": "SemanticIREmitter#emit(parsed_program, sample_input:)",
   "candidate_main_path": "SemanticIREmitter#emit_typed(typed_program)",
   "source_cases": [
     {
@@ -102,7 +103,9 @@
         "report_shape_hash": "sha256:9410f9b5f18082fab867394032e3763a17bf6e87695327edc22c3c861b67e1a2",
         "status": "ok"
       },
-      "deltas": []
+      "deltas": [],
+      "accepted_deltas": [],
+      "unaccepted_deltas": []
     },
     {
       "id": "invariant_valid",
@@ -117,8 +120,8 @@
         "compute",
         "invariant_node"
       ],
-      "status": "FAIL",
-      "status_reason": "SemanticIR differs after identity fields are normalized.; CompilationReport differs after identity fields are normalized.",
+      "status": "PASS",
+      "status_reason": "all deltas are accepted typed-production shape changes: typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface",
       "parsed_path": {
         "pass_result": "ok",
         "semantic_ir_present": true,
@@ -229,7 +232,38 @@
             }
           ]
         }
-      ]
+      ],
+      "accepted_deltas": [
+        {
+          "kind": "semantic_ir_shape_delta",
+          "summary": "SemanticIR differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.invariants",
+              "delta": "missing_in_parsed"
+            },
+            {
+              "path": "$.contracts[0].nodes",
+              "delta": "length",
+              "parsed": 1,
+              "typed": 5
+            }
+          ],
+          "acceptance": "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface"
+        },
+        {
+          "kind": "report_shape_delta",
+          "summary": "CompilationReport differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.invariant_coverage",
+              "delta": "missing_in_parsed"
+            }
+          ],
+          "acceptance": "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface"
+        }
+      ],
+      "unaccepted_deltas": []
     },
     {
       "id": "olap_point",
@@ -317,6 +351,57 @@
         "status": "ok"
       },
       "deltas": [
+        {
+          "kind": "value_delta",
+          "path": "report.pass_result",
+          "parsed": "oof",
+          "typed": "ok"
+        },
+        {
+          "kind": "value_delta",
+          "path": "semantic_ir.present",
+          "parsed": false,
+          "typed": true
+        },
+        {
+          "kind": "report_shape_delta",
+          "summary": "CompilationReport differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.diagnostics",
+              "delta": "length",
+              "parsed": 2,
+              "typed": 0
+            },
+            {
+              "path": "$.pass_result",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.classify",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.emit",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.typecheck",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            }
+          ]
+        }
+      ],
+      "accepted_deltas": [],
+      "unaccepted_deltas": [
         {
           "kind": "value_delta",
           "path": "report.pass_result",
@@ -501,6 +586,57 @@
             }
           ]
         }
+      ],
+      "accepted_deltas": [],
+      "unaccepted_deltas": [
+        {
+          "kind": "value_delta",
+          "path": "report.pass_result",
+          "parsed": "oof",
+          "typed": "ok"
+        },
+        {
+          "kind": "value_delta",
+          "path": "semantic_ir.present",
+          "parsed": false,
+          "typed": true
+        },
+        {
+          "kind": "report_shape_delta",
+          "summary": "CompilationReport differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.diagnostics",
+              "delta": "length",
+              "parsed": 1,
+              "typed": 0
+            },
+            {
+              "path": "$.pass_result",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.classify",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.emit",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.typecheck",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            }
+          ]
+        }
       ]
     },
     {
@@ -587,6 +723,57 @@
         "status": "ok"
       },
       "deltas": [
+        {
+          "kind": "value_delta",
+          "path": "report.pass_result",
+          "parsed": "oof",
+          "typed": "ok"
+        },
+        {
+          "kind": "value_delta",
+          "path": "semantic_ir.present",
+          "parsed": false,
+          "typed": true
+        },
+        {
+          "kind": "report_shape_delta",
+          "summary": "CompilationReport differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.diagnostics",
+              "delta": "length",
+              "parsed": 2,
+              "typed": 0
+            },
+            {
+              "path": "$.pass_result",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.classify",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.emit",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.typecheck",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            }
+          ]
+        }
+      ],
+      "accepted_deltas": [],
+      "unaccepted_deltas": [
         {
           "kind": "value_delta",
           "path": "report.pass_result",
@@ -771,6 +958,57 @@
             }
           ]
         }
+      ],
+      "accepted_deltas": [],
+      "unaccepted_deltas": [
+        {
+          "kind": "value_delta",
+          "path": "report.pass_result",
+          "parsed": "oof",
+          "typed": "ok"
+        },
+        {
+          "kind": "value_delta",
+          "path": "semantic_ir.present",
+          "parsed": false,
+          "typed": true
+        },
+        {
+          "kind": "report_shape_delta",
+          "summary": "CompilationReport differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.diagnostics",
+              "delta": "length",
+              "parsed": 2,
+              "typed": 0
+            },
+            {
+              "path": "$.pass_result",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.classify",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.emit",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.typecheck",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            }
+          ]
+        }
       ]
     }
   ],
@@ -784,44 +1022,6 @@
     }
   ],
   "blocked_items": [
-    {
-      "case": "invariant_valid",
-      "surface": "invariant_runtime_observations",
-      "kind": "semantic_ir_shape_delta",
-      "summary": "SemanticIR differs after identity fields are normalized.",
-      "details": {
-        "kind": "semantic_ir_shape_delta",
-        "summary": "SemanticIR differs after identity fields are normalized.",
-        "paths": [
-          {
-            "path": "$.invariants",
-            "delta": "missing_in_parsed"
-          },
-          {
-            "path": "$.contracts[0].nodes",
-            "delta": "length",
-            "parsed": 1,
-            "typed": 5
-          }
-        ]
-      }
-    },
-    {
-      "case": "invariant_valid",
-      "surface": "invariant_runtime_observations",
-      "kind": "report_shape_delta",
-      "summary": "CompilationReport differs after identity fields are normalized.",
-      "details": {
-        "kind": "report_shape_delta",
-        "summary": "CompilationReport differs after identity fields are normalized.",
-        "paths": [
-          {
-            "path": "$.invariant_coverage",
-            "delta": "missing_in_parsed"
-          }
-        ]
-      }
-    },
     {
       "case": "olap_point",
       "surface": "olap_point",
@@ -1096,44 +1296,6 @@
   "typed_source_blocked_items": [],
   "legacy_parity_delta_items": [
     {
-      "case": "invariant_valid",
-      "surface": "invariant_runtime_observations",
-      "kind": "semantic_ir_shape_delta",
-      "summary": "SemanticIR differs after identity fields are normalized.",
-      "details": {
-        "kind": "semantic_ir_shape_delta",
-        "summary": "SemanticIR differs after identity fields are normalized.",
-        "paths": [
-          {
-            "path": "$.invariants",
-            "delta": "missing_in_parsed"
-          },
-          {
-            "path": "$.contracts[0].nodes",
-            "delta": "length",
-            "parsed": 1,
-            "typed": 5
-          }
-        ]
-      }
-    },
-    {
-      "case": "invariant_valid",
-      "surface": "invariant_runtime_observations",
-      "kind": "report_shape_delta",
-      "summary": "CompilationReport differs after identity fields are normalized.",
-      "details": {
-        "kind": "report_shape_delta",
-        "summary": "CompilationReport differs after identity fields are normalized.",
-        "paths": [
-          {
-            "path": "$.invariant_coverage",
-            "delta": "missing_in_parsed"
-          }
-        ]
-      }
-    },
-    {
       "case": "olap_point",
       "surface": "olap_point",
       "kind": "value_delta",
@@ -1398,13 +1560,57 @@
       }
     }
   ],
+  "accepted_delta_items": [
+    {
+      "case": "invariant_valid",
+      "surface": "invariant_runtime_observations",
+      "kind": "semantic_ir_shape_delta",
+      "summary": "SemanticIR differs after identity fields are normalized.",
+      "acceptance": "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface",
+      "details": {
+        "kind": "semantic_ir_shape_delta",
+        "summary": "SemanticIR differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.invariants",
+            "delta": "missing_in_parsed"
+          },
+          {
+            "path": "$.contracts[0].nodes",
+            "delta": "length",
+            "parsed": 1,
+            "typed": 5
+          }
+        ],
+        "acceptance": "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface"
+      }
+    },
+    {
+      "case": "invariant_valid",
+      "surface": "invariant_runtime_observations",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "acceptance": "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.invariant_coverage",
+            "delta": "missing_in_parsed"
+          }
+        ],
+        "acceptance": "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface"
+      }
+    }
+  ],
   "orchestrator_switch_gate": {
     "status": "PROCEED",
     "sparkcrm_bihistory_status": "FAIL",
     "sparkcrm_bihistory_reason": "report.pass_result: parsed=\"oof\", typed=\"ok\"; semantic_ir.present: parsed=false, typed=true; CompilationReport differs after identity fields are normalized.",
     "typed_source_blocked_items": 0,
     "legacy_parity_delta_items_are_switch_blockers": false,
-    "recommendation": "Proceed to a separate CompilerOrchestrator emit_typed switch card; do not switch in this parity-gate slice."
+    "recommendation": "Keep CompilerOrchestrator on emit_typed; typed source blockers are clear and legacy parsed-vs-typed deltas are not rollback reasons."
   },
-  "recommendation": "Proceed to a separate CompilerOrchestrator emit_typed switch card; do not switch in this parity-gate slice."
+  "recommendation": "Keep CompilerOrchestrator on emit_typed; typed source blockers are clear and legacy parsed-vs-typed deltas are not rollback reasons."
 }

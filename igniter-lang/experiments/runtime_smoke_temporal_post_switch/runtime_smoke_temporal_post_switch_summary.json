@@ -1,0 +1,80 @@
+{
+  "kind": "runtime_smoke_temporal_post_switch",
+  "format_version": "0.1.0",
+  "track": "runtime-smoke-temporal-post-switch-v0",
+  "status": "PASS",
+  "compiler_path": "Parser -> Classifier -> TypeChecker -> SemanticIREmitter.emit_typed -> Assembler",
+  "scope": {
+    "temporal_executor_implemented": false,
+    "tbackend_binding_implemented": false,
+    "production_cache_implemented": false
+  },
+  "core": {
+    "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+    "igapp_path": "/private/tmp/igniter_lang_runtime_smoke_temporal_post_switch/core_add.igapp",
+    "compile_status": "ok",
+    "pass_result": "ok",
+    "runtime_smoke": {
+      "load_status": "loaded",
+      "contract_id": "Add",
+      "evaluate_status": "ok",
+      "outputs": {
+        "sum": 42
+      },
+      "compatibility_report_status": "trusted",
+      "trusted": true
+    }
+  },
+  "temporal": {
+    "source_path": "igniter-lang/experiments/typed_emission_main_path_parity/sparkcrm_bihistory_source.ig",
+    "igapp_path": "/private/tmp/igniter_lang_runtime_smoke_temporal_post_switch/temporal_bihistory.igapp",
+    "compile_status": "ok",
+    "pass_result": "ok",
+    "load_for_inspection": {
+      "kind": "runtime_load_result",
+      "status": "loaded",
+      "mode": "inspection_only",
+      "program_id": "semanticir/b6603c347619e2b6",
+      "temporal_contracts": [
+        "SparkCRMBiHistorySourceParity"
+      ],
+      "runtime_execution": {
+        "evaluate": {
+          "decision": "refuse_temporal_contract",
+          "reason_code": "runtime.temporal_execution_unsupported"
+        },
+        "guard_at": "evaluate",
+        "guard_policy": "load_accept_evaluate_refuse",
+        "load": {
+          "decision": "accept_for_inspection",
+          "requires_contract_index": true
+        },
+        "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+        "status": "unsupported"
+      }
+    },
+    "evaluate_without_executor": {
+      "kind": "evaluation_refusal",
+      "status": "blocked",
+      "guard_at": "evaluate",
+      "reason_code": "runtime.temporal_execution_unsupported",
+      "message": "temporal runtime execution is not supported by this RuntimeMachine",
+      "contract_id": "SparkCRMBiHistorySourceParity",
+      "as_of": "2026-05-08T00:00:00Z",
+      "context": {
+        "guard_policy": "load_accept_evaluate_refuse",
+        "guard_at": "evaluate",
+        "required_capabilities": [
+          "bihistory_read"
+        ]
+      }
+    }
+  },
+  "checks": {
+    "core.compile_ok": true,
+    "core.runtime_loads_and_evaluates": true,
+    "temporal.compile_ok": true,
+    "temporal.loads_for_inspection": true,
+    "temporal.evaluate_refuses_structured": true
+  }
+}
