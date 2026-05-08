@@ -28,6 +28,18 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 7 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `runtime-compatibility-report-temporal-load-check-v0.md` | done | CompatibilityReport-shaped boundary separates bundle load from evaluation readiness; TEMPORAL loads for inspection while evaluation remains blocked; report-only and `runtime_enforced=false` |
+| `invariant-typed-shape-discharge-v0.md` | done | `invariant_valid` typed shape accepted as production shape; C-8 delta discharged; no rollback to parsed emitter |
+| `runtime-smoke-temporal-post-switch-v0.md` | done | post-switch CORE Add bundle evaluates (`sum=42`); TEMPORAL BiHistory bundle loads for inspection and refuses evaluation structurally |
+| `spec-entrypoint-sync-v0.md` | done | `entrypoint`/`section` disposition set: Stage 3 proposal candidates only; no parser support, no hard keyword reservation, `contract` remains canonical boundary |
+| `descriptor-compatibility-package-consumption-v0.md` | done | package descriptor fields mapped to report-only `backend_check.temporal_backend_descriptor`; Gate 2 ratification still formal approval point; Gate 3 remains closed |
+| `../discussions/runtime-compatibility-and-typed-delta-pressure-v0.md` | complete — routed | X1 found no current production bug; routes full post-switch smoke, executor-boundary case, and C1/C3 cross-validation before Gate 3 |
+| `stage3-round7-status-curation-v0.md` | done | R7 status/index/context sync — this track |
+
 ## Stage 3 Round 6 Evidence
 
 | Track | Status | Notes |
@@ -46,11 +58,11 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Surface | Freshness | Anchor | Notes |
 |---------|-----------|--------|-------|
-| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget |
+| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget; S3-R7 next movement refreshed |
 | `docs/spec/ch4-fragment-classification.md` | synced | `spec-ch4-temporal-fragment-sync-v0.md` | TEMPORAL fragment and node/value split current |
-| `docs/spec/ch5-compiler-pipeline.md` | synced | `spec-ch5-emit-typed-sync-v0.md` | `emit_typed` production path current; invariant shape discharge remains doc debt |
+| `docs/spec/ch5-compiler-pipeline.md` | synced + discharged | `spec-ch5-emit-typed-sync-v0.md`; `invariant-typed-shape-discharge-v0.md` | `emit_typed` production path current; `invariant_valid` typed-shape delta accepted as production shape |
 | `docs/spec/ch6-semanticir.md` | synced | `spec-ch6-semanticir-temporal-sync-v0.md` | TEMPORAL SemanticIR/.igapp/manifest/guard current |
-| `docs/spec/ch7-runtime.md` | synced | `spec-ch7-runtime-temporal-cache-sync-v0.md` | temporal load/cache policy current; production executor/cache still closed |
+| `docs/spec/ch7-runtime.md` | synced + R7 boundary proofs | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `runtime-compatibility-report-temporal-load-check-v0.md`; `runtime-smoke-temporal-post-switch-v0.md` | load/evaluate split and post-switch smoke current; production executor/cache still closed |
 | `docs/proposals/README.md` | synced | `proposal-lifecycle-index-sync-v0.md` | Stage 2 closed, PROP-028 implementation-partial, PROP-022A experiment-pass |
 
 ---
@@ -239,17 +251,17 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `invariant-typed-shape-discharge-v0` | Discharge or qualify the remaining Ch5 C-8 invariant typed-shape delta after the emit_typed switch | Research Agent + Compiler/Grammar Expert | recommended |
-| `runtime-compatibility-report-temporal-load-check-v0` | Bind report-only RuntimeMachine compatibility checks to `guard_policy`, `manifest.contract_index`, and temporal required caps without enabling execution | Research Agent / Bridge Agent | recommended |
-| `descriptor-compatibility-package-consumption-v0` | Let report-only CompatibilityReport consume the Gate 2-ratified package descriptor metadata; keep `runtime_enforced=false` and Gate 3 closed | Bridge Agent | gated |
-| `spec-entrypoint-sync-disposition-v0` | Mark the long-carried `spec-entrypoint-sync-v0` item as deferred, merged, or closed so it stops causing archaeology | Meta Expert / Compiler/Grammar Expert | docs-debt |
-| `typed-emission-post-switch-baseline-v0` | Archive/normalize post-switch public compile goldens and document parsed emitter as Stage 1 legacy comparison only | Research Agent | recommended |
-| `runtime-temporal-executor-gate3-request-v0` | Prepare, not implement, the explicit Gate 3 question for live temporal executor/TBackend binding and required proof list | Bridge Agent + Research Agent | gated |
+| `runtime-smoke-post-switch-full-coverage-v0` | Expand post-switch smoke to stream_fold, olap_point, history_valid, and invariant_valid; include C1/C3 guard/report cross-check if practical | Research Agent | recommended before Gate 3 |
+| `runtime-compatibility-report-executor-boundary-v0` | Add positive-executor/profile case that proves guard_policy plus capability consistency before any live temporal executor work | Research Agent | gated/pre-Gate-3 |
+| `descriptor-gate2-ratification-decision-v0` | Architect Supervisor records or redirects formal Gate 2 metadata-only package descriptor ratification | Architect Supervisor / Bridge Agent | approval |
+| `compatibility-report-package-descriptor-consumption-v0` | Implement metadata-only package descriptor consumption in CompatibilityReport after Gate 2 ratification; keep `runtime_enforced=false` | Bridge Agent | gated |
+| `PROP-029-entrypoint-section-surface-v0` | Decide whether source `entrypoint` and grouping-only `section` become syntax; no parser implementation until accepted | Compiler/Grammar Expert | proposal |
+| `runtime-temporal-executor-gate3-request-v0` | Prepare, not implement, the explicit Gate 3 question for live temporal executor/TBackend binding and required proof list | Bridge Agent + Research Agent | blocked until pre-Gate-3 gaps |
 | `gem-release-ci-wiring-v0` | Wire `bin/release-gate` into CI or preserve release artifacts/checksum under an approved release record; publish remains gated | Research Agent | optional |
 | `syntax-thresholds-and-constants-prop-v0` | Draft proposal for named thresholds/constants from S3-R4 review signals; no parser implementation yet | Compiler/Grammar Expert | proposal |
 | `syntax-external-pure-helper-signatures-prop-v0` | Draft proposal for `external pure fn(...) -> T` helper signatures and effect/evidence annotations | Compiler/Grammar Expert + Bridge Agent | proposal |
 | `invariant-persistence-boundary-v0` | Production RuntimeMachine invariant observation persistence boundary remains open from Stage 3 intake | Research Agent | authorized |
-| `ai-soi-proposal-review-template-v0` | Add a lightweight optional АИ/СОИ prompt for Stage 3 proposal/research review | Meta Expert / Archive-Form Expert | optional |
+| `typed-emission-post-switch-baseline-v0` | Archive/normalize post-switch public compile goldens and document parsed emitter as Stage 1 legacy comparison only | Research Agent | optional |
 
 ---
 
