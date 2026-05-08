@@ -113,23 +113,17 @@ A5  RuntimeMachine loads .igapp/ via manifest.json →
 A6  Negative: given pass_result: "oof" → refuses to write .igapp/; exit != 0
 ```
 
-**Current status**: assembler experiment not yet implemented.
-Blocked on Slice 0 (golden file migration). See current-status.md.
+**Current status**: ✅ PASS — A1–A6 all proven (S2-R9, igapp_assembler_proof).
+Temporal assembler (temporal_nodes + requirements.temporal.*) PASS (S3-R4-C1).
 
 ---
 
 ## 6.5 Golden File Migration Gate (PROP-019.1 §Part 6)
 
-Existing `source_to_semanticir_fixture` golden files must be migrated:
-
-```
-1. Remove oof_log from SemanticIRProgram (top-level + ContractIR)
-2. Add compilation_report_ref to SemanticIRProgram
-3. Create companion *.compilation_report.json per fixture
-4. Negative fixtures: remove *.semantic_ir.json;
-   keep only *.compilation_report.json with pass_result: "oof"
-5. Resolve stdlib.numeric.add → stdlib.integer.add (or float/decimal)
-   in all positive-case SemanticIR golden files
-
-Gate: source_to_semanticir_fixture.rb PASS on migrated files → Assembler unlocked
-```
+> ✅ **Gate: CLEARED (S2-R8).** `source_to_semanticir_fixture.rb` PASS on migrated files.
+> Assembler A1–A6 PASS. This section describes a resolved blocker; preserved for archaeology.
+>
+> For Stage 3 assembler extensions (temporal_nodes, manifest contract_index, guard_policy),
+> see: `tracks/temporal-assembler-boundary-v0.md`, `tracks/prop-022a-temporal-manifest-errata-v0.md`,
+> `tracks/temporal-assembler-manifest-contract-index-v0.md`.
+> Full spec update pending: card `spec-ch6-semanticir-temporal-sync-v0`.

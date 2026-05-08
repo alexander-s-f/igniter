@@ -37,6 +37,7 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 | `orchestrator-emit-typed-switch-v0.md` | done | `CompilerOrchestrator` production path switched to `emit_typed(typed)`; Stage 1, Stage 2, production compiler CLI, and release gate PASS; parsed emitter retained as Stage 1 legacy/comparison |
 | `descriptor-package-exposure-gate2-ratification-v0.md` | ratify | recommends Gate 2 ratification for metadata-only package descriptor exposure; package spec 9 examples, 0 failures; Gate 3 remains closed |
 | `stage3-round4-and-round5-status-curation-v0.md` | done | R4 repair + R5 close map sync — this track |
+| `spec-stage3-sync-and-doc-compaction-plan-v0.md` | done | S3-R1..R5 evidence → spec backlog per chapter; CRITICAL stale sections in ch6/ch7 identified; 4 spec sync cards + 1 stale sweep card defined; 7 debt items registered |
 
 ## Stage 3 Round 4 Evidence
 

@@ -106,8 +106,23 @@ All four must be `ok` for `status: trusted`. Any `blocked` dimension → `status
 ✅  schema_descriptor carried on LoadedProgram
 ```
 
-**Not yet proven** (Slice C):
+**Also proven** (Stage 2):
 ```
-🔴  evaluate with stdlib operators (numeric.add, fold, map, filter)
-    — operator lookup returns nil; RuntimeMachine.evaluate not yet connected
+✅  RuntimeMachine.evaluate with stdlib operators: numeric.add, fold, map, filter
+    — operator lookup and stdlib kernel PASS (S2, PROP-013/experiments/stdlib_kernel_proof)
+✅  Temporal hook: RuntimeMachineHook load-time capability check (S2-R7)
+    — history_read / bihistory_read capability names registered
 ```
+
+**Proof-local only (not production)** (Stage 3):
+```
+⚙️  Temporal load guard: TEMPORAL contracts accepted for inspection; evaluate refused
+    — proof: experiments/temporal_runtime_load_guard (S3-R5-C2)
+    — production binding requires runtime executor + TBackend (Gate 3)
+⚙️  Temporal cache key contract: CORE vs TEMPORAL key schemas designed + proven
+    — proof: experiments/temporal_cache_key_proof + runtime_cache_proof_local_memoization
+    — production cache: not implemented
+```
+
+**Spec update pending**: card `spec-ch7-runtime-temporal-cache-sync-v0` will add
+§7.7 TEMPORAL Cache Key Contract and §7.8 Temporal Load Guard.
