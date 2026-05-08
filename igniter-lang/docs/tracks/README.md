@@ -27,6 +27,14 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 4 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `typed-emission-stage2-switch-decision-v0.md` | done | Meta Expert governance decision: Option B adopted — typed emission becomes sole Stage 2+ lowering path; switch gate = BiHistory source fixture parity PASS + stage2_close_candidate post-switch; next cards C5+C6 defined |
+
+---
+
 ## Stage 3 Round 3 Evidence
 
 | Track | Status | Notes |
