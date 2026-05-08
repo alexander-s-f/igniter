@@ -27,11 +27,30 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 5 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `temporal-assembler-manifest-contract-index-v0.md` | done | assembler now emits `manifest.fragment_summary` and per-contract `manifest.contract_index`; TEMPORAL cache hints and mismatch negatives proven; cache proof now prefers manifest index |
+| `temporal-runtime-load-guard-v0.md` | done | proof-local `GuardedRuntimeMachine` uses `load_accept_evaluate_refuse`; valid TEMPORAL artifacts load for inspection; evaluation refuses unsupported runtime or missing caps |
+| `bihistory-source-fixture-parity-gate-v0.md` | done | SparkCRM-shaped BiHistory source fixture added to parity harness; `sparkcrm_bihistory` moved from NOT_COMPARABLE to measured FAIL due to legacy parsed OOF; switch gate status PROCEED |
+| `orchestrator-emit-typed-switch-v0.md` | done | `CompilerOrchestrator` production path switched to `emit_typed(typed)`; Stage 1, Stage 2, production compiler CLI, and release gate PASS; parsed emitter retained as Stage 1 legacy/comparison |
+| `descriptor-package-exposure-gate2-ratification-v0.md` | ratify | recommends Gate 2 ratification for metadata-only package descriptor exposure; package spec 9 examples, 0 failures; Gate 3 remains closed |
+| `stage3-round4-and-round5-status-curation-v0.md` | done | R4 repair + R5 close map sync — this track |
+
 ## Stage 3 Round 4 Evidence
 
 | Track | Status | Notes |
 |-------|--------|-------|
+| `temporal-assembler-boundary-v0.md` | done | temporal SemanticIR now assembles into `.igapp/`; temporal nodes stored as non-compute `temporal_nodes`; runtime execution marked unsupported; Stage 1/2 regressions PASS |
+| `prop-022a-temporal-manifest-errata-v0.md` | done | docs-only errata chooses ContractIR canonical source plus manifest `contract_index` load-time projection; `fragment_class: mixed` rejected as TEMPORAL authority |
+| `temporal-requirements-from-escape-boundaries-v0.md` | implemented | `requirements.json` now derives caps/effects/fragments from SemanticIR `escape_boundaries`; CORE, History, BiHistory, and Stream requirements differ in proof |
 | `typed-emission-stage2-switch-decision-v0.md` | done | Meta Expert governance decision: Option B adopted — typed emission becomes sole Stage 2+ lowering path; switch gate = BiHistory source fixture parity PASS + stage2_close_candidate post-switch; next cards C5+C6 defined |
+| `runtime-cache-proof-local-memoization-v0.md` | done | proof-local MemoryCacheStore validates CORE/TEMPORAL keys, stale/unknown rejection, provisional downgrade, and no raw input payload observations; no production cache |
+| `descriptor-package-exposure-gate2-decision-v0.md` | decision-request | Gate 2 metadata-only package exposure request written; Gate 1 PASS reviewed; Gate 3 production binding explicitly closed |
+| `../meta-proposals/syntax-pressure-review-results-v0.md` | research-review | S3-R3 pressure specimens reviewed; threshold, external pure, entrypoint/section routed toward proposal candidates; no syntax promoted to canon |
+| `../meta-proposals/META-EXPERT-012-document-lifecycle-and-rotation-v0.md` | governance | document lifecycle/rotation methodology added; stale/lifecycle markers introduced for debt control |
+| `../discussions/temporal-igapp-runtime-boundary-pressure-v0.md` | complete — routed | X1 pressure says deep-read proof-local load works, but manifest dispatch needed `contract_index` and load guard; both became R5 C1/C2 |
 
 ---
 
@@ -178,27 +197,26 @@ compilation_report.rb     (R4)
 parser.rb                 (R5/R7/R10) — parser + stream + olap_point + invariant
 temporal_access_runtime.rb (R5–R7) — MemoryBackend + RuntimeMachineHook
 runtime_smoke.rb          (R12) — reusable proof-backed RuntimeSmoke callback
-classifier.rb             (R6/R7) — ParsedProgram→ClassifiedProgram; OOF-S1/2
-typechecker.rb            (R7/R8/R10) — TypedProgram boundary; stream OOF-S3; OLAP OOF-O2..O5; TINV-1..3
-semanticir_emitter.rb     (R8/R9/R10/R11) — SemanticIR emitter; OLAP/stream/invariant lowering added
-assembler.rb              (R9) — .igapp/ assembler boundary
-compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
+classifier.rb             (R6/R7/S3-R2/R3) — ParsedProgram→ClassifiedProgram; stream/temporal metadata
+typechecker.rb            (R7/R8/R10/S3-R2/R3) — TypedProgram boundary; stream/OLAP/invariant/TEMPORAL
+semanticir_emitter.rb     (R8/R9/R10/R11/S3-R3) — SemanticIR emitter; typed temporal lowering
+assembler.rb              (R9/S3-R4/R5) — .igapp/ assembler; temporal nodes + manifest contract_index
+compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; production path uses emit_typed
 ```
 
 ---
 
-## Stage 3 Round 4 Recommendations
+## Stage 3 Next Recommendations
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `temporal-assembler-boundary-v0` | Fix/define assembler handling for `temporal_input_node` and `temporal_access_node`; decide capability/requirements artifact shape before temporal `.igapp/` bundles | Research Agent + Compiler/Grammar Expert | blocker |
-| `prop-022a-temporal-manifest-errata-v0` | Specify whether RuntimeMachine reads TEMPORAL fragment/axes from manifest or ContractIR; resolve manifest `mixed` collapse pressure | Compiler/Grammar Expert | prerequisite |
-| `temporal-requirements-from-escape-boundaries-v0` | Derive `.igapp/requirements.json` capability requirements from SemanticIR `escape_boundaries` instead of the hardcoded assembler hash | Research Agent | recommended |
-| `typed-emission-stage2-switch-decision-v0` | Decide whether parsed legacy Stage 2 emission must reach parity or whether typed emission becomes the sole Stage 2 lowering path | Meta Expert + Research Agent | recommended |
-| `runtime-cache-proof-local-memoization-v0` | Implement proof-only RuntimeMachine cache store from the cache contract, including stale/unknown/provisional negatives | Research Agent | recommended |
-| `descriptor-package-exposure-gate2-v0` | Ask/record Architect Gate 2 decision for metadata-only package exposure; do not infer production binding | Bridge Agent | gated |
+| `runtime-compatibility-report-temporal-load-check-v0` | Bind report-only RuntimeMachine compatibility checks to `guard_policy`, `manifest.contract_index`, and temporal required caps without enabling execution | Research Agent / Bridge Agent | recommended |
+| `descriptor-compatibility-package-consumption-v0` | Let report-only CompatibilityReport consume the Gate 2-ratified package descriptor metadata; keep `runtime_enforced=false` and Gate 3 closed | Bridge Agent | gated |
+| `typed-emission-post-switch-baseline-v0` | Archive/normalize post-switch public compile goldens and document parsed emitter as Stage 1 legacy comparison only | Research Agent | recommended |
+| `runtime-temporal-executor-gate3-request-v0` | Prepare, not implement, the explicit Gate 3 question for live temporal executor/TBackend binding and required proof list | Bridge Agent + Research Agent | gated |
 | `gem-release-ci-wiring-v0` | Wire `bin/release-gate` into CI or preserve release artifacts/checksum under an approved release record; publish remains gated | Research Agent | optional |
-| `syntax-pressure-review-results-v0` | Run/review S3-R3 pressure specimens and route successful signals back to the syntax registry before any PROP work | Archive/Form Expert | research |
+| `syntax-thresholds-and-constants-prop-v0` | Draft proposal for named thresholds/constants from S3-R4 review signals; no parser implementation yet | Compiler/Grammar Expert | proposal |
+| `syntax-external-pure-helper-signatures-prop-v0` | Draft proposal for `external pure fn(...) -> T` helper signatures and effect/evidence annotations | Compiler/Grammar Expert + Bridge Agent | proposal |
 | `invariant-persistence-boundary-v0` | Production RuntimeMachine invariant observation persistence boundary remains open from Stage 3 intake | Research Agent | authorized |
 | `ai-soi-proposal-review-template-v0` | Add a lightweight optional АИ/СОИ prompt for Stage 3 proposal/research review | Meta Expert / Archive-Form Expert | optional |
 

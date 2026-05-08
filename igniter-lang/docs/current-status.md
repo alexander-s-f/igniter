@@ -76,16 +76,16 @@ Governance: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 Lane              Status    Current Evidence
 ─────────────────────────────────────────────────────────────────
 Release           ✅ gate    gem-release-policy + release-gate PASS;
-                            local .gem/.sha256 built; publish not attempted
-TBackend          ✅ fixture CompatibilityReport descriptor fixture PASS;
-                            Gate 1 only, Gate 2/3 closed, no runtime binding
+                            local .gem/.sha256 rebuilt; publish not attempted
+TBackend          ✅ gate2   descriptor package exposure ratification recommended;
+                            Gate 3 closed, no runtime binding
 Runtime           ⏳ open   invariant-persistence-boundary-v0
-                            runtime-temporal-cache-contract done; no memoization
-Language          ⚠️ partial TEMPORAL through SemanticIR done;
-                            assembler/.igapp boundary blocked by X1 pressure
+                            proof-local temporal load/cache guards PASS; no prod execution/cache
+Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
+                            parser coordinate syntax and production runtime remain open
                             spec-entrypoint-sync-v0 (prereq for PROP-029)
-Compiler Internals ⚠️ blocked typed source blockers = 0;
-                            safe_to_switch_production_path=false
+Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
+                            parsed emitter retained as Stage 1 legacy/comparison
 ─────────────────────────────────────────────────────────────────
 STAGE 3 CLOSED:   NO
 Round 1 landed:
@@ -109,29 +109,71 @@ Round 3 landed:
   S3-R3-C5-P: descriptor consumption fixture    ✅ proof-local PASS; runtime_enforced false
   S3-R3-C6-P: syntax pressure specimens         ✅ fixtures/guides; no canon promotion
   S3-R3-X1-S: temporal manifest/cache pressure  ⚠️ assembler boundary blocker routed
-New PROPs:        start from PROP-028
+Round 4 landed:
+  S3-R4-C1-P: temporal assembler boundary       ✅ temporal nodes assemble; runtime unsupported guard
+  S3-R4-C2-P: PROP-022A temporal manifest errata ✅ dual-index spec written
+  S3-R4-C3-P: requirements from escape boundaries ✅ static requirements replaced
+  S3-R4-C4-S: typed switch decision             ✅ Option B adopted; gate defined
+  S3-R4-C5-P: proof-local runtime cache         ✅ memory cache proof PASS; no prod cache
+  S3-R4-C6-G: descriptor Gate 2 decision        ⏳ ratification requested
+  S3-R4-C7-P: syntax review results             ✅ route-to-proposal signals; no canon
+  S3-R4-X1-S: temporal igapp runtime pressure   ⚠️ contract_index/load guard gaps routed
+  META-EXPERT-012: doc lifecycle/rotation       ✅ lifecycle/stale markers introduced
+Round 5 landed:
+  S3-R5-C1-P: temporal manifest contract index  ✅ manifest.fragment_summary + contract_index PASS
+  S3-R5-C2-P: temporal runtime load guard       ✅ load_accept_evaluate_refuse proof PASS
+  S3-R5-C3-P: BiHistory source parity gate      ✅ sparkcrm_bihistory measured; gate PROCEED
+  S3-R5-C4-P: orchestrator emit_typed switch    ✅ production path switched; Stage 1/2 PASS
+  S3-R5-C5-G: descriptor Gate 2 ratification    ✅ recommend ratify; package spec 9/0 PASS
+Active PROPs:     PROP-028 + PROP-022A temporal errata; new syntax candidates require proposal tracks
 Arch approval required for: gem publish, Ledger read/write, MCP/mesh
+```
+
+### Current Horizon Diagram
+
+```text
+Source .ig
+  -> Parser -> Classifier -> TypeChecker
+  -> SemanticIREmitter.emit_typed(typed)        ✅ production path (S3-R5-C4)
+  -> SemanticIR: CORE / STREAM / TEMPORAL nodes ✅ temporal_input/access proven
+  -> Assembler .igapp
+       manifest.fragment_summary               ✅ S3-R5-C1
+       manifest.contract_index                 ✅ S3-R5-C1
+       requirements from escape_boundaries      ✅ S3-R4-C3
+       compatibility_metadata guard_policy      ✅ S3-R5-C2
+  -> RuntimeMachine
+       load TEMPORAL for inspection             ✅ proof-local
+       evaluate TEMPORAL                        🚫 refused until runtime executor/TBackend
+       memoize TEMPORAL                         🚫 proof-local only, no production cache
+  -> Ledger / TBackend
+       descriptor metadata                      ✅ Gate 2 ratify recommended
+       live reads/writes/replay                 🚫 Gate 3 closed
+  -> Release
+       release-gate + artifact/checksum         ✅ PASS
+       RubyGems publish                         🚫 approval/MFA required
 ```
 
 ### Stage 3 Inherited State
 
 ```text
 IgniterLang::VERSION: 0.1.0.pre.stage2
-Compiler pipeline:   Parser → Classifier → TypeChecker → SemanticIREmitter → Assembler
-emit_typed:          exists in semanticir_emitter.rb ⏳ not yet wired in orchestrator
-typed emission path: Stage 2 typed source blockers = 0; legacy parity deltas = 11; safe_to_switch=false
+Compiler pipeline:   Parser → Classifier → TypeChecker → SemanticIREmitter.emit_typed → Assembler
+emit_typed:          ✅ wired in CompilerOrchestrator production path
+parsed emitter:      retained as Stage 1 legacy/internal comparison path
+typed emission path: BiHistory source gate closed; production switch done; Stage 1/2 close candidates PASS
 Ledger descriptor:   metadata-only ✅ package specs PASS
 CompatibilityReport: descriptor-consumption fixture ✅ PASS; report-only metadata; runtime_enforced false
 Runtime observations: proof-backed ⏳ production persistence open
-Temporal cache key:  proof + runtime contract ✅; RuntimeMachine memoization not implemented
-TEMPORAL lowering:   classifier/typechecker/SemanticIR ✅; assembler/.igapp manifest boundary ⚠️ blocked
-Release gate:        bin/release-gate ✅ PASS; local artifact + checksum built; publish.status=not_attempted
+Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
+TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; runtime evaluate refused by guard
+Release gate:        bin/release-gate ✅ PASS; local artifact + checksum rebuilt; publish.status=not_attempted
+Gate 2 descriptor:   ratification recommended ✅; Gate 3 production binding closed
 Stage 2 close:       PASS (stage2_close_candidate.json)
 Stage 1 regression:  PASS
 Archive:             Stage 2 close snapshot ✅ docs/archive/snapshots/2026-05-07-stage2-close/
 АИ/СОИ lens:         soft Stage 3 governance/review vocabulary; not a hard gate
-Syntax pressure:     registry + S3-R3 specimens done; fixture spellings remain pressure/non-canon
-Discussion pressure: S3-R3-X1 routes temporal assembler boundary as blocker; discussion does not authorize implementation
+Syntax pressure:     registry + specimens + review routing done; threshold/external pure/entrypoint-section are proposal candidates, not canon
+Discussion pressure: S3-R4-X1 resolved to contract_index/load-guard tracks; both landed in R5
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -150,16 +192,16 @@ Discussion pressure: S3-R3-X1 routes temporal assembler boundary as blocker; dis
 
 ```text
 PROP-022   History[T] / BiHistory[T]     ✅ CLOSED IN STAGE 2
-PROP-022A  .igapp assembler contract     Stage 1 frozen; TEMPORAL errata/boundary pressure open
+PROP-022A  .igapp assembler contract     Stage 1 frozen; TEMPORAL errata + manifest index landed
 PROP-023   stream T                      ✅ CLOSED IN STAGE 2 (all OOF + SemanticIR)
 PROP-023A  ClassifiedExpr boundary       Stage 1 frozen (accepted/)
 PROP-024   OLAPPoint[T,Dims]             ✅ CLOSED IN STAGE 2 (parser + TC + SemanticIR)
 PROP-025   Invariant severity            ✅ CLOSED IN STAGE 2 (partial: OOF-I1/I3/I5 deferred)
 PROP-026   Parser OOF hardening          ✅ CLOSED IN STAGE 2
 PROP-027   Production compiler           ✅ CLOSED IN STAGE 2 (package + facade + igc)
-PROP-028   TEMPORAL fragment class       ⚙️ proposal + classifier/typechecker + SemanticIR + cache contract done;
-                                         assembler/runtime/parser coordinates pending
-PROP-029+  Stage 3 — not open without governance/prerequisite track
+PROP-028   TEMPORAL fragment class       ⚙️ proposal + classifier/typechecker + SemanticIR + assembler
+                                         manifest/load guard/cache proof done; runtime executor/parser pending
+PROP-029+  Stage 3 syntax candidates     queued by pressure review; not canon without proposal/proof
 ```
 
 → Close governance: `meta-proposals/META-EXPERT-009.1-stage2-close-decision-v0.md`
