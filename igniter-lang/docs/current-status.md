@@ -80,13 +80,13 @@ TBackend          ⏳ open   compatibility-report-descriptor-consumption-v0
 Runtime           ⏳ open   invariant-persistence-boundary-v0
 Language          ⏳ open   PROP-028 written; implementation/proof next
                             spec-entrypoint-sync-v0 (prereq for PROP-029)
-Compiler Internals ⏳ open  typed-emission parity measured: blocked
+Compiler Internals ⚠️ blocked typed-emission parity PASS / verdict blocked
 ─────────────────────────────────────────────────────────────────
 STAGE 3 CLOSED:   NO
 Round 1 landed:
   S3-R1-C1-S: stage3-governance-opening-v0      ✅ Stage 3 OPEN
   S3-R1-C2-P: prop-028-temporal-fragment-v0     ✅ proposal written
-  S3-R1-C3-P: typed-emission-main-path-parity   ⚠️ measured blocked
+  S3-R1-C3-P: typed-emission-main-path-parity   ⚠️ PASS runner / verdict blocked / 9 blockers
   S3-R1-C4-P: stage2-close-snapshot-archive     ✅ cold archive done
   S3-R1-C5-P: axiomatic/system-forming lens     ✅ research note
 New PROPs:        start from PROP-028
@@ -99,7 +99,7 @@ Arch approval required for: gem publish, Ledger read/write, MCP/mesh
 IgniterLang::VERSION: 0.1.0.pre.stage2
 Compiler pipeline:   Parser → Classifier → TypeChecker → SemanticIREmitter → Assembler
 emit_typed:          exists in semanticir_emitter.rb ⏳ not yet wired in orchestrator
-typed emission path: parity measured ⚠️ blocked; do not switch orchestrator yet
+typed emission path: parity runner PASS, verdict blocked, 9 blockers; do not switch orchestrator yet
 Ledger descriptor:   metadata-only ✅ package specs PASS
 Runtime observations: proof-backed ⏳ production persistence open
 Stage 2 close:       PASS (stage2_close_candidate.json)
