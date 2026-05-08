@@ -1,5 +1,10 @@
 # Track: Typed Emission Canonical Shape v0
 
+> [!IMPORTANT]
+> Stale / superseded as current blocker state. This track records the S3-R2 canonical-shape slice, not the current production path.
+> Current truth: S3-R5-C4 (`orchestrator-emit-typed-switch-v0`) switched `CompilerOrchestrator` to `emit_typed`; Stage 1 and Stage 2 close candidates passed after the switch.
+> Keep this document as historical evidence for the blocker-clearance chain only.
+
 Card: S3-R2-C1-P
 Agent: `[Igniter-Lang Research Agent]`
 Role: research-agent

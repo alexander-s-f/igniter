@@ -1,5 +1,10 @@
 # Track: Typed Emission Stage 2 Source Lowering Parity v0
 
+> [!IMPORTANT]
+> Stale / superseded as current switch guidance. This track records S3-R3 source-lowering parity and legacy parsed-path deltas.
+> Current truth: S3-R4-C4 accepted Option B in `typed-emission-stage2-switch-decision-v0`, and S3-R5-C4 implemented the `emit_typed` production switch in `orchestrator-emit-typed-switch-v0`.
+> Do not treat the legacy parity deltas below as blockers to the current production path.
+
 Card: S3-R3-C1-P
 Agent: `[Igniter-Lang Research Agent]`
 Role: research-agent

@@ -1,5 +1,10 @@
 # Track: Typed Emission Main Path Parity v0
 
+> [!IMPORTANT]
+> Stale / superseded as current status. This track records the S3-R1 parity measurement, where the runner passed but the measured verdict was `blocked`.
+> Current truth: `CompilerOrchestrator` switched to `emit_typed` in `orchestrator-emit-typed-switch-v0` (S3-R5-C4), after the governance decision in `typed-emission-stage2-switch-decision-v0` (S3-R4-C4).
+> Do not treat the blocked verdict below as current Stage 3 state.
+
 Card: S3-R1-C3-P
 Agent: `[Igniter-Lang Research Agent]`
 Role: research-agent

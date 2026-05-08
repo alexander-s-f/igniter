@@ -1,5 +1,10 @@
 # Track: Temporal Cache Key Proof v0
 
+> [!IMPORTANT]
+> Stale / absorbed as current cache guidance. This track records the S3-R2 proof-local cache-key model only.
+> Current truth: runtime cache proof-local memoization is recorded in `runtime-cache-proof-local-memoization-v0` (S3-R4-C5), with stale/unknown rejection and provisional downgrade observations. Production RuntimeMachine caching remains disabled.
+> Use this document as historical precursor evidence only.
+
 Card: S3-R2-C3-P
 Agent: `[Igniter-Lang Research Agent]`
 Role: research-agent
