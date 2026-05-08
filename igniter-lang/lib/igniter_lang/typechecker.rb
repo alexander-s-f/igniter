@@ -80,6 +80,8 @@ module IgniterLang
           type = decl.key?("type_annotation") ? type_ir(decl.fetch("type_annotation")) : type_ir("Unknown")
           symbol_types[decl.fetch("name")] = type
           typed_decls << typed_decl(decl, type, nil, [])
+        when "window"
+          typed_decls << typed_decl(decl, type_ir("Window"), nil, [])
         when "fold_stream"
           # OOF-S3: ESCAPE construct (stream ref) inside fold_stream accumulator function body
           stream_symbols = stream_symbol_names(classified_contract)
@@ -137,6 +139,9 @@ module IgniterLang
       result["expr"] = expr if expr
       result["semantic_node"] = expr.fetch("semantic_node") if expr&.key?("semantic_node")
       %w[node_fragment_class value_fragment_class required_capability temporal_axis].each do |key|
+        result[key] = decl.fetch(key) if decl.key?(key)
+      end
+      %w[from lifecycle].each do |key|
         result[key] = decl.fetch(key) if decl.key?(key)
       end
       result
@@ -214,7 +219,8 @@ module IgniterLang
         result_type,
         history_ref.fetch("deps") + as_of_ref.fetch("deps"),
         "fn" => fn,
-        "args" => [history_ref, as_of_ref]
+        "args" => [history_ref, as_of_ref],
+        "semantic_node" => temporal_access_node(node_name, "valid_time", history_ref, [as_of_ref], result_type)
       )
     end
 
@@ -244,8 +250,49 @@ module IgniterLang
         result_type,
         history_ref.fetch("deps") + vt_ref.fetch("deps") + tt_ref.fetch("deps"),
         "fn" => fn,
-        "args" => [history_ref, vt_ref, tt_ref]
+        "args" => [history_ref, vt_ref, tt_ref],
+        "semantic_node" => temporal_access_node(node_name, "bitemporal", history_ref, [vt_ref, tt_ref], result_type)
       )
+    end
+
+    def temporal_access_node(node_name, axis, history_ref, axis_refs, result_type)
+      capability = axis == "bitemporal" ? "bihistory_read" : "history_read"
+      result = {
+        "kind" => "temporal_access_node",
+        "name" => node_name,
+        "source_ref" => history_ref.fetch("name", nil),
+        "axis" => axis,
+        "temporal_axis" => axis,
+        "history_ref" => history_ref.fetch("name", nil),
+        "axis_refs" => axis_refs.map { |ref| ref.fetch("name", nil) }.compact,
+        "coordinate_refs" => temporal_coordinate_refs(axis, axis_refs),
+        "result_type" => result_type,
+        "node_fragment_class" => "temporal",
+        "value_fragment_class" => "core",
+        "required_capability" => capability,
+        "required_caps" => [capability],
+        "deps" => history_ref.fetch("deps", []) + axis_refs.flat_map { |ref| ref.fetch("deps", []) },
+        "evidence_policy" => axis == "bitemporal" ? "link_selected_event_observation" : "link_selected_append_observation",
+        "fragment" => "temporal"
+      }
+      if axis == "bitemporal"
+        result["valid_time_ref"] = axis_refs[0]&.fetch("name", nil)
+        result["transaction_time_ref"] = axis_refs[1]&.fetch("name", nil)
+      else
+        result["as_of_ref"] = axis_refs[0]&.fetch("name", nil)
+      end
+      result
+    end
+
+    def temporal_coordinate_refs(axis, axis_refs)
+      if axis == "bitemporal"
+        {
+          "valid_time" => axis_refs[0]&.fetch("name", nil),
+          "transaction_time" => axis_refs[1]&.fetch("name", nil)
+        }
+      else
+        { "as_of" => axis_refs[0]&.fetch("name", nil) }
+      end
     end
 
     def infer_index_access(expr, symbol_types, type_errors, type_warnings, node_name)

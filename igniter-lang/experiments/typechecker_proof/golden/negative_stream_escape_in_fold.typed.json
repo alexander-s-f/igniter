@@ -65,6 +65,17 @@
           "deps": []
         },
         {
+          "decl_id": "window:integer/{device_id}",
+          "kind": "window",
+          "name": "integer/{device_id}",
+          "fragment_class": "escape",
+          "type": {
+            "name": "Window",
+            "params": []
+          },
+          "deps": []
+        },
+        {
           "decl_id": "fold_stream:bad_total",
           "kind": "fold_stream",
           "name": "bad_total",

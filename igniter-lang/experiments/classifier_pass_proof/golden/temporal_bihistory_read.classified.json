@@ -70,7 +70,17 @@
           "fragment_class": "temporal",
           "deps": [],
           "missing_refs": [],
-          "type_annotation": "BiHistory",
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "BiHistory",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
           "node_fragment_class": "temporal",
           "value_fragment_class": "core",
           "required_capability": "bihistory_read",
@@ -85,7 +95,17 @@
             "avail_history"
           ],
           "missing_refs": [],
-          "type_annotation": "BiHistory"
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "BiHistory",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
         }
       ],
       "dependency_graph": {

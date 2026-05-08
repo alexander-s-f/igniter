@@ -47,7 +47,9 @@ time. The fixture itself is not canon.
 |------------------|--------|---------|--------------|
 | `experiments/human_agent_syntax_comprehension_fixture/field_supply_watch.ig` | non-canon experiment | Blind comprehension specimen for audited temporal supply workflow | Strong domain readability; ambiguity around `agent mesh`, `ObsId`, `human_review`, `olap_point`, `compute`, view materialization |
 | `experiments/human_agent_syntax_comprehension_fixture/field_supply_watch_v2.ig` | non-canon experiment | Revised supply specimen testing better surface spellings | `delegate`, `await_review`, `metric`, `EvidenceRef`, `let`, explicit trust, explicit stream seed improved comprehension |
+| `experiments/human_agent_syntax_comprehension_fixture/field_supply_watch_v3.ig` | non-canon experiment | Verifiability layer specimen | `threshold`, `external pure`, declarative receipt identity, `accumulate`, evidence/hash/signature pressure |
 | `experiments/human_agent_syntax_comprehension_fixture/academic_sorting_structures.ig` | non-canon experiment | General-purpose/proof pressure specimen | Generics/traits/variants readable; audit `evidence`/`receipt` conflicts with mathematical proof; constructor resolution needs work |
+| `experiments/human_agent_syntax_comprehension_fixture/primitive_surface_fixture.ig` | non-canon experiment | Primitive surface specimen | Arrays, maps, sets, operators, `entity`, `entrypoint`, collection chains as contract-backed sugar pressure |
 | Surface-layering spec review | pressure | External review after partial spec exposure | `entrypoint`, `section`, `entity`, primitive literals, stream chains, ordinary operators, record spread |
 
 ---

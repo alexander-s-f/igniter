@@ -80,7 +80,9 @@
           "node_fragment_class": "temporal",
           "value_fragment_class": "core",
           "required_capability": "history_read",
-          "temporal_axis": "valid_time"
+          "temporal_axis": "valid_time",
+          "from": "sku/{sku}/price",
+          "lifecycle": "durable"
         },
         {
           "decl_id": "compute:price_at",

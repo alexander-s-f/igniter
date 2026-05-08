@@ -123,7 +123,9 @@
           "node_fragment_class": "temporal",
           "value_fragment_class": "core",
           "required_capability": "bihistory_read",
-          "temporal_axis": "bitemporal"
+          "temporal_axis": "bitemporal",
+          "from": "t/{technician_id}/avail",
+          "lifecycle": "durable"
         },
         {
           "decl_id": "compute:avail_at",
@@ -189,6 +191,46 @@
                 ]
               }
             ],
+            "semantic_node": {
+              "kind": "temporal_access_node",
+              "name": "avail_at",
+              "source_ref": "avail_history",
+              "axis": "bitemporal",
+              "temporal_axis": "bitemporal",
+              "history_ref": "avail_history",
+              "axis_refs": [
+                "valid_time",
+                "transaction_time"
+              ],
+              "coordinate_refs": {
+                "valid_time": "valid_time",
+                "transaction_time": "transaction_time"
+              },
+              "result_type": {
+                "name": "Option",
+                "params": [
+                  {
+                    "name": "String",
+                    "params": []
+                  }
+                ]
+              },
+              "node_fragment_class": "temporal",
+              "value_fragment_class": "core",
+              "required_capability": "bihistory_read",
+              "required_caps": [
+                "bihistory_read"
+              ],
+              "deps": [
+                "avail_history",
+                "valid_time",
+                "transaction_time"
+              ],
+              "evidence_policy": "link_selected_event_observation",
+              "fragment": "temporal",
+              "valid_time_ref": "valid_time",
+              "transaction_time_ref": "transaction_time"
+            },
             "resolved_type": {
               "name": "Option",
               "params": [
@@ -203,6 +245,46 @@
               "valid_time",
               "transaction_time"
             ]
+          },
+          "semantic_node": {
+            "kind": "temporal_access_node",
+            "name": "avail_at",
+            "source_ref": "avail_history",
+            "axis": "bitemporal",
+            "temporal_axis": "bitemporal",
+            "history_ref": "avail_history",
+            "axis_refs": [
+              "valid_time",
+              "transaction_time"
+            ],
+            "coordinate_refs": {
+              "valid_time": "valid_time",
+              "transaction_time": "transaction_time"
+            },
+            "result_type": {
+              "name": "Option",
+              "params": [
+                {
+                  "name": "String",
+                  "params": []
+                }
+              ]
+            },
+            "node_fragment_class": "temporal",
+            "value_fragment_class": "core",
+            "required_capability": "bihistory_read",
+            "required_caps": [
+              "bihistory_read"
+            ],
+            "deps": [
+              "avail_history",
+              "valid_time",
+              "transaction_time"
+            ],
+            "evidence_policy": "link_selected_event_observation",
+            "fragment": "temporal",
+            "valid_time_ref": "valid_time",
+            "transaction_time_ref": "transaction_time"
           }
         },
         {

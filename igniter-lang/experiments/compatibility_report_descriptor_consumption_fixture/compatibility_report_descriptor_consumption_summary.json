@@ -1,0 +1,332 @@
+{
+  "kind": "compatibility_report_descriptor_consumption_summary",
+  "card": "S3-R3-C5-P",
+  "status": "PASS",
+  "approved_gate": "gate_1_proof_local_only",
+  "runtime_enforced": false,
+  "report_only": true,
+  "non_authorization": {
+    "package_exposure": false,
+    "runtime_binding": false,
+    "ledger_reads": false,
+    "ledger_writes": false,
+    "ledger_replay": false,
+    "live_adapter": false
+  },
+  "cases": {
+    "trusted_metadata": {
+      "decision": "trusted_metadata",
+      "report_id": "compat/descriptor_consumption/46bf7d751885de22",
+      "runtime_enforced": false,
+      "diagnostics": {
+        "descriptor": {
+          "kind": "tbackend_descriptor_consumption_diagnostics",
+          "status": "ok",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "missing_hashes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:a19f8a32f571f7b5584f0162c969410fd7473372fda1d28e59d25fe65bff02f7",
+          "descriptor_registry_hash": "sha256:c1b4dc9ccc06ca42600b5037d7ed505273a3ab9867cea49c99242667ff66d897"
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal",
+          "message": "TEMPORAL cache policy present"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "violations": [],
+          "expected_false": [
+            "runtime_binding",
+            "ledger_reads",
+            "ledger_writes",
+            "ledger_replay"
+          ]
+        }
+      }
+    },
+    "provisional_metadata": {
+      "decision": "provisional_metadata",
+      "report_id": "compat/descriptor_consumption/f3b1971323011c5b",
+      "runtime_enforced": false,
+      "diagnostics": {
+        "descriptor": {
+          "kind": "tbackend_descriptor_consumption_diagnostics",
+          "status": "ok",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "missing_hashes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:a19f8a32f571f7b5584f0162c969410fd7473372fda1d28e59d25fe65bff02f7",
+          "descriptor_registry_hash": "sha256:c1b4dc9ccc06ca42600b5037d7ed505273a3ab9867cea49c99242667ff66d897"
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal",
+          "message": "TEMPORAL cache policy present"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "violations": [],
+          "expected_false": [
+            "runtime_binding",
+            "ledger_reads",
+            "ledger_writes",
+            "ledger_replay"
+          ]
+        }
+      }
+    },
+    "missing_capability": {
+      "decision": "blocked",
+      "report_id": "compat/descriptor_consumption/f2a46aeb493f00d7",
+      "runtime_enforced": false,
+      "diagnostics": {
+        "descriptor": {
+          "kind": "tbackend_descriptor_consumption_diagnostics",
+          "status": "blocked",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [
+            "bihistory_read"
+          ],
+          "missing_axes": [],
+          "missing_hashes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:a19f8a32f571f7b5584f0162c969410fd7473372fda1d28e59d25fe65bff02f7",
+          "descriptor_registry_hash": "sha256:c1b4dc9ccc06ca42600b5037d7ed505273a3ab9867cea49c99242667ff66d897"
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal",
+          "message": "TEMPORAL cache policy present"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "violations": [],
+          "expected_false": [
+            "runtime_binding",
+            "ledger_reads",
+            "ledger_writes",
+            "ledger_replay"
+          ]
+        }
+      }
+    },
+    "missing_axis": {
+      "decision": "blocked",
+      "report_id": "compat/descriptor_consumption/8aaad47e95b54b76",
+      "runtime_enforced": false,
+      "diagnostics": {
+        "descriptor": {
+          "kind": "tbackend_descriptor_consumption_diagnostics",
+          "status": "blocked",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [
+            "transaction_time"
+          ],
+          "missing_hashes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:a19f8a32f571f7b5584f0162c969410fd7473372fda1d28e59d25fe65bff02f7",
+          "descriptor_registry_hash": "sha256:c1b4dc9ccc06ca42600b5037d7ed505273a3ab9867cea49c99242667ff66d897"
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal",
+          "message": "TEMPORAL cache policy present"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "violations": [],
+          "expected_false": [
+            "runtime_binding",
+            "ledger_reads",
+            "ledger_writes",
+            "ledger_replay"
+          ]
+        }
+      }
+    },
+    "missing_hook": {
+      "decision": "blocked",
+      "report_id": "compat/descriptor_consumption/f96e2d5fe7c7260d",
+      "runtime_enforced": false,
+      "diagnostics": {
+        "descriptor": {
+          "kind": "tbackend_descriptor_consumption_diagnostics",
+          "status": "blocked",
+          "missing_ops": [],
+          "missing_hook_methods": [
+            "bihistory_at"
+          ],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "missing_hashes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:a19f8a32f571f7b5584f0162c969410fd7473372fda1d28e59d25fe65bff02f7",
+          "descriptor_registry_hash": "sha256:c1b4dc9ccc06ca42600b5037d7ed505273a3ab9867cea49c99242667ff66d897"
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal",
+          "message": "TEMPORAL cache policy present"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "violations": [],
+          "expected_false": [
+            "runtime_binding",
+            "ledger_reads",
+            "ledger_writes",
+            "ledger_replay"
+          ]
+        }
+      }
+    },
+    "missing_descriptor_hash": {
+      "decision": "blocked",
+      "report_id": "compat/descriptor_consumption/0be134c1a378a2fc",
+      "runtime_enforced": false,
+      "diagnostics": {
+        "descriptor": {
+          "kind": "tbackend_descriptor_consumption_diagnostics",
+          "status": "blocked",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "missing_hashes": [
+            "descriptor_hash"
+          ],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": null,
+          "descriptor_registry_hash": "sha256:c1b4dc9ccc06ca42600b5037d7ed505273a3ab9867cea49c99242667ff66d897"
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal",
+          "message": "TEMPORAL cache policy present"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "violations": [],
+          "expected_false": [
+            "runtime_binding",
+            "ledger_reads",
+            "ledger_writes",
+            "ledger_replay"
+          ]
+        }
+      }
+    },
+    "missing_registry_hash": {
+      "decision": "blocked",
+      "report_id": "compat/descriptor_consumption/44f80de97c007714",
+      "runtime_enforced": false,
+      "diagnostics": {
+        "descriptor": {
+          "kind": "tbackend_descriptor_consumption_diagnostics",
+          "status": "blocked",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "missing_hashes": [
+            "descriptor_registry_hash"
+          ],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:a19f8a32f571f7b5584f0162c969410fd7473372fda1d28e59d25fe65bff02f7",
+          "descriptor_registry_hash": null
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "ok",
+          "rule": null,
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "temporal",
+          "message": "TEMPORAL cache policy present"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "violations": [],
+          "expected_false": [
+            "runtime_binding",
+            "ledger_reads",
+            "ledger_writes",
+            "ledger_replay"
+          ]
+        }
+      }
+    },
+    "bad_cache_policy": {
+      "decision": "blocked",
+      "report_id": "compat/descriptor_consumption/d50dbc38eb6a32f0",
+      "runtime_enforced": false,
+      "diagnostics": {
+        "descriptor": {
+          "kind": "tbackend_descriptor_consumption_diagnostics",
+          "status": "ok",
+          "missing_ops": [],
+          "missing_hook_methods": [],
+          "missing_capabilities": [],
+          "missing_axes": [],
+          "missing_hashes": [],
+          "schema_fingerprint_match": true,
+          "descriptor_hash": "sha256:a19f8a32f571f7b5584f0162c969410fd7473372fda1d28e59d25fe65bff02f7",
+          "descriptor_registry_hash": "sha256:c1b4dc9ccc06ca42600b5037d7ed505273a3ab9867cea49c99242667ff66d897"
+        },
+        "cache_policy": {
+          "kind": "temporal_cache_policy_diagnostic",
+          "status": "blocked",
+          "rule": "OOF-TM9",
+          "contract_fragment_class": "temporal",
+          "cache_policy_kind": "core",
+          "message": "TEMPORAL contract cannot use CORE cache key"
+        },
+        "non_authorization": {
+          "kind": "descriptor_non_authorization_diagnostic",
+          "status": "ok",
+          "violations": [],
+          "expected_false": [
+            "runtime_binding",
+            "ledger_reads",
+            "ledger_writes",
+            "ledger_replay"
+          ]
+        }
+      }
+    }
+  }
+}

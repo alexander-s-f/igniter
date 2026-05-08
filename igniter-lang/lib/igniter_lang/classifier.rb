@@ -15,7 +15,7 @@ module IgniterLang
         classify_contract(parsed_program, contract, sample_input)
       end
 
-      {
+      result = {
         "kind" => "classified_program",
         "classifier_version" => @classifier_version,
         "program_id" => program_id(parsed_program),
@@ -28,6 +28,9 @@ module IgniterLang
         "oof_log" => contracts.flat_map { |contract| contract.fetch("oof_log") },
         "semantic_ir_ref" => nil
       }
+      olap_points = parsed_program.fetch("olap_points", [])
+      result["olap_points"] = olap_points unless olap_points.empty?
+      result
     end
 
     def type_declarations(parsed_program)
@@ -66,6 +69,10 @@ module IgniterLang
       compute_exprs = {}
       window_declarations = []
       fold_stream_stream_refs = Hash.new { |refs, stream_name| refs[stream_name] = [] }
+      parsed_program.fetch("olap_points", []).each do |point|
+        symbol_fragments[point.fetch("name")] = "escape"
+        symbol_kinds[point.fetch("name")] = "olap_point"
+      end
 
       contract.fetch("body").each do |node|
         case node.fetch("kind")
@@ -97,6 +104,13 @@ module IgniterLang
           symbol_fragments[node.fetch("name")] = result_fragment
           symbol_kinds[node.fetch("name")] = "fold_stream"
           declarations << classified_decl(node, result_fragment, deps, [])
+        when "invariant"
+          deps = [node.fetch("predicate_ref", nil)].compact
+          missing = deps.reject { |dep| symbol_fragments.key?(dep) }
+          missing.each do |name|
+            diagnostics << oof("OOF-P1", "Unresolved symbol: #{name}", node.fetch("name"))
+          end
+          declarations << classified_decl(node, missing.empty? ? "core" : "oof", deps, missing)
         when "compute"
           deps = expr_refs(node.fetch("expr"))
           missing = deps.reject { |dep| symbol_fragments.key?(dep) }
@@ -174,7 +188,7 @@ module IgniterLang
         "deps" => deps,
         "missing_refs" => missing
       }
-      result["type_annotation"] = normalize_type(node["type_annotation"]) if node.key?("type_annotation")
+      result["type_annotation"] = normalized_type_annotation(node["type_annotation"]) if node.key?("type_annotation")
       if node.key?("expr")
         result["expr_kind"] = node.fetch("expr").fetch("kind")
         result["expr"] = node.fetch("expr")
@@ -235,6 +249,17 @@ module IgniterLang
     end
 
     def expr_refs(expr)
+      return [] unless expr.is_a?(Hash)
+      unless expr.key?("kind")
+        return expr.values.flat_map do |value|
+          case value
+          when Hash then expr_refs(value)
+          when Array then value.flat_map { |item| expr_refs(item) }
+          else []
+          end
+        end.uniq
+      end
+
       case expr.fetch("kind")
       when "ref"
         [expr.fetch("name")]
@@ -243,7 +268,7 @@ module IgniterLang
       when "binary_op"
         expr_refs(expr.fetch("left")) + expr_refs(expr.fetch("right"))
       when "call"
-        [expr.fetch("fn")] + expr.fetch("args", []).flat_map { |arg| expr_refs(arg) }
+        expr.fetch("args", []).flat_map { |arg| expr_refs(arg) }
       when "literal", "symbol"
         []
       else
@@ -289,6 +314,12 @@ module IgniterLang
 
     def normalize_type(type)
       type.is_a?(Hash) ? type.fetch("name") : type.to_s
+    end
+
+    def normalized_type_annotation(type)
+      return type unless type.is_a?(Hash)
+
+      type
     end
 
     def temporal_type?(type)

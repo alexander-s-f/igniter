@@ -99,7 +99,9 @@
           "node_fragment_class": "temporal",
           "value_fragment_class": "core",
           "required_capability": "bihistory_read",
-          "temporal_axis": "bitemporal"
+          "temporal_axis": "bitemporal",
+          "from": "t/{technician_id}/avail",
+          "lifecycle": "durable"
         },
         {
           "decl_id": "compute:avail_at",

@@ -71,7 +71,6 @@
           "name": "total",
           "fragment_class": "core",
           "deps": [
-            "fold_stream",
             "readings",
             "acc",
             "val"

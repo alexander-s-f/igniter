@@ -1,0 +1,125 @@
+{
+  "kind": "igniter_lang_release_gate",
+  "format_version": "0.1.0",
+  "track": "gem-release-automation-v0",
+  "status": "PASS",
+  "timestamp": "2026-05-08T10:02:20Z",
+  "package": {
+    "name": "igniter_lang",
+    "version": "0.1.0.pre.stage2",
+    "out_dir": "/private/tmp/igniter_lang_release_gate"
+  },
+  "checks": [
+    {
+      "id": "gemspec_syntax",
+      "status": "PASS",
+      "command": [
+        "/Users/alex/.rbenv/versions/3.2.2/bin/ruby",
+        "-c",
+        "igniter_lang.gemspec"
+      ],
+      "chdir": "/Users/alex/dev/projects/igniter/igniter-lang",
+      "exit_status": 0,
+      "stdout": [
+        "Syntax OK"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "gem_native_package_boundary_specs",
+      "status": "PASS",
+      "command": [
+        "/Users/alex/.rbenv/versions/3.2.2/bin/ruby",
+        "igniter-lang/experiments/gem_native_package_boundary_specs/gem_native_package_boundary_specs.rb"
+      ],
+      "chdir": "/Users/alex/dev/projects/igniter",
+      "exit_status": 0,
+      "stdout": [
+        "PASS gem_native_package_boundary_specs",
+        "gem_build: PASS",
+        "gemspec_release_metadata: PASS",
+        "gem_install_isolated_home: PASS",
+        "require_igniter_lang_from_installed_gem: PASS",
+        "direct_compile_package_boundary: PASS",
+        "igc_package_executable: PASS",
+        "direct_api_and_igc_same_facade_shape: PASS",
+        "installed_gem_no_repo_load_path: PASS",
+        "summary: igniter-lang/experiments/gem_native_package_boundary_specs/gem_native_package_boundary_specs.json"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "stage1_close_candidate",
+      "status": "PASS",
+      "command": [
+        "/Users/alex/.rbenv/versions/3.2.2/bin/ruby",
+        "igniter-lang/experiments/stage1_close_candidate/stage1_close_candidate.rb"
+      ],
+      "chdir": "/Users/alex/dev/projects/igniter",
+      "exit_status": 0,
+      "stdout": [
+        "PASS stage1_close_candidate",
+        "classifier: PASS",
+        "typechecker: PASS",
+        "semanticir: PASS",
+        "stdlib_kernel: PASS",
+        "igapp_assembler: PASS",
+        "summary: igniter-lang/experiments/stage1_close_candidate/stage1_close_candidate.json"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "stage2_close_candidate",
+      "status": "PASS",
+      "command": [
+        "/Users/alex/.rbenv/versions/3.2.2/bin/ruby",
+        "igniter-lang/experiments/stage2_close_candidate/stage2_close_candidate.rb"
+      ],
+      "chdir": "/Users/alex/dev/projects/igniter",
+      "exit_status": 0,
+      "stdout": [
+        "PASS stage2_close_candidate",
+        "verdict: stage2_close_candidate",
+        "package_facade: PASS",
+        "invariant_runtime_observations: PASS",
+        "olap_point: PASS",
+        "stream_fold: PASS",
+        "history_bihistory_temporal_access: PASS",
+        "ledger_tbackend_descriptor: PASS",
+        "stage1_regression: PASS",
+        "summary: igniter-lang/experiments/stage2_close_candidate/stage2_close_candidate.json"
+      ],
+      "stderr": []
+    }
+  ],
+  "artifact": {
+    "status": "PASS",
+    "gem_path": "/private/tmp/igniter_lang_release_gate/igniter_lang-0.1.0.pre.stage2.gem",
+    "checksum_path": "/private/tmp/igniter_lang_release_gate/igniter_lang-0.1.0.pre.stage2.gem.sha256",
+    "sha256": "9ded66145c36ce08dfd9b2717f12c44896d575f39e116ca59aa99ae11ca30860",
+    "build": {
+      "id": "gem_build_release_artifact",
+      "status": "PASS",
+      "command": [
+        "gem",
+        "build",
+        "igniter_lang.gemspec",
+        "--output",
+        "/private/tmp/igniter_lang_release_gate/igniter_lang-0.1.0.pre.stage2.gem"
+      ],
+      "chdir": "/Users/alex/dev/projects/igniter/igniter-lang",
+      "exit_status": 0,
+      "stdout": [
+        "  Successfully built RubyGem",
+        "  Name: igniter_lang",
+        "  Version: 0.1.0.pre.stage2",
+        "  File: igniter_lang-0.1.0.pre.stage2.gem"
+      ],
+      "stderr": []
+    }
+  },
+  "publish": {
+    "status": "not_attempted",
+    "policy": "gem push is forbidden without explicit Architect approval and human RubyGems owner action"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "kind": "semantic_ir_program",
+  "format_version": "0.1.0",
+  "program_id": "semanticir/history-valid-te",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:history-valid-temporal-fixture",
+  "source_path": "experiments/typechecker_proof/fixtures/history_valid.ig",
+  "module": "Fixture.HistoryAxes",
+  "compilation_report_ref": "compilation_report/history-valid-te",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+      "contract_name": "HistoryAxesTest",
+      "specialization_of": null,
+      "type_args": {},
+      "fragment_class": "temporal",
+      "inputs": [
+        {
+          "name": "sku",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "local"
+        },
+        {
+          "name": "as_of",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          },
+          "lifecycle": "local"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "price_at",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "temporal_input_node",
+          "name": "price_history",
+          "type": {
+            "constructor": "History",
+            "element_type": "String"
+          },
+          "store_ref": "sku/{sku}/price",
+          "lifecycle": "durable",
+          "axis": "valid_time",
+          "node_fragment_class": "temporal",
+          "value_fragment_class": "core",
+          "required_capability": "history_read",
+          "required_caps": [
+            "history_read"
+          ],
+          "fragment": "temporal"
+        },
+        {
+          "kind": "temporal_access_node",
+          "name": "price_at",
+          "source_ref": "price_history",
+          "axis": "valid_time",
+          "temporal_axis": "valid_time",
+          "history_ref": "price_history",
+          "axis_refs": [
+            "as_of"
+          ],
+          "coordinate_refs": {
+            "as_of": "as_of"
+          },
+          "result_type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "node_fragment_class": "temporal",
+          "value_fragment_class": "core",
+          "required_capability": "history_read",
+          "required_caps": [
+            "history_read"
+          ],
+          "deps": [
+            "price_history",
+            "as_of"
+          ],
+          "evidence_policy": "link_selected_append_observation",
+          "fragment": "temporal",
+          "as_of_ref": "as_of"
+        }
+      ],
+      "escape_boundaries": [
+        {
+          "name": "history_read",
+          "required_caps": [
+            "history_read"
+          ],
+          "produces": [
+            "history_access_observation"
+          ]
+        }
+      ]
+    }
+  ]
+}

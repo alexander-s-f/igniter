@@ -6,7 +6,7 @@
   "verdict": "blocked",
   "safe_to_switch_production_path": false,
   "cases_run": 5,
-  "timestamp": "2026-05-08T09:06:45Z",
+  "timestamp": "2026-05-08T10:02:52Z",
   "current_main_path": "SemanticIREmitter#emit(parsed_program, sample_input:)",
   "candidate_main_path": "SemanticIREmitter#emit_typed(typed_program)",
   "source_cases": [
@@ -168,6 +168,7 @@
           "diagnostics",
           "format_version",
           "grammar_version",
+          "invariant_coverage",
           "kind",
           "pass_result",
           "program_id",
@@ -181,6 +182,7 @@
           "contracts",
           "format_version",
           "grammar_version",
+          "invariants",
           "kind",
           "module",
           "program_id",
@@ -191,18 +193,39 @@
           "DrugOrderGate"
         ],
         "node_kinds": [
-          "compute"
+          "compute",
+          "invariant_node"
         ],
         "diagnostic_rules": [],
-        "shape_hash": "sha256:8dae920eef7087764c978add5cd8e49b86cac2b5230016e512a94e9277e4d5a7",
-        "report_shape_hash": "sha256:28c8be5226df86d650e6a30401fbef2fff6a798ec3985755166c27bd5379fc6b",
+        "shape_hash": "sha256:5cb46cf7011de2a424b44f934d139689b246637336374098033dbf165f51bd6d",
+        "report_shape_hash": "sha256:8e727815e3e3eec93bdd0749703bd6dbf333902030f4e3cc8ddd3dd35d6f0e15",
         "status": "ok"
       },
       "deltas": [
         {
-          "kind": "typed_expected_nodes_missing",
-          "missing": [
-            "invariant_node"
+          "kind": "semantic_ir_shape_delta",
+          "summary": "SemanticIR differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.invariants",
+              "delta": "missing_in_parsed"
+            },
+            {
+              "path": "$.contracts[0].nodes",
+              "delta": "length",
+              "parsed": 1,
+              "typed": 5
+            }
+          ]
+        },
+        {
+          "kind": "report_shape_delta",
+          "summary": "CompilationReport differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.invariant_coverage",
+              "delta": "missing_in_parsed"
+            }
           ]
         }
       ]
@@ -211,6 +234,7 @@
       "id": "olap_point",
       "surface": "olap_point",
       "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
+      "source": "olap_point Revenue {\n  dimensions: {\n    date: String,\n    region: String,\n    channel: String\n  }\n  measure: Decimal[2]\n  granularity: { date: :daily }\n  source: synthetic_fulfilled_order_facts\n  indexed: [:date, :region]\n}\n\ncontract RegionalDailyRevenuePoint {\n  input date: String\n  input region: String\n  input channel: String\n\n  compute revenue_point: OLAPPoint[Decimal[2], {date: String, region: String, channel: String}] =\n    Revenue[date: date, region: region, channel: channel]\n\n  output revenue_point: Decimal[2]\n}\n",
       "sample_input": {
         "date": "2026-05-08",
         "region": "north",
@@ -225,7 +249,7 @@
         "semantic_ir_present": false,
         "program_id": null,
         "semantic_ir_ref": null,
-        "report_program_id": "compilation_report/8ae0d8de45a3602a",
+        "report_program_id": "compilation_report/a6e15b10f5610279",
         "report_keys": [
           "diagnostics",
           "format_version",
@@ -246,17 +270,98 @@
           "OOF-TY0"
         ],
         "shape_hash": null,
-        "report_shape_hash": "sha256:3c094df717e8f5628a24f083be202d60b9225baf679ce9524a00196750782e6b",
+        "report_shape_hash": "sha256:5762baf4857b5468e424aec91f0b7d0badd3e093b564cce1bc22bfc6852653b3",
         "status": "ok"
       },
       "typed_path": {
-        "status": "error",
-        "error": "KeyError: key not found: \"kind\""
+        "pass_result": "ok",
+        "semantic_ir_present": true,
+        "program_id": "semanticir/a6e15b10f5610279",
+        "semantic_ir_ref": "semanticir/a6e15b10f5610279",
+        "report_program_id": "compilation_report/a6e15b10f5610279",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [
+          "compilation_report_ref",
+          "contracts",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "module",
+          "olap_points",
+          "program_id",
+          "source_hash",
+          "source_path"
+        ],
+        "contract_names": [
+          "RegionalDailyRevenuePoint"
+        ],
+        "node_kinds": [
+          "olap_access_node"
+        ],
+        "diagnostic_rules": [],
+        "shape_hash": "sha256:73a2fb6d9a9bae20fb99dbafa085495d3a30885afc22e6ecdbb7427f1713348b",
+        "report_shape_hash": "sha256:39d93db5e44a964d0fa7964bf182a62e8d2bc821aa8e97aa6dfc9c0aeb78d000",
+        "status": "ok"
       },
       "deltas": [
         {
-          "kind": "typed_path_error",
-          "summary": "KeyError: key not found: \"kind\""
+          "kind": "value_delta",
+          "path": "report.pass_result",
+          "parsed": "oof",
+          "typed": "ok"
+        },
+        {
+          "kind": "value_delta",
+          "path": "semantic_ir.present",
+          "parsed": false,
+          "typed": true
+        },
+        {
+          "kind": "report_shape_delta",
+          "summary": "CompilationReport differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.diagnostics",
+              "delta": "length",
+              "parsed": 2,
+              "typed": 0
+            },
+            {
+              "path": "$.pass_result",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.classify",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.emit",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.typecheck",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            }
+          ]
         }
       ]
     },
@@ -264,6 +369,7 @@
       "id": "stream_fold",
       "surface": "stream_fold",
       "source_path": "igniter-lang/experiments/stream_t_proof/stream_integer_window.ig",
+      "source": "contract IntegerWindowSum {\n  input device_id: String\n  stream readings: Integer\n\n  window \"integer/{device_id}\" {\n    kind: :count,\n    size: 3,\n    on_close: :snapshot\n  }\n\n  compute total: Integer =\n    fold_stream(readings, 0, (acc, reading) -> acc + reading) @window_bounded\n\n  output total: Integer\n}\n",
       "sample_input": {
         "device_id": "device-1"
       },
@@ -274,17 +380,123 @@
       ],
       "status": "FAIL",
       "parsed_path": {
-        "status": "parse_error",
-        "error": "IgniterLang::ParseError: Expected name, got comma(,)"
+        "pass_result": "oof",
+        "semantic_ir_present": false,
+        "program_id": null,
+        "semantic_ir_ref": null,
+        "report_program_id": "compilation_report/24ac47cf19b864a1",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [],
+        "contract_names": [],
+        "node_kinds": [],
+        "diagnostic_rules": [
+          "OOF-P1"
+        ],
+        "shape_hash": null,
+        "report_shape_hash": "sha256:51b65b1345e20e9bdae3e8f0f4a0a0cd000ad15987bfce51ab0272361e48426e",
+        "status": "ok"
       },
       "typed_path": {
-        "status": "parse_error",
-        "error": "IgniterLang::ParseError: Expected name, got comma(,)"
+        "pass_result": "ok",
+        "semantic_ir_present": true,
+        "program_id": "semanticir/24ac47cf19b864a1",
+        "semantic_ir_ref": "semanticir/24ac47cf19b864a1",
+        "report_program_id": "compilation_report/24ac47cf19b864a1",
+        "report_keys": [
+          "diagnostics",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "pass_result",
+          "program_id",
+          "semantic_ir_ref",
+          "source_hash",
+          "source_path",
+          "stages"
+        ],
+        "semantic_ir_keys": [
+          "compilation_report_ref",
+          "contracts",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "module",
+          "program_id",
+          "source_hash",
+          "source_path"
+        ],
+        "contract_names": [
+          "IntegerWindowSum"
+        ],
+        "node_kinds": [
+          "fold_stream_node",
+          "stream_input_node",
+          "window_decl_node"
+        ],
+        "diagnostic_rules": [],
+        "shape_hash": "sha256:b3dc7f8f4e61adf5efb8fb9d34e893b5bca83f5cb182d3e521c4c27e67c9d10a",
+        "report_shape_hash": "sha256:1a26e4d2faa5027173bdbd9f4051ce0de53f8f0a6e6b70febd24e75839533f8f",
+        "status": "ok"
       },
       "deltas": [
         {
-          "kind": "parse_exception",
-          "summary": "IgniterLang::ParseError: Expected name, got comma(,)"
+          "kind": "value_delta",
+          "path": "report.pass_result",
+          "parsed": "oof",
+          "typed": "ok"
+        },
+        {
+          "kind": "value_delta",
+          "path": "semantic_ir.present",
+          "parsed": false,
+          "typed": true
+        },
+        {
+          "kind": "report_shape_delta",
+          "summary": "CompilationReport differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.diagnostics",
+              "delta": "length",
+              "parsed": 1,
+              "typed": 0
+            },
+            {
+              "path": "$.pass_result",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.classify",
+              "delta": "value",
+              "parsed": "oof",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.emit",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            },
+            {
+              "path": "$.stages.typecheck",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            }
+          ]
         }
       ]
     },
@@ -330,10 +542,10 @@
         "status": "ok"
       },
       "typed_path": {
-        "pass_result": "oof",
-        "semantic_ir_present": false,
-        "program_id": null,
-        "semantic_ir_ref": null,
+        "pass_result": "ok",
+        "semantic_ir_present": true,
+        "program_id": "semanticir/096b47d88eccf388",
+        "semantic_ir_ref": "semanticir/096b47d88eccf388",
         "report_program_id": "compilation_report/096b47d88eccf388",
         "report_keys": [
           "diagnostics",
@@ -347,17 +559,42 @@
           "source_path",
           "stages"
         ],
-        "semantic_ir_keys": [],
-        "contract_names": [],
-        "node_kinds": [],
-        "diagnostic_rules": [
-          "OOF-P1"
+        "semantic_ir_keys": [
+          "compilation_report_ref",
+          "contracts",
+          "format_version",
+          "grammar_version",
+          "kind",
+          "module",
+          "program_id",
+          "source_hash",
+          "source_path"
         ],
-        "shape_hash": null,
-        "report_shape_hash": "sha256:d9f42c281d489a5260c8502f92130c9602f9f70e9045c8cedbb481afbd8a251c",
+        "contract_names": [
+          "TechnicianJobCountAt"
+        ],
+        "node_kinds": [
+          "temporal_access_node",
+          "temporal_input_node"
+        ],
+        "diagnostic_rules": [],
+        "shape_hash": "sha256:9c31aaba8c8b3df7ea3d2892be5dc635dbde868b3f9e1ab9d78c8d89b55263aa",
+        "report_shape_hash": "sha256:20c2ca17ad00dbe79b17b3c446fb7674f81c6e3a6112d95931071f408dd21f2a",
         "status": "ok"
       },
       "deltas": [
+        {
+          "kind": "value_delta",
+          "path": "report.pass_result",
+          "parsed": "oof",
+          "typed": "ok"
+        },
+        {
+          "kind": "value_delta",
+          "path": "semantic_ir.present",
+          "parsed": false,
+          "typed": true
+        },
         {
           "kind": "report_shape_delta",
           "summary": "CompilationReport differs after identity fields are normalized.",
@@ -366,13 +603,13 @@
               "path": "$.diagnostics",
               "delta": "length",
               "parsed": 2,
-              "typed": 1
+              "typed": 0
             },
             {
-              "path": "$.diagnostics[0].message",
+              "path": "$.pass_result",
               "delta": "value",
-              "parsed": "Unresolved function: history_at",
-              "typed": "Unresolved symbol: history_at"
+              "parsed": "oof",
+              "typed": "ok"
             },
             {
               "path": "$.stages.classify",
@@ -381,17 +618,17 @@
               "typed": "ok"
             },
             {
+              "path": "$.stages.emit",
+              "delta": "value",
+              "parsed": "skipped",
+              "typed": "ok"
+            },
+            {
               "path": "$.stages.typecheck",
               "delta": "value",
               "parsed": "skipped",
-              "typed": "oof"
+              "typed": "ok"
             }
-          ]
-        },
-        {
-          "kind": "typed_expected_nodes_missing",
-          "missing": [
-            "temporal_access_node"
           ]
         }
       ]
@@ -417,33 +654,195 @@
     {
       "case": "invariant_valid",
       "surface": "invariant_runtime_observations",
-      "kind": "typed_expected_nodes_missing",
-      "summary": "shape delta",
+      "kind": "semantic_ir_shape_delta",
+      "summary": "SemanticIR differs after identity fields are normalized.",
       "details": {
-        "kind": "typed_expected_nodes_missing",
-        "missing": [
-          "invariant_node"
+        "kind": "semantic_ir_shape_delta",
+        "summary": "SemanticIR differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.invariants",
+            "delta": "missing_in_parsed"
+          },
+          {
+            "path": "$.contracts[0].nodes",
+            "delta": "length",
+            "parsed": 1,
+            "typed": 5
+          }
+        ]
+      }
+    },
+    {
+      "case": "invariant_valid",
+      "surface": "invariant_runtime_observations",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.invariant_coverage",
+            "delta": "missing_in_parsed"
+          }
         ]
       }
     },
     {
       "case": "olap_point",
       "surface": "olap_point",
-      "kind": "typed_path_error",
-      "summary": "KeyError: key not found: \"kind\"",
+      "kind": "value_delta",
+      "summary": "report.pass_result",
       "details": {
-        "kind": "typed_path_error",
-        "summary": "KeyError: key not found: \"kind\""
+        "kind": "value_delta",
+        "path": "report.pass_result",
+        "parsed": "oof",
+        "typed": "ok"
+      }
+    },
+    {
+      "case": "olap_point",
+      "surface": "olap_point",
+      "kind": "value_delta",
+      "summary": "semantic_ir.present",
+      "details": {
+        "kind": "value_delta",
+        "path": "semantic_ir.present",
+        "parsed": false,
+        "typed": true
+      }
+    },
+    {
+      "case": "olap_point",
+      "surface": "olap_point",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.diagnostics",
+            "delta": "length",
+            "parsed": 2,
+            "typed": 0
+          },
+          {
+            "path": "$.pass_result",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.classify",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.emit",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.typecheck",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          }
+        ]
       }
     },
     {
       "case": "stream_fold",
       "surface": "stream_fold",
-      "kind": "parse_exception",
-      "summary": "IgniterLang::ParseError: Expected name, got comma(,)",
+      "kind": "value_delta",
+      "summary": "report.pass_result",
       "details": {
-        "kind": "parse_exception",
-        "summary": "IgniterLang::ParseError: Expected name, got comma(,)"
+        "kind": "value_delta",
+        "path": "report.pass_result",
+        "parsed": "oof",
+        "typed": "ok"
+      }
+    },
+    {
+      "case": "stream_fold",
+      "surface": "stream_fold",
+      "kind": "value_delta",
+      "summary": "semantic_ir.present",
+      "details": {
+        "kind": "value_delta",
+        "path": "semantic_ir.present",
+        "parsed": false,
+        "typed": true
+      }
+    },
+    {
+      "case": "stream_fold",
+      "surface": "stream_fold",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.diagnostics",
+            "delta": "length",
+            "parsed": 1,
+            "typed": 0
+          },
+          {
+            "path": "$.pass_result",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.classify",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.emit",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.typecheck",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          }
+        ]
+      }
+    },
+    {
+      "case": "history_access",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "value_delta",
+      "summary": "report.pass_result",
+      "details": {
+        "kind": "value_delta",
+        "path": "report.pass_result",
+        "parsed": "oof",
+        "typed": "ok"
+      }
+    },
+    {
+      "case": "history_access",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "value_delta",
+      "summary": "semantic_ir.present",
+      "details": {
+        "kind": "value_delta",
+        "path": "semantic_ir.present",
+        "parsed": false,
+        "typed": true
       }
     },
     {
@@ -459,13 +858,13 @@
             "path": "$.diagnostics",
             "delta": "length",
             "parsed": 2,
-            "typed": 1
+            "typed": 0
           },
           {
-            "path": "$.diagnostics[0].message",
+            "path": "$.pass_result",
             "delta": "value",
-            "parsed": "Unresolved function: history_at",
-            "typed": "Unresolved symbol: history_at"
+            "parsed": "oof",
+            "typed": "ok"
           },
           {
             "path": "$.stages.classify",
@@ -474,23 +873,17 @@
             "typed": "ok"
           },
           {
+            "path": "$.stages.emit",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          },
+          {
             "path": "$.stages.typecheck",
             "delta": "value",
             "parsed": "skipped",
-            "typed": "oof"
+            "typed": "ok"
           }
-        ]
-      }
-    },
-    {
-      "case": "history_access",
-      "surface": "history_bihistory_temporal_access",
-      "kind": "typed_expected_nodes_missing",
-      "summary": "shape delta",
-      "details": {
-        "kind": "typed_expected_nodes_missing",
-        "missing": [
-          "temporal_access_node"
         ]
       }
     },
@@ -505,6 +898,245 @@
       "surface": "ledger_tbackend_descriptor",
       "kind": "not_source_comparable",
       "summary": "Descriptor fixture is metadata-only TBackend evidence, not a SemanticIR emission source."
+    }
+  ],
+  "typed_source_blocked_items": [],
+  "legacy_parity_delta_items": [
+    {
+      "case": "invariant_valid",
+      "surface": "invariant_runtime_observations",
+      "kind": "semantic_ir_shape_delta",
+      "summary": "SemanticIR differs after identity fields are normalized.",
+      "details": {
+        "kind": "semantic_ir_shape_delta",
+        "summary": "SemanticIR differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.invariants",
+            "delta": "missing_in_parsed"
+          },
+          {
+            "path": "$.contracts[0].nodes",
+            "delta": "length",
+            "parsed": 1,
+            "typed": 5
+          }
+        ]
+      }
+    },
+    {
+      "case": "invariant_valid",
+      "surface": "invariant_runtime_observations",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.invariant_coverage",
+            "delta": "missing_in_parsed"
+          }
+        ]
+      }
+    },
+    {
+      "case": "olap_point",
+      "surface": "olap_point",
+      "kind": "value_delta",
+      "summary": "report.pass_result",
+      "details": {
+        "kind": "value_delta",
+        "path": "report.pass_result",
+        "parsed": "oof",
+        "typed": "ok"
+      }
+    },
+    {
+      "case": "olap_point",
+      "surface": "olap_point",
+      "kind": "value_delta",
+      "summary": "semantic_ir.present",
+      "details": {
+        "kind": "value_delta",
+        "path": "semantic_ir.present",
+        "parsed": false,
+        "typed": true
+      }
+    },
+    {
+      "case": "olap_point",
+      "surface": "olap_point",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.diagnostics",
+            "delta": "length",
+            "parsed": 2,
+            "typed": 0
+          },
+          {
+            "path": "$.pass_result",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.classify",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.emit",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.typecheck",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          }
+        ]
+      }
+    },
+    {
+      "case": "stream_fold",
+      "surface": "stream_fold",
+      "kind": "value_delta",
+      "summary": "report.pass_result",
+      "details": {
+        "kind": "value_delta",
+        "path": "report.pass_result",
+        "parsed": "oof",
+        "typed": "ok"
+      }
+    },
+    {
+      "case": "stream_fold",
+      "surface": "stream_fold",
+      "kind": "value_delta",
+      "summary": "semantic_ir.present",
+      "details": {
+        "kind": "value_delta",
+        "path": "semantic_ir.present",
+        "parsed": false,
+        "typed": true
+      }
+    },
+    {
+      "case": "stream_fold",
+      "surface": "stream_fold",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.diagnostics",
+            "delta": "length",
+            "parsed": 1,
+            "typed": 0
+          },
+          {
+            "path": "$.pass_result",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.classify",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.emit",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.typecheck",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          }
+        ]
+      }
+    },
+    {
+      "case": "history_access",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "value_delta",
+      "summary": "report.pass_result",
+      "details": {
+        "kind": "value_delta",
+        "path": "report.pass_result",
+        "parsed": "oof",
+        "typed": "ok"
+      }
+    },
+    {
+      "case": "history_access",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "value_delta",
+      "summary": "semantic_ir.present",
+      "details": {
+        "kind": "value_delta",
+        "path": "semantic_ir.present",
+        "parsed": false,
+        "typed": true
+      }
+    },
+    {
+      "case": "history_access",
+      "surface": "history_bihistory_temporal_access",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.diagnostics",
+            "delta": "length",
+            "parsed": 2,
+            "typed": 0
+          },
+          {
+            "path": "$.pass_result",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.classify",
+            "delta": "value",
+            "parsed": "oof",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.emit",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          },
+          {
+            "path": "$.stages.typecheck",
+            "delta": "value",
+            "parsed": "skipped",
+            "typed": "ok"
+          }
+        ]
+      }
     }
   ],
   "recommendation": "Do not switch CompilerOrchestrator yet; resolve blocked_items first."

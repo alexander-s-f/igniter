@@ -104,7 +104,9 @@
           "node_fragment_class": "temporal",
           "value_fragment_class": "core",
           "required_capability": "history_read",
-          "temporal_axis": "valid_time"
+          "temporal_axis": "valid_time",
+          "from": "sku/{sku}/price",
+          "lifecycle": "durable"
         },
         {
           "decl_id": "compute:price_at",
@@ -158,6 +160,42 @@
                 ]
               }
             ],
+            "semantic_node": {
+              "kind": "temporal_access_node",
+              "name": "price_at",
+              "source_ref": "price_history",
+              "axis": "valid_time",
+              "temporal_axis": "valid_time",
+              "history_ref": "price_history",
+              "axis_refs": [
+                "as_of"
+              ],
+              "coordinate_refs": {
+                "as_of": "as_of"
+              },
+              "result_type": {
+                "name": "Option",
+                "params": [
+                  {
+                    "name": "String",
+                    "params": []
+                  }
+                ]
+              },
+              "node_fragment_class": "temporal",
+              "value_fragment_class": "core",
+              "required_capability": "history_read",
+              "required_caps": [
+                "history_read"
+              ],
+              "deps": [
+                "price_history",
+                "as_of"
+              ],
+              "evidence_policy": "link_selected_append_observation",
+              "fragment": "temporal",
+              "as_of_ref": "as_of"
+            },
             "resolved_type": {
               "name": "Option",
               "params": [
@@ -171,6 +209,42 @@
               "price_history",
               "as_of"
             ]
+          },
+          "semantic_node": {
+            "kind": "temporal_access_node",
+            "name": "price_at",
+            "source_ref": "price_history",
+            "axis": "valid_time",
+            "temporal_axis": "valid_time",
+            "history_ref": "price_history",
+            "axis_refs": [
+              "as_of"
+            ],
+            "coordinate_refs": {
+              "as_of": "as_of"
+            },
+            "result_type": {
+              "name": "Option",
+              "params": [
+                {
+                  "name": "String",
+                  "params": []
+                }
+              ]
+            },
+            "node_fragment_class": "temporal",
+            "value_fragment_class": "core",
+            "required_capability": "history_read",
+            "required_caps": [
+              "history_read"
+            ],
+            "deps": [
+              "price_history",
+              "as_of"
+            ],
+            "evidence_policy": "link_selected_append_observation",
+            "fragment": "temporal",
+            "as_of_ref": "as_of"
           }
         },
         {

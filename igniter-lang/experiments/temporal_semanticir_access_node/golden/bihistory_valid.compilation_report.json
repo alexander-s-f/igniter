@@ -1,0 +1,17 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/a97da15bba17da42",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:a97da15bba17da42b22aa608761be27f282d4ac779b240cbf0abae223aae40e3",
+  "source_path": "experiments/typechecker_proof/fixtures/bihistory_valid.ig",
+  "pass_result": "ok",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "ok",
+    "emit": "ok"
+  },
+  "diagnostics": [],
+  "semantic_ir_ref": "semanticir/a97da15bba17da42"
+}

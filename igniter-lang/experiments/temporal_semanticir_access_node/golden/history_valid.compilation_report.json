@@ -1,0 +1,17 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/history-valid-te",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:history-valid-temporal-fixture",
+  "source_path": "experiments/typechecker_proof/fixtures/history_valid.ig",
+  "pass_result": "ok",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "ok",
+    "emit": "ok"
+  },
+  "diagnostics": [],
+  "semantic_ir_ref": "semanticir/history-valid-te"
+}

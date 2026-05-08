@@ -56,7 +56,17 @@
           "fragment_class": "temporal",
           "deps": [],
           "missing_refs": [],
-          "type_annotation": "History",
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
           "node_fragment_class": "temporal",
           "value_fragment_class": "core",
           "required_capability": "history_read",
@@ -71,7 +81,17 @@
             "price_history"
           ],
           "missing_refs": [],
-          "type_annotation": "History"
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
         }
       ],
       "dependency_graph": {

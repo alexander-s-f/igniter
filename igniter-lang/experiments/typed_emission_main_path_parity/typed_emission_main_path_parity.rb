@@ -42,6 +42,49 @@ module TypedEmissionMainPathParity
     }
   IGNITER
 
+  OLAP_SOURCE = <<~IGNITER
+    olap_point Revenue {
+      dimensions: {
+        date: String,
+        region: String,
+        channel: String
+      }
+      measure: Decimal[2]
+      granularity: { date: :daily }
+      source: synthetic_fulfilled_order_facts
+      indexed: [:date, :region]
+    }
+
+    contract RegionalDailyRevenuePoint {
+      input date: String
+      input region: String
+      input channel: String
+
+      compute revenue_point: OLAPPoint[Decimal[2], {date: String, region: String, channel: String}] =
+        Revenue[date: date, region: region, channel: channel]
+
+      output revenue_point: Decimal[2]
+    }
+  IGNITER
+
+  STREAM_SOURCE = <<~IGNITER
+    contract IntegerWindowSum {
+      input device_id: String
+      stream readings: Integer
+
+      window "integer/{device_id}" {
+        kind: :count,
+        size: 3,
+        on_close: :snapshot
+      }
+
+      compute total: Integer =
+        fold_stream(readings, 0, (acc, reading) -> acc + reading) @window_bounded
+
+      output total: Integer
+    }
+  IGNITER
+
   SOURCE_CASES = [
     {
       "id" => "package_facade_add",
@@ -62,6 +105,7 @@ module TypedEmissionMainPathParity
       "id" => "olap_point",
       "surface" => "olap_point",
       "source_path" => "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
+      "source" => OLAP_SOURCE,
       "sample_input" => { "date" => "2026-05-08", "region" => "north", "channel" => "field" },
       "expect_typed_node_kinds" => ["olap_access_node"]
     },
@@ -69,6 +113,7 @@ module TypedEmissionMainPathParity
       "id" => "stream_fold",
       "surface" => "stream_fold",
       "source_path" => "igniter-lang/experiments/stream_t_proof/stream_integer_window.ig",
+      "source" => STREAM_SOURCE,
       "sample_input" => { "device_id" => "device-1" },
       "expect_typed_node_kinds" => ["stream_input_node", "window_decl_node", "fold_stream_node"]
     },
@@ -184,6 +229,8 @@ module TypedEmissionMainPathParity
 
   def build_summary(source_cases)
     blocked = blocked_items(source_cases)
+    typed_source_blocked = typed_source_blocked_items(source_cases)
+    legacy_parity_deltas = legacy_parity_delta_items(source_cases)
     {
       "kind" => "typed_emission_main_path_parity",
       "format_version" => "0.1.0",
@@ -198,6 +245,8 @@ module TypedEmissionMainPathParity
       "source_cases" => source_cases,
       "proof_local_cases" => PROOF_LOCAL_CASES,
       "blocked_items" => blocked,
+      "typed_source_blocked_items" => typed_source_blocked,
+      "legacy_parity_delta_items" => legacy_parity_deltas,
       "recommendation" => blocked.empty? ? "Switch CompilerOrchestrator narrowly to emit_typed." : "Do not switch CompilerOrchestrator yet; resolve blocked_items first."
     }
   end
@@ -384,6 +433,42 @@ module TypedEmissionMainPathParity
     case_blocks + proof_local_blocks
   end
 
+  def typed_source_blocked_items(source_cases)
+    source_cases.flat_map do |source_case|
+      source_case.fetch("deltas", []).filter_map do |delta|
+        typed_source_blocking_delta?(delta) ? {
+          "case" => source_case.fetch("id"),
+          "surface" => source_case.fetch("surface"),
+          "kind" => delta.fetch("kind"),
+          "summary" => delta.fetch("summary", "typed source path is not ready"),
+          "details" => delta
+        } : nil
+      end
+    end
+  end
+
+  def typed_source_blocking_delta?(delta)
+    return true if %w[parse_exception parse_error typed_path_error].include?(delta.fetch("kind"))
+
+    delta.fetch("kind") == "typed_expected_nodes_missing"
+  end
+
+  def legacy_parity_delta_items(source_cases)
+    source_cases.flat_map do |source_case|
+      source_case.fetch("deltas", []).filter_map do |delta|
+        next if typed_source_blocking_delta?(delta)
+
+        {
+          "case" => source_case.fetch("id"),
+          "surface" => source_case.fetch("surface"),
+          "kind" => delta.fetch("kind"),
+          "summary" => delta.fetch("summary", delta.fetch("path", "legacy/typed parity delta")),
+          "details" => delta
+        }
+      end
+    end
+  end
+
   def write_summary(summary)
     File.write(SUMMARY_PATH, "#{JSON.pretty_generate(summary)}\n")
   end
@@ -405,6 +490,8 @@ module TypedEmissionMainPathParity
       puts "#{entry.fetch("id")}: #{entry.fetch("status")}"
     end
     puts "blocked_items: #{summary.fetch("blocked_items").length}"
+    puts "typed_source_blocked_items: #{summary.fetch("typed_source_blocked_items").length}"
+    puts "legacy_parity_delta_items: #{summary.fetch("legacy_parity_delta_items").length}"
     puts "summary: #{SUMMARY_PATH.relative_path_from(ROOT)}"
     puts "golden: #{GOLDEN_REPORT_PATH.relative_path_from(ROOT)}"
   end

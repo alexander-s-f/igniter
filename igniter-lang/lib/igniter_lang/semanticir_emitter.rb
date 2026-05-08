@@ -181,7 +181,10 @@ module IgniterLang
           fold_stream_node(decl, declarations)
         when "invariant"
           invariant_node(decl)
+        when "read"
+          temporal_input_node(decl) if decl.fetch("node_fragment_class", nil) == "temporal"
         when "compute"
+          temporal_access_node(decl) ||
           {
             "kind" => "compute",
             "name" => decl.fetch("name"),
@@ -230,15 +233,118 @@ module IgniterLang
     end
 
     def typed_escape_boundaries(contract)
-      return [] unless contract.fetch("declarations").any? { |decl| decl.fetch("kind") == "stream" }
+      temporal_caps = contract.fetch("declarations")
+        .select { |decl| decl.fetch("node_fragment_class", nil) == "temporal" }
+        .map { |decl| decl.fetch("required_capability") }
+        .uniq
+        .sort
+      boundaries = temporal_caps.map do |capability|
+        {
+          "name" => capability,
+          "required_caps" => [capability],
+          "produces" => [capability == "bihistory_read" ? "bihistory_access_observation" : "history_access_observation"]
+        }
+      end
+      return boundaries unless contract.fetch("declarations").any? { |decl| decl.fetch("kind") == "stream" }
 
-      [
+      boundaries + [
         {
           "name" => "stream_input",
           "required_caps" => ["stream_input"],
           "produces" => ["stream_window_observation"]
         }
       ]
+    end
+
+    def temporal_input_node(decl)
+      {
+        "kind" => "temporal_input_node",
+        "name" => decl.fetch("name"),
+        "type" => temporal_type(decl.fetch("type")),
+        "store_ref" => decl.fetch("from", nil),
+        "lifecycle" => decl.fetch("lifecycle", "durable"),
+        "axis" => decl.fetch("temporal_axis"),
+        "node_fragment_class" => decl.fetch("node_fragment_class"),
+        "value_fragment_class" => decl.fetch("value_fragment_class"),
+        "required_capability" => decl.fetch("required_capability"),
+        "required_caps" => [decl.fetch("required_capability")],
+        "fragment" => decl.fetch("fragment_class", "temporal")
+      }
+    end
+
+    def temporal_access_node(decl)
+      expr = decl.fetch("expr", {})
+      return nil unless expr.fetch("kind", nil) == "call"
+
+      case expr.fetch("fn")
+      when "history_at"
+        history_temporal_access_node(decl, expr)
+      when "bihistory_at"
+        bihistory_temporal_access_node(decl, expr)
+      end
+    end
+
+    def history_temporal_access_node(decl, expr)
+      args = expr.fetch("args", [])
+      source_ref = ref_name(args[0])
+      as_of_ref = ref_name(args[1])
+      {
+        "kind" => "temporal_access_node",
+        "name" => decl.fetch("name"),
+        "source_ref" => source_ref,
+        "access" => "point",
+        "temporal_axis" => "valid_time",
+        "axis" => "valid_time",
+        "as_of_ref" => as_of_ref,
+        "coordinate_refs" => { "as_of" => as_of_ref },
+        "result_type" => decl.fetch("type"),
+        "node_fragment_class" => "temporal",
+        "value_fragment_class" => "core",
+        "required_capability" => "history_read",
+        "required_caps" => ["history_read"],
+        "evidence_policy" => "link_selected_append_observation",
+        "fragment" => "temporal"
+      }
+    end
+
+    def bihistory_temporal_access_node(decl, expr)
+      args = expr.fetch("args", [])
+      source_ref = ref_name(args[0])
+      vt_ref = ref_name(args[1])
+      tt_ref = ref_name(args[2])
+      {
+        "kind" => "temporal_access_node",
+        "name" => decl.fetch("name"),
+        "source_ref" => source_ref,
+        "access" => "point",
+        "temporal_axis" => "bitemporal",
+        "axis" => "bitemporal",
+        "valid_time_ref" => vt_ref,
+        "transaction_time_ref" => tt_ref,
+        "coordinate_refs" => {
+          "valid_time" => vt_ref,
+          "transaction_time" => tt_ref
+        },
+        "result_type" => decl.fetch("type"),
+        "node_fragment_class" => "temporal",
+        "value_fragment_class" => "core",
+        "required_capability" => "bihistory_read",
+        "required_caps" => ["bihistory_read"],
+        "evidence_policy" => "link_selected_event_observation",
+        "fragment" => "temporal"
+      }
+    end
+
+    def temporal_type(type)
+      return type unless type.is_a?(Hash)
+
+      constructor = type.fetch("name", type.fetch("constructor", nil))
+      params = type.fetch("params", [])
+      element = params.first
+      {
+        "constructor" => constructor,
+        "element_type" => element ? type_display(element) : "Unknown"
+      }
     end
 
     def invariant_node(decl)

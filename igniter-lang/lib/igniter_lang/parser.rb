@@ -730,6 +730,13 @@ module IgniterLang
       end
       expect_type!(:assign)
       expr = parse_expr
+      bound = parse_optional_stream_bound if expr.fetch("kind", nil) == "call" && expr.fetch("fn", nil) == "fold_stream"
+      if bound
+        node = { "kind" => "fold_stream", "name" => name, "expr" => expr }
+        node["type_annotation"] = type_ref if type_ref
+        node["bound"] = bound
+        return node
+      end
       node = { "kind" => "compute", "name" => name, "expr" => expr }
       node["type_annotation"] = type_ref if type_ref
       node
@@ -791,6 +798,7 @@ module IgniterLang
         advance if peek_type?(:colon)  # consume optional : separator between key and value
         val = parse_window_value
         opts[key] = val
+        advance if peek_type?(:comma)
       end
       expect_type!(:rbrace)
       { "kind" => "window", "label" => label, "options" => opts }
@@ -925,40 +933,8 @@ module IgniterLang
       # Expression parser handles the call: fold_stream(stream_ref, init, fn)
       expr = parse_expr
       # Parse optional bound annotation: @window_bounded or @count_bounded(n)
-      bound = nil
-      if peek_type?(:at)
-        advance
-        bound_name = name_token!(%i[ident keyword])
-        case bound_name
-        when "window_bounded"
-          bound = { "kind" => "window_bounded" }
-        when "count_bounded"
-          expect_type!(:lparen)
-          n_tok = peek
-          if peek_type?(:int_lit)
-            n = advance.value
-            bound = { "kind" => "count_bounded", "n" => n }
-          else
-            add_parse_error(
-              rule: "OOF-S5",
-              message: "@count_bounded requires a statically-known Integer literal",
-              token: n_tok&.value.to_s,
-              line: n_tok&.line || 0,
-              col: n_tok&.col || 0
-            )
-            bound = { "kind" => "count_bounded", "n" => nil }
-          end
-          expect_type!(:rparen)
-        else
-          add_parse_error(
-            rule: "OOF-S1",
-            message: "Unknown bound annotation '@#{bound_name}'; expected @window_bounded or @count_bounded(n)",
-            token: bound_name,
-            line: name_tok.line,
-            col: name_tok.col
-          )
-        end
-      else
+      bound = parse_optional_stream_bound
+      unless bound
         # No bound annotation — OOF-S1: unbounded fold
         add_parse_error(
           rule: "OOF-S1",
@@ -971,6 +947,44 @@ module IgniterLang
       node = { "kind" => "fold_stream", "name" => name, "expr" => expr }
       node["bound"] = bound if bound
       node
+    end
+
+    def parse_optional_stream_bound
+      return nil unless peek_type?(:at)
+
+      at_tok = advance
+      bound_name = name_token!(%i[ident keyword])
+      case bound_name
+      when "window_bounded"
+        { "kind" => "window_bounded" }
+      when "count_bounded"
+        expect_type!(:lparen)
+        n_tok = peek
+        if peek_type?(:int_lit)
+          n = advance.value
+          bound = { "kind" => "count_bounded", "n" => n }
+        else
+          add_parse_error(
+            rule: "OOF-S5",
+            message: "@count_bounded requires a statically-known Integer literal",
+            token: n_tok&.value.to_s,
+            line: n_tok&.line || 0,
+            col: n_tok&.col || 0
+          )
+          bound = { "kind" => "count_bounded", "n" => nil }
+        end
+        expect_type!(:rparen)
+        bound
+      else
+        add_parse_error(
+          rule: "OOF-S1",
+          message: "Unknown bound annotation '@#{bound_name}'; expected @window_bounded or @count_bounded(n)",
+          token: bound_name,
+          line: at_tok.line,
+          col: at_tok.col
+        )
+        nil
+      end
     end
 
     # ---- Type declarations -------------------------------------------------

@@ -1,0 +1,941 @@
+{
+  "kind": "temporal_semanticir_access_node_proof",
+  "format_version": "0.1.0",
+  "track": "temporal-semanticir-access-node-v0",
+  "status": "PASS",
+  "cases": {
+    "history_valid": {
+      "id": "history_valid",
+      "classified_source": "igniter-lang/experiments/typechecker_proof/classified/history_valid.classified.json",
+      "typed_program": {
+        "kind": "typed_program",
+        "typechecker_version": "typed-pass-executable-proof-v0",
+        "program_id": "typed_pass/9a6f4059a1ec8215",
+        "classified_program_id": "classifier_pass/history_valid_temporal",
+        "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/history_valid.ig",
+        "source_hash": "sha256:history-valid-temporal-fixture",
+        "grammar_version": "0.1.0",
+        "module": "Fixture.HistoryAxes",
+        "type_env": {},
+        "contracts": [
+          {
+            "kind": "typed_contract",
+            "contract_id": "Fixture.HistoryAxes.HistoryAxesTest",
+            "name": "HistoryAxesTest",
+            "status": "accepted",
+            "fragment_class": "temporal",
+            "symbols": [
+              {
+                "name": "as_of",
+                "type": {
+                  "name": "DateTime",
+                  "params": []
+                },
+                "resolved": true
+              },
+              {
+                "name": "price_at",
+                "type": {
+                  "name": "Option",
+                  "params": [
+                    {
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "resolved": true
+              },
+              {
+                "name": "price_history",
+                "type": {
+                  "kind": "type_ref",
+                  "name": "History",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "resolved": true
+              },
+              {
+                "name": "sku",
+                "type": {
+                  "name": "String",
+                  "params": []
+                },
+                "resolved": true
+              }
+            ],
+            "declarations": [
+              {
+                "decl_id": "input:sku",
+                "kind": "input",
+                "name": "sku",
+                "fragment_class": "core",
+                "type": {
+                  "name": "String",
+                  "params": []
+                },
+                "deps": []
+              },
+              {
+                "decl_id": "input:as_of",
+                "kind": "input",
+                "name": "as_of",
+                "fragment_class": "core",
+                "type": {
+                  "name": "DateTime",
+                  "params": []
+                },
+                "deps": []
+              },
+              {
+                "decl_id": "read:price_history",
+                "kind": "read",
+                "name": "price_history",
+                "fragment_class": "temporal",
+                "type": {
+                  "kind": "type_ref",
+                  "name": "History",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "deps": [],
+                "node_fragment_class": "temporal",
+                "value_fragment_class": "core",
+                "required_capability": "history_read",
+                "temporal_axis": "valid_time",
+                "from": "sku/{sku}/price",
+                "lifecycle": "durable"
+              },
+              {
+                "decl_id": "compute:price_at",
+                "kind": "compute",
+                "name": "price_at",
+                "fragment_class": "core",
+                "type": {
+                  "name": "Option",
+                  "params": [
+                    {
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "deps": [
+                  "price_history",
+                  "as_of"
+                ],
+                "expr": {
+                  "kind": "call",
+                  "fn": "history_at",
+                  "args": [
+                    {
+                      "kind": "ref",
+                      "name": "price_history",
+                      "resolved_type": {
+                        "kind": "type_ref",
+                        "name": "History",
+                        "params": [
+                          {
+                            "kind": "type_ref",
+                            "name": "String",
+                            "params": []
+                          }
+                        ]
+                      },
+                      "deps": [
+                        "price_history"
+                      ]
+                    },
+                    {
+                      "kind": "ref",
+                      "name": "as_of",
+                      "resolved_type": {
+                        "name": "DateTime",
+                        "params": []
+                      },
+                      "deps": [
+                        "as_of"
+                      ]
+                    }
+                  ],
+                  "semantic_node": {
+                    "kind": "temporal_access_node",
+                    "name": "price_at",
+                    "source_ref": "price_history",
+                    "axis": "valid_time",
+                    "temporal_axis": "valid_time",
+                    "history_ref": "price_history",
+                    "axis_refs": [
+                      "as_of"
+                    ],
+                    "coordinate_refs": {
+                      "as_of": "as_of"
+                    },
+                    "result_type": {
+                      "name": "Option",
+                      "params": [
+                        {
+                          "name": "String",
+                          "params": []
+                        }
+                      ]
+                    },
+                    "node_fragment_class": "temporal",
+                    "value_fragment_class": "core",
+                    "required_capability": "history_read",
+                    "required_caps": [
+                      "history_read"
+                    ],
+                    "deps": [
+                      "price_history",
+                      "as_of"
+                    ],
+                    "evidence_policy": "link_selected_append_observation",
+                    "fragment": "temporal",
+                    "as_of_ref": "as_of"
+                  },
+                  "resolved_type": {
+                    "name": "Option",
+                    "params": [
+                      {
+                        "name": "String",
+                        "params": []
+                      }
+                    ]
+                  },
+                  "deps": [
+                    "price_history",
+                    "as_of"
+                  ]
+                },
+                "semantic_node": {
+                  "kind": "temporal_access_node",
+                  "name": "price_at",
+                  "source_ref": "price_history",
+                  "axis": "valid_time",
+                  "temporal_axis": "valid_time",
+                  "history_ref": "price_history",
+                  "axis_refs": [
+                    "as_of"
+                  ],
+                  "coordinate_refs": {
+                    "as_of": "as_of"
+                  },
+                  "result_type": {
+                    "name": "Option",
+                    "params": [
+                      {
+                        "name": "String",
+                        "params": []
+                      }
+                    ]
+                  },
+                  "node_fragment_class": "temporal",
+                  "value_fragment_class": "core",
+                  "required_capability": "history_read",
+                  "required_caps": [
+                    "history_read"
+                  ],
+                  "deps": [
+                    "price_history",
+                    "as_of"
+                  ],
+                  "evidence_policy": "link_selected_append_observation",
+                  "fragment": "temporal",
+                  "as_of_ref": "as_of"
+                }
+              },
+              {
+                "decl_id": "output:price_at",
+                "kind": "output",
+                "name": "price_at",
+                "fragment_class": "core",
+                "type": {
+                  "kind": "type_ref",
+                  "name": "Option",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "deps": [
+                  "price_at"
+                ]
+              }
+            ],
+            "type_errors": []
+          }
+        ],
+        "type_errors": [],
+        "semantic_ir_ref": null
+      },
+      "semantic_ir": {
+        "kind": "semantic_ir_program",
+        "format_version": "0.1.0",
+        "program_id": "semanticir/history-valid-te",
+        "grammar_version": "0.1.0",
+        "source_hash": "sha256:history-valid-temporal-fixture",
+        "source_path": "experiments/typechecker_proof/fixtures/history_valid.ig",
+        "module": "Fixture.HistoryAxes",
+        "compilation_report_ref": "compilation_report/history-valid-te",
+        "contracts": [
+          {
+            "kind": "contract_ir",
+            "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+            "contract_name": "HistoryAxesTest",
+            "specialization_of": null,
+            "type_args": {},
+            "fragment_class": "temporal",
+            "inputs": [
+              {
+                "name": "sku",
+                "type": {
+                  "name": "String",
+                  "params": []
+                },
+                "lifecycle": "local"
+              },
+              {
+                "name": "as_of",
+                "type": {
+                  "name": "DateTime",
+                  "params": []
+                },
+                "lifecycle": "local"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "price_at",
+                "type": {
+                  "kind": "type_ref",
+                  "name": "Option",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "lifecycle": "session"
+              }
+            ],
+            "nodes": [
+              {
+                "kind": "temporal_input_node",
+                "name": "price_history",
+                "type": {
+                  "constructor": "History",
+                  "element_type": "String"
+                },
+                "store_ref": "sku/{sku}/price",
+                "lifecycle": "durable",
+                "axis": "valid_time",
+                "node_fragment_class": "temporal",
+                "value_fragment_class": "core",
+                "required_capability": "history_read",
+                "required_caps": [
+                  "history_read"
+                ],
+                "fragment": "temporal"
+              },
+              {
+                "kind": "temporal_access_node",
+                "name": "price_at",
+                "source_ref": "price_history",
+                "axis": "valid_time",
+                "temporal_axis": "valid_time",
+                "history_ref": "price_history",
+                "axis_refs": [
+                  "as_of"
+                ],
+                "coordinate_refs": {
+                  "as_of": "as_of"
+                },
+                "result_type": {
+                  "name": "Option",
+                  "params": [
+                    {
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "node_fragment_class": "temporal",
+                "value_fragment_class": "core",
+                "required_capability": "history_read",
+                "required_caps": [
+                  "history_read"
+                ],
+                "deps": [
+                  "price_history",
+                  "as_of"
+                ],
+                "evidence_policy": "link_selected_append_observation",
+                "fragment": "temporal",
+                "as_of_ref": "as_of"
+              }
+            ],
+            "escape_boundaries": [
+              {
+                "name": "history_read",
+                "required_caps": [
+                  "history_read"
+                ],
+                "produces": [
+                  "history_access_observation"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "compilation_report": {
+        "kind": "compilation_report",
+        "format_version": "0.1.0",
+        "program_id": "compilation_report/history-valid-te",
+        "grammar_version": "0.1.0",
+        "source_hash": "sha256:history-valid-temporal-fixture",
+        "source_path": "experiments/typechecker_proof/fixtures/history_valid.ig",
+        "pass_result": "ok",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok"
+        },
+        "diagnostics": [],
+        "semantic_ir_ref": "semanticir/history-valid-te"
+      }
+    },
+    "bihistory_valid": {
+      "id": "bihistory_valid",
+      "classified_source": "igniter-lang/experiments/typechecker_proof/classified/bihistory_valid.classified.json",
+      "typed_program": {
+        "kind": "typed_program",
+        "typechecker_version": "typed-pass-executable-proof-v0",
+        "program_id": "typed_pass/daace371ca4530d5",
+        "classified_program_id": "classifier_pass/a97da15bba17da42",
+        "source_path": "igniter-lang/experiments/typechecker_proof/fixtures/bihistory_valid.ig",
+        "source_hash": "sha256:a97da15bba17da42b22aa608761be27f282d4ac779b240cbf0abae223aae40e3",
+        "grammar_version": "0.1.0",
+        "module": "Fixture.BiHistoryAxes",
+        "type_env": {},
+        "contracts": [
+          {
+            "kind": "typed_contract",
+            "contract_id": "Fixture.BiHistoryAxes.BiHistoryAxesTest",
+            "name": "BiHistoryAxesTest",
+            "status": "accepted",
+            "fragment_class": "temporal",
+            "symbols": [
+              {
+                "name": "avail_at",
+                "type": {
+                  "name": "Option",
+                  "params": [
+                    {
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "resolved": true
+              },
+              {
+                "name": "avail_history",
+                "type": {
+                  "kind": "type_ref",
+                  "name": "BiHistory",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "resolved": true
+              },
+              {
+                "name": "technician_id",
+                "type": {
+                  "name": "String",
+                  "params": []
+                },
+                "resolved": true
+              },
+              {
+                "name": "transaction_time",
+                "type": {
+                  "name": "DateTime",
+                  "params": []
+                },
+                "resolved": true
+              },
+              {
+                "name": "valid_time",
+                "type": {
+                  "name": "DateTime",
+                  "params": []
+                },
+                "resolved": true
+              }
+            ],
+            "declarations": [
+              {
+                "decl_id": "input:technician_id",
+                "kind": "input",
+                "name": "technician_id",
+                "fragment_class": "core",
+                "type": {
+                  "name": "String",
+                  "params": []
+                },
+                "deps": []
+              },
+              {
+                "decl_id": "input:valid_time",
+                "kind": "input",
+                "name": "valid_time",
+                "fragment_class": "core",
+                "type": {
+                  "name": "DateTime",
+                  "params": []
+                },
+                "deps": []
+              },
+              {
+                "decl_id": "input:transaction_time",
+                "kind": "input",
+                "name": "transaction_time",
+                "fragment_class": "core",
+                "type": {
+                  "name": "DateTime",
+                  "params": []
+                },
+                "deps": []
+              },
+              {
+                "decl_id": "read:avail_history",
+                "kind": "read",
+                "name": "avail_history",
+                "fragment_class": "temporal",
+                "type": {
+                  "kind": "type_ref",
+                  "name": "BiHistory",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "deps": [],
+                "node_fragment_class": "temporal",
+                "value_fragment_class": "core",
+                "required_capability": "bihistory_read",
+                "temporal_axis": "bitemporal",
+                "from": "t/{technician_id}/avail",
+                "lifecycle": "durable"
+              },
+              {
+                "decl_id": "compute:avail_at",
+                "kind": "compute",
+                "name": "avail_at",
+                "fragment_class": "core",
+                "type": {
+                  "name": "Option",
+                  "params": [
+                    {
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "deps": [
+                  "avail_history",
+                  "valid_time",
+                  "transaction_time"
+                ],
+                "expr": {
+                  "kind": "call",
+                  "fn": "bihistory_at",
+                  "args": [
+                    {
+                      "kind": "ref",
+                      "name": "avail_history",
+                      "resolved_type": {
+                        "kind": "type_ref",
+                        "name": "BiHistory",
+                        "params": [
+                          {
+                            "kind": "type_ref",
+                            "name": "String",
+                            "params": []
+                          }
+                        ]
+                      },
+                      "deps": [
+                        "avail_history"
+                      ]
+                    },
+                    {
+                      "kind": "ref",
+                      "name": "valid_time",
+                      "resolved_type": {
+                        "name": "DateTime",
+                        "params": []
+                      },
+                      "deps": [
+                        "valid_time"
+                      ]
+                    },
+                    {
+                      "kind": "ref",
+                      "name": "transaction_time",
+                      "resolved_type": {
+                        "name": "DateTime",
+                        "params": []
+                      },
+                      "deps": [
+                        "transaction_time"
+                      ]
+                    }
+                  ],
+                  "semantic_node": {
+                    "kind": "temporal_access_node",
+                    "name": "avail_at",
+                    "source_ref": "avail_history",
+                    "axis": "bitemporal",
+                    "temporal_axis": "bitemporal",
+                    "history_ref": "avail_history",
+                    "axis_refs": [
+                      "valid_time",
+                      "transaction_time"
+                    ],
+                    "coordinate_refs": {
+                      "valid_time": "valid_time",
+                      "transaction_time": "transaction_time"
+                    },
+                    "result_type": {
+                      "name": "Option",
+                      "params": [
+                        {
+                          "name": "String",
+                          "params": []
+                        }
+                      ]
+                    },
+                    "node_fragment_class": "temporal",
+                    "value_fragment_class": "core",
+                    "required_capability": "bihistory_read",
+                    "required_caps": [
+                      "bihistory_read"
+                    ],
+                    "deps": [
+                      "avail_history",
+                      "valid_time",
+                      "transaction_time"
+                    ],
+                    "evidence_policy": "link_selected_event_observation",
+                    "fragment": "temporal",
+                    "valid_time_ref": "valid_time",
+                    "transaction_time_ref": "transaction_time"
+                  },
+                  "resolved_type": {
+                    "name": "Option",
+                    "params": [
+                      {
+                        "name": "String",
+                        "params": []
+                      }
+                    ]
+                  },
+                  "deps": [
+                    "avail_history",
+                    "valid_time",
+                    "transaction_time"
+                  ]
+                },
+                "semantic_node": {
+                  "kind": "temporal_access_node",
+                  "name": "avail_at",
+                  "source_ref": "avail_history",
+                  "axis": "bitemporal",
+                  "temporal_axis": "bitemporal",
+                  "history_ref": "avail_history",
+                  "axis_refs": [
+                    "valid_time",
+                    "transaction_time"
+                  ],
+                  "coordinate_refs": {
+                    "valid_time": "valid_time",
+                    "transaction_time": "transaction_time"
+                  },
+                  "result_type": {
+                    "name": "Option",
+                    "params": [
+                      {
+                        "name": "String",
+                        "params": []
+                      }
+                    ]
+                  },
+                  "node_fragment_class": "temporal",
+                  "value_fragment_class": "core",
+                  "required_capability": "bihistory_read",
+                  "required_caps": [
+                    "bihistory_read"
+                  ],
+                  "deps": [
+                    "avail_history",
+                    "valid_time",
+                    "transaction_time"
+                  ],
+                  "evidence_policy": "link_selected_event_observation",
+                  "fragment": "temporal",
+                  "valid_time_ref": "valid_time",
+                  "transaction_time_ref": "transaction_time"
+                }
+              },
+              {
+                "decl_id": "output:avail_at",
+                "kind": "output",
+                "name": "avail_at",
+                "fragment_class": "core",
+                "type": {
+                  "kind": "type_ref",
+                  "name": "Option",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "deps": [
+                  "avail_at"
+                ]
+              }
+            ],
+            "type_errors": []
+          }
+        ],
+        "type_errors": [],
+        "semantic_ir_ref": null
+      },
+      "semantic_ir": {
+        "kind": "semantic_ir_program",
+        "format_version": "0.1.0",
+        "program_id": "semanticir/a97da15bba17da42",
+        "grammar_version": "0.1.0",
+        "source_hash": "sha256:a97da15bba17da42b22aa608761be27f282d4ac779b240cbf0abae223aae40e3",
+        "source_path": "experiments/typechecker_proof/fixtures/bihistory_valid.ig",
+        "module": "Fixture.BiHistoryAxes",
+        "compilation_report_ref": "compilation_report/a97da15bba17da42",
+        "contracts": [
+          {
+            "kind": "contract_ir",
+            "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+            "contract_name": "BiHistoryAxesTest",
+            "specialization_of": null,
+            "type_args": {},
+            "fragment_class": "temporal",
+            "inputs": [
+              {
+                "name": "technician_id",
+                "type": {
+                  "name": "String",
+                  "params": []
+                },
+                "lifecycle": "local"
+              },
+              {
+                "name": "valid_time",
+                "type": {
+                  "name": "DateTime",
+                  "params": []
+                },
+                "lifecycle": "local"
+              },
+              {
+                "name": "transaction_time",
+                "type": {
+                  "name": "DateTime",
+                  "params": []
+                },
+                "lifecycle": "local"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "avail_at",
+                "type": {
+                  "kind": "type_ref",
+                  "name": "Option",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "lifecycle": "session"
+              }
+            ],
+            "nodes": [
+              {
+                "kind": "temporal_input_node",
+                "name": "avail_history",
+                "type": {
+                  "constructor": "BiHistory",
+                  "element_type": "String"
+                },
+                "store_ref": "t/{technician_id}/avail",
+                "lifecycle": "durable",
+                "axis": "bitemporal",
+                "node_fragment_class": "temporal",
+                "value_fragment_class": "core",
+                "required_capability": "bihistory_read",
+                "required_caps": [
+                  "bihistory_read"
+                ],
+                "fragment": "temporal"
+              },
+              {
+                "kind": "temporal_access_node",
+                "name": "avail_at",
+                "source_ref": "avail_history",
+                "axis": "bitemporal",
+                "temporal_axis": "bitemporal",
+                "history_ref": "avail_history",
+                "axis_refs": [
+                  "valid_time",
+                  "transaction_time"
+                ],
+                "coordinate_refs": {
+                  "valid_time": "valid_time",
+                  "transaction_time": "transaction_time"
+                },
+                "result_type": {
+                  "name": "Option",
+                  "params": [
+                    {
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                },
+                "node_fragment_class": "temporal",
+                "value_fragment_class": "core",
+                "required_capability": "bihistory_read",
+                "required_caps": [
+                  "bihistory_read"
+                ],
+                "deps": [
+                  "avail_history",
+                  "valid_time",
+                  "transaction_time"
+                ],
+                "evidence_policy": "link_selected_event_observation",
+                "fragment": "temporal",
+                "valid_time_ref": "valid_time",
+                "transaction_time_ref": "transaction_time"
+              }
+            ],
+            "escape_boundaries": [
+              {
+                "name": "bihistory_read",
+                "required_caps": [
+                  "bihistory_read"
+                ],
+                "produces": [
+                  "bihistory_access_observation"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "compilation_report": {
+        "kind": "compilation_report",
+        "format_version": "0.1.0",
+        "program_id": "compilation_report/a97da15bba17da42",
+        "grammar_version": "0.1.0",
+        "source_hash": "sha256:a97da15bba17da42b22aa608761be27f282d4ac779b240cbf0abae223aae40e3",
+        "source_path": "experiments/typechecker_proof/fixtures/bihistory_valid.ig",
+        "pass_result": "ok",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok"
+        },
+        "diagnostics": [],
+        "semantic_ir_ref": "semanticir/a97da15bba17da42"
+      }
+    }
+  },
+  "checks": {
+    "history_valid.report_ok": true,
+    "history_valid.contract_fragment_temporal": true,
+    "history_valid.escape_boundary_capability": true,
+    "history_valid.temporal_input_node": true,
+    "history_valid.temporal_access_node": true,
+    "history_valid.coordinate_refs": true,
+    "history_valid.no_runtime_cache_metadata": true,
+    "bihistory_valid.report_ok": true,
+    "bihistory_valid.contract_fragment_temporal": true,
+    "bihistory_valid.escape_boundary_capability": true,
+    "bihistory_valid.temporal_input_node": true,
+    "bihistory_valid.temporal_access_node": true,
+    "bihistory_valid.coordinate_refs": true,
+    "bihistory_valid.no_runtime_cache_metadata": true,
+    "golden.history_valid.semantic_ir": true,
+    "golden.history_valid.compilation_report": true,
+    "golden.bihistory_valid.semantic_ir": true,
+    "golden.bihistory_valid.compilation_report": true
+  },
+  "manifest_assembler_questions": [
+    {
+      "id": "assembler_temporal_node_contract_file",
+      "question": "Assembler#contract_file currently assumes executable compute nodes with expr/type; should temporal_input_node and temporal_access_node be copied as capability nodes, or split into requirements plus non-compute nodes?"
+    },
+    {
+      "id": "manifest_fragment_vocabulary",
+      "question": "Manifest/contract fragment vocabularies currently accept core/escape/oof in older paths; should Stage 3 manifests accept temporal as a first-class fragment before RuntimeMachine temporal memoization?"
+    },
+    {
+      "id": "requirements_source_of_truth",
+      "question": "Should required temporal capabilities be derived from SemanticIR escape_boundaries, node.required_caps, or a separate requirements.json builder pass?"
+    }
+  ],
+  "remaining_prop_028_gaps": [
+    "Parser syntax for explicit History/BiHistory coordinate reads remains unimplemented.",
+    "RuntimeMachine load/evaluate support for SemanticIR temporal_access_node remains proof-local.",
+    "RuntimeMachine memoization/cache key implementation remains out of scope.",
+    "OOF-TM2 ambient-time misuse is not implemented.",
+    "OOF-TM7 temporal read inside CORE-required lambda/body is not implemented.",
+    "OOF-TM8 production TBackend capability check remains report/fixture-backed.",
+    "OOF-TM9 CORE cache key misuse is proven as a runtime-cache design bug but not enforced by RuntimeMachine."
+  ]
+}

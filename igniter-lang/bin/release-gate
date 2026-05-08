@@ -1,0 +1,208 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "digest"
+require "fileutils"
+require "json"
+require "open3"
+require "pathname"
+require "rbconfig"
+require "time"
+
+require_relative "../lib/igniter_lang/version"
+
+module IgniterLangReleaseGate
+  PACKAGE_ROOT = Pathname.new(File.expand_path("..", __dir__))
+  ROOT = PACKAGE_ROOT.parent
+  SUMMARY_PATH = PACKAGE_ROOT / "experiments/release_gate/release_gate.json"
+  DEFAULT_OUT_DIR = Pathname.new("/private/tmp/igniter_lang_release_gate")
+  RUBY = RbConfig.ruby
+
+  module_function
+
+  def run(argv)
+    options = parse_args(argv)
+    out_dir = Pathname.new(options.fetch(:out_dir))
+    FileUtils.mkdir_p(out_dir)
+    FileUtils.mkdir_p(SUMMARY_PATH.dirname)
+
+    checks = [
+      command_check(
+        "gemspec_syntax",
+        [RUBY, "-c", "igniter_lang.gemspec"],
+        chdir: PACKAGE_ROOT
+      ),
+      command_check(
+        "gem_native_package_boundary_specs",
+        [RUBY, "igniter-lang/experiments/gem_native_package_boundary_specs/gem_native_package_boundary_specs.rb"],
+        chdir: ROOT,
+        preserve_paths: [
+          ROOT / "igniter-lang/experiments/gem_native_package_boundary_specs/gem_native_package_boundary_specs.json"
+        ]
+      ),
+      command_check(
+        "stage1_close_candidate",
+        [RUBY, "igniter-lang/experiments/stage1_close_candidate/stage1_close_candidate.rb"],
+        chdir: ROOT,
+        preserve_paths: [
+          ROOT / "igniter-lang/experiments/stage1_close_candidate/stage1_close_candidate.json"
+        ]
+      ),
+      command_check(
+        "stage2_close_candidate",
+        [RUBY, "igniter-lang/experiments/stage2_close_candidate/stage2_close_candidate.rb"],
+        chdir: ROOT,
+        preserve_paths: [
+          ROOT / "igniter-lang/experiments/stage2_close_candidate/stage2_close_candidate.json"
+        ]
+      )
+    ]
+
+    artifact = all_pass?(checks) ? build_artifact(out_dir) : skipped_artifact(out_dir)
+    summary = summary(checks: checks, artifact: artifact, out_dir: out_dir)
+    write_summary(summary)
+    print_summary(summary)
+    summary.fetch("status") == "PASS"
+  end
+
+  def parse_args(argv)
+    options = { out_dir: DEFAULT_OUT_DIR.to_s }
+    until argv.empty?
+      arg = argv.shift
+      case arg
+      when "--out"
+        options[:out_dir] = argv.shift || abort_usage("--out requires a directory")
+      when "-h", "--help"
+        puts usage
+        exit 0
+      else
+        abort_usage("unknown argument: #{arg}")
+      end
+    end
+    options
+  end
+
+  def command_check(id, command, chdir:, preserve_paths: [])
+    preserved = preserve_files(preserve_paths)
+    stdout, stderr, status = Open3.capture3(*command, chdir: chdir.to_s)
+    check = {
+      "id" => id,
+      "status" => status.success? ? "PASS" : "FAIL",
+      "command" => command,
+      "chdir" => chdir.to_s,
+      "exit_status" => status.exitstatus,
+      "stdout" => stdout.lines.map(&:chomp),
+      "stderr" => stderr.lines.map(&:chomp)
+    }
+    puts "#{id}: #{check.fetch("status")}"
+    check
+  ensure
+    restore_files(preserved) if preserved
+  end
+
+  def build_artifact(out_dir)
+    artifact_path = out_dir / "igniter_lang-#{IgniterLang::VERSION}.gem"
+    checksum_path = out_dir / "#{artifact_path.basename}.sha256"
+    FileUtils.rm_f(artifact_path)
+    FileUtils.rm_f(checksum_path)
+
+    build = command_check(
+      "gem_build_release_artifact",
+      ["gem", "build", "igniter_lang.gemspec", "--output", artifact_path.to_s],
+      chdir: PACKAGE_ROOT
+    )
+    return { "status" => "FAIL", "build" => build } unless build.fetch("status") == "PASS" && artifact_path.file?
+
+    checksum = Digest::SHA256.file(artifact_path).hexdigest
+    File.write(checksum_path, "#{checksum}  #{artifact_path.basename}\n")
+    {
+      "status" => "PASS",
+      "gem_path" => artifact_path.to_s,
+      "checksum_path" => checksum_path.to_s,
+      "sha256" => checksum,
+      "build" => build
+    }
+  end
+
+  def skipped_artifact(out_dir)
+    {
+      "status" => "SKIPPED",
+      "reason" => "release gate checks failed before artifact build",
+      "intended_out_dir" => out_dir.to_s
+    }
+  end
+
+  def summary(checks:, artifact:, out_dir:)
+    status = all_pass?(checks) && artifact.fetch("status") == "PASS" ? "PASS" : "FAIL"
+    {
+      "kind" => "igniter_lang_release_gate",
+      "format_version" => "0.1.0",
+      "track" => "gem-release-automation-v0",
+      "status" => status,
+      "timestamp" => Time.now.utc.iso8601,
+      "package" => {
+        "name" => "igniter_lang",
+        "version" => IgniterLang::VERSION,
+        "out_dir" => out_dir.to_s
+      },
+      "checks" => checks,
+      "artifact" => artifact,
+      "publish" => {
+        "status" => "not_attempted",
+        "policy" => "gem push is forbidden without explicit Architect approval and human RubyGems owner action"
+      }
+    }
+  end
+
+  def write_summary(summary)
+    File.write(SUMMARY_PATH, "#{JSON.pretty_generate(summary)}\n")
+  end
+
+  def print_summary(summary)
+    puts "#{summary.fetch("status")} release_gate"
+    puts "artifact: #{summary.dig("artifact", "gem_path") || "none"}"
+    puts "checksum: #{summary.dig("artifact", "checksum_path") || "none"}"
+    puts "publish: #{summary.dig("publish", "status")}"
+    puts "summary: #{SUMMARY_PATH.relative_path_from(ROOT)}"
+  end
+
+  def all_pass?(checks)
+    checks.all? { |check| check.fetch("status") == "PASS" }
+  end
+
+  def preserve_files(paths)
+    paths.to_h do |path|
+      [path, path.file? ? File.binread(path.to_s) : nil]
+    end
+  end
+
+  def restore_files(preserved)
+    preserved.each do |path, contents|
+      if contents
+        FileUtils.mkdir_p(path.dirname)
+        File.binwrite(path.to_s, contents)
+      else
+        FileUtils.rm_f(path)
+      end
+    end
+  end
+
+  def usage
+    <<~TEXT
+      Usage: bin/release-gate [--out DIR]
+
+      Runs the package-local release gate, builds a local gem artifact and
+      checksum, writes experiments/release_gate/release_gate.json, and stops
+      before any RubyGems publish step.
+    TEXT
+  end
+
+  def abort_usage(message)
+    warn message
+    warn usage
+    exit 2
+  end
+end
+
+success = IgniterLangReleaseGate.run(ARGV)
+exit(success ? 0 : 1)
