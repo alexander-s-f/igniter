@@ -1,0 +1,219 @@
+{
+  "kind": "parser_oof_hardening_stage2_proof",
+  "format_version": "0.1.0",
+  "track": "parser-oof-hardening-stage2-proof-v0",
+  "status": "PASS",
+  "checks": {
+    "existing_parser_fixtures_green": true,
+    "syntax_oof_rejected_at_parser": true,
+    "syntax_oof_rules_match": true,
+    "semantic_oof_accepted_by_parser": true,
+    "semantic_oof_blocked_later": true
+  },
+  "syntax_oof": [
+    {
+      "case_id": "oof_p2_pipeline_inside_contract",
+      "source_path": "igniter-lang/experiments/parser_oof_hardening_stage2_proof/fixtures/oof_p2_pipeline_inside_contract.ig",
+      "expected_rule": "OOF-P2",
+      "parser_behavior": "rejects",
+      "parse_errors": [
+        {
+          "rule": "OOF-P2",
+          "severity": "error",
+          "message": "pipeline/step is not valid inside a contract body",
+          "token": "pipeline",
+          "line": 6,
+          "col": 3
+        }
+      ],
+      "matched": true
+    },
+    {
+      "case_id": "oof_dm3_decimal_without_scale",
+      "source_path": "igniter-lang/experiments/parser_oof_hardening_stage2_proof/fixtures/oof_dm3_decimal_without_scale.ig",
+      "expected_rule": "OOF-DM3",
+      "parser_behavior": "rejects",
+      "parse_errors": [
+        {
+          "rule": "OOF-DM3",
+          "severity": "error",
+          "message": "Decimal type requires scale parameter: Decimal[N]",
+          "token": "Decimal",
+          "line": 4,
+          "col": 17
+        },
+        {
+          "rule": "OOF-DM3",
+          "severity": "error",
+          "message": "Decimal type requires scale parameter: Decimal[N]",
+          "token": "Decimal",
+          "line": 5,
+          "col": 18
+        }
+      ],
+      "matched": true
+    },
+    {
+      "case_id": "oof_pg1_empty_pipeline",
+      "source_path": "igniter-lang/experiments/parser_oof_hardening_stage2_proof/fixtures/oof_pg1_empty_pipeline.ig",
+      "expected_rule": "OOF-PG1",
+      "parser_behavior": "rejects",
+      "parse_errors": [
+        {
+          "rule": "OOF-PG1",
+          "severity": "error",
+          "message": "pipeline must contain at least one step",
+          "token": "EmptyPipeline",
+          "line": 3,
+          "col": 10
+        }
+      ],
+      "matched": true
+    },
+    {
+      "case_id": "oof_pg2_step_without_contract_ref",
+      "source_path": "igniter-lang/experiments/parser_oof_hardening_stage2_proof/fixtures/oof_pg2_step_without_contract_ref.ig",
+      "expected_rule": "OOF-PG2",
+      "parser_behavior": "rejects",
+      "parse_errors": [
+        {
+          "rule": "OOF-PG2",
+          "severity": "error",
+          "message": "step must reference a contract",
+          "token": "missing_ref",
+          "line": 4,
+          "col": 8
+        }
+      ],
+      "matched": true
+    },
+    {
+      "case_id": "oof_pg3_scoped_by_on_compute",
+      "source_path": "igniter-lang/experiments/parser_oof_hardening_stage2_proof/fixtures/oof_pg3_scoped_by_on_compute.ig",
+      "expected_rule": "OOF-PG3",
+      "parser_behavior": "rejects",
+      "parse_errors": [
+        {
+          "rule": "OOF-PG3",
+          "severity": "error",
+          "message": "scoped_by is only valid on read declarations",
+          "token": "scoped_by",
+          "line": 7,
+          "col": 3
+        }
+      ],
+      "matched": true
+    },
+    {
+      "case_id": "oof_pg5_tenant_free_on_compute",
+      "source_path": "igniter-lang/experiments/parser_oof_hardening_stage2_proof/fixtures/oof_pg5_tenant_free_on_compute.ig",
+      "expected_rule": "OOF-PG5",
+      "parser_behavior": "rejects",
+      "parse_errors": [
+        {
+          "rule": "OOF-PG5",
+          "severity": "error",
+          "message": "tenant_free is only valid on read declarations",
+          "token": "tenant_free",
+          "line": 6,
+          "col": 3
+        }
+      ],
+      "matched": true
+    }
+  ],
+  "semantic_oof": [
+    {
+      "case_id": "negative_unresolved_symbol",
+      "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+      "expected_rule": "OOF-P1",
+      "parser_behavior": "accepts",
+      "parse_errors": [],
+      "later_pass_behavior": {
+        "pass_result": "oof",
+        "semantic_ir_ref": null,
+        "diagnostic_rules": [
+          "OOF-P1"
+        ]
+      },
+      "matched": true
+    },
+    {
+      "case_id": "negative_evidence_less_alert",
+      "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_evidence_less_alert.ig",
+      "expected_rule": "OOF-OS2",
+      "parser_behavior": "accepts",
+      "parse_errors": [],
+      "later_pass_behavior": {
+        "pass_result": "oof",
+        "semantic_ir_ref": null,
+        "diagnostic_rules": [
+          "OOF-OS2"
+        ]
+      },
+      "matched": true
+    },
+    {
+      "case_id": "negative_confidence_bool",
+      "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/negative_confidence_bool.ig",
+      "expected_rule": "OOF-CE4",
+      "parser_behavior": "accepts",
+      "parse_errors": [],
+      "later_pass_behavior": {
+        "pass_result": "oof",
+        "semantic_ir_ref": null,
+        "diagnostic_rules": [
+          "OOF-CE4"
+        ]
+      },
+      "matched": true
+    }
+  ],
+  "existing_parser_fixtures": [
+    {
+      "source_path": "igniter-lang/source/add.ig",
+      "parser_behavior": "accepts",
+      "parse_errors": []
+    },
+    {
+      "source_path": "igniter-lang/source/availability_projection.ig",
+      "parser_behavior": "accepts",
+      "parse_errors": []
+    },
+    {
+      "source_path": "igniter-lang/source/decimal_contract.ig",
+      "parser_behavior": "accepts",
+      "parse_errors": []
+    },
+    {
+      "source_path": "igniter-lang/source/polymorphic_add.ig",
+      "parser_behavior": "accepts",
+      "parse_errors": []
+    },
+    {
+      "source_path": "igniter-lang/source/tenant_availability_projection.ig",
+      "parser_behavior": "accepts",
+      "parse_errors": []
+    },
+    {
+      "source_path": "igniter-lang/source/vendor_lead_pipeline.ig",
+      "parser_behavior": "accepts",
+      "parse_errors": []
+    }
+  ],
+  "ownership": {
+    "parser_owned": [
+      "OOF-P2",
+      "OOF-DM3",
+      "OOF-PG1",
+      "OOF-PG2",
+      "OOF-PG3",
+      "OOF-PG5"
+    ],
+    "later_pass_owned": [
+      "OOF-P1",
+      "OOF-OS2",
+      "OOF-CE4"
+    ]
+  }
+}

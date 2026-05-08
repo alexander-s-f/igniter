@@ -27,17 +27,6 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
-## Stage 3 Round 1 Evidence
-
-| Track | Status | Notes |
-|-------|--------|-------|
-| `stage3-governance-opening-v0.md` | done | Stage 3 formally OPEN (2026-05-08); META-EXPERT-011; 5 lanes authorized; PROP-028 authorized; R1 cards issued |
-| `../proposals/PROP-028-temporal-fragment-class-v0.md` | proposal | TEMPORAL fragment class proposal written; OOF > TEMPORAL > STREAM > CORE; cache key semantics specified |
-| `typed-emission-main-path-parity-v0.md` | blocked | parity runner PASS with verdict blocked; do not switch orchestrator to `emit_typed` yet; 9 blocked items recorded |
-| `../archive/snapshots/2026-05-07-stage2-close/README.md` | done | Stage 2 close snapshot archived as cold archaeology context |
-| `../meta-proposals/axiomatic-and-system-forming-ideas-lens-v0.md` | research-note | АИ/СОИ captured as soft Stage 3 design lens, not spec/canon and not a hard gate |
-| `stage3-round1-status-curation-v0.md` | done | S3-R1 map sync and R2 prep — this track |
-
 ## Stage 2 Round 15 Evidence
 
 | Track | Status | Notes |
@@ -154,18 +143,18 @@ compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
 
 ---
 
-## Stage 3 Round 2 Recommendations
+## Suggested Next Track Shapes
 
-| Candidate | Purpose | Role | Status |
-|-----------|---------|------|--------|
-| `typed-emission-canonical-shape-v0` | Decide typed identity mode, normalize core compute JSON shape, and rerun parity before touching `CompilerOrchestrator` | Research Agent | recommended |
-| `temporal-fragment-classifier-typechecker-v0` | Implement/prove PROP-028 node/value/contract fragment split and TEMPORAL diagnostics | Compiler/Grammar Expert | recommended |
-| `temporal-cache-key-proof-v0` | Prove CORE vs TEMPORAL cache-key separation before temporal memoization | Research Agent | recommended |
-| `gem-release-policy-v0` | Resolve final gem metadata, CI, and RubyGems publishing policy; publish still requires Architect approval | Research Agent | authorized |
-| `compatibility-report-descriptor-consumption-v0` | CompatibilityReport consumption of descriptor evidence without Ledger reads/writes/runtime binding | Bridge Agent | authorized |
-| `invariant-persistence-boundary-v0` | Production RuntimeMachine invariant observation persistence boundary | Research Agent | authorized |
-| `syntax-pressure-registry-v0` | Register human-agent syntax fixtures as pressure artifacts only, not canon | Compiler/Grammar Expert | research |
-| `ai-soi-proposal-review-template-v0` | Add a lightweight optional АИ/СОИ prompt for Stage 3 proposal/research review | Meta Expert / Archive-Form Expert | optional |
+| Candidate | Purpose | Role |
+|-----------|---------|------|
+| `stage3-governance-opening-v0` | Author Stage 3 governance and authorization rules before PROP-028+ or implementation work | Meta Expert |
+| `stage2-close-snapshot-archive-v0` | Archive the exact Stage 2 close docs/proofs/JSON snapshot for future archaeology | Archive/Form Expert |
+| `gem-release-readiness-policy-v0` | Resolve final gem metadata, CI, RubyGems publishing, signing/checksum, and release policy | Research Agent |
+| `production-tbackend-adapter-binding-v0` | Plan production Ledger/Durable TBackend binding from descriptor evidence without overclaiming runtime trust | Bridge Agent |
+| `syntax-pressure-registry-v0` | Register human-agent syntax fixtures as pressure artifacts, not canon | Compiler/Grammar Expert |
+| `let-compute-boundary-v0` | Prove contract-body `let` lowering or rejection while preserving graph node identity | Compiler/Grammar Expert |
+| `runtime-invariant-observation-runtime-machine-boundary-v0` | Decide where production RuntimeMachine emits and persists invariant violation observations | Research Agent |
+| `compatibility-report-descriptor-consumption-v0` | Plan descriptor evidence consumption without adding Ledger reads/writes/runtime binding | Bridge Agent |
 
 ---
 

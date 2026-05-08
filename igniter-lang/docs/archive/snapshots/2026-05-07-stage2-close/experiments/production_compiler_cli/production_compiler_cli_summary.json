@@ -1,0 +1,153 @@
+{
+  "kind": "production_compiler_cli_proof",
+  "format_version": "0.1.0",
+  "track": "compiler-package-boundary-v0",
+  "status": "PASS",
+  "checks": {
+    "compile.add_exit_zero": true,
+    "compile.add_writes_igapp": true,
+    "compile.add_stdout_shape": true,
+    "runtime.load_output_trusted": true,
+    "runtime.evaluate_add_42": true,
+    "compile.oof_exit_nonzero": true,
+    "compile.oof_writes_report": true,
+    "compile.oof_writes_no_igapp": true,
+    "compile.oof_uses_igapp_path": true,
+    "compile.oof_diagnostics_have_category": true,
+    "compile.oof_stages_and_warnings": true,
+    "package_boundary.direct_api_compile_ok": true,
+    "package_boundary.cli_and_api_same_facade_shape": true,
+    "package_boundary.lib_load_path_facade": true
+  },
+  "positive": {
+    "command": "igniter-lang/bin/igniter-lang compile igniter-lang/experiments/source_to_semanticir_fixture/add.ig --out igniter-lang/experiments/production_compiler_cli/out/add.igapp",
+    "exitstatus": 0,
+    "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/e9664d5446df4e46\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig\",\n  \"source_hash\": \"sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"parse\": \"ok\",\n    \"classify\": \"ok\",\n    \"typecheck\": \"ok\",\n    \"emit\": \"ok\",\n    \"assemble\": \"ok\"\n  },\n  \"igapp_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/add.igapp\",\n  \"compilation_report_ref\": \"compilation_report/e9664d5446df4e46\",\n  \"semantic_ir_ref\": \"semanticir/e9664d5446df4e46\",\n  \"contracts\": [\n    \"Add\"\n  ],\n  \"diagnostics\": [],\n  \"warnings\": [],\n  \"runtime_smoke\": {\n    \"load_status\": \"loaded\",\n    \"contract_id\": \"Add\",\n    \"evaluate_status\": \"ok\",\n    \"outputs\": {\n      \"sum\": 42\n    },\n    \"compatibility_report_status\": \"trusted\",\n    \"trusted\": true\n  }\n}\n",
+    "stderr": "",
+    "json": {
+      "kind": "compiler_result",
+      "format_version": "0.1.0",
+      "status": "ok",
+      "program_id": "semanticir/e9664d5446df4e46",
+      "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+      "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+      "grammar_version": "0.1.0",
+      "stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok",
+        "assemble": "ok"
+      },
+      "igapp_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/add.igapp",
+      "compilation_report_ref": "compilation_report/e9664d5446df4e46",
+      "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+      "contracts": [
+        "Add"
+      ],
+      "diagnostics": [],
+      "warnings": [],
+      "runtime_smoke": {
+        "load_status": "loaded",
+        "contract_id": "Add",
+        "evaluate_status": "ok",
+        "outputs": {
+          "sum": 42
+        },
+        "compatibility_report_status": "trusted",
+        "trusted": true
+      }
+    }
+  },
+  "negative": {
+    "command": "igniter-lang/bin/igniter-lang compile igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig --out igniter-lang/experiments/production_compiler_cli/out/negative_unresolved_symbol.igapp",
+    "exitstatus": 1,
+    "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"oof\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig\",\n  \"source_hash\": \"sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"parse\": \"ok\",\n    \"classify\": \"oof\",\n    \"typecheck\": \"skipped\",\n    \"emit\": \"skipped\",\n    \"assemble\": \"skipped\"\n  },\n  \"igapp_path\": null,\n  \"contracts\": [],\n  \"compilation_report_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/negative_unresolved_symbol.compilation_report.json\",\n  \"diagnostics\": [\n    {\n      \"rule\": \"OOF-P1\",\n      \"severity\": \"error\",\n      \"message\": \"Unresolved symbol: missing_b\",\n      \"node\": \"sum\",\n      \"path\": \"contract:BadUnresolvedSymbol/node:sum\",\n      \"category\": \"classifier_oof\",\n      \"contract\": \"BadUnresolvedSymbol\",\n      \"span\": null\n    }\n  ],\n  \"warnings\": []\n}\n",
+    "stderr": "",
+    "json": {
+      "kind": "compiler_result",
+      "format_version": "0.1.0",
+      "status": "oof",
+      "program_id": null,
+      "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+      "source_hash": "sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d",
+      "grammar_version": "0.1.0",
+      "stages": {
+        "parse": "ok",
+        "classify": "oof",
+        "typecheck": "skipped",
+        "emit": "skipped",
+        "assemble": "skipped"
+      },
+      "igapp_path": null,
+      "contracts": [],
+      "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/negative_unresolved_symbol.compilation_report.json",
+      "diagnostics": [
+        {
+          "rule": "OOF-P1",
+          "severity": "error",
+          "message": "Unresolved symbol: missing_b",
+          "node": "sum",
+          "path": "contract:BadUnresolvedSymbol/node:sum",
+          "category": "classifier_oof",
+          "contract": "BadUnresolvedSymbol",
+          "span": null
+        }
+      ],
+      "warnings": []
+    }
+  },
+  "direct_api": {
+    "command": "ruby-api IgniterLang.compile igniter-lang/experiments/source_to_semanticir_fixture/add.ig --out ../../../../../private/tmp/igniter_lang_compiler_package_boundary_direct_api.igapp",
+    "status": "ok",
+    "result": {
+      "kind": "compiler_result",
+      "format_version": "0.1.0",
+      "status": "ok",
+      "program_id": "semanticir/e9664d5446df4e46",
+      "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+      "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+      "grammar_version": "0.1.0",
+      "stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok",
+        "assemble": "ok"
+      },
+      "igapp_path": "/private/tmp/igniter_lang_compiler_package_boundary_direct_api.igapp",
+      "compilation_report_ref": "compilation_report/e9664d5446df4e46",
+      "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+      "contracts": [
+        "Add"
+      ],
+      "diagnostics": [],
+      "warnings": [],
+      "runtime_smoke": null,
+      "report": {
+        "kind": "compilation_report",
+        "format_version": "0.1.0",
+        "program_id": "compilation_report/e9664d5446df4e46",
+        "grammar_version": "0.1.0",
+        "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+        "pass_result": "ok",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok"
+        },
+        "diagnostics": [],
+        "semantic_ir_ref": "semanticir/e9664d5446df4e46"
+      }
+    },
+    "igapp_exists": true
+  },
+  "load_path": {
+    "command": "ruby -I igniter-lang/lib -e 'require \"igniter_lang\"'",
+    "exitstatus": 0,
+    "stdout": "compile=true\norchestrator=constant\n",
+    "stderr": ""
+  }
+}

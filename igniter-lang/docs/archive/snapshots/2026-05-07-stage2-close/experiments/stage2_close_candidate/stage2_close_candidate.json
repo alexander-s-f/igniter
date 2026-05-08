@@ -1,0 +1,1015 @@
+{
+  "kind": "stage2_close_candidate",
+  "format_version": "0.1.0",
+  "track": "stage2-close-candidate-v0",
+  "stage": "stage2",
+  "status": "PASS",
+  "verdict": "stage2_close_candidate",
+  "timestamp": "2026-05-07T20:07:10Z",
+  "facade": {
+    "entrypoint": "IgniterLang.compile",
+    "facade_version": "0.1.0.pre.stage2",
+    "load_path": "igniter-lang/lib",
+    "libs_loaded": [
+      "igniter_lang",
+      "igniter_lang/assembler",
+      "igniter_lang/classifier",
+      "igniter_lang/compilation_report",
+      "igniter_lang/compiler_orchestrator",
+      "igniter_lang/compiler_result",
+      "igniter_lang/diagnostics",
+      "igniter_lang/parser",
+      "igniter_lang/semanticir_emitter",
+      "igniter_lang/typechecker",
+      "igniter_lang/version"
+    ],
+    "files_loaded": [
+      "igniter-lang/lib/igniter_lang.rb",
+      "igniter-lang/lib/igniter_lang/assembler.rb",
+      "igniter-lang/lib/igniter_lang/classifier.rb",
+      "igniter-lang/lib/igniter_lang/compilation_report.rb",
+      "igniter-lang/lib/igniter_lang/compiler_orchestrator.rb",
+      "igniter-lang/lib/igniter_lang/compiler_result.rb",
+      "igniter-lang/lib/igniter_lang/diagnostics.rb",
+      "igniter-lang/lib/igniter_lang/parser.rb",
+      "igniter-lang/lib/igniter_lang/semanticir_emitter.rb",
+      "igniter-lang/lib/igniter_lang/typechecker.rb",
+      "igniter-lang/lib/igniter_lang/version.rb"
+    ]
+  },
+  "preconditions": [
+    {
+      "id": "gemspec_present",
+      "status": "PASS",
+      "path": "igniter-lang/igniter_lang.gemspec"
+    },
+    {
+      "id": "version_file_present",
+      "status": "PASS",
+      "path": "igniter-lang/lib/igniter_lang/version.rb"
+    },
+    {
+      "id": "package_facade_present",
+      "status": "PASS",
+      "path": "igniter-lang/lib/igniter_lang.rb"
+    },
+    {
+      "id": "igc_bin_executable",
+      "status": "PASS",
+      "path": "igniter-lang/bin/igc"
+    }
+  ],
+  "package_facade_smoke": {
+    "id": "package_facade_direct_compile",
+    "label": "Direct IgniterLang.compile facade smoke",
+    "status": "PASS",
+    "entrypoint": "IgniterLang.compile",
+    "facade_version": "0.1.0.pre.stage2",
+    "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+    "igapp_path": "/private/tmp/igniter_lang_stage2_close_candidate/facade_add.igapp",
+    "program_id": "semanticir/e9664d5446df4e46",
+    "contracts": [
+      "Add"
+    ],
+    "stages": {
+      "parse": "ok",
+      "classify": "ok",
+      "typecheck": "ok",
+      "emit": "ok",
+      "assemble": "ok"
+    },
+    "diagnostics": []
+  },
+  "surface_checks": [
+    {
+      "id": "package_facade",
+      "status": "PASS",
+      "evidence": {
+        "direct_api_compile": "PASS",
+        "cli_shared_facade": "PASS",
+        "entrypoint": "IgniterLang.compile"
+      }
+    },
+    {
+      "id": "invariant_runtime_observations",
+      "status": "PASS",
+      "evidence": {
+        "compile_time_node": "invariant_node",
+        "runtime_violation_observation": "invariant_violation_observation",
+        "severities": [
+          "error",
+          "warn",
+          "soft",
+          "metric"
+        ]
+      }
+    },
+    {
+      "id": "olap_point",
+      "status": "PASS",
+      "evidence": {
+        "declaration": "olap_point",
+        "ast": "dims_record",
+        "boundary": "typed_olap_point_to_semantic_ir"
+      }
+    },
+    {
+      "id": "stream_fold",
+      "status": "PASS",
+      "evidence": {
+        "operator": "fold_stream",
+        "oof_guards": [
+          "missing_window",
+          "direct_stream_arithmetic",
+          "stream_escape"
+        ]
+      }
+    },
+    {
+      "id": "history_bihistory_temporal_access",
+      "status": "PASS",
+      "evidence": {
+        "history_capability": "history_read",
+        "bihistory_capability": "bihistory_read",
+        "option_encoding": {
+          "some": {
+            "kind": "some",
+            "value": "T"
+          },
+          "none": {
+            "kind": "none"
+          }
+        }
+      }
+    },
+    {
+      "id": "ledger_tbackend_descriptor",
+      "status": "PASS",
+      "evidence": {
+        "binding": "metadata_only",
+        "hook_methods": [
+          "read_as_of",
+          "bihistory_at"
+        ],
+        "capabilities": [
+          "history_read",
+          "bihistory_read"
+        ]
+      }
+    },
+    {
+      "id": "stage1_regression",
+      "status": "PASS"
+    }
+  ],
+  "proofs_run": [
+    {
+      "id": "production_compiler_cli",
+      "label": "Production compiler CLI/API facade proof",
+      "surface": "package_facade",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/production_compiler_cli/production_compiler_cli_proof.rb"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "compile.add_exit_zero",
+          "status": "PASS"
+        },
+        {
+          "name": "compile.add_writes_igapp",
+          "status": "PASS"
+        },
+        {
+          "name": "compile.add_stdout_shape",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.load_output_trusted",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.evaluate_add_42",
+          "status": "PASS"
+        },
+        {
+          "name": "compile.oof_exit_nonzero",
+          "status": "PASS"
+        },
+        {
+          "name": "compile.oof_writes_report",
+          "status": "PASS"
+        },
+        {
+          "name": "compile.oof_writes_no_igapp",
+          "status": "PASS"
+        },
+        {
+          "name": "compile.oof_uses_igapp_path",
+          "status": "PASS"
+        },
+        {
+          "name": "compile.oof_diagnostics_have_category",
+          "status": "PASS"
+        },
+        {
+          "name": "compile.oof_stages_and_warnings",
+          "status": "PASS"
+        },
+        {
+          "name": "package_boundary.direct_api_compile_ok",
+          "status": "PASS"
+        },
+        {
+          "name": "package_boundary.cli_and_api_same_facade_shape",
+          "status": "PASS"
+        },
+        {
+          "name": "package_boundary.lib_load_path_facade",
+          "status": "PASS"
+        },
+        {
+          "name": "direct_api.status",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "PASS production_compiler_cli_proof",
+        "compile.add_exit_zero: ok",
+        "compile.add_writes_igapp: ok",
+        "compile.add_stdout_shape: ok",
+        "runtime.load_output_trusted: ok",
+        "runtime.evaluate_add_42: ok",
+        "compile.oof_exit_nonzero: ok",
+        "compile.oof_writes_report: ok",
+        "compile.oof_writes_no_igapp: ok",
+        "compile.oof_uses_igapp_path: ok",
+        "compile.oof_diagnostics_have_category: ok",
+        "compile.oof_stages_and_warnings: ok",
+        "package_boundary.direct_api_compile_ok: ok",
+        "package_boundary.cli_and_api_same_facade_shape: ok",
+        "package_boundary.lib_load_path_facade: ok",
+        "positive.igapp_path: /Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/add.igapp",
+        "positive.sum: 42",
+        "direct_api.status: ok",
+        "load_path.stdout: compile=true",
+        "orchestrator=constant",
+        "negative.category: classifier_oof",
+        "negative.report: /Users/alex/dev/projects/igniter/igniter-lang/experiments/production_compiler_cli/out/negative_unresolved_symbol.compilation_report.json",
+        "summary: igniter-lang/experiments/production_compiler_cli/production_compiler_cli_summary.json"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "invariant_severity",
+      "label": "Invariant severity runtime observation proof",
+      "surface": "invariant_runtime_observations",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/invariant_severity_proof/invariant_severity_proof.rb"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "semanticir.emitter_typed_program_ref",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.invariant_nodes_from_typed",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.output_effect_preserved",
+          "status": "PASS"
+        },
+        {
+          "name": "compile.invariant_nodes_have_severity",
+          "status": "PASS"
+        },
+        {
+          "name": "compile.output_tracks_warn_soft_metric_sources",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.error_blocks_trusted_output",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.warn_allows_with_warning",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.soft_promotes_uncertain",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.metric_records_without_output_effect",
+          "status": "PASS"
+        },
+        {
+          "name": "observations.compile_time_nodes_remain_invariant_node",
+          "status": "PASS"
+        },
+        {
+          "name": "observations.no_compile_time_violation_nodes",
+          "status": "PASS"
+        },
+        {
+          "name": "observations.error_violation_node",
+          "status": "PASS"
+        },
+        {
+          "name": "observations.warn_violation_node",
+          "status": "PASS"
+        },
+        {
+          "name": "observations.soft_violation_node",
+          "status": "PASS"
+        },
+        {
+          "name": "observations.metric_violation_node",
+          "status": "PASS"
+        },
+        {
+          "name": "observations.violation_node_severities",
+          "status": "PASS"
+        },
+        {
+          "name": "observations.violation_links_compile_time_node",
+          "status": "PASS"
+        },
+        {
+          "name": "report.invariant_coverage_present",
+          "status": "PASS"
+        },
+        {
+          "name": "pinv.parser_accepts_valid_invariant",
+          "status": "PASS"
+        },
+        {
+          "name": "pinv.invariant_nodes_count_4",
+          "status": "PASS"
+        },
+        {
+          "name": "pinv.severity_values_correct",
+          "status": "PASS"
+        },
+        {
+          "name": "pinv.overridable_with_parsed",
+          "status": "PASS"
+        },
+        {
+          "name": "pinv.missing_predicate_emits_oof_iv1",
+          "status": "PASS"
+        },
+        {
+          "name": "pinv.unknown_severity_emits_oof_iv2",
+          "status": "PASS"
+        },
+        {
+          "name": "pinv.overridable_on_error_emits_oof_i4",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "PASS invariant_severity_proof",
+        "semanticir.emitter_typed_program_ref: ok",
+        "semanticir.invariant_nodes_from_typed: ok",
+        "semanticir.output_effect_preserved: ok",
+        "compile.invariant_nodes_have_severity: ok",
+        "compile.output_tracks_warn_soft_metric_sources: ok",
+        "runtime.error_blocks_trusted_output: ok",
+        "runtime.warn_allows_with_warning: ok",
+        "runtime.soft_promotes_uncertain: ok",
+        "runtime.metric_records_without_output_effect: ok",
+        "observations.compile_time_nodes_remain_invariant_node: ok",
+        "observations.no_compile_time_violation_nodes: ok",
+        "observations.error_violation_node: ok",
+        "observations.warn_violation_node: ok",
+        "observations.soft_violation_node: ok",
+        "observations.metric_violation_node: ok",
+        "observations.violation_node_severities: ok",
+        "observations.violation_links_compile_time_node: ok",
+        "report.invariant_coverage_present: ok",
+        "pinv.parser_accepts_valid_invariant: ok",
+        "pinv.invariant_nodes_count_4: ok",
+        "pinv.severity_values_correct: ok",
+        "pinv.overridable_with_parsed: ok",
+        "pinv.missing_predicate_emits_oof_iv1: ok",
+        "pinv.unknown_severity_emits_oof_iv2: ok",
+        "pinv.overridable_on_error_emits_oof_i4: ok",
+        "error.status: blocked",
+        "warn.warnings: 1",
+        "soft.uncertainty: T -> ~T",
+        "metric.violation_observations: 1",
+        "summary: igniter-lang/experiments/invariant_severity_proof/summary.json"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "olap_point",
+      "label": "OLAPPoint proof",
+      "surface": "olap_point",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/olap_point_proof/olap_point_proof.rb"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "semanticir.olap_point_decl",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.olap_access_node",
+          "status": "PASS"
+        },
+        {
+          "name": "type.olap_point_typed_dimensions",
+          "status": "PASS"
+        },
+        {
+          "name": "type.measure_decimal_string",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.materializes_cells",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.point_access_deterministic",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.local_rollup_no_scatter_gather",
+          "status": "PASS"
+        },
+        {
+          "name": "evidence.cell_observations_link_sources",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.dimension_missing_oof",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.dimension_type_mismatch_oof",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.empty_without_source_oof_o3",
+          "status": "PASS"
+        },
+        {
+          "name": "relationship.stream_history_olap_documented",
+          "status": "PASS"
+        },
+        {
+          "name": "grammar.olap_point_decl_shape_valid",
+          "status": "PASS"
+        },
+        {
+          "name": "grammar.dims_record_type_ref_shape_valid",
+          "status": "PASS"
+        },
+        {
+          "name": "grammar.measure_type_ref_structured",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.oof_o4_code_assigned",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.oof_o5_code_assigned",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.oof_o3_ownership_typechecker",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.oof_o1_ownership_parser",
+          "status": "PASS"
+        },
+        {
+          "name": "boundary.olap_point_decl_top_level_not_contract_body",
+          "status": "PASS"
+        },
+        {
+          "name": "boundary.olap_access_fragment_class_escape",
+          "status": "PASS"
+        },
+        {
+          "name": "parser.live_revenue_point_parses",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.olap_positive_accepted",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.measure_decimal_validated",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.dims_record_validated",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.oof_o2_warning_nonblocking",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.oof_o3_empty_without_source",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.oof_o4_missing_dimension",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.oof_o5_dimension_type_mismatch",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.boundary_olap_point_decl_from_typed",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.boundary_olap_access_node_from_typed",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.boundary_dims_record_lowered",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.emitter_typed_program_ref",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "PASS olap_point_proof",
+        "semanticir.olap_point_decl: ok",
+        "semanticir.olap_access_node: ok",
+        "type.olap_point_typed_dimensions: ok",
+        "type.measure_decimal_string: ok",
+        "runtime.materializes_cells: ok",
+        "runtime.point_access_deterministic: ok",
+        "runtime.local_rollup_no_scatter_gather: ok",
+        "evidence.cell_observations_link_sources: ok",
+        "negative.dimension_missing_oof: ok",
+        "negative.dimension_type_mismatch_oof: ok",
+        "negative.empty_without_source_oof_o3: ok",
+        "relationship.stream_history_olap_documented: ok",
+        "grammar.olap_point_decl_shape_valid: ok",
+        "grammar.dims_record_type_ref_shape_valid: ok",
+        "grammar.measure_type_ref_structured: ok",
+        "typechecker.oof_o4_code_assigned: ok",
+        "typechecker.oof_o5_code_assigned: ok",
+        "typechecker.oof_o3_ownership_typechecker: ok",
+        "typechecker.oof_o1_ownership_parser: ok",
+        "boundary.olap_point_decl_top_level_not_contract_body: ok",
+        "boundary.olap_access_fragment_class_escape: ok",
+        "parser.live_revenue_point_parses: ok",
+        "typechecker.olap_positive_accepted: ok",
+        "typechecker.measure_decimal_validated: ok",
+        "typechecker.dims_record_validated: ok",
+        "typechecker.oof_o2_warning_nonblocking: ok",
+        "typechecker.oof_o3_empty_without_source: ok",
+        "typechecker.oof_o4_missing_dimension: ok",
+        "typechecker.oof_o5_dimension_type_mismatch: ok",
+        "semanticir.boundary_olap_point_decl_from_typed: ok",
+        "semanticir.boundary_olap_access_node_from_typed: ok",
+        "semanticir.boundary_dims_record_lowered: ok",
+        "semanticir.emitter_typed_program_ref: ok",
+        "point.measure: 35.50",
+        "point.dimensions: {\"channel\":\"online\",\"date\":\"2026-05-07\",\"region\":\"west\"}",
+        "rollup.plan: local_single_node_no_scatter_gather",
+        "summary: igniter-lang/experiments/olap_point_proof/summary.json"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "stream_fold",
+      "label": "stream T bounded fold proof",
+      "surface": "stream_fold",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/stream_t_proof/stream_t_proof.rb"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "semanticir.stream_input_node",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.window_decl_node",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.fold_stream_node",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.emitter_typed_program_ref",
+          "status": "PASS"
+        },
+        {
+          "name": "classification.stream_is_escape",
+          "status": "PASS"
+        },
+        {
+          "name": "classification.fold_result_is_core",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.finite_replay_window_closed",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.fold_stream_sum",
+          "status": "PASS"
+        },
+        {
+          "name": "evidence.consumed_events_window",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.open_live_waits_for_close",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.oof_s1_unbounded_fold",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.oof_s2_missing_window",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.oof_s3_escape_in_fold",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.oof_s4_direct_stream_use",
+          "status": "PASS"
+        },
+        {
+          "name": "history.relationship_documented",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "PASS stream_t_proof",
+        "semanticir.stream_input_node: ok",
+        "semanticir.window_decl_node: ok",
+        "semanticir.fold_stream_node: ok",
+        "semanticir.emitter_typed_program_ref: ok",
+        "classification.stream_is_escape: ok",
+        "classification.fold_result_is_core: ok",
+        "runtime.finite_replay_window_closed: ok",
+        "runtime.fold_stream_sum: ok",
+        "evidence.consumed_events_window: ok",
+        "runtime.open_live_waits_for_close: ok",
+        "negative.oof_s1_unbounded_fold: ok",
+        "negative.oof_s2_missing_window: ok",
+        "negative.oof_s3_escape_in_fold: ok",
+        "negative.oof_s4_direct_stream_use: ok",
+        "history.relationship_documented: ok",
+        "finite_replay.window: closed/3 events",
+        "finite_replay.output.total: 15",
+        "open_live.status: waiting_for_window_close",
+        "summary: igniter-lang/experiments/stream_t_proof/summary.json"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "history_type",
+      "label": "History[T] point access proof",
+      "surface": "history_bihistory_temporal_access",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/history_type_proof/history_type_proof.rb"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "history.append_seed_observations",
+          "status": "PASS"
+        },
+        {
+          "name": "parser.hand_authored_history_parsed_program",
+          "status": "PASS"
+        },
+        {
+          "name": "classifier.history_read_escape",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker.history_at_option_integer",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.temporal_input_node",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.temporal_access_node",
+          "status": "PASS"
+        },
+        {
+          "name": "assembler.history_igapp",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.load_history_igapp_trusted",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.hook_load_check_valid_time",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.evaluate_as_of_2026_05_03",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.evaluate_as_of_2026_05_06",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.output_links_selected_append_observation",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.temporal_access_node_loader_valid_time",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.missing_history_read_capability_blocked",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.missing_history_read_evaluate_rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.missing_as_of_oof_h1",
+          "status": "PASS"
+        },
+        {
+          "name": "compilation.positive_report_ok",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "PASS history_type_proof",
+        "history.append_seed_observations: ok",
+        "parser.hand_authored_history_parsed_program: ok",
+        "classifier.history_read_escape: ok",
+        "typechecker.history_at_option_integer: ok",
+        "semanticir.temporal_input_node: ok",
+        "semanticir.temporal_access_node: ok",
+        "assembler.history_igapp: ok",
+        "runtime.load_history_igapp_trusted: ok",
+        "runtime.hook_load_check_valid_time: ok",
+        "runtime.evaluate_as_of_2026_05_03: ok",
+        "runtime.evaluate_as_of_2026_05_06: ok",
+        "runtime.output_links_selected_append_observation: ok",
+        "runtime.temporal_access_node_loader_valid_time: ok",
+        "negative.missing_history_read_capability_blocked: ok",
+        "negative.missing_history_read_evaluate_rejected: ok",
+        "negative.missing_as_of_oof_h1: ok",
+        "compilation.positive_report_ok: ok",
+        "option.encoding: some={\"kind\":\"some\",\"value\":value} none={\"kind\":\"none\"}",
+        "summary: igniter-lang/experiments/history_type_proof/history_type_proof_summary.json"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "sparkcrm_bihistory",
+      "label": "SparkCRM BiHistory fixture proof",
+      "surface": "history_bihistory_temporal_access",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixture.rb"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "seed.synthetic_bihistory_events",
+          "status": "PASS"
+        },
+        {
+          "name": "option.canonical_some",
+          "status": "PASS"
+        },
+        {
+          "name": "option.canonical_none",
+          "status": "PASS"
+        },
+        {
+          "name": "decision.snapshot_blocks_requested_window",
+          "status": "PASS"
+        },
+        {
+          "name": "corrected.snapshot_frees_requested_window",
+          "status": "PASS"
+        },
+        {
+          "name": "correction.report_links_prior_and_corrected_events",
+          "status": "PASS"
+        },
+        {
+          "name": "dispatch.original_explanation_preserved",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.temporal_access_node_loader_bitemporal",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.hook_load_check_bitemporal",
+          "status": "PASS"
+        },
+        {
+          "name": "runtime.output_links_selected_event_observation",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.missing_bihistory_read_capability_blocked",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.missing_vt_oof_bt2",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.missing_tt_oof_bt3",
+          "status": "PASS"
+        },
+        {
+          "name": "negative.wrong_axis_type_oof_bt4",
+          "status": "PASS"
+        },
+        {
+          "name": "safety.synthetic_only",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "PASS sparkcrm_bihistory_fixture",
+        "seed.synthetic_bihistory_events: ok",
+        "option.canonical_some: ok",
+        "option.canonical_none: ok",
+        "decision.snapshot_blocks_requested_window: ok",
+        "corrected.snapshot_frees_requested_window: ok",
+        "correction.report_links_prior_and_corrected_events: ok",
+        "dispatch.original_explanation_preserved: ok",
+        "runtime.temporal_access_node_loader_bitemporal: ok",
+        "runtime.hook_load_check_bitemporal: ok",
+        "runtime.output_links_selected_event_observation: ok",
+        "negative.missing_bihistory_read_capability_blocked: ok",
+        "negative.missing_vt_oof_bt2: ok",
+        "negative.missing_tt_oof_bt3: ok",
+        "negative.wrong_axis_type_oof_bt4: ok",
+        "safety.synthetic_only: ok",
+        "decision.requested_window: blocked/busy",
+        "corrected.requested_window: available/available",
+        "correction.changed_slots: 1",
+        "summary: igniter-lang/experiments/sparkcrm_bihistory_fixture/summary.json"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "ledger_tbackend_descriptor",
+      "label": "Ledger TBackend descriptor fixture proof",
+      "surface": "ledger_tbackend_descriptor",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/ledger_tbackend_adapter_descriptor_fixture/ledger_tbackend_adapter_descriptor_fixture.rb"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [],
+      "stdout": [
+        "PASS descriptor hash is stable",
+        "PASS full descriptor satisfies metadata-only requirement",
+        "PASS missing history blocks bihistory capability",
+        "PASS fixture does not authorize runtime or ledger operations",
+        "{",
+        "  \"descriptor_hash\": \"sha256:a19f8a32f571f7b5584f0162c969410fd7473372fda1d28e59d25fe65bff02f7\",",
+        "  \"descriptor_registry_hash\": \"sha256:c1b4dc9ccc06ca42600b5037d7ed505273a3ab9867cea49c99242667ff66d897\",",
+        "  \"diagnostics_status\": \"ok\",",
+        "  \"missing_history_status\": \"blocked\"",
+        "}"
+      ],
+      "stderr": []
+    },
+    {
+      "id": "stage1_regression",
+      "label": "Stage 1 close candidate regression",
+      "surface": "stage1_regression",
+      "command": [
+        "ruby",
+        "igniter-lang/experiments/stage1_close_candidate/stage1_close_candidate.rb"
+      ],
+      "status": "PASS",
+      "exit_status": 0,
+      "checks": [
+        {
+          "name": "classifier",
+          "status": "PASS"
+        },
+        {
+          "name": "typechecker",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir",
+          "status": "PASS"
+        },
+        {
+          "name": "stdlib_kernel",
+          "status": "PASS"
+        },
+        {
+          "name": "igapp_assembler",
+          "status": "PASS"
+        }
+      ],
+      "stdout": [
+        "PASS stage1_close_candidate",
+        "classifier: PASS",
+        "typechecker: PASS",
+        "semanticir: PASS",
+        "stdlib_kernel: PASS",
+        "igapp_assembler: PASS",
+        "summary: igniter-lang/experiments/stage1_close_candidate/stage1_close_candidate.json"
+      ],
+      "stderr": []
+    }
+  ],
+  "fixture_set": [
+    "igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+    "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
+    "igniter-lang/experiments/stream_t_proof/stream_integer_window.ig",
+    "igniter-lang/experiments/history_type_proof/history_integer_point_access.ig",
+    "igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixture.rb",
+    "igniter-lang/experiments/ledger_tbackend_adapter_descriptor_fixture/ledger_tbackend_adapter_descriptor_fixture.rb"
+  ],
+  "deferred_gaps": [
+    {
+      "id": "production_tbackend_adapter_binding",
+      "status": "deferred",
+      "summary": "Ledger/Durable adapter descriptor exists, but no real production backend package binding is closed."
+    },
+    {
+      "id": "olap_distributed_execution",
+      "status": "deferred",
+      "summary": "OLAP scatter/gather, rollup, and distributed execution remain out of scope."
+    },
+    {
+      "id": "invariant_persistence",
+      "status": "deferred",
+      "summary": "Runtime invariant observations are proof-backed, but production persistence is not closed."
+    },
+    {
+      "id": "deferred_invariant_oofs",
+      "status": "deferred",
+      "summary": "OOF-I1, OOF-I3, and OOF-I5 remain deferred by Stage 2 governance."
+    },
+    {
+      "id": "gem_release_readiness",
+      "status": "deferred",
+      "summary": "Gemspec/bin skeleton is proven locally; final metadata, CI, and RubyGems release policy remain outside this close candidate."
+    }
+  ],
+  "close_candidate_signals": [
+    {
+      "id": "stage2_surfaces_closed_in_proof",
+      "status": "closed_in_proof",
+      "summary": "Invariant, OLAP, stream, History/BiHistory, Ledger descriptor, and package facade checks are all required PASS surfaces."
+    },
+    {
+      "id": "public_facade_used",
+      "status": "closed_in_proof",
+      "summary": "The candidate uses IgniterLang.compile for direct package facade evidence."
+    },
+    {
+      "id": "stage1_regression_preserved",
+      "status": "closed_in_proof",
+      "summary": "The Stage 1 close candidate remains part of the required Stage 2 close run."
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "kind": "gem_native_package_boundary_specs",
+  "format_version": "0.1.0",
+  "track": "gem-native-package-boundary-specs-v0",
+  "status": "PASS",
+  "timestamp": "2026-05-08T06:48:33Z",
+  "package": {
+    "name": "igniter_lang",
+    "version": "0.1.0.pre.stage2",
+    "gem_path": "/private/tmp/igniter_lang_gem_native_package_boundary_specs/igniter_lang-0.1.0.pre.stage2.gem",
+    "gem_home": "/private/tmp/igniter_lang_gem_native_package_boundary_specs/gem_home",
+    "bin_dir": "/private/tmp/igniter_lang_gem_native_package_boundary_specs/bin",
+    "executable": "igc"
+  },
+  "checks": [
+    {
+      "id": "gem_build",
+      "status": "PASS",
+      "evidence": {
+        "command": [
+          "gem",
+          "build",
+          "igniter_lang.gemspec",
+          "--output",
+          "/private/tmp/igniter_lang_gem_native_package_boundary_specs/igniter_lang-0.1.0.pre.stage2.gem"
+        ],
+        "gem_path": "/private/tmp/igniter_lang_gem_native_package_boundary_specs/igniter_lang-0.1.0.pre.stage2.gem",
+        "stdout": [
+          "  Successfully built RubyGem",
+          "  Name: igniter_lang",
+          "  Version: 0.1.0.pre.stage2",
+          "  File: igniter_lang-0.1.0.pre.stage2.gem"
+        ],
+        "stderr": [],
+        "exit_status": 0
+      }
+    },
+    {
+      "id": "gem_install_isolated_home",
+      "status": "PASS",
+      "evidence": {
+        "command": [
+          "gem",
+          "install",
+          "--local",
+          "--force",
+          "--no-document",
+          "--install-dir",
+          "/private/tmp/igniter_lang_gem_native_package_boundary_specs/gem_home",
+          "--bindir",
+          "/private/tmp/igniter_lang_gem_native_package_boundary_specs/bin",
+          "/private/tmp/igniter_lang_gem_native_package_boundary_specs/igniter_lang-0.1.0.pre.stage2.gem"
+        ],
+        "gem_home": "/private/tmp/igniter_lang_gem_native_package_boundary_specs/gem_home",
+        "bindir": "/private/tmp/igniter_lang_gem_native_package_boundary_specs/bin",
+        "stdout": [
+          "Successfully installed igniter_lang-0.1.0.pre.stage2",
+          "1 gem installed"
+        ],
+        "stderr": [],
+        "exit_status": 0
+      }
+    },
+    {
+      "id": "require_igniter_lang_from_installed_gem",
+      "status": "PASS",
+      "evidence": {
+        "command": [
+          "ruby",
+          "-e",
+          "require \"igniter_lang\""
+        ],
+        "chdir": "/private/tmp/igniter_lang_gem_native_package_boundary_specs",
+        "stdout_json": {
+          "version": "0.1.0.pre.stage2",
+          "respond_to_compile": true,
+          "orchestrator_defined": true
+        },
+        "stdout": [
+          "{\"version\":\"0.1.0.pre.stage2\",\"respond_to_compile\":true,\"orchestrator_defined\":true}"
+        ],
+        "stderr": [],
+        "exit_status": 0
+      }
+    },
+    {
+      "id": "direct_compile_package_boundary",
+      "status": "PASS",
+      "evidence": {
+        "command": [
+          "ruby",
+          "-e",
+          "IgniterLang.compile(...)",
+          "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+          "/private/tmp/igniter_lang_gem_native_package_boundary_specs/direct_api_add.igapp"
+        ],
+        "chdir": "/private/tmp/igniter_lang_gem_native_package_boundary_specs",
+        "stdout_json": {
+          "orchestration_status": "ok",
+          "result_status": "ok",
+          "program_id": "semanticir/e9664d5446df4e46",
+          "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+          "contracts": [
+            "Add"
+          ],
+          "stages": {
+            "parse": "ok",
+            "classify": "ok",
+            "typecheck": "ok",
+            "emit": "ok",
+            "assemble": "ok"
+          },
+          "igapp_path": "/private/tmp/igniter_lang_gem_native_package_boundary_specs/direct_api_add.igapp"
+        },
+        "stdout": [
+          "{\"orchestration_status\":\"ok\",\"result_status\":\"ok\",\"program_id\":\"semanticir/e9664d5446df4e46\",\"source_hash\":\"sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc\",\"contracts\":[\"Add\"],\"stages\":{\"parse\":\"ok\",\"classify\":\"ok\",\"typecheck\":\"ok\",\"emit\":\"ok\",\"assemble\":\"ok\"},\"igapp_path\":\"/private/tmp/igniter_lang_gem_native_package_boundary_specs/direct_api_add.igapp\"}"
+        ],
+        "stderr": [],
+        "exit_status": 0
+      }
+    },
+    {
+      "id": "igc_package_executable",
+      "status": "PASS",
+      "evidence": {
+        "command": [
+          "/private/tmp/igniter_lang_gem_native_package_boundary_specs/bin/igc",
+          "compile",
+          "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+          "--out",
+          "/private/tmp/igniter_lang_gem_native_package_boundary_specs/igc_add.igapp"
+        ],
+        "chdir": "/private/tmp/igniter_lang_gem_native_package_boundary_specs",
+        "stdout_json": {
+          "kind": "compiler_result",
+          "format_version": "0.1.0",
+          "status": "ok",
+          "program_id": "semanticir/e9664d5446df4e46",
+          "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+          "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+          "grammar_version": "0.1.0",
+          "stages": {
+            "parse": "ok",
+            "classify": "ok",
+            "typecheck": "ok",
+            "emit": "ok",
+            "assemble": "ok"
+          },
+          "igapp_path": "/private/tmp/igniter_lang_gem_native_package_boundary_specs/igc_add.igapp",
+          "compilation_report_ref": "compilation_report/e9664d5446df4e46",
+          "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+          "contracts": [
+            "Add"
+          ],
+          "diagnostics": [],
+          "warnings": [],
+          "runtime_smoke": null
+        },
+        "stdout": [
+          "{",
+          "  \"kind\": \"compiler_result\",",
+          "  \"format_version\": \"0.1.0\",",
+          "  \"status\": \"ok\",",
+          "  \"program_id\": \"semanticir/e9664d5446df4e46\",",
+          "  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/add.ig\",",
+          "  \"source_hash\": \"sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc\",",
+          "  \"grammar_version\": \"0.1.0\",",
+          "  \"stages\": {",
+          "    \"parse\": \"ok\",",
+          "    \"classify\": \"ok\",",
+          "    \"typecheck\": \"ok\",",
+          "    \"emit\": \"ok\",",
+          "    \"assemble\": \"ok\"",
+          "  },",
+          "  \"igapp_path\": \"/private/tmp/igniter_lang_gem_native_package_boundary_specs/igc_add.igapp\",",
+          "  \"compilation_report_ref\": \"compilation_report/e9664d5446df4e46\",",
+          "  \"semantic_ir_ref\": \"semanticir/e9664d5446df4e46\",",
+          "  \"contracts\": [",
+          "    \"Add\"",
+          "  ],",
+          "  \"diagnostics\": [",
+          "",
+          "  ],",
+          "  \"warnings\": [",
+          "",
+          "  ],",
+          "  \"runtime_smoke\": null",
+          "}"
+        ],
+        "stderr": [],
+        "exit_status": 0
+      }
+    },
+    {
+      "id": "direct_api_and_igc_same_facade_shape",
+      "status": "PASS",
+      "evidence": {
+        "direct_program_id": "semanticir/e9664d5446df4e46",
+        "igc_program_id": "semanticir/e9664d5446df4e46",
+        "direct_contracts": [
+          "Add"
+        ],
+        "igc_contracts": [
+          "Add"
+        ]
+      }
+    },
+    {
+      "id": "installed_gem_no_repo_load_path",
+      "status": "PASS",
+      "evidence": {
+        "summary": "Require/direct compile/igc checks run from /private/tmp with GEM_HOME/GEM_PATH and without -I igniter-lang/lib."
+      }
+    }
+  ],
+  "release_readiness_gaps": [
+    {
+      "id": "final_gem_metadata",
+      "status": "open",
+      "summary": "Gemspec still uses placeholder homepage/source_code_uri/contact metadata."
+    },
+    {
+      "id": "gem_native_ci",
+      "status": "open",
+      "summary": "Package-native specs are proof-local; no CI/release task wires them yet."
+    },
+    {
+      "id": "runtime_smoke_adapter",
+      "status": "deferred",
+      "summary": "Runtime smoke remains optional/proof-backed rather than production RuntimeMachine packaging."
+    },
+    {
+      "id": "release_policy",
+      "status": "open",
+      "summary": "No RubyGems publish policy, signing/checksum policy, or release automation is defined."
+    }
+  ]
+}

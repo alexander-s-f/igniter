@@ -2,14 +2,13 @@
 
 Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
-Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
+Stage 3: **not started**
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-08
-Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
+Last updated: 2026-05-07
+Policy: `meta-proposals/META-EXPERT-009.1-stage2-close-decision-v0.md`
 
 > Full history in:
 > `docs/archive/snapshots/2026-05-06-stage1-close/`
-> `docs/archive/snapshots/2026-05-07-stage2-close/`
 > `experiments/stage2_close_candidate/stage2_close_candidate.json`
 
 ---
@@ -68,54 +67,33 @@ IgniterLang::VERSION: 0.1.0.pre.stage2
 
 ---
 
-## Stage 3 — OPEN (2026-05-08)
+## Stage 3 — Not Started
 
-Governance: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
-
-```text
-Lane              Status    First Track
-─────────────────────────────────────────────────────────────────
-Release           ⏳ open   gem-release-policy-v0
-TBackend          ⏳ open   compatibility-report-descriptor-consumption-v0
-Runtime           ⏳ open   invariant-persistence-boundary-v0
-Language          ⏳ open   PROP-028 written; implementation/proof next
-                            spec-entrypoint-sync-v0 (prereq for PROP-029)
-Compiler Internals ⏳ open  typed-emission parity measured: blocked
-─────────────────────────────────────────────────────────────────
-STAGE 3 CLOSED:   NO
-Round 1 landed:
-  S3-R1-C1-S: stage3-governance-opening-v0      ✅ Stage 3 OPEN
-  S3-R1-C2-P: prop-028-temporal-fragment-v0     ✅ proposal written
-  S3-R1-C3-P: typed-emission-main-path-parity   ⚠️ measured blocked
-  S3-R1-C4-P: stage2-close-snapshot-archive     ✅ cold archive done
-  S3-R1-C5-P: axiomatic/system-forming lens     ✅ research note
-New PROPs:        start from PROP-028
-Arch approval required for: gem publish, Ledger read/write, MCP/mesh
-```
-
-### Stage 3 Inherited State
+Stage 3 governance requires a new meta-proposal (META-EXPERT-011 or equivalent)
+authored after Architect review.
 
 ```text
-IgniterLang::VERSION: 0.1.0.pre.stage2
-Compiler pipeline:   Parser → Classifier → TypeChecker → SemanticIREmitter → Assembler
-emit_typed:          exists in semanticir_emitter.rb ⏳ not yet wired in orchestrator
-typed emission path: parity measured ⚠️ blocked; do not switch orchestrator yet
-Ledger descriptor:   metadata-only ✅ package specs PASS
-Runtime observations: proof-backed ⏳ production persistence open
-Stage 2 close:       PASS (stage2_close_candidate.json)
-Stage 1 regression:  PASS
-Archive:             Stage 2 close snapshot ✅ docs/archive/snapshots/2026-05-07-stage2-close/
-АИ/СОИ lens:         soft Stage 3 governance/review vocabulary; not a hard gate
-```
+Stage 3 starting conditions:
+  ✅ Full compiler pipeline: IgniterLang.compile → SemanticIR → .igapp
+  ✅ 14-file lib/ with public Ruby API (VERSION = "0.1.0.pre.stage2")
+  ✅ Gem-native boundary proof: installed gem require/compile/igc PASS
+  ✅ Ledger descriptor: metadata-only, descriptor-first
+  ✅ Runtime violation observations: proof-backed
+  ⏳ Gem release, TBackend binding, invariant persistence: deferred from Stage 2
 
-### Stage 2 Deferred Gaps → Stage 3 Lanes
+Suggested first Stage 3 tracks (not authorized yet):
+  stage3-governance-opening-v0           [Meta Expert → Architect review]
+  stage2-close-snapshot-archive-v0       [Archive/Form Expert or Research Agent]
+  gem-release-readiness-policy-v0        [Research Agent]
+  production-tbackend-adapter-binding-v0 [Bridge Agent]
+  invariant-persistence-boundary-v0      [Research Agent]
+  syntax-pressure-registry-v0            [Compiler/Grammar Expert; research only]
+  let-compute-boundary-v0                [Compiler/Grammar Expert; research/proof]
 
-```text
-1. gem_release_readiness               → Release lane
-2. production_tbackend_adapter_binding → TBackend lane   (Arch approval for prod read/write)
-3. invariant_persistence               → Runtime lane
-4. deferred_invariant_oofs             → Language lane   (after PROP-028)
-5. olap_distributed_execution          → Language lane   (after TBackend lane)
+Syntax/comprehension note:
+  Human-agent comprehension and future syntax documents are Stage 3 pressure
+  inputs only. They do not promote fixture syntax to canon and do not open
+  PROP-028+ without Stage 3 governance.
 ```
 
 ---
@@ -131,8 +109,7 @@ PROP-024   OLAPPoint[T,Dims]             ✅ CLOSED IN STAGE 2 (parser + TC + Se
 PROP-025   Invariant severity            ✅ CLOSED IN STAGE 2 (partial: OOF-I1/I3/I5 deferred)
 PROP-026   Parser OOF hardening          ✅ CLOSED IN STAGE 2
 PROP-027   Production compiler           ✅ CLOSED IN STAGE 2 (package + facade + igc)
-PROP-028   TEMPORAL fragment class       ✅ proposal written; implementation/proof next
-PROP-029+  Stage 3 — not open without governance/prerequisite track
+PROP-028+  Stage 3 — not open yet
 ```
 
 → Close governance: `meta-proposals/META-EXPERT-009.1-stage2-close-decision-v0.md`
