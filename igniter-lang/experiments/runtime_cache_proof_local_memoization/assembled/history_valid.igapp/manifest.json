@@ -1,0 +1,29 @@
+{
+  "artifact_hash": "sha256:5d0582750cbd7146ed04266ef7fa72ad349d82f6b9f747d6a0798ca06ae3e888",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/history-valid-te",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_refs": {
+    "HistoryAxesTest": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d"
+  },
+  "contracts": [
+    "HistoryAxesTest"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "temporal",
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/history-valid-te",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/history-valid-te",
+  "source_hash": "sha256:history-valid-temporal-fixture",
+  "source_path": "experiments/typechecker_proof/fixtures/history_valid.ig",
+  "warnings": []
+}

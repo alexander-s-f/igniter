@@ -1,0 +1,447 @@
+{
+  "checks": {
+    "core.fresh_hit_returned": true,
+    "negative.core_shaped_key_for_temporal_rejected": true,
+    "negative.stale_rejected": true,
+    "negative.unknown_rejected": true,
+    "observations.hit_and_reject_emitted": true,
+    "observations.no_raw_input_payloads": true,
+    "provisional.returned_with_downgrade_observation": true,
+    "temporal.bihistory_key_uses_both_coordinates": true,
+    "temporal.history_fresh_hit_returned": true
+  },
+  "examples": {
+    "bihistory_fresh_hit": {
+      "axis": "bitemporal",
+      "cache_entry_ref": "cache/cbea3bbf026bfda9",
+      "cache_key_hash": "sha256:cbea3bbf026bfda91b57477acbbc6ad387e53a510f870f62b2e2f442ba6224dc",
+      "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+      "evidence_links": [
+        {
+          "from": "obs/cache/cache.fresh_hit/cbea3bbf026bfda9",
+          "rel": "selected_cache_entry",
+          "to": "cache/cbea3bbf026bfda9"
+        }
+      ],
+      "fragment": "TEMPORAL",
+      "freshness": "fresh",
+      "kind": "runtime_cache_hit_observation",
+      "program_id": "semanticir/a97da15bba17da42",
+      "reason": "cache.fresh_hit",
+      "result_policy": "returned",
+      "runtime_session_ref": "runtime-session/cache-proof-local",
+      "temporal_coordinates": {
+        "transaction_time": "2026-05-07T15:20:00Z",
+        "valid_time": "2026-05-07T14:00:00Z"
+      },
+      "value_hash": "sha256:6b5908b04497b0dc5774f1a19ca9e561e5f5df86ee679382a5749422af1aac95",
+      "version": "runtime-cache-observation-v1"
+    },
+    "cache_observations": [
+      {
+        "axis": null,
+        "cache_entry_ref": "cache/9ba0018db0dd59d3",
+        "cache_key_hash": "sha256:9ba0018db0dd59d3d30268c694eb9b9eebc0c6b41e87a9be66590c01a60ddc83",
+        "contract_ref": "contract/Add/sha256:7379226c21b2cdcd69464bb7",
+        "evidence_links": [
+          {
+            "from": "obs/cache/cache.fresh_hit/9ba0018db0dd59d3",
+            "rel": "selected_cache_entry",
+            "to": "cache/9ba0018db0dd59d3"
+          }
+        ],
+        "fragment": "CORE",
+        "freshness": "fresh",
+        "kind": "runtime_cache_hit_observation",
+        "program_id": "semanticir/e9664d5446df4e46",
+        "reason": "cache.fresh_hit",
+        "result_policy": "returned",
+        "runtime_session_ref": "runtime-session/cache-proof-local",
+        "temporal_coordinates": null,
+        "value_hash": "sha256:82a984dda4159e2e94a3fd7b93727b2cba1a209537257f0df0d3d2f6fbb35a9b",
+        "version": "runtime-cache-observation-v1"
+      },
+      {
+        "axis": "valid_time",
+        "cache_entry_ref": "cache/3b2c3c59e11581cb",
+        "cache_key_hash": "sha256:3b2c3c59e11581cbe934088357b355d2b4a6e50f558825d12a44545a4dd0c1a5",
+        "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+        "evidence_links": [
+          {
+            "from": "obs/cache/cache.fresh_hit/3b2c3c59e11581cb",
+            "rel": "selected_cache_entry",
+            "to": "cache/3b2c3c59e11581cb"
+          }
+        ],
+        "fragment": "TEMPORAL",
+        "freshness": "fresh",
+        "kind": "runtime_cache_hit_observation",
+        "program_id": "semanticir/history-valid-te",
+        "reason": "cache.fresh_hit",
+        "result_policy": "returned",
+        "runtime_session_ref": "runtime-session/cache-proof-local",
+        "temporal_coordinates": {
+          "as_of": "2026-05-06T10:00:00Z"
+        },
+        "value_hash": "sha256:a98bc70d9d9369ab3870b9c70057c47376e3c0dfcdfbe42cee470ae93ca79f54",
+        "version": "runtime-cache-observation-v1"
+      },
+      {
+        "axis": "valid_time",
+        "cache_entry_ref": null,
+        "cache_key_hash": "sha256:a885ab7e66699cf90b675e3248f758ba0897798249358cef3d9928c61d3faa3f",
+        "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+        "detail": "requested CORE key for TEMPORAL metadata",
+        "evidence_links": [],
+        "fragment": "TEMPORAL",
+        "freshness": "unknown",
+        "kind": "runtime_cache_reject_observation",
+        "program_id": "semanticir/history-valid-te",
+        "reason": "cache.key_schema_mismatch",
+        "result_policy": "rejected",
+        "runtime_session_ref": "runtime-session/cache-proof-local",
+        "temporal_coordinates": null,
+        "value_hash": null,
+        "version": "runtime-cache-observation-v1"
+      },
+      {
+        "axis": "valid_time",
+        "cache_entry_ref": "cache/983f32213e0664cc",
+        "cache_key_hash": "sha256:983f32213e0664cc8d3df39a1b7c7523b2bdc89e71f331f3060443061f4622f3",
+        "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+        "evidence_links": [],
+        "fragment": "TEMPORAL",
+        "freshness": "stale",
+        "kind": "runtime_cache_reject_observation",
+        "program_id": "semanticir/history-valid-te",
+        "reason": "cache.stale_rejected",
+        "result_policy": "rejected",
+        "runtime_session_ref": "runtime-session/cache-proof-local",
+        "temporal_coordinates": {
+          "as_of": "2026-05-07T10:00:00Z"
+        },
+        "value_hash": "sha256:4a52e26f962c6dfd38dd8deac83cdd197aefa54589e9212e5e03e2f505ae6cf2",
+        "version": "runtime-cache-observation-v1"
+      },
+      {
+        "axis": "valid_time",
+        "cache_entry_ref": "cache/1149b16ae06171d4",
+        "cache_key_hash": "sha256:1149b16ae06171d4507d62e5391738da9ca0eebb510e91077a8e0f817daa20c8",
+        "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+        "evidence_links": [],
+        "fragment": "TEMPORAL",
+        "freshness": "unknown",
+        "kind": "runtime_cache_reject_observation",
+        "program_id": "semanticir/history-valid-te",
+        "reason": "cache.unknown_rejected",
+        "result_policy": "rejected",
+        "runtime_session_ref": "runtime-session/cache-proof-local",
+        "temporal_coordinates": {
+          "as_of": "2026-05-08T10:00:00Z"
+        },
+        "value_hash": "sha256:91a220eab006783973d47dcad39b23d64dd791a1b501d8a83044dedf8a538df1",
+        "version": "runtime-cache-observation-v1"
+      },
+      {
+        "axis": "valid_time",
+        "cache_entry_ref": "cache/bb91e066ba8cdd9b",
+        "cache_key_hash": "sha256:bb91e066ba8cdd9b5323f9ef7006d0424e025fdf24a9a0278c36f64991bbbebe",
+        "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+        "downgrade_observation": {
+          "cache_entry_ref": "cache/bb91e066ba8cdd9b",
+          "cache_key_hash": "sha256:bb91e066ba8cdd9b5323f9ef7006d0424e025fdf24a9a0278c36f64991bbbebe",
+          "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+          "kind": "runtime_cache_downgrade_observation",
+          "message": "Cached value returned with downgraded trust because freshness is provisional.",
+          "reason": "cache.provisional_hit",
+          "runtime_session_ref": "runtime-session/cache-proof-local",
+          "trust": "provisional",
+          "version": "runtime-cache-observation-v1"
+        },
+        "evidence_links": [
+          {
+            "from": "obs/cache/cache.provisional_hit/bb91e066ba8cdd9b",
+            "rel": "selected_cache_entry",
+            "to": "cache/bb91e066ba8cdd9b"
+          }
+        ],
+        "fragment": "TEMPORAL",
+        "freshness": "provisional",
+        "kind": "runtime_cache_hit_observation",
+        "program_id": "semanticir/history-valid-te",
+        "reason": "cache.provisional_hit",
+        "result_policy": "returned_provisional",
+        "runtime_session_ref": "runtime-session/cache-proof-local",
+        "temporal_coordinates": {
+          "as_of": "2026-05-09T10:00:00Z"
+        },
+        "value_hash": "sha256:95f945da91d853844715efddaf440cac5e777adc78860241cd2e74984b687fb2",
+        "version": "runtime-cache-observation-v1"
+      },
+      {
+        "axis": "bitemporal",
+        "cache_entry_ref": "cache/cbea3bbf026bfda9",
+        "cache_key_hash": "sha256:cbea3bbf026bfda91b57477acbbc6ad387e53a510f870f62b2e2f442ba6224dc",
+        "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+        "evidence_links": [
+          {
+            "from": "obs/cache/cache.fresh_hit/cbea3bbf026bfda9",
+            "rel": "selected_cache_entry",
+            "to": "cache/cbea3bbf026bfda9"
+          }
+        ],
+        "fragment": "TEMPORAL",
+        "freshness": "fresh",
+        "kind": "runtime_cache_hit_observation",
+        "program_id": "semanticir/a97da15bba17da42",
+        "reason": "cache.fresh_hit",
+        "result_policy": "returned",
+        "runtime_session_ref": "runtime-session/cache-proof-local",
+        "temporal_coordinates": {
+          "transaction_time": "2026-05-07T15:20:00Z",
+          "valid_time": "2026-05-07T14:00:00Z"
+        },
+        "value_hash": "sha256:6b5908b04497b0dc5774f1a19ca9e561e5f5df86ee679382a5749422af1aac95",
+        "version": "runtime-cache-observation-v1"
+      }
+    ],
+    "core_fresh_hit": {
+      "axis": null,
+      "cache_entry_ref": "cache/9ba0018db0dd59d3",
+      "cache_key_hash": "sha256:9ba0018db0dd59d3d30268c694eb9b9eebc0c6b41e87a9be66590c01a60ddc83",
+      "contract_ref": "contract/Add/sha256:7379226c21b2cdcd69464bb7",
+      "evidence_links": [
+        {
+          "from": "obs/cache/cache.fresh_hit/9ba0018db0dd59d3",
+          "rel": "selected_cache_entry",
+          "to": "cache/9ba0018db0dd59d3"
+        }
+      ],
+      "fragment": "CORE",
+      "freshness": "fresh",
+      "kind": "runtime_cache_hit_observation",
+      "program_id": "semanticir/e9664d5446df4e46",
+      "reason": "cache.fresh_hit",
+      "result_policy": "returned",
+      "runtime_session_ref": "runtime-session/cache-proof-local",
+      "temporal_coordinates": null,
+      "value_hash": "sha256:82a984dda4159e2e94a3fd7b93727b2cba1a209537257f0df0d3d2f6fbb35a9b",
+      "version": "runtime-cache-observation-v1"
+    },
+    "history_core_shaped_key_rejected": {
+      "axis": "valid_time",
+      "cache_entry_ref": null,
+      "cache_key_hash": "sha256:a885ab7e66699cf90b675e3248f758ba0897798249358cef3d9928c61d3faa3f",
+      "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+      "detail": "requested CORE key for TEMPORAL metadata",
+      "evidence_links": [],
+      "fragment": "TEMPORAL",
+      "freshness": "unknown",
+      "kind": "runtime_cache_reject_observation",
+      "program_id": "semanticir/history-valid-te",
+      "reason": "cache.key_schema_mismatch",
+      "result_policy": "rejected",
+      "runtime_session_ref": "runtime-session/cache-proof-local",
+      "temporal_coordinates": null,
+      "value_hash": null,
+      "version": "runtime-cache-observation-v1"
+    },
+    "history_fresh_hit": {
+      "axis": "valid_time",
+      "cache_entry_ref": "cache/3b2c3c59e11581cb",
+      "cache_key_hash": "sha256:3b2c3c59e11581cbe934088357b355d2b4a6e50f558825d12a44545a4dd0c1a5",
+      "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+      "evidence_links": [
+        {
+          "from": "obs/cache/cache.fresh_hit/3b2c3c59e11581cb",
+          "rel": "selected_cache_entry",
+          "to": "cache/3b2c3c59e11581cb"
+        }
+      ],
+      "fragment": "TEMPORAL",
+      "freshness": "fresh",
+      "kind": "runtime_cache_hit_observation",
+      "program_id": "semanticir/history-valid-te",
+      "reason": "cache.fresh_hit",
+      "result_policy": "returned",
+      "runtime_session_ref": "runtime-session/cache-proof-local",
+      "temporal_coordinates": {
+        "as_of": "2026-05-06T10:00:00Z"
+      },
+      "value_hash": "sha256:a98bc70d9d9369ab3870b9c70057c47376e3c0dfcdfbe42cee470ae93ca79f54",
+      "version": "runtime-cache-observation-v1"
+    },
+    "history_provisional_returned_with_downgrade": {
+      "axis": "valid_time",
+      "cache_entry_ref": "cache/bb91e066ba8cdd9b",
+      "cache_key_hash": "sha256:bb91e066ba8cdd9b5323f9ef7006d0424e025fdf24a9a0278c36f64991bbbebe",
+      "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+      "downgrade_observation": {
+        "cache_entry_ref": "cache/bb91e066ba8cdd9b",
+        "cache_key_hash": "sha256:bb91e066ba8cdd9b5323f9ef7006d0424e025fdf24a9a0278c36f64991bbbebe",
+        "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+        "kind": "runtime_cache_downgrade_observation",
+        "message": "Cached value returned with downgraded trust because freshness is provisional.",
+        "reason": "cache.provisional_hit",
+        "runtime_session_ref": "runtime-session/cache-proof-local",
+        "trust": "provisional",
+        "version": "runtime-cache-observation-v1"
+      },
+      "evidence_links": [
+        {
+          "from": "obs/cache/cache.provisional_hit/bb91e066ba8cdd9b",
+          "rel": "selected_cache_entry",
+          "to": "cache/bb91e066ba8cdd9b"
+        }
+      ],
+      "fragment": "TEMPORAL",
+      "freshness": "provisional",
+      "kind": "runtime_cache_hit_observation",
+      "program_id": "semanticir/history-valid-te",
+      "reason": "cache.provisional_hit",
+      "result_policy": "returned_provisional",
+      "runtime_session_ref": "runtime-session/cache-proof-local",
+      "temporal_coordinates": {
+        "as_of": "2026-05-09T10:00:00Z"
+      },
+      "value_hash": "sha256:95f945da91d853844715efddaf440cac5e777adc78860241cd2e74984b687fb2",
+      "version": "runtime-cache-observation-v1"
+    },
+    "history_stale_rejected": {
+      "axis": "valid_time",
+      "cache_entry_ref": "cache/983f32213e0664cc",
+      "cache_key_hash": "sha256:983f32213e0664cc8d3df39a1b7c7523b2bdc89e71f331f3060443061f4622f3",
+      "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+      "evidence_links": [],
+      "fragment": "TEMPORAL",
+      "freshness": "stale",
+      "kind": "runtime_cache_reject_observation",
+      "program_id": "semanticir/history-valid-te",
+      "reason": "cache.stale_rejected",
+      "result_policy": "rejected",
+      "runtime_session_ref": "runtime-session/cache-proof-local",
+      "temporal_coordinates": {
+        "as_of": "2026-05-07T10:00:00Z"
+      },
+      "value_hash": "sha256:4a52e26f962c6dfd38dd8deac83cdd197aefa54589e9212e5e03e2f505ae6cf2",
+      "version": "runtime-cache-observation-v1"
+    },
+    "history_unknown_rejected": {
+      "axis": "valid_time",
+      "cache_entry_ref": "cache/1149b16ae06171d4",
+      "cache_key_hash": "sha256:1149b16ae06171d4507d62e5391738da9ca0eebb510e91077a8e0f817daa20c8",
+      "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+      "evidence_links": [],
+      "fragment": "TEMPORAL",
+      "freshness": "unknown",
+      "kind": "runtime_cache_reject_observation",
+      "program_id": "semanticir/history-valid-te",
+      "reason": "cache.unknown_rejected",
+      "result_policy": "rejected",
+      "runtime_session_ref": "runtime-session/cache-proof-local",
+      "temporal_coordinates": {
+        "as_of": "2026-05-08T10:00:00Z"
+      },
+      "value_hash": "sha256:91a220eab006783973d47dcad39b23d64dd791a1b501d8a83044dedf8a538df1",
+      "version": "runtime-cache-observation-v1"
+    }
+  },
+  "format_version": "0.1.0",
+  "kind": "runtime_cache_proof_local_memoization",
+  "metadata_fixture": {
+    "bihistory_valid": {
+      "axis": "bitemporal",
+      "contract_id": "BiHistoryAxesTest",
+      "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+      "coordinate_names": [
+        "transaction_time",
+        "valid_time"
+      ],
+      "coordinate_refs": {
+        "transaction_time": "transaction_time",
+        "valid_time": "valid_time"
+      },
+      "fragment": "TEMPORAL",
+      "metadata_sources": {
+        "contract": "igniter-lang/experiments/runtime_cache_proof_local_memoization/assembled/bihistory_valid.igapp/contracts/bi_history_axes_test.json",
+        "manifest": "igniter-lang/experiments/runtime_cache_proof_local_memoization/assembled/bihistory_valid.igapp/manifest.json",
+        "requirements": "igniter-lang/experiments/runtime_cache_proof_local_memoization/assembled/bihistory_valid.igapp/requirements.json"
+      },
+      "program_id": "semanticir/a97da15bba17da42",
+      "required_caps": [
+        "bihistory_read"
+      ]
+    },
+    "core_add": {
+      "axis": null,
+      "contract_id": "Add",
+      "contract_ref": "contract/Add/sha256:7379226c21b2cdcd69464bb7",
+      "coordinate_names": [],
+      "fragment": "CORE",
+      "program_id": "semanticir/e9664d5446df4e46",
+      "required_caps": []
+    },
+    "history_valid": {
+      "axis": "valid_time",
+      "contract_id": "HistoryAxesTest",
+      "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+      "coordinate_names": [
+        "as_of"
+      ],
+      "coordinate_refs": {
+        "as_of": "as_of"
+      },
+      "fragment": "TEMPORAL",
+      "metadata_sources": {
+        "contract": "igniter-lang/experiments/runtime_cache_proof_local_memoization/assembled/history_valid.igapp/contracts/history_axes_test.json",
+        "manifest": "igniter-lang/experiments/runtime_cache_proof_local_memoization/assembled/history_valid.igapp/manifest.json",
+        "requirements": "igniter-lang/experiments/runtime_cache_proof_local_memoization/assembled/history_valid.igapp/requirements.json"
+      },
+      "program_id": "semanticir/history-valid-te",
+      "required_caps": [
+        "history_read"
+      ]
+    }
+  },
+  "metadata_required_from_assembler_manifest": {
+    "cache_policy_required_before_runtime_enablement": {
+      "cache_policy": "memoized",
+      "default_stale_policy": "reject",
+      "default_unknown_policy": "reject",
+      "entry_schema": "runtime-cache-entry-v1",
+      "key_schema": "runtime-cache-key-v1",
+      "observation_schema": "runtime-cache-observation-v1",
+      "provisional_policy": "return_with_downgrade"
+    },
+    "current_assembler_inputs_used_by_proof": [
+      "manifest.program_id",
+      "manifest.fragment_class",
+      "contract.source_contract_ref",
+      "contract.fragment_class",
+      "contract.temporal_nodes[].kind",
+      "contract.temporal_nodes[].axis",
+      "contract.temporal_nodes[].coordinate_refs",
+      "contract.temporal_nodes[].required_caps",
+      "requirements.temporal.axes",
+      "requirements.temporal.coordinate_refs",
+      "requirements.capabilities.required_caps"
+    ],
+    "manifest_or_spec_fields_needed_before_production_runtime_cache": [
+      "manifest.contract_index[].fragment_class",
+      "manifest.contract_index[].contract_path",
+      "manifest.contract_index[].temporal.axes",
+      "manifest.contract_index[].temporal.required_capabilities",
+      "manifest.contract_index[].temporal.cache_key_schema_hint.schema",
+      "manifest.contract_index[].temporal.cache_key_schema_hint.fragment",
+      "manifest.contract_index[].temporal.cache_key_schema_hint.coordinate_names"
+    ]
+  },
+  "scope": {
+    "cache_store": "proof-local MemoryCacheStore",
+    "durable_cache_adapter": false,
+    "ledger_binding": false,
+    "production_runtime_cache": false
+  },
+  "status": "PASS",
+  "track": "runtime-cache-proof-local-memoization-v0"
+}
