@@ -11,3 +11,4 @@
 !/playgrounds/README.md
 **/config/credentials.local.yml
 .rubocop_cache/
+.claude/worktrees/
