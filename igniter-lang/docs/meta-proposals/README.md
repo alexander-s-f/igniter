@@ -18,6 +18,7 @@ Documents that govern active Stage 3 work.
 | Document | Status | Purpose |
 |----------|--------|---------|
 | [META-EXPERT-011](META-EXPERT-011-stage3-governance-opening-v0.md) | **active** | Stage 3 governance: OPEN (2026-05-08); 5 lanes, authorization matrix, PROP-028 authorized, first R1 cards |
+| [АИ/СОИ Design Lens](axiomatic-and-system-forming-ideas-lens-v0.md) | research-note | Axiomatic/system-forming ideas lens for Stage 3 synthesis: conditions of possibility plus organizing purpose, with examples across contracts, time, projections, RuntimeMachine, and human-agent symbiosis |
 
 ---
 
