@@ -3,14 +3,22 @@
   "format_version": "0.1.0",
   "card": "S3-R7-C1-P",
   "track": "runtime-compatibility-report-temporal-load-check-v0",
+  "extension_card": "S3-R8-C2-P",
+  "extension_track": "runtime-compatibility-report-executor-boundary-v0",
   "status": "PASS",
   "report_boundary": {
     "bundle_loading": "accepted_for_inspection",
-    "evaluation_readiness": "blocked when temporal TBackend capability or executor/live binding is absent",
+    "evaluation_readiness": "blocked when capability, executor/live binding, approval, Gate 3, or artifact guard_policy is absent/refusing",
     "report_only": true,
     "runtime_enforced": false,
     "ledger_binding": false,
     "temporal_execution": false
+  },
+  "decision_table": {
+    "missing_caps": "blocked: runtime.temporal_capability_missing",
+    "metadata_caps": "blocked: runtime.temporal_execution_unsupported",
+    "claimed_executor": "blocked: runtime.temporal_executor_approval_missing",
+    "approved_executor_placeholder": "blocked: runtime.temporal_gate3_closed"
   },
   "cases": {
     "history_valid": {
@@ -32,7 +40,9 @@
             "profile_id": "runtime-profile/missing-tbackend-capability",
             "tbackend_capabilities": [],
             "live_tbackend_binding": false,
-            "temporal_executor": false
+            "temporal_executor": false,
+            "executor_approval": "none",
+            "gate3_authorized": false
           },
           "report_only": true,
           "runtime_enforced": false,
@@ -72,6 +82,13 @@
             "decision": "trusted",
             "cache_enabled": false,
             "runtime_cache_binding": false
+          },
+          "operation_check": {
+            "decision": "not_attempted",
+            "temporal_executor_call_attempted": false,
+            "live_tbackend_call_attempted": false,
+            "ledger_call_attempted": false,
+            "gate3_authorized": false
           },
           "observation_check": {
             "decision": "trusted",
@@ -175,9 +192,9 @@
             "temporal.requires_tbackend_capability": true,
             "bundle_load.accepted_for_inspection": true,
             "evaluation_readiness.blocks_without_blocking_load": true,
-            "report_only.no_runtime_binding": true
+            "report_only.no_runtime_operation": true
           },
-          "report_hash": "sha256:4e24867f4f5437ab781ef1fec85b3184861e0262ab255a3439c71e227d3fedbf"
+          "report_hash": "sha256:491c5aaa1e60387c0200056430542663759ad20de9b6a72bf8287e08119468fd"
         },
         "metadata_capability_no_executor": {
           "kind": "compatibility_report",
@@ -193,7 +210,9 @@
               "bihistory_read"
             ],
             "live_tbackend_binding": false,
-            "temporal_executor": false
+            "temporal_executor": false,
+            "executor_approval": "none",
+            "gate3_authorized": false
           },
           "report_only": true,
           "runtime_enforced": false,
@@ -235,6 +254,13 @@
             "cache_enabled": false,
             "runtime_cache_binding": false
           },
+          "operation_check": {
+            "decision": "not_attempted",
+            "temporal_executor_call_attempted": false,
+            "live_tbackend_call_attempted": false,
+            "ledger_call_attempted": false,
+            "gate3_authorized": false
+          },
           "observation_check": {
             "decision": "trusted",
             "source": "assembled temporal ContractIR inspection"
@@ -335,9 +361,352 @@
             "temporal.requires_tbackend_capability": true,
             "bundle_load.accepted_for_inspection": true,
             "evaluation_readiness.blocks_without_blocking_load": true,
-            "report_only.no_runtime_binding": true
+            "report_only.no_runtime_operation": true
           },
-          "report_hash": "sha256:8d4dd40ebf9fa4af8dc076e4400efe30ba1fa8c24651bfd5403e5bea54c16017"
+          "report_hash": "sha256:01018f9b9943ee083b449fa1616b3fbde6582de490673d63cc866875d16a34da"
+        },
+        "claimed_executor_live_binding": {
+          "kind": "compatibility_report",
+          "format_version": "0.1.0",
+          "report_id": "compatibility_report/06a70f15bbfb4dac329eed05",
+          "track": "runtime-compatibility-report-temporal-load-check-v0",
+          "as_of": "2026-05-08T00:00:00Z",
+          "program_id": "semanticir/history-valid-te",
+          "runtime_profile": {
+            "profile_id": "runtime-profile/claimed-executor-live-binding",
+            "tbackend_capabilities": [
+              "history_read",
+              "bihistory_read"
+            ],
+            "live_tbackend_binding": true,
+            "temporal_executor": true,
+            "executor_approval": "none",
+            "gate3_authorized": false
+          },
+          "report_only": true,
+          "runtime_enforced": false,
+          "overall": "blocked",
+          "bundle_load": {
+            "decision": "accept_for_inspection",
+            "blocked": false,
+            "requires_contract_index": true,
+            "guard_policy": "load_accept_evaluate_refuse",
+            "guard_at": "evaluate",
+            "reason_code": "runtime.temporal_bundle_load_accepted_for_inspection"
+          },
+          "runtime_check": {
+            "decision": "trusted",
+            "reason_code": "runtime.artifact_shape_verified"
+          },
+          "backend_check": {
+            "decision": "blocked",
+            "reason_code": "runtime.temporal_executor_approval_missing",
+            "report_only": true,
+            "runtime_enforced": false,
+            "required_capabilities": [
+              "history_read"
+            ],
+            "available_capabilities": [
+              "history_read",
+              "bihistory_read"
+            ],
+            "missing_capabilities": [],
+            "live_tbackend_binding": true,
+            "temporal_executor": true
+          },
+          "schema_check": {
+            "decision": "not_evaluated_here",
+            "independent_from_temporal_backend_check": true
+          },
+          "cache_check": {
+            "decision": "trusted",
+            "cache_enabled": false,
+            "runtime_cache_binding": false
+          },
+          "operation_check": {
+            "decision": "not_attempted",
+            "temporal_executor_call_attempted": false,
+            "live_tbackend_call_attempted": false,
+            "ledger_call_attempted": false,
+            "gate3_authorized": false
+          },
+          "observation_check": {
+            "decision": "trusted",
+            "source": "assembled temporal ContractIR inspection"
+          },
+          "evaluation_readiness": {
+            "decision": "blocked",
+            "blocked": true,
+            "blocks_bundle_load": false,
+            "reason_code": "runtime.temporal_executor_approval_missing",
+            "missing_capabilities": [],
+            "guard_at": "evaluate",
+            "approval_state": "none",
+            "gate3_authorized": false
+          },
+          "evidence": {
+            "manifest_fragment_summary": {
+              "fragment_classes": [
+                "temporal"
+              ],
+              "max_fragment_class": "temporal",
+              "precedence_high_to_low": [
+                "oof",
+                "temporal",
+                "stream",
+                "escape",
+                "core"
+              ]
+            },
+            "contract_index_contracts": [
+              "HistoryAxesTest"
+            ],
+            "contract_index_temporal_entries": {
+              "HistoryAxesTest": {
+                "contract_path": "contracts/history_axes_test.json",
+                "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+                "fragment_class": "temporal",
+                "temporal": {
+                  "axes": [
+                    "valid_time"
+                  ],
+                  "cache_key_schema_hint": {
+                    "axis": "valid_time",
+                    "coordinate_names": [
+                      "as_of"
+                    ],
+                    "fragment": "TEMPORAL",
+                    "schema": "runtime-cache-key-v1"
+                  },
+                  "coordinates": [
+                    {
+                      "axis": "valid_time",
+                      "name": "as_of",
+                      "source_ref": "input:as_of",
+                      "type": "DateTime"
+                    }
+                  ],
+                  "required_capabilities": [
+                    "history_read"
+                  ]
+                }
+              }
+            },
+            "guard_policy": {
+              "evaluate": {
+                "decision": "refuse_temporal_contract",
+                "reason_code": "runtime.temporal_execution_unsupported"
+              },
+              "guard_at": "evaluate",
+              "guard_policy": "load_accept_evaluate_refuse",
+              "load": {
+                "decision": "accept_for_inspection",
+                "requires_contract_index": true
+              },
+              "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+              "status": "unsupported"
+            },
+            "required_capabilities": [
+              "history_read"
+            ],
+            "axes": [
+              "valid_time"
+            ],
+            "coordinates": [
+              {
+                "axis": "valid_time",
+                "name": "as_of",
+                "source_ref": "input:as_of",
+                "type": "DateTime"
+              }
+            ],
+            "cache_key_schema_hint_fragments": [
+              "TEMPORAL"
+            ],
+            "max_fragment_class": "temporal"
+          },
+          "checks": {
+            "manifest.fragment_summary_consumed": true,
+            "manifest.contract_index_consumed": true,
+            "guard_policy.consumed": true,
+            "temporal.requires_tbackend_capability": true,
+            "bundle_load.accepted_for_inspection": true,
+            "evaluation_readiness.blocks_without_blocking_load": true,
+            "report_only.no_runtime_operation": true
+          },
+          "report_hash": "sha256:721c6d6be25f3187ea9500cf0a05538eae9eb01a0dfb4fa3b3dae11732ee65df"
+        },
+        "approved_executor_placeholder": {
+          "kind": "compatibility_report",
+          "format_version": "0.1.0",
+          "report_id": "compatibility_report/8ed101453890446143e950ca",
+          "track": "runtime-compatibility-report-temporal-load-check-v0",
+          "as_of": "2026-05-08T00:00:00Z",
+          "program_id": "semanticir/history-valid-te",
+          "runtime_profile": {
+            "profile_id": "runtime-profile/approved-executor-placeholder",
+            "tbackend_capabilities": [
+              "history_read",
+              "bihistory_read"
+            ],
+            "live_tbackend_binding": true,
+            "temporal_executor": true,
+            "executor_approval": "approved_placeholder",
+            "gate3_authorized": false
+          },
+          "report_only": true,
+          "runtime_enforced": false,
+          "overall": "blocked",
+          "bundle_load": {
+            "decision": "accept_for_inspection",
+            "blocked": false,
+            "requires_contract_index": true,
+            "guard_policy": "load_accept_evaluate_refuse",
+            "guard_at": "evaluate",
+            "reason_code": "runtime.temporal_bundle_load_accepted_for_inspection"
+          },
+          "runtime_check": {
+            "decision": "trusted",
+            "reason_code": "runtime.artifact_shape_verified"
+          },
+          "backend_check": {
+            "decision": "blocked",
+            "reason_code": "runtime.temporal_gate3_closed",
+            "report_only": true,
+            "runtime_enforced": false,
+            "required_capabilities": [
+              "history_read"
+            ],
+            "available_capabilities": [
+              "history_read",
+              "bihistory_read"
+            ],
+            "missing_capabilities": [],
+            "live_tbackend_binding": true,
+            "temporal_executor": true
+          },
+          "schema_check": {
+            "decision": "not_evaluated_here",
+            "independent_from_temporal_backend_check": true
+          },
+          "cache_check": {
+            "decision": "trusted",
+            "cache_enabled": false,
+            "runtime_cache_binding": false
+          },
+          "operation_check": {
+            "decision": "not_attempted",
+            "temporal_executor_call_attempted": false,
+            "live_tbackend_call_attempted": false,
+            "ledger_call_attempted": false,
+            "gate3_authorized": false
+          },
+          "observation_check": {
+            "decision": "trusted",
+            "source": "assembled temporal ContractIR inspection"
+          },
+          "evaluation_readiness": {
+            "decision": "blocked",
+            "blocked": true,
+            "blocks_bundle_load": false,
+            "reason_code": "runtime.temporal_gate3_closed",
+            "missing_capabilities": [],
+            "guard_at": "evaluate",
+            "approval_state": "approved_placeholder",
+            "gate3_authorized": false,
+            "guard_policy": "load_accept_evaluate_refuse"
+          },
+          "evidence": {
+            "manifest_fragment_summary": {
+              "fragment_classes": [
+                "temporal"
+              ],
+              "max_fragment_class": "temporal",
+              "precedence_high_to_low": [
+                "oof",
+                "temporal",
+                "stream",
+                "escape",
+                "core"
+              ]
+            },
+            "contract_index_contracts": [
+              "HistoryAxesTest"
+            ],
+            "contract_index_temporal_entries": {
+              "HistoryAxesTest": {
+                "contract_path": "contracts/history_axes_test.json",
+                "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+                "fragment_class": "temporal",
+                "temporal": {
+                  "axes": [
+                    "valid_time"
+                  ],
+                  "cache_key_schema_hint": {
+                    "axis": "valid_time",
+                    "coordinate_names": [
+                      "as_of"
+                    ],
+                    "fragment": "TEMPORAL",
+                    "schema": "runtime-cache-key-v1"
+                  },
+                  "coordinates": [
+                    {
+                      "axis": "valid_time",
+                      "name": "as_of",
+                      "source_ref": "input:as_of",
+                      "type": "DateTime"
+                    }
+                  ],
+                  "required_capabilities": [
+                    "history_read"
+                  ]
+                }
+              }
+            },
+            "guard_policy": {
+              "evaluate": {
+                "decision": "refuse_temporal_contract",
+                "reason_code": "runtime.temporal_execution_unsupported"
+              },
+              "guard_at": "evaluate",
+              "guard_policy": "load_accept_evaluate_refuse",
+              "load": {
+                "decision": "accept_for_inspection",
+                "requires_contract_index": true
+              },
+              "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+              "status": "unsupported"
+            },
+            "required_capabilities": [
+              "history_read"
+            ],
+            "axes": [
+              "valid_time"
+            ],
+            "coordinates": [
+              {
+                "axis": "valid_time",
+                "name": "as_of",
+                "source_ref": "input:as_of",
+                "type": "DateTime"
+              }
+            ],
+            "cache_key_schema_hint_fragments": [
+              "TEMPORAL"
+            ],
+            "max_fragment_class": "temporal"
+          },
+          "checks": {
+            "manifest.fragment_summary_consumed": true,
+            "manifest.contract_index_consumed": true,
+            "guard_policy.consumed": true,
+            "temporal.requires_tbackend_capability": true,
+            "bundle_load.accepted_for_inspection": true,
+            "evaluation_readiness.blocks_without_blocking_load": true,
+            "report_only.no_runtime_operation": true
+          },
+          "report_hash": "sha256:7de9ae9c1bab27fff344f0e0c87d5277268d9d5e4bcae54e915f7fb3bec950cc"
         }
       }
     },
@@ -361,7 +730,9 @@
             "profile_id": "runtime-profile/missing-tbackend-capability",
             "tbackend_capabilities": [],
             "live_tbackend_binding": false,
-            "temporal_executor": false
+            "temporal_executor": false,
+            "executor_approval": "none",
+            "gate3_authorized": false
           },
           "report_only": true,
           "runtime_enforced": false,
@@ -401,6 +772,13 @@
             "decision": "trusted",
             "cache_enabled": false,
             "runtime_cache_binding": false
+          },
+          "operation_check": {
+            "decision": "not_attempted",
+            "temporal_executor_call_attempted": false,
+            "live_tbackend_call_attempted": false,
+            "ledger_call_attempted": false,
+            "gate3_authorized": false
           },
           "observation_check": {
             "decision": "trusted",
@@ -519,9 +897,9 @@
             "temporal.requires_tbackend_capability": true,
             "bundle_load.accepted_for_inspection": true,
             "evaluation_readiness.blocks_without_blocking_load": true,
-            "report_only.no_runtime_binding": true
+            "report_only.no_runtime_operation": true
           },
-          "report_hash": "sha256:cbe9be202800aee6aeff333b7b620041f0bafaf1afe10d0b284391c7f57d40e4"
+          "report_hash": "sha256:0f371bd6fd0b8cca1c1af6308e176126c179523b82b596d6ef2ea3dcdee1f44f"
         },
         "metadata_capability_no_executor": {
           "kind": "compatibility_report",
@@ -537,7 +915,9 @@
               "bihistory_read"
             ],
             "live_tbackend_binding": false,
-            "temporal_executor": false
+            "temporal_executor": false,
+            "executor_approval": "none",
+            "gate3_authorized": false
           },
           "report_only": true,
           "runtime_enforced": false,
@@ -579,6 +959,13 @@
             "cache_enabled": false,
             "runtime_cache_binding": false
           },
+          "operation_check": {
+            "decision": "not_attempted",
+            "temporal_executor_call_attempted": false,
+            "live_tbackend_call_attempted": false,
+            "ledger_call_attempted": false,
+            "gate3_authorized": false
+          },
           "observation_check": {
             "decision": "trusted",
             "source": "assembled temporal ContractIR inspection"
@@ -694,9 +1081,382 @@
             "temporal.requires_tbackend_capability": true,
             "bundle_load.accepted_for_inspection": true,
             "evaluation_readiness.blocks_without_blocking_load": true,
-            "report_only.no_runtime_binding": true
+            "report_only.no_runtime_operation": true
           },
-          "report_hash": "sha256:1cc92c2c3ac7f583a6a40c1f0872eebce3e027bb37d9a7e79b613642754fdd76"
+          "report_hash": "sha256:3ea309bfb72f1027d5169064e3d3e0b28150ef11834767e841a8e356f235e24f"
+        },
+        "claimed_executor_live_binding": {
+          "kind": "compatibility_report",
+          "format_version": "0.1.0",
+          "report_id": "compatibility_report/0fc8c6bafd9ee8cfee9a5eb6",
+          "track": "runtime-compatibility-report-temporal-load-check-v0",
+          "as_of": "2026-05-08T00:00:00Z",
+          "program_id": "semanticir/a97da15bba17da42",
+          "runtime_profile": {
+            "profile_id": "runtime-profile/claimed-executor-live-binding",
+            "tbackend_capabilities": [
+              "history_read",
+              "bihistory_read"
+            ],
+            "live_tbackend_binding": true,
+            "temporal_executor": true,
+            "executor_approval": "none",
+            "gate3_authorized": false
+          },
+          "report_only": true,
+          "runtime_enforced": false,
+          "overall": "blocked",
+          "bundle_load": {
+            "decision": "accept_for_inspection",
+            "blocked": false,
+            "requires_contract_index": true,
+            "guard_policy": "load_accept_evaluate_refuse",
+            "guard_at": "evaluate",
+            "reason_code": "runtime.temporal_bundle_load_accepted_for_inspection"
+          },
+          "runtime_check": {
+            "decision": "trusted",
+            "reason_code": "runtime.artifact_shape_verified"
+          },
+          "backend_check": {
+            "decision": "blocked",
+            "reason_code": "runtime.temporal_executor_approval_missing",
+            "report_only": true,
+            "runtime_enforced": false,
+            "required_capabilities": [
+              "bihistory_read"
+            ],
+            "available_capabilities": [
+              "history_read",
+              "bihistory_read"
+            ],
+            "missing_capabilities": [],
+            "live_tbackend_binding": true,
+            "temporal_executor": true
+          },
+          "schema_check": {
+            "decision": "not_evaluated_here",
+            "independent_from_temporal_backend_check": true
+          },
+          "cache_check": {
+            "decision": "trusted",
+            "cache_enabled": false,
+            "runtime_cache_binding": false
+          },
+          "operation_check": {
+            "decision": "not_attempted",
+            "temporal_executor_call_attempted": false,
+            "live_tbackend_call_attempted": false,
+            "ledger_call_attempted": false,
+            "gate3_authorized": false
+          },
+          "observation_check": {
+            "decision": "trusted",
+            "source": "assembled temporal ContractIR inspection"
+          },
+          "evaluation_readiness": {
+            "decision": "blocked",
+            "blocked": true,
+            "blocks_bundle_load": false,
+            "reason_code": "runtime.temporal_executor_approval_missing",
+            "missing_capabilities": [],
+            "guard_at": "evaluate",
+            "approval_state": "none",
+            "gate3_authorized": false
+          },
+          "evidence": {
+            "manifest_fragment_summary": {
+              "fragment_classes": [
+                "temporal"
+              ],
+              "max_fragment_class": "temporal",
+              "precedence_high_to_low": [
+                "oof",
+                "temporal",
+                "stream",
+                "escape",
+                "core"
+              ]
+            },
+            "contract_index_contracts": [
+              "BiHistoryAxesTest"
+            ],
+            "contract_index_temporal_entries": {
+              "BiHistoryAxesTest": {
+                "contract_path": "contracts/bi_history_axes_test.json",
+                "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+                "fragment_class": "temporal",
+                "temporal": {
+                  "axes": [
+                    "valid_time",
+                    "transaction_time"
+                  ],
+                  "cache_key_schema_hint": {
+                    "axis": "bitemporal",
+                    "coordinate_names": [
+                      "valid_time",
+                      "transaction_time"
+                    ],
+                    "fragment": "TEMPORAL",
+                    "schema": "runtime-cache-key-v1"
+                  },
+                  "coordinates": [
+                    {
+                      "axis": "valid_time",
+                      "name": "valid_time",
+                      "source_ref": "input:valid_time",
+                      "type": "DateTime"
+                    },
+                    {
+                      "axis": "transaction_time",
+                      "name": "transaction_time",
+                      "source_ref": "input:transaction_time",
+                      "type": "DateTime"
+                    }
+                  ],
+                  "required_capabilities": [
+                    "bihistory_read"
+                  ]
+                }
+              }
+            },
+            "guard_policy": {
+              "evaluate": {
+                "decision": "refuse_temporal_contract",
+                "reason_code": "runtime.temporal_execution_unsupported"
+              },
+              "guard_at": "evaluate",
+              "guard_policy": "load_accept_evaluate_refuse",
+              "load": {
+                "decision": "accept_for_inspection",
+                "requires_contract_index": true
+              },
+              "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+              "status": "unsupported"
+            },
+            "required_capabilities": [
+              "bihistory_read"
+            ],
+            "axes": [
+              "transaction_time",
+              "valid_time"
+            ],
+            "coordinates": [
+              {
+                "axis": "valid_time",
+                "name": "valid_time",
+                "source_ref": "input:valid_time",
+                "type": "DateTime"
+              },
+              {
+                "axis": "transaction_time",
+                "name": "transaction_time",
+                "source_ref": "input:transaction_time",
+                "type": "DateTime"
+              }
+            ],
+            "cache_key_schema_hint_fragments": [
+              "TEMPORAL"
+            ],
+            "max_fragment_class": "temporal"
+          },
+          "checks": {
+            "manifest.fragment_summary_consumed": true,
+            "manifest.contract_index_consumed": true,
+            "guard_policy.consumed": true,
+            "temporal.requires_tbackend_capability": true,
+            "bundle_load.accepted_for_inspection": true,
+            "evaluation_readiness.blocks_without_blocking_load": true,
+            "report_only.no_runtime_operation": true
+          },
+          "report_hash": "sha256:6d3557590e7ecff78a985d4bbcec8fd749ccced6a89d555d647f447e4db984e5"
+        },
+        "approved_executor_placeholder": {
+          "kind": "compatibility_report",
+          "format_version": "0.1.0",
+          "report_id": "compatibility_report/a60e1ca597664b25fdcbdbcd",
+          "track": "runtime-compatibility-report-temporal-load-check-v0",
+          "as_of": "2026-05-08T00:00:00Z",
+          "program_id": "semanticir/a97da15bba17da42",
+          "runtime_profile": {
+            "profile_id": "runtime-profile/approved-executor-placeholder",
+            "tbackend_capabilities": [
+              "history_read",
+              "bihistory_read"
+            ],
+            "live_tbackend_binding": true,
+            "temporal_executor": true,
+            "executor_approval": "approved_placeholder",
+            "gate3_authorized": false
+          },
+          "report_only": true,
+          "runtime_enforced": false,
+          "overall": "blocked",
+          "bundle_load": {
+            "decision": "accept_for_inspection",
+            "blocked": false,
+            "requires_contract_index": true,
+            "guard_policy": "load_accept_evaluate_refuse",
+            "guard_at": "evaluate",
+            "reason_code": "runtime.temporal_bundle_load_accepted_for_inspection"
+          },
+          "runtime_check": {
+            "decision": "trusted",
+            "reason_code": "runtime.artifact_shape_verified"
+          },
+          "backend_check": {
+            "decision": "blocked",
+            "reason_code": "runtime.temporal_gate3_closed",
+            "report_only": true,
+            "runtime_enforced": false,
+            "required_capabilities": [
+              "bihistory_read"
+            ],
+            "available_capabilities": [
+              "history_read",
+              "bihistory_read"
+            ],
+            "missing_capabilities": [],
+            "live_tbackend_binding": true,
+            "temporal_executor": true
+          },
+          "schema_check": {
+            "decision": "not_evaluated_here",
+            "independent_from_temporal_backend_check": true
+          },
+          "cache_check": {
+            "decision": "trusted",
+            "cache_enabled": false,
+            "runtime_cache_binding": false
+          },
+          "operation_check": {
+            "decision": "not_attempted",
+            "temporal_executor_call_attempted": false,
+            "live_tbackend_call_attempted": false,
+            "ledger_call_attempted": false,
+            "gate3_authorized": false
+          },
+          "observation_check": {
+            "decision": "trusted",
+            "source": "assembled temporal ContractIR inspection"
+          },
+          "evaluation_readiness": {
+            "decision": "blocked",
+            "blocked": true,
+            "blocks_bundle_load": false,
+            "reason_code": "runtime.temporal_gate3_closed",
+            "missing_capabilities": [],
+            "guard_at": "evaluate",
+            "approval_state": "approved_placeholder",
+            "gate3_authorized": false,
+            "guard_policy": "load_accept_evaluate_refuse"
+          },
+          "evidence": {
+            "manifest_fragment_summary": {
+              "fragment_classes": [
+                "temporal"
+              ],
+              "max_fragment_class": "temporal",
+              "precedence_high_to_low": [
+                "oof",
+                "temporal",
+                "stream",
+                "escape",
+                "core"
+              ]
+            },
+            "contract_index_contracts": [
+              "BiHistoryAxesTest"
+            ],
+            "contract_index_temporal_entries": {
+              "BiHistoryAxesTest": {
+                "contract_path": "contracts/bi_history_axes_test.json",
+                "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+                "fragment_class": "temporal",
+                "temporal": {
+                  "axes": [
+                    "valid_time",
+                    "transaction_time"
+                  ],
+                  "cache_key_schema_hint": {
+                    "axis": "bitemporal",
+                    "coordinate_names": [
+                      "valid_time",
+                      "transaction_time"
+                    ],
+                    "fragment": "TEMPORAL",
+                    "schema": "runtime-cache-key-v1"
+                  },
+                  "coordinates": [
+                    {
+                      "axis": "valid_time",
+                      "name": "valid_time",
+                      "source_ref": "input:valid_time",
+                      "type": "DateTime"
+                    },
+                    {
+                      "axis": "transaction_time",
+                      "name": "transaction_time",
+                      "source_ref": "input:transaction_time",
+                      "type": "DateTime"
+                    }
+                  ],
+                  "required_capabilities": [
+                    "bihistory_read"
+                  ]
+                }
+              }
+            },
+            "guard_policy": {
+              "evaluate": {
+                "decision": "refuse_temporal_contract",
+                "reason_code": "runtime.temporal_execution_unsupported"
+              },
+              "guard_at": "evaluate",
+              "guard_policy": "load_accept_evaluate_refuse",
+              "load": {
+                "decision": "accept_for_inspection",
+                "requires_contract_index": true
+              },
+              "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+              "status": "unsupported"
+            },
+            "required_capabilities": [
+              "bihistory_read"
+            ],
+            "axes": [
+              "transaction_time",
+              "valid_time"
+            ],
+            "coordinates": [
+              {
+                "axis": "valid_time",
+                "name": "valid_time",
+                "source_ref": "input:valid_time",
+                "type": "DateTime"
+              },
+              {
+                "axis": "transaction_time",
+                "name": "transaction_time",
+                "source_ref": "input:transaction_time",
+                "type": "DateTime"
+              }
+            ],
+            "cache_key_schema_hint_fragments": [
+              "TEMPORAL"
+            ],
+            "max_fragment_class": "temporal"
+          },
+          "checks": {
+            "manifest.fragment_summary_consumed": true,
+            "manifest.contract_index_consumed": true,
+            "guard_policy.consumed": true,
+            "temporal.requires_tbackend_capability": true,
+            "bundle_load.accepted_for_inspection": true,
+            "evaluation_readiness.blocks_without_blocking_load": true,
+            "report_only.no_runtime_operation": true
+          },
+          "report_hash": "sha256:2ea8a4e98112f44a88970473f502305fe6df61a6841318c558f86f36f7f32b24"
         }
       }
     }
@@ -709,7 +1469,11 @@
     "history_valid.detects_temporal_axes": true,
     "history_valid.missing_capability_blocks_evaluation_not_load": true,
     "history_valid.capability_metadata_still_blocks_without_executor": true,
-    "history_valid.report_only_no_live_binding": true,
+    "history_valid.claimed_executor_still_needs_approval": true,
+    "history_valid.approved_placeholder_still_blocks_gate3_closed": true,
+    "history_valid.capability_flags_alone_do_not_bypass_guard_policy": true,
+    "history_valid.no_profile_attempts_live_operation": true,
+    "history_valid.report_only_no_runtime_enforcement": true,
     "bihistory_valid.report_consumes_fragment_summary": true,
     "bihistory_valid.report_consumes_contract_index": true,
     "bihistory_valid.report_consumes_guard_policy": true,
@@ -717,6 +1481,10 @@
     "bihistory_valid.detects_temporal_axes": true,
     "bihistory_valid.missing_capability_blocks_evaluation_not_load": true,
     "bihistory_valid.capability_metadata_still_blocks_without_executor": true,
-    "bihistory_valid.report_only_no_live_binding": true
+    "bihistory_valid.claimed_executor_still_needs_approval": true,
+    "bihistory_valid.approved_placeholder_still_blocks_gate3_closed": true,
+    "bihistory_valid.capability_flags_alone_do_not_bypass_guard_policy": true,
+    "bihistory_valid.no_profile_attempts_live_operation": true,
+    "bihistory_valid.report_only_no_runtime_enforcement": true
   }
 }

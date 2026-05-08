@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:0aa128cb2959bc4645144b5db54284b20ba352947ecb1df439d5437c72327464",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/0000000000000000",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "DrugOrderGate": {
+      "contract_path": "contracts/drug_order_gate.json",
+      "contract_ref": "contract/DrugOrderGate/sha256:bbe9a3e5b52a8cde191edab0",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "DrugOrderGate": "contract/DrugOrderGate/sha256:bbe9a3e5b52a8cde191edab0"
+  },
+  "contracts": [
+    "DrugOrderGate"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/0000000000000000",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/0000000000000000",
+  "source_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "source_path": "experiments/typechecker_proof/classified/invariant_severity_valid.ig",
+  "warnings": []
+}

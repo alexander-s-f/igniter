@@ -1,0 +1,81 @@
+{
+  "artifact_hash": "sha256:fc8ffd3f5b56db58ae864db7f25737b3b872d609f5b63e64ac6c8008745be4a8",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/b6603c347619e2b6",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "SparkCRMBiHistorySourceParity": {
+      "contract_path": "contracts/spark_crmbi_history_source_parity.json",
+      "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+      "fragment_class": "temporal",
+      "temporal": {
+        "axes": [
+          "valid_time",
+          "transaction_time"
+        ],
+        "cache_key_schema_hint": {
+          "axis": "bitemporal",
+          "coordinate_names": [
+            "valid_time",
+            "transaction_time"
+          ],
+          "fragment": "TEMPORAL",
+          "schema": "runtime-cache-key-v1"
+        },
+        "coordinates": [
+          {
+            "axis": "valid_time",
+            "name": "valid_time",
+            "source_ref": "input:valid_time",
+            "type": "DateTime"
+          },
+          {
+            "axis": "transaction_time",
+            "name": "transaction_time",
+            "source_ref": "input:transaction_time",
+            "type": "DateTime"
+          }
+        ],
+        "required_capabilities": [
+          "bihistory_read"
+        ]
+      }
+    }
+  },
+  "contract_refs": {
+    "SparkCRMBiHistorySourceParity": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730"
+  },
+  "contracts": [
+    "SparkCRMBiHistorySourceParity"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "temporal",
+  "fragment_summary": {
+    "fragment_classes": [
+      "temporal"
+    ],
+    "max_fragment_class": "temporal",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/b6603c347619e2b6",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/b6603c347619e2b6",
+  "source_hash": "sha256:b6603c347619e2b67adec81d31305ed961c8736f22b2c595d6abab5d83d22772",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/typed_emission_main_path_parity/sparkcrm_bihistory_source.ig",
+  "warnings": []
+}

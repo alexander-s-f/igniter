@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/24ac47cf19b864a1",
+  "semantic_ir_ref": "semanticir/24ac47cf19b864a1",
+  "source_hash": "sha256:24ac47cf19b864a19d4321e3cd37ef0a52137cb85422a2347af5af8dc6ea31ae",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/inputs/stream_fold.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

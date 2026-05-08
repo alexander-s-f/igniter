@@ -1,0 +1,33 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "invariant_coverage": [
+    {
+      "label": "REQ-SAFE-01",
+      "name": "safety_block",
+      "output_effect": "blocks",
+      "output_policy": "blocking",
+      "severity": "error"
+    },
+    {
+      "label": "CG-INTERACTION-01",
+      "name": "interaction_warn",
+      "output_effect": "warns",
+      "output_policy": "non_blocking",
+      "severity": "warn"
+    }
+  ],
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/0000000000000000",
+  "semantic_ir_ref": "semanticir/0000000000000000",
+  "source_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "source_path": "experiments/typechecker_proof/classified/invariant_severity_valid.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

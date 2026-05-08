@@ -1,0 +1,274 @@
+{
+  "kind": "runtime_smoke_post_switch_full_coverage_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R8-C1-P",
+  "track": "runtime-smoke-post-switch-full-coverage-v0",
+  "status": "PASS",
+  "compiler_path": "Parser -> Classifier -> TypeChecker -> SemanticIREmitter.emit_typed -> Assembler",
+  "scope": {
+    "live_tbackend_binding": false,
+    "temporal_executor": false,
+    "production_cache": false
+  },
+  "surfaces": {
+    "core_add_compute": {
+      "surface": "CORE Add/compute",
+      "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/add.ig",
+      "igapp_path": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/core_add_compute.igapp",
+      "compile_status": "ok",
+      "pass_result": "ok",
+      "load_status": "loaded",
+      "evaluate_status": "ok",
+      "outputs": {
+        "sum": 42
+      },
+      "compatibility_report_status": "trusted",
+      "trusted": true
+    },
+    "stream_fold": {
+      "surface": "stream_fold",
+      "compile_status": "ok",
+      "pass_result": "ok",
+      "load_status": "loaded",
+      "fragment_class": "escape",
+      "node_kinds": [
+        "stream_input_node",
+        "window_decl_node",
+        "fold_stream_node"
+      ],
+      "evaluate_status": "ok",
+      "output": {
+        "total": 24,
+        "event_count": 3,
+        "stream_ref": "readings"
+      },
+      "runtime_note": "proof-local finite replay used fixture defaults for window.size, fold_stream.init, fold_stream.fn_ref",
+      "observations": [
+        {
+          "kind": "stream_window_observation",
+          "closed": true,
+          "window_kind": "count",
+          "consumed_event_refs": [
+            "event/reading/1",
+            "event/reading/2",
+            "event/reading/3"
+          ]
+        }
+      ],
+      "trusted": true
+    },
+    "olap_point": {
+      "surface": "OLAPPoint",
+      "compile_status": "ok",
+      "pass_result": "ok",
+      "load_status": "loaded",
+      "fragment_class": "core",
+      "node_kinds": [
+        "olap_access_node"
+      ],
+      "evaluate_status": "ok",
+      "output": {
+        "measure": "20.00",
+        "dimensions": {
+          "date": "2026-05-08",
+          "region": "north",
+          "channel": "field"
+        },
+        "olap_ref": "Revenue",
+        "node": "revenue_point",
+        "source_fact_refs": [
+          "fact/order/1",
+          "fact/order/2"
+        ]
+      },
+      "observations": [
+        {
+          "kind": "olap_cell_observation",
+          "measure": "20.00",
+          "source_fact_refs": [
+            "fact/order/1",
+            "fact/order/2"
+          ]
+        }
+      ],
+      "trusted": true
+    },
+    "history_single_axis": {
+      "surface": "history_single_axis",
+      "compile_status": "ok",
+      "pass_result": "ok",
+      "load_for_inspection": {
+        "kind": "runtime_load_result",
+        "status": "loaded",
+        "mode": "inspection_only",
+        "program_id": "semanticir/096b47d88eccf388",
+        "temporal_contracts": [
+          "TechnicianJobCountAt"
+        ],
+        "runtime_execution": {
+          "evaluate": {
+            "decision": "refuse_temporal_contract",
+            "reason_code": "runtime.temporal_execution_unsupported"
+          },
+          "guard_at": "evaluate",
+          "guard_policy": "load_accept_evaluate_refuse",
+          "load": {
+            "decision": "accept_for_inspection",
+            "requires_contract_index": true
+          },
+          "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+          "status": "unsupported"
+        }
+      },
+      "evaluate_without_executor": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "evaluate",
+        "reason_code": "runtime.temporal_execution_unsupported",
+        "message": "TEMPORAL evaluation remains closed until executor/TBackend approval",
+        "contract_id": "TechnicianJobCountAt",
+        "as_of": "2026-05-08T00:00:00Z",
+        "context": {
+          "guard_policy": "load_accept_evaluate_refuse",
+          "required_capabilities": [
+            "history_read"
+          ]
+        }
+      },
+      "trusted": true
+    },
+    "bihistory_bitemporal": {
+      "surface": "bihistory_bitemporal",
+      "compile_status": "ok",
+      "pass_result": "ok",
+      "load_for_inspection": {
+        "kind": "runtime_load_result",
+        "status": "loaded",
+        "mode": "inspection_only",
+        "program_id": "semanticir/b6603c347619e2b6",
+        "temporal_contracts": [
+          "SparkCRMBiHistorySourceParity"
+        ],
+        "runtime_execution": {
+          "evaluate": {
+            "decision": "refuse_temporal_contract",
+            "reason_code": "runtime.temporal_execution_unsupported"
+          },
+          "guard_at": "evaluate",
+          "guard_policy": "load_accept_evaluate_refuse",
+          "load": {
+            "decision": "accept_for_inspection",
+            "requires_contract_index": true
+          },
+          "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+          "status": "unsupported"
+        }
+      },
+      "evaluate_without_executor": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "evaluate",
+        "reason_code": "runtime.temporal_execution_unsupported",
+        "message": "TEMPORAL evaluation remains closed until executor/TBackend approval",
+        "contract_id": "SparkCRMBiHistorySourceParity",
+        "as_of": "2026-05-08T00:00:00Z",
+        "context": {
+          "guard_policy": "load_accept_evaluate_refuse",
+          "required_capabilities": [
+            "bihistory_read"
+          ]
+        }
+      },
+      "trusted": true
+    },
+    "invariant_severity": {
+      "surface": "invariant severity",
+      "input_path": "igniter-lang/experiments/typechecker_proof/golden/invariant_severity_valid.typed.json",
+      "compile_status": "ok",
+      "pass_result": "ok",
+      "load_status": "loaded",
+      "fragment_class": "core",
+      "node_kinds": [
+        "compute",
+        "invariant_node",
+        "invariant_node"
+      ],
+      "evaluate_status": "ok",
+      "output": {
+        "approved": true
+      },
+      "invariant_results": [
+        {
+          "name": "safety_block",
+          "severity": "error",
+          "status": "satisfied",
+          "output_effect": "blocks"
+        },
+        {
+          "name": "interaction_warn",
+          "severity": "warn",
+          "status": "violated",
+          "output_effect": "warns"
+        }
+      ],
+      "observations": [
+        {
+          "kind": "invariant_verification_observation",
+          "invariant": "safety_block",
+          "severity": "error",
+          "status": "satisfied"
+        },
+        {
+          "kind": "invariant_violation_observation",
+          "invariant": "interaction_warn",
+          "severity": "warn",
+          "status": "violated"
+        }
+      ],
+      "trusted": true
+    }
+  },
+  "compatibility_report_cross_check": {
+    "source": "igniter-lang/experiments/runtime_compatibility_report_temporal_load_check/out/runtime_compatibility_report_temporal_load_check_summary.json",
+    "status": "ok",
+    "bundle_load_decision": "accept_for_inspection",
+    "evaluation_readiness": {
+      "decision": "blocked",
+      "blocked": true,
+      "blocks_bundle_load": false,
+      "reason_code": "runtime.temporal_capability_missing",
+      "missing_capabilities": [
+        "history_read"
+      ],
+      "guard_at": "evaluate"
+    }
+  },
+  "uncovered_surfaces": [],
+  "remaining_gaps": [
+    {
+      "surface": "stream_fold",
+      "gap": "proof-local finite replay used fixture defaults for window.size, fold_stream.init, fold_stream.fn_ref",
+      "owner_hint": "Compiler/Grammar Expert"
+    },
+    {
+      "surface": "invariant_severity",
+      "gap": "runtime smoke uses the dedicated typed fixture for severity metadata; source-to-classifier metadata preservation should stay visible outside this runtime card",
+      "owner_hint": "Compiler/Grammar Expert"
+    },
+    {
+      "surface": "TEMPORAL",
+      "gap": "History and BiHistory load for inspection and structurally refuse evaluation until temporal executor/TBackend Gate 3 opens",
+      "owner_hint": "Research Agent / Bridge Agent"
+    }
+  ],
+  "checks": {
+    "core_add_compute.compile_load_evaluate": true,
+    "stream_fold.compile_load_evaluate": true,
+    "olap_point.compile_load_evaluate": true,
+    "history_single_axis.load_refuse_eval": true,
+    "bihistory_bitemporal.load_refuse_eval": true,
+    "invariant_severity.compile_load_evaluate": true,
+    "compatibility_report_cross_check": true,
+    "no_uncovered_surfaces": true
+  }
+}

@@ -95,12 +95,15 @@ Source:
 
 ### Entrypoint / Section Disposition
 
-Signal: `entrypoint` and `section` are proposal candidates only; they are not
-current parser syntax, canon, or hard-reserved keywords.
+Signal: `entrypoint` and `section` remain proposal-only; PROP-029 proposes
+`entrypoint` as a named evaluation/run profile over an existing contract and
+`section` as grouping-only organization.
 
 Status: current
 
 Source:
+- [tracks/prop-029-entrypoint-section-surface-v0.md](tracks/prop-029-entrypoint-section-surface-v0.md)
+- [proposals/PROP-029-entrypoint-section-surface-v0.md](proposals/PROP-029-entrypoint-section-surface-v0.md)
 - [tracks/spec-entrypoint-sync-v0.md](tracks/spec-entrypoint-sync-v0.md)
 - [spec/ch2-source-surface.md](spec/ch2-source-surface.md)
 
@@ -110,16 +113,28 @@ Source:
 
 ### CompatibilityReport Is Report-Only Before Gate 3
 
-Signal: CompatibilityReport can reason about readiness, but it must not become
-an implicit authorization path for live temporal reads, replay, cache, or Ledger
-binding.
+Signal: CompatibilityReport can reason about readiness, but neither capability
+metadata nor positive executor/live-binding flags authorize live temporal reads,
+replay, cache, or Ledger binding.
 
 Status: current
 
 Source:
 - [tracks/runtime-compatibility-report-temporal-load-check-v0.md](tracks/runtime-compatibility-report-temporal-load-check-v0.md)
+- [tracks/runtime-compatibility-report-executor-boundary-v0.md](tracks/runtime-compatibility-report-executor-boundary-v0.md)
 - [tracks/descriptor-compatibility-package-consumption-v0.md](tracks/descriptor-compatibility-package-consumption-v0.md)
 - [discussions/runtime-compatibility-and-typed-delta-pressure-v0.md](discussions/runtime-compatibility-and-typed-delta-pressure-v0.md)
+
+### Full Post-Switch Smoke Is The Runtime Regression Baseline
+
+Signal: The current post-switch runtime baseline covers all six `emit_typed`
+surfaces while keeping TEMPORAL evaluation refused.
+
+Status: current
+
+Source:
+- [tracks/runtime-smoke-post-switch-full-coverage-v0.md](tracks/runtime-smoke-post-switch-full-coverage-v0.md)
+- [tracks/runtime-smoke-temporal-post-switch-v0.md](tracks/runtime-smoke-temporal-post-switch-v0.md)
 
 ### TEMPORAL Cache Key Must Include Time
 

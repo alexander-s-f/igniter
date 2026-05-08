@@ -1,0 +1,152 @@
+{
+  "compilation_report_ref": "compilation_report/0000000000000000",
+  "contracts": [
+    {
+      "contract_name": "DrugOrderGate",
+      "contract_ref": "contract/DrugOrderGate/sha256:bbe9a3e5b52a8cde191edab0",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "is_safe",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "has_warning",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "nodes": [
+        {
+          "deps": [
+            "is_safe"
+          ],
+          "expr": {
+            "kind": "ref",
+            "name": "is_safe",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "approved",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "is_safe"
+          ],
+          "fragment": "core",
+          "kind": "invariant_node",
+          "label": "REQ-SAFE-01",
+          "message": "Safety constraint violated",
+          "name": "safety_block",
+          "output_effect": "blocks",
+          "overridable_with": null,
+          "predicate": "is_safe",
+          "predicate_ref": "is_safe",
+          "predicate_type": {
+            "name": "Bool",
+            "params": []
+          },
+          "severity": "error"
+        },
+        {
+          "deps": [
+            "has_warning"
+          ],
+          "fragment": "core",
+          "kind": "invariant_node",
+          "label": "CG-INTERACTION-01",
+          "message": "Drug interaction warning",
+          "name": "interaction_warn",
+          "output_effect": "warns",
+          "overridable_with": "documented_justification",
+          "predicate": "has_warning",
+          "predicate_ref": "has_warning",
+          "predicate_type": {
+            "name": "Bool",
+            "params": []
+          },
+          "severity": "warn"
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "approved",
+          "type": {
+            "name": "Bool",
+            "params": []
+          },
+          "warnings_from": [
+            "interaction_warn"
+          ]
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "invariants": [
+    {
+      "deps": [
+        "is_safe"
+      ],
+      "fragment": "core",
+      "kind": "invariant_node",
+      "label": "REQ-SAFE-01",
+      "message": "Safety constraint violated",
+      "name": "safety_block",
+      "output_effect": "blocks",
+      "overridable_with": null,
+      "predicate": "is_safe",
+      "predicate_ref": "is_safe",
+      "predicate_type": {
+        "name": "Bool",
+        "params": []
+      },
+      "severity": "error"
+    },
+    {
+      "deps": [
+        "has_warning"
+      ],
+      "fragment": "core",
+      "kind": "invariant_node",
+      "label": "CG-INTERACTION-01",
+      "message": "Drug interaction warning",
+      "name": "interaction_warn",
+      "output_effect": "warns",
+      "overridable_with": "documented_justification",
+      "predicate": "has_warning",
+      "predicate_ref": "has_warning",
+      "predicate_type": {
+        "name": "Bool",
+        "params": []
+      },
+      "severity": "warn"
+    }
+  ],
+  "kind": "semantic_ir_program",
+  "module": "Fixture.TypeChecker.InvariantSeverityValid",
+  "program_id": "semanticir/0000000000000000",
+  "source_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "source_path": "experiments/typechecker_proof/classified/invariant_severity_valid.ig"
+}

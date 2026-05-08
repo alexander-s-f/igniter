@@ -6,7 +6,7 @@
   "verdict": "blocked",
   "safe_to_switch_production_path": false,
   "cases_run": 6,
-  "timestamp": "2026-05-08T17:09:25Z",
+  "timestamp": "2026-05-08T18:06:51Z",
   "current_main_path": "SemanticIREmitter#emit_typed(typed_program)",
   "legacy_comparison_path": "SemanticIREmitter#emit(parsed_program, sample_input:)",
   "candidate_main_path": "SemanticIREmitter#emit_typed(typed_program)",

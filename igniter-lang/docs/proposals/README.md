@@ -40,6 +40,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 |------|--------|---------|
 | [PROP-028](PROP-028-temporal-fragment-class-v0.md) | implementation-partial | TEMPORAL fragment class; classifier/typechecker/SemanticIR/assembler/load-guard proven (S3-R2..R5); parser syntax + production runtime pending |
 | [PROP-022A](PROP-022A-temporal-manifest-errata-v0.md) | experiment-pass | Errata to accepted/PROP-022A: TEMPORAL manifest contract_index + fragment_summary; assembler PASS (S3-R5-C1) |
+| [PROP-029](PROP-029-entrypoint-section-surface-v0.md) | proposal | Entrypoint as named evaluation/run profile; section as grouping-only source organization; no parser implementation yet |
 
 ---
 
@@ -63,15 +64,15 @@ They remain active intake. Verification requires Architect authorization.
 
 ## Queued (not yet authored)
 
-New Stage 3+ proposals start from **PROP-029**.
+New Stage 3+ proposals after PROP-029 should start from **PROP-030**.
 
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|
-| PROP-029 | Probabilistic types ~T (ProbLog subset) | PROP-022 (closed), PROP-025 (closed) | 3 | medium |
-| PROP-030 | Deadline contracts + WCET analysis | PROP-003 (accepted), PROP-016 | 3 | medium |
-| PROP-031 | Full unit algebra (dimensional type checking) | PROP-004 errata E5 | 3 | medium |
-| PROP-032 | Plastic Runtime Cells (ownership + migration) | PROP-006 (accepted), PROP-012 (accepted) | 3 | medium |
-| PROP-033 | Rule synthesis via LP (goal-directed) | PROP-022 (closed), PROP-025 (closed) | 4 | low |
+| PROP-030 | Probabilistic types ~T (ProbLog subset) | PROP-022 (closed), PROP-025 (closed) | 3 | medium |
+| PROP-031 | Deadline contracts + WCET analysis | PROP-003 (accepted), PROP-016 | 3 | medium |
+| PROP-032 | Full unit algebra (dimensional type checking) | PROP-004 errata E5 | 3 | medium |
+| PROP-033 | Plastic Runtime Cells (ownership + migration) | PROP-006 (accepted), PROP-012 (accepted) | 3 | medium |
+| PROP-034 | Rule synthesis via LP (goal-directed) | PROP-022 (closed), PROP-025 (closed) | 4 | low |
 
 ---
 
@@ -112,4 +113,4 @@ closed                all authorized scope experiment-PASS; META-EXPERT decision
 
 Stage 1 PROPs: see `accepted/` — frozen read-only.
 Stage 2 closed PROPs: in `proposals/` with `Status: closed`.
-New Stage 3 proposals: start from PROP-029.
+New Stage 3 proposals after PROP-029: start from PROP-030.

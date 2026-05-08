@@ -1,0 +1,118 @@
+{
+  "compilation_report_ref": "compilation_report/a6e15b10f5610279",
+  "contracts": [
+    {
+      "contract_name": "RegionalDailyRevenuePoint",
+      "contract_ref": "contract/RegionalDailyRevenuePoint/sha256:9960ce0b199bb8bf26d38648",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "date",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "region",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "channel",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "nodes": [
+        {
+          "kind": "olap_access_node",
+          "name": "revenue_point",
+          "olap_ref": "Revenue",
+          "operation": "point",
+          "resolved_type": "Decimal[2]",
+          "result_type": {
+            "constructor": "OLAPPoint",
+            "dims_record": {
+              "dims": {
+                "channel": "String",
+                "date": "String",
+                "region": "String"
+              },
+              "kind": "dims_record"
+            },
+            "measure": "Decimal[2]"
+          },
+          "slices": [
+            {
+              "dim": "channel",
+              "value_ref": "channel",
+              "value_type": "String"
+            },
+            {
+              "dim": "date",
+              "value_ref": "date",
+              "value_type": "String"
+            },
+            {
+              "dim": "region",
+              "value_ref": "region",
+              "value_type": "String"
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "revenue_point",
+          "type": {
+            "kind": "type_ref",
+            "name": "Decimal",
+            "params": [
+              2
+            ]
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "olap-point-v0",
+  "kind": "semantic_ir_program",
+  "module": null,
+  "olap_points": [
+    {
+      "dimensions": {
+        "channel": "String",
+        "date": "String",
+        "region": "String"
+      },
+      "granularity": {
+        "date": "daily"
+      },
+      "indexed": [
+        "date",
+        "region"
+      ],
+      "kind": "olap_point_decl",
+      "measure_type": "Decimal[2]",
+      "name": "Revenue",
+      "source_ref": null
+    }
+  ],
+  "program_id": "semanticir/a6e15b10f5610279",
+  "source_hash": "sha256:a6e15b10f5610279bb1f0c59cfe161acb8da2bb4ad10ef95fd1071c2d20624c4",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/inputs/olap_point.ig"
+}

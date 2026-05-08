@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/a6e15b10f5610279",
+  "contracts": [
+    "RegionalDailyRevenuePoint"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "RegionalDailyRevenuePoint"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/a6e15b10f5610279",
+  "semantic_ir_ref": "semanticir/a6e15b10f5610279",
+  "source_hash": "sha256:a6e15b10f5610279bb1f0c59cfe161acb8da2bb4ad10ef95fd1071c2d20624c4",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/inputs/olap_point.ig"
+}

@@ -28,6 +28,16 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 8 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `runtime-smoke-post-switch-full-coverage-v0.md` | done | all six current `emit_typed` surfaces covered: Add, stream_fold, OLAPPoint, History, BiHistory, invariant severity; TEMPORAL still refuses evaluation; C1/C3 report/guard cross-check included |
+| `runtime-compatibility-report-executor-boundary-v0.md` | done | positive executor/live-binding report profiles added; capability flags and approved placeholder remain blocked without explicit approval and Gate 3 authorization; no live operations attempted |
+| `descriptor-gate2-ratification-decision-v0.md` | ratify-recommended | Bridge recommendation for formal Gate 2 ratification; metadata-only descriptor exposure/report use allowed if Architect ratifies; Gate 3 closed |
+| `prop-029-entrypoint-section-surface-v0.md` | done | PROP-029 authored; `entrypoint` proposed as named evaluation/run profile over existing contract, `section` as grouping-only source organization; no parser implementation |
+| `stage3-round8-status-curation-v0.md` | done | R8 status/index/context sync — this track |
+
 ## Stage 3 Round 7 Evidence
 
 | Track | Status | Notes |
@@ -59,12 +69,12 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Surface | Freshness | Anchor | Notes |
 |---------|-----------|--------|-------|
-| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget; S3-R7 next movement refreshed |
+| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget; S3-R8 next movement refreshed |
 | `docs/spec/ch4-fragment-classification.md` | synced | `spec-ch4-temporal-fragment-sync-v0.md` | TEMPORAL fragment and node/value split current |
 | `docs/spec/ch5-compiler-pipeline.md` | synced + discharged | `spec-ch5-emit-typed-sync-v0.md`; `invariant-typed-shape-discharge-v0.md` | `emit_typed` production path current; `invariant_valid` typed-shape delta accepted as production shape |
 | `docs/spec/ch6-semanticir.md` | synced | `spec-ch6-semanticir-temporal-sync-v0.md` | TEMPORAL SemanticIR/.igapp/manifest/guard current |
-| `docs/spec/ch7-runtime.md` | synced + R7 boundary proofs | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `runtime-compatibility-report-temporal-load-check-v0.md`; `runtime-smoke-temporal-post-switch-v0.md` | load/evaluate split and post-switch smoke current; production executor/cache still closed |
-| `docs/proposals/README.md` | synced | `proposal-lifecycle-index-sync-v0.md` | Stage 2 closed, PROP-028 implementation-partial, PROP-022A experiment-pass |
+| `docs/spec/ch7-runtime.md` | synced + R8 boundary proofs | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `runtime-smoke-post-switch-full-coverage-v0.md`; `runtime-compatibility-report-executor-boundary-v0.md` | full post-switch smoke and executor-boundary report current; production executor/cache still closed |
+| `docs/proposals/README.md` | synced | `proposal-lifecycle-index-sync-v0.md`; `prop-029-entrypoint-section-surface-v0.md` | Stage 2 closed, PROP-028 implementation-partial, PROP-022A experiment-pass, PROP-029 proposal-only |
 
 ---
 
@@ -252,12 +262,13 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `runtime-smoke-post-switch-full-coverage-v0` | Expand post-switch smoke to stream_fold, olap_point, history_valid, and invariant_valid; include C1/C3 guard/report cross-check if practical | Research Agent | recommended before Gate 3 |
-| `runtime-compatibility-report-executor-boundary-v0` | Add positive-executor/profile case that proves guard_policy plus capability consistency before any live temporal executor work | Research Agent | gated/pre-Gate-3 |
-| `descriptor-gate2-ratification-decision-v0` | Architect Supervisor records or redirects formal Gate 2 metadata-only package descriptor ratification | Architect Supervisor / Bridge Agent | approval |
-| `compatibility-report-package-descriptor-consumption-v0` | Implement metadata-only package descriptor consumption in CompatibilityReport after Gate 2 ratification; keep `runtime_enforced=false` | Bridge Agent | gated |
-| `PROP-029-entrypoint-section-surface-v0` | Decide whether source `entrypoint` and grouping-only `section` become syntax; no parser implementation until accepted | Compiler/Grammar Expert | proposal |
-| `runtime-temporal-executor-gate3-request-v0` | Prepare, not implement, the explicit Gate 3 question for live temporal executor/TBackend binding and required proof list | Bridge Agent + Research Agent | blocked until pre-Gate-3 gaps |
+| `descriptor-gate2-architect-ratification-record-v0` | Architect Supervisor records Gate 2 as ratified or redirects the metadata-only descriptor exposure decision | Architect Supervisor / Bridge Agent | approval |
+| `compatibility-report-package-descriptor-consumption-v0` | Implement metadata-only package descriptor consumption in CompatibilityReport after Gate 2 ratification; keep `runtime_enforced=false` | Bridge Agent | gated on ratification |
+| `runtime-executor-approval-token-contract-v0` | Define the production executor approval token/field that replaces proof-only `approved_placeholder`; still no live execution | Research Agent + Bridge Agent | pre-Gate-3 |
+| `stream-replay-metadata-emission-v0` | Make stream replay metadata explicit in emitted SemanticIR/.igapp instead of proof-local smoke defaults | Compiler/Grammar Expert + Research Agent | recommended |
+| `invariant-source-metadata-preservation-v0` | Preserve invariant severity metadata from source/classifier path so runtime smoke no longer needs typed-fixture-only metadata | Compiler/Grammar Expert | recommended |
+| `entrypoint-section-parser-typechecker-v0` | Implement and prove PROP-029 contextual parser/typechecker behavior only after proposal acceptance | Compiler/Grammar Expert | gated |
+| `runtime-temporal-executor-gate3-request-v0` | Prepare, not implement, the explicit Gate 3 question for live temporal executor/TBackend binding and required proof list | Bridge Agent + Research Agent | still gated |
 | `gem-release-ci-wiring-v0` | Wire `bin/release-gate` into CI or preserve release artifacts/checksum under an approved release record; publish remains gated | Research Agent | optional |
 | `syntax-thresholds-and-constants-prop-v0` | Draft proposal for named thresholds/constants from S3-R4 review signals; no parser implementation yet | Compiler/Grammar Expert | proposal |
 | `syntax-external-pure-helper-signatures-prop-v0` | Draft proposal for `external pure fn(...) -> T` helper signatures and effect/evidence annotations | Compiler/Grammar Expert + Bridge Agent | proposal |

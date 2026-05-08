@@ -1,0 +1,48 @@
+{
+  "artifact_hash": "sha256:730040012371cbed2509a43039050a7881ca31f625dd2101fbf20bf99eb33130",
+  "compute_nodes": [],
+  "contract_id": "RegionalDailyRevenuePoint",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "date",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "region",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "channel",
+      "required": true,
+      "type_tag": "String"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "RegionalDailyRevenuePoint",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "revenue_point",
+      "required": true,
+      "type_tag": "Decimal[2]"
+    }
+  ],
+  "source_contract_ref": "contract/RegionalDailyRevenuePoint/sha256:9960ce0b199bb8bf26d38648",
+  "type_signature": {
+    "inputs": {
+      "channel": "String",
+      "date": "String",
+      "region": "String"
+    },
+    "outputs": {
+      "revenue_point": "Decimal[2]"
+    }
+  }
+}

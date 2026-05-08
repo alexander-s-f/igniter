@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/b6603c347619e2b6",
+  "semantic_ir_ref": "semanticir/b6603c347619e2b6",
+  "source_hash": "sha256:b6603c347619e2b67adec81d31305ed961c8736f22b2c595d6abab5d83d22772",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/typed_emission_main_path_parity/sparkcrm_bihistory_source.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "artifact_hash": "sha256:0aa128cb2959bc4645144b5db54284b20ba352947ecb1df439d5437c72327464",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:is_safe"
+      ],
+      "expression": {
+        "kind": "ref",
+        "name": "is_safe"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "approved",
+      "node_id": "node_approved",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    }
+  ],
+  "contract_id": "DrugOrderGate",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "is_safe",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "local",
+      "name": "has_warning",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "DrugOrderGate",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "approved",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "source_contract_ref": "contract/DrugOrderGate/sha256:bbe9a3e5b52a8cde191edab0",
+  "type_signature": {
+    "inputs": {
+      "has_warning": "Bool",
+      "is_safe": "Bool"
+    },
+    "outputs": {
+      "approved": "Bool"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "artifact_hash": "sha256:12a6fc91fed4dc222ddbddddabadbd56f1589252e46767d15a765a8ac9b3bbd8",
+  "compute_nodes": [],
+  "contract_id": "IntegerWindowSum",
+  "escape_set": [
+    {
+      "name": "stream_input",
+      "produces": [
+        "stream_window_observation"
+      ],
+      "required_caps": [
+        "stream_input"
+      ]
+    }
+  ],
+  "fragment_class": "escape",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "device_id",
+      "required": true,
+      "type_tag": "String"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "IntegerWindowSum",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "total",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/IntegerWindowSum/sha256:94985e21d730bdf7fa818e2c",
+  "type_signature": {
+    "inputs": {
+      "device_id": "String"
+    },
+    "outputs": {
+      "total": "Integer"
+    }
+  }
+}

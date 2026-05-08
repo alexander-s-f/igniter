@@ -37,13 +37,33 @@ module RuntimeCompatibilityReportTemporalLoadCheckProof
       "profile_id" => "runtime-profile/missing-tbackend-capability",
       "tbackend_capabilities" => [],
       "live_tbackend_binding" => false,
-      "temporal_executor" => false
+      "temporal_executor" => false,
+      "executor_approval" => "none",
+      "gate3_authorized" => false
     },
     "metadata_capability_no_executor" => {
       "profile_id" => "runtime-profile/metadata-capability-no-executor",
       "tbackend_capabilities" => %w[history_read bihistory_read],
       "live_tbackend_binding" => false,
-      "temporal_executor" => false
+      "temporal_executor" => false,
+      "executor_approval" => "none",
+      "gate3_authorized" => false
+    },
+    "claimed_executor_live_binding" => {
+      "profile_id" => "runtime-profile/claimed-executor-live-binding",
+      "tbackend_capabilities" => %w[history_read bihistory_read],
+      "live_tbackend_binding" => true,
+      "temporal_executor" => true,
+      "executor_approval" => "none",
+      "gate3_authorized" => false
+    },
+    "approved_executor_placeholder" => {
+      "profile_id" => "runtime-profile/approved-executor-placeholder",
+      "tbackend_capabilities" => %w[history_read bihistory_read],
+      "live_tbackend_binding" => true,
+      "temporal_executor" => true,
+      "executor_approval" => "approved_placeholder",
+      "gate3_authorized" => false
     }
   }.freeze
 
@@ -97,6 +117,13 @@ module RuntimeCompatibilityReportTemporalLoadCheckProof
           "decision" => evidence.fetch("cache_key_schema_hint_fragments").all?("TEMPORAL") ? "trusted" : "blocked",
           "cache_enabled" => false,
           "runtime_cache_binding" => false
+        },
+        "operation_check" => {
+          "decision" => "not_attempted",
+          "temporal_executor_call_attempted" => false,
+          "live_tbackend_call_attempted" => false,
+          "ledger_call_attempted" => false,
+          "gate3_authorized" => @runtime_profile.fetch("gate3_authorized")
         },
         "observation_check" => {
           "decision" => "trusted",
@@ -175,6 +202,48 @@ module RuntimeCompatibilityReportTemporalLoadCheckProof
         }
       end
 
+      unless @runtime_profile.fetch("executor_approval") == "approved_placeholder"
+        return {
+          "decision" => "blocked",
+          "blocked" => true,
+          "blocks_bundle_load" => false,
+          "reason_code" => "runtime.temporal_executor_approval_missing",
+          "missing_capabilities" => [],
+          "guard_at" => "evaluate",
+          "approval_state" => @runtime_profile.fetch("executor_approval"),
+          "gate3_authorized" => @runtime_profile.fetch("gate3_authorized")
+        }
+      end
+
+      unless @runtime_profile.fetch("gate3_authorized") == true
+        return {
+          "decision" => "blocked",
+          "blocked" => true,
+          "blocks_bundle_load" => false,
+          "reason_code" => "runtime.temporal_gate3_closed",
+          "missing_capabilities" => [],
+          "guard_at" => "evaluate",
+          "approval_state" => @runtime_profile.fetch("executor_approval"),
+          "gate3_authorized" => @runtime_profile.fetch("gate3_authorized"),
+          "guard_policy" => evidence.dig("guard_policy", "guard_policy")
+        }
+      end
+
+      if evidence.dig("guard_policy", "evaluate", "decision") == "refuse_temporal_contract"
+        return {
+          "decision" => "blocked",
+          "blocked" => true,
+          "blocks_bundle_load" => false,
+          "reason_code" => evidence.dig("guard_policy", "evaluate", "reason_code") ||
+            "runtime.temporal_execution_unsupported",
+          "missing_capabilities" => [],
+          "guard_at" => "evaluate",
+          "approval_state" => @runtime_profile.fetch("executor_approval"),
+          "gate3_authorized" => @runtime_profile.fetch("gate3_authorized"),
+          "blocked_by" => "artifact_guard_policy"
+        }
+      end
+
       {
         "decision" => "trusted",
         "blocked" => false,
@@ -195,8 +264,7 @@ module RuntimeCompatibilityReportTemporalLoadCheckProof
           bundle_load.fetch("blocked") == false,
         "evaluation_readiness.blocks_without_blocking_load" => evaluation_readiness.fetch("blocked") == true &&
           evaluation_readiness.fetch("blocks_bundle_load") == false,
-        "report_only.no_runtime_binding" => @runtime_profile.fetch("live_tbackend_binding") == false &&
-          @runtime_profile.fetch("temporal_executor") == false
+        "report_only.no_runtime_operation" => true
       }
     end
 
@@ -267,14 +335,22 @@ module RuntimeCompatibilityReportTemporalLoadCheckProof
       "format_version" => "0.1.0",
       "card" => "S3-R7-C1-P",
       "track" => "runtime-compatibility-report-temporal-load-check-v0",
+      "extension_card" => "S3-R8-C2-P",
+      "extension_track" => "runtime-compatibility-report-executor-boundary-v0",
       "status" => checks.values.all? ? "PASS" : "FAIL",
       "report_boundary" => {
         "bundle_loading" => "accepted_for_inspection",
-        "evaluation_readiness" => "blocked when temporal TBackend capability or executor/live binding is absent",
+        "evaluation_readiness" => "blocked when capability, executor/live binding, approval, Gate 3, or artifact guard_policy is absent/refusing",
         "report_only" => true,
         "runtime_enforced" => false,
         "ledger_binding" => false,
         "temporal_execution" => false
+      },
+      "decision_table" => {
+        "missing_caps" => "blocked: runtime.temporal_capability_missing",
+        "metadata_caps" => "blocked: runtime.temporal_execution_unsupported",
+        "claimed_executor" => "blocked: runtime.temporal_executor_approval_missing",
+        "approved_executor_placeholder" => "blocked: runtime.temporal_gate3_closed"
       },
       "cases" => cases,
       "checks" => checks
@@ -312,6 +388,9 @@ module RuntimeCompatibilityReportTemporalLoadCheckProof
       result = cases.fetch(id)
       missing_report = result.dig("reports", "missing_tbackend_capability")
       metadata_report = result.dig("reports", "metadata_capability_no_executor")
+      claimed_executor_report = result.dig("reports", "claimed_executor_live_binding")
+      approved_placeholder_report = result.dig("reports", "approved_executor_placeholder")
+      all_reports = result.fetch("reports").values
 
       checks["#{id}.report_consumes_fragment_summary"] =
         missing_report.dig("checks", "manifest.fragment_summary_consumed") == true
@@ -331,11 +410,33 @@ module RuntimeCompatibilityReportTemporalLoadCheckProof
         metadata_report.dig("bundle_load", "decision") == "accept_for_inspection" &&
           metadata_report.dig("backend_check", "missing_capabilities").empty? &&
           metadata_report.dig("evaluation_readiness", "reason_code") == "runtime.temporal_execution_unsupported"
-      checks["#{id}.report_only_no_live_binding"] =
-        [missing_report, metadata_report].all? do |report|
+      checks["#{id}.claimed_executor_still_needs_approval"] =
+        claimed_executor_report.dig("bundle_load", "decision") == "accept_for_inspection" &&
+          claimed_executor_report.dig("backend_check", "missing_capabilities").empty? &&
+          claimed_executor_report.dig("backend_check", "live_tbackend_binding") == true &&
+          claimed_executor_report.dig("backend_check", "temporal_executor") == true &&
+          claimed_executor_report.dig("evaluation_readiness", "reason_code") == "runtime.temporal_executor_approval_missing"
+      checks["#{id}.approved_placeholder_still_blocks_gate3_closed"] =
+        approved_placeholder_report.dig("bundle_load", "decision") == "accept_for_inspection" &&
+          approved_placeholder_report.dig("backend_check", "missing_capabilities").empty? &&
+          approved_placeholder_report.dig("evaluation_readiness", "reason_code") == "runtime.temporal_gate3_closed" &&
+          approved_placeholder_report.dig("operation_check", "gate3_authorized") == false
+      checks["#{id}.capability_flags_alone_do_not_bypass_guard_policy"] =
+        all_reports.all? do |report|
+          report.fetch("overall") == "blocked" &&
+            report.dig("checks", "guard_policy.consumed") == true &&
+            report.dig("evaluation_readiness", "blocks_bundle_load") == false
+        end
+      checks["#{id}.no_profile_attempts_live_operation"] =
+        all_reports.all? do |report|
+          report.dig("operation_check", "temporal_executor_call_attempted") == false &&
+            report.dig("operation_check", "live_tbackend_call_attempted") == false &&
+            report.dig("operation_check", "ledger_call_attempted") == false
+        end
+      checks["#{id}.report_only_no_runtime_enforcement"] =
+        all_reports.all? do |report|
           report.fetch("report_only") == true &&
-            report.fetch("runtime_enforced") == false &&
-            report.dig("backend_check", "live_tbackend_binding") == false
+            report.fetch("runtime_enforced") == false
         end
     end
   end

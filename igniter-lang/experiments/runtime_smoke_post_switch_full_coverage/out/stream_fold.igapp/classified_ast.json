@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/24ac47cf19b864a1",
+  "contracts": [
+    "IntegerWindowSum"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "escape",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "IntegerWindowSum"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/24ac47cf19b864a1",
+  "semantic_ir_ref": "semanticir/24ac47cf19b864a1",
+  "source_hash": "sha256:24ac47cf19b864a19d4321e3cd37ef0a52137cb85422a2347af5af8dc6ea31ae",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/inputs/stream_fold.ig"
+}

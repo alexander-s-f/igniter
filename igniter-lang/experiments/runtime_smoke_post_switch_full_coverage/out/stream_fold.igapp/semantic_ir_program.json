@@ -1,0 +1,83 @@
+{
+  "compilation_report_ref": "compilation_report/24ac47cf19b864a1",
+  "contracts": [
+    {
+      "contract_name": "IntegerWindowSum",
+      "contract_ref": "contract/IntegerWindowSum/sha256:94985e21d730bdf7fa818e2c",
+      "escape_boundaries": [
+        {
+          "name": "stream_input",
+          "produces": [
+            "stream_window_observation"
+          ],
+          "required_caps": [
+            "stream_input"
+          ]
+        }
+      ],
+      "fragment_class": "escape",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "device_id",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "nodes": [
+        {
+          "escape_capability": "stream_input",
+          "fragment": "escape",
+          "kind": "stream_input_node",
+          "name": "readings",
+          "type": "Integer",
+          "window_ref": "integer/{device_id}"
+        },
+        {
+          "key": "integer/{device_id}",
+          "kind": "window_decl_node",
+          "ref": "integer/{device_id}"
+        },
+        {
+          "bound": {
+            "kind": "window_bounded",
+            "window_ref": "integer/{device_id}"
+          },
+          "escape_capability": "stream_input",
+          "fn_ref": null,
+          "init": null,
+          "kind": "fold_stream_node",
+          "name": "total",
+          "result_fragment": "core",
+          "result_type": {
+            "name": "Integer",
+            "params": []
+          },
+          "stream_ref": null
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "total",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": null,
+  "program_id": "semanticir/24ac47cf19b864a1",
+  "source_hash": "sha256:24ac47cf19b864a19d4321e3cd37ef0a52137cb85422a2347af5af8dc6ea31ae",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/inputs/stream_fold.ig"
+}

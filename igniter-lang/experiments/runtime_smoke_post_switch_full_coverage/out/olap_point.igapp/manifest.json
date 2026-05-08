@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:730040012371cbed2509a43039050a7881ca31f625dd2101fbf20bf99eb33130",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/a6e15b10f5610279",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "RegionalDailyRevenuePoint": {
+      "contract_path": "contracts/regional_daily_revenue_point.json",
+      "contract_ref": "contract/RegionalDailyRevenuePoint/sha256:9960ce0b199bb8bf26d38648",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "RegionalDailyRevenuePoint": "contract/RegionalDailyRevenuePoint/sha256:9960ce0b199bb8bf26d38648"
+  },
+  "contracts": [
+    "RegionalDailyRevenuePoint"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "olap-point-v0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/a6e15b10f5610279",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/a6e15b10f5610279",
+  "source_hash": "sha256:a6e15b10f5610279bb1f0c59cfe161acb8da2bb4ad10ef95fd1071c2d20624c4",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/inputs/olap_point.ig",
+  "warnings": []
+}

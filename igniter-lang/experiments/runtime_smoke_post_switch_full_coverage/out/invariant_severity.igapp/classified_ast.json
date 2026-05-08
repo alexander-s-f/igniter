@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/0000000000000000",
+  "contracts": [
+    "DrugOrderGate"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "DrugOrderGate"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/0000000000000000",
+  "semantic_ir_ref": "semanticir/0000000000000000",
+  "source_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "source_path": "experiments/typechecker_proof/classified/invariant_severity_valid.ig"
+}

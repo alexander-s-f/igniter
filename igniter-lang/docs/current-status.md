@@ -79,13 +79,13 @@ Release           ✅ gate    gem-release-policy + release-gate PASS;
                             local .gem/.sha256 rebuilt; publish not attempted
 TBackend          ✅ gate2   descriptor package exposure ratification recommended;
                             descriptor-to-CompatibilityReport map done;
-                            Gate 3 closed, no runtime binding
-Runtime           ⏳ open   CompatibilityReport load/evaluate split PASS;
-                            post-switch CORE/TEMPORAL smoke PASS;
+                            Gate 2 decision track prepared; Gate 3 closed
+Runtime           ⏳ open   six-surface post-switch smoke PASS;
+                            executor/live-binding report flags still blocked;
                             invariant persistence open; no prod execution/cache
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
-                            entrypoint/section disposition set; PROP track still needed
+                            PROP-029 entrypoint/section drafted; parser proof still open
 Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             invariant typed-shape delta accepted/discharged;
                             parsed emitter retained as Stage 1 legacy/comparison
@@ -144,7 +144,13 @@ Round 7 landed:
   S3-R7-C4-P: spec entrypoint sync              ✅ entrypoint/section are proposal candidates only
   S3-R7-C5-G: descriptor compatibility package  ✅ package descriptor mapping to report-only backend_check
   S3-R7-X1-S: runtime/typed pressure review     ✅ no hold; pre-Gate-3 proof gaps routed
-Active PROPs:     PROP-028 + PROP-022A temporal errata; new syntax candidates require proposal tracks
+Round 8 landed:
+  S3-R8-C1-P: runtime full coverage smoke       ✅ all 6 emit_typed surfaces covered; C1/C3 cross-check
+  S3-R8-C2-P: executor boundary report          ✅ positive executor flags still blocked without approval/Gate3
+  S3-R8-C3-G: descriptor Gate 2 decision        ✅ ratify recommended; Architect decision still needed
+  S3-R8-C4-P: PROP-029 entrypoint/section       ✅ proposal drafted; no parser implementation
+Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section;
+                  other syntax candidates require proposal tracks
 Arch approval required for: gem publish, Ledger read/write, MCP/mesh
 ```
 
@@ -180,11 +186,14 @@ Source .ig
   -> RuntimeMachine
        load TEMPORAL for inspection             ✅ proof-local + report shape
        CompatibilityReport load/eval split      ✅ S3-R7-C1
+       six-surface post-switch smoke            ✅ S3-R8-C1
+       executor/live-binding positive flags     ✅ modeled; still blocked
        evaluate TEMPORAL                        🚫 refused until runtime executor/TBackend
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratify recommended
        descriptor report mapping                ✅ report-only; runtime_enforced=false
+       Gate 2 decision track                    ✅ ratify recommended; not Architect-ratified yet
        live reads/writes/replay                 🚫 Gate 3 closed
   -> Release
        release-gate + artifact/checksum         ✅ PASS
@@ -202,6 +211,7 @@ typed emission path: BiHistory source gate closed; production switch done; Stage
 invariant_valid delta: accepted/discharged ✅ typed path adds invariant nodes + coverage as public production shape
 Ledger descriptor:   metadata-only ✅ package specs PASS
 CompatibilityReport: load/evaluate split + descriptor mapping ✅; report-only metadata; runtime_enforced false
+Executor boundary:   positive executor/live-binding flags modeled ✅; explicit approval + Gate 3 still required
 Runtime observations: proof-backed ⏳ production persistence open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; runtime evaluate refused by guard
@@ -215,30 +225,34 @@ Docs memory:         S3-R7 docs snapshot ✅ + value-index hoisted memory layer 
 Syntax pressure:     registry + specimens + review routing done; threshold/external pure/entrypoint-section are proposal candidates, not parser canon
 Discussion pressure: S3-R4-X1 resolved to contract_index/load-guard tracks; both landed in R5
 Runtime pressure:    S3-R7-X1 says no current production bug; expand smoke/report boundary before Gate 3
+S3-R8 runtime result: full smoke + executor-boundary report closed the named pre-Gate-3 pressure gaps;
+                      Gate 3 itself remains closed
 ```
 
 ### Spec Freshness
 
 | Surface | Freshness | Current anchor | Remaining doc debt |
 |---------|-----------|----------------|--------------------|
-| Agent context | ✅ current S3-R7 | `docs/agent-context.md` | Keep next movement in sync after each status round |
+| Agent context | ✅ current S3-R8 | `docs/agent-context.md` | Keep next movement in sync after each status round |
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R7 discharge | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0` | C-8 invariant typed-shape delta discharged; remaining legacy deltas are not production blockers |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R6 | `spec-ch6-semanticir-temporal-sync-v0` | Future runtime executor/Gate 3 changes will need another sync |
-| Ch7 Runtime | ✅ synced S3-R6 + R7 report/smoke | `spec-ch7-runtime-temporal-cache-sync-v0`; `runtime-compatibility-report-temporal-load-check-v0`; `runtime-smoke-temporal-post-switch-v0` | TBackend/live temporal executor remains closed; full post-switch surface smoke and executor-boundary case routed before Gate 3 |
-| Proposal index | ✅ synced S3-R6 | `proposal-lifecycle-index-sync-v0` | PROP-028/022A close awaits parser syntax/runtime decision |
+| Ch7 Runtime | ✅ synced S3-R6 + R8 boundary proofs | `spec-ch7-runtime-temporal-cache-sync-v0`; `runtime-smoke-post-switch-full-coverage-v0`; `runtime-compatibility-report-executor-boundary-v0` | TBackend/live temporal executor remains closed; approval token/field and Gate 3 contract remain future work |
+| Proposal index | ✅ synced S3-R8 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029 is proposal-only |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
-| Entrypoint/section syntax | ✅ disposition set S3-R7 | `spec-entrypoint-sync-v0` | Stage 3 proposal candidate; future PROP-029-style track needed before parser/canon |
+| Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
 
 ### Remaining Doc Debt Only
 
 ```text
 DOC-DEBT-01  Update agent-context.md next movement after each status round.
-DOC-DEBT-02  Keep S3-R7 runtime pressure gaps visible until routed:
-             full post-switch smoke, executor-boundary case, C1/C3 cross-check.
-DOC-DEBT-03  Keep entrypoint/section as proposal-candidate only until a PROP is accepted.
-DOC-DEBT-04  Keep value-index.md compact; hoist durable signals, not routine evidence.
+DOC-DEBT-02  Keep S3-R8 runtime follow-ups visible:
+             executor approval token/field, stream replay metadata,
+             invariant source/classifier metadata preservation.
+DOC-DEBT-03  Keep Gate 2 as ratify-recommended until Architect records decision.
+DOC-DEBT-04  Keep PROP-029 proposal-only until parser/typechecker proof acceptance.
+DOC-DEBT-05  Keep value-index.md compact; hoist durable signals, not routine evidence.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -266,7 +280,8 @@ PROP-026   Parser OOF hardening          ✅ CLOSED IN STAGE 2
 PROP-027   Production compiler           ✅ CLOSED IN STAGE 2 (package + facade + igc)
 PROP-028   TEMPORAL fragment class       ⚙️ proposal + classifier/typechecker + SemanticIR + assembler
                                          manifest/load guard/cache proof done; runtime executor/parser pending
-PROP-029+  Stage 3 syntax candidates     queued by pressure review; not canon without proposal/proof
+PROP-029   Entrypoint/section surface    proposal; parser/typechecker proof pending
+PROP-030+  Stage 3 syntax candidates     queued by pressure review; not canon without proposal/proof
 ```
 
 → Close governance: `meta-proposals/META-EXPERT-009.1-stage2-close-decision-v0.md`
