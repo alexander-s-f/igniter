@@ -15,6 +15,7 @@ Current accepted default agent names:
 - `[Igniter-Lang Applied Pressure Agent]`
 - `[Igniter-Lang Meta Expert]`
 - `[Igniter-Lang Archive/Form Expert]`
+- `[Igniter-Lang External Pressure Reviewer]`
 
 Before authoring anything, read [roles/README.md](roles/README.md) and the
 role profile file for your assigned role.
@@ -112,9 +113,22 @@ Role details live in [roles/](roles/). Short map:
   parser/type/runtime/diagnostics/bridge pressure before promotion
 - does not write executable proofs or implementation directly
 
+`[Igniter-Lang External Pressure Reviewer]`
+
+- owns outside review pressure only: fresh-context critique, gap discovery,
+  comprehension testing, product/runtime/performance risks
+- does not write canon, status maps, formal PROP docs, executable proofs, or
+  implementation
+- its output must be routed through Architect Supervisor / Meta Expert before
+  becoming a track, proposal, backlog item, or rejection
+
 ## Research Policy
 
 Use compact documents. Prefer one living index plus focused tracks.
+
+Discussion mode lives in `igniter-lang/docs/discussions/`. It is for bounded
+debate before a proposal, track, backlog item, or rejection is clear.
+Discussion output is not canon and does not authorize implementation by itself.
 
 Every idea should have a status:
 
@@ -145,6 +159,28 @@ Use these markers:
 
 Experiments are allowed inside `igniter-lang/experiments/` when the handoff
 asks for an approved proof/devkit slice.
+
+## Discussions
+
+Use discussion mode only when the card says:
+
+```text
+Mode: discussion
+```
+
+Discussion cards should use the format in
+`igniter-lang/docs/discussions/README.md` and end with:
+
+```text
+[Agree]
+[Challenge]
+[Missing]
+[Sharper Question]
+[Route]
+```
+
+Allowed routes are: `PROP`, `track`, `review`, `backlog`, `reject`, or
+`keep-discussing`.
 
 ## Handoff
 

@@ -56,6 +56,16 @@ A Bridge Agent slice should end with:
 - changed files
 - handoff
 
+## Discussion Participation
+
+If the card says `Mode: discussion`, follow
+`igniter-lang/docs/discussions/README.md` instead of normal bridge output.
+Participate through the Bridge lens: what package/runtime/protocol boundary
+would this require, and what must remain explicitly unbound?
+
+End with `[Agree]`, `[Challenge]`, `[Missing]`, `[Sharper Question]`, and
+`[Route]`.
+
 ## Neighbor Awareness
 
 Ask `[Igniter-Lang Research Agent]` for proof evidence and scenario pressure.

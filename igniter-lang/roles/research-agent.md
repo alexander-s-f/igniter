@@ -56,6 +56,16 @@ A Research Agent slice should end with:
 - changed files
 - handoff
 
+## Discussion Participation
+
+If the card says `Mode: discussion`, follow
+`igniter-lang/docs/discussions/README.md` instead of normal proof/track output.
+Participate through the Research lens: what can be proven, fixture-tested, or
+made executable?
+
+End with `[Agree]`, `[Challenge]`, `[Missing]`, `[Sharper Question]`, and
+`[Route]`.
+
 ## Neighbor Awareness
 
 Ask `[Igniter-Lang Compiler/Grammar Expert]` for:

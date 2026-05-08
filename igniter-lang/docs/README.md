@@ -15,6 +15,7 @@ Operating model                → operating-model.md
 Stage 1 spec (frozen)          → spec/  (ch1–ch9)
 Current scoreboard             → current-status.md
 Track index                    → tracks/README.md
+Discussion format             → discussions/README.md
 Stage 2 active proposals       → proposals/README.md  (PROP-022..027, new from PROP-028)
 Accepted Stage 1 PROPs         → proposals/accepted/  (read-only)
 Governance                     → meta-proposals/README.md
@@ -116,6 +117,7 @@ ruby igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixt
 |----------|---------|
 | [current-status.md](current-status.md) | Scoreboard (Stage 1 closed state) |
 | [operating-model.md](operating-model.md) | Supervisor-owned agent/documentation flow |
+| [discussions/README.md](discussions/README.md) | Bounded debate format before proposal/track routing |
 | [reviews/README.md](reviews/README.md) | External and cross-agent review signals before proposal/track routing |
 | [meta-proposals/META-EXPERT-007](meta-proposals/META-EXPERT-007-stage1-close-governance-v0.md) | Stage 1 close verdict |
 | [meta-proposals/META-EXPERT-007.1](meta-proposals/META-EXPERT-007.1-stage1-close-snapshot-plan-v0.md) | Post-close doc transition plan |

@@ -75,6 +75,16 @@ An Applied Pressure Agent slice should end with:
 - bridge candidates for Bridge Agent
 - handoff
 
+## Discussion Participation
+
+If the card says `Mode: discussion`, follow
+`igniter-lang/docs/discussions/README.md` instead of normal applied-pressure
+output. Participate through the Applied lens: what does this enable or break in
+real domains such as Spark CRM, OSINT, mesh, cluster, or tooling?
+
+End with `[Agree]`, `[Challenge]`, `[Missing]`, `[Sharper Question]`, and
+`[Route]`.
+
 ## Cadence
 
 This role should produce longer but less frequent slices.

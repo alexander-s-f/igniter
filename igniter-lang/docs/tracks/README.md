@@ -27,6 +27,12 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 1 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `stage3-governance-opening-v0.md` | done | Stage 3 formally OPEN (2026-05-08); META-EXPERT-011; 5 lanes authorized; PROP-028 authorized; R1 cards issued |
+
 ## Stage 2 Round 15 Evidence
 
 | Track | Status | Notes |
@@ -143,18 +149,16 @@ compiler_orchestrator.rb  (R10) — NEW; compiler pass orchestration spine
 
 ---
 
-## Suggested Next Track Shapes
+## Stage 3 Authorized First Tracks (R1)
 
-| Candidate | Purpose | Role |
-|-----------|---------|------|
-| `stage3-governance-opening-v0` | Author Stage 3 governance and authorization rules before PROP-028+ or implementation work | Meta Expert |
-| `stage2-close-snapshot-archive-v0` | Archive the exact Stage 2 close docs/proofs/JSON snapshot for future archaeology | Archive/Form Expert |
-| `gem-release-readiness-policy-v0` | Resolve final gem metadata, CI, RubyGems publishing, signing/checksum, and release policy | Research Agent |
-| `production-tbackend-adapter-binding-v0` | Plan production Ledger/Durable TBackend binding from descriptor evidence without overclaiming runtime trust | Bridge Agent |
-| `syntax-pressure-registry-v0` | Register human-agent syntax fixtures as pressure artifacts, not canon | Compiler/Grammar Expert |
-| `let-compute-boundary-v0` | Prove contract-body `let` lowering or rejection while preserving graph node identity | Compiler/Grammar Expert |
-| `runtime-invariant-observation-runtime-machine-boundary-v0` | Decide where production RuntimeMachine emits and persists invariant violation observations | Research Agent |
-| `compatibility-report-descriptor-consumption-v0` | Plan descriptor evidence consumption without adding Ledger reads/writes/runtime binding | Bridge Agent |
+| Candidate | Purpose | Role | Status |
+|-----------|---------|------|--------|
+| `orchestrator-emit-typed-v0` | Switch orchestrator from `emit(parsed)` to `emit_typed(typed_program)`; run stage2_close_candidate after | Research Agent | **authorized** |
+| `prop-028-temporal-fragment-v0` | PROP-028: TEMPORAL fragment class (7 requirements in external-review-response-2026-05-07.md) | Compiler/Grammar Expert | **authorized** |
+| `spec-entrypoint-sync-v0` | Remove stale entrypoint/spec lines in docs; prerequisite for PROP-029 | Compiler/Grammar Expert | **authorized** |
+| `gem-release-policy-v0` | Resolve final gem metadata, CI, and RubyGems publishing policy (publish requires Architect approval) | Research Agent | **authorized** |
+| `compatibility-report-descriptor-consumption-v0` | CompatibilityReport consumption of descriptor evidence (no runtime binding) | Bridge Agent | **authorized** |
+| `invariant-persistence-boundary-v0` | Production RuntimeMachine invariant observation persistence boundary | Research Agent | **authorized** |
 
 ---
 

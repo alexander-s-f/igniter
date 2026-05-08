@@ -25,8 +25,10 @@ Every role starts from the same compact map:
 4. [../docs/README.md](../docs/README.md) — documentation navigation
 5. [../docs/operating-model.md](../docs/operating-model.md) — supervisor-owned flow
 6. [../docs/current-status.md](../docs/current-status.md) — current scoreboard
-7. [../docs/spec/](../docs/spec/) — canonical language chapters relevant to the slice
-8. the assigned track/proposal/source docs only
+7. [../docs/discussions/README.md](../docs/discussions/README.md) — only when
+   `Mode: discussion` is assigned
+8. [../docs/spec/](../docs/spec/) — canonical language chapters relevant to the slice
+9. the assigned track/proposal/source docs only
 
 Agents should not read archives, old tracks, or package docs unless the card
 explicitly asks for archaeology, bridge mapping, or package pressure.
@@ -41,6 +43,7 @@ explicitly asks for archaeology, bridge mapping, or package pressure.
 | `[Igniter-Lang Applied Pressure Agent]` | [applied-pressure-agent.md](applied-pressure-agent.md) | real-system pressure, domain scenarios, interop/tooling pressure, rebuild experiments |
 | `[Igniter-Lang Meta Expert]` | [meta-expert.md](meta-expert.md) | strategic analysis, gap identification, priority ordering, cross-cutting design, meta-proposals |
 | `[Igniter-Lang Archive/Form Expert]` | [archive-form-expert.md](archive-form-expert.md) | project archaeology, historical signal preservation, canon-vs-history indexing |
+| `[Igniter-Lang External Pressure Reviewer]` | [external-pressure-reviewer.md](external-pressure-reviewer.md) | outside review pressure, gap discovery, comprehension/product/runtime critique before internal routing |
 
 Use [role-template.md](role-template.md) when adding a new role profile.
 
@@ -76,6 +79,28 @@ Archive/Form Expert
   -> indexes historical layers and preserves high-value signals
   -> applies formal pressure before routing old ideas into new work
   -> writes archaeology meta-proposals, not implementation code
+
+External Pressure Reviewer
+  -> provides outside review pressure and fresh-context critique
+  -> does not author canon, update status, or implement code
+  -> routes through Architect Supervisor and Meta Expert before becoming work
+```
+
+## Discussion Participation
+
+Any role may participate in a bounded discussion when a card explicitly says:
+
+```text
+Mode: discussion
+```
+
+Discussion format lives in
+[../docs/discussions/README.md](../docs/discussions/README.md). A discussion is
+not canon, not a track, and not implementation authorization. It should end by
+routing the question to one of:
+
+```text
+PROP / track / review / backlog / reject / keep-discussing
 ```
 
 ## Identity Rule

@@ -36,8 +36,9 @@ Read in this order:
 4. `igniter-lang/docs/README.md`
 5. `igniter-lang/docs/operating-model.md`
 6. `igniter-lang/docs/current-status.md`
-7. relevant chapters in `igniter-lang/docs/spec/`
-8. only the assigned track/proposal/source docs
+7. `igniter-lang/docs/discussions/README.md` when `Mode: discussion` is assigned
+8. relevant chapters in `igniter-lang/docs/spec/`
+9. only the assigned track/proposal/source docs
 
 Do not read archives, old tracks, package docs, or external project docs unless
 the card explicitly asks for that context.
@@ -70,6 +71,20 @@ End the slice with:
 - risks/recommendations
 - changed files
 - handoff
+
+## Discussion Participation
+
+If the card says `Mode: discussion`, follow
+`igniter-lang/docs/discussions/README.md` instead of normal track/proposal
+output.
+
+End discussion output with:
+
+- `[Agree]`
+- `[Challenge]`
+- `[Missing]`
+- `[Sharper Question]`
+- `[Route]`
 
 ---
 

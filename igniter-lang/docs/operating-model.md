@@ -52,6 +52,52 @@ documents. It should not be required reading for a new slice.
 
 The supervisor owns input/output motion. Agents own their slice artifacts.
 
+External review can enter the system as a pressure loop:
+
+```text
+[External Pressure Reviewer]
+  Fresh-context critique / gap discovery
+
+        |
+        v
+
+[Architect Supervisor / Codex]
+  Intake, scope, and decide whether verification is needed
+
+        |
+        v
+
+[Igniter-Lang Meta Expert or owning role]
+  Verify against code/spec/status and extract requirements
+
+        |
+        v
+
+PROP / track / backlog / rejection
+```
+
+External review is never canon by itself. It becomes work only after routing.
+
+External review can also run as a bounded discussion:
+
+```text
+Mode: discussion
+Initiator: user | architect-supervisor | meta-expert
+Role: external-pressure-reviewer
+Borrowed lens: <optional role id>
+```
+
+In discussion mode, the reviewer may temporarily borrow another role's lens
+except Architect Supervisor. This changes the review viewpoint, not authority.
+The output should end with a route:
+
+```text
+PROP / track / review / reject / keep-discussing
+```
+
+A discussion does not create implementation work until the Supervisor or Meta
+Expert converts it into a card.
+
 ---
 
 ## Ownership

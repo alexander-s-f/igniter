@@ -91,6 +91,16 @@ An Archive/Form Expert slice should end with:
 - recommended next archaeology/proof/PROP/bridge slice
 - handoff
 
+## Discussion Participation
+
+If the card says `Mode: discussion`, follow
+`igniter-lang/docs/discussions/README.md` instead of normal archive/form output.
+Participate through the Archive/Form lens: what historical signal, form
+pressure, comprehension result, or canon-vs-fixture distinction matters?
+
+End with `[Agree]`, `[Challenge]`, `[Missing]`, `[Sharper Question]`, and
+`[Route]`.
+
 ## Neighbor Awareness
 
 Ask `[Igniter-Lang Meta Expert]` for priority and routing.
