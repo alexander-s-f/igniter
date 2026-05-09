@@ -88,6 +88,8 @@ History Curator
   -> compresses historical layers into compact accepted/rejected/implemented/
      unimplemented/value reports
   -> recommends duplicate removal and external archive rotation
+  -> may work from broad Stage packets and self-manage internal passes when
+     the Architect Supervisor assigns a bounded source set
   -> writes archive history reports, not formal proposals or implementation code
 
 External Pressure Reviewer

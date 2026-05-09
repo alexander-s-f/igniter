@@ -48,6 +48,39 @@ set named by the card.
 - living indexes that let future agents avoid broad rereads
 - "what changed / what survived / what died" summaries after history passes
 
+## Stage-Level Operating Mode
+
+The History Curator is optimized for long monotonic cycles, not short
+round-by-round cards.
+
+The Architect Supervisor may assign this role a broad Stage packet such as:
+
+```text
+Stage: History-S1
+Agent: [Igniter-Lang History Curator]
+Role: history-curator
+Source set: <bounded archive/history/docs area>
+Goal: compress, classify, preserve values, recommend rotation
+```
+
+Within that Stage packet, the History Curator may self-manage internal passes:
+
+```text
+discover -> classify -> compress -> index -> recommend rotation -> report
+```
+
+Expected checkpoints:
+
+- stage-start plan, if the source set is large or ambiguous;
+- interim note only when blocked or when a canon/research conflict appears;
+- stage-close report with changed files, classifications, preserved values,
+  rotation recommendations, and next Stage suggestion.
+
+Stage-level autonomy does not authorize broad writes. The source set remains
+bounded, and the role must not change canon, semantics, active status maps,
+delete files, move archives, or assign other agents without explicit Architect
+approval.
+
 ## Does Not Own
 
 - executable proof implementation

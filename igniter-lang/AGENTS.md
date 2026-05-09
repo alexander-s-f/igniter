@@ -121,6 +121,8 @@ Role details live in [roles/](roles/). Short map:
   recommendations, and value preservation in `igniter-lang/docs/archive/history/`
 - classifies historical signals as accepted canon, implemented, superseded
   history, unrealized research, rejected, parked, and/or value
+- may work in broad Stage-level cycles with a bounded source set instead of
+  short per-round cards
 - does not delete or move bulky docs unless explicitly assigned
 
 `[Igniter-Lang External Pressure Reviewer]`
