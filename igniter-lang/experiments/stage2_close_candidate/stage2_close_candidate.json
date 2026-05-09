@@ -5,7 +5,7 @@
   "stage": "stage2",
   "status": "PASS",
   "verdict": "stage2_close_candidate",
-  "timestamp": "2026-05-09T12:16:01Z",
+  "timestamp": "2026-05-09T12:47:14Z",
   "facade": {
     "entrypoint": "IgniterLang.compile",
     "facade_version": "0.1.0.pre.stage2",

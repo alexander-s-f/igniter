@@ -1,0 +1,339 @@
+{
+  "kind": "temporal_executor_lib_prep_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R16-C1-P",
+  "track": "runtime-temporal-executor-lib-prep-v0",
+  "status": "PASS",
+  "lib_file": "igniter-lang/lib/igniter_lang/temporal_executor.rb",
+  "at_coverage": {
+    "AT-2_composed_report": {
+      "covered": true,
+      "evidence": "compatibility_report present on every evaluate; single_report mode; runtime_enforced correct"
+    },
+    "AT-4_token_before_gate": {
+      "covered": true,
+      "evidence": "missing token → approval_missing before gate check"
+    },
+    "AT-5_gate3_independent": {
+      "covered": true,
+      "evidence": "valid token + gate3=false → gate3_closed at gate_state stage"
+    },
+    "AT-6_cache_key_schema": {
+      "covered": true,
+      "evidence": "CORE cache key fragment → cache_schema_mismatch at cache_key stage"
+    },
+    "AT-7_bihistory_excluded": {
+      "covered": true,
+      "evidence": "BiHistory temporal_nodes → bihistory_excluded at kernel"
+    },
+    "AT-9_authority_ref_exact": {
+      "covered": true,
+      "evidence": "wrong authority_ref → authority_untrusted at approval_token stage"
+    },
+    "AT-10_observation_emitted": {
+      "covered": true,
+      "evidence": "temporal_live_read_observation emitted unconditionally on happy path"
+    },
+    "AT-12_core_fragment_refusal": {
+      "covered": true,
+      "evidence": "CORE fragment_class blocked at scope stage (defense-in-depth confirmed)"
+    }
+  },
+  "cases": {
+    "happy_path": {
+      "evaluate": {
+        "status": "ok",
+        "kind": "temporal_evaluation_result",
+        "contract_id": "HistoryAxesTest",
+        "results": [
+          {
+            "node": "price_at",
+            "axis": "valid_time",
+            "result": {
+              "kind": "some",
+              "value": "89.00"
+            },
+            "backend_observation": {
+              "kind": "history_access_observation",
+              "subject": "sku/prod-001/price",
+              "as_of": "2026-05-09T12:00:00Z",
+              "access": "point",
+              "selected_append_ref": "obs/history_append/b7463f3f6550299c",
+              "result": {
+                "kind": "some",
+                "value": "89.00"
+              },
+              "option_encoding": {
+                "some": {
+                  "kind": "some",
+                  "value": "<value>"
+                },
+                "none": {
+                  "kind": "none"
+                }
+              },
+              "observation_id": "obs/history_access/60bb4abcfa22bc61",
+              "observed_at": "2026-05-09T12:00:00Z",
+              "temporal": {
+                "axis": "valid_time",
+                "as_of": "2026-05-09T12:00:00Z",
+                "lifecycle": "session"
+              }
+            }
+          }
+        ],
+        "observations_emitted": 1,
+        "runtime_enforced": true,
+        "scope": "History[T].valid_time / MemoryBackend / proof-local",
+        "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
+      },
+      "observations": [
+        {
+          "kind": "temporal_live_read_observation",
+          "contract_id": "HistoryAxesTest",
+          "node": "price_at",
+          "axis": "valid_time",
+          "subject": "sku/prod-001/price",
+          "as_of": "2026-05-09T12:00:00Z",
+          "result_present": true,
+          "backend_observation_ref": "obs/history_access/60bb4abcfa22bc61",
+          "persistence": "proof_local"
+        }
+      ],
+      "compatibility_report": {
+        "kind": "compatibility_report",
+        "format_version": "0.1.0",
+        "contract_id": "HistoryAxesTest",
+        "composition": {
+          "mode": "single_report",
+          "single_report_required": true,
+          "split_fragments_allowed": false
+        },
+        "runtime_gate_check": {
+          "gate": "tbackend_gate3",
+          "decision": "open",
+          "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+        },
+        "executor_approval_check": {
+          "decision": "ok",
+          "reason_code": "runtime.executor_approval_token_valid"
+        },
+        "cache_key_check": {
+          "decision": "ok",
+          "fragment": "TEMPORAL",
+          "reason_code": "runtime.temporal_cache_key_valid"
+        },
+        "evaluation_readiness": {
+          "decision": "ready",
+          "reason_code": "runtime.temporal_evaluation_ready",
+          "blocks_before_executor": false
+        },
+        "runtime_enforced": true,
+        "report_only": false,
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        },
+        "report_id": "compat/phase1/2ee0d8d8867a4714"
+      }
+    },
+    "no_token": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.executor_approval_missing",
+        "message": "approval token required",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {},
+        "blocked_stage": "approval_token",
+        "compatibility_report_id": "compat/phase1/e0fbd3359eb520b2",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      }
+    },
+    "wrong_authority_ref": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.executor_approval_authority_untrusted",
+        "message": "authority_ref does not match Gate 3 decision record",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "expected": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+          "got": "architect-supervisor://igniter-lang/gates/gate3/wrong-scope/2026-05-09"
+        },
+        "blocked_stage": "approval_token",
+        "compatibility_report_id": "compat/phase1/961f415cb204a43c",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      }
+    },
+    "gate_closed": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.temporal_gate3_closed",
+        "message": "Gate 3 is closed for TEMPORAL evaluation",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "gate": "tbackend_gate3"
+        },
+        "blocked_stage": "gate_state",
+        "compatibility_report_id": "compat/phase1/12f8e7d2c7fa74c3",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      }
+    },
+    "core_cache_key": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.temporal_cache_schema_mismatch",
+        "message": "TEMPORAL evaluation cannot use a CORE-shaped cache key",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "gate": "L-T5",
+          "expected_fragment": "TEMPORAL",
+          "requested_fragment": "CORE"
+        },
+        "blocked_stage": "cache_key",
+        "compatibility_report_id": "compat/phase1/e3859a58082948e5",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      }
+    },
+    "bihistory_at_kernel": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1_kernel",
+        "reason_code": "runtime.temporal_executor_bihistory_excluded",
+        "contract_id": "BiHistoryAxesTest",
+        "gate": "AT-7",
+        "compatibility_report_id": "compat/phase1/03a543c3f7bf4240"
+      }
+    },
+    "core_fragment_kernel": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.non_temporal_not_covered",
+        "message": "Phase 1 executor handles only TEMPORAL fragment contracts",
+        "contract_id": "FakeCore",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {},
+        "blocked_stage": "scope",
+        "compatibility_report_id": "compat/phase1/dc636242fa044fc6",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "note": "scope guard catches CORE at 'scope' stage; AT-12 is defense-in-depth"
+    }
+  },
+  "checks": {
+    "at2.happy_path.report_composed": true,
+    "at2.happy_path.report_single_mode": true,
+    "at2.happy_path.report_runtime_enforced": true,
+    "at2.blocked.report_present_on_refusal": true,
+    "at4.no_token.blocked_at_approval_token": true,
+    "at5.gate_closed.blocked_at_gate_state": true,
+    "at5.gate_closed.token_stage_passed_first": true,
+    "at6.core_cache_key.blocked_at_cache_key": true,
+    "at7.bihistory.blocked": true,
+    "at9.wrong_authority.refused": true,
+    "at9.wrong_authority.blocked_at_approval_token": true,
+    "at10.happy_path.observation_emitted": true,
+    "at10.happy_path.observation_kind": true,
+    "at12.core_fragment.blocked": true,
+    "happy_path.evaluate_ok": true,
+    "happy_path.result_present": true,
+    "blocked_before_call.all_blocked_paths": true
+  },
+  "remaining_before_live_read_decision": [
+    {
+      "item": "Artifact load boundary in lib/ (load_igapp → contract extraction)",
+      "current_state": "experiments use CompiledProgram.load_igapp; lib/ Phase1 accepts pre-loaded contract hash",
+      "required_for": "complete production runtime wiring"
+    },
+    {
+      "item": "Full token validation: artifact_ref, contract_refs, capability_refs, evidence_ref, expiry",
+      "current_state": "lib/ Phase1 validates kind, version, authority_ref, gate only",
+      "required_for": "production token enforcement; currently proven in experiment Phase1TemporalExecutor"
+    },
+    {
+      "item": "CompatibilityReport composition pipeline in lib/ (full shape from composition-v0)",
+      "current_state": "lib/ Phase1 builds minimal compatible hash; full composition remains in experiments",
+      "required_for": "production report pipeline; full AT-2 shape alignment"
+    },
+    {
+      "item": "AT-9: production signing / authority registry",
+      "current_state": "exact string match only; no key infrastructure or registry",
+      "required_for": "Phase 2 or production deployment"
+    },
+    {
+      "item": "AT-10: observation persistence",
+      "current_state": "proof-local in-memory array; no durable store",
+      "required_for": "invariant_persistence gap closure"
+    },
+    {
+      "item": "Gate 3 live-read decision addendum",
+      "current_state": "lib-prep proves the boundary; live reads still blocked pending Architect addendum",
+      "required_for": "gate3-live-read-decision-addendum-v0"
+    },
+    {
+      "item": "Phase 2 TBackend adapter production binding",
+      "current_state": "MemoryBackend only; no real Ledger or external TBackend",
+      "required_for": "Phase 2 Architect addendum (gate3-decision-record-v0.md §Q3 Option C)"
+    },
+    {
+      "item": "BiHistory evaluation",
+      "current_state": "refused at kernel (AT-7); Phase 1 = valid_time only",
+      "required_for": "separate gate request after at(vt:,tt:) serving proof"
+    }
+  ],
+  "scope": {
+    "authorized": "History[T] valid_time / proof-local MemoryBackend",
+    "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+    "live_tbackend": false,
+    "production_cache": false,
+    "gate3_production_open": false
+  }
+}
