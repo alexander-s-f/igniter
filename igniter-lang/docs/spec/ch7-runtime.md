@@ -457,6 +457,15 @@ reaches the TEMPORAL executor but is outside the approved Phase 1 scope:
 | Ledger write/replay/compact surface reaches temporal executor path | `runtime.temporal_scope_exclusion` |
 | Unknown temporal surface reaches `TemporalExecutor` | `runtime.temporal_scope_exclusion` |
 
+Proof-local lib aliases from early S3-R16 summaries are diagnostic aliases only;
+new emissions should use the canonical code:
+
+| Legacy/narrow code | Canonical code |
+| --- | --- |
+| `runtime.non_temporal_not_covered` | `runtime.temporal_scope_exclusion` |
+| `runtime.temporal_executor_bihistory_excluded` | `runtime.temporal_scope_exclusion` |
+| `runtime.temporal_executor_core_refusal` | `runtime.temporal_scope_exclusion` |
+
 The Phase 1 check ordering is:
 
 ```text

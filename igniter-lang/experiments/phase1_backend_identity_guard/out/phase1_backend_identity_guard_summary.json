@@ -1,0 +1,254 @@
+{
+  "kind": "phase1_backend_identity_guard_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R18-C4-P",
+  "track": "phase1-backend-identity-guard-v0",
+  "status": "PASS",
+  "rule": {
+    "allowed": [
+      "IgniterLang::TemporalAccessRuntime::MemoryBackend",
+      "explicit phase1_allowed non-Ledger backend identity"
+    ],
+    "blocked": [
+      "Igniter-Ledger package adapter",
+      "Ledger-backed adapter",
+      "wrapper/proxy that invokes Ledger package code",
+      "unmarked read_as_of backend"
+    ],
+    "phase2_addendum_required_for_ledger": true
+  },
+  "cases": {
+    "proof_local_memory_backend_allowed": {
+      "evaluate": {
+        "status": "ok",
+        "kind": "temporal_evaluation_result",
+        "contract_id": "HistoryAxesTest",
+        "results": [
+          {
+            "node": "price_at",
+            "axis": "valid_time",
+            "result": {
+              "kind": "some",
+              "value": "99.00"
+            },
+            "backend_observation": {
+              "kind": "history_access_observation",
+              "subject": "sku/prod-001/price",
+              "as_of": "2026-05-09T12:00:00Z",
+              "access": "point",
+              "selected_append_ref": "obs/history_append/13af70945c2c21b7",
+              "result": {
+                "kind": "some",
+                "value": "99.00"
+              },
+              "option_encoding": {
+                "some": {
+                  "kind": "some",
+                  "value": "<value>"
+                },
+                "none": {
+                  "kind": "none"
+                }
+              },
+              "observation_id": "obs/history_access/2201acce248519a5",
+              "observed_at": "2026-05-09T12:00:00Z",
+              "temporal": {
+                "axis": "valid_time",
+                "as_of": "2026-05-09T12:00:00Z",
+                "lifecycle": "session"
+              }
+            }
+          }
+        ],
+        "observations_emitted": 1,
+        "runtime_enforced": true,
+        "scope": "History[T].valid_time / proof_local_memory_backend / proof-local",
+        "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
+      },
+      "backend_class": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+    },
+    "explicit_non_ledger_backend_allowed": {
+      "evaluate": {
+        "status": "ok",
+        "kind": "temporal_evaluation_result",
+        "contract_id": "HistoryAxesTest",
+        "results": [
+          {
+            "node": "price_at",
+            "axis": "valid_time",
+            "result": {
+              "kind": "some",
+              "value": "explicit-non-ledger:sku/prod-001/price@2026-05-09T12:00:00Z"
+            },
+            "backend_observation": {
+              "observation_id": "obs/explicit_non_ledger/1"
+            }
+          }
+        ],
+        "observations_emitted": 1,
+        "runtime_enforced": true,
+        "scope": "History[T].valid_time / proof_local_non_ledger_backend / proof-local",
+        "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
+      },
+      "backend_class": "Phase1BackendIdentityGuardProof::ExplicitNonLedgerBackend",
+      "read_attempts": 1
+    },
+    "unmarked_read_as_of_backend_blocked": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.phase1_backend_identity_blocked",
+        "message": "backend must be MemoryBackend or expose phase1_backend_identity",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "backend_class": "Phase1BackendIdentityGuardProof::UnmarkedReadAsOfBackend"
+        },
+        "blocked_stage": "backend_identity",
+        "compatibility_report_id": "compat/phase1/5cf28514bdfda0db",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "backend_class": "Phase1BackendIdentityGuardProof::UnmarkedReadAsOfBackend",
+      "read_attempts": 0
+    },
+    "ledger_backed_adapter_blocked": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.phase1_backend_identity_blocked",
+        "message": "backend identity is not allowed for Phase 1",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "backend_class": "Phase1BackendIdentityGuardProof::LedgerBackedAdapter",
+          "backend_identity": {
+            "kind": "ledger_tbackend_adapter",
+            "backend_family": "ledger",
+            "phase1_allowed": true,
+            "ledger_backed": true,
+            "invokes_ledger_package": true,
+            "package_adapter": true
+          }
+        },
+        "blocked_stage": "backend_identity",
+        "compatibility_report_id": "compat/phase1/5cf28514bdfda0db",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "backend_class": "Phase1BackendIdentityGuardProof::LedgerBackedAdapter",
+      "read_attempts": 0
+    },
+    "ledger_proxy_wrapper_blocked": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.phase1_backend_identity_blocked",
+        "message": "backend identity is not allowed for Phase 1",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "backend_class": "Phase1BackendIdentityGuardProof::LedgerProxyWrapper",
+          "backend_identity": {
+            "kind": "phase1_wrapper",
+            "backend_family": "proof_local",
+            "phase1_allowed": true,
+            "ledger_backed": false,
+            "invokes_ledger_package": true,
+            "package_adapter": false
+          }
+        },
+        "blocked_stage": "backend_identity",
+        "compatibility_report_id": "compat/phase1/5cf28514bdfda0db",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "backend_class": "Phase1BackendIdentityGuardProof::LedgerProxyWrapper",
+      "read_attempts": 0
+    },
+    "malformed_identity_backend_blocked": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.phase1_backend_identity_blocked",
+        "message": "phase1_backend_identity must return Hash",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "backend_class": "Phase1BackendIdentityGuardProof::MalformedIdentityBackend"
+        },
+        "blocked_stage": "backend_identity",
+        "compatibility_report_id": "compat/phase1/5cf28514bdfda0db",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "backend_class": "Phase1BackendIdentityGuardProof::MalformedIdentityBackend",
+      "read_attempts": 0
+    },
+    "missing_token_blocks_before_backend_identity": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.executor_approval_missing",
+        "message": "approval token required",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {},
+        "blocked_stage": "approval_token",
+        "compatibility_report_id": "compat/phase1/e0fbd3359eb520b2",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "backend_class": "Phase1BackendIdentityGuardProof::LedgerBackedAdapter",
+      "read_attempts": 0
+    }
+  },
+  "checks": {
+    "memory_backend.allowed": true,
+    "explicit_non_ledger.allowed": true,
+    "unmarked_backend.blocked": true,
+    "ledger_backed_adapter.blocked": true,
+    "ledger_proxy_wrapper.blocked": true,
+    "malformed_identity.blocked": true,
+    "blocked_backends.no_read_attempts": true,
+    "missing_token.blocks_before_backend_identity": true,
+    "blocked_cases.no_live_operations": true
+  },
+  "scope": {
+    "ledger_binding": false,
+    "live_reads": false,
+    "proof_local_backend_reads_only": true
+  }
+}

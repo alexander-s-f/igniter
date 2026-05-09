@@ -15,14 +15,17 @@ module IgniterLang
   #
   # Live reads stay blocked until gate3_authorized: true + valid token.
   module TemporalExecutor
-    # Trusted authority ref from gate3-decision-record-v0.md §Authority Registry.
-    # Phase 1 proof-local tokens must carry this exact string.
+    # Phase 1 proof-local authority URI from gate3-decision-record-v0.md §Authority Registry.
+    # Source-code-parity verification only — not cryptographic authorization.
+    # Any token carrying this exact string passes AT-9; issuer identity is not verified.
+    # Replace with production signing (R2) before any non-proof deployment.
     GATE3_AUTHORITY_REF =
       "architect-supervisor://igniter-lang/gates/gate3/" \
       "runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
 
     PHASE1_FORMAT_VERSION = "0.1.0"
     PHASE1_SCOPE          = "History[T] valid_time"
+    PHASE1_MEMORY_BACKEND_CLASS = "IgniterLang::TemporalAccessRuntime::MemoryBackend"
 
     # Reason codes emitted by this executor (stable identifiers for callers).
     module ReasonCode
@@ -30,11 +33,19 @@ module IgniterLang
       APPROVAL_MALFORMED      = "runtime.executor_approval_malformed"
       AUTHORITY_UNTRUSTED     = "runtime.executor_approval_authority_untrusted"
       GATE3_CLOSED            = "runtime.temporal_gate3_closed"
-      NON_TEMPORAL            = "runtime.non_temporal_not_covered"
+      BACKEND_IDENTITY_BLOCKED = "runtime.phase1_backend_identity_blocked"
+      SCOPE_EXCLUSION         = "runtime.temporal_scope_exclusion"
+      NON_TEMPORAL            = SCOPE_EXCLUSION
       CACHE_MISMATCH          = "runtime.temporal_cache_schema_mismatch"
-      BIHISTORY_EXCLUDED      = "runtime.temporal_executor_bihistory_excluded"
-      CORE_REFUSAL            = "runtime.temporal_executor_core_refusal"
+      BIHISTORY_EXCLUDED      = SCOPE_EXCLUSION
+      CORE_REFUSAL            = SCOPE_EXCLUSION
       EVALUATION_READY        = "runtime.temporal_evaluation_ready"
+
+      LEGACY_ALIASES = {
+        "runtime.non_temporal_not_covered" => SCOPE_EXCLUSION,
+        "runtime.temporal_executor_bihistory_excluded" => SCOPE_EXCLUSION,
+        "runtime.temporal_executor_core_refusal" => SCOPE_EXCLUSION
+      }.freeze
     end
 
     # Phase1 — proof-local History[T] valid_time executor.
@@ -50,11 +61,18 @@ module IgniterLang
     # NOT responsible for: artifact loading, full CompatibilityReport composition
     # pipeline, Ledger binding, production cache, production signing.
     class Phase1
+      # Proof-local only. In-memory, not durable. Not an audit receipt.
+      # AT-10 emission is unconditional; persistence is deferred (see compatibility-report-persistence-audit-v0).
       attr_reader :observations, :last_compatibility_report
 
+      # gate3_authorized: caller honor-system. Pass true only when a valid Architect
+      # decision (gate3-live-read-decision-addendum-v0) authorizes non-proof live reads.
+      # The lib/ class cannot verify the addendum exists; the caller is responsible.
+      # Default false = live reads blocked at construction regardless of backend or token.
       def initialize(backend:, gate3_authorized: false)
         @backend          = backend
         @gate3_authorized = gate3_authorized
+        @backend_identity_check = check_backend_identity(backend)
         @observations     = []
         @last_compatibility_report = nil
       end
@@ -94,11 +112,23 @@ module IgniterLang
                                cache_key_fragment: requested_cache_key_fragment)
         end
 
+        # Step 2b: backend_identity — Phase 1 must not quietly bind Ledger
+        if @backend_identity_check[:blocked]
+          return build_refusal(@backend_identity_check, contract_id: contract_id, as_of: as_of,
+                               blocked_stage: "backend_identity",
+                               gate_open: true,
+                               token_ok: true,
+                               cache_key_fragment: requested_cache_key_fragment)
+        end
+
         # Step 3: scope — TEMPORAL fragment only, before cache
         unless contract.fetch("fragment_class") == "temporal"
           scope_check = { blocked: true,
                           reason_code: ReasonCode::NON_TEMPORAL,
-                          message: "Phase 1 executor handles only TEMPORAL fragment contracts" }
+                          message: "Phase 1 executor handles only TEMPORAL fragment contracts",
+                          context: { "expected_scope" => "history_valid_time",
+                                     "actual_fragment" => contract.fetch("fragment_class"),
+                                     "actual_surface" => contract.fetch("fragment_class") } }
           return build_refusal(scope_check, contract_id: contract_id, as_of: as_of,
                                blocked_stage: "scope",
                                gate_open: true,
@@ -132,6 +162,84 @@ module IgniterLang
       end
 
       private
+
+      # Phase 1 permits the proof-local MemoryBackend or an explicitly
+      # identified non-Ledger backend. Ledger-backed adapters and wrappers that
+      # invoke Ledger package code require a Phase 2 Architect addendum.
+      def check_backend_identity(backend)
+        class_name = backend.class.name.to_s
+        if class_name == PHASE1_MEMORY_BACKEND_CLASS
+          return { blocked: false,
+                   backend_identity: { "kind" => "proof_local_memory_backend",
+                                       "class_name" => class_name } }
+        end
+
+        unless backend.respond_to?(:phase1_backend_identity)
+          return backend_identity_blocked(
+            class_name,
+            "backend must be MemoryBackend or expose phase1_backend_identity"
+          )
+        end
+
+        identity = backend.phase1_backend_identity
+        return backend_identity_blocked(class_name, "phase1_backend_identity must return Hash") unless identity.is_a?(Hash)
+
+        phase1_allowed = identity_fetch(identity, "phase1_allowed") == true
+        ledger_backed = identity_fetch(identity, "ledger_backed") == true
+        invokes_ledger = identity_fetch(identity, "invokes_ledger_package") == true
+        package_adapter = identity_fetch(identity, "package_adapter") == true
+        family = identity_fetch(identity, "backend_family").to_s.downcase
+        kind = identity_fetch(identity, "kind").to_s.downcase
+
+        if phase1_allowed && !ledger_backed && !invokes_ledger && !package_adapter &&
+           !ledger_family?(family) && !ledger_kind?(kind) && !ledger_like_class_name?(class_name)
+          return { blocked: false, backend_identity: identity.merge("class_name" => class_name) }
+        end
+
+        backend_identity_blocked(
+          class_name,
+          "backend identity is not allowed for Phase 1",
+          identity: identity
+        )
+      end
+
+      def backend_identity_blocked(class_name, message, identity: nil)
+        context = { "backend_class" => class_name }
+        context["backend_identity"] = identity if identity
+        { blocked: true,
+          reason_code: ReasonCode::BACKEND_IDENTITY_BLOCKED,
+          message: message,
+          context: context }
+      end
+
+      def identity_fetch(identity, key)
+        return identity[key] if identity.key?(key)
+
+        symbol_key = key.to_sym
+        return identity[symbol_key] if identity.key?(symbol_key)
+
+        nil
+      end
+
+      def ledger_like_class_name?(class_name)
+        class_name.split("::").any? do |part|
+          part.start_with?("Ledger") || part == "IgniterLedger"
+        end
+      end
+
+      def ledger_family?(family)
+        family == "ledger" || family == "igniter-ledger" || family == "igniter_ledger"
+      end
+
+      def ledger_kind?(kind)
+        kind == "ledger" || kind.start_with?("ledger_") || kind.start_with?("igniter_ledger")
+      end
+
+      def phase1_backend_scope_label
+        identity = @backend_identity_check[:backend_identity] || {}
+        backend_kind = identity["kind"] || "phase1_backend"
+        "History[T].valid_time / #{backend_kind} / proof-local"
+      end
 
       # AT-4 + AT-9: validate token structure and exact authority_ref match.
       # Returns { blocked: false } on success, or { blocked: true, reason_code:, message: } on failure.
@@ -179,6 +287,9 @@ module IgniterLang
                    "guard_at"     => "temporal_executor_phase1_kernel",
                    "reason_code"  => ReasonCode::CORE_REFUSAL,
                    "contract_id"  => contract_id,
+                   "context"      => { "expected_scope" => "history_valid_time",
+                                       "actual_fragment" => contract.fetch("fragment_class"),
+                                       "actual_surface" => contract.fetch("fragment_class") },
                    "gate"         => "AT-12" }
         end
 
@@ -193,6 +304,10 @@ module IgniterLang
                    "guard_at"    => "temporal_executor_phase1_kernel",
                    "reason_code" => ReasonCode::BIHISTORY_EXCLUDED,
                    "contract_id" => contract_id,
+                   "context"     => { "expected_scope" => "history_valid_time",
+                                      "actual_fragment" => "temporal",
+                                      "actual_surface" => "bihistory",
+                                      "actual_axis" => "bitemporal" },
                    "gate"        => "AT-7" }
         end
 
@@ -211,7 +326,7 @@ module IgniterLang
           "results"              => results,
           "observations_emitted" => @observations.length,
           "runtime_enforced"     => true,
-          "scope"                => "History[T].valid_time / MemoryBackend / proof-local",
+          "scope"                => phase1_backend_scope_label,
           "excluded"             => "Ledger, BiHistory, stream, OLAP, writes, production_cache" }
       end
 

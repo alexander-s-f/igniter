@@ -84,7 +84,7 @@
         ],
         "observations_emitted": 1,
         "runtime_enforced": true,
-        "scope": "History[T].valid_time / MemoryBackend / proof-local",
+        "scope": "History[T].valid_time / proof_local_memory_backend / proof-local",
         "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
         "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
       },
@@ -239,8 +239,14 @@
         "kind": "evaluation_refusal",
         "status": "blocked",
         "guard_at": "temporal_executor_phase1_kernel",
-        "reason_code": "runtime.temporal_executor_bihistory_excluded",
+        "reason_code": "runtime.temporal_scope_exclusion",
         "contract_id": "BiHistoryAxesTest",
+        "context": {
+          "expected_scope": "history_valid_time",
+          "actual_fragment": "temporal",
+          "actual_surface": "bihistory",
+          "actual_axis": "bitemporal"
+        },
         "gate": "AT-7",
         "compatibility_report_id": "compat/phase1/03a543c3f7bf4240"
       }
@@ -250,13 +256,17 @@
         "kind": "evaluation_refusal",
         "status": "blocked",
         "guard_at": "temporal_executor_phase1",
-        "reason_code": "runtime.non_temporal_not_covered",
+        "reason_code": "runtime.temporal_scope_exclusion",
         "message": "Phase 1 executor handles only TEMPORAL fragment contracts",
         "contract_id": "FakeCore",
         "as_of": "2026-05-09T12:00:00Z",
-        "context": {},
+        "context": {
+          "expected_scope": "history_valid_time",
+          "actual_fragment": "core",
+          "actual_surface": "core"
+        },
         "blocked_stage": "scope",
-        "compatibility_report_id": "compat/phase1/dc636242fa044fc6",
+        "compatibility_report_id": "compat/phase1/594508ec77d58012",
         "operation_check": {
           "temporal_executor_call_attempted": false,
           "live_tbackend_call_attempted": false,
