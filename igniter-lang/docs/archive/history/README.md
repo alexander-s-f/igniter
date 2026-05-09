@@ -13,6 +13,7 @@ reports when origin or archive evidence matters.
 | --- | --- |
 | [Origins: Arbor -> Ruby Igniter -> Igniter-Lang](./origins-arbor-to-igniter-lang.md) | Compresses external Arbor/Agentor origin notes and maps them into Ruby Igniter and Igniter-Lang. |
 | [History-S1 Snapshot Value Map](./history-s1-snapshot-value-map.md) | Compresses archive snapshots and playground research into accepted, implemented, superseded, research, parked, rejected, and value categories. |
+| [History-S2 Playgrounds Docs Rotation Map](./history-s2-playgrounds-docs-rotation-map.md) | Inventories `playgrounds/docs/`, separates private memory layers, and proposes rotation/cleanup boundaries without moving files. |
 
 ## Read Rule
 
