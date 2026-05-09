@@ -89,7 +89,8 @@ Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             R17 post-C1 repair PASS + safety PROCEED;
                             R18 cleanup tracks done;
                             R19 pre-signing repair PASS;
-                            addendum ready for Architect signature review
+                            R20 addendum signed for restricted Phase 1 live-read scope;
+                            post-signature fixture PASS; Phase 2/Ledger/cache/audit closed
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open
@@ -181,7 +182,7 @@ Round 12 landed:
   S3-R12-C4-P: TBackend adapter phase plan      ✅ Phase 1 non-Ledger; Phase 2 addendum
   S3-R12-X1-S: revision safety pressure         ✅ PROCEED to Architect review; superseded by R13 decision
 Round 13 landed:
-  S3-R13-C1-A: Gate 3 decision record           ✅ approved-restricted-phase1; live reads blocked
+  S3-R13-C1-A: Gate 3 decision record           ✅ approved-restricted-phase1; pre-live at R13 close
   S3-R13-C2-P: PROP-030A scope exclusion        ✅ canonical runtime.temporal_scope_exclusion
   S3-R13-C3-P: temporal read observation        ✅ minimum AT-10 envelope + proof PASS
   S3-R13-C4-P: CompatibilityReport composition ✅ single composed report proof PASS
@@ -217,6 +218,10 @@ Round 18 landed:
 Round 19 landed:
   S3-R19-C1-P: R18 cleanup regression rerun     ✅ 15/15 PASS; backend_identity observation asserted
   S3-R19-X1-S: addendum pre-signature pressure  ✅ PROCEED to Architect signature review
+Round 20 landed:
+  S3-R20-C1-A: live-read addendum signature     ✅ signed-approved-restricted-phase1-live-read
+  S3-R20-C2-P: first post-signature fixture     ✅ PASS 10/10; policy-only change; executor unchanged
+  S3-R20-X1-S: post-signature runtime pressure  ✅ PROCEED; no scope widening; low notes routed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion;
                   other syntax candidates require proposal tracks
@@ -280,13 +285,18 @@ Source .ig
        post-C1 lib-prep regression rerun        ✅ S3-R17 C1 14/14 PASS
        lib boundary spec sync                   ✅ S3-R17 C2 Ch7 proof-local boundary sync
        lib-prep safety pressure                 ✅ S3-R17 X1 PROCEED for proof-local Phase 1
-       live-read addendum draft                 ⚠️ draft-not-signed; ready for signature review
+       R18 live-read addendum draft             ⚠️ superseded by R20 signed status
        proof-local docstring warnings           ✅ S3-R18 C2 landed
        scope-exclusion reason aliases           ✅ S3-R18 C3 canonicalized
        backend identity guard                   ✅ S3-R18 C4 PASS; blocks Ledger/proxy/unmarked backends
        R18 cleanup regression rerun             ✅ S3-R19 C1 15/15 PASS
        addendum pre-signature pressure          ✅ S3-R19 X1 PROCEED to Architect signature review
-       evaluate TEMPORAL Phase 1 live           🚫 still blocked; addendum not signed
+       signed live-read addendum                ✅ S3-R20 C1 signed-approved-restricted-phase1-live-read
+       post-signature fixture                   ✅ S3-R20 C2 PASS 10/10; executor behavior unchanged
+       post-signature runtime pressure          ✅ S3-R20 X1 PROCEED; no widened surface
+       evaluate TEMPORAL Phase 1 live           ✅ authorized only for signed addendum scope:
+                                                   History[T] valid_time, explicit as_of,
+                                                   MemoryBackend or explicit non-Ledger Phase 1 backend
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -320,14 +330,18 @@ CompatibilityReport: load/evaluate split + descriptor mapping ✅; report-only m
 Package descriptor:  ratified Gate 2 metadata consumed into CompatibilityReport ✅; report-only, no live binding
 Executor boundary:   positive executor/live-binding flags modeled ✅; Phase 1 approval restricted; live/Phase2 gates still required
 Gate 3 prerequisites: Gate 2 ratified ✅; PROP-030 drafted ✅; token report proof ✅; guarded enforcement ✅; cache-key proof ✅
-Gate 3 decision:     approved-restricted-phase1 ✅; implementation-prep may continue; live reads blocked
+Gate 3 decision:     approved-restricted-phase1 ✅; R20 signed addendum authorizes restricted Phase 1 live reads only
+                     inside the signed addendum scope; all excluded surfaces remain closed
 Pre-live closed:      composition track ✅; observation track ✅; scope errata ✅; scope fixture ✅; authority URI wording ✅; Ch7 sync ✅;
                       ordering fixed ✅; AT-2 closed ✅; AT-9 proof-local exact URI match ✅; regression 17/17 PASS ✅;
                       R16 C1 lib-prep boundary PASS 17/17 ✅; post-C1 regression rerun 14/14 PASS ✅;
                       Ch7 lib-boundary sync rerun ✅; lib-prep safety pressure PROCEED ✅;
                       proof-local docstrings ✅; reason-code aliases ✅; backend identity guard ✅
+Live-read addendum:  signed-approved-restricted-phase1-live-read ✅; caller may pass `gate3_authorized: true`
+                     only with signed-addendum invocation evidence and only inside the restricted Phase 1 scope.
+                     Executor behavior unchanged; Phase1 does not self-authorize.
 Pre-signing remaining:
-                      explicit Architect signature/status change only. Live reads remain blocked.
+                      none for restricted Phase 1 live-read addendum; closed by S3-R20-C1-A.
 Pre-production remaining:
                       production signing/registry; durable observation persistence; full report/audit persistence; Phase 2 addendum gaps
 Runtime observations: proof-backed ⏳ production persistence open
@@ -354,9 +368,9 @@ S3-R10 result:        package descriptor consumption + approval-token report/run
 S3-R11 result:        restricted Gate 3 request package drafted; X1 held routing until request revision
 S3-R12 result:        Gate 3 request revision fixed HOLD blockers; X1 routed to Architect review
 S3-R13 result:        Architect approved restricted Gate 3 Phase 1 implementation; X1 found no auth leaks;
-                      live reads remain blocked until implementation/pre-live/regression pass
+                      at R13 close, live reads were blocked pending implementation/pre-live/regression pass
 S3-R14 result:        Phase 1 proof-local implementation-prep landed; X1 found no live-eval/Ledger/BiHistory/cache leak;
-                      live reads remain blocked until AT-2/AT-9/order gaps and regression pass;
+                      at R14 close, live reads were blocked pending AT-2/AT-9/order gaps and regression pass;
                       C7-C10 pressure slices landed as non-canon product/syntax pressure
 S3-R15 result:        ordering fixed; AT-2 closed; AT-9 proof-local PASS; regression chain 17/17 PASS;
                       runtime-temporal-executor-lib-prep-v0 may proceed, still not live-read authorization
@@ -364,28 +378,32 @@ S3-R16 result:        lib/ Phase1 executor boundary landed and proves AT-2/4/5/6
                       C2/C3 were stale-blocked records from before C1 landed and are now superseded by R17 repair;
                       no R16 lib-prep safety-pressure verdict existed; live reads remained blocked at R16 close
 S3-R17 result:        post-C1 repair closed the R16 async-order gap: regression rerun 14/14 PASS, Ch7 spec sync rerun done,
-                      X1 safety pressure PROCEED for proof-local Phase 1. Live-read addendum can be drafted as an
-                      Architect decision route, but non-proof live reads remain blocked until the addendum exists and
-                      pre-production items are handled.
+                      X1 safety pressure PROCEED for proof-local Phase 1. At R17 close, live-read addendum could be
+                      drafted as an Architect route; R20 later signed the restricted Phase 1 addendum.
 S3-R18 result:        addendum drafted with status draft-not-signed; proof-local docstrings, canonical reason aliasing,
                       and backend identity guard landed. X1 said cleanup tracks PROCEED and routed two pre-signing
                       conditions; R19 supersedes those conditions as closed. Live reads were not authorized.
 S3-R19 result:        pre-signing repair closed the R18 hold: post-R18 regression rerun PASS 15/15, backend_identity
-                      observation assertion covered, and addendum guard order now matches implementation. X1 says PROCEED
-                      to Architect signature review. Blocker 6 remains: explicit Architect signature/status update.
-                      Live reads are still not authorized.
+                      observation assertion covered, and addendum guard order now matches implementation. X1 said PROCEED
+                      to Architect signature review. At R19 close, blocker 6 remained; R20 later closed it by signature.
+S3-R20 result:        Architect signed the live-read addendum as `signed-approved-restricted-phase1-live-read`.
+                      Restricted Phase 1 non-proof reads are authorized only within the signed addendum scope:
+                      History[T] valid_time, single explicit as_of, MemoryBackend or explicitly named non-Ledger
+                      Phase 1 backend, no durable side effects, no production cache, no Ledger binding.
+                      First post-signature fixture PASS 10/10 and X1 PROCEED confirm policy-only change,
+                      unchanged guard order, no scope widening, and all excluded surfaces remain closed.
 ```
 
 ### Spec Freshness
 
 | Surface | Freshness | Current anchor | Remaining doc debt |
 |---------|-----------|----------------|--------------------|
-| Agent context | ✅ current S3-R18 | `docs/agent-context.md` | Keep next movement in sync after each status round |
+| Agent context | ✅ current S3-R20 | `docs/agent-context.md` | Keep next movement in sync after each status round |
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
-| Ch7 Runtime | ✅ synced through R17 lib boundary | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0` | Ch7 names `IgniterLang::TemporalExecutor::Phase1` as proof-local boundary with `gate3_authorized: false`; live reads remain blocked |
+| Ch7 Runtime | ✅ synced through R17 lib boundary; R20 addendum signed | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0` | R20 authorizes restricted Phase 1 non-proof reads only inside signed addendum scope; Phase 2/Ledger/BiHistory/cache/audit remain closed |
 | Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
@@ -403,9 +421,9 @@ DOC-DEBT-04  Keep PROP-029 proposal-only until parser/typechecker proof acceptan
 DOC-DEBT-05  Sync Ch6 for optional invariant source_metadata/source_span.
 DOC-DEBT-06  Keep value-index.md compact; hoist durable signals, not routine evidence.
 DOC-DEBT-07  Gate 3 decision is approved-restricted-phase1:
-             Phase 1 implementation-prep and R18 cleanup are proof-local;
-             live reads remain blocked until addendum pre-signing conditions
-             close and Architect explicitly signs/updates the addendum status.
+             Phase 1 implementation-prep and R18 cleanup were proof-local;
+             R20 signed the restricted Phase 1 live-read addendum. Do not
+             infer Phase 2/Ledger/cache/audit authorization from that signature.
 DOC-DEBT-08  S3-R14 proof-local Phase 1 prep landed:
              scope fixture, report preflight, executor preflight, Ch7 sync,
              and authority URI wording are current.
@@ -422,8 +440,8 @@ DOC-DEBT-11  General-purpose pressure is pressure-only:
              before syntax, runtime, or product claims.
 DOC-DEBT-12  S3-R16 lib-prep C1 landed:
              lib/igniter_lang/temporal_executor.rb provides a proof-local
-             Phase1 boundary; targeted proof PASS 17/17; live reads still
-             require a separate Architect addendum.
+             Phase1 boundary; targeted proof PASS 17/17; R20 later signed the
+             restricted Phase 1 live-read addendum.
 DOC-DEBT-13  S3-R16 async-order repair:
              phase1-lib-prep-regression-chain-v0 and
              runtime-temporal-executor-lib-boundary-spec-sync-v0 were recorded
@@ -431,19 +449,29 @@ DOC-DEBT-13  S3-R16 async-order repair:
              spec-sync rerun, and safety pressure.
 DOC-DEBT-14  S3-R17 post-C1 repair landed:
              regression rerun 14/14 PASS; Ch7 lib-boundary sync rerun done;
-             safety pressure PROCEED for proof-local Phase 1. Live-read
-             addendum may be drafted, but production/live enablement still
-             requires Architect decision and routed pre-production safeguards.
+             safety pressure PROCEED for proof-local Phase 1. R20 later signed
+             the restricted addendum; production/Phase 2 enablement still
+             requires separate Architect decision and routed safeguards.
 DOC-DEBT-15  S3-R18 addendum/cleanup landed:
              addendum is drafted-not-signed; proof-local docstrings,
              reason-code aliasing, and backend identity guard are done.
              R19 closed post-R18 full regression rerun and addendum guard-order
-             amendment. Live reads remain blocked until Architect signature.
+             amendment. R20 supersedes this with signed restricted Phase 1 status.
 DOC-DEBT-16  S3-R19 pre-signing repair landed:
              regression rerun 15/15 PASS; addendum guard order matches
              implementation; X1 says PROCEED to Architect signature review.
-             Signing record should cite 15/15 PASS and attribute guard-order
+             R20 signing record cites 15/15 PASS and attributes guard-order
              amendment to S3-R18-X1 PS-2.
+DOC-DEBT-17  S3-R20 signature landed:
+             live-read addendum is signed-approved for restricted Phase 1 only;
+             first post-signature fixture PASS 10/10 proves policy-only change
+             and no executor drift. Keep Phase 2, Ledger, BiHistory, stream,
+             OLAP, production cache, production signing/registry, and durable
+             audit closed unless a separate Architect decision opens them.
+DOC-DEBT-18  S3-R20 post-signature low notes:
+             draft-vs-signed comparison currently depends on git history;
+             `gate3_authorized` remains caller honor-system in Phase 1;
+             next code-touching track should rerun an equivalent full chain.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes

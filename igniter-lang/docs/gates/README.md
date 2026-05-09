@@ -35,7 +35,7 @@ research proves boundary semantics (proof-local, report-only)
 | Gate | Status | Scope |
 |------|--------|-------|
 | Gate 2 — descriptor metadata | ✅ ratified | Metadata-only descriptor package exposure; no live binding |
-| Gate 3 — live TBackend / executor | approved-restricted | Phase 1 implementation only; live reads pre-live blocked; no Ledger/BiHistory/cache |
+| Gate 3 — live TBackend / executor | signed-approved-restricted Phase 1 | Restricted Phase 1 non-proof reads authorized only inside signed addendum scope; no Ledger/BiHistory/cache/audit |
 
 ---
 
@@ -43,7 +43,7 @@ research proves boundary semantics (proof-local, report-only)
 
 ```text
 Gate 3 scope: live Ledger/TBackend read-write-replay, runtime executor, production cache
-Gate 3 state: APPROVED-RESTRICTED-PHASE1
+Gate 3 state: SIGNED-APPROVED-RESTRICTED-PHASE1-LIVE-READ
 
 Request: runtime-temporal-executor-gate3-request-v0.md
   Proposed restricted scope: live TEMPORAL History[T] valid_time evaluation only
@@ -54,8 +54,8 @@ Decision: gate3-decision-record-v0.md
   Authorized: Phase 1 TEMPORAL History[T] valid_time executor implementation
   Adapter: proof-local or non-Ledger abstract TBackend only
   Authority: architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09
-  Pre-live: blocked until composition, observation, scope-exclusion errata,
-    AT-1..AT-12, and regression proof chain pass
+  Pre-live: closed for restricted Phase 1 by R20 signed addendum; live reads
+    now authorized only within signed addendum scope
   Phase 2: real Ledger-backed adapter requires explicit Architect addendum
 
 Safety review: gate3-decision-safety-pressure-v0.md
@@ -77,10 +77,22 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
   R18 cleanup: proof-local docstrings, reason-code aliasing, and backend
     identity guard landed
   R18 safety pressure: PROCEED for cleanup tracks; two pre-signing conditions
-    remain
+    routed and later closed by R19
   R19 repair: post-R18 regression rerun PASS 15/15; guard-order amendment
     confirmed; X1 PROCEED to Architect signature review
-  Still blocked before live reads: explicit Architect signature/status change
+  R20 signature: addendum signed-approved-restricted-phase1-live-read
+  R20 post-signature fixture: PASS 10/10; signing is policy-only, executor
+    guard order unchanged, excluded surfaces remain closed
+  R20 post-signature pressure: PROCEED; no widened surface; low notes routed
+
+Authorized signed-addendum scope:
+  IgniterLang::TemporalExecutor::Phase1
+  History[T] valid_time read
+  single explicit as_of coordinate
+  MemoryBackend or explicitly named non-Ledger Phase 1 backend
+  no durable side effects, production cache, Ledger package binding, BiHistory,
+    stream/OLAP, writes, replay, compact, subscribe, production signing/registry,
+    or durable audit
 ```
 
 ---
@@ -98,15 +110,17 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
 | Dedicated lib-prep regression chain | PASS post-C1 | R17 rerun records 14/14 PASS across base chain, pre-live fixtures, C1 proof, Stage 1, and Stage 2 |
 | Lib boundary spec sync | done post-C1 | R17 Ch7 sync names `IgniterLang::TemporalExecutor::Phase1` as proof-local boundary, not language semantics |
 | Lib-prep safety pressure | PROCEED proof-local | S3-R17-X1 confirms eight scope guarantees; routes pre-production items |
-| Live-read decision addendum | draft-not-signed / ready for signature review | S3-R19 evidence closes blockers 1-5; live reads remain blocked until explicit Architect signature/status change |
+| Live-read decision addendum | signed-approved-restricted-phase1-live-read | S3-R20-C1-A closes signature blocker; `gate3_authorized: true` allowed only by callers that cite the signed addendum and stay inside the restricted scope |
 | Proof-local authority/observation comments | done | S3-R18 C2 clarifies authority URI is not cryptographic, observations are in-memory/non-audit, and `gate3_authorized` is caller honor-system |
 | Scope-exclusion reason aliases | done | S3-R18 C3 canonicalizes lib out-of-scope emissions to `runtime.temporal_scope_exclusion`; legacy aliases retained |
 | Backend identity guard | done Phase 1 / Phase 2 still closed | S3-R18 C4 blocks unmarked, Ledger-backed, Ledger proxy, and malformed identity backends before scope/cache/kernel/read |
 | Addendum safety pressure | PROCEED with pre-signing conditions | S3-R18-X1 finds no hidden live-read path; requires post-R18 full regression rerun and guard-order amendment before signature |
 | Post-R18 full regression rerun | PASS / closed | S3-R19 C1 records 15/15 PASS and `observation.backend_identity_emitted: ok` |
 | Addendum guard-order amendment | done / closed | Draft now matches implementation: `approval_token -> gate_state -> backend_identity -> scope -> cache_key -> executor_backend` |
-| Addendum pre-signature pressure | PROCEED to Architect review | S3-R19-X1 closes blockers 1-5; blocker 6 remains Architect signature/status update |
-| Architect signature/status update | required for authorization | Until signed or status-updated by Architect, live reads remain blocked |
+| Addendum pre-signature pressure | PROCEED to Architect review | S3-R19-X1 closed blockers 1-5; superseded by S3-R20 signature |
+| Architect signature/status update | done | S3-R20-C1-A signs the addendum for restricted Phase 1 only |
+| First post-signature fixture | PASS 10/10 | S3-R20-C2-P proves policy-only change, unchanged guard order, MemoryBackend and explicit non-Ledger paths pass, excluded surfaces remain closed |
+| Post-signature runtime pressure | PROCEED | S3-R20-X1 confirms no scope widening or behavior drift; low traceability/honor-system/full-chain notes remain non-blocking |
 | Runtime authority registry | not defined | Required before Phase 2 / production authority-revocation work; not a Phase 1 blocker |
 | Real Ledger adapter/package binding | closed | Requires explicit Architect addendum after Phase 1 |
 | BiHistory / transaction-time | closed | Requires separate gate; cannot be added by quiet Phase 1/2 addendum |
@@ -124,5 +138,5 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
 
 | File | Card | Status | Scope |
 |------|------|--------|-------|
-| [gate3-decision-record-v0.md](gate3-decision-record-v0.md) | S3-R13-C1-A | approved-restricted-phase1 | Phase 1 implementation only: TEMPORAL History[T] valid_time via abstract proof-local/non-Ledger TBackend; live reads blocked until pre-live conditions pass |
-| [gate3-live-read-decision-addendum-v0.md](gate3-live-read-decision-addendum-v0.md) | S3-R18-C1-A / S3-R19 repair | draft-not-signed / ready for signature review | Draft for first restricted Phase 1 non-proof read path; evidence blockers closed, Architect signature still required |
+| [gate3-decision-record-v0.md](gate3-decision-record-v0.md) | S3-R13-C1-A | approved-restricted-phase1 | Phase 1 implementation only: TEMPORAL History[T] valid_time via abstract proof-local/non-Ledger TBackend; pre-live blockers later closed by R20 signed addendum |
+| [gate3-live-read-decision-addendum-v0.md](gate3-live-read-decision-addendum-v0.md) | S3-R20-C1-A | signed-approved-restricted-phase1-live-read | Signed addendum for first restricted Phase 1 non-proof read path; Phase 2/Ledger/BiHistory/stream/OLAP/cache/durable audit remain closed |

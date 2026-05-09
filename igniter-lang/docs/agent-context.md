@@ -102,13 +102,18 @@ Source .ig
        post-C1 lib-prep regression rerun        ✅ 14/14 PASS
        lib boundary spec sync                   ✅ Ch7 proof-local boundary sync
        lib-prep safety pressure                 ✅ PROCEED for proof-local Phase 1
-       live-read addendum draft                 ⚠️ draft-not-signed; ready for signature review
+       R18 live-read addendum draft             ⚠️ superseded by R20 signed status
        proof-local docstring warnings           ✅ authority/observation/honor-system comments
        scope-exclusion reason aliases           ✅ canonical runtime.temporal_scope_exclusion
        backend identity guard                   ✅ blocks unmarked/Ledger/proxy backends before live paths
        R18 cleanup regression rerun             ✅ 15/15 PASS
        addendum pre-signature pressure          ✅ PROCEED to Architect signature review
-       evaluate TEMPORAL Phase 1 live           🚫 blocked; addendum not signed
+       signed live-read addendum                ✅ signed-approved-restricted-phase1-live-read
+       first post-signature fixture             ✅ PASS 10/10; policy-only change
+       post-signature runtime pressure          ✅ PROCEED; no widened surface
+       evaluate TEMPORAL Phase 1 live           ✅ authorized only inside signed addendum scope:
+                                                   History[T] valid_time, explicit as_of,
+                                                   MemoryBackend or explicit non-Ledger Phase 1 backend
        memoize TEMPORAL                         🚫 proof-local only
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -148,12 +153,12 @@ legacy/internal comparison, not the production path.
 | Stage 3 | OPEN | Work within current lane/card. |
 | Typed emission | SWITCHED | Production orchestrator uses `emit_typed(typed)`. |
 | TEMPORAL load | PROOF-LOCAL | Load accepts valid TEMPORAL `.igapp/` for inspection. |
-| TEMPORAL evaluate | READY FOR SIGNATURE REVIEW / LIVE BLOCKED | R19 closed pre-signing repair: 15/15 regression PASS, backend_identity observation asserted, guard order amended, and X1 says PROCEED to Architect signature review. Live reads remain blocked until the addendum is signed. |
+| TEMPORAL evaluate | SIGNED-RESTRICTED PHASE 1 | R20 signed the live-read addendum and C2 fixture PASS 10/10 proves policy-only change. `gate3_authorized: true` may be caller-passed only with signed-addendum invocation evidence and only for History[T] valid_time, explicit as_of, MemoryBackend or explicitly named non-Ledger Phase 1 backend. |
 | Runtime cache | PROOF-LOCAL | Cache key/memoization proofs exist; no production cache. |
 | TBackend Gate 1 | PASS | Report-only descriptor consumption fixture. |
 | TBackend Gate 2 | RATIFIED | Metadata-only package descriptor exposure and report-only descriptor mapping are trusted report metadata; no runtime authority. |
 | Gate 3 prerequisite package | LANDED | Gate 2 ratified, PROP-030 drafted, token report proof, guarded enforcement, executor cache-key proof, and package descriptor report consumption landed; this is not Gate 3 authorization. |
-| Gate 3 Phase 1 | APPROVED-RESTRICTED / READY FOR SIGNATURE REVIEW | Addendum remains draft-not-signed, but evidence blockers 1-5 are closed. Blocker 6 is the Architect signature/status update. Non-proof live reads remain blocked until signed. Phase 2 stays closed. |
+| Gate 3 Phase 1 | SIGNED-APPROVED-RESTRICTED LIVE READ | R20 closes the signature blocker for the restricted Phase 1 addendum only. Executor does not self-authorize; caller policy/evidence owns `gate3_authorized: true`. Phase 2 stays closed. |
 | TBackend Gate 3 Phase 2 | CLOSED | Real Ledger adapter/package binding, BiHistory, stream/OLAP, writes/replay/compact/subscribe, and production cache need separate Architect approval/addendum as specified. |
 | Release publish | CLOSED | `bin/release-gate` may build artifacts; RubyGems publish needs explicit approval and MFA owner action. |
 | Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; S3-R14 C7-C10 added truth-system, HTTP/knowledge/legal, emergency mesh, and marketplace pressure; no syntax is canon without proposal/proof. |
@@ -240,14 +245,12 @@ Do not run broad expensive suites just to curate maps.
 
 Recommended next routing from the latest status map:
 
-1. Architect signature review for `gate3-live-read-decision-addendum-v0.md`; live reads remain blocked until signed
-2. signing record should cite S3-R19-C1-P 15/15 PASS and attribute guard-order amendment to S3-R18-X1 PS-2
-3. first post-signature fixture after any signed status change; verify no behavior change accompanies signing
-4. `compatibility-report-persistence-audit-v0`
-5. optional addendum §6 wording update to cite 15/15 PASS as current evidence
-6. `gate3-authority-registry-v0` before Phase 2
-7. `gate3-phase2-addendum-process-v0` before Phase 2
-8. `invariant-persistence-boundary-v0`
-9. `spec-ch6-invariant-source-metadata-sync-v0`
-10. `external-http-json-capability-pressure-v0` as pressure backlog, not parser/runtime implementation
-11. `controlled-agent-replication-boundary-pressure-v0` as pressure backlog before any emergency mesh fixture
+1. `compatibility-report-persistence-audit-v0` for AT-10 / observation persistence gap
+2. `gate3-authority-registry-v0` for authority revocation/rotation before production or Phase 2
+3. next code-touching Phase 1 runtime track should rerun an equivalent full proof chain
+4. preserve signed scope: Phase 1 History[T] valid_time only; no Ledger/BiHistory/stream/OLAP/cache/audit widening
+5. `gate3-phase2-addendum-process-v0` before any real Ledger adapter/package binding
+6. `invariant-persistence-boundary-v0`
+7. `spec-ch6-invariant-source-metadata-sync-v0`
+8. `external-http-json-capability-pressure-v0` as pressure backlog, not parser/runtime implementation
+9. `controlled-agent-replication-boundary-pressure-v0` as pressure backlog before any emergency mesh fixture

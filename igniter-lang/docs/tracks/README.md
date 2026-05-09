@@ -28,6 +28,15 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 20 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../gates/gate3-live-read-decision-addendum-v0.md` | signed-approved-restricted-phase1-live-read | Architect signed the restricted Phase 1 live-read addendum; callers may pass `gate3_authorized: true` only with signed-addendum invocation evidence and only inside the named scope |
+| `gate3-first-post-signature-fixture-v0.md` | done | Post-signature fixture PASS 10/10; signing changes caller policy/status only; executor guard order unchanged; Ledger/BiHistory/stream/OLAP/write/cache paths remain closed |
+| `../discussions/gate3-post-signature-runtime-pressure-v0.md` | complete — PROCEED | X1 confirms no scope widening and no behavior drift; routes low traceability/honor-system/full-chain notes as non-blocking |
+| `stage3-round20-status-curation-v0.md` | done | R20 status/index/context/gate sync — this track |
+
 ## Stage 3 Round 19 Evidence
 
 | Track | Status | Notes |
@@ -42,7 +51,7 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `../gates/gate3-live-read-decision-addendum-v0.md` | draft-not-signed | Addendum drafted for restricted Phase 1 non-proof read path; explicitly does not open live reads or authorize `gate3_authorized: true` |
+| `../gates/gate3-live-read-decision-addendum-v0.md` | superseded by R20 signed status | R18 drafted the addendum; R20 later signed the same file for restricted Phase 1 only |
 | `temporal-executor-proof-local-docstring-amendment-v0.md` | done | Source comments clarify `GATE3_AUTHORITY_REF` is source-code-parity only, `observations` are in-memory/non-audit, and `gate3_authorized` is caller honor-system |
 | `runtime-temporal-scope-exclusion-reason-alias-v0.md` | done | Lib emissions canonicalized to `runtime.temporal_scope_exclusion`; legacy narrow strings retained as aliases; proof PASS |
 | `phase1-backend-identity-guard-v0.md` | done | Code-level backend identity guard blocks unmarked, Ledger-backed, Ledger proxy, and malformed backends before scope/cache/kernel/read; proof PASS |
@@ -110,7 +119,7 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `../gates/gate3-decision-record-v0.md` | approved-restricted-phase1 | Architect decision authorizes Phase 1 TEMPORAL History[T] valid_time executor implementation via abstract proof-local/non-Ledger TBackend; live reads remain blocked until pre-live conditions, AT-1..AT-12, and regression proof chain pass |
+| `../gates/gate3-decision-record-v0.md` | approved-restricted-phase1 | Architect decision authorizes Phase 1 TEMPORAL History[T] valid_time executor implementation via abstract proof-local/non-Ledger TBackend; at R13 close, live reads were blocked until pre-live conditions, AT-1..AT-12, and regression proof chain passed |
 | `../proposals/PROP-030A-temporal-scope-exclusion-errata-v0.md` | proposal | Canonical scope-exclusion refusal code: `runtime.temporal_scope_exclusion`; does not authorize new executor/backend scope |
 | `prop-030-temporal-scope-exclusion-errata-v0.md` | done | Formalizes PROP-030A errata and refusal mapping for out-of-scope TEMPORAL executor attempts |
 | `prop-005-temporal-read-observation-v0.md` | done | Defines minimum `temporal_read_observation` envelope for authorized live History[T] reads; proof PASS; no live TBackend/Ledger eval |
@@ -213,7 +222,7 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 | `docs/spec/ch4-fragment-classification.md` | synced | `spec-ch4-temporal-fragment-sync-v0.md` | TEMPORAL fragment and node/value split current |
 | `docs/spec/ch5-compiler-pipeline.md` | synced + discharged + metadata | `spec-ch5-emit-typed-sync-v0.md`; `invariant-typed-shape-discharge-v0.md`; `invariant-source-metadata-preservation-v0.md` | `emit_typed` production path current; invariant source metadata preservation landed |
 | `docs/spec/ch6-semanticir.md` | synced + stream/invariant metadata | `spec-ch6-semanticir-temporal-sync-v0.md`; `stream-replay-metadata-emission-v0.md`; `invariant-source-metadata-preservation-v0.md` | STREAM replay metadata emitted; invariant source_metadata/source_span needs spec sync |
-| `docs/spec/ch7-runtime.md` | synced + R15 green | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `executor-approval-token-report-proof-v0.md`; `guarded-runtime-executor-approval-enforcement-v0.md`; `compatibility-report-package-descriptor-consumption-v0.md`; `../gates/gate3-decision-record-v0.md`; `../proposals/PROP-030A-temporal-scope-exclusion-errata-v0.md`; `prop-005-temporal-read-observation-v0.md`; `compatibility-report-composition-v0.md`; `spec-ch7-gate3-approval-sync-v0.md`; `runtime-temporal-executor-composition-integration-v0.md`; `executor-approval-authority-ref-proof-v0.md`; `phase1-prelive-regression-chain-v0.md` | Lib-prep may proceed; live reads remain blocked until prepared boundary proves same constraints |
+| `docs/spec/ch7-runtime.md` | synced + R20 signed addendum | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `executor-approval-token-report-proof-v0.md`; `guarded-runtime-executor-approval-enforcement-v0.md`; `compatibility-report-package-descriptor-consumption-v0.md`; `../gates/gate3-decision-record-v0.md`; `../proposals/PROP-030A-temporal-scope-exclusion-errata-v0.md`; `prop-005-temporal-read-observation-v0.md`; `compatibility-report-composition-v0.md`; `spec-ch7-gate3-approval-sync-v0.md`; `runtime-temporal-executor-composition-integration-v0.md`; `executor-approval-authority-ref-proof-v0.md`; `phase1-prelive-regression-chain-v0.md`; `gate3-first-post-signature-fixture-v0.md` | Restricted Phase 1 live read is signed-authorized only inside addendum scope; Phase 2/Ledger/BiHistory/cache/audit closed |
 | `docs/proposals/README.md` | synced + PROP-030A pending index check | `proposal-lifecycle-index-sync-v0.md`; `prop-029-entrypoint-section-surface-v0.md`; `prop-030-executor-approval-token-contract-v0.md`; `../proposals/PROP-030A-temporal-scope-exclusion-errata-v0.md` | Stage 2 closed, PROP-028 implementation-partial, PROP-022A experiment-pass, PROP-029/030 proposal-only; PROP-030A landed as proposal evidence |
 
 ---
@@ -403,12 +412,16 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| Architect signature review for `gate3-live-read-decision-addendum-v0.md` | Review addendum for explicit signed/status update; signing is the first possible live-read authorization event | Architect Supervisor | ready for review |
-| signing-record citation notes | Cite S3-R19-C1-P 15/15 PASS and attribute guard-order amendment to S3-R18-X1 PS-2 | Architect Supervisor | non-blocking note |
-| first post-signature fixture | If addendum is signed, verify no behavior change accompanies signing and caller must reference signed document | Research Agent | after signature only |
+| `compatibility-report-persistence-audit-v0` | Persist report decisions and audit receipts for AT-10; keep durable audit separate from in-memory Phase 1 observations | Research Agent / Bridge Agent | recommended next |
+| `gate3-authority-registry-v0` | Define trusted authority/revocation/rotation source before production or Phase 2; do not imply live Ledger binding | Bridge Agent + Research Agent | recommended next |
+| post-signature full-chain rerun on next code touch | Rerun an equivalent full proof chain when a follow-up changes runtime code; S3-R20 signature was policy-only | Research Agent | conditional |
+| Phase 2 Ledger adapter addendum | Separate Architect decision for real Ledger adapter/package binding; not enabled by signed Phase 1 addendum | Architect Supervisor / Bridge Agent | closed until separate decision |
+| Architect signature review for `gate3-live-read-decision-addendum-v0.md` | Review addendum for explicit signed/status update; signing is the first possible live-read authorization event | Architect Supervisor | done in S3-R20-C1-A |
+| signing-record citation notes | Cite S3-R19-C1-P 15/15 PASS and attribute guard-order amendment to S3-R18-X1 PS-2 | Architect Supervisor | done in S3-R20-C1-A |
+| first post-signature fixture | Verify no behavior change accompanies signing and caller must reference signed document | Research Agent | done in S3-R20-C2-P |
 | `phase1-r18-cleanup-regression-rerun-v0` | Re-run the full proof chain after R18 C2/C3/C4 code changes; include observation backend_identity assertion | Research Agent | done |
 | `gate3-live-read-decision-addendum-v0` guard-order amendment | Amend draft order to `approval_token -> gate_state -> backend_identity -> scope -> cache_key -> executor_backend` | Architect Supervisor / Meta Expert | done |
-| `gate3-live-read-decision-addendum-v0` | Draft Architect decision addendum for Phase 1 live reads only; drafting is done; live reads still blocked until signed | Architect Supervisor | draft-not-signed / ready for signature review |
+| `gate3-live-read-decision-addendum-v0` | Signed addendum for restricted Phase 1 live reads only; Phase 2/Ledger/BiHistory/stream/OLAP/cache/audit still excluded | Architect Supervisor | signed-approved-restricted-phase1-live-read |
 | proof-local authority/observation docstring amendments | Add source comments clarifying `GATE3_AUTHORITY_REF` is not cryptographic authorization and `observations` are in-memory, not audit receipts | Implementation Agent | done |
 | `runtime-temporal-scope-exclusion-reason-alias-v0` | Reconcile lib proof-local reason codes with canonical `runtime.temporal_scope_exclusion` before operators see codes | Compiler/Grammar Expert | done |
 | `phase1-backend-identity-guard-v0` | Add backend identity guard before any Phase 2 adapter binding can make `gate3_authorized: true` reach a real backend | Implementation Agent / Bridge Agent | done |
@@ -418,7 +431,6 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 | `runtime-temporal-executor-lib-prep-v0` | Prepare lib-bound Phase 1 History[T] valid_time path using composed CompatibilityReport, token-before-gate preflight, authority_ref exact match, scope/cache/observation guards | Implementation Agent | landed |
 | `gate3-authority-registry-v0` | Define trusted authority/revocation source for PROP-030 tokens before Phase 2; do not imply live Ledger binding | Bridge Agent + Research Agent | before Phase 2 |
 | `gate3-phase2-addendum-process-v0` | Define explicit Architect addendum route for real Ledger adapter/package binding after Phase 1 | Meta Expert / Bridge Agent | before Phase 2 |
-| `compatibility-report-persistence-audit-v0` | Persist report decisions and audit receipts; keep live operations gated until Phase 1 AT/regression pass | Research Agent / Bridge Agent | after Phase 1 preflight |
 | `external-http-json-capability-pressure-v0` | Define minimum HTTP/JSON capability profile: request, response, error, redaction, replay, receipt, and refusal cases | Compiler/Grammar Expert + Bridge Agent | pressure backlog |
 | `controlled-agent-replication-boundary-pressure-v0` | Define spawn intent/receipt, resource budget, authority inheritance, and refusal diagnostics before emergency mesh fixtures | Research Agent + Bridge Agent | pressure backlog |
 | `data-role-vocabulary-specimen-v0` | Narrow `packet/event/receipt` pressure into evidence/receipt/proof vocabulary candidates without parser promotion | Compiler/Grammar Expert | pressure backlog |
