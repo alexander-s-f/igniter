@@ -156,6 +156,7 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 | [runtime-temporal-executor-lib-prep-safety-pressure-v0.md](runtime-temporal-executor-lib-prep-safety-pressure-v0.md) | S3-R17-X1-S | Did Phase1 enter lib/ with all eight scope guarantees intact after post-C1 regression? | complete — proceed; two pre-Phase-2 tracks |
 | [live-read-addendum-draft-safety-pressure-v0.md](live-read-addendum-draft-safety-pressure-v0.md) | S3-R18-X1-S | Did R18 cleanup tracks leave any hidden path from "addendum drafted" to live-read enablement? | complete — proceed; two pre-signing conditions |
 | [gate3-live-read-addendum-pre-signature-pressure-v0.md](gate3-live-read-addendum-pre-signature-pressure-v0.md) | S3-R19-X1-S | Are all addendum blockers closed after guard-order amendment and R19 regression rerun? | complete — PROCEED to Architect signature review |
+| [gate3-post-signature-runtime-pressure-v0.md](gate3-post-signature-runtime-pressure-v0.md) | S3-R20-X1-S | Did the signature widen scope and does the post-signature fixture confirm policy-only change? | complete — PROCEED |
 
 ---
 
