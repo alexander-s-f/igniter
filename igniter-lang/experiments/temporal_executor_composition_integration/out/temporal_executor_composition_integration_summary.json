@@ -1,0 +1,447 @@
+{
+  "kind": "temporal_executor_composition_integration_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R15-C2-P",
+  "track": "runtime-temporal-executor-composition-integration-v0",
+  "status": "PASS",
+  "at_coverage": {
+    "AT-2_compatibility_report_composed": {
+      "covered": true,
+      "evidence": [
+        "Phase1TemporalExecutorWithReport composes CompatibilityReport before execution kernel",
+        "happy path: kind=compatibility_report, composition.mode=single_report, split_fragments_allowed=false",
+        "runtime_enforced=true only when all checks pass and gate is open",
+        "split_report_and_enforcement → blocked at compatibility_report before any executor/gate/token/cache/backend path"
+      ]
+    }
+  },
+  "cases": {
+    "happy_path": {
+      "load": {
+        "status": "loaded",
+        "program_id": "semanticir/history-valid-te",
+        "artifact_ref": "igapp/semanticir/history-valid-te",
+        "temporal_contracts": [
+          "HistoryAxesTest"
+        ],
+        "runtime_execution": {
+          "evaluate": {
+            "decision": "refuse_temporal_contract",
+            "reason_code": "runtime.temporal_execution_unsupported"
+          },
+          "guard_at": "evaluate",
+          "guard_policy": "load_accept_evaluate_refuse",
+          "load": {
+            "decision": "accept_for_inspection",
+            "requires_contract_index": true
+          },
+          "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+          "status": "unsupported"
+        },
+        "runtime_enforced": true,
+        "phase1_scope": "History[T] valid_time"
+      },
+      "evaluate": {
+        "status": "ok",
+        "kind": "temporal_evaluation_result",
+        "contract_id": "HistoryAxesTest",
+        "results": [
+          {
+            "node": "price_at",
+            "axis": "valid_time",
+            "result": {
+              "kind": "some",
+              "value": "89.00"
+            },
+            "backend_observation": {
+              "kind": "history_access_observation",
+              "subject": "sku/prod-001/price",
+              "as_of": "2026-05-09T12:00:00Z",
+              "access": "point",
+              "selected_append_ref": "obs/history_append/b7463f3f6550299c",
+              "result": {
+                "kind": "some",
+                "value": "89.00"
+              },
+              "option_encoding": {
+                "some": {
+                  "kind": "some",
+                  "value": "<value>"
+                },
+                "none": {
+                  "kind": "none"
+                }
+              },
+              "observation_id": "obs/history_access/60bb4abcfa22bc61",
+              "observed_at": "2026-05-09T12:00:00Z",
+              "temporal": {
+                "axis": "valid_time",
+                "as_of": "2026-05-09T12:00:00Z",
+                "lifecycle": "session"
+              }
+            }
+          }
+        ],
+        "observations_emitted": 1,
+        "runtime_enforced": true,
+        "scope": "History[T].valid_time / MemoryBackend / proof-local",
+        "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+        "compatibility_report_id": "compat/composed/c7f0a61caecd5781"
+      },
+      "observations": [
+        {
+          "kind": "temporal_live_read_observation",
+          "contract_id": "HistoryAxesTest",
+          "node": "price_at",
+          "axis": "valid_time",
+          "subject": "sku/prod-001/price",
+          "as_of": "2026-05-09T12:00:00Z",
+          "result_present": true,
+          "backend_observation_ref": "obs/history_access/60bb4abcfa22bc61",
+          "persistence": "proof_local"
+        }
+      ],
+      "compatibility_report": {
+        "kind": "compatibility_report",
+        "format_version": "0.1.0",
+        "card": "S3-R13-C4-P",
+        "track": "compatibility-report-composition-v0",
+        "composition": {
+          "mode": "single_report",
+          "single_report_required": true,
+          "split_fragments_allowed": false
+        },
+        "artifact_ref": "igapp/semanticir/history-valid-te",
+        "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+        "fragment_class": "TEMPORAL",
+        "report_only": false,
+        "runtime_enforced": true,
+        "schema_check": {
+          "decision": "not_evaluated_here",
+          "independent_from_backend_descriptor": true
+        },
+        "backend_check": {
+          "decision": "trusted_metadata",
+          "status": "report_only",
+          "report_only": true,
+          "runtime_enforced": false,
+          "temporal_backend_descriptor": {
+            "source": "ratified_package_descriptor_metadata",
+            "descriptor_hash": "sha256:descriptor-proof",
+            "descriptor_registry_hash": "sha256:registry-proof",
+            "capabilities": [
+              "history_read"
+            ],
+            "history_axes": [
+              "valid_time"
+            ],
+            "cursor_policy": {
+              "ordered": "forward",
+              "cursor_kinds": [
+                "timestamp"
+              ],
+              "truncation_reported": true,
+              "tie_breaker": "timestamp_then_fact_id_required"
+            },
+            "diagnostics": {
+              "package_descriptor": {
+                "status": "ok",
+                "missing_ops": [],
+                "missing_hook_methods": [],
+                "missing_capabilities": [],
+                "missing_axes": [],
+                "schema_fingerprint_match": true
+              }
+            },
+            "warnings": [
+              "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+            ],
+            "non_authorization": {
+              "runtime_binding": false,
+              "ledger_reads": false,
+              "ledger_writes": false,
+              "ledger_replay": false
+            }
+          }
+        },
+        "runtime_gate_check": {
+          "gate": "tbackend_gate3",
+          "decision": "open",
+          "reason_code": "runtime.temporal_gate3_open",
+          "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+        },
+        "executor_approval_check": {
+          "decision": "ok",
+          "reason_code": "runtime.executor_approval_token_valid",
+          "token_ref": "approval/phase1-preflight/HistoryAxesTest",
+          "authority_ref": "architect-supervisor/proof-local"
+        },
+        "executor_readiness": {
+          "decision": "ok",
+          "executor_kind": "proof_local_memory_tbackend",
+          "fragment_class": "TEMPORAL",
+          "operation": "history_valid_time_read",
+          "reason_code": "runtime.temporal_executor_ready"
+        },
+        "cache_key_check": {
+          "decision": "ok",
+          "schema": "runtime-cache-key-v1",
+          "fragment": "TEMPORAL",
+          "required_coordinates": [
+            "valid_time"
+          ],
+          "reason_code": "runtime.temporal_cache_key_valid"
+        },
+        "composition_diagnostics": {
+          "kind": "compatibility_report_composition_diagnostic",
+          "status": "ok",
+          "problems": []
+        },
+        "evaluation_readiness": {
+          "decision": "ready",
+          "reason_code": "runtime.temporal_evaluation_ready",
+          "blocks_before_executor": false,
+          "blockers": []
+        },
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        },
+        "report_id": "compat/composed/c7f0a61caecd5781"
+      }
+    },
+    "split_report_rejected": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "compatibility_report_preflight",
+        "reason_code": "compatibility_report.split_report_rejected",
+        "blocked_stage": "compatibility_report",
+        "stage_trace": [
+          "compatibility_report"
+        ],
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "compatibility_report_id": "compat/composed/39bcc40a1d51db5b",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "cache_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false
+        }
+      },
+      "compatibility_report": {
+        "kind": "compatibility_report",
+        "format_version": "0.1.0",
+        "card": "S3-R13-C4-P",
+        "track": "compatibility-report-composition-v0",
+        "composition": {
+          "mode": "split_report_and_enforcement",
+          "single_report_required": true,
+          "split_fragments_allowed": false
+        },
+        "artifact_ref": "igapp/semanticir/history-valid-te",
+        "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+        "fragment_class": "TEMPORAL",
+        "report_only": true,
+        "runtime_enforced": false,
+        "schema_check": {
+          "decision": "not_evaluated_here",
+          "independent_from_backend_descriptor": true
+        },
+        "backend_check": {
+          "decision": "trusted_metadata",
+          "status": "report_only",
+          "report_only": true,
+          "runtime_enforced": false,
+          "temporal_backend_descriptor": {
+            "source": "ratified_package_descriptor_metadata",
+            "descriptor_hash": "sha256:descriptor-proof",
+            "descriptor_registry_hash": "sha256:registry-proof",
+            "capabilities": [
+              "history_read"
+            ],
+            "history_axes": [
+              "valid_time"
+            ],
+            "cursor_policy": {
+              "ordered": "forward",
+              "cursor_kinds": [
+                "timestamp"
+              ],
+              "truncation_reported": true,
+              "tie_breaker": "timestamp_then_fact_id_required"
+            },
+            "diagnostics": {
+              "package_descriptor": {
+                "status": "ok",
+                "missing_ops": [],
+                "missing_hook_methods": [],
+                "missing_capabilities": [],
+                "missing_axes": [],
+                "schema_fingerprint_match": true
+              }
+            },
+            "warnings": [
+              "descriptor bihistory_read is metadata evidence only; it does not prove physical BiHistory at(vt:, tt:) serving"
+            ],
+            "non_authorization": {
+              "runtime_binding": false,
+              "ledger_reads": false,
+              "ledger_writes": false,
+              "ledger_replay": false
+            }
+          }
+        },
+        "runtime_gate_check": {
+          "gate": "tbackend_gate3",
+          "decision": "open",
+          "reason_code": "runtime.temporal_gate3_open",
+          "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+        },
+        "executor_approval_check": {
+          "decision": "ok",
+          "reason_code": "runtime.executor_approval_token_valid",
+          "token_ref": "approval/phase1-preflight/HistoryAxesTest",
+          "authority_ref": "architect-supervisor/proof-local"
+        },
+        "executor_readiness": {
+          "decision": "ok",
+          "executor_kind": "proof_local_memory_tbackend",
+          "fragment_class": "TEMPORAL",
+          "operation": "history_valid_time_read",
+          "reason_code": "runtime.temporal_executor_ready"
+        },
+        "cache_key_check": {
+          "decision": "ok",
+          "schema": "runtime-cache-key-v1",
+          "fragment": "TEMPORAL",
+          "required_coordinates": [
+            "valid_time"
+          ],
+          "reason_code": "runtime.temporal_cache_key_valid"
+        },
+        "composition_diagnostics": {
+          "kind": "compatibility_report_composition_diagnostic",
+          "status": "blocked",
+          "problems": [
+            "compatibility_report.split_report_rejected"
+          ]
+        },
+        "evaluation_readiness": {
+          "decision": "blocked",
+          "reason_code": "compatibility_report.composition_blocked",
+          "blocks_before_executor": true,
+          "blockers": [
+            "compatibility_report.composition_blocked"
+          ]
+        },
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        },
+        "report_id": "compat/composed/39bcc40a1d51db5b"
+      }
+    },
+    "gate_closed": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "compatibility_report_preflight",
+        "reason_code": "runtime.temporal_gate3_closed",
+        "blocked_stage": "gate_state",
+        "stage_trace": [
+          "compatibility_report",
+          "approval_token",
+          "gate_state"
+        ],
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "compatibility_report_id": "compat/composed/e6ab7d0e5926ab4e",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "cache_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false
+        }
+      }
+    },
+    "missing_token": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "compatibility_report_preflight",
+        "reason_code": "runtime.executor_approval_missing",
+        "blocked_stage": "approval_token",
+        "stage_trace": [
+          "compatibility_report",
+          "approval_token"
+        ],
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "compatibility_report_id": "compat/composed/3d171a19fe4baa2a",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "cache_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false
+        }
+      }
+    }
+  },
+  "checks": {
+    "at2.happy_path.report_composed": true,
+    "at2.happy_path.report_single_mode": true,
+    "at2.happy_path.report_runtime_enforced": true,
+    "at2.happy_path.evaluate_ok": true,
+    "at2.happy_path.observation_emitted": true,
+    "at2.split_report.blocked_at_compatibility_report": true,
+    "at2.split_report.no_executor_call": true,
+    "report_preflight.gate_closed.blocked_at_gate_state": true,
+    "report_preflight.no_token.blocked_at_approval_token": true
+  },
+  "remaining_blockers": [
+    {
+      "blocker": "AT-9: production token authority / signature verification",
+      "current_state": "proof-local recorded-decision hash; no external registry or key infrastructure",
+      "gate3_ref": "gate3-decision-record-v0.md §Authority Registry",
+      "required_for": "Phase 2 Ledger adapter or production deployment"
+    },
+    {
+      "blocker": "AT-10: observation persistence",
+      "current_state": "observations emitted to in-memory array only",
+      "required_for": "invariant_persistence gap closure (Stage 2 deferred gap)"
+    },
+    {
+      "blocker": "TBackend adapter production binding (Phase 2)",
+      "current_state": "MemoryBackend proof-local only; no real Ledger or external TBackend",
+      "required_for": "Phase 2 Architect addendum (gate3-decision-record-v0.md §Q3 Option C)"
+    },
+    {
+      "blocker": "BiHistory evaluation excluded (AT-7)",
+      "current_state": "BiHistory refused at executor; Phase 1 = valid_time only",
+      "required_for": "separate gate request after at(vt:,tt:) serving proof"
+    },
+    {
+      "blocker": "Runtime authority registry",
+      "current_state": "not yet defined; active revocation paths: superseding gate decision, revocation doc, token expiry",
+      "required_for": "Phase 2 / production authority-revocation work"
+    }
+  ],
+  "scope": {
+    "authorized": "History[T] valid_time / proof-local MemoryBackend",
+    "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+    "live_tbackend": false,
+    "production_cache": false,
+    "gate3_production_open": false
+  }
+}
