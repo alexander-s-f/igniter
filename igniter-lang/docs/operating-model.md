@@ -122,6 +122,7 @@ Expert converts it into a card.
 |----------|------------|
 | Where are we now? | `docs/current-status.md` |
 | What should a new agent read? | `docs/README.md`, then this file |
+| What repeats every round/stage? | `docs/operating-scheduler.md` |
 | What is canonical language behavior? | `docs/spec/` and `language-spec.md` |
 | What is accepted but not fully implemented? | `docs/proposals/README.md` |
 | What proved a slice? | `docs/tracks/<track>.md` and matching experiment |
@@ -217,6 +218,11 @@ Do not read archives, old tracks, package docs, or external project docs unless
 the card explicitly names them.
 
 When adding a new role, start from `igniter-lang/roles/role-template.md`.
+
+Role-specific launch capsules live in `igniter-lang/handoff/` as onboarding
+cards. Use `igniter-lang/handoff/ONBOARDING_CARD_TEMPLATE.md` when creating a
+new one. Onboarding cards should be refreshed at stage open/close and whenever
+gate state or role ownership changes. See `docs/operating-scheduler.md`.
 
 ---
 

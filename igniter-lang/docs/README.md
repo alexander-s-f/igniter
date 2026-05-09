@@ -15,6 +15,7 @@ Agent current context       → agent-context.md  (read this first for current h
 Hoisted value index         → value-index.md  (durable ideas + links back to archaeology)
 Language reference             → language-spec.md
 Operating model                → operating-model.md
+Operating scheduler            → operating-scheduler.md
 Stage 1 spec (frozen)          → spec/  (ch1–ch9)
 Current scoreboard             → current-status.md
 Track index                    → tracks/README.md
@@ -124,6 +125,7 @@ ruby igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixt
 | [value-index.md](value-index.md) | Hoisted durable ideas by category, with links back to tracks/discussions/archive |
 | [current-status.md](current-status.md) | Scoreboard (Stage 1 closed state) |
 | [operating-model.md](operating-model.md) | Supervisor-owned agent/documentation flow |
+| [operating-scheduler.md](operating-scheduler.md) | Recurring per-round/per-stage checklist and onboarding-card refresh cadence |
 | [discussions/README.md](discussions/README.md) | Bounded debate format before proposal/track routing |
 | [reviews/README.md](reviews/README.md) | External and cross-agent review signals before proposal/track routing |
 | [meta-proposals/META-EXPERT-007](meta-proposals/META-EXPERT-007-stage1-close-governance-v0.md) | Stage 1 close verdict |
