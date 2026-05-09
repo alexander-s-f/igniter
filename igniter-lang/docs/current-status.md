@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-08
+Last updated: 2026-05-09
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -79,9 +79,10 @@ Release           ✅ gate    gem-release-policy + release-gate PASS;
                             local .gem/.sha256 rebuilt; publish not attempted
 TBackend          ✅ gate2   descriptor package exposure ratified;
                             package descriptor consumed into report-only CompatibilityReport;
-                            Gate 2 record landed; Gate 3 closed
+                            Gate 2 record landed; Gate 3 request drafted/held; Gate 3 closed
 Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             ExecutorApprovalToken report + guarded enforcement PASS;
+                            Gate 3 request safety review says hold for request edits;
                             no prod execution/cache
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
@@ -161,10 +162,16 @@ Round 10 landed:
   S3-R10-C2-P: guarded approval enforcement     ✅ guard refuses missing token/Gate3 closed/bad cache key
   S3-R10-C3-P: package descriptor consumption   ✅ ratified metadata consumed as report-only backend_check
   S3-R10-C4-P: invariant source metadata        ✅ parser→SemanticIR preserves descriptive source metadata
+Round 11 landed:
+  S3-R11-C1-G: Gate 3 opening request           ⚠️ drafted; pending revision/Architect decision
+  S3-R11-C2-P: Gate 3 acceptance matrix         ✅ prerequisite matrix extracted; no live auth
+  S3-R11-C3-G: Ledger/TBackend scope            ✅ recommend History[T] valid_time only; BiHistory excluded
+  S3-R11-C4-P: spec consistency check           ✅ request shape coherent; no parser/syntax auth
+  S3-R11-X1-S: Gate 3 request safety pressure   ⚠️ HOLD for two edits before Architect review
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token;
                   other syntax candidates require proposal tracks
-Arch approval required for: gem publish, Ledger read/write, MCP/mesh
+Arch approval required for: Gate 3 opening, gem publish, Ledger read/write, MCP/mesh
 ```
 
 ### Trusted Read Order
@@ -207,6 +214,7 @@ Source .ig
        executor cache-key boundary              ✅ S3-R9-C3; TEMPORAL key or L-T5 refusal
        guarded runtime C2 consistency           ✅ S3-R9-C4; mapped refusal
        guarded approval enforcement             ✅ S3-R10-C2; proof-local refusal
+       Gate 3 opening request                   ⚠️ drafted; HOLD pending request edits
        evaluate TEMPORAL                        🚫 refused until runtime executor/TBackend
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
@@ -239,6 +247,7 @@ CompatibilityReport: load/evaluate split + descriptor mapping ✅; report-only m
 Package descriptor:  ratified Gate 2 metadata consumed into CompatibilityReport ✅; report-only, no live binding
 Executor boundary:   positive executor/live-binding flags modeled ✅; explicit approval + Gate 3 still required
 Gate 3 prerequisites: Gate 2 ratified ✅; PROP-030 drafted ✅; token report proof ✅; guarded enforcement ✅; cache-key proof ✅
+Gate 3 request:      drafted ✅; safety pressure says HOLD for authority-ref/audit-trace edits before Architect review
 Runtime observations: proof-backed ⏳ production persistence open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; runtime evaluate refused by guard
@@ -256,18 +265,19 @@ S3-R8 runtime result: full smoke + executor-boundary report closed the named pre
                       Gate 3 itself remains closed
 S3-R9 package:        Gate 3 prerequisites landed as proposal/proofs/metadata; Gate 3 still not opened
 S3-R10 result:        package descriptor consumption + approval-token report/runtime proofs landed; Gate 3 still closed
+S3-R11 result:        restricted Gate 3 request package drafted; X1 holds routing until request revision; Gate 3 closed
 ```
 
 ### Spec Freshness
 
 | Surface | Freshness | Current anchor | Remaining doc debt |
 |---------|-----------|----------------|--------------------|
-| Agent context | ✅ current S3-R10 | `docs/agent-context.md` | Keep next movement in sync after each status round |
+| Agent context | ✅ current S3-R11 | `docs/agent-context.md` | Keep next movement in sync after each status round |
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
-| Ch7 Runtime | ✅ synced S3-R10 prerequisite proofs | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0` | TBackend/live temporal executor remains closed; production report enforcement still future |
+| Ch7 Runtime | ✅ baseline synced + S3-R11 request pressure | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/runtime-temporal-executor-gate3-request-v0.md` | Gate 3 request is drafted but held for edits; if accepted later, route `spec-ch7-gate3-approval-sync` |
 | Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
@@ -284,6 +294,9 @@ DOC-DEBT-03  Keep Gate 2/Gate 3 boundary visible after Gate 2 ratification:
 DOC-DEBT-04  Keep PROP-029 proposal-only until parser/typechecker proof acceptance.
 DOC-DEBT-05  Sync Ch6 for optional invariant source_metadata/source_span.
 DOC-DEBT-06  Keep value-index.md compact; hoist durable signals, not routine evidence.
+DOC-DEBT-07  Revise Gate 3 request before Architect review:
+             authority ref must be present in the decision record, and live-read
+             audit observation must not remain optional.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes

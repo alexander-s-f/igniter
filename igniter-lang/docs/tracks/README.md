@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-08
+Last updated: 2026-05-09
 
 ---
 
@@ -32,7 +32,12 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `../gates/runtime-temporal-executor-gate3-request-v0.md` | pending | Gate 3 opening request (Meta Expert); restricted scope: History[T] valid_time live eval only; BiHistory/Ledger write/production cache excluded; 6 open decisions require Architect resolution; 11 production acceptance conditions defined |
+| `../gates/runtime-temporal-executor-gate3-request-v0.md` | drafted / pending revision | Gate 3 opening request; restricted scope: History[T] valid_time live eval only; BiHistory/Ledger write/production cache excluded; 6 open decisions and 11 acceptance conditions defined; does not open Gate 3 |
+| `gate3-acceptance-condition-matrix-v0.md` | done | Extracts prerequisite matrix from S3-R7..R10 evidence; marks production RuntimeMachine binding, authority/revocation/signature, report persistence/audit, unified report composition, physical TBackend serving proof, and cache enforcement as missing production items |
+| `gate3-ledger-tbackend-scope-and-bihistory-exclusion-v0.md` | done | Recommends first Gate 3 request be History[T] valid_time read-only; BiHistory, writes, replay, compact, subscriptions, stream binding, and migrations excluded |
+| `gate3-request-spec-consistency-check-v0.md` | done | Request shape is coherent with PROP-028/PROP-030/Ch6/Ch7; no parser/syntax authorization; C4 noted the request artifact missing at its review point, while current discovery finds C1 in `docs/gates/` |
+| `../discussions/gate3-request-safety-pressure-v0.md` | complete — HOLD | X1 says request intent/scope are sound but routing is held for two edits: authority ref must be in the decision record and live-read audit trace must not remain optional |
+| `stage3-round11-status-curation-v0.md` | done | R11 status/index/context/value sync — this track |
 
 ---
 
@@ -99,11 +104,11 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Surface | Freshness | Anchor | Notes |
 |---------|-----------|--------|-------|
-| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget; S3-R10 next movement refreshed |
+| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget; S3-R11 next movement refreshed |
 | `docs/spec/ch4-fragment-classification.md` | synced | `spec-ch4-temporal-fragment-sync-v0.md` | TEMPORAL fragment and node/value split current |
 | `docs/spec/ch5-compiler-pipeline.md` | synced + discharged + metadata | `spec-ch5-emit-typed-sync-v0.md`; `invariant-typed-shape-discharge-v0.md`; `invariant-source-metadata-preservation-v0.md` | `emit_typed` production path current; invariant source metadata preservation landed |
 | `docs/spec/ch6-semanticir.md` | synced + stream/invariant metadata | `spec-ch6-semanticir-temporal-sync-v0.md`; `stream-replay-metadata-emission-v0.md`; `invariant-source-metadata-preservation-v0.md` | STREAM replay metadata emitted; invariant source_metadata/source_span needs spec sync |
-| `docs/spec/ch7-runtime.md` | synced + R10 prerequisite proofs | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `executor-approval-token-report-proof-v0.md`; `guarded-runtime-executor-approval-enforcement-v0.md`; `compatibility-report-package-descriptor-consumption-v0.md` | report/token/guard/package metadata proofs current; production executor/cache still closed |
+| `docs/spec/ch7-runtime.md` | synced + request pressure | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `executor-approval-token-report-proof-v0.md`; `guarded-runtime-executor-approval-enforcement-v0.md`; `compatibility-report-package-descriptor-consumption-v0.md`; `../gates/runtime-temporal-executor-gate3-request-v0.md` | request drafted but held for edits; production executor/cache still closed; if accepted, route `spec-ch7-gate3-approval-sync` |
 | `docs/proposals/README.md` | synced | `proposal-lifecycle-index-sync-v0.md`; `prop-029-entrypoint-section-surface-v0.md`; `prop-030-executor-approval-token-contract-v0.md` | Stage 2 closed, PROP-028 implementation-partial, PROP-022A experiment-pass, PROP-029/030 proposal-only |
 
 ---
@@ -292,13 +297,16 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
+| `runtime-temporal-executor-gate3-request-revision-v0` | Apply X1 safety edits to the drafted request: authority ref must exist in the decision record, and live-read audit trace must not remain optional; also address C-3..C-6/M-1..M-3 clarity items | Meta Expert / Compiler-Bridge review | next |
+| `gate3-architect-decision-record-v0` | Architect approve/hold/reject the revised restricted request; only this can open Gate 3 | Architect Supervisor | after request revision |
 | `runtime-report-enforcement-preflight-v0` | Define/verify that future RuntimeMachine checks `evaluation_readiness` before executor/cache use | Research Agent / Runtime Agent | pre-Gate-3 |
-| `compatibility-report-package-adoption-v0` | Package/Bridge adoption of report-only descriptor consumption shape while preserving `runtime_enforced=false` and no live binding | Bridge Agent / Package Agent | recommended |
+| `compatibility-report-composition-shape-v0` | Define the unified production CompatibilityReport shape needed by AT-2 before live evaluation | Research Agent / Runtime Agent | pre-Gate-3 |
 | `executor-approval-authority-registry-v0` | Define production trusted authority/revocation source for PROP-030 tokens; no executor implementation | Bridge Agent + Research Agent | pre-Gate-3 |
 | `compatibility-report-persistence-audit-v0` | Persist report decisions and audit receipts without runtime enforcement or live operations | Research Agent / Bridge Agent | recommended |
+| `compatibility-report-package-adoption-v0` | Package/Bridge adoption of report-only descriptor consumption shape while preserving `runtime_enforced=false` and no live binding | Bridge Agent / Package Agent | recommended |
 | `spec-ch6-invariant-source-metadata-sync-v0` | Document optional `source_metadata` / `source_span` on `invariant_node` and invariant coverage report entries | Compiler/Grammar Expert | docs/spec sync |
 | `entrypoint-section-parser-typechecker-v0` | Implement and prove PROP-029 contextual parser/typechecker behavior only after proposal acceptance | Compiler/Grammar Expert | gated |
-| `runtime-temporal-executor-gate3-request-v0` | Prepare, not implement, the explicit Gate 3 question for live temporal executor/TBackend binding and required proof list | Bridge Agent + Research Agent | still closed/gated |
+| `spec-ch7-gate3-approval-sync` | Sync Ch7 approval/enforcement semantics only if a Gate 3 decision accepts them | Compiler/Grammar Expert | conditional |
 | `gem-release-ci-wiring-v0` | Wire `bin/release-gate` into CI or preserve release artifacts/checksum under an approved release record; publish remains gated | Research Agent | optional |
 | `syntax-thresholds-and-constants-prop-v0` | Draft proposal for named thresholds/constants from S3-R4 review signals; no parser implementation yet | Compiler/Grammar Expert | proposal |
 | `syntax-external-pure-helper-signatures-prop-v0` | Draft proposal for `external pure fn(...) -> T` helper signatures and effect/evidence annotations | Compiler/Grammar Expert + Bridge Agent | proposal |

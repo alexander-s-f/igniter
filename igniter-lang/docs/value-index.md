@@ -2,7 +2,7 @@
 
 Status: active hoisted-memory index
 Owner: `[Architect Supervisor / Codex]` + `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-08
+Last updated: 2026-05-09
 
 ---
 
@@ -141,6 +141,19 @@ Source:
 - [tracks/guarded-runtime-executor-approval-enforcement-v0.md](tracks/guarded-runtime-executor-approval-enforcement-v0.md)
 - [tracks/runtime-compatibility-report-executor-boundary-v0.md](tracks/runtime-compatibility-report-executor-boundary-v0.md)
 - [discussions/stage3-round8-pre-gate3-pressure-v0.md](discussions/stage3-round8-pre-gate3-pressure-v0.md)
+
+### A Gate 3 Request Draft Is Not Approval
+
+Signal: A restricted Gate 3 request can be drafted and pressure-reviewed, but
+Gate 3 remains closed until an Architect decision record exists; the current
+request is held for authority-ref and live-read audit-trace edits.
+
+Status: current
+
+Source:
+- [gates/runtime-temporal-executor-gate3-request-v0.md](gates/runtime-temporal-executor-gate3-request-v0.md)
+- [discussions/gate3-request-safety-pressure-v0.md](discussions/gate3-request-safety-pressure-v0.md)
+- [tracks/stage3-round11-status-curation-v0.md](tracks/stage3-round11-status-curation-v0.md)
 
 ### Full Post-Switch Smoke Is The Runtime Regression Baseline
 
