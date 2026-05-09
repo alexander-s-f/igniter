@@ -1,0 +1,122 @@
+{
+  "kind": "gate3_authority_registry_shape_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R21-C2-P",
+  "track": "gate3-authority-registry-shape-v0",
+  "status": "PASS",
+  "registry_shape": {
+    "authority_ref": "string",
+    "status": "active|revoked|superseded",
+    "issued_on": "YYYY-MM-DD",
+    "revoked_on": "YYYY-MM-DD|null",
+    "superseded_by": "authority_ref|null",
+    "allowed_scope": {
+      "gate": "gate3",
+      "phase": "phase1",
+      "executor": "IgniterLang::TemporalExecutor::Phase1",
+      "operation": "history_valid_time_read",
+      "history_axis": "valid_time",
+      "backend_family": "memory_or_explicit_non_ledger"
+    },
+    "required_capability": "history_read",
+    "decision_doc_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md"
+  },
+  "source_code_parity_authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+  "production_signing": false,
+  "production_key_management": false,
+  "phase2_ledger_adapter": false,
+  "cases": {
+    "active_registry_allows_gate3_authorized": {
+      "status": "ok",
+      "caller_may_pass_gate3_authorized": true,
+      "gate3_authorized_value": true,
+      "reason_code": "authority_registry.active_scope_allowed",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "decision_doc_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+      "source_code_parity_authority_ref_unchanged": true,
+      "production_signing": false,
+      "executor_called": false
+    },
+    "revoked_registry_blocks_before_caller_sets_true": {
+      "status": "blocked",
+      "caller_may_pass_gate3_authorized": false,
+      "gate3_authorized_value": false,
+      "reason_code": "authority_registry.revoked",
+      "blocked_stage": "registry_entry",
+      "executor_called": false,
+      "production_signing": false,
+      "revoked_on": "2026-05-10"
+    },
+    "superseded_registry_blocks_before_caller_sets_true": {
+      "status": "blocked",
+      "caller_may_pass_gate3_authorized": false,
+      "gate3_authorized_value": false,
+      "reason_code": "authority_registry.superseded",
+      "blocked_stage": "registry_entry",
+      "executor_called": false,
+      "production_signing": false,
+      "superseded_by": "authority/ref/replacement"
+    },
+    "missing_registry_entry_blocks": {
+      "status": "blocked",
+      "caller_may_pass_gate3_authorized": false,
+      "gate3_authorized_value": false,
+      "reason_code": "authority_registry.entry_missing",
+      "blocked_stage": "registry_entry",
+      "executor_called": false,
+      "production_signing": false
+    },
+    "missing_signed_addendum_evidence_blocks": {
+      "status": "blocked",
+      "caller_may_pass_gate3_authorized": false,
+      "gate3_authorized_value": false,
+      "reason_code": "authority_registry.signed_addendum_evidence_missing",
+      "blocked_stage": "decision_doc_ref",
+      "executor_called": false,
+      "production_signing": false
+    },
+    "wrong_scope_blocks": {
+      "status": "blocked",
+      "caller_may_pass_gate3_authorized": false,
+      "gate3_authorized_value": false,
+      "reason_code": "authority_registry.scope_mismatch",
+      "blocked_stage": "allowed_scope",
+      "executor_called": false,
+      "production_signing": false
+    },
+    "wrong_required_capability_blocks": {
+      "status": "blocked",
+      "caller_may_pass_gate3_authorized": false,
+      "gate3_authorized_value": false,
+      "reason_code": "authority_registry.required_capability_mismatch",
+      "blocked_stage": "required_capability",
+      "executor_called": false,
+      "production_signing": false
+    },
+    "malformed_registry_entry_blocks": {
+      "status": "blocked",
+      "caller_may_pass_gate3_authorized": false,
+      "gate3_authorized_value": false,
+      "reason_code": "authority_registry.entry_malformed",
+      "blocked_stage": "registry_entry",
+      "executor_called": false,
+      "production_signing": false,
+      "missing": [
+        "issued_on"
+      ]
+    }
+  },
+  "checks": {
+    "active_registry.allows_gate3_authorized": true,
+    "active_registry.source_code_parity_uri_unchanged": true,
+    "revoked.blocks": true,
+    "superseded.blocks": true,
+    "missing_entry.blocks": true,
+    "missing_signed_addendum_evidence.blocks": true,
+    "wrong_scope.blocks": true,
+    "wrong_required_capability.blocks": true,
+    "malformed_entry.blocks": true,
+    "no_case_uses_signing_or_keys": true,
+    "no_case_calls_executor": true
+  }
+}

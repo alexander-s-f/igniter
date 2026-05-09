@@ -1,0 +1,184 @@
+{
+  "kind": "compatibility_report_persistence_audit_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R21-C1-P",
+  "track": "compatibility-report-persistence-audit-v0",
+  "status": "PASS",
+  "addendum": {
+    "path": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+    "status": "signed-approved-restricted-phase1-live-read",
+    "signed": true
+  },
+  "boundary": {
+    "observation_source": "IgniterLang::TemporalExecutor::Phase1#observations",
+    "export": "explicit proof-local audit-ready envelope",
+    "automatic_persistence": false,
+    "durable_audit": false,
+    "ledger": false,
+    "authority_registry": false
+  },
+  "cases": {
+    "authorized_read": {
+      "evaluate": {
+        "status": "ok",
+        "kind": "temporal_evaluation_result",
+        "contract_id": "HistoryAxesTest",
+        "results": [
+          {
+            "node": "price_at",
+            "axis": "valid_time",
+            "result": {
+              "kind": "some",
+              "value": "99.00"
+            },
+            "backend_observation": {
+              "kind": "history_access_observation",
+              "subject": "sku/prod-001/price",
+              "as_of": "2026-05-09T12:00:00Z",
+              "access": "point",
+              "selected_append_ref": "obs/history_append/13af70945c2c21b7",
+              "result": {
+                "kind": "some",
+                "value": "99.00"
+              },
+              "option_encoding": {
+                "some": {
+                  "kind": "some",
+                  "value": "<value>"
+                },
+                "none": {
+                  "kind": "none"
+                }
+              },
+              "observation_id": "obs/history_access/2201acce248519a5",
+              "observed_at": "2026-05-09T12:00:00Z",
+              "temporal": {
+                "axis": "valid_time",
+                "as_of": "2026-05-09T12:00:00Z",
+                "lifecycle": "session"
+              }
+            }
+          }
+        ],
+        "observations_emitted": 1,
+        "runtime_enforced": true,
+        "scope": "History[T].valid_time / proof_local_memory_backend / proof-local",
+        "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
+      },
+      "observations": [
+        {
+          "kind": "temporal_live_read_observation",
+          "contract_id": "HistoryAxesTest",
+          "node": "price_at",
+          "axis": "valid_time",
+          "subject": "sku/prod-001/price",
+          "as_of": "2026-05-09T12:00:00Z",
+          "result_present": true,
+          "backend_identity": {
+            "kind": "proof_local_memory_backend",
+            "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+          },
+          "backend_observation_ref": "obs/history_access/2201acce248519a5",
+          "persistence": "proof_local"
+        }
+      ]
+    },
+    "explicit_export_boundary": {
+      "exports_before_explicit_call": 0,
+      "exports_after_authorized_export": 1,
+      "automatic_persistence": false,
+      "summary_file_is_proof_artifact": true
+    },
+    "authorized_audit_ready_envelope": {
+      "kind": "audit_ready_temporal_read_envelope",
+      "format_version": "0.1.0",
+      "envelope_id": "b73de0fa2f085147d54d",
+      "export_mode": "explicit",
+      "audit_state": "audit_ready_not_persisted",
+      "temporal_live_read_observation": {
+        "kind": "temporal_live_read_observation",
+        "contract_id": "HistoryAxesTest",
+        "node": "price_at",
+        "axis": "valid_time",
+        "subject": "sku/prod-001/price",
+        "as_of": "2026-05-09T12:00:00Z",
+        "result_present": true,
+        "backend_identity": {
+          "kind": "proof_local_memory_backend",
+          "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+        },
+        "backend_observation_ref": "obs/history_access/2201acce248519a5",
+        "persistence": "proof_local"
+      },
+      "compatibility_report_ref": "compat/phase1/2ee0d8d8867a4714",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "signed_addendum_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+      "backend_identity": {
+        "kind": "proof_local_memory_backend",
+        "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+      },
+      "result": {
+        "status": "allowed",
+        "reason_code": "runtime.temporal_evaluation_ready",
+        "result_present": true
+      },
+      "storage": {
+        "automatic_persistence": false,
+        "durable_persistence": false,
+        "ledger_write": false,
+        "production_storage": false
+      }
+    },
+    "refusal_audit_ready_envelope": {
+      "kind": "audit_ready_temporal_refusal_envelope",
+      "format_version": "0.1.0",
+      "envelope_id": "f346f73d5070951007f4",
+      "export_mode": "explicit",
+      "audit_state": "audit_ready_not_persisted",
+      "temporal_live_read_observation": null,
+      "compatibility_report_ref": "compat/phase1/12f8e7d2c7fa74c3",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "signed_addendum_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+      "backend_identity": null,
+      "result": {
+        "status": "refused",
+        "reason_code": "runtime.temporal_gate3_closed",
+        "blocked_stage": "gate_state"
+      },
+      "storage": {
+        "automatic_persistence": false,
+        "durable_persistence": false,
+        "ledger_write": false,
+        "production_storage": false
+      }
+    },
+    "missing_signed_addendum_ref": {
+      "kind": "audit_export_non_compliant",
+      "format_version": "0.1.0",
+      "status": "non_compliant",
+      "reason_code": "audit.signed_addendum_ref_missing",
+      "compatibility_report_ref": "compat/phase1/2ee0d8d8867a4714",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "signed_addendum_ref": null,
+      "storage": {
+        "automatic_persistence": false,
+        "durable_persistence": false,
+        "ledger_write": false,
+        "production_storage": false
+      }
+    }
+  },
+  "checks": {
+    "addendum.signed_status_detected": true,
+    "authorized_read.observation_emitted": true,
+    "authorized_envelope.minimum_fields_present": true,
+    "authorized_envelope.compatibility_report_ref_present": true,
+    "authorized_envelope.backend_identity_present": true,
+    "authorized_envelope.result_allowed": true,
+    "refusal_envelope.reason_present": true,
+    "export.explicit_not_automatic": true,
+    "missing_signed_addendum_ref.non_compliant": true,
+    "no_production_storage_or_ledger": true
+  }
+}
