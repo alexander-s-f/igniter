@@ -5,7 +5,7 @@
   "stage": "stage2",
   "status": "PASS",
   "verdict": "stage2_close_candidate",
-  "timestamp": "2026-05-08T11:16:18Z",
+  "timestamp": "2026-05-09T10:54:02Z",
   "facade": {
     "entrypoint": "IgniterLang.compile",
     "facade_version": "0.1.0.pre.stage2",
@@ -372,6 +372,42 @@
         {
           "name": "pinv.overridable_on_error_emits_oof_i4",
           "status": "PASS"
+        },
+        {
+          "name": "source_metadata.parser_spans_present",
+          "status": "PASS"
+        },
+        {
+          "name": "source_metadata.classifier_preserves_author_intent",
+          "status": "PASS"
+        },
+        {
+          "name": "source_metadata.typechecker_preserves_author_intent",
+          "status": "PASS"
+        },
+        {
+          "name": "source_metadata.semanticir_preserves_author_intent",
+          "status": "PASS"
+        },
+        {
+          "name": "source_metadata.report_coverage_preserves_author_intent",
+          "status": "PASS"
+        },
+        {
+          "name": "source_metadata.classifier_preserves_identity",
+          "status": "PASS"
+        },
+        {
+          "name": "source_metadata.typechecker_preserves_identity",
+          "status": "PASS"
+        },
+        {
+          "name": "source_metadata.semanticir_preserves_identity",
+          "status": "PASS"
+        },
+        {
+          "name": "source_metadata.report_coverage_preserves_identity",
+          "status": "PASS"
         }
       ],
       "stdout": [
@@ -401,6 +437,15 @@
         "pinv.missing_predicate_emits_oof_iv1: ok",
         "pinv.unknown_severity_emits_oof_iv2: ok",
         "pinv.overridable_on_error_emits_oof_i4: ok",
+        "source_metadata.parser_spans_present: ok",
+        "source_metadata.classifier_preserves_author_intent: ok",
+        "source_metadata.typechecker_preserves_author_intent: ok",
+        "source_metadata.semanticir_preserves_author_intent: ok",
+        "source_metadata.report_coverage_preserves_author_intent: ok",
+        "source_metadata.classifier_preserves_identity: ok",
+        "source_metadata.typechecker_preserves_identity: ok",
+        "source_metadata.semanticir_preserves_identity: ok",
+        "source_metadata.report_coverage_preserves_identity: ok",
         "error.status: blocked",
         "warn.warnings: 1",
         "soft.uncertainty: T -> ~T",
