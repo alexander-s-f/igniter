@@ -63,10 +63,12 @@ no Ledger package binding
 The authorized runtime shape would remain:
 
 ```text
-approval_token -> gate_state -> scope -> cache_key -> backend_identity -> executor_backend
+approval_token -> gate_state -> backend_identity -> scope -> cache_key -> executor_backend
 ```
 
-All checks must refuse before backend access when they fail.
+The backend identity guard runs after approval-token and gate-state checks, and
+before scope, cache-key, execution kernel, or backend `read_as_of`. All checks
+must refuse before backend access when they fail.
 
 ---
 

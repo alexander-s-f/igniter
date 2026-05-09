@@ -97,6 +97,10 @@
           "subject": "sku/prod-001/price",
           "as_of": "2026-05-09T12:00:00Z",
           "result_present": true,
+          "backend_identity": {
+            "kind": "proof_local_memory_backend",
+            "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+          },
           "backend_observation_ref": "obs/history_access/60bb4abcfa22bc61",
           "persistence": "proof_local"
         }

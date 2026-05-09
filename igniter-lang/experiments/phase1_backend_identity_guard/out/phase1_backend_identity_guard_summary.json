@@ -64,7 +64,24 @@
         "runtime_enforced": true,
         "scope": "History[T].valid_time / proof_local_memory_backend / proof-local",
         "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
-        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
+        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714",
+        "observations": [
+          {
+            "kind": "temporal_live_read_observation",
+            "contract_id": "HistoryAxesTest",
+            "node": "price_at",
+            "axis": "valid_time",
+            "subject": "sku/prod-001/price",
+            "as_of": "2026-05-09T12:00:00Z",
+            "result_present": true,
+            "backend_identity": {
+              "kind": "proof_local_memory_backend",
+              "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+            },
+            "backend_observation_ref": "obs/history_access/2201acce248519a5",
+            "persistence": "proof_local"
+          }
+        ]
       },
       "backend_class": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
     },
@@ -90,7 +107,29 @@
         "runtime_enforced": true,
         "scope": "History[T].valid_time / proof_local_non_ledger_backend / proof-local",
         "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
-        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
+        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714",
+        "observations": [
+          {
+            "kind": "temporal_live_read_observation",
+            "contract_id": "HistoryAxesTest",
+            "node": "price_at",
+            "axis": "valid_time",
+            "subject": "sku/prod-001/price",
+            "as_of": "2026-05-09T12:00:00Z",
+            "result_present": true,
+            "backend_identity": {
+              "kind": "proof_local_non_ledger_backend",
+              "backend_family": "proof_local",
+              "phase1_allowed": true,
+              "ledger_backed": false,
+              "invokes_ledger_package": false,
+              "package_adapter": false,
+              "class_name": "Phase1BackendIdentityGuardProof::ExplicitNonLedgerBackend"
+            },
+            "backend_observation_ref": "obs/explicit_non_ledger/1",
+            "persistence": "proof_local"
+          }
+        ]
       },
       "backend_class": "Phase1BackendIdentityGuardProof::ExplicitNonLedgerBackend",
       "read_attempts": 1
@@ -115,7 +154,8 @@
           "ledger_call_attempted": false,
           "temporal_read_attempted": false,
           "cache_call_attempted": false
-        }
+        },
+        "observations": []
       },
       "backend_class": "Phase1BackendIdentityGuardProof::UnmarkedReadAsOfBackend",
       "read_attempts": 0
@@ -148,7 +188,8 @@
           "ledger_call_attempted": false,
           "temporal_read_attempted": false,
           "cache_call_attempted": false
-        }
+        },
+        "observations": []
       },
       "backend_class": "Phase1BackendIdentityGuardProof::LedgerBackedAdapter",
       "read_attempts": 0
@@ -181,7 +222,8 @@
           "ledger_call_attempted": false,
           "temporal_read_attempted": false,
           "cache_call_attempted": false
-        }
+        },
+        "observations": []
       },
       "backend_class": "Phase1BackendIdentityGuardProof::LedgerProxyWrapper",
       "read_attempts": 0
@@ -206,7 +248,8 @@
           "ledger_call_attempted": false,
           "temporal_read_attempted": false,
           "cache_call_attempted": false
-        }
+        },
+        "observations": []
       },
       "backend_class": "Phase1BackendIdentityGuardProof::MalformedIdentityBackend",
       "read_attempts": 0
@@ -229,7 +272,8 @@
           "ledger_call_attempted": false,
           "temporal_read_attempted": false,
           "cache_call_attempted": false
-        }
+        },
+        "observations": []
       },
       "backend_class": "Phase1BackendIdentityGuardProof::LedgerBackedAdapter",
       "read_attempts": 0
@@ -244,6 +288,7 @@
     "malformed_identity.blocked": true,
     "blocked_backends.no_read_attempts": true,
     "missing_token.blocks_before_backend_identity": true,
+    "observation.backend_identity_emitted": true,
     "blocked_cases.no_live_operations": true
   },
   "scope": {

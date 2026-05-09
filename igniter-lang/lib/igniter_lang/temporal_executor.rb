@@ -11,7 +11,7 @@ module IgniterLang
   # cache) are explicitly excluded and refuse before any live call.
   #
   # Guard order (token-before-gate per S3-R15-C1-P amendment):
-  #   approval_token → gate_state → scope → cache_key → kernel
+  #   approval_token → gate_state → backend_identity → scope → cache_key → kernel
   #
   # Live reads stay blocked until gate3_authorized: true + valid token.
   module TemporalExecutor
@@ -340,6 +340,7 @@ module IgniterLang
         as_of   = inputs.fetch(as_of_ref)
 
         result, backend_obs = @backend.read_as_of(subject, as_of)
+        backend_identity = @backend_identity_check[:backend_identity] || {}
 
         # AT-10: unconditional observation per read — not gated on persistence readiness
         @observations << {
@@ -350,6 +351,7 @@ module IgniterLang
           "subject"                 => subject,
           "as_of"                   => as_of,
           "result_present"          => result.is_a?(Hash) && result["kind"] == "some",
+          "backend_identity"         => backend_identity,
           "backend_observation_ref" => backend_obs.fetch("observation_id"),
           "persistence"             => "proof_local"
         }

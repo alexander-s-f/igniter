@@ -198,12 +198,13 @@ module Phase1BackendIdentityGuardProof
 
   def evaluate_with(backend, token:)
     executor = IgniterLang::TemporalExecutor::Phase1.new(backend: backend, gate3_authorized: true)
-    executor.evaluate(
+    result = executor.evaluate(
       contract,
       token: token,
       inputs: { "sku" => "prod-001" },
       as_of: PROOF_AS_OF
     )
+    result.merge("observations" => executor.observations)
   end
 
   def contract
@@ -255,9 +256,20 @@ module Phase1BackendIdentityGuardProof
       "missing_token.blocks_before_backend_identity" =>
         cases.dig("missing_token_blocks_before_backend_identity", "evaluate", "blocked_stage") == "approval_token" &&
           cases.dig("missing_token_blocks_before_backend_identity", "read_attempts") == 0,
+      "observation.backend_identity_emitted" =>
+        observation_backend_identity?(cases, "proof_local_memory_backend_allowed", "proof_local_memory_backend") &&
+          observation_backend_identity?(cases, "explicit_non_ledger_backend_allowed", "proof_local_non_ledger_backend"),
       "blocked_cases.no_live_operations" =>
         blocked_cases_no_live_operations?(cases)
     }
+  end
+
+  def observation_backend_identity?(cases, name, expected_kind)
+    observation = cases.dig(name, "evaluate", "observations", 0)
+    return false unless observation
+
+    observation.fetch("kind") == "temporal_live_read_observation" &&
+      observation.dig("backend_identity", "kind") == expected_kind
   end
 
   def backend_identity_blocked?(cases, name)
