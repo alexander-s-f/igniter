@@ -17,6 +17,7 @@ reports when origin or archive evidence matters.
 | [History-S3 Guide Current Absorption Map](./history-s3-guide-current-absorption-map.md) | Compares `playgrounds/docs/guide` and `playgrounds/docs/current` with current public guide/dev docs and marks absorbed/cold signals. |
 | [History-S4 Expert Reports Value Map](./history-s4-expert-reports-value-map.md) | Extracts durable values from non-Igniter-Lang expert reports while keeping expert proposals out of canon until gated. |
 | [History-S5 Research Horizon Compression Map](./history-s5-research-horizon-compression-map.md) | Compresses `playgrounds/docs/research-horizon` into graduated doctrines, parked research lines, and read rules. |
+| [History-S6 Dev Process Tracks Legacy Map](./history-s6-dev-process-tracks-legacy-map.md) | Maps `playgrounds/docs/dev/` into process doctrines, active track routing, cold track history, legacy references, and rotation rules. |
 
 ## Read Rule
 
