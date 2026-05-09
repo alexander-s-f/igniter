@@ -2,8 +2,8 @@
 
 Source PROPs: PROP-005, PROP-006, PROP-008, PROP-009, PROP-009.1, PROP-011,
 PROP-022, PROP-022A, PROP-028, PROP-030, PROP-030A
-Status: synced for approved-restricted Stage 3 Gate 3 Phase 1 semantics
-(2026-05-09)
+Status: synced for approved-restricted Stage 3 Gate 3 Phase 1 semantics and
+S3-R16 proof-local lib boundary (2026-05-09)
 Primary evidence:
 
 - `experiments/runtime_machine_memory_proof/` — load/evaluate/checkpoint/resume PASS
@@ -15,6 +15,7 @@ Primary evidence:
 - `docs/proposals/PROP-030A-temporal-scope-exclusion-errata-v0.md` — scope exclusion refusal
 - `docs/tracks/prop-005-temporal-read-observation-v0.md` — temporal read observation envelope PASS
 - `docs/tracks/compatibility-report-composition-v0.md` — composed report shape PASS
+- `docs/tracks/runtime-temporal-executor-lib-prep-v0.md` — `IgniterLang::TemporalExecutor::Phase1` proof-local lib boundary PASS 17/17
 
 ---
 
@@ -87,8 +88,10 @@ output_node
 
 TEMPORAL assembled artifacts may load for inspection. Gate 3 Phase 1
 implementation is approved only for `History[T]` valid-time evaluation through
-an abstract non-Ledger TBackend adapter, but live reads remain blocked until
-the pre-live conditions and AT-1..AT-12 pass. See §7.8.
+an abstract non-Ledger TBackend adapter. S3-R16 added the proof-local
+`IgniterLang::TemporalExecutor::Phase1` lib boundary, but live reads remain
+blocked until post-lib-prep regression/safety review and an explicit live-read
+decision addendum. See §7.8.
 
 ---
 
@@ -327,12 +330,65 @@ Meaning:
 - Load must validate `manifest.contract_index` against the contract artifact.
 - Phase 1 implementation is approved only for `History[T]` valid-time reads
   through an abstract proof-local or non-Ledger TBackend adapter.
-- Evaluate must still refuse live reads until pre-live conditions, AT-1..AT-12,
-  and the S3-R7..S3-R10 regression chain pass.
+- Evaluate must still refuse live reads until post-lib-prep regression/safety
+  review passes and an explicit live-read addendum authorizes opening the gate.
 - Production cache remains closed; only TEMPORAL cache-key schema validation is
   approved.
 - Ledger package binding, Ledger reads/writes/replay, BiHistory, stream/OLAP
   executors, and parser syntax changes remain closed.
+
+### Phase 1 Lib Boundary
+
+S3-R16 names the current proof-local implementation boundary:
+
+```text
+IgniterLang::TemporalExecutor::Phase1
+```
+
+This is an implementation boundary, not a language semantic. It does not add
+parser syntax, SemanticIR node kinds, cache behavior, Ledger binding, or a
+general temporal executor contract.
+
+Required construction default:
+
+```ruby
+IgniterLang::TemporalExecutor::Phase1.new(
+  backend: proof_local_memory_backend,
+  gate3_authorized: false
+)
+```
+
+`gate3_authorized: false` is the required default. A default-constructed
+executor must refuse evaluation before any backend read. Setting
+`gate3_authorized: true` is still not a deployment authorization by itself; it
+is only valid inside proof-local checks or after a separate Architect live-read
+decision addendum.
+
+The lib boundary guard order is:
+
+```text
+approval_token
+  -> gate_state
+  -> scope
+  -> TEMPORAL cache-key schema
+  -> execution kernel
+```
+
+The boundary must build or attach one composed CompatibilityReport-shaped
+result for each evaluation path. It must validate the ExecutorApprovalToken
+before the gate-state check, and the token `authority_ref` must exactly match
+the Gate 3 decision authority:
+
+```text
+architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09
+```
+
+The current lib boundary is proof-local Phase 1 only:
+
+```text
+allowed: History[T] valid_time, history_read, read_as_of(as_of)
+closed: Ledger, BiHistory, stream, OLAP, writes, production cache, parser changes
+```
 
 Machine-readable pre-live guard in `compatibility_metadata.json` may retain the
 existing load/evaluate split:
@@ -544,6 +600,7 @@ PASS executor_approval_token_report_proof
 PASS guarded_runtime_executor_approval_enforcement
 PASS compatibility_report_composition
 PASS temporal_read_observation_proof
+PASS temporal_executor_lib_prep
 ```
 
 The proof-local cache demonstrates key construction, freshness handling, and
@@ -563,4 +620,5 @@ observations. It is not production RuntimeMachine memoization.
 | `proposals/PROP-030A-temporal-scope-exclusion-errata-v0.md` | S3-R13-C2: `runtime.temporal_scope_exclusion` |
 | `tracks/prop-005-temporal-read-observation-v0.md` | S3-R13-C3: `temporal_read_observation` envelope PASS |
 | `tracks/compatibility-report-composition-v0.md` | S3-R13-C4: single composed CompatibilityReport PASS |
+| `tracks/runtime-temporal-executor-lib-prep-v0.md` | S3-R16-C1: `IgniterLang::TemporalExecutor::Phase1` proof-local lib boundary PASS 17/17; live reads blocked by default |
 | `experiments/stdlib_execution_kernel_stage1/` | stdlib/operator execution PASS |
