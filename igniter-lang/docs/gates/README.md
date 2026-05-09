@@ -73,8 +73,13 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
     C1 landed; R17 supersedes them with post-C1 reruns
   R17 repair: post-C1 regression rerun PASS 14/14; Ch7 lib-boundary sync rerun done
   Safety pressure: S3-R17-X1 PROCEED for proof-local Phase 1
-  Still blocked before live reads: explicit Architect live-read addendum, plus
-    routed pre-production safeguards before any non-proof/live use
+  R18 addendum: gate3-live-read-decision-addendum-v0.md drafted, not signed
+  R18 cleanup: proof-local docstrings, reason-code aliasing, and backend
+    identity guard landed
+  R18 safety pressure: PROCEED for cleanup tracks; two pre-signing conditions
+    remain
+  Still blocked before live reads: post-R18 full regression rerun, addendum
+    guard-order amendment, and explicit Architect signature/status change
 ```
 
 ---
@@ -92,10 +97,13 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
 | Dedicated lib-prep regression chain | PASS post-C1 | R17 rerun records 14/14 PASS across base chain, pre-live fixtures, C1 proof, Stage 1, and Stage 2 |
 | Lib boundary spec sync | done post-C1 | R17 Ch7 sync names `IgniterLang::TemporalExecutor::Phase1` as proof-local boundary, not language semantics |
 | Lib-prep safety pressure | PROCEED proof-local | S3-R17-X1 confirms eight scope guarantees; routes pre-production items |
-| Live-read decision addendum | draftable / not opened | R17 evidence supports drafting an Architect addendum route; live reads remain blocked until an explicit decision exists |
-| Proof-local authority/observation comments | recommended before non-proof callers | Clarify `GATE3_AUTHORITY_REF` is not cryptographic authorization and `observations` are in-memory, not audit receipts |
-| Scope-exclusion reason aliases | required before production/live route | Reconcile lib proof-local reason codes with canonical `runtime.temporal_scope_exclusion` before operator-facing use |
-| Backend identity guard | required before Phase 2 binding | Prevent `gate3_authorized: true` from reaching real adapters without an allowed-backend/addendum check |
+| Live-read decision addendum | drafted / held before signature | S3-R18 C1 draft is `draft-not-signed`; live reads remain blocked until explicit Architect signature/status change |
+| Proof-local authority/observation comments | done | S3-R18 C2 clarifies authority URI is not cryptographic, observations are in-memory/non-audit, and `gate3_authorized` is caller honor-system |
+| Scope-exclusion reason aliases | done | S3-R18 C3 canonicalizes lib out-of-scope emissions to `runtime.temporal_scope_exclusion`; legacy aliases retained |
+| Backend identity guard | done Phase 1 / Phase 2 still closed | S3-R18 C4 blocks unmarked, Ledger-backed, Ledger proxy, and malformed identity backends before scope/cache/kernel/read |
+| Addendum safety pressure | PROCEED with pre-signing conditions | S3-R18-X1 finds no hidden live-read path; requires post-R18 full regression rerun and guard-order amendment before signature |
+| Post-R18 full regression rerun | required before signature | Addendum blocker 4 remains open after R18 cleanup code changes |
+| Addendum guard-order amendment | required before signature | Draft currently lists backend_identity after scope/cache; implementation places backend_identity before scope/cache |
 | Runtime authority registry | not defined | Required before Phase 2 / production authority-revocation work; not a Phase 1 blocker |
 | Real Ledger adapter/package binding | closed | Requires explicit Architect addendum after Phase 1 |
 | BiHistory / transaction-time | closed | Requires separate gate; cannot be added by quiet Phase 1/2 addendum |
@@ -114,3 +122,4 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
 | File | Card | Status | Scope |
 |------|------|--------|-------|
 | [gate3-decision-record-v0.md](gate3-decision-record-v0.md) | S3-R13-C1-A | approved-restricted-phase1 | Phase 1 implementation only: TEMPORAL History[T] valid_time via abstract proof-local/non-Ledger TBackend; live reads blocked until pre-live conditions pass |
+| [gate3-live-read-decision-addendum-v0.md](gate3-live-read-decision-addendum-v0.md) | S3-R18-C1-A | draft-not-signed | Draft for first restricted Phase 1 non-proof read path; not live-read authorization until signed |

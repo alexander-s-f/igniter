@@ -87,7 +87,8 @@ Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             R15 pre-live blocker closure PASS;
                             R16 lib-prep C1 landed/PASS;
                             R17 post-C1 repair PASS + safety PROCEED;
-                            live-read addendum draftable, not opened
+                            R18 cleanup tracks done;
+                            addendum drafted but held before signature
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open
@@ -206,6 +207,12 @@ Round 17 landed:
   S3-R17-C1-P: post-C1 regression rerun         ✅ 14/14 PASS; safety pressure may proceed
   S3-R17-C2-P: lib boundary spec sync rerun     ✅ Ch7 names Phase1 as proof-local boundary; no new semantics
   S3-R17-X1-S: lib-prep safety pressure         ✅ PROCEED for proof-local Phase 1; pre-production items routed
+Round 18 landed:
+  S3-R18-C1-A: live-read addendum draft         ⚠️ draft-not-signed; held before signature
+  S3-R18-C2-P: proof-local docstrings           ✅ GATE3_AUTHORITY_REF/observations/gate3_authorized warnings landed
+  S3-R18-C3-P: scope-exclusion reason alias     ✅ canonical runtime.temporal_scope_exclusion emitted; legacy aliases retained
+  S3-R18-C4-P: backend identity guard           ✅ code-level guard + proof fixture PASS; Ledger/proxy/unmarked blocked
+  S3-R18-X1-S: addendum draft safety pressure   ⚠️ PROCEED for cleanup; two pre-signing conditions remain
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion;
                   other syntax candidates require proposal tracks
@@ -269,7 +276,12 @@ Source .ig
        post-C1 lib-prep regression rerun        ✅ S3-R17 C1 14/14 PASS
        lib boundary spec sync                   ✅ S3-R17 C2 Ch7 proof-local boundary sync
        lib-prep safety pressure                 ✅ S3-R17 X1 PROCEED for proof-local Phase 1
-       evaluate TEMPORAL Phase 1 live           🚫 blocked pending Architect addendum; non-proof use has routed preconditions
+       live-read addendum draft                 ⚠️ S3-R18 C1 draft-not-signed; held before signature
+       proof-local docstring warnings           ✅ S3-R18 C2 landed
+       scope-exclusion reason aliases           ✅ S3-R18 C3 canonicalized
+       backend identity guard                   ✅ S3-R18 C4 PASS; blocks Ledger/proxy/unmarked backends
+       addendum safety pressure                 ⚠️ S3-R18 X1 PROCEED for cleanup; PS-1/PS-2 before signature
+       evaluate TEMPORAL Phase 1 live           🚫 still blocked; no signed Architect addendum
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -307,9 +319,13 @@ Gate 3 decision:     approved-restricted-phase1 ✅; implementation-prep may con
 Pre-live closed:      composition track ✅; observation track ✅; scope errata ✅; scope fixture ✅; authority URI wording ✅; Ch7 sync ✅;
                       ordering fixed ✅; AT-2 closed ✅; AT-9 proof-local exact URI match ✅; regression 17/17 PASS ✅;
                       R16 C1 lib-prep boundary PASS 17/17 ✅; post-C1 regression rerun 14/14 PASS ✅;
-                      Ch7 lib-boundary sync rerun ✅; lib-prep safety pressure PROCEED ✅
-Pre-live remaining:   Architect live-read decision addendum; proof-local authority/docstring clarity before non-proof use;
-                      reason-code alias reconciliation before production/live route; production signing/registry/persistence remain later gaps
+                      Ch7 lib-boundary sync rerun ✅; lib-prep safety pressure PROCEED ✅;
+                      proof-local docstrings ✅; reason-code aliases ✅; backend identity guard ✅
+Pre-signing remaining:
+                      post-R18 full regression rerun; amend addendum guard order to place backend_identity before scope/cache;
+                      explicit Architect signature/status change. Live reads remain blocked.
+Pre-production remaining:
+                      production signing/registry; durable observation persistence; full report/audit persistence; Phase 2 addendum gaps
 Runtime observations: proof-backed ⏳ production persistence open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; runtime evaluate refused by guard
@@ -347,13 +363,17 @@ S3-R17 result:        post-C1 repair closed the R16 async-order gap: regression 
                       X1 safety pressure PROCEED for proof-local Phase 1. Live-read addendum can be drafted as an
                       Architect decision route, but non-proof live reads remain blocked until the addendum exists and
                       pre-production items are handled.
+S3-R18 result:        addendum drafted with status draft-not-signed; proof-local docstrings, canonical reason aliasing,
+                      and backend identity guard landed. X1 says cleanup tracks PROCEED and no hidden live-read path found,
+                      but addendum is held before signature pending post-R18 full regression rerun and guard-order amendment.
+                      Live reads are not authorized.
 ```
 
 ### Spec Freshness
 
 | Surface | Freshness | Current anchor | Remaining doc debt |
 |---------|-----------|----------------|--------------------|
-| Agent context | ✅ current S3-R15 | `docs/agent-context.md` | Keep next movement in sync after each status round |
+| Agent context | ✅ current S3-R18 | `docs/agent-context.md` | Keep next movement in sync after each status round |
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
@@ -376,9 +396,9 @@ DOC-DEBT-04  Keep PROP-029 proposal-only until parser/typechecker proof acceptan
 DOC-DEBT-05  Sync Ch6 for optional invariant source_metadata/source_span.
 DOC-DEBT-06  Keep value-index.md compact; hoist durable signals, not routine evidence.
 DOC-DEBT-07  Gate 3 decision is approved-restricted-phase1:
-             Phase 1 implementation-prep is proof-local; live reads are blocked
-             until post-C1 lib-prep rerun, safety pressure, and explicit
-             Architect addendum.
+             Phase 1 implementation-prep and R18 cleanup are proof-local;
+             live reads remain blocked until addendum pre-signing conditions
+             close and Architect explicitly signs/updates the addendum status.
 DOC-DEBT-08  S3-R14 proof-local Phase 1 prep landed:
              scope fixture, report preflight, executor preflight, Ch7 sync,
              and authority URI wording are current.
@@ -407,6 +427,11 @@ DOC-DEBT-14  S3-R17 post-C1 repair landed:
              safety pressure PROCEED for proof-local Phase 1. Live-read
              addendum may be drafted, but production/live enablement still
              requires Architect decision and routed pre-production safeguards.
+DOC-DEBT-15  S3-R18 addendum/cleanup landed:
+             addendum is drafted-not-signed; proof-local docstrings,
+             reason-code aliasing, and backend identity guard are done.
+             Before signature: post-R18 full regression rerun and addendum
+             guard-order amendment are required. Live reads remain blocked.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
