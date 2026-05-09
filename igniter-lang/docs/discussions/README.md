@@ -140,6 +140,7 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 | [gate3-request-readiness-pressure-v0.md](gate3-request-readiness-pressure-v0.md) | S3-R10-X1-S | Is the S3-R10 evidence sufficient to draft a Gate 3 opening request, and what makes it unsafe now? | complete — routed |
 | [gate3-request-safety-pressure-v0.md](gate3-request-safety-pressure-v0.md) | S3-R11-X1-S | Is the Gate 3 request safe to route to Architect as written, or does it contain unsafe ambiguity? | complete — hold for two edits |
 | [gate3-request-revision-safety-pressure-v0.md](gate3-request-revision-safety-pressure-v0.md) | S3-R12-X1-S | Did the S3-R12-C1 revision close both HOLD blockers cleanly without introducing new ambiguity? | complete — proceed to Architect |
+| [gate3-decision-safety-pressure-v0.md](gate3-decision-safety-pressure-v0.md) | S3-R13-X1-S | Does the Gate 3 decision record contain hidden authorization leaks or authority/revocation gaps? | complete — proceed; two doc amendments |
 
 ---
 
