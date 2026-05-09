@@ -2,7 +2,7 @@
 
 Status: active
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-08
+Last updated: 2026-05-09
 
 ---
 
@@ -35,7 +35,7 @@ research proves boundary semantics (proof-local, report-only)
 | Gate | Status | Scope |
 |------|--------|-------|
 | Gate 2 — descriptor metadata | ✅ ratified | Metadata-only descriptor package exposure; no live binding |
-| Gate 3 — live TBackend / executor | 📋 request pending | See request below |
+| Gate 3 — live TBackend / executor | approved-restricted | Phase 1 implementation only; no Ledger/BiHistory/cache |
 
 ---
 
@@ -43,12 +43,19 @@ research proves boundary semantics (proof-local, report-only)
 
 ```text
 Gate 3 scope: live Ledger/TBackend read-write-replay, runtime executor, production cache
-Gate 3 state: CLOSED
+Gate 3 state: APPROVED-RESTRICTED-PHASE1
 
 Pending request: runtime-temporal-executor-gate3-request-v0.md
   Proposed restricted scope: live TEMPORAL History[T] valid_time evaluation only
   Excludes: BiHistory, stream/OLAP executor, Ledger write, production cache
-  Pending: Architect decision
+  Decision: approved-restricted-phase1
+
+Decision: gate3-decision-record-v0.md
+  Authorized: Phase 1 TEMPORAL History[T] valid_time executor implementation
+  Adapter: proof-local or non-Ledger abstract TBackend only
+  Pre-live: blocked until composition, observation, scope-exclusion errata,
+    AT-1..AT-12, and regression proof chain pass
+  Phase 2: real Ledger-backed adapter requires explicit Architect addendum
 ```
 
 ---
@@ -57,8 +64,10 @@ Pending request: runtime-temporal-executor-gate3-request-v0.md
 
 | File | Card | Status | Proposed Scope |
 |------|------|--------|----------------|
-| [runtime-temporal-executor-gate3-request-v0.md](runtime-temporal-executor-gate3-request-v0.md) | S3-R11-C1-G | pending | Restricted Gate 3: History[T] valid_time live eval; PROP-030 token required; BiHistory/Ledger write/cache excluded |
+| [runtime-temporal-executor-gate3-request-v0.md](runtime-temporal-executor-gate3-request-v0.md) | S3-R11-C1-G / S3-R12-C1-S | approved-restricted | Restricted Gate 3: History[T] valid_time eval; PROP-030 token required; BiHistory/Ledger write/cache excluded |
 
 ## Decision Index
 
-_No gate decisions recorded yet._
+| File | Card | Status | Scope |
+|------|------|--------|-------|
+| [gate3-decision-record-v0.md](gate3-decision-record-v0.md) | S3-R13-C1-A | approved-restricted-phase1 | Phase 1 implementation only: TEMPORAL History[T] valid_time via abstract proof-local/non-Ledger TBackend; live reads blocked until pre-live conditions pass |
