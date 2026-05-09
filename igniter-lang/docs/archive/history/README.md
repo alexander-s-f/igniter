@@ -23,6 +23,7 @@ reports when origin or archive evidence matters.
 | [History-S9 Dev Reference Truth Map](./history-s9-dev-reference-truth-map.md) | Classifies `playgrounds/docs/dev/reference/` as post-core transition memory, extracting contracts-first values and current-check rules. |
 | [History-S10 Igniter-Lang Expert Series Map](./history-s10-igniter-lang-expert-series-map.md) | Compresses `playgrounds/docs/experts/igniter-lang/` into accepted language signals, superseded early specs, live research, and bilingual rotation notes. |
 | [History-S11 General Expert Corpus Rotation Map](./history-s11-general-expert-corpus-rotation-map.md) | Adds read temperatures and rotation rules for `playgrounds/docs/experts/` outside Igniter-Lang, building on the S4 value extraction. |
+| [History-S12 Archive Rotation Candidate Ledger](./history-s12-archive-rotation-candidate-ledger.md) | Aggregates S1-S11 into cleanup packets, no-move zones, read temperatures, and exact future rotation candidates without moving files. |
 
 ## Read Rule
 
