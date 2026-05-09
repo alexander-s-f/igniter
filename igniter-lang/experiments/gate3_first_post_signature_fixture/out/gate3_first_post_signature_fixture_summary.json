@@ -1,0 +1,425 @@
+{
+  "kind": "gate3_first_post_signature_fixture_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R20-C2-P",
+  "track": "gate3-first-post-signature-fixture-v0",
+  "status": "PASS",
+  "addendum": {
+    "path": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+    "status": "signed-approved-restricted-phase1-live-read",
+    "signed": true
+  },
+  "policy_claim": {
+    "signing_changes": "policy/status only",
+    "executor_behavior_changed": false,
+    "phase1_authorized_scope": "History[T] valid_time / explicit as_of / non-Ledger backend",
+    "excluded": [
+      "Ledger",
+      "BiHistory",
+      "stream",
+      "OLAP",
+      "production_cache",
+      "writes",
+      "replay",
+      "compact",
+      "subscribe",
+      "durable_audit"
+    ]
+  },
+  "cases": {
+    "before_signed_reference_policy_blocks_true": {
+      "requested_gate3_authorized": true,
+      "policy_status": "draft-not-signed",
+      "caller_may_pass_gate3_authorized": false,
+      "executor_called": false
+    },
+    "before_signed_reference_executor_gate_closed": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.temporal_gate3_closed",
+        "message": "Gate 3 is closed for TEMPORAL evaluation",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "gate": "tbackend_gate3"
+        },
+        "blocked_stage": "gate_state",
+        "compatibility_report_id": "compat/phase1/12f8e7d2c7fa74c3",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "observations": []
+    },
+    "after_signed_reference_policy_allows_true": {
+      "requested_gate3_authorized": true,
+      "policy_status": "signed-approved-restricted-phase1-live-read",
+      "caller_may_pass_gate3_authorized": true,
+      "signed_addendum_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md"
+    },
+    "signed_memory_backend_executes": {
+      "evaluate": {
+        "status": "ok",
+        "kind": "temporal_evaluation_result",
+        "contract_id": "HistoryAxesTest",
+        "results": [
+          {
+            "node": "price_at",
+            "axis": "valid_time",
+            "result": {
+              "kind": "some",
+              "value": "99.00"
+            },
+            "backend_observation": {
+              "kind": "history_access_observation",
+              "subject": "sku/prod-001/price",
+              "as_of": "2026-05-09T12:00:00Z",
+              "access": "point",
+              "selected_append_ref": "obs/history_append/13af70945c2c21b7",
+              "result": {
+                "kind": "some",
+                "value": "99.00"
+              },
+              "option_encoding": {
+                "some": {
+                  "kind": "some",
+                  "value": "<value>"
+                },
+                "none": {
+                  "kind": "none"
+                }
+              },
+              "observation_id": "obs/history_access/2201acce248519a5",
+              "observed_at": "2026-05-09T12:00:00Z",
+              "temporal": {
+                "axis": "valid_time",
+                "as_of": "2026-05-09T12:00:00Z",
+                "lifecycle": "session"
+              }
+            }
+          }
+        ],
+        "observations_emitted": 1,
+        "runtime_enforced": true,
+        "scope": "History[T].valid_time / proof_local_memory_backend / proof-local",
+        "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
+      },
+      "observations": [
+        {
+          "kind": "temporal_live_read_observation",
+          "contract_id": "HistoryAxesTest",
+          "node": "price_at",
+          "axis": "valid_time",
+          "subject": "sku/prod-001/price",
+          "as_of": "2026-05-09T12:00:00Z",
+          "result_present": true,
+          "backend_identity": {
+            "kind": "proof_local_memory_backend",
+            "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+          },
+          "backend_observation_ref": "obs/history_access/2201acce248519a5",
+          "persistence": "proof_local"
+        }
+      ]
+    },
+    "signed_non_ledger_backend_executes": {
+      "evaluate": {
+        "status": "ok",
+        "kind": "temporal_evaluation_result",
+        "contract_id": "HistoryAxesTest",
+        "results": [
+          {
+            "node": "price_at",
+            "axis": "valid_time",
+            "result": {
+              "kind": "some",
+              "value": "non-ledger:sku/prod-001/price@2026-05-09T12:00:00Z"
+            },
+            "backend_observation": {
+              "observation_id": "obs/post_signature/non_ledger/1"
+            }
+          }
+        ],
+        "observations_emitted": 1,
+        "runtime_enforced": true,
+        "scope": "History[T].valid_time / proof_local_non_ledger_backend / proof-local",
+        "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
+      },
+      "observations": [
+        {
+          "kind": "temporal_live_read_observation",
+          "contract_id": "HistoryAxesTest",
+          "node": "price_at",
+          "axis": "valid_time",
+          "subject": "sku/prod-001/price",
+          "as_of": "2026-05-09T12:00:00Z",
+          "result_present": true,
+          "backend_identity": {
+            "kind": "proof_local_non_ledger_backend",
+            "backend_family": "proof_local",
+            "phase1_allowed": true,
+            "ledger_backed": false,
+            "invokes_ledger_package": false,
+            "package_adapter": false,
+            "class_name": "Gate3FirstPostSignatureFixture::ExplicitNonLedgerBackend"
+          },
+          "backend_observation_ref": "obs/post_signature/non_ledger/1",
+          "persistence": "proof_local"
+        }
+      ],
+      "read_attempts": 1
+    },
+    "guard_order_missing_token": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.executor_approval_missing",
+        "message": "approval token required",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {},
+        "blocked_stage": "approval_token",
+        "compatibility_report_id": "compat/phase1/e0fbd3359eb520b2",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "observations": []
+    },
+    "guard_order_gate_closed": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.temporal_gate3_closed",
+        "message": "Gate 3 is closed for TEMPORAL evaluation",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "gate": "tbackend_gate3"
+        },
+        "blocked_stage": "gate_state",
+        "compatibility_report_id": "compat/phase1/12f8e7d2c7fa74c3",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "observations": []
+    },
+    "guard_order_backend_identity": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.phase1_backend_identity_blocked",
+        "message": "backend identity is not allowed for Phase 1",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "backend_class": "Gate3FirstPostSignatureFixture::LedgerBackedAdapter",
+          "backend_identity": {
+            "kind": "ledger_tbackend_adapter",
+            "backend_family": "ledger",
+            "phase1_allowed": true,
+            "ledger_backed": true,
+            "invokes_ledger_package": true,
+            "package_adapter": true
+          }
+        },
+        "blocked_stage": "backend_identity",
+        "compatibility_report_id": "compat/phase1/5cf28514bdfda0db",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "read_attempts": 0,
+      "observations": []
+    },
+    "guard_order_scope": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.temporal_scope_exclusion",
+        "message": "Phase 1 executor handles only TEMPORAL fragment contracts",
+        "contract_id": "StreamFold",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "expected_scope": "history_valid_time",
+          "actual_fragment": "stream",
+          "actual_surface": "stream"
+        },
+        "blocked_stage": "scope",
+        "compatibility_report_id": "compat/phase1/a45adcbdab7462fb",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "read_attempts": 0,
+      "observations": []
+    },
+    "guard_order_cache_key": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.temporal_cache_schema_mismatch",
+        "message": "TEMPORAL evaluation cannot use a CORE-shaped cache key",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "gate": "L-T5",
+          "expected_fragment": "TEMPORAL",
+          "requested_fragment": "CORE"
+        },
+        "blocked_stage": "cache_key",
+        "compatibility_report_id": "compat/phase1/e3859a58082948e5",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "observations": []
+    },
+    "excluded_bihistory": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1_kernel",
+        "reason_code": "runtime.temporal_scope_exclusion",
+        "contract_id": "BiHistoryAxesTest",
+        "context": {
+          "expected_scope": "history_valid_time",
+          "actual_fragment": "temporal",
+          "actual_surface": "bihistory",
+          "actual_axis": "bitemporal"
+        },
+        "gate": "AT-7",
+        "compatibility_report_id": "compat/phase1/03a543c3f7bf4240"
+      },
+      "read_attempts": 0,
+      "observations": []
+    },
+    "excluded_stream": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.temporal_scope_exclusion",
+        "message": "Phase 1 executor handles only TEMPORAL fragment contracts",
+        "contract_id": "StreamFold",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "expected_scope": "history_valid_time",
+          "actual_fragment": "stream",
+          "actual_surface": "stream"
+        },
+        "blocked_stage": "scope",
+        "compatibility_report_id": "compat/phase1/a45adcbdab7462fb",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "read_attempts": 0,
+      "observations": []
+    },
+    "excluded_olap": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.temporal_scope_exclusion",
+        "message": "Phase 1 executor handles only TEMPORAL fragment contracts",
+        "contract_id": "OlapProjection",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "expected_scope": "history_valid_time",
+          "actual_fragment": "olap",
+          "actual_surface": "olap"
+        },
+        "blocked_stage": "scope",
+        "compatibility_report_id": "compat/phase1/2aaa7aa27991926d",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "read_attempts": 0,
+      "observations": []
+    },
+    "excluded_write": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.temporal_scope_exclusion",
+        "message": "Phase 1 executor handles only TEMPORAL fragment contracts",
+        "contract_id": "LedgerWrite",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "expected_scope": "history_valid_time",
+          "actual_fragment": "ledger_write",
+          "actual_surface": "ledger_write"
+        },
+        "blocked_stage": "scope",
+        "compatibility_report_id": "compat/phase1/8ec78d0113903741",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "read_attempts": 0,
+      "observations": []
+    }
+  },
+  "checks": {
+    "addendum.signed_status_detected": true,
+    "before_signed_reference.caller_must_not_pass_true": true,
+    "before_signed_reference.executor_blocks_at_gate_state": true,
+    "after_signed_reference.caller_may_pass_true": true,
+    "executor.guard_order_unchanged": true,
+    "memory_backend.executes_when_all_checks_pass": true,
+    "non_ledger_backend.executes_when_all_checks_pass": true,
+    "dangerous_backend.blocked_before_read": true,
+    "excluded_surfaces.no_live_paths": true,
+    "cache_key.core_shape_blocked": true
+  }
+}

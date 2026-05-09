@@ -1,29 +1,70 @@
 # Gate 3 Live-Read Decision Addendum v0
 
-Card: S3-R18-C1-A
+Card: S3-R20-C1-A
 Agent: [Architect Supervisor / Codex]
 Role: architect-supervisor
-Track: `gate3-live-read-decision-addendum-v0`
+Track: `gate3-live-read-addendum-signature-review-v0`
 Date: 2026-05-09
-Status: draft-not-signed
+Status: signed-approved-restricted-phase1-live-read
+
+Original draft: S3-R18-C1-A / `gate3-live-read-decision-addendum-v0`
 
 ---
 
 ## Decision State
 
-This document is a **draft addendum** for the first restricted Phase 1
+This document is a **signed addendum** for the first restricted Phase 1
 non-proof read path.
 
-It does not open live reads. It does not authorize callers to pass
-`gate3_authorized: true`. It does not authorize Ledger, BiHistory, production
-cache, stream/OLAP, writes, replay, compact, or subscribe.
+This addendum authorizes callers to pass `gate3_authorized: true` only for the
+restricted Phase 1 surface defined below, and only when the caller references
+this signed addendum in invocation evidence.
+
+It does not authorize Ledger, BiHistory, production cache, stream/OLAP, writes,
+replay, compact, subscribe, production signing/registry, or durable audit.
 
 Safe status phrase:
 
 ```text
-Gate 3 live-read addendum is drafted, not signed.
-Phase 1 non-proof reads remain blocked.
+Gate 3 live-read addendum is signed-approved for restricted Phase 1 only.
+Phase 1 non-proof reads are authorized only within this addendum scope.
+Phase 2, Ledger, BiHistory, stream/OLAP, production cache, writes/replay/
+compact/subscribe, production signing/registry, and durable audit remain closed.
 ```
+
+---
+
+## Signature Decision
+
+Decision: **sign / approve restricted Phase 1 live-read addendum**.
+
+Signed by: `[Architect Supervisor / Codex]`
+
+Signed on: `2026-05-09`
+
+Signature review card:
+
+```text
+Card: S3-R20-C1-A
+Track: gate3-live-read-addendum-signature-review-v0
+```
+
+Evidence cited:
+
+- `S3-R19-C1-P`: post-R18 regression rerun **PASS 15/15**;
+- `S3-R19-X1-S`: **PROCEED to Architect signature review**;
+- `S3-R18-X1-S PS-2`: guard-order amendment applied before signature.
+
+First caller-visible change:
+
+```text
+A caller may pass gate3_authorized: true only when the invocation evidence
+references this signed addendum and the call remains inside the restricted
+Phase 1 scope.
+```
+
+The executor behavior is not changed by this signature. The signature changes
+the authorization policy boundary only.
 
 ---
 
@@ -33,6 +74,9 @@ Phase 1 non-proof reads remain blocked.
 - `docs/tracks/stage3-round17-status-curation-v0.md`
 - `docs/discussions/runtime-temporal-executor-lib-prep-safety-pressure-v0.md`
 - `docs/tracks/phase1-lib-prep-regression-chain-rerun-v0.md`
+- `docs/tracks/phase1-r18-cleanup-regression-rerun-v0.md`
+- `docs/discussions/gate3-live-read-addendum-pre-signature-pressure-v0.md`
+- `docs/tracks/stage3-round19-status-curation-v0.md`
 
 R17 evidence says the lib-prep boundary is green for proof-local Phase 1:
 
@@ -43,12 +87,20 @@ safety pressure: PROCEED for proof-local Phase 1
 live-read addendum: draftable, not opened
 ```
 
+R19 evidence closes the pre-signing repair:
+
+```text
+post-R18 regression: PASS 15/15
+observation.backend_identity_emitted: ok
+safety pressure: PROCEED to Architect signature review
+guard order: approval_token -> gate_state -> backend_identity -> scope -> cache_key -> executor_backend
+```
+
 ---
 
-## Draft Authorization Target
+## Signed Authorization Target
 
-If this addendum is later signed by `[Architect Supervisor / Codex]`, it would
-authorize only this first non-proof Phase 1 surface:
+This addendum authorizes only this first non-proof Phase 1 surface:
 
 ```text
 IgniterLang::TemporalExecutor::Phase1
@@ -74,8 +126,9 @@ must refuse before backend access when they fail.
 
 ## Exact Authorization Conditions
 
-This draft can be signed only after all conditions below are satisfied and
-recorded by evidence tracks.
+This addendum is signed because the conditions below were satisfied and
+recorded by evidence tracks. They remain runtime/caller obligations after
+signature.
 
 ### 1. Allowed Backend Class / Identity
 
@@ -104,24 +157,24 @@ supports_compact: false
 supports_subscribe: false
 ```
 
-For the first signed addendum, `MemoryBackend` is the preferred and expected
-allowed backend. Any other backend identity must be named explicitly in a
-follow-up amendment before use.
+For this signed addendum, `MemoryBackend` is the preferred and expected allowed
+backend. Any other backend identity must be named explicitly in a follow-up
+amendment before use.
 
-The executor must have a backend identity guard before this addendum can be
-signed. Passing an arbitrary object that responds to `read_as_of` is not an
-acceptable non-proof authorization boundary.
+The executor has a backend identity guard before scope, cache-key, execution
+kernel, and backend `read_as_of`. Passing an arbitrary object that responds to
+`read_as_of` is not an acceptable non-proof authorization boundary.
 
 ### 2. `gate3_authorized` Source
 
 `gate3_authorized: true` may be passed only by a caller that directly references
-a signed version of this addendum and records the signed document path or
-authority event in its invocation evidence.
+this signed addendum and records the signed document path or authority event in
+its invocation evidence.
 
 The `Phase1` class does not self-authorize. The caller owns the policy step
 that decides whether this addendum exists and applies.
 
-Until this addendum is signed, the only valid default remains:
+For every call outside this signed scope, the only valid default remains:
 
 ```ruby
 gate3_authorized: false
@@ -201,8 +254,7 @@ composed boundary, not scattered boolean checks.
 
 ### 6. Regression Requirements
 
-Before signing, the following proof chain must remain green after any code or
-spec changes made by R18 cleanup tracks:
+The following proof chain remained green after the R18 cleanup tracks:
 
 ```text
 S3-R7..S3-R10 base runtime/executor/descriptor chain
@@ -217,13 +269,14 @@ Stage 1 close candidate
 Stage 2 close candidate
 ```
 
-The minimum current bar is the R17 signal:
+The signing evidence is the R19 signal:
 
 ```text
-14/14 PASS
+S3-R19-C1-P: 15/15 PASS
 ```
 
-A later signing record should cite the exact rerun track and pass count.
+Any follow-up change that touches this boundary must rerun an equivalent proof
+chain before widening authorization.
 
 ### 7. Reason Code Consistency
 
@@ -242,7 +295,7 @@ operator tooling.
 
 ## Explicit Exclusions
 
-This draft does not authorize:
+This signed addendum does not authorize:
 
 | Surface | State |
 |---------|-------|
@@ -261,35 +314,42 @@ This draft does not authorize:
 | Parser coordinate syntax | Not authorized by this addendum |
 | MCP or mesh temporal routing | Closed; future mesh gate |
 
-No excluded surface may be inferred from "live-read addendum drafted".
+No excluded surface may be inferred from "live-read addendum signed".
 
 ---
 
-## Blockers Before Signature
+## Signature Closure
 
-This draft cannot be signed until these blockers are closed:
+The pre-signature blockers are closed as follows:
 
 1. `phase1-backend-identity-guard-v0` lands and proves arbitrary
-   `read_as_of` objects cannot become authorized backends.
+   `read_as_of` objects cannot become authorized backends: **closed by
+   S3-R18-C4-P**.
 2. `runtime-temporal-scope-exclusion-reason-alias-v0` lands or equivalent
-   evidence proves canonical operator-facing reason codes.
+   evidence proves canonical operator-facing reason codes: **closed by
+   S3-R18-C3-P**.
 3. Proof-local docstrings land for `GATE3_AUTHORITY_REF` and `observations`,
-   clarifying source-code-parity authorization and in-memory-only observation.
-4. A post-cleanup regression rerun records the current proof chain PASS.
-5. A safety-pressure review of this draft returns `PROCEED` or routes only
-   non-blocking wording amendments.
+   clarifying source-code-parity authorization and in-memory-only observation:
+   **closed by S3-R18-C2-P**.
+4. A post-cleanup regression rerun records the current proof chain PASS:
+   **closed by S3-R19-C1-P, PASS 15/15**.
+5. A safety-pressure review of this addendum returns `PROCEED` or routes only
+   non-blocking wording amendments: **closed by S3-R19-X1-S, PROCEED to
+   Architect signature review**.
 6. `[Architect Supervisor / Codex]` issues an explicit signed addendum or
-   updates this document status from `draft-not-signed` to an approved status.
+   updates this document status from `draft-not-signed` to an approved status:
+   **closed by S3-R20-C1-A**.
 
 ---
 
-## Non-Authorization
+## Continuing Non-Authorization
 
-This document intentionally leaves live reads blocked.
+This document opens only the restricted Phase 1 live-read policy boundary named
+above. All other surfaces remain closed.
 
 ```text
-Phase 1 non-proof live reads: blocked
-gate3_authorized: false remains default
+Phase 1 non-proof live reads: authorized only inside signed addendum scope
+gate3_authorized: true: allowed only with signed-addendum invocation evidence
 Ledger adapter: closed
 BiHistory: closed
 production cache: closed
@@ -302,32 +362,33 @@ durable audit: closed
 ## Handoff
 
 ```text
-Card: S3-R18-C1-A
+Card: S3-R20-C1-A
 Agent: [Architect Supervisor / Codex]
 Role: architect-supervisor
-Track: gate3-live-read-decision-addendum-v0
-Status: draft-not-signed
+Track: gate3-live-read-addendum-signature-review-v0
+Status: signed-approved-restricted-phase1-live-read
 
 [D] Decisions
-- Drafted the first Gate 3 live-read addendum without signing it.
-- The draft names exact future authorization conditions for restricted Phase 1
-  non-proof reads.
-- Live reads remain blocked until a signed addendum exists.
+- Signed the first Gate 3 live-read addendum for restricted Phase 1 only.
+- The first caller-visible change is policy-only: callers may pass
+  `gate3_authorized: true` only when invocation evidence references this signed
+  addendum and the call remains inside scope.
+- Executor behavior was not changed by this signature.
 
 [S] Scope
-- Future possible surface: `IgniterLang::TemporalExecutor::Phase1`,
+- Authorized surface: `IgniterLang::TemporalExecutor::Phase1`,
   `History[T]` valid_time, explicit `as_of`, abstract non-Ledger backend.
 - Preferred first allowed backend: `Phase1::MemoryBackend`; arbitrary
-  `read_as_of` objects are not acceptable without identity guard evidence.
+  `read_as_of` objects are blocked by identity guard evidence.
 
 [T] Verification
-- Decision draft only; no runtime code changed.
+- S3-R19-C1-P: PASS 15/15.
+- S3-R19-X1-S: PROCEED to Architect signature review.
+- No runtime code changed by S3-R20-C1-A.
 
 [R] Blockers
-- Backend identity guard.
-- Canonical reason-code alias/consolidation.
-- Proof-local authority/observation docstrings.
-- Post-cleanup regression rerun.
-- Safety-pressure review of this draft.
-- Explicit Architect signature/status change.
+- Run first post-signature fixture to prove signing changes policy state only,
+  not executor behavior.
+- Phase 2 Ledger adapter, BiHistory, stream/OLAP, production cache, production
+  signing/registry, and durable audit remain separate.
 ```
