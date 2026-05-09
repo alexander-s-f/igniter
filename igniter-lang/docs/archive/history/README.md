@@ -18,6 +18,7 @@ reports when origin or archive evidence matters.
 | [History-S4 Expert Reports Value Map](./history-s4-expert-reports-value-map.md) | Extracts durable values from non-Igniter-Lang expert reports while keeping expert proposals out of canon until gated. |
 | [History-S5 Research Horizon Compression Map](./history-s5-research-horizon-compression-map.md) | Compresses `playgrounds/docs/research-horizon` into graduated doctrines, parked research lines, and read rules. |
 | [History-S6 Dev Process Tracks Legacy Map](./history-s6-dev-process-tracks-legacy-map.md) | Maps `playgrounds/docs/dev/` into process doctrines, active track routing, cold track history, legacy references, and rotation rules. |
+| [History-S7 Gate 3 Stage 3 R13-R22 Compression Map](./history-s7-gate3-stage3-rounds-13-22-compression-map.md) | Compresses the Gate 3 journey from R13 decision through R22 end-to-end/content-address proofs and preserves the reusable request-to-hardening process pattern. |
 
 ## Read Rule
 
