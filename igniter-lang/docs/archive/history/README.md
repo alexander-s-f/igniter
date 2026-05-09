@@ -24,6 +24,7 @@ reports when origin or archive evidence matters.
 | [History-S10 Igniter-Lang Expert Series Map](./history-s10-igniter-lang-expert-series-map.md) | Compresses `playgrounds/docs/experts/igniter-lang/` into accepted language signals, superseded early specs, live research, and bilingual rotation notes. |
 | [History-S11 General Expert Corpus Rotation Map](./history-s11-general-expert-corpus-rotation-map.md) | Adds read temperatures and rotation rules for `playgrounds/docs/experts/` outside Igniter-Lang, building on the S4 value extraction. |
 | [History-S12 Archive Rotation Candidate Ledger](./history-s12-archive-rotation-candidate-ledger.md) | Aggregates S1-S11 into cleanup packets, no-move zones, read temperatures, and exact future rotation candidates without moving files. |
+| [History-S13 External Pressure Corpus Map](./history-s13-external-pressure-corpus-map.md) | Classifies `playgrounds/docs/external/` as pressure atlas, benchmark corpus, grammar lab, boundary fixtures, and cold raw specimens. |
 
 ## Read Rule
 
