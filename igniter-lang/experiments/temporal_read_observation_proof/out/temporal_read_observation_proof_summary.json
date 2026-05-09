@@ -1,0 +1,217 @@
+{
+  "kind": "temporal_read_observation_proof_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R13-C3-P",
+  "track": "prop-005-temporal-read-observation-v0",
+  "status": "PASS",
+  "scope": {
+    "proof_local": true,
+    "live_tbackend_eval": false,
+    "ledger_binding": false,
+    "production_persistence": false,
+    "history_only": true,
+    "bihistory": false
+  },
+  "minimum_required_paths": [
+    "kind",
+    "format_version",
+    "observation_id",
+    "contract.contract_id",
+    "contract.contract_ref",
+    "store.store_ref",
+    "temporal.axis",
+    "temporal.as_of",
+    "temporal.valid_time",
+    "authorization.approval_ref",
+    "authorization.gate_ref",
+    "evidence.executor_approval_token_ref",
+    "result.status",
+    "result.value"
+  ],
+  "positive_observations": {
+    "selected_read": {
+      "kind": "temporal_read_observation",
+      "format_version": "0.1.0",
+      "emitted_at": "2026-05-09T12:00:00Z",
+      "operation": "history_read_as_of",
+      "fragment_class": "TEMPORAL",
+      "contract": {
+        "contract_id": "TechnicianJobCountAt",
+        "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572"
+      },
+      "store": {
+        "store_ref": "tbackend/memory-history/proof-local",
+        "store_kind": "MemoryHistoryBackend",
+        "descriptor_ref": "descriptor/tbackend/history-read/proof-local"
+      },
+      "authorization": {
+        "approval_ref": "approval/2026-05-09/gate3/history-phase1/proof-001",
+        "gate_ref": "gate3-decision-record-v0#phase1-history-valid-time",
+        "authority_ref": "architect-supervisor/proof-authority"
+      },
+      "evidence": {
+        "compatibility_report_ref": "compatibility-report/history-phase1/proof-001",
+        "executor_approval_token_ref": "approval/2026-05-09/gate3/history-phase1/proof-001",
+        "cache_key_ref": "cache-key/temporal/history-valid-time/proof-001"
+      },
+      "persistence": {
+        "mode": "proof_local",
+        "persisted": false,
+        "audit_receipt_ref": null
+      },
+      "non_authorization": {
+        "live_tbackend_eval_in_this_proof": false,
+        "ledger_call_attempted": false,
+        "production_persistence": false
+      },
+      "observation_id": "obs/history-read/2026-05-03/tech-1/selected",
+      "temporal": {
+        "axis": "valid_time",
+        "as_of": "2026-05-03T00:00:00Z",
+        "valid_time": "2026-05-03T00:00:00Z"
+      },
+      "result": {
+        "status": "selected",
+        "value": {
+          "kind": "some",
+          "value": 7
+        },
+        "value_type": "Integer",
+        "selected_observation_ref": "append/history/jobs-count/tech-1/2026-05-01"
+      }
+    },
+    "none_read": {
+      "kind": "temporal_read_observation",
+      "format_version": "0.1.0",
+      "emitted_at": "2026-05-09T12:00:00Z",
+      "operation": "history_read_as_of",
+      "fragment_class": "TEMPORAL",
+      "contract": {
+        "contract_id": "TechnicianJobCountAt",
+        "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572"
+      },
+      "store": {
+        "store_ref": "tbackend/memory-history/proof-local",
+        "store_kind": "MemoryHistoryBackend",
+        "descriptor_ref": "descriptor/tbackend/history-read/proof-local"
+      },
+      "authorization": {
+        "approval_ref": "approval/2026-05-09/gate3/history-phase1/proof-001",
+        "gate_ref": "gate3-decision-record-v0#phase1-history-valid-time",
+        "authority_ref": "architect-supervisor/proof-authority"
+      },
+      "evidence": {
+        "compatibility_report_ref": "compatibility-report/history-phase1/proof-001",
+        "executor_approval_token_ref": "approval/2026-05-09/gate3/history-phase1/proof-001",
+        "cache_key_ref": "cache-key/temporal/history-valid-time/proof-001"
+      },
+      "persistence": {
+        "mode": "proof_local",
+        "persisted": false,
+        "audit_receipt_ref": null
+      },
+      "non_authorization": {
+        "live_tbackend_eval_in_this_proof": false,
+        "ledger_call_attempted": false,
+        "production_persistence": false
+      },
+      "observation_id": "obs/history-read/2026-04-29/tech-1/none",
+      "temporal": {
+        "axis": "valid_time",
+        "as_of": "2026-04-29T00:00:00Z",
+        "valid_time": "2026-04-29T00:00:00Z"
+      },
+      "result": {
+        "status": "none",
+        "value": {
+          "kind": "none"
+        },
+        "value_type": "Integer",
+        "selected_observation_ref": null
+      }
+    }
+  },
+  "negative_cases": {
+    "missing_kind": {
+      "valid": false,
+      "errors": [
+        "kind must be temporal_read_observation"
+      ]
+    },
+    "missing_contract_ref": {
+      "valid": false,
+      "errors": [
+        "contract.contract_ref missing"
+      ]
+    },
+    "missing_store_ref": {
+      "valid": false,
+      "errors": [
+        "store.store_ref missing"
+      ]
+    },
+    "missing_as_of": {
+      "valid": false,
+      "errors": [
+        "temporal.as_of missing"
+      ]
+    },
+    "wrong_axis": {
+      "valid": false,
+      "errors": [
+        "temporal.axis must be valid_time"
+      ]
+    },
+    "missing_approval_ref": {
+      "valid": false,
+      "errors": [
+        "authorization.approval_ref missing"
+      ]
+    },
+    "missing_gate_ref": {
+      "valid": false,
+      "errors": [
+        "authorization.gate_ref missing"
+      ]
+    },
+    "missing_token_ref": {
+      "valid": false,
+      "errors": [
+        "evidence.executor_approval_token_ref missing"
+      ]
+    },
+    "missing_result_status": {
+      "valid": false,
+      "errors": [
+        "result.status invalid"
+      ]
+    },
+    "bad_result_status": {
+      "valid": false,
+      "errors": [
+        "result.status invalid"
+      ]
+    },
+    "noncanonical_some": {
+      "valid": false,
+      "errors": [
+        "result.value must use canonical Option encoding"
+      ]
+    }
+  },
+  "checks": {
+    "positive.selected_read_observation_valid": true,
+    "positive.none_read_observation_valid": true,
+    "positive.option_encoding_canonical": true,
+    "positive.persistence_is_proof_local": true,
+    "positive.no_live_tbackend_eval": true,
+    "negative.required_fields_rejected": true
+  },
+  "remaining_runtime_audit_gaps": [
+    "Production RuntimeMachine must emit this envelope before/around every authorized live History[T] read.",
+    "The envelope must be connected to composed CompatibilityReport and ExecutorApprovalToken validation.",
+    "Production persistence and audit receipts remain separate from emission and are not solved here.",
+    "A live TBackend adapter must attach the actual store/descriptor reference and selected append observation.",
+    "BiHistory, Ledger replay, writes, streams, OLAP, and invariant persistence remain out of scope."
+  ]
+}

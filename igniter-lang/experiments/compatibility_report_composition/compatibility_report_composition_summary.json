@@ -1,0 +1,212 @@
+{
+  "kind": "compatibility_report_composition_summary",
+  "card": "S3-R13-C4-P",
+  "track": "compatibility-report-composition-v0",
+  "status": "PASS",
+  "scope": {
+    "live_ledger_binding": false,
+    "live_tbackend_call": false,
+    "temporal_read": false,
+    "proof_local_only": true
+  },
+  "cases": {
+    "report_only_gate3_closed": {
+      "report_id": "compat/composed/ce4a23cfe1b979a7",
+      "report_only": true,
+      "runtime_enforced": false,
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.temporal_gate3_closed",
+        "blocks_before_executor": true,
+        "blockers": [
+          "runtime.temporal_gate3_closed"
+        ]
+      },
+      "composition_diagnostics": {
+        "kind": "compatibility_report_composition_diagnostic",
+        "status": "ok",
+        "problems": []
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false,
+        "cache_call_attempted": false
+      }
+    },
+    "runtime_enforced_ready": {
+      "report_id": "compat/composed/6a4825e862d626bb",
+      "report_only": false,
+      "runtime_enforced": true,
+      "evaluation_readiness": {
+        "decision": "ready",
+        "reason_code": "runtime.temporal_evaluation_ready",
+        "blocks_before_executor": false,
+        "blockers": []
+      },
+      "composition_diagnostics": {
+        "kind": "compatibility_report_composition_diagnostic",
+        "status": "ok",
+        "problems": []
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false,
+        "cache_call_attempted": false
+      }
+    },
+    "split_report_rejected": {
+      "report_id": "compat/composed/61f96de4d4f43305",
+      "report_only": true,
+      "runtime_enforced": false,
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "compatibility_report.composition_blocked",
+        "blocks_before_executor": true,
+        "blockers": [
+          "compatibility_report.composition_blocked"
+        ]
+      },
+      "composition_diagnostics": {
+        "kind": "compatibility_report_composition_diagnostic",
+        "status": "blocked",
+        "problems": [
+          "compatibility_report.split_report_rejected"
+        ]
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false,
+        "cache_call_attempted": false
+      }
+    },
+    "descriptor_blocked": {
+      "report_id": "compat/composed/ce6261046d0f91a4",
+      "report_only": true,
+      "runtime_enforced": false,
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.backend_descriptor_not_trusted",
+        "blocks_before_executor": true,
+        "blockers": [
+          "runtime.backend_descriptor_not_trusted"
+        ]
+      },
+      "composition_diagnostics": {
+        "kind": "compatibility_report_composition_diagnostic",
+        "status": "ok",
+        "problems": []
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false,
+        "cache_call_attempted": false
+      }
+    },
+    "approval_missing": {
+      "report_id": "compat/composed/0f3c653e134be227",
+      "report_only": true,
+      "runtime_enforced": false,
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.executor_approval_missing",
+        "blocks_before_executor": true,
+        "blockers": [
+          "runtime.executor_approval_missing"
+        ]
+      },
+      "composition_diagnostics": {
+        "kind": "compatibility_report_composition_diagnostic",
+        "status": "ok",
+        "problems": []
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false,
+        "cache_call_attempted": false
+      }
+    },
+    "executor_missing": {
+      "report_id": "compat/composed/d32ef6582003144e",
+      "report_only": true,
+      "runtime_enforced": false,
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.temporal_executor_missing",
+        "blocks_before_executor": true,
+        "blockers": [
+          "runtime.temporal_executor_missing"
+        ]
+      },
+      "composition_diagnostics": {
+        "kind": "compatibility_report_composition_diagnostic",
+        "status": "ok",
+        "problems": []
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false,
+        "cache_call_attempted": false
+      }
+    },
+    "cache_key_blocked": {
+      "report_id": "compat/composed/1232fb67641d294b",
+      "report_only": true,
+      "runtime_enforced": false,
+      "evaluation_readiness": {
+        "decision": "blocked",
+        "reason_code": "runtime.temporal_cache_schema_mismatch",
+        "blocks_before_executor": true,
+        "blockers": [
+          "runtime.temporal_cache_schema_mismatch"
+        ]
+      },
+      "composition_diagnostics": {
+        "kind": "compatibility_report_composition_diagnostic",
+        "status": "ok",
+        "problems": []
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false,
+        "cache_call_attempted": false
+      }
+    },
+    "report_only_all_checks_ok": {
+      "report_id": "compat/composed/43511baada437a4b",
+      "report_only": true,
+      "runtime_enforced": false,
+      "evaluation_readiness": {
+        "decision": "report_only_ready",
+        "reason_code": "compatibility_report.report_only_not_runtime_authority",
+        "blocks_before_executor": true,
+        "blockers": []
+      },
+      "composition_diagnostics": {
+        "kind": "compatibility_report_composition_diagnostic",
+        "status": "ok",
+        "problems": []
+      },
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false,
+        "cache_call_attempted": false
+      }
+    }
+  }
+}

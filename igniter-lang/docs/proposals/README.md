@@ -42,6 +42,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-022A](PROP-022A-temporal-manifest-errata-v0.md) | experiment-pass | Errata to accepted/PROP-022A: TEMPORAL manifest contract_index + fragment_summary; assembler PASS (S3-R5-C1) |
 | [PROP-029](PROP-029-entrypoint-section-surface-v0.md) | proposal | Entrypoint as named evaluation/run profile; section as grouping-only source organization; no parser implementation yet |
 | [PROP-030](PROP-030-executor-approval-token-contract-v0.md) | proposal | ExecutorApprovalToken contract; explicit approval as Gate 3 prerequisite; no executor or Gate 3 authorization |
+| [PROP-030A](PROP-030A-temporal-scope-exclusion-errata-v0.md) | proposal | Errata to PROP-030: canonical `runtime.temporal_scope_exclusion` refusal for out-of-scope TEMPORAL executor artifacts |
 
 ---
 
