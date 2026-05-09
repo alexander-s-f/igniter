@@ -89,6 +89,11 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
   R21 authority registry shape: PASS 11/11; proof-local caller policy metadata;
     no executor calls, signing, keys, production authority service, or Phase 2
   R21 audit/registry pressure: PROCEED; production checklist P-1..P-7 routed
+  R22 end-to-end invocation: PASS 9/9; registry check -> caller auth ->
+    Phase1 executor -> audit-ready envelope, proof-local only
+  R22 content-address addendum ref: PASS 9/9; path-only evidence is
+    non-compliant; content_sha256/status/authority mismatches block
+  R22 pressure: PROCEED; P-4/P-5 closed, P-8 post-R22 regression rerun added
 
 Authorized signed-addendum scope:
   IgniterLang::TemporalExecutor::Phase1
@@ -129,6 +134,9 @@ Authorized signed-addendum scope:
 | Compatibility audit envelope | proof-local PASS / not persisted | S3-R21-C1-P defines explicit `audit_ready_not_persisted` export; no durable audit or production storage |
 | Authority registry shape | proof-local PASS | S3-R21-C2-P defines caller-side active/revoked/superseded/missing/scope/capability/malformed cases; no signing/keys/executor calls |
 | Audit/registry pressure | PROCEED | S3-R21-X1 confirms durable audit and production signing are not implied; routes P-1..P-7 pre-production checklist |
+| Phase 1 end-to-end invocation | proof-local PASS | S3-R22-C1-P composes registry -> caller -> executor -> audit envelope; revoked registry and missing signed addendum block before executor |
+| Content-addressed addendum ref | proof-local PASS | S3-R22-C2-P requires human path plus content_sha256/git_commit/status/signed_on/authority_ref; path-only evidence is non-compliant |
+| E2E/content-address pressure | PROCEED | S3-R22-X1 closes P-4/P-5 and adds P-8 post-R22 regression rerun; production behavior remains closed |
 | Runtime authority registry v1 | not implemented | Required before production authority-revocation work; durable registry storage/status receipts remain future |
 | Production signing/key management | not implemented | Must remain separate from registry shape; sequence after registry v1 before production tokens |
 | Real Ledger adapter/package binding | closed | Requires explicit Architect addendum after Phase 1 |

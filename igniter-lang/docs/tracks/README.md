@@ -28,6 +28,15 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 22 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `phase1-end-to-end-invocation-fixture-v0.md` | done | PASS 9/9; composes registry check -> caller authorization -> Phase1 executor -> explicit audit-ready envelope; proof-local only |
+| `phase1-addendum-content-address-ref-v0.md` | done | PASS 9/9; signed addendum evidence requires human path plus content_sha256/git_commit/status/signed_on/authority_ref; path-only evidence non-compliant |
+| `../discussions/phase1-e2e-and-content-address-pressure-v0.md` | complete — PROCEED | X1 confirms no production behavior, no scope widening, P-4/P-5 closed, P-8 regression rerun added |
+| `stage3-round22-status-curation-v0.md` | done | R22 status/index/context/gate sync — this track |
+
 ## Stage 3 Round 21 Evidence
 
 | Track | Status | Notes |
@@ -421,11 +430,13 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
+| `phase1-post-r22-regression-rerun-v0` | Consolidate R20-R22 fixtures into the current regression matrix before production work | Research Agent | recommended next |
 | `durable-observation-persistence-v0` | Add production durable audit/storage boundary for Phase 1 observations; not implied by R21 audit-ready envelope | Research Agent / Bridge Agent | recommended next |
-| `phase1-addendum-content-address-ref-v0` | Replace mutable path-only `signed_addendum_ref` with commit/content-hash or registry-minted version reference | Meta Expert / Bridge Agent | recommended next |
-| `phase1-end-to-end-invocation-fixture-v0` | Compose registry check -> caller authorization -> Phase1 executor -> audit-ready envelope in one proof | Research Agent | recommended next |
-| `gate3-authority-registry-v1` | Durable registry storage, revocation/supersession lookup, status transition receipts, registry audit observations; still no signing keys | Bridge Agent + Research Agent | recommended next |
+| `gate3-authority-registry-v1` | Durable registry storage, revocation/supersession lookup, status transition receipts, registry audit observations, and content-addressed decision refs; still no signing keys | Bridge Agent + Research Agent | recommended next |
+| production `git_commit` compliance amendment | Treat `workspace-current` as non-compliant outside proof-local mode; require CI/registry-supplied immutable ref | Bridge Agent / Research Agent | before production |
 | `gate3-production-signing-v1` | Production signer identity, key rotation, signature algorithm, verification policy, deployment trust store | Bridge Agent / Architect Supervisor | after registry v1 |
+| `phase1-addendum-content-address-ref-v0` | Replace mutable path-only `signed_addendum_ref` with commit/content-hash or registry-minted version reference | Meta Expert / Bridge Agent | done in S3-R22-C2-P |
+| `phase1-end-to-end-invocation-fixture-v0` | Compose registry check -> caller authorization -> Phase1 executor -> audit-ready envelope in one proof | Research Agent | done in S3-R22-C1-P |
 | `compatibility-report-persistence-audit-v0` | Define proof-local audit-ready envelope; explicit export, not persisted | Research Agent / Bridge Agent | done in S3-R21-C1-P |
 | `gate3-authority-registry-shape-v0` | Define proof-local registry shape and caller-side policy cases; no signing/keys/executor calls | Bridge Agent + Research Agent | done in S3-R21-C2-P |
 | post-signature full-chain rerun on next code touch | Rerun an equivalent full proof chain when a follow-up changes runtime code; S3-R20 signature was policy-only | Research Agent | conditional |

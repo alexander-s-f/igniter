@@ -117,6 +117,9 @@ Source .ig
        audit-ready envelope                     ✅ explicit export, not persisted
        proof-local authority registry shape     ✅ caller policy metadata, no signing/keys
        audit/registry pressure                  ✅ PROCEED; production checklist routed
+       Phase 1 end-to-end invocation            ✅ proof-local PASS 9/9
+       content-addressed addendum reference     ✅ proof-local PASS 9/9
+       e2e/content-address pressure             ✅ PROCEED; P-4/P-5 closed, P-8 routed
        memoize TEMPORAL                         🚫 proof-local only
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -159,6 +162,8 @@ legacy/internal comparison, not the production path.
 | TEMPORAL evaluate | SIGNED-RESTRICTED PHASE 1 | R20 signed the live-read addendum and C2 fixture PASS 10/10 proves policy-only change. `gate3_authorized: true` may be caller-passed only with signed-addendum invocation evidence and only for History[T] valid_time, explicit as_of, MemoryBackend or explicitly named non-Ledger Phase 1 backend. |
 | Phase 1 audit envelope | PROOF-LOCAL / NOT PERSISTED | R21 C1 defines explicit `audit_ready_not_persisted` envelope over observation/report/authority/addendum/backend/result; no automatic persistence, durable audit, production storage, Ledger write, or authority registry. |
 | Phase 1 authority registry | PROOF-LOCAL SHAPE | R21 C2 defines caller-side registry metadata checked before `gate3_authorized: true`; active/revoked/superseded/missing/scope/capability/malformed cases PASS; no executor calls, signing, keys, or production authority service. |
+| Phase 1 end-to-end invocation | PROOF-LOCAL PASS | R22 C1 composes registry check -> caller authorization -> Phase1 executor -> explicit audit-ready envelope. Revoked registry and missing signed addendum block before executor; Ledger-like backend blocks before read. |
+| Signed addendum content ref | PROOF-LOCAL PASS | R22 C2 requires human path plus content_sha256, git_commit, signed status/date, and authority_ref. Path-only evidence is insufficient; `workspace-current` git_commit remains pre-production placeholder only. |
 | Runtime cache | PROOF-LOCAL | Cache key/memoization proofs exist; no production cache. |
 | TBackend Gate 1 | PASS | Report-only descriptor consumption fixture. |
 | TBackend Gate 2 | RATIFIED | Metadata-only package descriptor exposure and report-only descriptor mapping are trusted report metadata; no runtime authority. |
@@ -250,10 +255,10 @@ Do not run broad expensive suites just to curate maps.
 
 Recommended next routing from the latest status map:
 
-1. `durable-observation-persistence-v0` for production durable audit/storage; keep separate from R21 proof-local envelope
-2. `phase1-addendum-content-address-ref-v0` for commit/content-hash signed_addendum_ref, replacing mutable path-only audit reference
-3. `phase1-end-to-end-invocation-fixture-v0` composing registry check -> executor -> audit envelope
-4. `gate3-authority-registry-v1` for durable registry/revocation/status transitions
+1. `phase1-post-r22-regression-rerun-v0` to consolidate R20-R22 fixtures into the current matrix
+2. `durable-observation-persistence-v0` for production durable audit/storage; keep separate from proof-local envelopes
+3. `gate3-authority-registry-v1` for durable registry/revocation/status transitions, including content-addressed decision refs
+4. production compliance amendment: reject `git_commit: workspace-current` outside proof-local mode
 5. `gate3-production-signing-v1` only after registry ordering is defined; signing/key management remains closed
 6. preserve signed scope: Phase 1 History[T] valid_time only; no Ledger/BiHistory/stream/OLAP/cache/audit widening
 7. `gate3-phase2-addendum-process-v0` before any real Ledger adapter/package binding
