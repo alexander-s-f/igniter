@@ -1,0 +1,526 @@
+{
+  "kind": "phase1_end_to_end_invocation_fixture_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R22-C1-P",
+  "track": "phase1-end-to-end-invocation-fixture-v0",
+  "status": "PASS",
+  "addendum": {
+    "path": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+    "status": "signed-approved-restricted-phase1-live-read",
+    "signed": true
+  },
+  "pipeline": [
+    "authority_registry_check",
+    "caller_authorization",
+    "phase1_executor",
+    "audit_ready_export"
+  ],
+  "non_authorization": {
+    "ledger": false,
+    "production_storage": false,
+    "production_signing": false,
+    "durable_audit": false,
+    "phase2": false
+  },
+  "cases": {
+    "memory_backend_end_to_end": {
+      "registry_check": {
+        "status": "ok",
+        "registry_check_id": "registry/check/09a766098e1cfeecbae6",
+        "caller_may_pass_gate3_authorized": true,
+        "gate3_authorized_value": true,
+        "reason_code": "authority_registry.active_scope_allowed",
+        "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+        "decision_doc_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+        "production_signing": false,
+        "executor_called": false
+      },
+      "caller_authorization": {
+        "gate3_authorized": true,
+        "source": "proof_local_authority_registry"
+      },
+      "executor_called": true,
+      "evaluate": {
+        "status": "ok",
+        "kind": "temporal_evaluation_result",
+        "contract_id": "HistoryAxesTest",
+        "results": [
+          {
+            "node": "price_at",
+            "axis": "valid_time",
+            "result": {
+              "kind": "some",
+              "value": "99.00"
+            },
+            "backend_observation": {
+              "kind": "history_access_observation",
+              "subject": "sku/prod-001/price",
+              "as_of": "2026-05-09T12:00:00Z",
+              "access": "point",
+              "selected_append_ref": "obs/history_append/13af70945c2c21b7",
+              "result": {
+                "kind": "some",
+                "value": "99.00"
+              },
+              "option_encoding": {
+                "some": {
+                  "kind": "some",
+                  "value": "<value>"
+                },
+                "none": {
+                  "kind": "none"
+                }
+              },
+              "observation_id": "obs/history_access/2201acce248519a5",
+              "observed_at": "2026-05-09T12:00:00Z",
+              "temporal": {
+                "axis": "valid_time",
+                "as_of": "2026-05-09T12:00:00Z",
+                "lifecycle": "session"
+              }
+            }
+          }
+        ],
+        "observations_emitted": 1,
+        "runtime_enforced": true,
+        "scope": "History[T].valid_time / proof_local_memory_backend / proof-local",
+        "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
+      },
+      "observations": [
+        {
+          "kind": "temporal_live_read_observation",
+          "contract_id": "HistoryAxesTest",
+          "node": "price_at",
+          "axis": "valid_time",
+          "subject": "sku/prod-001/price",
+          "as_of": "2026-05-09T12:00:00Z",
+          "result_present": true,
+          "backend_identity": {
+            "kind": "proof_local_memory_backend",
+            "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+          },
+          "backend_observation_ref": "obs/history_access/2201acce248519a5",
+          "persistence": "proof_local"
+        }
+      ],
+      "read_attempts": null,
+      "audit_export": {
+        "kind": "audit_ready_temporal_read_envelope",
+        "format_version": "0.1.0",
+        "envelope_id": "b73de0fa2f085147d54d",
+        "export_mode": "explicit",
+        "audit_state": "audit_ready_not_persisted",
+        "registry_check_ref": "registry/check/09a766098e1cfeecbae6",
+        "temporal_live_read_observation": {
+          "kind": "temporal_live_read_observation",
+          "contract_id": "HistoryAxesTest",
+          "node": "price_at",
+          "axis": "valid_time",
+          "subject": "sku/prod-001/price",
+          "as_of": "2026-05-09T12:00:00Z",
+          "result_present": true,
+          "backend_identity": {
+            "kind": "proof_local_memory_backend",
+            "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+          },
+          "backend_observation_ref": "obs/history_access/2201acce248519a5",
+          "persistence": "proof_local"
+        },
+        "compatibility_report_ref": "compat/phase1/2ee0d8d8867a4714",
+        "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+        "signed_addendum_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+        "backend_identity": {
+          "kind": "proof_local_memory_backend",
+          "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+        },
+        "result": {
+          "status": "allowed",
+          "reason_code": "runtime.temporal_evaluation_ready",
+          "result_present": true
+        },
+        "storage": {
+          "automatic_persistence": false,
+          "durable_persistence": false,
+          "ledger_write": false,
+          "production_storage": false
+        }
+      },
+      "storage": {
+        "automatic_persistence": false,
+        "durable_persistence": false,
+        "ledger_write": false,
+        "production_storage": false
+      }
+    },
+    "non_ledger_backend_end_to_end": {
+      "registry_check": {
+        "status": "ok",
+        "registry_check_id": "registry/check/09a766098e1cfeecbae6",
+        "caller_may_pass_gate3_authorized": true,
+        "gate3_authorized_value": true,
+        "reason_code": "authority_registry.active_scope_allowed",
+        "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+        "decision_doc_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+        "production_signing": false,
+        "executor_called": false
+      },
+      "caller_authorization": {
+        "gate3_authorized": true,
+        "source": "proof_local_authority_registry"
+      },
+      "executor_called": true,
+      "evaluate": {
+        "status": "ok",
+        "kind": "temporal_evaluation_result",
+        "contract_id": "HistoryAxesTest",
+        "results": [
+          {
+            "node": "price_at",
+            "axis": "valid_time",
+            "result": {
+              "kind": "some",
+              "value": "non-ledger:sku/prod-001/price@2026-05-09T12:00:00Z"
+            },
+            "backend_observation": {
+              "observation_id": "obs/e2e/non_ledger/1"
+            }
+          }
+        ],
+        "observations_emitted": 1,
+        "runtime_enforced": true,
+        "scope": "History[T].valid_time / proof_local_non_ledger_backend / proof-local",
+        "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
+      },
+      "observations": [
+        {
+          "kind": "temporal_live_read_observation",
+          "contract_id": "HistoryAxesTest",
+          "node": "price_at",
+          "axis": "valid_time",
+          "subject": "sku/prod-001/price",
+          "as_of": "2026-05-09T12:00:00Z",
+          "result_present": true,
+          "backend_identity": {
+            "kind": "proof_local_non_ledger_backend",
+            "backend_family": "proof_local",
+            "phase1_allowed": true,
+            "ledger_backed": false,
+            "invokes_ledger_package": false,
+            "package_adapter": false,
+            "class_name": "Phase1EndToEndInvocationFixture::ExplicitNonLedgerBackend"
+          },
+          "backend_observation_ref": "obs/e2e/non_ledger/1",
+          "persistence": "proof_local"
+        }
+      ],
+      "read_attempts": 1,
+      "audit_export": {
+        "kind": "audit_ready_temporal_read_envelope",
+        "format_version": "0.1.0",
+        "envelope_id": "79ec556c3fab75701512",
+        "export_mode": "explicit",
+        "audit_state": "audit_ready_not_persisted",
+        "registry_check_ref": "registry/check/09a766098e1cfeecbae6",
+        "temporal_live_read_observation": {
+          "kind": "temporal_live_read_observation",
+          "contract_id": "HistoryAxesTest",
+          "node": "price_at",
+          "axis": "valid_time",
+          "subject": "sku/prod-001/price",
+          "as_of": "2026-05-09T12:00:00Z",
+          "result_present": true,
+          "backend_identity": {
+            "kind": "proof_local_non_ledger_backend",
+            "backend_family": "proof_local",
+            "phase1_allowed": true,
+            "ledger_backed": false,
+            "invokes_ledger_package": false,
+            "package_adapter": false,
+            "class_name": "Phase1EndToEndInvocationFixture::ExplicitNonLedgerBackend"
+          },
+          "backend_observation_ref": "obs/e2e/non_ledger/1",
+          "persistence": "proof_local"
+        },
+        "compatibility_report_ref": "compat/phase1/2ee0d8d8867a4714",
+        "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+        "signed_addendum_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+        "backend_identity": {
+          "kind": "proof_local_non_ledger_backend",
+          "backend_family": "proof_local",
+          "phase1_allowed": true,
+          "ledger_backed": false,
+          "invokes_ledger_package": false,
+          "package_adapter": false,
+          "class_name": "Phase1EndToEndInvocationFixture::ExplicitNonLedgerBackend"
+        },
+        "result": {
+          "status": "allowed",
+          "reason_code": "runtime.temporal_evaluation_ready",
+          "result_present": true
+        },
+        "storage": {
+          "automatic_persistence": false,
+          "durable_persistence": false,
+          "ledger_write": false,
+          "production_storage": false
+        }
+      },
+      "storage": {
+        "automatic_persistence": false,
+        "durable_persistence": false,
+        "ledger_write": false,
+        "production_storage": false
+      }
+    },
+    "revoked_registry_blocks_before_executor": {
+      "registry_check": {
+        "status": "blocked",
+        "registry_check_id": "registry/check/b15c86269172",
+        "caller_may_pass_gate3_authorized": false,
+        "gate3_authorized_value": false,
+        "reason_code": "authority_registry.revoked",
+        "blocked_stage": "registry_entry",
+        "executor_called": false,
+        "production_signing": false,
+        "revoked_on": "2026-05-10"
+      },
+      "caller_authorization": {
+        "gate3_authorized": false,
+        "source": "proof_local_authority_registry"
+      },
+      "executor_called": false,
+      "evaluate": null,
+      "observations": [],
+      "read_attempts": 0,
+      "audit_export": null,
+      "storage": {
+        "automatic_persistence": false,
+        "durable_persistence": false,
+        "ledger_write": false,
+        "production_storage": false
+      }
+    },
+    "missing_signed_addendum_blocks_before_executor": {
+      "registry_check": {
+        "status": "blocked",
+        "registry_check_id": "registry/check/422c2acf03be",
+        "caller_may_pass_gate3_authorized": false,
+        "gate3_authorized_value": false,
+        "reason_code": "authority_registry.signed_addendum_evidence_missing",
+        "blocked_stage": "decision_doc_ref",
+        "executor_called": false,
+        "production_signing": false
+      },
+      "caller_authorization": {
+        "gate3_authorized": false,
+        "source": "proof_local_authority_registry"
+      },
+      "executor_called": false,
+      "evaluate": null,
+      "observations": [],
+      "read_attempts": 0,
+      "audit_export": null,
+      "storage": {
+        "automatic_persistence": false,
+        "durable_persistence": false,
+        "ledger_write": false,
+        "production_storage": false
+      }
+    },
+    "ledger_like_backend_blocks_before_read": {
+      "registry_check": {
+        "status": "ok",
+        "registry_check_id": "registry/check/09a766098e1cfeecbae6",
+        "caller_may_pass_gate3_authorized": true,
+        "gate3_authorized_value": true,
+        "reason_code": "authority_registry.active_scope_allowed",
+        "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+        "decision_doc_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+        "production_signing": false,
+        "executor_called": false
+      },
+      "caller_authorization": {
+        "gate3_authorized": true,
+        "source": "proof_local_authority_registry"
+      },
+      "executor_called": true,
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor_phase1",
+        "reason_code": "runtime.phase1_backend_identity_blocked",
+        "message": "backend identity is not allowed for Phase 1",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "backend_class": "Phase1EndToEndInvocationFixture::LedgerLikeBackend",
+          "backend_identity": {
+            "kind": "ledger_tbackend_adapter",
+            "backend_family": "ledger",
+            "phase1_allowed": true,
+            "ledger_backed": true,
+            "invokes_ledger_package": true,
+            "package_adapter": true
+          }
+        },
+        "blocked_stage": "backend_identity",
+        "compatibility_report_id": "compat/phase1/5cf28514bdfda0db",
+        "operation_check": {
+          "temporal_executor_call_attempted": false,
+          "live_tbackend_call_attempted": false,
+          "ledger_call_attempted": false,
+          "temporal_read_attempted": false,
+          "cache_call_attempted": false
+        }
+      },
+      "observations": [],
+      "read_attempts": 0,
+      "audit_export": {
+        "kind": "audit_ready_temporal_refusal_envelope",
+        "format_version": "0.1.0",
+        "envelope_id": "0215d954e0e7fb274fed",
+        "export_mode": "explicit",
+        "audit_state": "audit_ready_not_persisted",
+        "registry_check_ref": "registry/check/09a766098e1cfeecbae6",
+        "temporal_live_read_observation": null,
+        "compatibility_report_ref": "compat/phase1/5cf28514bdfda0db",
+        "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+        "signed_addendum_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+        "backend_identity": null,
+        "result": {
+          "status": "refused",
+          "reason_code": "runtime.phase1_backend_identity_blocked",
+          "blocked_stage": "backend_identity"
+        },
+        "storage": {
+          "automatic_persistence": false,
+          "durable_persistence": false,
+          "ledger_write": false,
+          "production_storage": false
+        }
+      },
+      "storage": {
+        "automatic_persistence": false,
+        "durable_persistence": false,
+        "ledger_write": false,
+        "production_storage": false
+      }
+    },
+    "missing_audit_export_non_compliant": {
+      "registry_check": {
+        "status": "ok",
+        "registry_check_id": "registry/check/09a766098e1cfeecbae6",
+        "caller_may_pass_gate3_authorized": true,
+        "gate3_authorized_value": true,
+        "reason_code": "authority_registry.active_scope_allowed",
+        "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+        "decision_doc_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+        "production_signing": false,
+        "executor_called": false
+      },
+      "caller_authorization": {
+        "gate3_authorized": true,
+        "source": "proof_local_authority_registry"
+      },
+      "executor_called": true,
+      "evaluate": {
+        "status": "ok",
+        "kind": "temporal_evaluation_result",
+        "contract_id": "HistoryAxesTest",
+        "results": [
+          {
+            "node": "price_at",
+            "axis": "valid_time",
+            "result": {
+              "kind": "some",
+              "value": "99.00"
+            },
+            "backend_observation": {
+              "kind": "history_access_observation",
+              "subject": "sku/prod-001/price",
+              "as_of": "2026-05-09T12:00:00Z",
+              "access": "point",
+              "selected_append_ref": "obs/history_append/13af70945c2c21b7",
+              "result": {
+                "kind": "some",
+                "value": "99.00"
+              },
+              "option_encoding": {
+                "some": {
+                  "kind": "some",
+                  "value": "<value>"
+                },
+                "none": {
+                  "kind": "none"
+                }
+              },
+              "observation_id": "obs/history_access/2201acce248519a5",
+              "observed_at": "2026-05-09T12:00:00Z",
+              "temporal": {
+                "axis": "valid_time",
+                "as_of": "2026-05-09T12:00:00Z",
+                "lifecycle": "session"
+              }
+            }
+          }
+        ],
+        "observations_emitted": 1,
+        "runtime_enforced": true,
+        "scope": "History[T].valid_time / proof_local_memory_backend / proof-local",
+        "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+        "compatibility_report_id": "compat/phase1/2ee0d8d8867a4714"
+      },
+      "observations": [
+        {
+          "kind": "temporal_live_read_observation",
+          "contract_id": "HistoryAxesTest",
+          "node": "price_at",
+          "axis": "valid_time",
+          "subject": "sku/prod-001/price",
+          "as_of": "2026-05-09T12:00:00Z",
+          "result_present": true,
+          "backend_identity": {
+            "kind": "proof_local_memory_backend",
+            "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+          },
+          "backend_observation_ref": "obs/history_access/2201acce248519a5",
+          "persistence": "proof_local"
+        }
+      ],
+      "read_attempts": null,
+      "audit_export": {
+        "kind": "audit_export_non_compliant",
+        "format_version": "0.1.0",
+        "status": "non_compliant",
+        "reason_code": "audit.export_missing",
+        "compatibility_report_ref": "compat/phase1/2ee0d8d8867a4714",
+        "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+        "storage": {
+          "automatic_persistence": false,
+          "durable_persistence": false,
+          "ledger_write": false,
+          "production_storage": false
+        }
+      },
+      "storage": {
+        "automatic_persistence": false,
+        "durable_persistence": false,
+        "ledger_write": false,
+        "production_storage": false
+      }
+    }
+  },
+  "checks": {
+    "addendum.signed_status_detected": true,
+    "memory_backend.end_to_end_allowed": true,
+    "non_ledger_backend.end_to_end_allowed": true,
+    "revoked_registry.blocks_before_executor": true,
+    "missing_signed_addendum.blocks_before_executor": true,
+    "ledger_like_backend.blocks_before_read": true,
+    "missing_audit_export.non_compliant_not_persisted": true,
+    "no_case_uses_production_signing": true,
+    "no_case_uses_production_storage_or_ledger": true
+  }
+}

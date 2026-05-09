@@ -1,0 +1,91 @@
+{
+  "kind": "phase1_addendum_content_address_ref_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R22-C2-P",
+  "track": "phase1-addendum-content-address-ref-v0",
+  "status": "PASS",
+  "reference_shape": {
+    "document_path": "human-readable path",
+    "git_commit": "git commit containing/reading the evidence",
+    "content_sha256": "sha256:<document bytes>",
+    "status": "signed-approved-restricted-phase1-live-read",
+    "signed_on": "2026-05-09",
+    "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+  },
+  "actual_reference": {
+    "document_path": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+    "git_commit": "workspace-current",
+    "content_sha256": "sha256:1b1f1b9bae989634bdebcf7d211995f9e1482493dfda4f0cc6df571405325433",
+    "status": "signed-approved-restricted-phase1-live-read",
+    "signed_on": "2026-05-09",
+    "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+  },
+  "cases": {
+    "valid_content_address_ref": {
+      "status": "ok",
+      "caller_may_reference_signed_addendum": true,
+      "human_path_present": true,
+      "content_addressed_identity_present": true,
+      "document_path": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+      "git_commit": "workspace-current",
+      "content_sha256": "sha256:1b1f1b9bae989634bdebcf7d211995f9e1482493dfda4f0cc6df571405325433",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "production_registry_required": false,
+      "production_signing_required": false
+    },
+    "path_exists_hash_mismatch": {
+      "status": "blocked",
+      "caller_may_reference_signed_addendum": false,
+      "reason_code": "addendum_ref.content_hash_mismatch",
+      "production_registry_required": false,
+      "production_signing_required": false,
+      "expected": "sha256:1b1f1b9bae989634bdebcf7d211995f9e1482493dfda4f0cc6df571405325433",
+      "got": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "status_not_signed_approved": {
+      "status": "blocked",
+      "caller_may_reference_signed_addendum": false,
+      "reason_code": "addendum_ref.status_not_signed_approved",
+      "production_registry_required": false,
+      "production_signing_required": false,
+      "got": "draft-not-signed"
+    },
+    "authority_ref_mismatch": {
+      "status": "blocked",
+      "caller_may_reference_signed_addendum": false,
+      "reason_code": "addendum_ref.authority_ref_mismatch",
+      "production_registry_required": false,
+      "production_signing_required": false,
+      "got": "architect-supervisor://wrong"
+    },
+    "human_path_and_content_identity_present": {
+      "status": "ok",
+      "caller_may_reference_signed_addendum": true,
+      "human_path_present": true,
+      "content_addressed_identity_present": true,
+      "document_path": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+      "git_commit": "workspace-current",
+      "content_sha256": "sha256:1b1f1b9bae989634bdebcf7d211995f9e1482493dfda4f0cc6df571405325433",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "production_registry_required": false,
+      "production_signing_required": false
+    }
+  },
+  "checks": {
+    "valid_reference.ok": true,
+    "valid_reference.carries_human_path": true,
+    "valid_reference.carries_content_identity": true,
+    "hash_mismatch.blocks": true,
+    "status_not_signed.blocks": true,
+    "authority_ref_mismatch.blocks": true,
+    "human_and_content_case.ok": true,
+    "no_case_requires_production_registry": true,
+    "no_case_requires_production_signing": true
+  },
+  "non_authorization": {
+    "production_registry_required": false,
+    "production_signing_required": false,
+    "signed_addendum_mutated": false,
+    "phase2_ledger_adapter": false
+  }
+}
