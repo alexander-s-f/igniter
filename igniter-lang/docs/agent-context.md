@@ -142,7 +142,7 @@ legacy/internal comparison, not the production path.
 | Gate 3 Phase 1 | APPROVED-RESTRICTED / PREP LANDED | Phase 1 proof-local implementation-prep landed for History[T] valid_time via abstract proof-local/non-Ledger TBackend; live reads remain blocked by AT-2/AT-9/order gaps and regression proof chain. |
 | TBackend Gate 3 Phase 2 | CLOSED | Real Ledger adapter/package binding, BiHistory, stream/OLAP, writes/replay/compact/subscribe, and production cache need separate Architect approval/addendum as specified. |
 | Release publish | CLOSED | `bin/release-gate` may build artifacts; RubyGems publish needs explicit approval and MFA owner action. |
-| Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; no syntax is canon without proposal/proof. |
+| Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; S3-R14 C7-C10 added truth-system, HTTP/knowledge/legal, emergency mesh, and marketplace pressure; no syntax is canon without proposal/proof. |
 
 ---
 
@@ -235,3 +235,5 @@ Recommended next routing from the latest status map:
 7. `gate3-phase2-addendum-process-v0` before Phase 2
 8. `compatibility-report-persistence-audit-v0`
 9. `spec-ch6-invariant-source-metadata-sync-v0`
+10. `external-http-json-capability-pressure-v0` as pressure backlog, not parser/runtime implementation
+11. `controlled-agent-replication-boundary-pressure-v0` as pressure backlog before any emergency mesh fixture

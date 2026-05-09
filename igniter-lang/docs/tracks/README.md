@@ -40,6 +40,10 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 | `../discussions/phase1-implementation-prep-safety-pressure-v0.md` | complete — PROCEED | No live-eval/Ledger/BiHistory/cache leak; proof-local Phase 1 may continue; production/live blockers are C4 ordering, AT-2 integration, AT-9 URI comparison |
 | `news-clarity-aggregator-syntax-pressure-form-v0.md` | done | Non-canon syntax/product pressure only; no parser/runtime/spec authorization |
 | `truth-systems-osint-applied-pressure-v0.md` | done | Applied truth-system/OSINT pressure; synthetic/public-style safety boundary; no canon promotion |
+| `general-purpose-fixtures-syntax-pressure-form-v0.md` | done | Cross Test 2 syntax/product pressure for HTTP API, AgentKnowledgeMesh, ClarityDuelEngine, LegalAdvocateOSINT; raw snippets should not become parser fixtures verbatim |
+| `general-purpose-and-legal-osint-applied-pressure-v0.md` | done | Applied pressure routes HTTP/JSON baseline, agent knowledge conflict, truth-system evidence bundles, legal safety, and agent authority profiles; no implementation authorization |
+| `general-purpose-fixtures-syntax-pressure-form-cross-test-3-v0.md` | done | Cross Test 3 pressure for EmergencyAgentMeshReplicator and DecentralizedMarketplace; self-replication/self-modification/escrow remain high-risk product pressure only |
+| `general-purpose-emergency-mesh-marketplace-pressure-v0.md` | done | Applied emergency mesh/marketplace pressure; recommends controlled synthetic fixtures before any live spawn/patch/escrow adapter discussion |
 | `stage3-round14-status-curation-v0.md` | done | R14 status/index/context/gate sync — this track |
 
 ---
@@ -348,6 +352,10 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 | `gate3-authority-registry-v0` | Define trusted authority/revocation source for PROP-030 tokens before Phase 2; do not imply live Ledger binding | Bridge Agent + Research Agent | before Phase 2 |
 | `gate3-phase2-addendum-process-v0` | Define explicit Architect addendum route for real Ledger adapter/package binding after Phase 1 | Meta Expert / Bridge Agent | before Phase 2 |
 | `compatibility-report-persistence-audit-v0` | Persist report decisions and audit receipts; keep live operations gated until Phase 1 AT/regression pass | Research Agent / Bridge Agent | after Phase 1 preflight |
+| `external-http-json-capability-pressure-v0` | Define minimum HTTP/JSON capability profile: request, response, error, redaction, replay, receipt, and refusal cases | Compiler/Grammar Expert + Bridge Agent | pressure backlog |
+| `controlled-agent-replication-boundary-pressure-v0` | Define spawn intent/receipt, resource budget, authority inheritance, and refusal diagnostics before emergency mesh fixtures | Research Agent + Bridge Agent | pressure backlog |
+| `data-role-vocabulary-specimen-v0` | Narrow `packet/event/receipt` pressure into evidence/receipt/proof vocabulary candidates without parser promotion | Compiler/Grammar Expert | pressure backlog |
+| `store-declaration-surface-pressure-v0` | Continue recurring `store` pressure across History/BiHistory/product fixtures without implying live evaluation | Compiler/Grammar Expert + Research Agent | pressure backlog |
 | `compatibility-report-package-adoption-v0` | Package/Bridge adoption of report-only descriptor consumption shape while preserving `runtime_enforced=false` and no live binding | Bridge Agent / Package Agent | recommended |
 | `spec-ch6-invariant-source-metadata-sync-v0` | Document optional `source_metadata` / `source_span` on `invariant_node` and invariant coverage report entries | Compiler/Grammar Expert | docs/spec sync |
 | `entrypoint-section-parser-typechecker-v0` | Implement and prove PROP-029 contextual parser/typechecker behavior only after proposal acceptance | Compiler/Grammar Expert | gated |

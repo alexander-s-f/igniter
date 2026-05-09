@@ -41,6 +41,10 @@ igniter-lang/docs/tracks/spec-ch7-gate3-approval-sync-v0.md
 igniter-lang/docs/discussions/phase1-implementation-prep-safety-pressure-v0.md
 igniter-lang/docs/tracks/news-clarity-aggregator-syntax-pressure-form-v0.md
 igniter-lang/docs/tracks/truth-systems-osint-applied-pressure-v0.md
+igniter-lang/docs/tracks/general-purpose-fixtures-syntax-pressure-form-v0.md
+igniter-lang/docs/tracks/general-purpose-and-legal-osint-applied-pressure-v0.md
+igniter-lang/docs/tracks/general-purpose-fixtures-syntax-pressure-form-cross-test-3-v0.md
+igniter-lang/docs/tracks/general-purpose-emergency-mesh-marketplace-pressure-v0.md
 ```
 
 ---
@@ -56,6 +60,7 @@ igniter-lang/docs/tracks/truth-systems-osint-applied-pressure-v0.md
 | S3-R14-C5-P | done | Ch7 synced to approved-restricted Phase 1, pre-live block, AT-1..AT-12, scope exclusion, observation, and closed adjacent scopes. |
 | S3-R14-X1-S | complete - PROCEED | No live-eval, Ledger, BiHistory, or production-cache leak found; proof-local Phase 1 may continue. |
 | S3-R14-C7/C8 | done | NewsClarity/truth-system pressure landed as non-canon syntax/product pressure only. |
+| S3-R14-C9/C10 | done | General-purpose HTTP/knowledge/legal and emergency mesh/marketplace pressure landed; no parser/runtime/spec authorization. |
 
 ---
 
@@ -127,6 +132,8 @@ What changed:
 - Ch7 now reflects approved-restricted Phase 1 semantics.
 - X1 says PROCEED for proof-local prep and found no live-eval or adjacent-scope
   leak.
+- Async pressure slices C9/C10 added HTTP/JSON, agent knowledge, legal OSINT,
+  emergency mesh, self-modification, and marketplace/escrow pressure.
 
 What did not change:
 
@@ -134,6 +141,9 @@ What did not change:
 - No executor code is promoted to `lib/`.
 - No Ledger adapter, BiHistory, stream/OLAP executor, production cache, parser
   coordinate syntax, or MCP/mesh route is opened.
+- No general-purpose pressure syntax is promoted to canon.
+- No emergency replication, self-modification, legal/OSINT public action,
+  marketplace escrow, or real financial behavior is authorized.
 
 ---
 
@@ -161,6 +171,13 @@ Only after these land should `runtime-temporal-executor-lib-prep-v0` be routed.
 Phase 2 Ledger adapter, authority registry, and addendum process remain separate
 tracks.
 
+Pressure backlog from async C9/C10 should stay behind canon/proof gates:
+
+- `external-http-json-capability-pressure-v0`
+- `controlled-agent-replication-boundary-pressure-v0`
+- `data-role-vocabulary-specimen-v0`
+- `store-declaration-surface-pressure-v0`
+
 ---
 
 ## Self-Check
@@ -169,7 +186,8 @@ tracks.
 [x] Status says implementation-prep, not live reads.
 [x] Pre-live blockers are separated into closed and remaining.
 [x] No Phase 2, Ledger, BiHistory, stream/OLAP, cache, parser syntax, or MCP scope widened.
-[x] R14 evidence filenames exist and are listed in tracks/README.md.
+[x] R14 evidence filenames, including async C9/C10 pressure tracks, exist and
+    are listed in tracks/README.md.
 [x] Handoff template still uses Card/Agent/Role/Track/Status.
 ```
 
@@ -194,6 +212,8 @@ Status: done
 [S] Shipped / Signals
 - Updated current-status, agent-context, tracks README, and gates README.
 - Added this S3-R14 status-curation track.
+- Re-ran discovery after async C9/C10 landed and added general-purpose pressure
+  evidence without changing Gate 3/pre-live status.
 
 [T] Tests / Proofs
 - Docs/status validation only.
@@ -203,6 +223,8 @@ Status: done
 - Do not promote Phase1TemporalExecutor to `lib/` until AT-2, AT-9, ordering,
   and regression blockers close.
 - Keep all Phase 2 Ledger/BiHistory/cache/stream/OLAP surfaces closed.
+- Keep all general-purpose/emergency/marketplace/legal pressure non-canon until
+  proposal and proof tracks exist.
 
 [Next] Suggested next slice
 - runtime-report-enforcement-order-amendment-v0

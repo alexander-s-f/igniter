@@ -190,6 +190,7 @@ Round 14 landed:
   S3-R14-C5-P: spec Ch7 Gate 3 sync             ✅ approved-restricted/pre-live semantics synced
   S3-R14-X1-S: Phase 1 prep safety pressure     ✅ PROCEED for proof-local; no live-eval leak
   S3-R14-C7/C8: truth-system syntax pressure    ✅ non-canon pressure only; no parser/runtime auth
+  S3-R14-C9/C10: general-purpose pressure       ✅ HTTP/knowledge/legal + emergency/marketplace pressure; no canon
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion;
                   other syntax candidates require proposal tracks
@@ -293,6 +294,10 @@ Archive:             Stage 2 close snapshot ✅ docs/archive/snapshots/2026-05-0
 Docs memory:         S3-R7 docs snapshot ✅ + value-index hoisted memory layer ✅
 АИ/СОИ lens:         soft Stage 3 governance/review vocabulary; not a hard gate
 Syntax pressure:     registry + specimens + review routing done; threshold/external pure/entrypoint-section are proposal candidates, not parser canon
+General-purpose pressure:
+                      S3-R14 C9/C10 added HTTP/JSON, agent knowledge, legal OSINT,
+                      emergency mesh, self-modification, and marketplace pressure;
+                      all are non-canon/product pressure, no parser/runtime authorization
 Discussion pressure: S3-R4-X1 resolved to contract_index/load-guard tracks; both landed in R5
 Runtime pressure:    S3-R7-X1 says no current production bug; smoke/report boundary expanded before Gate 3 decision
 S3-R8 runtime result: full smoke + executor-boundary report closed the named pre-Gate-3 pressure gaps;
@@ -304,7 +309,8 @@ S3-R12 result:        Gate 3 request revision fixed HOLD blockers; X1 routed to 
 S3-R13 result:        Architect approved restricted Gate 3 Phase 1 implementation; X1 found no auth leaks;
                       live reads remain blocked until implementation/pre-live/regression pass
 S3-R14 result:        Phase 1 proof-local implementation-prep landed; X1 found no live-eval/Ledger/BiHistory/cache leak;
-                      live reads remain blocked until AT-2/AT-9/order gaps and regression pass
+                      live reads remain blocked until AT-2/AT-9/order gaps and regression pass;
+                      C7-C10 pressure slices landed as non-canon product/syntax pressure
 ```
 
 ### Spec Freshness
@@ -346,6 +352,10 @@ DOC-DEBT-09  Pre-live production blockers remain:
 DOC-DEBT-10  Phase 2 remains closed:
              real Ledger adapter needs explicit Architect addendum and authority
              registry / revocation / addendum process definition.
+DOC-DEBT-11  General-purpose pressure is pressure-only:
+             HTTP/JSON, agent knowledge, legal OSINT, emergency replication,
+             self-modification, and marketplace escrow need proposals/fixtures
+             before syntax, runtime, or product claims.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
