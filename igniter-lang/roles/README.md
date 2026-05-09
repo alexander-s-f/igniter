@@ -44,6 +44,7 @@ explicitly asks for archaeology, bridge mapping, or package pressure.
 | `[Igniter-Lang Applied Pressure Agent]` | [applied-pressure-agent.md](applied-pressure-agent.md) | real-system pressure, domain scenarios, interop/tooling pressure, rebuild experiments |
 | `[Igniter-Lang Meta Expert]` | [meta-expert.md](meta-expert.md) | strategic analysis, gap identification, priority ordering, round-close status curation, meta-proposals |
 | `[Igniter-Lang Archive/Form Expert]` | [archive-form-expert.md](archive-form-expert.md) | project archaeology, historical signal preservation, canon-vs-history indexing |
+| `[Igniter-Lang History Curator]` | [history-curator.md](history-curator.md) | compact history reports, archive compression, duplicate-removal recommendations, value preservation |
 | `[Igniter-Lang External Pressure Reviewer]` | [external-pressure-reviewer.md](external-pressure-reviewer.md) | outside review pressure, gap discovery, comprehension/product/runtime critique before internal routing |
 
 Use [role-template.md](role-template.md) when adding a new role profile.
@@ -81,6 +82,13 @@ Archive/Form Expert
   -> indexes historical layers and preserves high-value signals
   -> applies formal pressure before routing old ideas into new work
   -> writes archaeology meta-proposals, not implementation code
+
+History Curator
+  -> inherits Archive/Form Expert archaeology discipline
+  -> compresses historical layers into compact accepted/rejected/implemented/
+     unimplemented/value reports
+  -> recommends duplicate removal and external archive rotation
+  -> writes archive history reports, not formal proposals or implementation code
 
 External Pressure Reviewer
   -> provides outside review pressure and fresh-context critique

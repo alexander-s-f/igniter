@@ -113,3 +113,7 @@ executable proof.
 
 Ask `[Igniter-Lang Bridge Agent]` only when an approved language signal needs
 to cross into Igniter platform packages.
+
+Ask `[Igniter-Lang History Curator]` when an archaeology slice has enough
+signal to be compressed into a compact history report, duplicate-removal plan,
+or archive rotation recommendation.

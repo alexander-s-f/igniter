@@ -179,6 +179,7 @@ the owner instead of silently fixing unrelated documents.
 | Bridge Agent | bridge/package mapping and approval gates; no package/runtime production binding without approval |
 | Meta Expert | Status Curator mode for round-close maps, current-status, tracks index, lifecycle/debt routing |
 | Archive/Form Expert | archaeology, pressure fixtures, registry/review routing; no canon promotion by fixture |
+| History Curator | compact history reports, archive compression, duplicate-removal recommendations, value preservation |
 | External Pressure Reviewer | critique and pressure routing; may use borrowed `runtime-pressure` lens only when assigned |
 
 ---

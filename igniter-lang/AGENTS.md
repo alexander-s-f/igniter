@@ -15,6 +15,7 @@ Current accepted default agent names:
 - `[Igniter-Lang Applied Pressure Agent]`
 - `[Igniter-Lang Meta Expert]`
 - `[Igniter-Lang Archive/Form Expert]`
+- `[Igniter-Lang History Curator]`
 - `[Igniter-Lang External Pressure Reviewer]`
 
 Before authoring anything, read [roles/README.md](roles/README.md) and the
@@ -112,6 +113,15 @@ Role details live in [roles/](roles/). Short map:
 - inherits Compiler/Grammar discipline as a filter: recovered ideas need
   parser/type/runtime/diagnostics/bridge pressure before promotion
 - does not write executable proofs or implementation directly
+
+`[Igniter-Lang History Curator]`
+
+- inherits Archive/Form Expert archaeology discipline
+- owns compact history reports, archive compression, duplicate-removal
+  recommendations, and value preservation in `igniter-lang/docs/archive/history/`
+- classifies historical signals as accepted canon, implemented, superseded
+  history, unrealized research, rejected, parked, and/or value
+- does not delete or move bulky docs unless explicitly assigned
 
 `[Igniter-Lang External Pressure Reviewer]`
 
