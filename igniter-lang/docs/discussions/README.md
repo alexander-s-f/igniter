@@ -158,6 +158,7 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 | [gate3-live-read-addendum-pre-signature-pressure-v0.md](gate3-live-read-addendum-pre-signature-pressure-v0.md) | S3-R19-X1-S | Are all addendum blockers closed after guard-order amendment and R19 regression rerun? | complete — PROCEED to Architect signature review |
 | [gate3-post-signature-runtime-pressure-v0.md](gate3-post-signature-runtime-pressure-v0.md) | S3-R20-X1-S | Did the signature widen scope and does the post-signature fixture confirm policy-only change? | complete — PROCEED |
 | [phase1-post-signature-audit-registry-pressure-v0.md](phase1-post-signature-audit-registry-pressure-v0.md) | S3-R21-X1-S | Do C1/C2 accidentally imply durable audit or production signing exist for Phase 1? | complete — PROCEED |
+| [phase1-e2e-and-content-address-pressure-v0.md](phase1-e2e-and-content-address-pressure-v0.md) | S3-R22-X1-S | Do C1/C2 add production behavior or leave the mutable signed_addendum_ref gap open? | complete — PROCEED; P-4 + P-5 closed |
 
 ---
 
