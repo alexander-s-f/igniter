@@ -86,7 +86,7 @@ Source .ig
        executor cache-key boundary              ✅ TEMPORAL key or L-T5 refusal
        C2 guarded-runtime consistency           ✅ mapped refusal
        guarded approval enforcement             ✅ proof-local refusal
-       Gate 3 opening request                   ⚠️ drafted; HOLD for request edits
+       Gate 3 opening request                   ✅ ready for Architect review; not approved
        evaluate TEMPORAL                        🚫 refused until executor/TBackend
        memoize TEMPORAL                         🚫 proof-local only
   -> Ledger / TBackend
@@ -130,8 +130,8 @@ legacy/internal comparison, not the production path.
 | TBackend Gate 1 | PASS | Report-only descriptor consumption fixture. |
 | TBackend Gate 2 | RATIFIED | Metadata-only package descriptor exposure and report-only descriptor mapping are trusted report metadata; no runtime authority. |
 | Gate 3 prerequisite package | LANDED | Gate 2 ratified, PROP-030 drafted, token report proof, guarded enforcement, executor cache-key proof, and package descriptor report consumption landed; this is not Gate 3 authorization. |
-| Gate 3 opening request | HOLD / PENDING REVISION | Restricted History[T] valid_time request drafted; X1 safety review requires authority-ref and audit-trace edits before Architect review. |
-| TBackend Gate 3 | CLOSED | No Ledger read/write/replay/runtime binding; request draft does not open the gate. |
+| Gate 3 opening request | READY FOR ARCHITECT REVIEW | S3-R12 revision fixed the S3-R11-X1 HOLD; X1 says proceed to Architect review. This is not approval. |
+| TBackend Gate 3 | CLOSED | No Ledger read/write/replay/runtime binding; ready-for-review request does not open the gate. |
 | Release publish | CLOSED | `bin/release-gate` may build artifacts; RubyGems publish needs explicit approval and MFA owner action. |
 | Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; no syntax is canon without proposal/proof. |
 
@@ -217,12 +217,12 @@ Do not run broad expensive suites just to curate maps.
 
 Recommended next routing from the latest status map:
 
-1. `runtime-temporal-executor-gate3-request-revision-v0`
-2. `gate3-architect-decision-record-v0` only after request revision lands
-3. `runtime-report-enforcement-preflight-v0`
-4. `compatibility-report-composition-shape-v0`
-5. `executor-approval-authority-registry-v0`
-6. `compatibility-report-persistence-audit-v0`
-7. `spec-ch7-gate3-approval-sync` only if Gate 3 is approved
-8. `spec-ch6-invariant-source-metadata-sync-v0`
-9. `entrypoint-section-parser-typechecker-v0`
+1. `gate3-architect-decision-record-v0`
+2. `compatibility-report-composition-v0` before Phase 1 live reads after approval
+3. `prop-005-temporal-read-observation-v0` before Phase 1 live reads after approval
+4. `prop-030-temporal-scope-exclusion-errata-v0` before/concurrent with Phase 1 implementation
+5. `runtime-report-enforcement-preflight-v0` only after approval
+6. `executor-approval-authority-registry-v0` only after approval
+7. `compatibility-report-persistence-audit-v0` after approval
+8. `spec-ch7-gate3-approval-sync` only if Gate 3 is approved
+9. `spec-ch6-invariant-source-metadata-sync-v0`
