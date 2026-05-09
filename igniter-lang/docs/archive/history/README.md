@@ -16,6 +16,7 @@ reports when origin or archive evidence matters.
 | [History-S2 Playgrounds Docs Rotation Map](./history-s2-playgrounds-docs-rotation-map.md) | Inventories `playgrounds/docs/`, separates private memory layers, and proposes rotation/cleanup boundaries without moving files. |
 | [History-S3 Guide Current Absorption Map](./history-s3-guide-current-absorption-map.md) | Compares `playgrounds/docs/guide` and `playgrounds/docs/current` with current public guide/dev docs and marks absorbed/cold signals. |
 | [History-S4 Expert Reports Value Map](./history-s4-expert-reports-value-map.md) | Extracts durable values from non-Igniter-Lang expert reports while keeping expert proposals out of canon until gated. |
+| [History-S5 Research Horizon Compression Map](./history-s5-research-horizon-compression-map.md) | Compresses `playgrounds/docs/research-horizon` into graduated doctrines, parked research lines, and read rules. |
 
 ## Read Rule
 
