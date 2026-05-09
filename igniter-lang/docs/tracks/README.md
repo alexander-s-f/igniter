@@ -28,6 +28,16 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 19 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `phase1-r18-cleanup-regression-rerun-v0.md` | done | Post-R18 full regression rerun PASS 15/15; includes R18 backend identity guard proof and `observation.backend_identity_emitted: ok` |
+| `../discussions/gate3-live-read-addendum-pre-signature-pressure-v0.md` | complete — PROCEED to Architect signature review | Evidence blockers 1-5 closed; blocker 6 remains Architect signature/status update; no hidden Ledger/BiHistory/stream/OLAP/cache/write path |
+| `stage3-round19-status-curation-v0.md` | done | R19 status/index/context/gate sync — this track |
+
+---
+
 ## Stage 3 Round 18 Evidence
 
 | Track | Status | Notes |
@@ -36,7 +46,7 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 | `temporal-executor-proof-local-docstring-amendment-v0.md` | done | Source comments clarify `GATE3_AUTHORITY_REF` is source-code-parity only, `observations` are in-memory/non-audit, and `gate3_authorized` is caller honor-system |
 | `runtime-temporal-scope-exclusion-reason-alias-v0.md` | done | Lib emissions canonicalized to `runtime.temporal_scope_exclusion`; legacy narrow strings retained as aliases; proof PASS |
 | `phase1-backend-identity-guard-v0.md` | done | Code-level backend identity guard blocks unmarked, Ledger-backed, Ledger proxy, and malformed backends before scope/cache/kernel/read; proof PASS |
-| `../discussions/live-read-addendum-draft-safety-pressure-v0.md` | complete — proceed; two pre-signing conditions | Cleanup tracks are correctly scoped and non-authorizing; addendum is held before signature pending post-R18 full regression rerun and guard-order amendment |
+| `../discussions/live-read-addendum-draft-safety-pressure-v0.md` | complete — proceed; two pre-signing conditions | Cleanup tracks correctly scoped and non-authorizing; two pre-signing conditions were routed and later closed by R19 |
 | `stage3-round18-status-curation-v0.md` | done | R18 status/index/context/gate sync — this track |
 
 ---
@@ -393,10 +403,12 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `phase1-r18-cleanup-regression-rerun-v0` | Re-run the full 14-proof chain after R18 C2/C3/C4 code changes; include observation backend_identity assertion if practical | Research Agent | required before signature |
-| `gate3-live-read-decision-addendum-v0` guard-order amendment | Amend draft order to `approval_token -> gate_state -> backend_identity -> scope -> cache_key -> executor_backend` | Architect Supervisor / Meta Expert | required before signature |
-| Architect signature review for `gate3-live-read-decision-addendum-v0.md` | Review only after regression rerun + guard-order amendment; signing is the first possible live-read authorization event | Architect Supervisor | held |
-| `gate3-live-read-decision-addendum-v0` | Draft Architect decision addendum for Phase 1 live reads only; drafting is done; live reads still blocked until signed | Architect Supervisor | drafted / held before signature |
+| Architect signature review for `gate3-live-read-decision-addendum-v0.md` | Review addendum for explicit signed/status update; signing is the first possible live-read authorization event | Architect Supervisor | ready for review |
+| signing-record citation notes | Cite S3-R19-C1-P 15/15 PASS and attribute guard-order amendment to S3-R18-X1 PS-2 | Architect Supervisor | non-blocking note |
+| first post-signature fixture | If addendum is signed, verify no behavior change accompanies signing and caller must reference signed document | Research Agent | after signature only |
+| `phase1-r18-cleanup-regression-rerun-v0` | Re-run the full proof chain after R18 C2/C3/C4 code changes; include observation backend_identity assertion | Research Agent | done |
+| `gate3-live-read-decision-addendum-v0` guard-order amendment | Amend draft order to `approval_token -> gate_state -> backend_identity -> scope -> cache_key -> executor_backend` | Architect Supervisor / Meta Expert | done |
+| `gate3-live-read-decision-addendum-v0` | Draft Architect decision addendum for Phase 1 live reads only; drafting is done; live reads still blocked until signed | Architect Supervisor | draft-not-signed / ready for signature review |
 | proof-local authority/observation docstring amendments | Add source comments clarifying `GATE3_AUTHORITY_REF` is not cryptographic authorization and `observations` are in-memory, not audit receipts | Implementation Agent | done |
 | `runtime-temporal-scope-exclusion-reason-alias-v0` | Reconcile lib proof-local reason codes with canonical `runtime.temporal_scope_exclusion` before operators see codes | Compiler/Grammar Expert | done |
 | `phase1-backend-identity-guard-v0` | Add backend identity guard before any Phase 2 adapter binding can make `gate3_authorized: true` reach a real backend | Implementation Agent / Bridge Agent | done |

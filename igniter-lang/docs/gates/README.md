@@ -78,8 +78,9 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
     identity guard landed
   R18 safety pressure: PROCEED for cleanup tracks; two pre-signing conditions
     remain
-  Still blocked before live reads: post-R18 full regression rerun, addendum
-    guard-order amendment, and explicit Architect signature/status change
+  R19 repair: post-R18 regression rerun PASS 15/15; guard-order amendment
+    confirmed; X1 PROCEED to Architect signature review
+  Still blocked before live reads: explicit Architect signature/status change
 ```
 
 ---
@@ -97,13 +98,15 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
 | Dedicated lib-prep regression chain | PASS post-C1 | R17 rerun records 14/14 PASS across base chain, pre-live fixtures, C1 proof, Stage 1, and Stage 2 |
 | Lib boundary spec sync | done post-C1 | R17 Ch7 sync names `IgniterLang::TemporalExecutor::Phase1` as proof-local boundary, not language semantics |
 | Lib-prep safety pressure | PROCEED proof-local | S3-R17-X1 confirms eight scope guarantees; routes pre-production items |
-| Live-read decision addendum | drafted / held before signature | S3-R18 C1 draft is `draft-not-signed`; live reads remain blocked until explicit Architect signature/status change |
+| Live-read decision addendum | draft-not-signed / ready for signature review | S3-R19 evidence closes blockers 1-5; live reads remain blocked until explicit Architect signature/status change |
 | Proof-local authority/observation comments | done | S3-R18 C2 clarifies authority URI is not cryptographic, observations are in-memory/non-audit, and `gate3_authorized` is caller honor-system |
 | Scope-exclusion reason aliases | done | S3-R18 C3 canonicalizes lib out-of-scope emissions to `runtime.temporal_scope_exclusion`; legacy aliases retained |
 | Backend identity guard | done Phase 1 / Phase 2 still closed | S3-R18 C4 blocks unmarked, Ledger-backed, Ledger proxy, and malformed identity backends before scope/cache/kernel/read |
 | Addendum safety pressure | PROCEED with pre-signing conditions | S3-R18-X1 finds no hidden live-read path; requires post-R18 full regression rerun and guard-order amendment before signature |
-| Post-R18 full regression rerun | required before signature | Addendum blocker 4 remains open after R18 cleanup code changes |
-| Addendum guard-order amendment | required before signature | Draft currently lists backend_identity after scope/cache; implementation places backend_identity before scope/cache |
+| Post-R18 full regression rerun | PASS / closed | S3-R19 C1 records 15/15 PASS and `observation.backend_identity_emitted: ok` |
+| Addendum guard-order amendment | done / closed | Draft now matches implementation: `approval_token -> gate_state -> backend_identity -> scope -> cache_key -> executor_backend` |
+| Addendum pre-signature pressure | PROCEED to Architect review | S3-R19-X1 closes blockers 1-5; blocker 6 remains Architect signature/status update |
+| Architect signature/status update | required for authorization | Until signed or status-updated by Architect, live reads remain blocked |
 | Runtime authority registry | not defined | Required before Phase 2 / production authority-revocation work; not a Phase 1 blocker |
 | Real Ledger adapter/package binding | closed | Requires explicit Architect addendum after Phase 1 |
 | BiHistory / transaction-time | closed | Requires separate gate; cannot be added by quiet Phase 1/2 addendum |
@@ -122,4 +125,4 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
 | File | Card | Status | Scope |
 |------|------|--------|-------|
 | [gate3-decision-record-v0.md](gate3-decision-record-v0.md) | S3-R13-C1-A | approved-restricted-phase1 | Phase 1 implementation only: TEMPORAL History[T] valid_time via abstract proof-local/non-Ledger TBackend; live reads blocked until pre-live conditions pass |
-| [gate3-live-read-decision-addendum-v0.md](gate3-live-read-decision-addendum-v0.md) | S3-R18-C1-A | draft-not-signed | Draft for first restricted Phase 1 non-proof read path; not live-read authorization until signed |
+| [gate3-live-read-decision-addendum-v0.md](gate3-live-read-decision-addendum-v0.md) | S3-R18-C1-A / S3-R19 repair | draft-not-signed / ready for signature review | Draft for first restricted Phase 1 non-proof read path; evidence blockers closed, Architect signature still required |

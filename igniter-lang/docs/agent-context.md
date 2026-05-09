@@ -102,12 +102,13 @@ Source .ig
        post-C1 lib-prep regression rerun        ✅ 14/14 PASS
        lib boundary spec sync                   ✅ Ch7 proof-local boundary sync
        lib-prep safety pressure                 ✅ PROCEED for proof-local Phase 1
-       live-read addendum draft                 ⚠️ draft-not-signed; held before signature
+       live-read addendum draft                 ⚠️ draft-not-signed; ready for signature review
        proof-local docstring warnings           ✅ authority/observation/honor-system comments
        scope-exclusion reason aliases           ✅ canonical runtime.temporal_scope_exclusion
        backend identity guard                   ✅ blocks unmarked/Ledger/proxy backends before live paths
-       addendum draft safety pressure           ⚠️ PROCEED for cleanup; two pre-signing conditions
-       evaluate TEMPORAL Phase 1 live           🚫 blocked; no signed Architect addendum
+       R18 cleanup regression rerun             ✅ 15/15 PASS
+       addendum pre-signature pressure          ✅ PROCEED to Architect signature review
+       evaluate TEMPORAL Phase 1 live           🚫 blocked; addendum not signed
        memoize TEMPORAL                         🚫 proof-local only
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -147,12 +148,12 @@ legacy/internal comparison, not the production path.
 | Stage 3 | OPEN | Work within current lane/card. |
 | Typed emission | SWITCHED | Production orchestrator uses `emit_typed(typed)`. |
 | TEMPORAL load | PROOF-LOCAL | Load accepts valid TEMPORAL `.igapp/` for inspection. |
-| TEMPORAL evaluate | ADDENDUM DRAFTED / LIVE BLOCKED | R18 drafted the live-read addendum but status is `draft-not-signed`. Docstrings, reason-code aliasing, and backend identity guard landed; X1 says cleanup PROCEED but requires post-R18 full regression rerun and addendum guard-order amendment before signature. |
+| TEMPORAL evaluate | READY FOR SIGNATURE REVIEW / LIVE BLOCKED | R19 closed pre-signing repair: 15/15 regression PASS, backend_identity observation asserted, guard order amended, and X1 says PROCEED to Architect signature review. Live reads remain blocked until the addendum is signed. |
 | Runtime cache | PROOF-LOCAL | Cache key/memoization proofs exist; no production cache. |
 | TBackend Gate 1 | PASS | Report-only descriptor consumption fixture. |
 | TBackend Gate 2 | RATIFIED | Metadata-only package descriptor exposure and report-only descriptor mapping are trusted report metadata; no runtime authority. |
 | Gate 3 prerequisite package | LANDED | Gate 2 ratified, PROP-030 drafted, token report proof, guarded enforcement, executor cache-key proof, and package descriptor report consumption landed; this is not Gate 3 authorization. |
-| Gate 3 Phase 1 | APPROVED-RESTRICTED / ADDENDUM HELD BEFORE SIGNATURE | Addendum exists as draft-not-signed only. Non-proof live reads remain blocked until Architect signs and the two pre-signing conditions close. Phase 2 stays closed. |
+| Gate 3 Phase 1 | APPROVED-RESTRICTED / READY FOR SIGNATURE REVIEW | Addendum remains draft-not-signed, but evidence blockers 1-5 are closed. Blocker 6 is the Architect signature/status update. Non-proof live reads remain blocked until signed. Phase 2 stays closed. |
 | TBackend Gate 3 Phase 2 | CLOSED | Real Ledger adapter/package binding, BiHistory, stream/OLAP, writes/replay/compact/subscribe, and production cache need separate Architect approval/addendum as specified. |
 | Release publish | CLOSED | `bin/release-gate` may build artifacts; RubyGems publish needs explicit approval and MFA owner action. |
 | Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; S3-R14 C7-C10 added truth-system, HTTP/knowledge/legal, emergency mesh, and marketplace pressure; no syntax is canon without proposal/proof. |
@@ -239,11 +240,11 @@ Do not run broad expensive suites just to curate maps.
 
 Recommended next routing from the latest status map:
 
-1. `phase1-r18-cleanup-regression-rerun-v0` before addendum signature
-2. amend `gate3-live-read-decision-addendum-v0.md` guard order to `approval_token -> gate_state -> backend_identity -> scope -> cache_key -> executor_backend`
-3. Architect signature review only after items 1-2 close; live reads remain blocked until signed
-4. add observation `backend_identity` assertion if practical during the regression rerun
-5. `compatibility-report-persistence-audit-v0`
+1. Architect signature review for `gate3-live-read-decision-addendum-v0.md`; live reads remain blocked until signed
+2. signing record should cite S3-R19-C1-P 15/15 PASS and attribute guard-order amendment to S3-R18-X1 PS-2
+3. first post-signature fixture after any signed status change; verify no behavior change accompanies signing
+4. `compatibility-report-persistence-audit-v0`
+5. optional addendum §6 wording update to cite 15/15 PASS as current evidence
 6. `gate3-authority-registry-v0` before Phase 2
 7. `gate3-phase2-addendum-process-v0` before Phase 2
 8. `invariant-persistence-boundary-v0`
