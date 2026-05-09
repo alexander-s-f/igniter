@@ -46,6 +46,7 @@ explicitly asks for archaeology, bridge mapping, or package pressure.
 | `[Igniter-Lang Archive/Form Expert]` | [archive-form-expert.md](archive-form-expert.md) | project archaeology, historical signal preservation, canon-vs-history indexing |
 | `[Igniter-Lang History Curator]` | [history-curator.md](history-curator.md) | compact history reports, archive compression, duplicate-removal recommendations, value preservation |
 | `[Igniter-Lang External Pressure Reviewer]` | [external-pressure-reviewer.md](external-pressure-reviewer.md) | outside review pressure, gap discovery, comprehension/product/runtime critique before internal routing |
+| `[Igniter-Lang Implementation Agent]` | [implementation-agent.md](implementation-agent.md) | compiler package code quality (`lib/`), proof validation of accepted proposals, `implementation_candidate` → working Ruby code |
 
 Use [role-template.md](role-template.md) when adding a new role profile.
 
@@ -97,6 +98,13 @@ External Pressure Reviewer
   -> may borrow runtime-pressure for load/evaluate/cache production-risk review
   -> does not author canon, update status, or implement code
   -> routes through Architect Supervisor and Meta Expert before becoming work
+
+Implementation Agent
+  -> takes implementation_candidate proposals and writes quality Ruby code
+  -> owns lib/ compiler package + experiments/ proof validation
+  -> raises under-specified proposals as blockers instead of guessing
+  -> asks Compiler/Grammar Expert for formal pressure, Research Agent for proofs
+  -> does not drive language design or formal grammar authority
 ```
 
 ## Discussion Participation

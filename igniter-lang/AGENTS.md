@@ -17,6 +17,7 @@ Current accepted default agent names:
 - `[Igniter-Lang Archive/Form Expert]`
 - `[Igniter-Lang History Curator]`
 - `[Igniter-Lang External Pressure Reviewer]`
+- `[Igniter-Lang Implementation Agent]`
 
 Before authoring anything, read [roles/README.md](roles/README.md) and the
 role profile file for your assigned role.
@@ -133,6 +134,15 @@ Role details live in [roles/](roles/). Short map:
   implementation
 - its output must be routed through Architect Supervisor / Meta Expert before
   becoming a track, proposal, backlog item, or rejection
+
+`[Igniter-Lang Implementation Agent]`
+
+- owns `igniter-lang/lib/` compiler package code quality and proof validation
+  of new language surfaces in `igniter-lang/experiments/`
+- takes `implementation_candidate`-status proposals and builds them correctly
+  with minimal scope and clean structure
+- raises blockers when a proposal is under-specified rather than guessing
+- does not drive language design decisions or formal grammar authority
 
 ## Research Policy
 
