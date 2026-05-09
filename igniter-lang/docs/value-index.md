@@ -271,6 +271,20 @@ Source:
 
 ## Agentic System
 
+### Agent Orchestra Pattern
+
+Signal: A new agent can join the work safely when given six explicit layers:
+Role + Context + Card + Lens + Authority + Route. This lets the team add
+specialized pressure without each agent composing its own system.
+
+Status: current
+
+Source:
+- [agent-orchestra-pattern.md](agent-orchestra-pattern.md)
+- [operating-model.md](operating-model.md)
+- [discussions/gate3-decision-safety-pressure-v0.md](discussions/gate3-decision-safety-pressure-v0.md)
+- [discussions/gate3-decision-safety-pressure-v0-agent-v2-cross-test.md](discussions/gate3-decision-safety-pressure-v0-agent-v2-cross-test.md)
+
 ### Agent Context Is The First Memory Layer
 
 Signal: Agents should read `agent-context.md` first and avoid reconstructing the

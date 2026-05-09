@@ -55,6 +55,17 @@ Allowed participants:
 External Pressure Reviewer may borrow another role lens for one discussion card,
 except Architect Supervisor.
 
+When using external/read-only reviewers as cross-tests, label the context level
+explicitly:
+
+```text
+Context: public-github-only
+Write access: none
+Canon authority: none
+```
+
+See `../agent-orchestra-pattern.md` for the wider role/lens/authority pattern.
+
 ## Required Card Shape
 
 ```text
@@ -151,4 +162,3 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 - Do not edit `current-status.md` from a discussion unless explicitly assigned.
 - Do not use discussion to bypass proposal or track acceptance.
 - Keep external review clearly labeled as external pressure.
-

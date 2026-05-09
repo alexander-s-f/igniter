@@ -2,7 +2,7 @@
 
 Status: active
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-07
+Last updated: 2026-05-09
 
 ---
 
@@ -20,6 +20,11 @@ The active documentation surface should answer:
 
 Historical detail belongs in git history, archived snapshots, or completed track
 documents. It should not be required reading for a new slice.
+
+For the broader agent-intake pattern, see
+`docs/agent-orchestra-pattern.md`. The operating model defines the process; the
+orchestra pattern defines how new agents enter the process without losing the
+shared composition.
 
 ---
 
