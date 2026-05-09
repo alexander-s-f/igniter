@@ -22,6 +22,7 @@ reports when origin or archive evidence matters.
 | [History-S8 Legacy V1 Value Extraction Map](./history-s8-legacy-v1-value-extraction-map.md) | Extracts values from `playgrounds/docs/dev/legacy/`, separates absorbed Igniter-Lang signals from superseded V1 APIs and research seeds. |
 | [History-S9 Dev Reference Truth Map](./history-s9-dev-reference-truth-map.md) | Classifies `playgrounds/docs/dev/reference/` as post-core transition memory, extracting contracts-first values and current-check rules. |
 | [History-S10 Igniter-Lang Expert Series Map](./history-s10-igniter-lang-expert-series-map.md) | Compresses `playgrounds/docs/experts/igniter-lang/` into accepted language signals, superseded early specs, live research, and bilingual rotation notes. |
+| [History-S11 General Expert Corpus Rotation Map](./history-s11-general-expert-corpus-rotation-map.md) | Adds read temperatures and rotation rules for `playgrounds/docs/experts/` outside Igniter-Lang, building on the S4 value extraction. |
 
 ## Read Rule
 
