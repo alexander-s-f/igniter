@@ -28,6 +28,14 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 11 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../gates/runtime-temporal-executor-gate3-request-v0.md` | pending | Gate 3 opening request (Meta Expert); restricted scope: History[T] valid_time live eval only; BiHistory/Ledger write/production cache excluded; 6 open decisions require Architect resolution; 11 production acceptance conditions defined |
+
+---
+
 ## Stage 3 Round 10 Evidence
 
 | Track | Status | Notes |
