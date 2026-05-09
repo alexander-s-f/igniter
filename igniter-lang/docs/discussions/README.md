@@ -153,6 +153,7 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 | [gate3-request-revision-safety-pressure-v0.md](gate3-request-revision-safety-pressure-v0.md) | S3-R12-X1-S | Did the S3-R12-C1 revision close both HOLD blockers cleanly without introducing new ambiguity? | complete — proceed to Architect |
 | [gate3-decision-safety-pressure-v0.md](gate3-decision-safety-pressure-v0.md) | S3-R13-X1-S | Does the Gate 3 decision record contain hidden authorization leaks or authority/revocation gaps? | complete — proceed; two doc amendments |
 | [phase1-implementation-prep-safety-pressure-v0.md](phase1-implementation-prep-safety-pressure-v0.md) | S3-R14-X1-S | Did Phase 1 prep tracks stay correctly scoped with no live-eval or exclusion leaks? | complete — proceed; C4 ordering conflict + three pre-production conditions |
+| [runtime-temporal-executor-lib-prep-safety-pressure-v0.md](runtime-temporal-executor-lib-prep-safety-pressure-v0.md) | S3-R17-X1-S | Did Phase1 enter lib/ with all eight scope guarantees intact after post-C1 regression? | complete — proceed; two pre-Phase-2 tracks |
 
 ---
 
