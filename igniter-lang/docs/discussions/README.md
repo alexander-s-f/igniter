@@ -138,6 +138,7 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 | [stage3-round8-pre-gate3-pressure-v0.md](stage3-round8-pre-gate3-pressure-v0.md) | S3-R8-X1-S | Are S3-R8 C1-C2 full-coverage smoke and executor-boundary report sufficient before Gate 3? | complete — routed |
 | [gate3-prerequisite-package-pressure-v0.md](gate3-prerequisite-package-pressure-v0.md) | S3-R9-X1-S | Is the S3-R9 Gate 3 prerequisite package coherent enough to prepare a Gate 3 opening request? | complete — routed |
 | [gate3-request-readiness-pressure-v0.md](gate3-request-readiness-pressure-v0.md) | S3-R10-X1-S | Is the S3-R10 evidence sufficient to draft a Gate 3 opening request, and what makes it unsafe now? | complete — routed |
+| [gate3-request-safety-pressure-v0.md](gate3-request-safety-pressure-v0.md) | S3-R11-X1-S | Is the Gate 3 request safe to route to Architect as written, or does it contain unsafe ambiguity? | complete — hold for two edits |
 
 ---
 
