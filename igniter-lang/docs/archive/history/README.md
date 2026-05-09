@@ -21,6 +21,7 @@ reports when origin or archive evidence matters.
 | [History-S7 Gate 3 Stage 3 R13-R22 Compression Map](./history-s7-gate3-stage3-rounds-13-22-compression-map.md) | Compresses the Gate 3 journey from R13 decision through R22 end-to-end/content-address proofs and preserves the reusable request-to-hardening process pattern. |
 | [History-S8 Legacy V1 Value Extraction Map](./history-s8-legacy-v1-value-extraction-map.md) | Extracts values from `playgrounds/docs/dev/legacy/`, separates absorbed Igniter-Lang signals from superseded V1 APIs and research seeds. |
 | [History-S9 Dev Reference Truth Map](./history-s9-dev-reference-truth-map.md) | Classifies `playgrounds/docs/dev/reference/` as post-core transition memory, extracting contracts-first values and current-check rules. |
+| [History-S10 Igniter-Lang Expert Series Map](./history-s10-igniter-lang-expert-series-map.md) | Compresses `playgrounds/docs/experts/igniter-lang/` into accepted language signals, superseded early specs, live research, and bilingual rotation notes. |
 
 ## Read Rule
 
