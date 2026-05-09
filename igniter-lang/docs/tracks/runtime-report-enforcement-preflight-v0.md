@@ -6,6 +6,7 @@ Role: `bridge-agent`
 Track: `runtime-report-enforcement-preflight-v0`
 Status: done
 Date: 2026-05-09
+Amended-by: `runtime-report-enforcement-order-amendment-v0`
 
 Affected neighbor roles: `[Igniter-Lang Research Agent]`,
 `[Igniter-Lang Compiler/Grammar Expert]`
@@ -48,8 +49,8 @@ Relevant fixed points:
 
 ```text
 CompatibilityReport
--> gate state
 -> approval token
+-> gate state
 -> scope
 -> cache key
 -> executor/backend
@@ -65,8 +66,12 @@ The `CompatibilityReport` phase includes:
   `history_axes`, and `cursor_policy`.
 
 If descriptor evidence is blocked or malformed, RuntimeMachine stops at the
-`CompatibilityReport` phase before gate, token, cache, executor, backend, or
+`CompatibilityReport` phase before token, gate, cache, executor, backend, or
 Ledger entry.
+
+Amendment note: S3-R15-C1-P corrected the S3-R14 ordering drift. The canonical
+ordering follows PROP-030: approval token diagnostics must surface before Gate 3
+state diagnostics when both are blocked.
 
 ---
 
@@ -78,8 +83,8 @@ Ledger entry.
 
 - one composed `compatibility_report`;
 - trusted descriptor metadata inside `backend_check`;
-- open runtime gate;
 - valid `ExecutorApprovalToken` state;
+- open runtime gate;
 - TEMPORAL `history_valid_time_read` scope;
 - valid TEMPORAL cache-key coordinates;
 - executor readiness;
@@ -133,8 +138,9 @@ It verifies that every blocked readiness state prevents:
 | `split_report_blocks_at_compatibility_report` | `compatibility_report` | split report/enforcement fragments rejected |
 | `backend_descriptor_blocked` | `compatibility_report` | descriptor metadata is not trusted |
 | `missing_descriptor_hash_blocks_before_gate` | `compatibility_report` | descriptor evidence malformed |
-| `gate_closed_blocks_before_token` | `gate_state` | Gate 3 is closed |
-| `approval_missing_blocks_before_scope` | `approval_token` | executor approval token missing/blocked |
+| `gate_closed_after_token_check` | `gate_state` | Gate 3 is closed after token passes |
+| `approval_missing_blocks_before_gate` | `approval_token` | executor approval token missing/blocked |
+| `approval_missing_with_gate_closed_blocks_before_gate` | `approval_token` | token failure is reported before Gate 3 closure |
 | `bihistory_scope_excluded_before_cache` | `scope` | BiHistory remains excluded from first Gate 3 |
 | `cache_key_blocks_before_executor_backend` | `cache_key` | TEMPORAL cache-key readiness blocked |
 | `executor_missing_blocks_before_backend_call` | `executor_backend` | executor readiness missing/blocked |
@@ -168,8 +174,8 @@ The implementation-facing guard order is:
 
 ```text
 compatibility_report
-gate_state
 approval_token
+gate_state
 scope
 cache_key
 executor_backend
@@ -191,8 +197,9 @@ Observed result:
 PASS ready preflight reaches executor/backend without calls
 PASS split_report_blocks_at_compatibility_report stops at compatibility_report
 PASS backend_descriptor_blocked stops at compatibility_report
-PASS gate_closed_blocks_before_token stops at gate_state
-PASS approval_missing_blocks_before_scope stops at approval_token
+PASS gate_closed_after_token_check stops at gate_state
+PASS approval_missing_blocks_before_gate stops at approval_token
+PASS approval_missing_with_gate_closed_blocks_before_gate stops at approval_token
 PASS bihistory_scope_excluded_before_cache stops at scope
 PASS cache_key_blocks_before_executor_backend stops at cache_key
 PASS executor_missing_blocks_before_backend_call stops at executor_backend
@@ -230,9 +237,10 @@ Status: done
 Neighbors: Research Agent | Compiler/Grammar Expert
 
 [D] Decisions:
-- RuntimeMachine preflight order is CompatibilityReport -> gate state -> token -> scope -> cache-key -> executor/backend.
+- RuntimeMachine preflight order is CompatibilityReport -> token -> gate state -> scope -> cache-key -> executor/backend.
 - Descriptor metadata is checked inside the CompatibilityReport phase and remains evidence only.
 - `report_only: true` never becomes runtime authority by passing metadata checks.
+- S3-R15-C1-P resolves the ordering drift; no PROP-030 errata is needed.
 
 [R] Recommendations:
 - Implementation Agent should implement one deterministic preflight guard before executor/cache/backend entry.

@@ -5,8 +5,8 @@
   "status": "PASS",
   "ordering": [
     "compatibility_report",
-    "gate_state",
     "approval_token",
+    "gate_state",
     "scope",
     "cache_key",
     "executor_backend"
@@ -24,8 +24,8 @@
       "blocked_stage": null,
       "stage_trace": [
         "compatibility_report",
-        "gate_state",
         "approval_token",
+        "gate_state",
         "scope",
         "cache_key",
         "executor_backend"
@@ -61,8 +61,8 @@
       "blocked_stage": "executor_backend",
       "stage_trace": [
         "compatibility_report",
-        "gate_state",
         "approval_token",
+        "gate_state",
         "scope",
         "cache_key",
         "executor_backend"
@@ -92,12 +92,13 @@
         "temporal_read_attempted": false
       }
     },
-    "gate_closed_blocks_before_token": {
+    "gate_closed_after_token_check": {
       "status": "blocked",
       "reason_code": "runtime.temporal_gate3_closed",
       "blocked_stage": "gate_state",
       "stage_trace": [
         "compatibility_report",
+        "approval_token",
         "gate_state"
       ],
       "blocks_before_executor": true,
@@ -109,13 +110,29 @@
         "temporal_read_attempted": false
       }
     },
-    "approval_missing_blocks_before_scope": {
+    "approval_missing_blocks_before_gate": {
       "status": "blocked",
       "reason_code": "runtime.executor_approval_missing",
       "blocked_stage": "approval_token",
       "stage_trace": [
         "compatibility_report",
-        "gate_state",
+        "approval_token"
+      ],
+      "blocks_before_executor": true,
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "cache_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false
+      }
+    },
+    "approval_missing_with_gate_closed_blocks_before_gate": {
+      "status": "blocked",
+      "reason_code": "runtime.executor_approval_missing",
+      "blocked_stage": "approval_token",
+      "stage_trace": [
+        "compatibility_report",
         "approval_token"
       ],
       "blocks_before_executor": true,
@@ -133,8 +150,8 @@
       "blocked_stage": "scope",
       "stage_trace": [
         "compatibility_report",
-        "gate_state",
         "approval_token",
+        "gate_state",
         "scope"
       ],
       "blocks_before_executor": true,
@@ -152,8 +169,8 @@
       "blocked_stage": "cache_key",
       "stage_trace": [
         "compatibility_report",
-        "gate_state",
         "approval_token",
+        "gate_state",
         "scope",
         "cache_key"
       ],
@@ -172,8 +189,8 @@
       "blocked_stage": "executor_backend",
       "stage_trace": [
         "compatibility_report",
-        "gate_state",
         "approval_token",
+        "gate_state",
         "scope",
         "cache_key",
         "executor_backend"

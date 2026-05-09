@@ -5,6 +5,7 @@
   "invariant_coverage": [
     {
       "label": "REQ-SAFE-01",
+      "message": "Safety constraint violated",
       "name": "safety_block",
       "output_effect": "blocks",
       "output_policy": "blocking",
@@ -12,6 +13,7 @@
     },
     {
       "label": "CG-INTERACTION-01",
+      "message": "Drug interaction warning",
       "name": "interaction_warn",
       "output_effect": "warns",
       "output_policy": "non_blocking",

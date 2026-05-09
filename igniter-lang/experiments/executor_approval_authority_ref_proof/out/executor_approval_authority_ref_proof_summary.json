@@ -1,0 +1,217 @@
+{
+  "kind": "executor_approval_authority_ref_proof_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R15-C3-P",
+  "track": "executor-approval-authority-ref-proof-v0",
+  "status": "PASS",
+  "decision_record": "igniter-lang/docs/gates/gate3-decision-record-v0.md",
+  "trusted_authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+  "scope": {
+    "proof_local": true,
+    "production_signing_system": false,
+    "runtime_authority_registry": false,
+    "live_tbackend": false,
+    "ledger_adapter": false
+  },
+  "cases": {
+    "exact_match": {
+      "kind": "executor_approval_token",
+      "version": "executor-approval-token-v1",
+      "token_id": "approval/exact_match",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "gate": "gate3",
+      "scope": {
+        "operation": "temporal_evaluate",
+        "surface": "History[T]",
+        "axis": "valid_time",
+        "environment": "proof"
+      },
+      "artifact_ref": "igapp/sha256:history-valid-time-control",
+      "contract_refs": [
+        "contract/HistoryValidTimeControl/sha256:history-valid-time-control"
+      ],
+      "capability_refs": [
+        "history_read"
+      ],
+      "evidence_ref": "docs/gates/gate3-decision-record-v0.md"
+    },
+    "missing_authority_ref": {
+      "kind": "executor_approval_token",
+      "version": "executor-approval-token-v1",
+      "token_id": "approval/exact_match",
+      "gate": "gate3",
+      "scope": {
+        "operation": "temporal_evaluate",
+        "surface": "History[T]",
+        "axis": "valid_time",
+        "environment": "proof"
+      },
+      "artifact_ref": "igapp/sha256:history-valid-time-control",
+      "contract_refs": [
+        "contract/HistoryValidTimeControl/sha256:history-valid-time-control"
+      ],
+      "capability_refs": [
+        "history_read"
+      ],
+      "evidence_ref": "docs/gates/gate3-decision-record-v0.md"
+    },
+    "wrong_authority_ref": {
+      "kind": "executor_approval_token",
+      "version": "executor-approval-token-v1",
+      "token_id": "approval/wrong_authority",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/wrong-scope-v0/2026-05-09",
+      "gate": "gate3",
+      "scope": {
+        "operation": "temporal_evaluate",
+        "surface": "History[T]",
+        "axis": "valid_time",
+        "environment": "proof"
+      },
+      "artifact_ref": "igapp/sha256:history-valid-time-control",
+      "contract_refs": [
+        "contract/HistoryValidTimeControl/sha256:history-valid-time-control"
+      ],
+      "capability_refs": [
+        "history_read"
+      ],
+      "evidence_ref": "docs/gates/gate3-decision-record-v0.md"
+    },
+    "stale_superseded_authority_ref": {
+      "kind": "executor_approval_token",
+      "version": "executor-approval-token-v1",
+      "token_id": "approval/stale_authority",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-08",
+      "gate": "gate3",
+      "scope": {
+        "operation": "temporal_evaluate",
+        "surface": "History[T]",
+        "axis": "valid_time",
+        "environment": "proof"
+      },
+      "artifact_ref": "igapp/sha256:history-valid-time-control",
+      "contract_refs": [
+        "contract/HistoryValidTimeControl/sha256:history-valid-time-control"
+      ],
+      "capability_refs": [
+        "history_read"
+      ],
+      "evidence_ref": "docs/gates/gate3-decision-record-v0.md"
+    },
+    "self_issued_artifact_authority_ref": {
+      "kind": "executor_approval_token",
+      "version": "executor-approval-token-v1",
+      "token_id": "approval/self_issued_artifact",
+      "authority_ref": "igapp://sha256/history-valid-time-control",
+      "gate": "gate3",
+      "scope": {
+        "operation": "temporal_evaluate",
+        "surface": "History[T]",
+        "axis": "valid_time",
+        "environment": "proof"
+      },
+      "artifact_ref": "igapp/sha256:history-valid-time-control",
+      "contract_refs": [
+        "contract/HistoryValidTimeControl/sha256:history-valid-time-control"
+      ],
+      "capability_refs": [
+        "history_read"
+      ],
+      "evidence_ref": "docs/gates/gate3-decision-record-v0.md"
+    }
+  },
+  "results": {
+    "exact_match": {
+      "decision": "ok",
+      "reason_code": "runtime.executor_approval_authority_trusted",
+      "token_ref": "approval/exact_match",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "expected_authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "match": "exact",
+      "runtime_authority_registry": false,
+      "production_signing_system": false
+    },
+    "missing_authority_ref": {
+      "decision": "blocked",
+      "reason_code": "runtime.executor_approval_malformed",
+      "message": "missing authority_ref",
+      "token_ref": "approval/exact_match",
+      "authority_ref": null,
+      "expected_authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "authority_status": "missing",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    },
+    "wrong_authority_ref": {
+      "decision": "blocked",
+      "reason_code": "runtime.executor_approval_authority_untrusted",
+      "message": "authority_ref does not exactly match Gate 3 decision URI",
+      "token_ref": "approval/wrong_authority",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/wrong-scope-v0/2026-05-09",
+      "expected_authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "authority_status": "wrong",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    },
+    "stale_superseded_authority_ref": {
+      "decision": "blocked",
+      "reason_code": "runtime.executor_approval_authority_untrusted",
+      "message": "authority_ref is stale or superseded",
+      "token_ref": "approval/stale_authority",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-08",
+      "expected_authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "authority_status": "stale_or_superseded",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    },
+    "self_issued_artifact_authority_ref": {
+      "decision": "blocked",
+      "reason_code": "runtime.executor_approval_authority_untrusted",
+      "message": "self-issued artifact authority is not trusted",
+      "token_ref": "approval/self_issued_artifact",
+      "authority_ref": "igapp://sha256/history-valid-time-control",
+      "expected_authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "authority_status": "self_issued",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    }
+  },
+  "checks": {
+    "exact_match.accepted": true,
+    "exact_match.uses_decision_record_authority": true,
+    "missing_authority_ref.refused": true,
+    "wrong_authority_ref.refused": true,
+    "stale_superseded_authority_ref.refused": true,
+    "self_issued_artifact_authority_ref.refused": true,
+    "refusals_before_live_operations": true
+  },
+  "at9_status_recommendation": {
+    "status": "proof_gap_closed_for_phase1",
+    "recommendation": "AT-9 can be marked proof-local PASS for exact authority_ref matching against the Gate 3 decision URI. Production authority registry and signing remain separate gaps."
+  },
+  "remaining_gaps": [
+    "Production signing/key verification is still out of scope.",
+    "Runtime authority registry and revocation lookup remain undefined before Phase 2.",
+    "This fixture validates exact authority_ref matching only; full ExecutorApprovalToken validation stays with PROP-030 proof/runtime paths.",
+    "Live TBackend, Ledger adapter, production cache, and Phase 2 authority remain closed."
+  ]
+}

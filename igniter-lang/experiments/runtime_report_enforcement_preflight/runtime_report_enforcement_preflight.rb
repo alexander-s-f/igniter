@@ -20,13 +20,13 @@ module RuntimeReportEnforcementPreflight
     trace << compatibility.fetch("stage")
     return blocked(compatibility, trace) unless compatibility.fetch("status") == "ok"
 
-    gate = check_gate_state(report)
-    trace << gate.fetch("stage")
-    return blocked(gate, trace) unless gate.fetch("status") == "ok"
-
     token = check_approval_token(report)
     trace << token.fetch("stage")
     return blocked(token, trace) unless token.fetch("status") == "ok"
+
+    gate = check_gate_state(report)
+    trace << gate.fetch("stage")
+    return blocked(gate, trace) unless gate.fetch("status") == "ok"
 
     scope = check_scope(report)
     trace << scope.fetch("stage")
@@ -215,11 +215,17 @@ if $PROGRAM_NAME == __FILE__
     "backend_descriptor_blocked" => RuntimeReportEnforcementPreflight.preflight(
       RuntimeReportEnforcementPreflight.composed_report("backend_check" => CompatibilityReportComposition.backend_check("blocked"))
     ),
-    "gate_closed_blocks_before_token" => RuntimeReportEnforcementPreflight.preflight(
+    "gate_closed_after_token_check" => RuntimeReportEnforcementPreflight.preflight(
       RuntimeReportEnforcementPreflight.composed_report("runtime_gate_check" => CompatibilityReportComposition.runtime_gate_check(open: false))
     ),
-    "approval_missing_blocks_before_scope" => RuntimeReportEnforcementPreflight.preflight(
+    "approval_missing_blocks_before_gate" => RuntimeReportEnforcementPreflight.preflight(
       RuntimeReportEnforcementPreflight.composed_report("executor_approval_check" => CompatibilityReportComposition.approval_check("blocked"))
+    ),
+    "approval_missing_with_gate_closed_blocks_before_gate" => RuntimeReportEnforcementPreflight.preflight(
+      RuntimeReportEnforcementPreflight.composed_report(
+        "executor_approval_check" => CompatibilityReportComposition.approval_check("blocked"),
+        "runtime_gate_check" => CompatibilityReportComposition.runtime_gate_check(open: false)
+      )
     ),
     "bihistory_scope_excluded_before_cache" => RuntimeReportEnforcementPreflight.preflight(
       RuntimeReportEnforcementPreflight.composed_report("executor_readiness" => CompatibilityReportComposition.executor_readiness("ok").merge("operation" => "bihistory_at"))
@@ -244,8 +250,8 @@ if $PROGRAM_NAME == __FILE__
     "status" => "PASS",
     "ordering" => %w[
       compatibility_report
-      gate_state
       approval_token
+      gate_state
       scope
       cache_key
       executor_backend
@@ -268,8 +274,9 @@ if $PROGRAM_NAME == __FILE__
   {
     "split_report_blocks_at_compatibility_report" => "compatibility_report",
     "backend_descriptor_blocked" => "compatibility_report",
-    "gate_closed_blocks_before_token" => "gate_state",
-    "approval_missing_blocks_before_scope" => "approval_token",
+    "gate_closed_after_token_check" => "gate_state",
+    "approval_missing_blocks_before_gate" => "approval_token",
+    "approval_missing_with_gate_closed_blocks_before_gate" => "approval_token",
     "bihistory_scope_excluded_before_cache" => "scope",
     "cache_key_blocks_before_executor_backend" => "cache_key",
     "executor_missing_blocks_before_backend_call" => "executor_backend",
