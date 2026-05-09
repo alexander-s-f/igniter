@@ -144,6 +144,11 @@ explicitly references this decision record and the exact `authority_ref` above.
 Tokens are not self-issued by `.igapp` artifacts, contracts, RuntimeMachine, or
 TBackend adapters.
 
+For Phase 1 proof-local and MemoryBackend implementations, the trusted
+authority URI may be embedded as a constant in the executor implementation,
+referencing this document directly. This is a Phase 1 convenience, not a
+production signing system.
+
 Any later production signing key, hash registry, or deployment policy file
 requires a named follow-up record or addendum.
 
@@ -157,6 +162,16 @@ The authority ref is active until one of the following exists:
 - the token itself is expired or revoked.
 
 Runtime validation must treat revocation as an independent refusal condition.
+
+The runtime authority registry is not yet defined. For Phase 1, the active
+revocation paths are:
+
+- a later gate decision record superseding this decision;
+- a `gate3-revocation-*` document naming this `authority_ref`;
+- token expiry or token-local revocation.
+
+A runtime authority registry requires a separate definition track before Phase
+2 or production authority-revocation work.
 
 ---
 
@@ -302,9 +317,10 @@ Status: done
 - Decision record only; no code/proof executed.
 
 [R] Risks / Required next work
-- Land compatibility-report-composition-v0.
-- Land prop-005-temporal-read-observation-v0.
-- Land prop-030-temporal-scope-exclusion-errata-v0.
+- S3-R14-C1-A amendment clarified Phase 1 authority URI embedding and Phase 1
+  active revocation paths.
 - Run S3-R7..S3-R10 proof chain after implementation changes.
+- Define runtime authority registry before Phase 2 / production authority
+  revocation work.
 - Update gates/status maps in Status Curator mode.
 ```
