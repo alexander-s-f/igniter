@@ -86,14 +86,19 @@ Source .ig
        executor cache-key boundary              ✅ TEMPORAL key or L-T5 refusal
        C2 guarded-runtime consistency           ✅ mapped refusal
        guarded approval enforcement             ✅ proof-local refusal
-       Gate 3 opening request                   ✅ ready for Architect review; not approved
-       evaluate TEMPORAL                        🚫 refused until executor/TBackend
+       Gate 3 Phase 1 decision                  ✅ approved-restricted implementation
+       CompatibilityReport composition          ✅ proof-local composed shape
+       temporal_read_observation envelope       ✅ proof-local minimum envelope
+       temporal_scope_exclusion reason          ✅ PROP-030A
+       evaluate TEMPORAL Phase 1                🚫 blocked until implementation + AT proof pass
        memoize TEMPORAL                         🚫 proof-local only
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
        descriptor report mapping                ✅ report-only
        Gate 2 ratification record               ✅ ratified
-       live operations                          🚫 Gate 3 closed
+       Phase 1 abstract non-Ledger adapter      ✅ implementation authorized
+       Ledger adapter / package binding         🚫 Phase 2 addendum required
+       live Ledger operations                   🚫 closed
   -> Stream replay
        assembled stream_nodes metadata          ✅ emitted
        production stream executor               🚫 not authorized
@@ -125,13 +130,13 @@ legacy/internal comparison, not the production path.
 | Stage 3 | OPEN | Work within current lane/card. |
 | Typed emission | SWITCHED | Production orchestrator uses `emit_typed(typed)`. |
 | TEMPORAL load | PROOF-LOCAL | Load accepts valid TEMPORAL `.igapp/` for inspection. |
-| TEMPORAL evaluate | CLOSED | Evaluation refuses until executor/TBackend work is approved; S3-R8 full smoke and executor-boundary evidence keep the refusal structured. |
+| TEMPORAL evaluate | APPROVED-RESTRICTED / PRE-LIVE BLOCKED | Phase 1 implementation is approved for History[T] valid_time only; evaluation must still refuse live reads until pre-live conditions, AT-1..AT-12, and regression proof chain pass. |
 | Runtime cache | PROOF-LOCAL | Cache key/memoization proofs exist; no production cache. |
 | TBackend Gate 1 | PASS | Report-only descriptor consumption fixture. |
 | TBackend Gate 2 | RATIFIED | Metadata-only package descriptor exposure and report-only descriptor mapping are trusted report metadata; no runtime authority. |
 | Gate 3 prerequisite package | LANDED | Gate 2 ratified, PROP-030 drafted, token report proof, guarded enforcement, executor cache-key proof, and package descriptor report consumption landed; this is not Gate 3 authorization. |
-| Gate 3 opening request | READY FOR ARCHITECT REVIEW | S3-R12 revision fixed the S3-R11-X1 HOLD; X1 says proceed to Architect review. This is not approval. |
-| TBackend Gate 3 | CLOSED | No Ledger read/write/replay/runtime binding; ready-for-review request does not open the gate. |
+| Gate 3 Phase 1 | APPROVED-RESTRICTED | Phase 1 implementation may begin for History[T] valid_time via abstract proof-local/non-Ledger TBackend; live reads blocked until pre-live conditions, AT-1..AT-12, and regression chain pass. |
+| TBackend Gate 3 Phase 2 | CLOSED | Real Ledger adapter/package binding, BiHistory, stream/OLAP, writes/replay/compact/subscribe, and production cache need separate Architect approval/addendum as specified. |
 | Release publish | CLOSED | `bin/release-gate` may build artifacts; RubyGems publish needs explicit approval and MFA owner action. |
 | Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; no syntax is canon without proposal/proof. |
 
@@ -217,12 +222,12 @@ Do not run broad expensive suites just to curate maps.
 
 Recommended next routing from the latest status map:
 
-1. `gate3-architect-decision-record-v0`
-2. `compatibility-report-composition-v0` before Phase 1 live reads after approval
-3. `prop-005-temporal-read-observation-v0` before Phase 1 live reads after approval
-4. `prop-030-temporal-scope-exclusion-errata-v0` before/concurrent with Phase 1 implementation
-5. `runtime-report-enforcement-preflight-v0` only after approval
-6. `executor-approval-authority-registry-v0` only after approval
-7. `compatibility-report-persistence-audit-v0` after approval
-8. `spec-ch7-gate3-approval-sync` only if Gate 3 is approved
+1. `gate3-decision-record-phase1-amendment-v0` (non-blocking wording patch)
+2. `runtime-temporal-executor-phase1-preflight-v0`
+3. `runtime-report-enforcement-preflight-v0`
+4. `temporal-scope-exclusion-runtime-fixture-v0`
+5. `spec-ch7-gate3-approval-sync`
+6. `gate3-authority-registry-v0` before Phase 2
+7. `gate3-phase2-addendum-process-v0` before Phase 2
+8. `compatibility-report-persistence-audit-v0`
 9. `spec-ch6-invariant-source-metadata-sync-v0`

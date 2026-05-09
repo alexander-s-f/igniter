@@ -35,7 +35,7 @@ research proves boundary semantics (proof-local, report-only)
 | Gate | Status | Scope |
 |------|--------|-------|
 | Gate 2 — descriptor metadata | ✅ ratified | Metadata-only descriptor package exposure; no live binding |
-| Gate 3 — live TBackend / executor | approved-restricted | Phase 1 implementation only; no Ledger/BiHistory/cache |
+| Gate 3 — live TBackend / executor | approved-restricted | Phase 1 implementation only; live reads pre-live blocked; no Ledger/BiHistory/cache |
 
 ---
 
@@ -45,7 +45,7 @@ research proves boundary semantics (proof-local, report-only)
 Gate 3 scope: live Ledger/TBackend read-write-replay, runtime executor, production cache
 Gate 3 state: APPROVED-RESTRICTED-PHASE1
 
-Pending request: runtime-temporal-executor-gate3-request-v0.md
+Request: runtime-temporal-executor-gate3-request-v0.md
   Proposed restricted scope: live TEMPORAL History[T] valid_time evaluation only
   Excludes: BiHistory, stream/OLAP executor, Ledger write, production cache
   Decision: approved-restricted-phase1
@@ -56,7 +56,25 @@ Decision: gate3-decision-record-v0.md
   Pre-live: blocked until composition, observation, scope-exclusion errata,
     AT-1..AT-12, and regression proof chain pass
   Phase 2: real Ledger-backed adapter requires explicit Architect addendum
+
+Safety review: gate3-decision-safety-pressure-v0.md
+  Verdict: PROCEED
+  Finding: no hidden authorization leaks; no blocker for Phase 1 implementation
+  Follow-up: non-blocking wording amendments for Phase 1 authority URI and
+    later authority registry scope
 ```
+
+---
+
+## Gate 3 Follow-Up Boundaries
+
+| Follow-up | Status | Rule |
+|-----------|--------|------|
+| Phase 1 authority URI wording | non-blocking amendment recommended | Phase 1 may embed the trusted authority URI as a constant until a registry exists |
+| Runtime authority registry | not defined | Required before Phase 2 / production authority-revocation work; not a Phase 1 blocker |
+| Real Ledger adapter/package binding | closed | Requires explicit Architect addendum after Phase 1 |
+| BiHistory / transaction-time | closed | Requires separate gate; cannot be added by quiet Phase 1/2 addendum |
+| Production cache | closed | Requires separate approval; proof-local cache does not imply production memoization |
 
 ---
 

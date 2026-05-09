@@ -28,6 +28,20 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 13 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../gates/gate3-decision-record-v0.md` | approved-restricted-phase1 | Architect decision authorizes Phase 1 TEMPORAL History[T] valid_time executor implementation via abstract proof-local/non-Ledger TBackend; live reads remain blocked until pre-live conditions, AT-1..AT-12, and regression proof chain pass |
+| `../proposals/PROP-030A-temporal-scope-exclusion-errata-v0.md` | proposal | Canonical scope-exclusion refusal code: `runtime.temporal_scope_exclusion`; does not authorize new executor/backend scope |
+| `prop-030-temporal-scope-exclusion-errata-v0.md` | done | Formalizes PROP-030A errata and refusal mapping for out-of-scope TEMPORAL executor attempts |
+| `prop-005-temporal-read-observation-v0.md` | done | Defines minimum `temporal_read_observation` envelope for authorized live History[T] reads; proof PASS; no live TBackend/Ledger eval |
+| `compatibility-report-composition-v0.md` | done | Defines single composed CompatibilityReport shape for readiness + enforcement; proof PASS; split report/enforcement fragments rejected |
+| `../discussions/gate3-decision-safety-pressure-v0.md` | complete — PROCEED | X1 finds no hidden authorization leaks; recommends non-blocking wording amendments and Phase 2 authority/addendum follow-ups |
+| `stage3-round13-status-curation-v0.md` | done | R13 status/index/context/gate sync — this track |
+
+---
+
 ## Stage 3 Round 12 Evidence
 
 | Track | Status | Notes |
@@ -117,12 +131,12 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Surface | Freshness | Anchor | Notes |
 |---------|-----------|--------|-------|
-| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget; S3-R12 next movement refreshed |
+| `docs/agent-context.md` | current | `../agent-context.md` | Trusted read order, gates, conflict rule, proof budget; S3-R13 next movement refreshed |
 | `docs/spec/ch4-fragment-classification.md` | synced | `spec-ch4-temporal-fragment-sync-v0.md` | TEMPORAL fragment and node/value split current |
 | `docs/spec/ch5-compiler-pipeline.md` | synced + discharged + metadata | `spec-ch5-emit-typed-sync-v0.md`; `invariant-typed-shape-discharge-v0.md`; `invariant-source-metadata-preservation-v0.md` | `emit_typed` production path current; invariant source metadata preservation landed |
 | `docs/spec/ch6-semanticir.md` | synced + stream/invariant metadata | `spec-ch6-semanticir-temporal-sync-v0.md`; `stream-replay-metadata-emission-v0.md`; `invariant-source-metadata-preservation-v0.md` | STREAM replay metadata emitted; invariant source_metadata/source_span needs spec sync |
-| `docs/spec/ch7-runtime.md` | synced + request ready | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `executor-approval-token-report-proof-v0.md`; `guarded-runtime-executor-approval-enforcement-v0.md`; `compatibility-report-package-descriptor-consumption-v0.md`; `../gates/runtime-temporal-executor-gate3-request-v0.md`; `gate3-request-revision-spec-review-v0.md` | request ready for Architect review; production executor/cache still closed; if approved, route `spec-ch7-gate3-approval-sync` |
-| `docs/proposals/README.md` | synced | `proposal-lifecycle-index-sync-v0.md`; `prop-029-entrypoint-section-surface-v0.md`; `prop-030-executor-approval-token-contract-v0.md` | Stage 2 closed, PROP-028 implementation-partial, PROP-022A experiment-pass, PROP-029/030 proposal-only |
+| `docs/spec/ch7-runtime.md` | synced + decision pressure | `spec-ch7-runtime-temporal-cache-sync-v0.md`; `executor-approval-token-report-proof-v0.md`; `guarded-runtime-executor-approval-enforcement-v0.md`; `compatibility-report-package-descriptor-consumption-v0.md`; `../gates/gate3-decision-record-v0.md`; `../proposals/PROP-030A-temporal-scope-exclusion-errata-v0.md`; `prop-005-temporal-read-observation-v0.md`; `compatibility-report-composition-v0.md` | Gate 3 approved-restricted for Phase 1 implementation; live reads still blocked; route `spec-ch7-gate3-approval-sync` before/with implementation |
+| `docs/proposals/README.md` | synced + PROP-030A pending index check | `proposal-lifecycle-index-sync-v0.md`; `prop-029-entrypoint-section-surface-v0.md`; `prop-030-executor-approval-token-contract-v0.md`; `../proposals/PROP-030A-temporal-scope-exclusion-errata-v0.md` | Stage 2 closed, PROP-028 implementation-partial, PROP-022A experiment-pass, PROP-029/030 proposal-only; PROP-030A landed as proposal evidence |
 
 ---
 
@@ -310,17 +324,17 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `gate3-architect-decision-record-v0` | Architect approve/hold/reject the revised restricted request; only this can open Gate 3 | Architect Supervisor | next |
-| `compatibility-report-composition-v0` | Define the unified production CompatibilityReport shape needed by AT-2 before any Phase 1 live read | Research Agent / Runtime Agent | after approval / before live eval |
-| `prop-005-temporal-read-observation-v0` | Define minimum temporal read observation content for AT-10: time coordinate, contract ref, token ref, result status | Compiler/Grammar Expert + Research Agent | after approval / before live eval |
-| `prop-030-temporal-scope-exclusion-errata-v0` | Define canonical scope-exclusion refusal reason for AT-7/AT-12 before fragmented runtime codes appear | Compiler/Grammar Expert | before/concurrent Phase 1 |
-| `runtime-report-enforcement-preflight-v0` | Define/verify that future RuntimeMachine checks `evaluation_readiness` before executor/cache use | Research Agent / Runtime Agent | after approval |
-| `executor-approval-authority-registry-v0` | Define production trusted authority/revocation source for PROP-030 tokens; no executor implementation | Bridge Agent + Research Agent | after approval |
-| `compatibility-report-persistence-audit-v0` | Persist report decisions and audit receipts without runtime enforcement or live operations | Research Agent / Bridge Agent | after approval |
+| `gate3-decision-record-phase1-amendment-v0` | Apply X1 non-blocking wording: Phase 1 may embed trusted authority URI as a constant; runtime authority registry is undefined until a later track | Architect Supervisor / Meta Expert | next |
+| `runtime-temporal-executor-phase1-preflight-v0` | Prepare Phase 1 implementation plan for History[T] valid_time via abstract proof-local/non-Ledger TBackend, with live reads still blocked until AT pass | Research Agent / Runtime Agent | next |
+| `runtime-report-enforcement-preflight-v0` | Define/verify that future RuntimeMachine checks composed `evaluation_readiness` before executor/cache use | Research Agent / Runtime Agent | next |
+| `temporal-scope-exclusion-runtime-fixture-v0` | Prove `runtime.temporal_scope_exclusion` for CORE/STREAM/OLAP/BiHistory/Ledger/out-of-scope executor attempts | Research Agent / Runtime Agent | next |
+| `spec-ch7-gate3-approval-sync` | Sync Ch7 approval/enforcement semantics to the approved-restricted Phase 1 decision and closed adjacent scopes | Compiler/Grammar Expert | next |
+| `gate3-authority-registry-v0` | Define trusted authority/revocation source for PROP-030 tokens before Phase 2; do not imply live Ledger binding | Bridge Agent + Research Agent | before Phase 2 |
+| `gate3-phase2-addendum-process-v0` | Define explicit Architect addendum route for real Ledger adapter/package binding after Phase 1 | Meta Expert / Bridge Agent | before Phase 2 |
+| `compatibility-report-persistence-audit-v0` | Persist report decisions and audit receipts; keep live operations gated until Phase 1 AT/regression pass | Research Agent / Bridge Agent | after Phase 1 preflight |
 | `compatibility-report-package-adoption-v0` | Package/Bridge adoption of report-only descriptor consumption shape while preserving `runtime_enforced=false` and no live binding | Bridge Agent / Package Agent | recommended |
 | `spec-ch6-invariant-source-metadata-sync-v0` | Document optional `source_metadata` / `source_span` on `invariant_node` and invariant coverage report entries | Compiler/Grammar Expert | docs/spec sync |
 | `entrypoint-section-parser-typechecker-v0` | Implement and prove PROP-029 contextual parser/typechecker behavior only after proposal acceptance | Compiler/Grammar Expert | gated |
-| `spec-ch7-gate3-approval-sync` | Sync Ch7 approval/enforcement semantics only if a Gate 3 decision accepts them | Compiler/Grammar Expert | conditional |
 | `gem-release-ci-wiring-v0` | Wire `bin/release-gate` into CI or preserve release artifacts/checksum under an approved release record; publish remains gated | Research Agent | optional |
 | `syntax-thresholds-and-constants-prop-v0` | Draft proposal for named thresholds/constants from S3-R4 review signals; no parser implementation yet | Compiler/Grammar Expert | proposal |
 | `syntax-external-pure-helper-signatures-prop-v0` | Draft proposal for `external pure fn(...) -> T` helper signatures and effect/evidence annotations | Compiler/Grammar Expert + Bridge Agent | proposal |

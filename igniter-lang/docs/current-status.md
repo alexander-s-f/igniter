@@ -79,12 +79,12 @@ Release           ✅ gate    gem-release-policy + release-gate PASS;
                             local .gem/.sha256 rebuilt; publish not attempted
 TBackend          ✅ gate2   descriptor package exposure ratified;
                             package descriptor consumed into report-only CompatibilityReport;
-                            Gate 2 record landed; Gate 3 request ready for Architect review;
-                            Gate 3 closed
+                            Gate 2 record landed; Gate 3 approved-restricted Phase 1;
+                            Ledger/BiHistory/Phase 2 closed
 Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             ExecutorApprovalToken report + guarded enforcement PASS;
-                            Gate 3 request safety review says PROCEED to Architect review;
-                            no prod execution/cache
+                            Gate 3 Phase 1 implementation authorized;
+                            live reads blocked until pre-live conditions + AT-1..AT-12
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open
@@ -175,10 +175,17 @@ Round 12 landed:
   S3-R12-C3-P: Gate 3 proof-chain index         ✅ regression commands indexed; no proof missing
   S3-R12-C4-P: TBackend adapter phase plan      ✅ Phase 1 non-Ledger; Phase 2 addendum
   S3-R12-X1-S: revision safety pressure         ✅ PROCEED to Architect review; Gate 3 closed
+Round 13 landed:
+  S3-R13-C1-A: Gate 3 decision record           ✅ approved-restricted-phase1; live reads blocked
+  S3-R13-C2-P: PROP-030A scope exclusion        ✅ canonical runtime.temporal_scope_exclusion
+  S3-R13-C3-P: temporal read observation        ✅ minimum AT-10 envelope + proof PASS
+  S3-R13-C4-P: CompatibilityReport composition ✅ single composed report proof PASS
+  S3-R13-X1-S: decision safety pressure         ✅ PROCEED; no hidden auth leaks
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
-                  + PROP-030 executor approval token;
+                  + PROP-030 executor approval token + PROP-030A scope exclusion;
                   other syntax candidates require proposal tracks
-Arch approval required for: Gate 3 opening, gem publish, Ledger read/write, MCP/mesh
+Arch approval required for: Gate 3 Phase 2 Ledger adapter, BiHistory, stream/OLAP,
+                            production cache, gem publish, Ledger write, MCP/mesh
 ```
 
 ### Trusted Read Order
@@ -221,14 +228,19 @@ Source .ig
        executor cache-key boundary              ✅ S3-R9-C3; TEMPORAL key or L-T5 refusal
        guarded runtime C2 consistency           ✅ S3-R9-C4; mapped refusal
        guarded approval enforcement             ✅ S3-R10-C2; proof-local refusal
-       Gate 3 opening request                   ✅ ready for Architect review; not approved
-       evaluate TEMPORAL                        🚫 refused until runtime executor/TBackend
+       Gate 3 decision                          ✅ approved-restricted Phase 1 implementation
+       CompatibilityReport composition          ✅ S3-R13-C4 proof-local composed shape
+       temporal_read_observation envelope       ✅ S3-R13-C3 proof-local envelope
+       temporal_scope_exclusion code            ✅ PROP-030A
+       evaluate TEMPORAL Phase 1                🚫 blocked until implementation + AT-1..AT-12
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
        descriptor report mapping                ✅ report-only; runtime_enforced=false
        Gate 2 ratification record               ✅ ratified; metadata-only
-       live reads/writes/replay                 🚫 Gate 3 closed
+       Phase 1 abstract non-Ledger adapter      ✅ implementation authorized
+       Ledger adapter / package binding         🚫 Phase 2 addendum required
+       live Ledger reads/writes/replay          🚫 closed
   -> Stream replay
        stream_nodes metadata                    ✅ emitted in SemanticIR/.igapp
        production stream executor               🚫 not authorized
@@ -252,14 +264,14 @@ invariant_valid delta: accepted/discharged ✅ typed path adds invariant nodes +
 Ledger descriptor:   metadata-only ✅ package specs PASS
 CompatibilityReport: load/evaluate split + descriptor mapping ✅; report-only metadata; runtime_enforced false
 Package descriptor:  ratified Gate 2 metadata consumed into CompatibilityReport ✅; report-only, no live binding
-Executor boundary:   positive executor/live-binding flags modeled ✅; explicit approval + Gate 3 still required
+Executor boundary:   positive executor/live-binding flags modeled ✅; Phase 1 approval restricted; live/Phase2 gates still required
 Gate 3 prerequisites: Gate 2 ratified ✅; PROP-030 drafted ✅; token report proof ✅; guarded enforcement ✅; cache-key proof ✅
-Gate 3 request:      revised ✅; S3-R12-X1 says PROCEED to Architect review; no decision record yet
+Gate 3 decision:     approved-restricted-phase1 ✅; implementation may begin; live reads blocked until pre-live + AT checks
 Runtime observations: proof-backed ⏳ production persistence open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; runtime evaluate refused by guard
 Release gate:        bin/release-gate ✅ PASS; local artifact + checksum rebuilt; publish.status=not_attempted
-Gate 2 descriptor:   ratified ✅; report metadata only; Gate 3 production binding closed
+Gate 2 descriptor:   ratified ✅; report metadata only; Gate 3 Phase 2 production binding closed
 Stage 2 close:       PASS (stage2_close_candidate.json)
 Stage 1 regression:  PASS
 Archive:             Stage 2 close snapshot ✅ docs/archive/snapshots/2026-05-07-stage2-close/
@@ -267,25 +279,27 @@ Docs memory:         S3-R7 docs snapshot ✅ + value-index hoisted memory layer 
 АИ/СОИ lens:         soft Stage 3 governance/review vocabulary; not a hard gate
 Syntax pressure:     registry + specimens + review routing done; threshold/external pure/entrypoint-section are proposal candidates, not parser canon
 Discussion pressure: S3-R4-X1 resolved to contract_index/load-guard tracks; both landed in R5
-Runtime pressure:    S3-R7-X1 says no current production bug; expand smoke/report boundary before Gate 3
+Runtime pressure:    S3-R7-X1 says no current production bug; smoke/report boundary expanded before Gate 3 decision
 S3-R8 runtime result: full smoke + executor-boundary report closed the named pre-Gate-3 pressure gaps;
-                      Gate 3 itself remains closed
-S3-R9 package:        Gate 3 prerequisites landed as proposal/proofs/metadata; Gate 3 still not opened
-S3-R10 result:        package descriptor consumption + approval-token report/runtime proofs landed; Gate 3 still closed
-S3-R11 result:        restricted Gate 3 request package drafted; X1 holds routing until request revision; Gate 3 closed
-S3-R12 result:        Gate 3 request revision fixed HOLD blockers; X1 says ready for Architect review; Gate 3 closed
+                      decision was still closed at R8
+S3-R9 package:        Gate 3 prerequisites landed as proposal/proofs/metadata; decision still closed at R9
+S3-R10 result:        package descriptor consumption + approval-token report/runtime proofs landed; decision still closed at R10
+S3-R11 result:        restricted Gate 3 request package drafted; X1 held routing until request revision
+S3-R12 result:        Gate 3 request revision fixed HOLD blockers; X1 routed to Architect review
+S3-R13 result:        Architect approved restricted Gate 3 Phase 1 implementation; X1 found no auth leaks;
+                      live reads remain blocked until implementation/pre-live/regression pass
 ```
 
 ### Spec Freshness
 
 | Surface | Freshness | Current anchor | Remaining doc debt |
 |---------|-----------|----------------|--------------------|
-| Agent context | ✅ current S3-R12 | `docs/agent-context.md` | Keep next movement in sync after each status round |
+| Agent context | ✅ current S3-R13 | `docs/agent-context.md` | Keep next movement in sync after each status round |
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
-| Ch7 Runtime | ✅ baseline synced + S3-R12 request pressure | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/runtime-temporal-executor-gate3-request-v0.md`; `gate3-request-revision-spec-review-v0.md` | Gate 3 request is ready for Architect review; if approved later, route `spec-ch7-gate3-approval-sync` |
+| Ch7 Runtime | ✅ baseline synced + S3-R13 decision pressure | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md` | Gate 3 approved-restricted for Phase 1 implementation; Ch7 approval sync now due before/with implementation |
 | Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
@@ -302,12 +316,15 @@ DOC-DEBT-03  Keep Gate 2/Gate 3 boundary visible after Gate 2 ratification:
 DOC-DEBT-04  Keep PROP-029 proposal-only until parser/typechecker proof acceptance.
 DOC-DEBT-05  Sync Ch6 for optional invariant source_metadata/source_span.
 DOC-DEBT-06  Keep value-index.md compact; hoist durable signals, not routine evidence.
-DOC-DEBT-07  Gate 3 request is ready for Architect review, not approved:
-             Architect decision record must include authority ref/format/issuance/
-             revocation, BiHistory exclusion answer, and Q3 phase approval.
-DOC-DEBT-08  Before Phase 1 live reads after any approval:
-             land CompatibilityReport composition and temporal read observation
-             kind/content track; route PROP-030 scope-exclusion reason code.
+DOC-DEBT-07  Gate 3 decision is approved-restricted-phase1:
+             Phase 1 implementation may begin; live reads are blocked until
+             AT-1..AT-12 implementation and S3-R7..R10 regression proof chain pass.
+DOC-DEBT-08  S3-R13-X1 non-blocking amendments:
+             clarify Phase 1 may hardcode authority URI; runtime authority
+             registry is undefined until a later track.
+DOC-DEBT-09  Phase 2 remains closed:
+             real Ledger adapter needs explicit Architect addendum and authority
+             registry / revocation / addendum process definition.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -336,7 +353,8 @@ PROP-027   Production compiler           ✅ CLOSED IN STAGE 2 (package + facade
 PROP-028   TEMPORAL fragment class       ⚙️ proposal + classifier/typechecker + SemanticIR + assembler
                                          manifest/load guard/cache proof done; runtime executor/parser pending
 PROP-029   Entrypoint/section surface    proposal; parser/typechecker proof pending
-PROP-030   Executor approval token       proposal; Gate 3 prerequisite, not authorization
+PROP-030   Executor approval token       proposal; Gate 3 prerequisite + Phase 1 authority check
+PROP-030A  TEMPORAL scope exclusion      proposal; runtime.temporal_scope_exclusion
 PROP-031+  Stage 3 candidates            queued by pressure review; not canon without proposal/proof
 ```
 
