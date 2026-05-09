@@ -55,8 +55,8 @@ lib/igniter_lang/
 
 Open surfaces (implementation work):
   PROP-029  entrypoint/section parser surface   proposal; parser proof OPEN
-  PROP-030  executor approval token             proposal; Gate 3 prerequisite; proof OPEN
-  Gate 3 request revision                       two edits needed before Arch review
+  PROP-030  executor approval token             proposal; report/guard proofs landed; production impl CLOSED
+  Gate 3 request revision                       Meta/Gate-doc work; not Implementation-owned by default
   invariant_persistence                         Stage 2 deferred gap; no production impl
 ```
 
@@ -84,14 +84,18 @@ Gate: proposal-only until proof PASS. Do not update spec without proof.
 File: `igniter-lang/docs/proposals/PROP-030-executor-approval-token-contract-v0.md`
 
 Status: `proposal` — Gate 3 prerequisite, not authorization.
+S3-R10 already landed report-only token validation and proof-local guarded
+runtime enforcement. Production token validation remains closed until an
+Architect-approved Gate 3 decision explicitly assigns it.
 
-What is needed:
-- `ExecutorApprovalToken` struct/class in `lib/`
-- Token validation in RuntimeMachine guard path
-- Proof script showing guard refuses missing/invalid token (Gate 3 closed)
-- Report matrix showing valid token still blocked by closed gate
+What may be needed later, after approval:
+- production `ExecutorApprovalToken` struct/class in `lib/`
+- production token validation in RuntimeMachine guard path
+- production authority/revocation/signature integration
+- proof that valid token still cannot bypass a closed or out-of-scope gate
 
-Gate: Gate 3 remains closed. Token implementation is prerequisite work only.
+Gate: Gate 3 remains closed. Do not implement production token validation from
+this onboarding doc alone.
 
 ---
 
@@ -167,6 +171,10 @@ Goal:
   - Make audit observation non-optional
   - Return: revised doc + no other file changes
 ```
+
+Note: Gate 3 request revision is normally Meta/Gate ownership. Implementation
+Agent should take it only if the handoff explicitly assigns a docs-only
+implementation-support pass and names the exact gate file.
 
 ---
 
