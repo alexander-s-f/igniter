@@ -28,11 +28,19 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 12 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `runtime-temporal-executor-gate3-request-revision-v0.md` | done | S3-R11-X1 HOLD resolved: authority ref is gate-opening precondition; AT-10 unconditional (Q5 closed); AT-12 added (CORE refusal); Q3 Option C phases defined; scope-not-expanded binding added; post-gate spec-ch7-gate3-approval-sync routed. Ready for Architect review |
+
+---
+
 ## Stage 3 Round 11 Evidence
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `../gates/runtime-temporal-executor-gate3-request-v0.md` | drafted / pending revision | Gate 3 opening request; restricted scope: History[T] valid_time live eval only; BiHistory/Ledger write/production cache excluded; 6 open decisions and 11 acceptance conditions defined; does not open Gate 3 |
+| `../gates/runtime-temporal-executor-gate3-request-v0.md` | revised — ready for review | Gate 3 opening request; S3-R11-X1 HOLD resolved (S3-R12-C1-S); restricted scope: History[T] valid_time live eval only; 12 acceptance conditions (AT-1..AT-12); Q5/Q6 closed; does not open Gate 3 |
 | `gate3-acceptance-condition-matrix-v0.md` | done | Extracts prerequisite matrix from S3-R7..R10 evidence; marks production RuntimeMachine binding, authority/revocation/signature, report persistence/audit, unified report composition, physical TBackend serving proof, and cache enforcement as missing production items |
 | `gate3-ledger-tbackend-scope-and-bihistory-exclusion-v0.md` | done | Recommends first Gate 3 request be History[T] valid_time read-only; BiHistory, writes, replay, compact, subscriptions, stream binding, and migrations excluded |
 | `gate3-request-spec-consistency-check-v0.md` | done | Request shape is coherent with PROP-028/PROP-030/Ch6/Ch7; no parser/syntax authorization; C4 noted the request artifact missing at its review point, while current discovery finds C1 in `docs/gates/` |
