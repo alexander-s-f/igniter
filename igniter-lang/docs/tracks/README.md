@@ -28,13 +28,24 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 17 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `phase1-lib-prep-regression-chain-rerun-v0.md` | done | Post-C1 lib-prep regression rerun PASS 14/14 across S3-R7..R10, S3-R13..R16, Stage 1, and Stage 2; safety pressure may proceed |
+| `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0.md` | done | Ch7 now names `IgniterLang::TemporalExecutor::Phase1` as proof-local implementation boundary with `gate3_authorized: false`, guard order, composed report, and exact authority_ref |
+| `../discussions/runtime-temporal-executor-lib-prep-safety-pressure-v0.md` | complete — PROCEED | All eight scope guarantees confirmed for proof-local Phase 1; routes docstring amendments, reason-code alias, backend identity guard, and live-read addendum track |
+| `stage3-round17-status-curation-v0.md` | done | R17 status/index/context/gate sync — this track |
+
+---
+
 ## Stage 3 Round 16 Evidence
 
 | Track | Status | Notes |
 |-------|--------|-------|
 | `runtime-temporal-executor-lib-prep-v0.md` | done | S3-R16 C1 landed `IgniterLang::TemporalExecutor::Phase1` in lib/ with `gate3_authorized: false` default, exact authority_ref, CompatibilityReport-shaped hash, token-before-gate order, and targeted proof PASS 17/17; live reads still blocked |
-| `phase1-lib-prep-regression-chain-v0.md` | stale-blocked | S3-R16 C2 track was written before C1 landed and records dependency absent; rerun post-C1 before treating dedicated lib-prep regression as PASS |
-| `runtime-temporal-executor-lib-boundary-spec-sync-v0.md` | stale no-op | S3-R16 C3 track was written before C1 landed and made no Ch7 edit; rerun post-C1 if the stable lib boundary should be documented |
+| `phase1-lib-prep-regression-chain-v0.md` | stale-blocked | S3-R16 C2 track was written before C1 landed and records dependency absent; superseded by R17 rerun |
+| `runtime-temporal-executor-lib-boundary-spec-sync-v0.md` | stale no-op | S3-R16 C3 track was written before C1 landed and made no Ch7 edit; superseded by R17 spec-sync rerun |
 | `stage3-round16-status-curation-v0.md` | done | R16 status/index/context/gate sync — this track |
 
 ---
@@ -369,11 +380,14 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `phase1-lib-prep-regression-chain-v0` | Re-run S3-R7..R10 plus R13..R16 lib-prep fixtures against landed C1 | Research Agent | rerun required |
-| `runtime-temporal-executor-lib-boundary-spec-sync-v0` | Re-evaluate Ch7/runtime docs now that C1 exists; document only stable implementation boundary, no new semantics | Compiler/Grammar Expert | rerun required if naming boundary |
-| `runtime-temporal-executor-lib-prep-safety-pressure-v0` | Review lib-prep for live-read leakage, Ledger/BiHistory/cache expansion, and preservation of blocked-before-call guarantees | External Pressure Reviewer | after post-C1 rerun |
+| `gate3-live-read-decision-addendum-v0` | Draft Architect decision addendum for Phase 1 live reads only; drafting is allowed, live reads still blocked until approved | Architect Supervisor | draftable / not opened |
+| proof-local authority/observation docstring amendments | Add source comments clarifying `GATE3_AUTHORITY_REF` is not cryptographic authorization and `observations` are in-memory, not audit receipts | Implementation Agent | before non-proof callers |
+| `runtime-temporal-scope-exclusion-reason-alias-v0` | Reconcile lib proof-local reason codes with canonical `runtime.temporal_scope_exclusion` before operators see codes | Compiler/Grammar Expert | before production/live route |
+| `phase1-backend-identity-guard-v0` | Add backend identity guard before any Phase 2 adapter binding can make `gate3_authorized: true` reach a real backend | Implementation Agent / Bridge Agent | before Phase 2 |
+| `phase1-lib-prep-regression-chain-rerun-v0` | Re-run S3-R7..R10 plus R13..R16 lib-prep fixtures against landed C1 | Research Agent | done |
+| `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0` | Re-evaluate Ch7/runtime docs now that C1 exists; document only stable implementation boundary, no new semantics | Compiler/Grammar Expert | done |
+| `runtime-temporal-executor-lib-prep-safety-pressure-v0` | Review lib-prep for live-read leakage, Ledger/BiHistory/cache expansion, and preservation of blocked-before-call guarantees | External Pressure Reviewer | done — proceed proof-local |
 | `runtime-temporal-executor-lib-prep-v0` | Prepare lib-bound Phase 1 History[T] valid_time path using composed CompatibilityReport, token-before-gate preflight, authority_ref exact match, scope/cache/observation guards | Implementation Agent | landed |
-| `gate3-live-read-decision-addendum-v0` | Architect decision only if post-C1 regression and safety verdict support it and live-read enabling is requested; do not route automatically | Architect Supervisor | blocked / conditional |
 | `gate3-authority-registry-v0` | Define trusted authority/revocation source for PROP-030 tokens before Phase 2; do not imply live Ledger binding | Bridge Agent + Research Agent | before Phase 2 |
 | `gate3-phase2-addendum-process-v0` | Define explicit Architect addendum route for real Ledger adapter/package binding after Phase 1 | Meta Expert / Bridge Agent | before Phase 2 |
 | `compatibility-report-persistence-audit-v0` | Persist report decisions and audit receipts; keep live operations gated until Phase 1 AT/regression pass | Research Agent / Bridge Agent | after Phase 1 preflight |

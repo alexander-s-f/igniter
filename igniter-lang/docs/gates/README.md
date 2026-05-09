@@ -70,10 +70,11 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
     regression chain PASS
   R16 lib-prep: C1 landed lib/ Phase1 boundary with targeted 17/17 PASS
   Async-order note: C2 regression and C3 spec-sync tracks were recorded before
-    C1 landed and remain stale-blocked/no-op until rerun post-C1
-  Safety pressure: no R16 lib-prep safety verdict discovered yet
-  Still blocked before live reads: post-C1 rerun, lib-prep safety pressure,
-    and explicit Architect live-read addendum
+    C1 landed; R17 supersedes them with post-C1 reruns
+  R17 repair: post-C1 regression rerun PASS 14/14; Ch7 lib-boundary sync rerun done
+  Safety pressure: S3-R17-X1 PROCEED for proof-local Phase 1
+  Still blocked before live reads: explicit Architect live-read addendum, plus
+    routed pre-production safeguards before any non-proof/live use
 ```
 
 ---
@@ -88,10 +89,13 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
 | AT-9 authority_ref comparison | proof-local PASS for lib-prep | R15 proves exact decision-URI match; production signing/registry remains separate |
 | Pre-live regression chain | PASS for lib-prep | R15 records S3-R7..R10 9/9, added pre-live 6/6, and Stage 1/2 close candidates PASS |
 | Runtime temporal executor lib-prep | landed proof-local | R16 C1 adds `lib/igniter_lang/temporal_executor.rb`; targeted proof PASS 17/17; `gate3_authorized: false` keeps live reads blocked by default |
-| Dedicated lib-prep regression chain | rerun required | R16 C2 track is stale-blocked from before C1 landed; do not treat it as post-C1 PASS |
-| Lib boundary spec sync | rerun if naming boundary | R16 C3 track is a stale no-op from before C1 landed; Ch7 remains synced to approved-restricted semantics but not to the new lib boundary |
-| Lib-prep safety pressure | not landed | No R16 lib-prep safety verdict found; required before any live-read addendum routing |
-| Live-read decision addendum | required / not opened | C1 proof-local PASS is not live-read authorization; only an Architect decision document can open live reads |
+| Dedicated lib-prep regression chain | PASS post-C1 | R17 rerun records 14/14 PASS across base chain, pre-live fixtures, C1 proof, Stage 1, and Stage 2 |
+| Lib boundary spec sync | done post-C1 | R17 Ch7 sync names `IgniterLang::TemporalExecutor::Phase1` as proof-local boundary, not language semantics |
+| Lib-prep safety pressure | PROCEED proof-local | S3-R17-X1 confirms eight scope guarantees; routes pre-production items |
+| Live-read decision addendum | draftable / not opened | R17 evidence supports drafting an Architect addendum route; live reads remain blocked until an explicit decision exists |
+| Proof-local authority/observation comments | recommended before non-proof callers | Clarify `GATE3_AUTHORITY_REF` is not cryptographic authorization and `observations` are in-memory, not audit receipts |
+| Scope-exclusion reason aliases | required before production/live route | Reconcile lib proof-local reason codes with canonical `runtime.temporal_scope_exclusion` before operator-facing use |
+| Backend identity guard | required before Phase 2 binding | Prevent `gate3_authorized: true` from reaching real adapters without an allowed-backend/addendum check |
 | Runtime authority registry | not defined | Required before Phase 2 / production authority-revocation work; not a Phase 1 blocker |
 | Real Ledger adapter/package binding | closed | Requires explicit Architect addendum after Phase 1 |
 | BiHistory / transaction-time | closed | Requires separate gate; cannot be added by quiet Phase 1/2 addendum |
