@@ -98,7 +98,10 @@ Source .ig
        AT-2 composed report integration         ✅ closed
        AT-9 authority_ref exact match           ✅ proof-local PASS
        pre-live regression chain                ✅ 17/17 PASS
-       evaluate TEMPORAL Phase 1 live           🚫 blocked until lib-prep proves boundary
+       runtime temporal executor lib-prep       ✅ lib/ Phase1 PASS 17/17
+       dedicated lib-prep regression chain      ⚠️ stale-blocked; rerun post-C1
+       lib boundary spec sync                   ⚠️ stale no-op; rerun post-C1 if needed
+       evaluate TEMPORAL Phase 1 live           🚫 blocked pending rerun, safety pressure, Architect addendum
        memoize TEMPORAL                         🚫 proof-local only
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -138,12 +141,12 @@ legacy/internal comparison, not the production path.
 | Stage 3 | OPEN | Work within current lane/card. |
 | Typed emission | SWITCHED | Production orchestrator uses `emit_typed(typed)`. |
 | TEMPORAL load | PROOF-LOCAL | Load accepts valid TEMPORAL `.igapp/` for inspection. |
-| TEMPORAL evaluate | LIB-PREP READY / LIVE BLOCKED | R15 closed ordering, AT-2, AT-9 proof-local, and regression blockers for History[T] valid_time. Evaluation must still refuse live reads until the lib-prep slice proves the same boundary in prepared code. |
+| TEMPORAL evaluate | LIB-PREP LANDED / LIVE BLOCKED | R16 C1 landed `IgniterLang::TemporalExecutor::Phase1` with `gate3_authorized: false` default and 17/17 targeted proof PASS. Dedicated C2/C3 tracks are stale-blocked because they ran before C1 landed; rerun them before safety/addendum routing. |
 | Runtime cache | PROOF-LOCAL | Cache key/memoization proofs exist; no production cache. |
 | TBackend Gate 1 | PASS | Report-only descriptor consumption fixture. |
 | TBackend Gate 2 | RATIFIED | Metadata-only package descriptor exposure and report-only descriptor mapping are trusted report metadata; no runtime authority. |
 | Gate 3 prerequisite package | LANDED | Gate 2 ratified, PROP-030 drafted, token report proof, guarded enforcement, executor cache-key proof, and package descriptor report consumption landed; this is not Gate 3 authorization. |
-| Gate 3 Phase 1 | APPROVED-RESTRICTED / LIB-PREP READY | Phase 1 proof-local pre-live blockers are closed enough to route `runtime-temporal-executor-lib-prep-v0`; live reads remain blocked and Phase 2 stays closed. |
+| Gate 3 Phase 1 | APPROVED-RESTRICTED / LIB-PREP LANDED | Phase 1 lib-prep is proof-local only. Live reads remain blocked until post-C1 regression/spec-sync repair, lib-prep safety pressure, and explicit Architect live-read decision addendum. Phase 2 stays closed. |
 | TBackend Gate 3 Phase 2 | CLOSED | Real Ledger adapter/package binding, BiHistory, stream/OLAP, writes/replay/compact/subscribe, and production cache need separate Architect approval/addendum as specified. |
 | Release publish | CLOSED | `bin/release-gate` may build artifacts; RubyGems publish needs explicit approval and MFA owner action. |
 | Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; S3-R14 C7-C10 added truth-system, HTTP/knowledge/legal, emergency mesh, and marketplace pressure; no syntax is canon without proposal/proof. |
@@ -230,11 +233,11 @@ Do not run broad expensive suites just to curate maps.
 
 Recommended next routing from the latest status map:
 
-1. `runtime-temporal-executor-lib-prep-v0`
-2. `runtime-temporal-executor-lib-prep-safety-pressure-v0`
-3. `phase1-lib-prep-regression-chain-v0`
+1. `phase1-lib-prep-regression-chain-v0` rerun against landed C1
+2. `runtime-temporal-executor-lib-boundary-spec-sync-v0` rerun against landed C1 if Ch7 should name the lib boundary
+3. `runtime-temporal-executor-lib-prep-safety-pressure-v0`
 4. `compatibility-report-persistence-audit-v0`
-5. `gate3-live-read-decision-addendum-v0` only after lib-prep proves the boundary
+5. `gate3-live-read-decision-addendum-v0` only after post-C1 rerun + safety verdict and only if live-read enabling is requested
 6. `gate3-authority-registry-v0` before Phase 2
 7. `gate3-phase2-addendum-process-v0` before Phase 2
 8. `invariant-persistence-boundary-v0`

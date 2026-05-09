@@ -85,7 +85,8 @@ Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             ExecutorApprovalToken report + guarded enforcement PASS;
                             Gate 3 Phase 1 implementation authorized;
                             R15 pre-live blocker closure PASS;
-                            lib-prep may proceed; live reads still blocked
+                            R16 lib-prep C1 landed/PASS;
+                            live-read decision still required
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open
@@ -196,6 +197,10 @@ Round 15 landed:
   S3-R15-C2-P: composition integration          ✅ AT-2 closed; composed report consumed
   S3-R15-C3-P: authority_ref proof              ✅ AT-9 proof-local PASS; exact decision URI match
   S3-R15-C4-P: pre-live regression chain        ✅ 17/17 PASS; lib-prep allowed next
+Round 16 landed:
+  S3-R16-C1-P: runtime executor lib-prep        ✅ lib/ Phase1 boundary PASS 17/17; live blocked by default
+  S3-R16-C2-P: lib-prep regression chain        ⚠️ stale-blocked; track ran before C1 landed; post-C1 rerun required
+  S3-R16-C3-P: lib boundary spec sync           ⚠️ stale no-op; track ran before C1 landed; rerun if Ch7 should name boundary
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion;
                   other syntax candidates require proposal tracks
@@ -254,8 +259,11 @@ Source .ig
        report preflight ordering                ✅ S3-R15 token-before-gate fixed
        AT-2 composed report integration         ✅ S3-R15 executor consumes CompatibilityReport
        AT-9 authority_ref exact match           ✅ S3-R15 proof-local decision URI validation
-       pre-live regression chain                ✅ 17/17 PASS; lib-prep may proceed
-       evaluate TEMPORAL Phase 1 live           🚫 still blocked until lib-prep proves boundary
+       pre-live regression chain                ✅ 17/17 PASS; R15 allowed C1
+       runtime temporal executor lib-prep       ✅ S3-R16 C1 lib/ Phase1 PASS 17/17
+       dedicated lib-prep regression chain      ⚠️ S3-R16 C2 stale-blocked; rerun post-C1
+       lib boundary spec sync                   ⚠️ S3-R16 C3 stale no-op; rerun post-C1 if needed
+       evaluate TEMPORAL Phase 1 live           🚫 blocked pending post-C1 rerun, safety pressure, Architect addendum
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -291,8 +299,10 @@ Executor boundary:   positive executor/live-binding flags modeled ✅; Phase 1 a
 Gate 3 prerequisites: Gate 2 ratified ✅; PROP-030 drafted ✅; token report proof ✅; guarded enforcement ✅; cache-key proof ✅
 Gate 3 decision:     approved-restricted-phase1 ✅; implementation-prep may continue; live reads blocked
 Pre-live closed:      composition track ✅; observation track ✅; scope errata ✅; scope fixture ✅; authority URI wording ✅; Ch7 sync ✅;
-                      ordering fixed ✅; AT-2 closed ✅; AT-9 proof-local exact URI match ✅; regression 17/17 PASS ✅
-Pre-live remaining:   lib-prep must prove the same boundary in prepared code; production signing/registry/persistence remain later gaps
+                      ordering fixed ✅; AT-2 closed ✅; AT-9 proof-local exact URI match ✅; regression 17/17 PASS ✅;
+                      R16 C1 lib-prep boundary PASS 17/17 ✅
+Pre-live remaining:   dedicated post-C1 lib-prep regression rerun; lib-prep safety pressure verdict;
+                      Architect live-read decision addendum; production signing/registry/persistence remain later gaps
 Runtime observations: proof-backed ⏳ production persistence open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; runtime evaluate refused by guard
@@ -323,6 +333,9 @@ S3-R14 result:        Phase 1 proof-local implementation-prep landed; X1 found n
                       C7-C10 pressure slices landed as non-canon product/syntax pressure
 S3-R15 result:        ordering fixed; AT-2 closed; AT-9 proof-local PASS; regression chain 17/17 PASS;
                       runtime-temporal-executor-lib-prep-v0 may proceed, still not live-read authorization
+S3-R16 result:        lib/ Phase1 executor boundary landed and proves AT-2/4/5/6/7/9/10/12 plus blocked-before-call 17/17 PASS;
+                      C2/C3 are stale-blocked records from before C1 landed, so post-C1 regression/spec-sync rerun is required;
+                      no S3-R16 lib-prep safety-pressure verdict was discovered; live reads remain blocked
 ```
 
 ### Spec Freshness
@@ -334,7 +347,7 @@ S3-R15 result:        ordering fixed; AT-2 closed; AT-9 proof-local PASS; regres
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
-| Ch7 Runtime | ✅ synced + R15 pre-live proof green | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0` | Phase 1 lib-prep may proceed; live reads still blocked until prepared boundary proves same constraints |
+| Ch7 Runtime | ⚠️ synced to approved-restricted semantics; R16 lib-boundary sync pending rerun | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0` | R16 C1 prepared a lib/ boundary, but C3 spec sync was a stale no-op from before C1 landed; live reads remain blocked |
 | Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
@@ -352,8 +365,9 @@ DOC-DEBT-04  Keep PROP-029 proposal-only until parser/typechecker proof acceptan
 DOC-DEBT-05  Sync Ch6 for optional invariant source_metadata/source_span.
 DOC-DEBT-06  Keep value-index.md compact; hoist durable signals, not routine evidence.
 DOC-DEBT-07  Gate 3 decision is approved-restricted-phase1:
-             Phase 1 implementation may begin; live reads are blocked until
-             AT-1..AT-12 implementation and S3-R7..R10 regression proof chain pass.
+             Phase 1 implementation-prep is proof-local; live reads are blocked
+             until post-C1 lib-prep rerun, safety pressure, and explicit
+             Architect addendum.
 DOC-DEBT-08  S3-R14 proof-local Phase 1 prep landed:
              scope fixture, report preflight, executor preflight, Ch7 sync,
              and authority URI wording are current.
@@ -368,6 +382,15 @@ DOC-DEBT-11  General-purpose pressure is pressure-only:
              HTTP/JSON, agent knowledge, legal OSINT, emergency replication,
              self-modification, and marketplace escrow need proposals/fixtures
              before syntax, runtime, or product claims.
+DOC-DEBT-12  S3-R16 lib-prep C1 landed:
+             lib/igniter_lang/temporal_executor.rb provides a proof-local
+             Phase1 boundary; targeted proof PASS 17/17; live reads still
+             require a separate Architect addendum.
+DOC-DEBT-13  S3-R16 async-order repair:
+             phase1-lib-prep-regression-chain-v0 and
+             runtime-temporal-executor-lib-boundary-spec-sync-v0 were recorded
+             before C1 landed and must be rerun post-C1; no R16 lib-prep
+             safety verdict is present yet.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes

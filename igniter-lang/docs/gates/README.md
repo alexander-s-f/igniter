@@ -68,8 +68,12 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
   Finding: no live-eval, Ledger, BiHistory, or production-cache leak
   R15 closure: C4 ordering fixed, AT-2 closed, AT-9 proof-local PASS,
     regression chain PASS
-  Still blocked before live reads: lib-prep must prove the same boundary in
-    prepared code; live-read enablement still needs explicit route/decision
+  R16 lib-prep: C1 landed lib/ Phase1 boundary with targeted 17/17 PASS
+  Async-order note: C2 regression and C3 spec-sync tracks were recorded before
+    C1 landed and remain stale-blocked/no-op until rerun post-C1
+  Safety pressure: no R16 lib-prep safety verdict discovered yet
+  Still blocked before live reads: post-C1 rerun, lib-prep safety pressure,
+    and explicit Architect live-read addendum
 ```
 
 ---
@@ -83,7 +87,11 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
 | AT-2 executor/report integration | closed for lib-prep | R15 proves Phase1TemporalExecutor consumes the composed CompatibilityReport shape |
 | AT-9 authority_ref comparison | proof-local PASS for lib-prep | R15 proves exact decision-URI match; production signing/registry remains separate |
 | Pre-live regression chain | PASS for lib-prep | R15 records S3-R7..R10 9/9, added pre-live 6/6, and Stage 1/2 close candidates PASS |
-| Runtime temporal executor lib-prep | next allowed | May prepare the narrow Phase 1 History[T] valid_time path; this is not live-read enablement |
+| Runtime temporal executor lib-prep | landed proof-local | R16 C1 adds `lib/igniter_lang/temporal_executor.rb`; targeted proof PASS 17/17; `gate3_authorized: false` keeps live reads blocked by default |
+| Dedicated lib-prep regression chain | rerun required | R16 C2 track is stale-blocked from before C1 landed; do not treat it as post-C1 PASS |
+| Lib boundary spec sync | rerun if naming boundary | R16 C3 track is a stale no-op from before C1 landed; Ch7 remains synced to approved-restricted semantics but not to the new lib boundary |
+| Lib-prep safety pressure | not landed | No R16 lib-prep safety verdict found; required before any live-read addendum routing |
+| Live-read decision addendum | required / not opened | C1 proof-local PASS is not live-read authorization; only an Architect decision document can open live reads |
 | Runtime authority registry | not defined | Required before Phase 2 / production authority-revocation work; not a Phase 1 blocker |
 | Real Ledger adapter/package binding | closed | Requires explicit Architect addendum after Phase 1 |
 | BiHistory / transaction-time | closed | Requires separate gate; cannot be added by quiet Phase 1/2 addendum |
