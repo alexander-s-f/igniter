@@ -84,8 +84,8 @@ TBackend          ✅ gate2   descriptor package exposure ratified;
 Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             ExecutorApprovalToken report + guarded enforcement PASS;
                             Gate 3 Phase 1 implementation authorized;
-                            R14 proof-local implementation-prep PASS;
-                            live reads still blocked by AT-2/AT-9/order gaps
+                            R15 pre-live blocker closure PASS;
+                            lib-prep may proceed; live reads still blocked
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open
@@ -184,13 +184,18 @@ Round 13 landed:
   S3-R13-X1-S: decision safety pressure         ✅ PROCEED; no hidden auth leaks
 Round 14 landed:
   S3-R14-C1-A: Phase 1 authority amendment      ✅ authority URI constant + revocation paths recorded
-  S3-R14-C2-P: Phase1TemporalExecutor preflight ✅ proof-local 9/9; AT-2 deferred; AT-9 partial
+  S3-R14-C2-P: Phase1TemporalExecutor preflight ✅ proof-local 9/9; initial gaps closed in R15
   S3-R14-C3-P: scope exclusion runtime fixture  ✅ 7 excluded surfaces refuse before live paths
-  S3-R14-C4-P: report enforcement preflight     ✅ composed-report guard proof; C4 ordering amendment needed
+  S3-R14-C4-P: report enforcement preflight     ✅ composed-report guard proof; ordering fixed in R15
   S3-R14-C5-P: spec Ch7 Gate 3 sync             ✅ approved-restricted/pre-live semantics synced
   S3-R14-X1-S: Phase 1 prep safety pressure     ✅ PROCEED for proof-local; no live-eval leak
   S3-R14-C7/C8: truth-system syntax pressure    ✅ non-canon pressure only; no parser/runtime auth
   S3-R14-C9/C10: general-purpose pressure       ✅ HTTP/knowledge/legal + emergency/marketplace pressure; no canon
+Round 15 landed:
+  S3-R15-C1-P: report order amendment           ✅ token-before-gate fixed; no PROP-030 errata
+  S3-R15-C2-P: composition integration          ✅ AT-2 closed; composed report consumed
+  S3-R15-C3-P: authority_ref proof              ✅ AT-9 proof-local PASS; exact decision URI match
+  S3-R15-C4-P: pre-live regression chain        ✅ 17/17 PASS; lib-prep allowed next
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion;
                   other syntax candidates require proposal tracks
@@ -243,10 +248,14 @@ Source .ig
        temporal_read_observation envelope       ✅ S3-R13-C3 proof-local envelope
        temporal_scope_exclusion code            ✅ PROP-030A
        Phase1TemporalExecutor preflight         ✅ proof-local 9/9; experiments-local only
-       runtime report enforcement preflight     ✅ proof-local guard matrix; order amendment needed
+       runtime report enforcement preflight     ✅ proof-local guard matrix; order amended in R15
        scope-exclusion runtime fixture          ✅ CORE/STREAM/OLAP/BiHistory/Ledger/unknown refused
        Ch7 Gate 3 approval sync                 ✅ spec lag closed for approved-restricted semantics
-       evaluate TEMPORAL Phase 1 live           🚫 blocked until AT-2/AT-9/order + regression pass
+       report preflight ordering                ✅ S3-R15 token-before-gate fixed
+       AT-2 composed report integration         ✅ S3-R15 executor consumes CompatibilityReport
+       AT-9 authority_ref exact match           ✅ S3-R15 proof-local decision URI validation
+       pre-live regression chain                ✅ 17/17 PASS; lib-prep may proceed
+       evaluate TEMPORAL Phase 1 live           🚫 still blocked until lib-prep proves boundary
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -281,8 +290,9 @@ Package descriptor:  ratified Gate 2 metadata consumed into CompatibilityReport 
 Executor boundary:   positive executor/live-binding flags modeled ✅; Phase 1 approval restricted; live/Phase2 gates still required
 Gate 3 prerequisites: Gate 2 ratified ✅; PROP-030 drafted ✅; token report proof ✅; guarded enforcement ✅; cache-key proof ✅
 Gate 3 decision:     approved-restricted-phase1 ✅; implementation-prep may continue; live reads blocked
-Pre-live closed:      composition track ✅; observation track ✅; scope errata ✅; scope fixture ✅; authority URI wording ✅; Ch7 sync ✅
-Pre-live remaining:   C4 ordering amendment; AT-2 executor/composed-report integration; AT-9 URI comparison; post-integration regression chain
+Pre-live closed:      composition track ✅; observation track ✅; scope errata ✅; scope fixture ✅; authority URI wording ✅; Ch7 sync ✅;
+                      ordering fixed ✅; AT-2 closed ✅; AT-9 proof-local exact URI match ✅; regression 17/17 PASS ✅
+Pre-live remaining:   lib-prep must prove the same boundary in prepared code; production signing/registry/persistence remain later gaps
 Runtime observations: proof-backed ⏳ production persistence open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; runtime evaluate refused by guard
@@ -311,18 +321,20 @@ S3-R13 result:        Architect approved restricted Gate 3 Phase 1 implementatio
 S3-R14 result:        Phase 1 proof-local implementation-prep landed; X1 found no live-eval/Ledger/BiHistory/cache leak;
                       live reads remain blocked until AT-2/AT-9/order gaps and regression pass;
                       C7-C10 pressure slices landed as non-canon product/syntax pressure
+S3-R15 result:        ordering fixed; AT-2 closed; AT-9 proof-local PASS; regression chain 17/17 PASS;
+                      runtime-temporal-executor-lib-prep-v0 may proceed, still not live-read authorization
 ```
 
 ### Spec Freshness
 
 | Surface | Freshness | Current anchor | Remaining doc debt |
 |---------|-----------|----------------|--------------------|
-| Agent context | ✅ current S3-R14 | `docs/agent-context.md` | Keep next movement in sync after each status round |
+| Agent context | ✅ current S3-R15 | `docs/agent-context.md` | Keep next movement in sync after each status round |
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
-| Ch7 Runtime | ✅ synced S3-R14 | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0` | Approved-restricted Phase 1 semantics synced; live reads remain blocked until AT-2/AT-9/order gaps and regression pass |
+| Ch7 Runtime | ✅ synced + R15 pre-live proof green | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0` | Phase 1 lib-prep may proceed; live reads still blocked until prepared boundary proves same constraints |
 | Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
@@ -345,10 +357,10 @@ DOC-DEBT-07  Gate 3 decision is approved-restricted-phase1:
 DOC-DEBT-08  S3-R14 proof-local Phase 1 prep landed:
              scope fixture, report preflight, executor preflight, Ch7 sync,
              and authority URI wording are current.
-DOC-DEBT-09  Pre-live production blockers remain:
-             C4 ordering must use canonical token-before-gate or justify errata;
-             executor must consume composed CompatibilityReport for AT-2;
-             token.authority_ref must compare to decision URI for AT-9.
+DOC-DEBT-09  S3-R15 pre-live blocker closure landed:
+             C4 ordering fixed to token-before-gate; AT-2 closed by composed
+             report integration; AT-9 proof-local exact URI match PASS;
+             regression chain 17/17 PASS.
 DOC-DEBT-10  Phase 2 remains closed:
              real Ledger adapter needs explicit Architect addendum and authority
              registry / revocation / addendum process definition.

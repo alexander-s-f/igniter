@@ -66,8 +66,10 @@ Safety review: gate3-decision-safety-pressure-v0.md
 Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
   Verdict: PROCEED for proof-local Phase 1 prep
   Finding: no live-eval, Ledger, BiHistory, or production-cache leak
-  Still blocked before production/live reads: C4 ordering, AT-2 executor
-    composition integration, AT-9 authority_ref URI comparison, regression chain
+  R15 closure: C4 ordering fixed, AT-2 closed, AT-9 proof-local PASS,
+    regression chain PASS
+  Still blocked before live reads: lib-prep must prove the same boundary in
+    prepared code; live-read enablement still needs explicit route/decision
 ```
 
 ---
@@ -77,9 +79,11 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
 | Follow-up | Status | Rule |
 |-----------|--------|------|
 | Phase 1 authority URI wording | landed | Phase 1 may embed the trusted authority URI as a constant until a registry exists |
-| Runtime preflight ordering | open before production | Preserve canonical approval-token-before-gate ordering unless an explicit PROP-030 errata changes it |
-| AT-2 executor/report integration | open before production | Phase1TemporalExecutor must consume the composed CompatibilityReport shape before `runtime_enforced: true` enters `lib/` |
-| AT-9 authority_ref comparison | open before production | Token `authority_ref` must exactly match the decision URI before production Phase 1 live reads |
+| Runtime preflight ordering | closed for lib-prep | R15 fixes canonical approval-token-before-gate ordering; no PROP-030 errata needed |
+| AT-2 executor/report integration | closed for lib-prep | R15 proves Phase1TemporalExecutor consumes the composed CompatibilityReport shape |
+| AT-9 authority_ref comparison | proof-local PASS for lib-prep | R15 proves exact decision-URI match; production signing/registry remains separate |
+| Pre-live regression chain | PASS for lib-prep | R15 records S3-R7..R10 9/9, added pre-live 6/6, and Stage 1/2 close candidates PASS |
+| Runtime temporal executor lib-prep | next allowed | May prepare the narrow Phase 1 History[T] valid_time path; this is not live-read enablement |
 | Runtime authority registry | not defined | Required before Phase 2 / production authority-revocation work; not a Phase 1 blocker |
 | Real Ledger adapter/package binding | closed | Requires explicit Architect addendum after Phase 1 |
 | BiHistory / transaction-time | closed | Requires separate gate; cannot be added by quiet Phase 1/2 addendum |

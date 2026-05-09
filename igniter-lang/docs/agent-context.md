@@ -94,7 +94,11 @@ Source .ig
        report enforcement preflight             ✅ proof-local matrix; ordering amendment needed
        temporal scope exclusion fixture         ✅ excluded surfaces refuse before live paths
        Ch7 Gate 3 approval sync                 ✅ approved-restricted semantics synced
-       evaluate TEMPORAL Phase 1 live           🚫 blocked by AT-2/AT-9/order + regression
+       report preflight ordering                ✅ token-before-gate fixed
+       AT-2 composed report integration         ✅ closed
+       AT-9 authority_ref exact match           ✅ proof-local PASS
+       pre-live regression chain                ✅ 17/17 PASS
+       evaluate TEMPORAL Phase 1 live           🚫 blocked until lib-prep proves boundary
        memoize TEMPORAL                         🚫 proof-local only
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -134,12 +138,12 @@ legacy/internal comparison, not the production path.
 | Stage 3 | OPEN | Work within current lane/card. |
 | Typed emission | SWITCHED | Production orchestrator uses `emit_typed(typed)`. |
 | TEMPORAL load | PROOF-LOCAL | Load accepts valid TEMPORAL `.igapp/` for inspection. |
-| TEMPORAL evaluate | IMPLEMENTATION-PREP / PRE-LIVE BLOCKED | R14 proof-local prep landed for History[T] valid_time only. Evaluation must still refuse live reads until AT-2 executor/report integration, AT-9 authority URI validation, canonical check ordering, and regression proof chain pass. |
+| TEMPORAL evaluate | LIB-PREP READY / LIVE BLOCKED | R15 closed ordering, AT-2, AT-9 proof-local, and regression blockers for History[T] valid_time. Evaluation must still refuse live reads until the lib-prep slice proves the same boundary in prepared code. |
 | Runtime cache | PROOF-LOCAL | Cache key/memoization proofs exist; no production cache. |
 | TBackend Gate 1 | PASS | Report-only descriptor consumption fixture. |
 | TBackend Gate 2 | RATIFIED | Metadata-only package descriptor exposure and report-only descriptor mapping are trusted report metadata; no runtime authority. |
 | Gate 3 prerequisite package | LANDED | Gate 2 ratified, PROP-030 drafted, token report proof, guarded enforcement, executor cache-key proof, and package descriptor report consumption landed; this is not Gate 3 authorization. |
-| Gate 3 Phase 1 | APPROVED-RESTRICTED / PREP LANDED | Phase 1 proof-local implementation-prep landed for History[T] valid_time via abstract proof-local/non-Ledger TBackend; live reads remain blocked by AT-2/AT-9/order gaps and regression proof chain. |
+| Gate 3 Phase 1 | APPROVED-RESTRICTED / LIB-PREP READY | Phase 1 proof-local pre-live blockers are closed enough to route `runtime-temporal-executor-lib-prep-v0`; live reads remain blocked and Phase 2 stays closed. |
 | TBackend Gate 3 Phase 2 | CLOSED | Real Ledger adapter/package binding, BiHistory, stream/OLAP, writes/replay/compact/subscribe, and production cache need separate Architect approval/addendum as specified. |
 | Release publish | CLOSED | `bin/release-gate` may build artifacts; RubyGems publish needs explicit approval and MFA owner action. |
 | Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; S3-R14 C7-C10 added truth-system, HTTP/knowledge/legal, emergency mesh, and marketplace pressure; no syntax is canon without proposal/proof. |
@@ -226,14 +230,14 @@ Do not run broad expensive suites just to curate maps.
 
 Recommended next routing from the latest status map:
 
-1. `runtime-report-enforcement-order-amendment-v0`
-2. `runtime-temporal-executor-composition-integration-v0`
-3. `executor-approval-authority-ref-proof-v0`
-4. `phase1-prelive-regression-chain-v0`
-5. `runtime-temporal-executor-lib-prep-v0` only after the three blockers above
+1. `runtime-temporal-executor-lib-prep-v0`
+2. `runtime-temporal-executor-lib-prep-safety-pressure-v0`
+3. `phase1-lib-prep-regression-chain-v0`
+4. `compatibility-report-persistence-audit-v0`
+5. `gate3-live-read-decision-addendum-v0` only after lib-prep proves the boundary
 6. `gate3-authority-registry-v0` before Phase 2
 7. `gate3-phase2-addendum-process-v0` before Phase 2
-8. `compatibility-report-persistence-audit-v0`
+8. `invariant-persistence-boundary-v0`
 9. `spec-ch6-invariant-source-metadata-sync-v0`
 10. `external-http-json-capability-pressure-v0` as pressure backlog, not parser/runtime implementation
 11. `controlled-agent-replication-boundary-pressure-v0` as pressure backlog before any emergency mesh fixture
