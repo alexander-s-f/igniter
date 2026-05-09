@@ -1,8 +1,9 @@
 # Ch7: RuntimeMachine
 
-Source PROPs: PROP-006, PROP-008, PROP-009, PROP-009.1, PROP-011, PROP-022,
-PROP-022A, PROP-028
-Status: synced for Stage 3 temporal load/cache contract (2026-05-08)
+Source PROPs: PROP-005, PROP-006, PROP-008, PROP-009, PROP-009.1, PROP-011,
+PROP-022, PROP-022A, PROP-028, PROP-030, PROP-030A
+Status: synced for approved-restricted Stage 3 Gate 3 Phase 1 semantics
+(2026-05-09)
 Primary evidence:
 
 - `experiments/runtime_machine_memory_proof/` — load/evaluate/checkpoint/resume PASS
@@ -10,6 +11,10 @@ Primary evidence:
 - `experiments/temporal_cache_key_proof/` — CORE vs TEMPORAL cache-key proof PASS
 - `experiments/runtime_cache_proof_local_memoization/` — proof-local cache semantics PASS
 - `experiments/temporal_runtime_load_guard/` — TEMPORAL load guard PASS
+- `docs/gates/gate3-decision-record-v0.md` — approved-restricted Phase 1 decision
+- `docs/proposals/PROP-030A-temporal-scope-exclusion-errata-v0.md` — scope exclusion refusal
+- `docs/tracks/prop-005-temporal-read-observation-v0.md` — temporal read observation envelope PASS
+- `docs/tracks/compatibility-report-composition-v0.md` — composed report shape PASS
 
 ---
 
@@ -80,8 +85,10 @@ compute_node
 output_node
 ```
 
-TEMPORAL assembled artifacts may load for inspection, but they are not
-production-executable yet. See §7.8.
+TEMPORAL assembled artifacts may load for inspection. Gate 3 Phase 1
+implementation is approved only for `History[T]` valid-time evaluation through
+an abstract non-Ledger TBackend adapter, but live reads remain blocked until
+the pre-live conditions and AT-1..AT-12 pass. See §7.8.
 
 ---
 
@@ -137,6 +144,9 @@ backend_check   — TBackend adapter compatibility
 obs_check       — observation envelope format compatibility
 schema_check    — contract schema compatibility
 cache_check     — cache key/freshness policy compatibility, when cache exists
+runtime_gate_check        — Gate 3 state and approved scope
+executor_approval_check   — ExecutorApprovalToken validation
+executor_readiness        — executor implementation/readiness
 ```
 
 All required dimensions must be `ok` for trusted execution. A blocked dimension
@@ -144,6 +154,35 @@ blocks the relevant load/evaluate/cache path.
 
 Descriptor and temporal capability evidence may be report-only; report-only
 metadata does not authorize live Ledger/TBackend binding.
+
+For Gate 3 Phase 1, readiness must be represented by one composed
+CompatibilityReport:
+
+```json
+{
+  "kind": "compatibility_report",
+  "composition": {
+    "mode": "single_report",
+    "single_report_required": true,
+    "split_fragments_allowed": false
+  },
+  "report_only": false,
+  "runtime_enforced": true,
+  "runtime_gate_check": { "decision": "ok" },
+  "executor_approval_check": { "decision": "ok" },
+  "executor_readiness": { "decision": "ok" },
+  "cache_key_check": { "decision": "ok" },
+  "evaluation_readiness": {
+    "decision": "ready",
+    "reason_code": "runtime.temporal_evaluation_ready",
+    "blocks_before_executor": false
+  }
+}
+```
+
+Split report-only and enforcement fragments are forbidden.
+`runtime_enforced: true` is valid only on the composed report for the approved
+Phase 1 path.
 
 ---
 
@@ -273,12 +312,12 @@ They should not expose raw sensitive inputs by default.
 
 ---
 
-## 7.8 TEMPORAL Load Guard
+## 7.8 TEMPORAL Gate 3 Phase 1 Guard
 
 Current Stage 3 policy:
 
 ```text
-load_accept_evaluate_refuse
+load_accept_phase1_pre_live_refuse
 ```
 
 Meaning:
@@ -286,26 +325,31 @@ Meaning:
 - Load may accept a well-formed TEMPORAL `.igapp/` for inspection,
   descriptor checks, and compatibility reporting.
 - Load must validate `manifest.contract_index` against the contract artifact.
-- Evaluate must refuse TEMPORAL contracts unless a future RuntimeMachine
-  temporal executor and required capabilities are explicitly approved.
-- Cache remains disabled for production TEMPORAL execution.
-- Ledger/TBackend live binding remains out of scope.
+- Phase 1 implementation is approved only for `History[T]` valid-time reads
+  through an abstract proof-local or non-Ledger TBackend adapter.
+- Evaluate must still refuse live reads until pre-live conditions, AT-1..AT-12,
+  and the S3-R7..S3-R10 regression chain pass.
+- Production cache remains closed; only TEMPORAL cache-key schema validation is
+  approved.
+- Ledger package binding, Ledger reads/writes/replay, BiHistory, stream/OLAP
+  executors, and parser syntax changes remain closed.
 
-Machine-readable guard in `compatibility_metadata.json`:
+Machine-readable pre-live guard in `compatibility_metadata.json` may retain the
+existing load/evaluate split:
 
 ```json
 {
   "runtime_execution": {
-    "status": "unsupported",
-    "guard_policy": "load_accept_evaluate_refuse",
+    "status": "approved_restricted_pre_live_blocked",
+    "guard_policy": "load_accept_phase1_pre_live_refuse",
     "guard_at": "evaluate",
     "load": {
       "decision": "accept_for_inspection",
       "requires_contract_index": true
     },
     "evaluate": {
-      "decision": "refuse_temporal_contract",
-      "reason_code": "runtime.temporal_execution_unsupported"
+      "decision": "refuse_until_pre_live_conditions_pass",
+      "reason_code": "runtime.temporal_pre_live_conditions_unmet"
     }
   }
 }
@@ -327,14 +371,156 @@ TEMPORAL evaluate refusals include:
 ```text
 runtime.temporal_execution_unsupported
 runtime.temporal_capability_missing
+runtime.executor_approval_missing
+runtime.executor_approval_malformed
+runtime.executor_approval_signature_invalid
+runtime.executor_approval_authority_untrusted
+runtime.executor_approval_expired
+runtime.executor_approval_revoked
+runtime.executor_approval_wrong_gate
+runtime.executor_approval_wrong_scope
+runtime.executor_approval_artifact_mismatch
+runtime.executor_approval_contract_mismatch
+runtime.executor_approval_capability_mismatch
+runtime.executor_approval_evidence_missing
+runtime.temporal_gate3_closed
+runtime.temporal_pre_live_conditions_unmet
+runtime.temporal_scope_exclusion
+runtime.temporal_cache_schema_mismatch
 ```
 
-This section does not authorize production temporal executor work, production
-cache, Ledger binding, or live TBackend reads/writes/replay.
+`runtime.temporal_scope_exclusion` is the canonical refusal when an artifact
+reaches the TEMPORAL executor but is outside the approved Phase 1 scope:
+
+| Incoming surface | Refusal |
+| --- | --- |
+| CORE contract reaches `TemporalExecutor` | `runtime.temporal_scope_exclusion` |
+| STREAM contract or `stream_nodes` reach `TemporalExecutor` | `runtime.temporal_scope_exclusion` |
+| OLAP temporal/multidimensional surface reaches `TemporalExecutor` | `runtime.temporal_scope_exclusion` |
+| `BiHistory[T]` / bitemporal axis reaches `TemporalExecutor` | `runtime.temporal_scope_exclusion` |
+| Ledger write/replay/compact surface reaches temporal executor path | `runtime.temporal_scope_exclusion` |
+| Unknown temporal surface reaches `TemporalExecutor` | `runtime.temporal_scope_exclusion` |
+
+The Phase 1 check ordering is:
+
+```text
+load validation
+  -> composed CompatibilityReport evaluation_readiness
+  -> approval token validation
+  -> Gate 3 state check
+  -> temporal scope check
+  -> TEMPORAL cache-key schema check
+  -> artifact guard
+  -> executor/TBackend call
+```
+
+Every refusal before the final step has a no-live-call invariant:
+
+```text
+temporal_executor_call_attempted == false
+live_tbackend_call_attempted == false
+ledger_call_attempted == false
+cache_call_attempted == false
+```
+
+### AT-1..AT-12 Summary
+
+Phase 1 live reads require all acceptance conditions from the Gate 3 request:
+
+| AT | Runtime requirement |
+| --- | --- |
+| AT-1 | `CompatibilityReport.runtime_enforced == true` explicitly for Phase 1. |
+| AT-2 | CompatibilityReport is one composed production report. |
+| AT-3 | RuntimeMachine checks `evaluation_readiness` before executor/cache/TBackend. |
+| AT-4 | ExecutorApprovalToken validates all PROP-030 fields. |
+| AT-5 | Gate 3 state is checked independently of token presence. |
+| AT-6 | TEMPORAL cache-key schema is checked before cache or backend access. |
+| AT-7 | BiHistory artifacts refuse; no live bitemporal evaluation. |
+| AT-8 | No Ledger write, append, replay, or compact operation is called. |
+| AT-9 | Trusted authority ref is recorded in the Architect decision record. |
+| AT-10 | Every authorized live History read emits `temporal_read_observation`. |
+| AT-11 | Stage 1/2 and S3-R7..R10 regression proof chain remains PASS. |
+| AT-12 | TEMPORAL executor refuses CORE/out-of-scope artifacts before evaluation. |
+
+Approved Phase 1 scope:
+
+```text
+History[T] + valid_time + history_read + read_as_of(as_of: DateTime)
+```
+
+Closed scopes:
+
+```text
+Ledger package binding
+Ledger reads through package code
+Ledger write/append/replay/compact/subscribe
+BiHistory[T] / at(vt:, tt:)
+stream executor
+OLAP executor
+invariant persistence
+production RuntimeMachine cache/memoization
+parser coordinate syntax
+MCP / mesh temporal routing
+```
+
+## 7.9 Temporal Read Observation
+
+Every authorized Phase 1 read attempt emits a structured observation:
+
+```text
+temporal_read_observation
+```
+
+Minimum shape:
+
+```json
+{
+  "kind": "temporal_read_observation",
+  "format_version": "0.1.0",
+  "observation_id": "obs/history-read/<id>",
+  "operation": "history_read_as_of",
+  "fragment_class": "TEMPORAL",
+  "contract": {
+    "contract_id": "TechnicianJobCountAt",
+    "contract_ref": "contract/TechnicianJobCountAt/sha256:..."
+  },
+  "store": {
+    "store_ref": "tbackend/memory-history/proof-local",
+    "store_kind": "MemoryHistoryBackend"
+  },
+  "temporal": {
+    "axis": "valid_time",
+    "as_of": "2026-05-03T00:00:00Z",
+    "valid_time": "2026-05-03T00:00:00Z"
+  },
+  "authorization": {
+    "approval_ref": "approval/2026-05-09/gate3/history-phase1/proof-001",
+    "gate_ref": "gate3-decision-record-v0#phase1-history-valid-time",
+    "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+  },
+  "evidence": {
+    "compatibility_report_ref": "compatibility-report/history-phase1/proof-001",
+    "executor_approval_token_ref": "approval/2026-05-09/gate3/history-phase1/proof-001",
+    "cache_key_ref": "cache-key/temporal/history-valid-time/proof-001"
+  },
+  "result": {
+    "status": "selected",
+    "value": { "kind": "some", "value": 7 }
+  },
+  "persistence": {
+    "mode": "proof_local",
+    "persisted": false,
+    "audit_receipt_ref": null
+  }
+}
+```
+
+Observation emission is mandatory for authorized live reads. Persistence and
+durable audit receipts remain separate future work.
 
 ---
 
-## 7.9 Proven Behaviour
+## 7.10 Proven Behaviour
 
 Stage 1/2 runtime:
 
@@ -354,6 +540,10 @@ Stage 3 proof-local temporal/cache:
 PASS temporal_cache_key_proof
 PASS runtime_cache_proof_local_memoization
 PASS temporal_runtime_load_guard
+PASS executor_approval_token_report_proof
+PASS guarded_runtime_executor_approval_enforcement
+PASS compatibility_report_composition
+PASS temporal_read_observation_proof
 ```
 
 The proof-local cache demonstrates key construction, freshness handling, and
@@ -361,7 +551,7 @@ observations. It is not production RuntimeMachine memoization.
 
 ---
 
-## 7.10 Evidence References
+## 7.11 Evidence References
 
 | Evidence | What It Proves |
 | --- | --- |
@@ -369,4 +559,8 @@ observations. It is not production RuntimeMachine memoization.
 | `tracks/runtime-cache-proof-local-memoization-v0.md` | S3-R4-C5: proof-local CORE/TEMPORAL cache behavior |
 | `tracks/temporal-assembler-manifest-contract-index-v0.md` | S3-R5-C1: manifest contract index and cache schema hint |
 | `tracks/temporal-runtime-load-guard-v0.md` | S3-R5-C2: load accepts for inspection, evaluate refuses unsupported TEMPORAL |
+| `docs/gates/gate3-decision-record-v0.md` | S3-R13-C1: approved-restricted Phase 1 implementation; live reads still blocked until pre-live checks |
+| `proposals/PROP-030A-temporal-scope-exclusion-errata-v0.md` | S3-R13-C2: `runtime.temporal_scope_exclusion` |
+| `tracks/prop-005-temporal-read-observation-v0.md` | S3-R13-C3: `temporal_read_observation` envelope PASS |
+| `tracks/compatibility-report-composition-v0.md` | S3-R13-C4: single composed CompatibilityReport PASS |
 | `experiments/stdlib_execution_kernel_stage1/` | stdlib/operator execution PASS |

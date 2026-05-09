@@ -1,0 +1,222 @@
+{
+  "kind": "temporal_executor_phase1_preflight_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R14-C2-P",
+  "track": "runtime-temporal-executor-phase1-preflight-v0",
+  "status": "FAIL",
+  "scope": {
+    "authorized": "History[T] valid_time / proof-local MemoryBackend",
+    "excluded": "Ledger, BiHistory, stream, OLAP, writes, production_cache",
+    "gate3_open": false,
+    "phase": "Phase 1 (proof-local MemoryBackend, no real Ledger)",
+    "live_tbackend_binding": false,
+    "production_cache": false
+  },
+  "at_coverage": {
+    "AT-1_runtime_enforced_true": {
+      "covered": true,
+      "evidence": "load result has runtime_enforced=true"
+    },
+    "AT-3_readiness_before_executor": {
+      "covered": false,
+      "evidence": "guard chain runs before execution kernel"
+    },
+    "AT-4_token_validation": {
+      "covered": true,
+      "evidence": "missing token → executor_approval_missing"
+    },
+    "AT-5_gate3_independent": {
+      "covered": true,
+      "evidence": "valid token + gate3=false → temporal_gate3_closed"
+    },
+    "AT-6_temporal_cache_key": {
+      "covered": true,
+      "evidence": "CORE cache key fragment → temporal_cache_schema_mismatch (L-T5)"
+    },
+    "AT-7_bihistory_excluded": {
+      "covered": false,
+      "evidence": "BiHistory axis at executor → temporal_executor_bihistory_excluded"
+    },
+    "AT-8_no_ledger_writes": {
+      "covered": true,
+      "evidence": "proof-local MemoryBackend has no write/append/replay API; Ledger not required"
+    },
+    "AT-10_observation_unconditional": {
+      "covered": false,
+      "evidence": "happy_path.observations non-empty; emitted regardless of persistence"
+    },
+    "AT-11_regression_pass": {
+      "covered": "deferred",
+      "evidence": "run stage1/stage2 close candidates separately; not re-run in this proof"
+    },
+    "AT-12_core_fragment_refused": {
+      "covered": true,
+      "evidence": "CORE fragment_class at executor → temporal_executor_core_refusal"
+    }
+  },
+  "cases": {
+    "happy_path": {
+      "load": {
+        "status": "loaded",
+        "program_id": "semanticir/history-valid-te",
+        "artifact_ref": "igapp/semanticir/history-valid-te",
+        "temporal_contracts": [
+          "HistoryAxesTest"
+        ],
+        "runtime_execution": {
+          "evaluate": {
+            "decision": "refuse_temporal_contract",
+            "reason_code": "runtime.temporal_execution_unsupported"
+          },
+          "guard_at": "evaluate",
+          "guard_policy": "load_accept_evaluate_refuse",
+          "load": {
+            "decision": "accept_for_inspection",
+            "requires_contract_index": true
+          },
+          "reason": "temporal SemanticIR assembly proof preserves artifact shape only; RuntimeMachine temporal execution is out of scope",
+          "status": "unsupported"
+        },
+        "runtime_enforced": true,
+        "phase1_scope": "History[T] valid_time"
+      },
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "evaluate",
+        "reason_code": "runtime.temporal_execution_unsupported",
+        "message": "artifact guard_policy refuses temporal evaluation",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "guard_policy": "load_accept_evaluate_refuse",
+          "approval_token_ref": "approval/phase1-preflight/HistoryAxesTest",
+          "gate3_authorized": true
+        }
+      },
+      "observations": []
+    },
+    "no_token": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "evaluate",
+        "reason_code": "runtime.executor_approval_missing",
+        "message": "executor approval token is required before temporal evaluation",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "required_gate": "tbackend_gate3",
+          "required_operation": "temporal_evaluate",
+          "required_capabilities": [
+            "history_read"
+          ]
+        }
+      }
+    },
+    "gate3_closed": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "evaluate",
+        "reason_code": "runtime.temporal_gate3_closed",
+        "message": "Gate 3 is closed for temporal evaluation",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "gate": "tbackend_gate3",
+          "approval_token_ref": "approval/phase1-preflight/HistoryAxesTest",
+          "guard_policy": "load_accept_evaluate_refuse"
+        }
+      }
+    },
+    "core_cache_key": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "evaluate",
+        "reason_code": "runtime.temporal_cache_schema_mismatch",
+        "message": "TEMPORAL evaluation cannot use a CORE-shaped cache key",
+        "contract_id": "HistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "gate": "L-T5",
+          "expected_cache_key_fragment": "TEMPORAL",
+          "requested_cache_key_fragment": "CORE",
+          "prevents": "PROP-028 silent staleness bug"
+        }
+      }
+    },
+    "bihistory_at_executor": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "evaluate",
+        "reason_code": "runtime.temporal_execution_unsupported",
+        "message": "artifact guard_policy refuses temporal evaluation",
+        "contract_id": "BiHistoryAxesTest",
+        "as_of": "2026-05-09T12:00:00Z",
+        "context": {
+          "guard_policy": "load_accept_evaluate_refuse",
+          "approval_token_ref": "approval/phase1-preflight/BiHistoryAxesTest",
+          "gate3_authorized": true
+        }
+      }
+    },
+    "core_fragment_at_executor": {
+      "evaluate": {
+        "kind": "evaluation_refusal",
+        "status": "blocked",
+        "guard_at": "temporal_executor",
+        "reason_code": "runtime.temporal_executor_core_refusal",
+        "message": "TEMPORAL executor refuses artifact with non-TEMPORAL fragment_class",
+        "contract_id": "FakeCore",
+        "gate": "AT-12"
+      },
+      "note": "AT-12 defense-in-depth: called run_execution_kernel directly; guard would refuse this at load boundary in production"
+    }
+  },
+  "checks": {
+    "happy_path.load_runtime_enforced": true,
+    "happy_path.evaluate_ok": false,
+    "happy_path.observation_emitted": false,
+    "happy_path.result_present": false,
+    "no_token.blocked_at4": true,
+    "gate3_closed.blocked_at5": true,
+    "core_cache_key.blocked_at6": true,
+    "bihistory.blocked_at7": false,
+    "core_fragment.blocked_at12": true
+  },
+  "runtime_gaps_before_live_reads": [
+    {
+      "gap": "AT-2: CompatibilityReport single composed production report",
+      "current_state": "guard and executor share separate objects; composition track still open",
+      "track_needed": "compatibility-report-composition-shape-v0 (referenced in Gate 3 request §III Require)"
+    },
+    {
+      "gap": "AT-9: production token authority / signature verification",
+      "current_state": "proof-local recorded-decision hash; no external authority registry",
+      "needed": "Architect-recorded authority ref in gate decision document (Q1)"
+    },
+    {
+      "gap": "Gate 3 decision record with authority_ref",
+      "current_state": "Gate 3 request drafted and held for Architect review",
+      "blocker": "Architect approval required; gate3_authorized=true is proof-local only in this proof"
+    },
+    {
+      "gap": "AT-10: observation persistence",
+      "current_state": "observations emitted to memory array; no durable store",
+      "needed": "invariant_persistence gap closure (Stage 2 deferred)"
+    },
+    {
+      "gap": "TBackend adapter production binding (Phase 2)",
+      "current_state": "MemoryBackend is proof-local only; no real Ledger or external TBackend",
+      "needed": "Phase 2 Architect addendum to gate decision (per Gate 3 request §III Q3 Option C)"
+    },
+    {
+      "gap": "BiHistory eval excluded from this executor",
+      "current_state": "BiHistory refused at executor (AT-7 enforced)",
+      "needed": "Separate gate request after physical at(vt:,tt:) serving proof"
+    }
+  ]
+}

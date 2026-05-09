@@ -1,0 +1,207 @@
+{
+  "kind": "runtime_report_enforcement_preflight_summary",
+  "card": "S3-R14-C4-P",
+  "track": "runtime-report-enforcement-preflight-v0",
+  "status": "PASS",
+  "ordering": [
+    "compatibility_report",
+    "gate_state",
+    "approval_token",
+    "scope",
+    "cache_key",
+    "executor_backend"
+  ],
+  "scope": {
+    "ledger_binding": false,
+    "live_reads": false,
+    "cache_calls": false,
+    "proof_local_preflight_only": true
+  },
+  "cases": {
+    "ready_preflight": {
+      "status": "ready",
+      "reason_code": "runtime.preflight_ready_no_call_attempted",
+      "blocked_stage": null,
+      "stage_trace": [
+        "compatibility_report",
+        "gate_state",
+        "approval_token",
+        "scope",
+        "cache_key",
+        "executor_backend"
+      ],
+      "blocks_before_executor": false,
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "cache_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false
+      }
+    },
+    "split_report_blocks_at_compatibility_report": {
+      "status": "blocked",
+      "reason_code": "compatibility_report.split_report_rejected",
+      "blocked_stage": "compatibility_report",
+      "stage_trace": [
+        "compatibility_report"
+      ],
+      "blocks_before_executor": true,
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "cache_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false
+      }
+    },
+    "report_only_blocks_before_executor_backend": {
+      "status": "blocked",
+      "reason_code": "compatibility_report.report_only_not_runtime_authority",
+      "blocked_stage": "executor_backend",
+      "stage_trace": [
+        "compatibility_report",
+        "gate_state",
+        "approval_token",
+        "scope",
+        "cache_key",
+        "executor_backend"
+      ],
+      "blocks_before_executor": true,
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "cache_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false
+      }
+    },
+    "backend_descriptor_blocked": {
+      "status": "blocked",
+      "reason_code": "runtime.backend_descriptor_not_trusted",
+      "blocked_stage": "compatibility_report",
+      "stage_trace": [
+        "compatibility_report"
+      ],
+      "blocks_before_executor": true,
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "cache_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false
+      }
+    },
+    "gate_closed_blocks_before_token": {
+      "status": "blocked",
+      "reason_code": "runtime.temporal_gate3_closed",
+      "blocked_stage": "gate_state",
+      "stage_trace": [
+        "compatibility_report",
+        "gate_state"
+      ],
+      "blocks_before_executor": true,
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "cache_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false
+      }
+    },
+    "approval_missing_blocks_before_scope": {
+      "status": "blocked",
+      "reason_code": "runtime.executor_approval_missing",
+      "blocked_stage": "approval_token",
+      "stage_trace": [
+        "compatibility_report",
+        "gate_state",
+        "approval_token"
+      ],
+      "blocks_before_executor": true,
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "cache_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false
+      }
+    },
+    "bihistory_scope_excluded_before_cache": {
+      "status": "blocked",
+      "reason_code": "runtime.temporal_scope_excluded",
+      "blocked_stage": "scope",
+      "stage_trace": [
+        "compatibility_report",
+        "gate_state",
+        "approval_token",
+        "scope"
+      ],
+      "blocks_before_executor": true,
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "cache_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false
+      }
+    },
+    "cache_key_blocks_before_executor_backend": {
+      "status": "blocked",
+      "reason_code": "runtime.temporal_cache_schema_mismatch",
+      "blocked_stage": "cache_key",
+      "stage_trace": [
+        "compatibility_report",
+        "gate_state",
+        "approval_token",
+        "scope",
+        "cache_key"
+      ],
+      "blocks_before_executor": true,
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "cache_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false
+      }
+    },
+    "executor_missing_blocks_before_backend_call": {
+      "status": "blocked",
+      "reason_code": "runtime.temporal_executor_missing",
+      "blocked_stage": "executor_backend",
+      "stage_trace": [
+        "compatibility_report",
+        "gate_state",
+        "approval_token",
+        "scope",
+        "cache_key",
+        "executor_backend"
+      ],
+      "blocks_before_executor": true,
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "cache_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false
+      }
+    },
+    "missing_descriptor_hash_blocks_before_gate": {
+      "status": "blocked",
+      "reason_code": "runtime.backend_descriptor_malformed",
+      "blocked_stage": "compatibility_report",
+      "stage_trace": [
+        "compatibility_report"
+      ],
+      "blocks_before_executor": true,
+      "operation_check": {
+        "temporal_executor_call_attempted": false,
+        "cache_call_attempted": false,
+        "live_tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "temporal_read_attempted": false
+      }
+    }
+  }
+}

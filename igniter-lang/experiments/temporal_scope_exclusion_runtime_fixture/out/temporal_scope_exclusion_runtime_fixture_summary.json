@@ -1,0 +1,269 @@
+{
+  "kind": "temporal_scope_exclusion_runtime_fixture_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R14-C3-P",
+  "track": "temporal-scope-exclusion-runtime-fixture-v0",
+  "status": "PASS",
+  "scope": {
+    "proof_local": true,
+    "approved_scope": "history_valid_time",
+    "assumes_approval_token_valid": true,
+    "assumes_gate3_phase1_open": true,
+    "live_tbackend": false,
+    "ledger_adapter": false,
+    "production_cache": false
+  },
+  "artifacts": {
+    "core_contract": {
+      "artifact_id": "core_contract",
+      "artifact_ref": "igapp/sha256:core_contract",
+      "contract_ref": "contract/CoreContract/sha256:core_contract",
+      "fragment_class": "core",
+      "surface": "core",
+      "axis": null,
+      "capability": "core_compute",
+      "operation": "temporal_evaluate"
+    },
+    "stream_contract": {
+      "artifact_id": "stream_contract",
+      "artifact_ref": "igapp/sha256:stream_contract",
+      "contract_ref": "contract/StreamContract/sha256:stream_contract",
+      "fragment_class": "stream",
+      "surface": "stream",
+      "axis": null,
+      "capability": "stream_replay",
+      "operation": "temporal_evaluate",
+      "stream_nodes": true
+    },
+    "olap_surface": {
+      "artifact_id": "olap_surface",
+      "artifact_ref": "igapp/sha256:olap_surface",
+      "contract_ref": "contract/OlapSurface/sha256:olap_surface",
+      "fragment_class": "temporal",
+      "surface": "olap",
+      "axis": "multi_dimensional",
+      "capability": "olap_read",
+      "operation": "temporal_evaluate",
+      "olap_nodes": true
+    },
+    "bihistory_surface": {
+      "artifact_id": "bihistory_surface",
+      "artifact_ref": "igapp/sha256:bihistory_surface",
+      "contract_ref": "contract/BihistorySurface/sha256:bihistory_surface",
+      "fragment_class": "temporal",
+      "surface": "bihistory",
+      "axis": "bitemporal",
+      "capability": "bihistory_read",
+      "operation": "temporal_evaluate"
+    },
+    "ledger_write_surface": {
+      "artifact_id": "ledger_write_surface",
+      "artifact_ref": "igapp/sha256:ledger_write_surface",
+      "contract_ref": "contract/LedgerWriteSurface/sha256:ledger_write_surface",
+      "fragment_class": "temporal",
+      "surface": "history",
+      "axis": "valid_time",
+      "capability": "history_write",
+      "operation": "write"
+    },
+    "ledger_replay_surface": {
+      "artifact_id": "ledger_replay_surface",
+      "artifact_ref": "igapp/sha256:ledger_replay_surface",
+      "contract_ref": "contract/LedgerReplaySurface/sha256:ledger_replay_surface",
+      "fragment_class": "temporal",
+      "surface": "history",
+      "axis": "valid_time",
+      "capability": "history_replay",
+      "operation": "replay"
+    },
+    "unknown_temporal_surface": {
+      "artifact_id": "unknown_temporal_surface",
+      "artifact_ref": "igapp/sha256:unknown_temporal_surface",
+      "contract_ref": "contract/UnknownTemporalSurface/sha256:unknown_temporal_surface",
+      "fragment_class": "temporal",
+      "surface": "unknown",
+      "axis": "unknown",
+      "capability": "unknown",
+      "operation": "temporal_evaluate"
+    },
+    "history_valid_time_control": {
+      "artifact_id": "history_valid_time_control",
+      "artifact_ref": "igapp/sha256:history_valid_time_control",
+      "contract_ref": "contract/HistoryValidTimeControl/sha256:history_valid_time_control",
+      "fragment_class": "temporal",
+      "surface": "history",
+      "axis": "valid_time",
+      "capability": "history_read",
+      "operation": "temporal_evaluate"
+    }
+  },
+  "results": {
+    "core_contract": {
+      "artifact_id": "core_contract",
+      "decision": "refused",
+      "reason_code": "runtime.temporal_scope_exclusion",
+      "expected_scope": "history_valid_time",
+      "actual_fragment": "core",
+      "actual_surface": "core",
+      "actual_axis": null,
+      "actual_operation": "temporal_evaluate",
+      "artifact_ref": "igapp/sha256:core_contract",
+      "contract_ref": "contract/CoreContract/sha256:core_contract",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    },
+    "stream_contract": {
+      "artifact_id": "stream_contract",
+      "decision": "refused",
+      "reason_code": "runtime.temporal_scope_exclusion",
+      "expected_scope": "history_valid_time",
+      "actual_fragment": "stream",
+      "actual_surface": "stream",
+      "actual_axis": null,
+      "actual_operation": "temporal_evaluate",
+      "artifact_ref": "igapp/sha256:stream_contract",
+      "contract_ref": "contract/StreamContract/sha256:stream_contract",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    },
+    "olap_surface": {
+      "artifact_id": "olap_surface",
+      "decision": "refused",
+      "reason_code": "runtime.temporal_scope_exclusion",
+      "expected_scope": "history_valid_time",
+      "actual_fragment": "temporal",
+      "actual_surface": "olap",
+      "actual_axis": "multi_dimensional",
+      "actual_operation": "temporal_evaluate",
+      "artifact_ref": "igapp/sha256:olap_surface",
+      "contract_ref": "contract/OlapSurface/sha256:olap_surface",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    },
+    "bihistory_surface": {
+      "artifact_id": "bihistory_surface",
+      "decision": "refused",
+      "reason_code": "runtime.temporal_scope_exclusion",
+      "expected_scope": "history_valid_time",
+      "actual_fragment": "temporal",
+      "actual_surface": "bihistory",
+      "actual_axis": "bitemporal",
+      "actual_operation": "temporal_evaluate",
+      "artifact_ref": "igapp/sha256:bihistory_surface",
+      "contract_ref": "contract/BihistorySurface/sha256:bihistory_surface",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    },
+    "ledger_write_surface": {
+      "artifact_id": "ledger_write_surface",
+      "decision": "refused",
+      "reason_code": "runtime.temporal_scope_exclusion",
+      "expected_scope": "history_valid_time",
+      "actual_fragment": "temporal",
+      "actual_surface": "ledger_write",
+      "actual_axis": "valid_time",
+      "actual_operation": "write",
+      "artifact_ref": "igapp/sha256:ledger_write_surface",
+      "contract_ref": "contract/LedgerWriteSurface/sha256:ledger_write_surface",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    },
+    "ledger_replay_surface": {
+      "artifact_id": "ledger_replay_surface",
+      "decision": "refused",
+      "reason_code": "runtime.temporal_scope_exclusion",
+      "expected_scope": "history_valid_time",
+      "actual_fragment": "temporal",
+      "actual_surface": "ledger_replay",
+      "actual_axis": "valid_time",
+      "actual_operation": "replay",
+      "artifact_ref": "igapp/sha256:ledger_replay_surface",
+      "contract_ref": "contract/LedgerReplaySurface/sha256:ledger_replay_surface",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    },
+    "unknown_temporal_surface": {
+      "artifact_id": "unknown_temporal_surface",
+      "decision": "refused",
+      "reason_code": "runtime.temporal_scope_exclusion",
+      "expected_scope": "history_valid_time",
+      "actual_fragment": "temporal",
+      "actual_surface": "unknown",
+      "actual_axis": "unknown",
+      "actual_operation": "temporal_evaluate",
+      "artifact_ref": "igapp/sha256:unknown_temporal_surface",
+      "contract_ref": "contract/UnknownTemporalSurface/sha256:unknown_temporal_surface",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    },
+    "history_valid_time_control": {
+      "artifact_id": "history_valid_time_control",
+      "decision": "continue_to_cache_key_check",
+      "reason_code": "runtime.temporal_scope_accepted",
+      "expected_scope": "history_valid_time",
+      "actual_fragment": "temporal",
+      "actual_surface": "history",
+      "actual_axis": "valid_time",
+      "operation_check": {
+        "executor_evaluation_attempted": false,
+        "cache_lookup_attempted": false,
+        "tbackend_call_attempted": false,
+        "ledger_call_attempted": false,
+        "live_adapter_call_attempted": false
+      }
+    }
+  },
+  "checks": {
+    "core.refused_scope_exclusion": true,
+    "stream.refused_scope_exclusion": true,
+    "olap.refused_scope_exclusion": true,
+    "bihistory.refused_scope_exclusion": true,
+    "ledger_write.refused_scope_exclusion": true,
+    "ledger_replay.refused_scope_exclusion": true,
+    "unknown.refused_scope_exclusion": true,
+    "refusals_before_live_operations": true,
+    "valid_history_scope_not_excluded": true,
+    "control_does_not_call_live_paths": true
+  },
+  "remaining_runtime_gaps": [
+    "Production TemporalExecutor must run this scope check after approval/Gate checks and before cache/TBackend/Ledger calls.",
+    "Production CompatibilityReport should surface the same runtime.temporal_scope_exclusion reason and diagnostic envelope.",
+    "Phase 1 implementation still needs the approved History[T] valid_time executor path and AT-1..AT-12 regression proof.",
+    "BiHistory, STREAM, OLAP, Ledger write/replay/compact/subscribe, and production cache remain outside Phase 1 scope."
+  ]
+}
