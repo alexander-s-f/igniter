@@ -28,6 +28,15 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 21 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `compatibility-report-persistence-audit-v0.md` | done | Phase 1 audit-ready envelope PASS 10/10; explicit export only; `audit_ready_not_persisted`; no durable audit, production storage, Ledger write, or authority registry |
+| `gate3-authority-registry-shape-v0.md` | done | Proof-local authority registry shape PASS 11/11; registry check composes before caller passes `gate3_authorized: true`; no executor calls, signing, keys, production authority service, or Phase 2 |
+| `../discussions/phase1-post-signature-audit-registry-pressure-v0.md` | complete — PROCEED | X1 confirms neither durable audit nor production signing is implied; routes pre-production checklist P-1..P-7 |
+| `stage3-round21-status-curation-v0.md` | done | R21 status/index/context/gate sync — this track |
+
 ## Stage 3 Round 20 Evidence
 
 | Track | Status | Notes |
@@ -412,8 +421,13 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `compatibility-report-persistence-audit-v0` | Persist report decisions and audit receipts for AT-10; keep durable audit separate from in-memory Phase 1 observations | Research Agent / Bridge Agent | recommended next |
-| `gate3-authority-registry-v0` | Define trusted authority/revocation/rotation source before production or Phase 2; do not imply live Ledger binding | Bridge Agent + Research Agent | recommended next |
+| `durable-observation-persistence-v0` | Add production durable audit/storage boundary for Phase 1 observations; not implied by R21 audit-ready envelope | Research Agent / Bridge Agent | recommended next |
+| `phase1-addendum-content-address-ref-v0` | Replace mutable path-only `signed_addendum_ref` with commit/content-hash or registry-minted version reference | Meta Expert / Bridge Agent | recommended next |
+| `phase1-end-to-end-invocation-fixture-v0` | Compose registry check -> caller authorization -> Phase1 executor -> audit-ready envelope in one proof | Research Agent | recommended next |
+| `gate3-authority-registry-v1` | Durable registry storage, revocation/supersession lookup, status transition receipts, registry audit observations; still no signing keys | Bridge Agent + Research Agent | recommended next |
+| `gate3-production-signing-v1` | Production signer identity, key rotation, signature algorithm, verification policy, deployment trust store | Bridge Agent / Architect Supervisor | after registry v1 |
+| `compatibility-report-persistence-audit-v0` | Define proof-local audit-ready envelope; explicit export, not persisted | Research Agent / Bridge Agent | done in S3-R21-C1-P |
+| `gate3-authority-registry-shape-v0` | Define proof-local registry shape and caller-side policy cases; no signing/keys/executor calls | Bridge Agent + Research Agent | done in S3-R21-C2-P |
 | post-signature full-chain rerun on next code touch | Rerun an equivalent full proof chain when a follow-up changes runtime code; S3-R20 signature was policy-only | Research Agent | conditional |
 | Phase 2 Ledger adapter addendum | Separate Architect decision for real Ledger adapter/package binding; not enabled by signed Phase 1 addendum | Architect Supervisor / Bridge Agent | closed until separate decision |
 | Architect signature review for `gate3-live-read-decision-addendum-v0.md` | Review addendum for explicit signed/status update; signing is the first possible live-read authorization event | Architect Supervisor | done in S3-R20-C1-A |

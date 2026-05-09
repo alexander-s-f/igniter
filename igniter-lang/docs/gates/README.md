@@ -84,6 +84,11 @@ Phase 1 prep review: phase1-implementation-prep-safety-pressure-v0.md
   R20 post-signature fixture: PASS 10/10; signing is policy-only, executor
     guard order unchanged, excluded surfaces remain closed
   R20 post-signature pressure: PROCEED; no widened surface; low notes routed
+  R21 audit envelope: PASS 10/10; explicit audit-ready export, not persisted;
+    no durable audit, production storage, Ledger write, or authority registry
+  R21 authority registry shape: PASS 11/11; proof-local caller policy metadata;
+    no executor calls, signing, keys, production authority service, or Phase 2
+  R21 audit/registry pressure: PROCEED; production checklist P-1..P-7 routed
 
 Authorized signed-addendum scope:
   IgniterLang::TemporalExecutor::Phase1
@@ -106,7 +111,7 @@ Authorized signed-addendum scope:
 | AT-2 executor/report integration | closed for lib-prep | R15 proves Phase1TemporalExecutor consumes the composed CompatibilityReport shape |
 | AT-9 authority_ref comparison | proof-local PASS for lib-prep | R15 proves exact decision-URI match; production signing/registry remains separate |
 | Pre-live regression chain | PASS for lib-prep | R15 records S3-R7..R10 9/9, added pre-live 6/6, and Stage 1/2 close candidates PASS |
-| Runtime temporal executor lib-prep | landed proof-local | R16 C1 adds `lib/igniter_lang/temporal_executor.rb`; targeted proof PASS 17/17; `gate3_authorized: false` keeps live reads blocked by default |
+| Runtime temporal executor lib-prep | landed proof-local | R16 C1 adds `lib/igniter_lang/temporal_executor.rb`; targeted proof PASS 17/17; default `gate3_authorized: false` preserves caller-policy authorization |
 | Dedicated lib-prep regression chain | PASS post-C1 | R17 rerun records 14/14 PASS across base chain, pre-live fixtures, C1 proof, Stage 1, and Stage 2 |
 | Lib boundary spec sync | done post-C1 | R17 Ch7 sync names `IgniterLang::TemporalExecutor::Phase1` as proof-local boundary, not language semantics |
 | Lib-prep safety pressure | PROCEED proof-local | S3-R17-X1 confirms eight scope guarantees; routes pre-production items |
@@ -121,10 +126,15 @@ Authorized signed-addendum scope:
 | Architect signature/status update | done | S3-R20-C1-A signs the addendum for restricted Phase 1 only |
 | First post-signature fixture | PASS 10/10 | S3-R20-C2-P proves policy-only change, unchanged guard order, MemoryBackend and explicit non-Ledger paths pass, excluded surfaces remain closed |
 | Post-signature runtime pressure | PROCEED | S3-R20-X1 confirms no scope widening or behavior drift; low traceability/honor-system/full-chain notes remain non-blocking |
-| Runtime authority registry | not defined | Required before Phase 2 / production authority-revocation work; not a Phase 1 blocker |
+| Compatibility audit envelope | proof-local PASS / not persisted | S3-R21-C1-P defines explicit `audit_ready_not_persisted` export; no durable audit or production storage |
+| Authority registry shape | proof-local PASS | S3-R21-C2-P defines caller-side active/revoked/superseded/missing/scope/capability/malformed cases; no signing/keys/executor calls |
+| Audit/registry pressure | PROCEED | S3-R21-X1 confirms durable audit and production signing are not implied; routes P-1..P-7 pre-production checklist |
+| Runtime authority registry v1 | not implemented | Required before production authority-revocation work; durable registry storage/status receipts remain future |
+| Production signing/key management | not implemented | Must remain separate from registry shape; sequence after registry v1 before production tokens |
 | Real Ledger adapter/package binding | closed | Requires explicit Architect addendum after Phase 1 |
 | BiHistory / transaction-time | closed | Requires separate gate; cannot be added by quiet Phase 1/2 addendum |
 | Production cache | closed | Requires separate approval; proof-local cache does not imply production memoization |
+| Durable audit / production storage | closed | R21 C1 is audit-ready/not-persisted only; durable-observation-persistence-v0 remains future |
 
 ---
 

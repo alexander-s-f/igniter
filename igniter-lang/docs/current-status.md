@@ -90,7 +90,9 @@ Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             R18 cleanup tracks done;
                             R19 pre-signing repair PASS;
                             R20 addendum signed for restricted Phase 1 live-read scope;
-                            post-signature fixture PASS; Phase 2/Ledger/cache/audit closed
+                            post-signature fixture PASS;
+                            R21 audit-ready envelope + registry shape PASS;
+                            production audit/signing still closed
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open
@@ -222,6 +224,10 @@ Round 20 landed:
   S3-R20-C1-A: live-read addendum signature     ✅ signed-approved-restricted-phase1-live-read
   S3-R20-C2-P: first post-signature fixture     ✅ PASS 10/10; policy-only change; executor unchanged
   S3-R20-X1-S: post-signature runtime pressure  ✅ PROCEED; no scope widening; low notes routed
+Round 21 landed:
+  S3-R21-C1-P: compatibility audit envelope     ✅ PASS 10/10; audit-ready, not persisted
+  S3-R21-C2-P: authority registry shape         ✅ PASS 11/11; proof-local metadata, no signing/keys
+  S3-R21-X1-S: audit/registry pressure          ✅ PROCEED; production checklist P-1..P-7 routed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion;
                   other syntax candidates require proposal tracks
@@ -297,6 +303,9 @@ Source .ig
        evaluate TEMPORAL Phase 1 live           ✅ authorized only for signed addendum scope:
                                                    History[T] valid_time, explicit as_of,
                                                    MemoryBackend or explicit non-Ledger Phase 1 backend
+       audit-ready envelope                     ✅ S3-R21 C1 PASS; explicit export, not persisted
+       proof-local authority registry shape     ✅ S3-R21 C2 PASS; caller policy metadata, no signing/keys
+       audit/registry pressure                  ✅ S3-R21 X1 PROCEED; production gaps routed
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -340,13 +349,20 @@ Pre-live closed:      composition track ✅; observation track ✅; scope errata
 Live-read addendum:  signed-approved-restricted-phase1-live-read ✅; caller may pass `gate3_authorized: true`
                      only with signed-addendum invocation evidence and only inside the restricted Phase 1 scope.
                      Executor behavior unchanged; Phase1 does not self-authorize.
+Audit envelope:      proof-local audit-ready export ✅; explicit envelope over observation, CompatibilityReport ref,
+                     authority_ref, signed_addendum_ref, backend_identity, and result reason; not automatic persistence,
+                     not durable audit, not production storage, not Ledger write.
+Authority registry: proof-local registry shape ✅; caller-side policy check before `gate3_authorized: true`;
+                     active/revoked/superseded/missing/scope/capability/malformed cases PASS; no executor call,
+                     no production signing, no keys, no production authority service.
 Pre-signing remaining:
                       none for restricted Phase 1 live-read addendum; closed by S3-R20-C1-A.
 Pre-production remaining:
-                      production signing/registry; durable observation persistence; full report/audit persistence; Phase 2 addendum gaps
+                      durable observation persistence; content-addressed addendum refs; end-to-end registry→executor→audit fixture;
+                      production authority registry; production signing/key management; Phase 2 addendum gaps
 Runtime observations: proof-backed ⏳ production persistence open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
-TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; runtime evaluate refused by guard
+TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; restricted Phase 1 eval now signed-scope only
 Release gate:        bin/release-gate ✅ PASS; local artifact + checksum rebuilt; publish.status=not_attempted
 Gate 2 descriptor:   ratified ✅; report metadata only; Gate 3 Phase 2 production binding closed
 Stage 2 close:       PASS (stage2_close_candidate.json)
@@ -392,18 +408,25 @@ S3-R20 result:        Architect signed the live-read addendum as `signed-approve
                       Phase 1 backend, no durable side effects, no production cache, no Ledger binding.
                       First post-signature fixture PASS 10/10 and X1 PROCEED confirm policy-only change,
                       unchanged guard order, no scope widening, and all excluded surfaces remain closed.
+S3-R21 result:        Phase 1 audit/registry shaping landed without production promotion:
+                      C1 PASS 10/10 defines an explicit audit-ready envelope with `audit_ready_not_persisted`,
+                      no automatic persistence, no durable audit, no production storage, and no Ledger write.
+                      C2 PASS 11/11 defines proof-local authority registry metadata checked before caller passes
+                      `gate3_authorized: true`; no executor calls, signing, keys, or production authority service.
+                      X1 PROCEED confirms no hidden Ledger/BiHistory/cache/stream/write path and routes
+                      pre-production checklist P-1..P-7.
 ```
 
 ### Spec Freshness
 
 | Surface | Freshness | Current anchor | Remaining doc debt |
 |---------|-----------|----------------|--------------------|
-| Agent context | ✅ current S3-R20 | `docs/agent-context.md` | Keep next movement in sync after each status round |
+| Agent context | ✅ current S3-R21 | `docs/agent-context.md` | Keep next movement in sync after each status round |
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
-| Ch7 Runtime | ✅ synced through R17 lib boundary; R20 addendum signed | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0` | R20 authorizes restricted Phase 1 non-proof reads only inside signed addendum scope; Phase 2/Ledger/BiHistory/cache/audit remain closed |
+| Ch7 Runtime | ✅ synced through R17 lib boundary; R21 proof-local shaping | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0` | R21 adds audit-ready envelope and registry shape proofs only; production audit/signing remain closed |
 | Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
@@ -472,6 +495,17 @@ DOC-DEBT-18  S3-R20 post-signature low notes:
              draft-vs-signed comparison currently depends on git history;
              `gate3_authorized` remains caller honor-system in Phase 1;
              next code-touching track should rerun an equivalent full chain.
+DOC-DEBT-19  S3-R21 audit/registry shaping landed:
+             compatibility audit envelope is `audit_ready_not_persisted`;
+             registry shape is proof-local caller policy metadata. Do not mark
+             production durable audit, production storage, production registry,
+             production signing, or key management as done.
+DOC-DEBT-20  S3-R21 pre-production checklist:
+             durable-observation-persistence-v0; content-addressed
+             signed_addendum_ref; phase1-end-to-end-invocation-fixture-v0;
+             gate3-authority-registry-v1; gate3-production-signing-v1 after
+             registry; LEGACY_ALIASES deprecation signal; Phase 2 Ledger
+             adapter addendum as a separate Architect decision.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
