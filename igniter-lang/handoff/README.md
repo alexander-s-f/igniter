@@ -42,7 +42,17 @@ profile, the current maps win and the card should be refreshed.
 Refresh role onboarding cards:
 
 - at every stage open;
+- at least once during each active stage when the status surface changes
+  materially;
 - at every stage close;
 - after a role profile changes;
 - after gate/request state changes a role's allowed work;
 - when agents report doc/code/status drift during startup.
+
+## Swarm Rule
+
+Multiple instances of the same role may work asynchronously. Onboarding cards
+must teach agents not to assume exclusive ownership of a role or track family.
+Until native agent-to-agent communication exists, the swarm communicates through
+assigned cards, track handoffs, discussion docs, gate/status maps, and compact
+neighbor requests.

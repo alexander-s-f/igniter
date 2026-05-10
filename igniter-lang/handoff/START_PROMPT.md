@@ -84,6 +84,15 @@ Usually useful entry points:
 
 Do not read the whole repository.
 
+## Swarm / Refresh Discipline
+
+Re-read your role onboarding card at least once per stage, after role-profile
+updates, and after gate/status shifts that affect your role. Multiple instances
+of the same role may work asynchronously, so do not assume exclusive ownership
+of a role, track family, or file tree. Until native agent-to-agent communication
+exists, communicate through assigned cards, track handoffs, discussion docs,
+gate/status maps, and compact neighbor requests.
+
 ## Write Boundary
 
 You may write only inside:

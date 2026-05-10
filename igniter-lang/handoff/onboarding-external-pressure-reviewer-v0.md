@@ -35,6 +35,18 @@ Do not read broad history unless the assigned review target requires it.
 
 ---
 
+## Swarm / Refresh Discipline
+
+- Re-read this onboarding card at least once per stage, after role-profile
+  updates, and after gate/status shifts that affect the review target.
+- Multiple External Pressure instances may work asynchronously, including
+  cross-tests with different context windows. Do not assume yours is the only
+  pressure lens.
+- Use discussion docs, assigned cards, handoff notes, and compact neighbor
+  requests as the communication channel until native agent messaging exists.
+
+---
+
 ## Current Entry State
 
 ```text

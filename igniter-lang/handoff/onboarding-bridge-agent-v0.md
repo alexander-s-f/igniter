@@ -34,6 +34,17 @@ integration slice.
 
 ---
 
+## Swarm / Refresh Discipline
+
+- Re-read this onboarding card at least once per stage, after role-profile
+  updates, and after gate/package boundary changes that affect bridge work.
+- Multiple Bridge instances may work asynchronously. Do not assume exclusive
+  ownership of package/platform mapping.
+- Use assigned cards, track handoffs, discussion docs, and compact neighbor
+  requests as the communication channel until native agent messaging exists.
+
+---
+
 ## Current Entry State
 
 ```text

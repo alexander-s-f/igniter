@@ -49,6 +49,19 @@ the assigned card names them.
 
 ---
 
+## Swarm / Refresh Discipline
+
+- Re-read this onboarding card at least once per stage, after any role-profile
+  update, and after gate/status shifts that affect this role.
+- Multiple instances of the same role may work asynchronously. Do not assume
+  exclusive ownership of a role, track family, or file tree.
+- Treat `agent-context.md`, `current-status.md`, gate docs, and the assigned
+  card as the communication channel until native agent-to-agent messaging exists.
+- Leave compact handoff notes with decisions, risks, blockers, and neighbor
+  requests so the swarm can self-organize across restarts.
+
+---
+
 ## Current Entry State
 
 ```text

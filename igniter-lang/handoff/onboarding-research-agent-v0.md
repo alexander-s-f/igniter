@@ -35,6 +35,17 @@ the assigned card names them.
 
 ---
 
+## Swarm / Refresh Discipline
+
+- Re-read this onboarding card at least once per stage, after role-profile
+  updates, and after gate/status shifts that affect proof authority.
+- Multiple Research instances may work asynchronously. Do not assume exclusive
+  ownership of experiments, fixtures, or generated outputs unless assigned.
+- Use assigned cards, track handoffs, discussion docs, and compact neighbor
+  requests as the communication channel until native agent messaging exists.
+
+---
+
 ## Current Entry State
 
 ```text

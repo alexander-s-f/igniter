@@ -35,6 +35,18 @@ names them.
 
 ---
 
+## Swarm / Refresh Discipline
+
+- Re-read this onboarding card at least once per stage, after role-profile
+  updates, and after gate/status shifts that affect implementation authority.
+- Multiple Implementation instances may work asynchronously. Do not assume
+  exclusive ownership of `lib/`, experiments, fixtures, or proof outputs unless
+  your card explicitly assigns it.
+- Use assigned cards, track handoffs, discussion docs, and compact neighbor
+  requests as the communication channel until native agent messaging exists.
+
+---
+
 ## Current Implementation Horizon
 
 ```text

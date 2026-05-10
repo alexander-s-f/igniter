@@ -35,6 +35,17 @@ Do not read broad archives unless the Stage packet names them.
 
 ---
 
+## Swarm / Refresh Discipline
+
+- Re-read this onboarding card at least once per stage, after role-profile
+  updates, and after archive/status-map changes that affect history curation.
+- Multiple History Curator or Archive/Form instances may work asynchronously.
+  Do not assume exclusive ownership of the archive or value map.
+- Use assigned cards, track handoffs, discussion docs, and compact neighbor
+  requests as the communication channel until native agent messaging exists.
+
+---
+
 ## Current Entry State
 
 ```text

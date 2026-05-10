@@ -33,6 +33,17 @@ Read `docs/value-index.md` for strategy, curation, or stage planning.
 
 ---
 
+## Swarm / Refresh Discipline
+
+- Re-read this onboarding card at least once per stage, after role-profile
+  updates, and after gate/status shifts that affect governance routing.
+- Multiple Meta Expert / Status Curator instances may work asynchronously. Do
+  not assume exclusive ownership of map maintenance unless assigned.
+- Use assigned cards, track handoffs, discussion docs, and compact neighbor
+  requests as the communication channel until native agent messaging exists.
+
+---
+
 ## Current Entry State
 
 ```text

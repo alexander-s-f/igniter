@@ -33,6 +33,17 @@ Do not read archives broadly. Read only the historical layer named by the card.
 
 ---
 
+## Swarm / Refresh Discipline
+
+- Re-read this onboarding card at least once per stage, after role-profile
+  updates, and after archive/status-map changes that affect archaeology scope.
+- Multiple archive/history-oriented instances may work asynchronously. Do not
+  assume exclusive ownership of archived material or recovered ideas.
+- Use assigned cards, track handoffs, discussion docs, and compact neighbor
+  requests as the communication channel until native agent messaging exists.
+
+---
+
 ## Current Entry State
 
 ```text

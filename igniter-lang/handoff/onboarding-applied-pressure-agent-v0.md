@@ -33,6 +33,17 @@ Read `docs/value-index.md` when asked for strategy or durable product pressure.
 
 ---
 
+## Swarm / Refresh Discipline
+
+- Re-read this onboarding card at least once per stage, after role-profile
+  updates, and after gate/status shifts that affect applied pressure work.
+- Multiple Applied Pressure instances may run asynchronously. Do not assume
+  exclusive ownership of product/domain pressure.
+- Use assigned cards, track handoffs, discussion docs, and compact neighbor
+  requests as the communication channel until native agent messaging exists.
+
+---
+
 ## Current Entry State
 
 ```text

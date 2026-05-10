@@ -33,6 +33,17 @@ Do not read archives or package docs unless the card explicitly asks.
 
 ---
 
+## Swarm / Refresh Discipline
+
+- Re-read this onboarding card at least once per stage, after role-profile
+  updates, and after proposal/spec/gate shifts that affect formal language work.
+- Multiple Compiler/Grammar instances may work asynchronously. Do not assume
+  exclusive ownership of proposals, specs, or golden families unless assigned.
+- Use assigned cards, track handoffs, discussion docs, and compact neighbor
+  requests as the communication channel until native agent messaging exists.
+
+---
+
 ## Current Entry State
 
 ```text
