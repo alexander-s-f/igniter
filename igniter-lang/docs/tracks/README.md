@@ -28,6 +28,16 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 23 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `phase1-durable-observation-persistence-shape-v0.md` | done | PASS 9/9; proof-local file-backed JSONL persistence shape only; `production_durable_audit=false`, no Ledger/write/replay/compact/subscribe |
+| `gate3-authority-registry-v1-receipts-shape-v0.md` | done | PASS 11/11; registry v1 issuance -> revocation -> supersession receipts with content-addressed decision refs; no signing/keys/executor calls |
+| `phase1-reason-code-legacy-aliases-deprecation-signal-v0.md` | done | PASS 21/21 plus lib-prep 17/17; lib/ emits canonical `runtime.temporal_scope_exclusion`; sealed old fixtures preserved |
+| `../discussions/phase1-durable-audit-and-registry-v1-pressure-v0.md` | complete — PROCEED (non-blockers only) | X1 confirms no scope widening, no production audit/signing, P-6 closed, P-8/P-9 routed |
+| `stage3-round23-status-curation-v0.md` | done | R23 status/index sync — this track |
+
 ## Stage 3 Round 22 Evidence
 
 | Track | Status | Notes |
@@ -430,11 +440,14 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `phase1-post-r22-regression-rerun-v0` | Consolidate R20-R22 fixtures into the current regression matrix before production work | Research Agent | recommended next |
-| `durable-observation-persistence-v0` | Add production durable audit/storage boundary for Phase 1 observations; not implied by R21 audit-ready envelope | Research Agent / Bridge Agent | recommended next |
-| `gate3-authority-registry-v1` | Durable registry storage, revocation/supersession lookup, status transition receipts, registry audit observations, and content-addressed decision refs; still no signing keys | Bridge Agent + Research Agent | recommended next |
+| `phase1-post-r23-regression-rerun-v0` | Consolidate post-R19 fixtures, including R20-R23, into one current rerun before any scope-widening track | Research Agent | recommended next |
+| production durable audit track | Add tamper evidence/hash chain, storage identity, retention, replay semantics, and compliance language; not implied by R23 JSONL shape | Research Agent / Bridge Agent | after regression |
+| durable registry storage semantics | Turn registry v1 receipts shape into durable/queryable storage; decide active -> superseded direct transition | Bridge Agent + Research Agent | after regression |
 | production `git_commit` compliance amendment | Treat `workspace-current` as non-compliant outside proof-local mode; require CI/registry-supplied immutable ref | Bridge Agent / Research Agent | before production |
 | `gate3-production-signing-v1` | Production signer identity, key rotation, signature algorithm, verification policy, deployment trust store | Bridge Agent / Architect Supervisor | after registry v1 |
+| `phase1-durable-observation-persistence-shape-v0` | Define proof-local file-backed JSONL observation persistence shape with explicit non-production caveats | Research Agent | done in S3-R23-C1-P |
+| `gate3-authority-registry-v1-receipts-shape-v0` | Define proof-local registry v1 transition receipts for issuance, revocation, and supersession | Bridge Agent | done in S3-R23-C2-P |
+| `phase1-reason-code-legacy-aliases-deprecation-signal-v0` | Add LEGACY_ALIASES deprecation signal and prove lib/ emits canonical scope exclusion only | Implementation Agent | done in S3-R23-C3-P |
 | `phase1-addendum-content-address-ref-v0` | Replace mutable path-only `signed_addendum_ref` with commit/content-hash or registry-minted version reference | Meta Expert / Bridge Agent | done in S3-R22-C2-P |
 | `phase1-end-to-end-invocation-fixture-v0` | Compose registry check -> caller authorization -> Phase1 executor -> audit-ready envelope in one proof | Research Agent | done in S3-R22-C1-P |
 | `compatibility-report-persistence-audit-v0` | Define proof-local audit-ready envelope; explicit export, not persisted | Research Agent / Bridge Agent | done in S3-R21-C1-P |
