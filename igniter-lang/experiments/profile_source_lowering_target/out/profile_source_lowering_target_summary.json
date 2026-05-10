@@ -1,0 +1,86 @@
+{
+  "kind": "profile_source_lowering_target_summary",
+  "format_version": "0.1.0",
+  "track": "profile-source-lowering-target-v0",
+  "status": "PASS",
+  "lowering_model_path": "igniter-lang/experiments/profile_source_lowering_target/out/profile_source_lowering_model.json",
+  "lowered_descriptor_path": "igniter-lang/experiments/profile_source_lowering_target/out/lowered_profile_descriptor.json",
+  "descriptor_digest": "compiler_profile_descriptor/sha256:2b51501f50768ec98e8567e6",
+  "negative_results": {
+    "parser_implementation_out_of_scope": {
+      "status": "rejected",
+      "code": "lowering.parser_implementation_out_of_scope",
+      "message": "parser implementation is out of scope",
+      "details": {}
+    },
+    "syntax_authority_out_of_scope": {
+      "status": "rejected",
+      "code": "lowering.syntax_authority_out_of_scope",
+      "message": "syntax authorization is out of scope",
+      "details": {}
+    },
+    "implementation_body_out_of_scope": {
+      "status": "rejected",
+      "code": "lowering.implementation_body_out_of_scope",
+      "message": "profile source may select implementations, not define them inline",
+      "details": {
+        "slot": "core"
+      }
+    },
+    "runtime_authority_claim_rejected": {
+      "status": "rejected",
+      "code": "lowering.runtime_authority_claim_rejected",
+      "message": "profile source cannot grant runtime authority",
+      "details": {
+        "slot": "temporal"
+      }
+    },
+    "missing_implementation_id": {
+      "status": "rejected",
+      "code": "lowering.missing_implementation_id",
+      "message": "missing implementation",
+      "details": {
+        "slot": "core"
+      }
+    },
+    "duplicate_slot": {
+      "status": "rejected",
+      "code": "lowering.duplicate_slot",
+      "message": "duplicate slot",
+      "details": {
+        "slot": "core"
+      }
+    },
+    "helper_only_pack_rejected": {
+      "status": "rejected",
+      "code": "lowering.helper_only_pack_rejected",
+      "message": "pack owns no capability",
+      "details": {
+        "slot": "core"
+      }
+    }
+  },
+  "checks": {
+    "input.schema_passed": true,
+    "model.syntax_not_authorized": true,
+    "model.every_lowering_rule_targets_descriptor": true,
+    "lowering.produces_descriptor_kind": true,
+    "lowering.matches_expected_pack_slots": true,
+    "lowering.schema_ref_preserved": true,
+    "lowering.digest_is_descriptor_digest": true,
+    "negative.parser_implementation_out_of_scope": true,
+    "negative.syntax_authority_out_of_scope": true,
+    "negative.implementation_body_out_of_scope": true,
+    "negative.runtime_authority_claim_rejected": true,
+    "negative.missing_implementation_id": true,
+    "negative.duplicate_slot": true,
+    "negative.helper_only_pack_rejected": true
+  },
+  "non_goals": [
+    "No parser implementation.",
+    "No profile source syntax authorization.",
+    "No production lowering code.",
+    "No CompilerKernel dispatch changes.",
+    "No .igapp or .ilk changes."
+  ]
+}

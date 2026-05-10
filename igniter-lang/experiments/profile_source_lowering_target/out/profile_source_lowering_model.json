@@ -1,0 +1,26 @@
+{
+  "kind": "profile_source_lowering_model",
+  "format_version": "0.1.0",
+  "track": "profile-source-lowering-target-v0",
+  "source_status": {
+    "parser_implemented": false,
+    "syntax_authorized": false,
+    "descriptor_first": true
+  },
+  "lowering_rules": {
+    "profile_header": "profile_descriptor.kind + profile_source",
+    "profile_name": "profile_source.kind and future source metadata",
+    "slot_declaration": "pack_descriptor.slot + pack_descriptor.name",
+    "implementation_clause": "pack_descriptor.implementation_id",
+    "owns_capabilities_clause": "pack_descriptor.provides_capabilities",
+    "requires_clause": "pack_descriptor.requires_slots",
+    "registry_block": "pack_descriptor.registries",
+    "profile_spec_reference": "profile_descriptor.profile_spec"
+  },
+  "forbidden_constructs": {
+    "implementation_body": "lowering.implementation_body_out_of_scope",
+    "runtime_authority_claim": "lowering.runtime_authority_claim_rejected",
+    "full_language_parser_requirement": "lowering.parser_implementation_out_of_scope"
+  },
+  "target_descriptor_kind": "compiler_profile_descriptor"
+}
