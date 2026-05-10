@@ -24,6 +24,7 @@ archaeology or stale memory.
 |---------|-------|--------|------|
 | Per round start | Architect Supervisor | cards / stage packets | Assign only current-role reads and bounded source sets |
 | Per round close | Meta Expert in Status Curator mode | status/map updates | Update current maps from landed evidence only |
+| Per round close | Architect Supervisor | inbox triage | Route or archive new inbox material; no zombie docs |
 | Per round close | Compiler/Grammar Expert when assigned | spec-lag notes | Flag spec drift caused by accepted proof/proposal changes |
 | Per round close | Architect Supervisor | next routing | Accept, hold, redirect, or open next round |
 | Per stage open | Architect Supervisor + Meta Expert | stage fixed point | Refresh current context and role launch docs |
@@ -80,6 +81,10 @@ After agents finish a round:
    - proof-local behavior is not production enforcement;
    - report-only metadata is not runtime authority.
 5. Write next routing as a short list.
+6. Check `docs/inbox/README.md`:
+   - every new item must be triaged;
+   - every processed item must link to a destination;
+   - active inbox items must name their next owning card/track.
 
 Do not run broad expensive suites just to curate maps. Use proof results from
 the owning tracks unless a contradiction appears.
@@ -116,6 +121,7 @@ At stage close:
 - hoist durable ideas into `docs/value-index.md`;
 - ask History Curator to compress bulky historical areas into compact reports;
 - mark superseded docs as historical through links or archive indexes;
+- clear or archive processed inbox items that no longer feed active work;
 - update onboarding cards so new agents do not inherit stale stage assumptions.
 
 Stage close is not just "status update". It is memory hygiene.
@@ -206,6 +212,7 @@ Round start:
 
 Round close:
   [ ] landed evidence summarized
+  [ ] inbox items triaged / routed / archived
   [ ] current-status updated if assigned
   [ ] tracks index updated if assigned
   [ ] agent-context next movement refreshed if assigned

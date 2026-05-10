@@ -23,6 +23,7 @@ Spec extension gap analysis    → spec-extension-gap-analysis.md
 External pressure specimens    → experiments/external_pressure_specimens/
 Current scoreboard             → current-status.md
 Track index                    → tracks/README.md
+Inbox / intake queue           → inbox/README.md
 Discussion format             → discussions/README.md
 Proposal queue                 → proposals/README.md
 Accepted Stage 1 PROPs         → proposals/accepted/  (read-only)

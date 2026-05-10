@@ -113,6 +113,7 @@ Expert converts it into a card.
 | `docs/operating-model.md` | Supervisor | Process contract and handoff rules |
 | `docs/agent-motion.md` | Supervisor | Historical protocol; agents do not update by default |
 | `docs/tracks/*.md` | Assigned agent | Slice evidence, proof notes, handoff |
+| `docs/inbox/` | Supervisor | Temporary intake only; every item must have a disposition |
 | `docs/proposals/*.md` | Assigned agent | Formal proposal or accepted design candidate |
 | `docs/spec/` | Meta Expert + approved implementer | Canonical crystallized language description |
 | `docs/meta-proposals/` | Meta Expert | Governance, audits, closure plans |
@@ -131,6 +132,7 @@ Expert converts it into a card.
 | What is canonical language behavior? | `docs/spec/` and `language-spec.md` |
 | What is accepted but not fully implemented? | `docs/proposals/README.md` |
 | What proved a slice? | `docs/tracks/<track>.md` and matching experiment |
+| What incoming material is not yet canon? | `docs/inbox/README.md` |
 | What changed historically? | git history or `docs/archive/` |
 
 If two documents disagree, prefer this order:
@@ -239,6 +241,7 @@ gate state or role ownership changes. See `docs/operating-scheduler.md`.
 - Do not duplicate the same decision across several active documents.
 - Do not make new agents read archives unless archaeology is the task.
 - Keep track docs focused on evidence and next movement.
+- Do not leave inbox documents without a disposition and destination route.
 
 ---
 

@@ -7,6 +7,33 @@ Source: igniter-contracts + igniter-extensions, read-only survey
 
 ---
 
+## Intake Disposition
+
+Disposition: `promoted-dev-doc` + `promoted-track`
+Owner: [Architect Supervisor / Codex]
+Decision date: 2026-05-10
+
+This report has been processed. It is no longer an untriaged inbox item.
+
+Promoted to:
+
+- `igniter-lang/docs/dev/compiler-profile-architecture-direction.md`
+- `igniter-lang/docs/tracks/compiler-profile-architecture-direction-v0.md`
+
+Next routed work:
+
+- `compiler-pack-boundary-report-v0` — no-code pack boundary decomposition
+  report for Research Agent.
+
+Exit rule:
+
+- Keep this source in `docs/inbox/` while `compiler-pack-boundary-report-v0`
+  is active.
+- After that report lands, archive this source or mark it superseded by the
+  boundary report.
+
+---
+
 ## 1. Purpose
 
 This document formally describes the Profile–Baseline–Pack assembly pattern
