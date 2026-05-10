@@ -161,6 +161,7 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 | [phase1-e2e-and-content-address-pressure-v0.md](phase1-e2e-and-content-address-pressure-v0.md) | S3-R22-X1-S | Do C1/C2 add production behavior or leave the mutable signed_addendum_ref gap open? | complete — PROCEED; P-4 + P-5 closed |
 | [phase1-durable-audit-and-registry-v1-pressure-v0.md](phase1-durable-audit-and-registry-v1-pressure-v0.md) | S3-R23-X1-S | Do C1/C2/C3 widen Phase 1 scope, imply production audit/signing, or alter authorization semantics? | complete — PROCEED (non-blockers only); P-6 closed; P-9 added |
 | [phase1-post-r23-regression-and-durability-pressure-v0.md](phase1-post-r23-regression-and-durability-pressure-v0.md) | S3-R24-X1-S | Does R24 regression honestly cover post-R23 chain; do registry/tamper-evidence imply production behavior? | complete — PROCEED (non-blockers only); P-8 + P-9 closed |
+| [phase1-production-audit-scope-and-registry-ownership-pressure-v0.md](phase1-production-audit-scope-and-registry-ownership-pressure-v0.md) | S3-R25-X1-S | Is the 25-cmd regression honest; is the Architect scope decision design-only; do registry options avoid binding? | complete — PROCEED (non-blockers only); P-13 closed; C2-A blocker 2 satisfied |
 
 ---
 
