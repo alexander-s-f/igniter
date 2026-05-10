@@ -43,6 +43,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-029](PROP-029-entrypoint-section-surface-v0.md) | proposal | Entrypoint as named evaluation/run profile; section as grouping-only source organization; no parser implementation yet |
 | [PROP-030](PROP-030-executor-approval-token-contract-v0.md) | proposal | ExecutorApprovalToken contract; explicit approval as Gate 3 prerequisite; no executor or Gate 3 authorization |
 | [PROP-030A](PROP-030A-temporal-scope-exclusion-errata-v0.md) | proposal | Errata to PROP-030: canonical `runtime.temporal_scope_exclusion` refusal for out-of-scope TEMPORAL executor artifacts |
+| [PROP-031](PROP-031-contract-modifiers-v0.md) | proposal | Contract modifiers: optional `pure/observed/effect/privileged/irreversible` prefix, implicit pure default, OOF-M1 only; no parser/compiler implementation yet |
 
 ---
 
@@ -66,15 +67,15 @@ They remain active intake. Verification requires Architect authorization.
 
 ## Queued (not yet authored)
 
-New Stage 3+ proposals after PROP-030 should start from **PROP-031**.
+PROP-031 is authored. New Stage 3+ proposal IDs should start from **PROP-032**.
 
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|
-| PROP-031 | Probabilistic types ~T (ProbLog subset) | PROP-022 (closed), PROP-025 (closed) | 3 | medium |
-| PROP-032 | Deadline contracts + WCET analysis | PROP-003 (accepted), PROP-016 | 3 | medium |
-| PROP-033 | Full unit algebra (dimensional type checking) | PROP-004 errata E5 | 3 | medium |
-| PROP-034 | Plastic Runtime Cells (ownership + migration) | PROP-006 (accepted), PROP-012 (accepted) | 3 | medium |
-| PROP-035 | Rule synthesis via LP (goal-directed) | PROP-022 (closed), PROP-025 (closed) | 4 | low |
+| PROP-032 | via profile binding | PROP-031 | 3 | high |
+| PROP-033 | output evidence syntax | PROP-031 | 3 | high |
+| PROP-034 | profile declarations / authority resolution | PROP-031 + PROP-032 | 3 | medium |
+| PROP-035 | Effect Surface | PROP-031 | 3 | medium |
+| TBD | Prior queued ideas need renumbering/requeue | — | 3+ | medium |
 
 ---
 
@@ -115,4 +116,4 @@ closed                all authorized scope experiment-PASS; META-EXPERT decision
 
 Stage 1 PROPs: see `accepted/` — frozen read-only.
 Stage 2 closed PROPs: in `proposals/` with `Status: closed`.
-New Stage 3 proposals after PROP-030: start from PROP-031.
+New Stage 3 proposals after PROP-031: start from PROP-032.

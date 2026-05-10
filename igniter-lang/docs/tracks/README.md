@@ -28,6 +28,17 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 27 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../gates/phase1-production-durable-audit-implementation-authorization-review-v0.md` | hold-before-implementation-authorization | Architect holds production durable audit implementation authorization; design is review-ready, implementation still closed |
+| `volatile-fields-lint-and-artifact-stability-survey-v0.md` | done | Validator shipped; PASS 4 annotated artifacts, 0 violations; artifact stability survey complete; matrix integration/Time.now grep hook remain follow-ups |
+| `../proposals/PROP-031-contract-modifiers-v0.md` | proposal | Contract modifiers proposal: optional `pure|observed|effect|privileged|irreversible`; implicit pure default; OOF-M1 only; no Effect Surface/Profile/runtime enforcement |
+| `contract-modifiers-proof-fixture-plan-v0.md` | done | Fixture/command plan ready for implementation card; no fixtures created and no PASS claimed |
+| `../discussions/durable-audit-authorization-and-prop031-pressure-v0.md` | complete — PROCEED (non-blockers only) | X1 confirms C1-A is HOLD, C2 closes lint/survey blockers, PROP-031 remains scoped, C4 is plan-only |
+| `stage3-round27-status-curation-v0.md` | done | R27 status/index/proposal sync — this track |
+
 ## Stage 3 Round 26 Evidence
 
 | Track | Status | Notes |
@@ -470,11 +481,16 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| implementation authorization review for `phase1-production-durable-audit-v0` | Architect review of C1-P design; add compliance_posture store-binding and signer-validation proof requirements before authorization | Architect Supervisor / Meta Expert / External Pressure Reviewer | recommended for R27 |
-| `_volatile_fields` lint script | Validate committed JSON artifacts never mark status/checks/verdict/boolean checks as volatile | Implementation Agent / Research Agent | recommended for R27 |
-| full artifact stability survey | Run two-consecutive-run diff method across committed artifacts not verified in C3-P | Research Agent | recommended for R27 |
-| post-R26 full regression matrix rerun | Re-run current matrix after R26 design/policy changes; include new proof steps if added | Research Agent | recommended for R27 |
-| registry implementation planning | Draft generated index schema and proof plan under registry implementation authorization gate | Bridge Agent / Architect Supervisor | recommended for R27 |
+| durable audit design amendment | Record compliance_posture store-binding, signer no-op rejection, and startup-time staleness bound in `phase1-production-durable-audit-v0` | Research Agent / Bridge Agent | recommended for R28 |
+| bounded audit validation proofs | Prove compliance_posture store-binding and signer no-op/stub rejection without implementing full durable audit | Research Agent / Implementation Agent | recommended for R28 |
+| post-R27 full regression matrix rerun | Add `volatile_fields_lint` first; rerun prior matrix plus any new proof steps | Research Agent | recommended for R28 |
+| PROP-031 implementation | Implement parser/classifier/typechecker/SemanticIR changes; resolve OOF-M1 stage and `contract_name` expected shape before goldens | Compiler/Grammar Expert | recommended for R28 |
+| `_volatile_fields` Time.now grep hook | Detect newly-added unannotated `Time.now` usage in experiment scripts | Implementation Agent / Research Agent | optional R28 |
+| implementation authorization review for `phase1-production-durable-audit-v0` | Architect review of C1-P design; add compliance_posture store-binding and signer-validation proof requirements before authorization | Architect Supervisor / Meta Expert / External Pressure Reviewer | HOLD in S3-R27-C1-A |
+| `_volatile_fields` lint script | Validate committed JSON artifacts never mark status/checks/verdict/boolean checks as volatile | Implementation Agent / Research Agent | done in S3-R27-C2-P |
+| full artifact stability survey | Run two-consecutive-run diff method across committed artifacts not verified in C3-P | Research Agent | done in S3-R27-C2-P |
+| post-R26 full regression matrix rerun | Re-run current matrix after R26 design/policy changes; include new proof steps if added | Research Agent | superseded by post-R27 rerun recommendation |
+| registry implementation planning | Draft generated index schema and proof plan under registry implementation authorization gate | Bridge Agent / Architect Supervisor | deferred; audit blockers first |
 | `phase1-production-durable-audit-v0` | Design only under S3-R25-C2-A: signing model recommendation, restart rebuild, format enforcement, retention/audit traversal, storage identity, audit reader, compliance language, error codes, blockers, proof plan | Research Agent / Bridge Agent | done in S3-R26-C1-P; ready for implementation auth review |
 | Architect registry ownership decision | Answer C3-P Q1-Q6: source of truth, freshness SLA, index generation owner, immutable anchor, external service receipt exposure, package authority prohibition | Architect Supervisor / Meta Expert / Bridge Agent | done in S3-R26-C2-A for design; implementation still closed |
 | deterministic artifact policy for regression harness | Decide how to handle nondeterministic proof outputs such as stage2 close JSON and tamper-evidence JSONL | Research Agent | done in S3-R26-C3-P |
