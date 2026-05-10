@@ -254,6 +254,7 @@ module TypedEmissionMainPathParity
       "safe_to_switch_production_path" => blocked.empty?,
       "cases_run" => source_cases.length,
       "timestamp" => Time.now.utc.iso8601,
+      "_volatile_fields" => ["timestamp"],
       "current_main_path" => "SemanticIREmitter#emit_typed(typed_program)",
       "legacy_comparison_path" => "SemanticIREmitter#emit(parsed_program, sample_input:)",
       "candidate_main_path" => "SemanticIREmitter#emit_typed(typed_program)",

@@ -6,7 +6,10 @@
   "verdict": "blocked",
   "safe_to_switch_production_path": false,
   "cases_run": 6,
-  "timestamp": "2026-05-08T18:06:51Z",
+  "timestamp": "2026-05-10T10:22:48Z",
+  "_volatile_fields": [
+    "timestamp"
+  ],
   "current_main_path": "SemanticIREmitter#emit_typed(typed_program)",
   "legacy_comparison_path": "SemanticIREmitter#emit(parsed_program, sample_input:)",
   "candidate_main_path": "SemanticIREmitter#emit_typed(typed_program)",
@@ -121,8 +124,8 @@
         "compute",
         "invariant_node"
       ],
-      "status": "PASS",
-      "status_reason": "all deltas are accepted typed-production shape changes: typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface",
+      "status": "FAIL",
+      "status_reason": "SemanticIR differs after identity fields are normalized.",
       "parsed_path": {
         "pass_result": "ok",
         "semantic_ir_present": true,
@@ -202,8 +205,8 @@
           "invariant_node"
         ],
         "diagnostic_rules": [],
-        "shape_hash": "sha256:5cb46cf7011de2a424b44f934d139689b246637336374098033dbf165f51bd6d",
-        "report_shape_hash": "sha256:8e727815e3e3eec93bdd0749703bd6dbf333902030f4e3cc8ddd3dd35d6f0e15",
+        "shape_hash": "sha256:0cfacfe9e2c044e5ae8d28b0690c7e322762082d2624108bcba99f3298674550",
+        "report_shape_hash": "sha256:4656620847cfbd6d200cd13022fe400a6a547905ad3e283c861ee082ea7c6b1f",
         "status": "ok"
       },
       "deltas": [
@@ -220,6 +223,18 @@
               "delta": "length",
               "parsed": 1,
               "typed": 5
+            },
+            {
+              "path": "$.contracts[0].outputs[0].metrics_from",
+              "delta": "missing_in_parsed"
+            },
+            {
+              "path": "$.contracts[0].outputs[0].uncertain_from",
+              "delta": "missing_in_parsed"
+            },
+            {
+              "path": "$.contracts[0].outputs[0].warnings_from",
+              "delta": "missing_in_parsed"
             }
           ]
         },
@@ -236,6 +251,19 @@
       ],
       "accepted_deltas": [
         {
+          "kind": "report_shape_delta",
+          "summary": "CompilationReport differs after identity fields are normalized.",
+          "paths": [
+            {
+              "path": "$.invariant_coverage",
+              "delta": "missing_in_parsed"
+            }
+          ],
+          "acceptance": "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface"
+        }
+      ],
+      "unaccepted_deltas": [
+        {
           "kind": "semantic_ir_shape_delta",
           "summary": "SemanticIR differs after identity fields are normalized.",
           "paths": [
@@ -248,23 +276,22 @@
               "delta": "length",
               "parsed": 1,
               "typed": 5
-            }
-          ],
-          "acceptance": "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface"
-        },
-        {
-          "kind": "report_shape_delta",
-          "summary": "CompilationReport differs after identity fields are normalized.",
-          "paths": [
+            },
             {
-              "path": "$.invariant_coverage",
+              "path": "$.contracts[0].outputs[0].metrics_from",
+              "delta": "missing_in_parsed"
+            },
+            {
+              "path": "$.contracts[0].outputs[0].uncertain_from",
+              "delta": "missing_in_parsed"
+            },
+            {
+              "path": "$.contracts[0].outputs[0].warnings_from",
               "delta": "missing_in_parsed"
             }
-          ],
-          "acceptance": "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface"
+          ]
         }
-      ],
-      "unaccepted_deltas": []
+      ]
     },
     {
       "id": "olap_point",
@@ -534,7 +561,7 @@
           "window_decl_node"
         ],
         "diagnostic_rules": [],
-        "shape_hash": "sha256:b3dc7f8f4e61adf5efb8fb9d34e893b5bca83f5cb182d3e521c4c27e67c9d10a",
+        "shape_hash": "sha256:2eac87dcb612182d267070cab173b59a32eb913df59970f79a75099c66ba13f6",
         "report_shape_hash": "sha256:1a26e4d2faa5027173bdbd9f4051ce0de53f8f0a6e6b70febd24e75839533f8f",
         "status": "ok"
       },
@@ -1024,6 +1051,56 @@
   ],
   "blocked_items": [
     {
+      "case": "invariant_valid",
+      "surface": "invariant_runtime_observations",
+      "kind": "semantic_ir_shape_delta",
+      "summary": "SemanticIR differs after identity fields are normalized.",
+      "details": {
+        "kind": "semantic_ir_shape_delta",
+        "summary": "SemanticIR differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.invariants",
+            "delta": "missing_in_parsed"
+          },
+          {
+            "path": "$.contracts[0].nodes",
+            "delta": "length",
+            "parsed": 1,
+            "typed": 5
+          },
+          {
+            "path": "$.contracts[0].outputs[0].metrics_from",
+            "delta": "missing_in_parsed"
+          },
+          {
+            "path": "$.contracts[0].outputs[0].uncertain_from",
+            "delta": "missing_in_parsed"
+          },
+          {
+            "path": "$.contracts[0].outputs[0].warnings_from",
+            "delta": "missing_in_parsed"
+          }
+        ]
+      }
+    },
+    {
+      "case": "invariant_valid",
+      "surface": "invariant_runtime_observations",
+      "kind": "report_shape_delta",
+      "summary": "CompilationReport differs after identity fields are normalized.",
+      "details": {
+        "kind": "report_shape_delta",
+        "summary": "CompilationReport differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.invariant_coverage",
+            "delta": "missing_in_parsed"
+          }
+        ]
+      }
+    },
+    {
       "case": "olap_point",
       "surface": "olap_point",
       "kind": "value_delta",
@@ -1297,6 +1374,40 @@
   "typed_source_blocked_items": [],
   "legacy_parity_delta_items": [
     {
+      "case": "invariant_valid",
+      "surface": "invariant_runtime_observations",
+      "kind": "semantic_ir_shape_delta",
+      "summary": "SemanticIR differs after identity fields are normalized.",
+      "details": {
+        "kind": "semantic_ir_shape_delta",
+        "summary": "SemanticIR differs after identity fields are normalized.",
+        "paths": [
+          {
+            "path": "$.invariants",
+            "delta": "missing_in_parsed"
+          },
+          {
+            "path": "$.contracts[0].nodes",
+            "delta": "length",
+            "parsed": 1,
+            "typed": 5
+          },
+          {
+            "path": "$.contracts[0].outputs[0].metrics_from",
+            "delta": "missing_in_parsed"
+          },
+          {
+            "path": "$.contracts[0].outputs[0].uncertain_from",
+            "delta": "missing_in_parsed"
+          },
+          {
+            "path": "$.contracts[0].outputs[0].warnings_from",
+            "delta": "missing_in_parsed"
+          }
+        ]
+      }
+    },
+    {
       "case": "olap_point",
       "surface": "olap_point",
       "kind": "value_delta",
@@ -1562,30 +1673,6 @@
     }
   ],
   "accepted_delta_items": [
-    {
-      "case": "invariant_valid",
-      "surface": "invariant_runtime_observations",
-      "kind": "semantic_ir_shape_delta",
-      "summary": "SemanticIR differs after identity fields are normalized.",
-      "acceptance": "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface",
-      "details": {
-        "kind": "semantic_ir_shape_delta",
-        "summary": "SemanticIR differs after identity fields are normalized.",
-        "paths": [
-          {
-            "path": "$.invariants",
-            "delta": "missing_in_parsed"
-          },
-          {
-            "path": "$.contracts[0].nodes",
-            "delta": "length",
-            "parsed": 1,
-            "typed": 5
-          }
-        ],
-        "acceptance": "typed production invariant shape includes invariant_node, top-level invariants, and invariant_coverage; legacy parsed emitter omitted this Stage 2 surface"
-      }
-    },
     {
       "case": "invariant_valid",
       "surface": "invariant_runtime_observations",

@@ -3,7 +3,10 @@
   "format_version": "0.1.0",
   "track": "gem-native-package-boundary-specs-v0",
   "status": "PASS",
-  "timestamp": "2026-05-08T09:08:56Z",
+  "timestamp": "2026-05-10T10:23:01Z",
+  "_volatile_fields": [
+    "timestamp"
+  ],
   "package": {
     "name": "igniter_lang",
     "version": "0.1.0.pre.stage2",

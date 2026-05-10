@@ -4,7 +4,10 @@
   "track": "temporal-cache-key-proof-v0",
   "status": "PASS",
   "verdict": "temporal_key_required",
-  "timestamp": "2026-05-08T18:53:24Z",
+  "timestamp": "2026-05-10T10:22:53Z",
+  "_volatile_fields": [
+    "timestamp"
+  ],
   "cache_key_version": "temporal-cache-key-proof-v0",
   "semantics": {
     "core": {

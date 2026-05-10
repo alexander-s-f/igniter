@@ -268,6 +268,7 @@ module GemNativePackageBoundarySpecs
       "track" => "gem-native-package-boundary-specs-v0",
       "status" => pass?(checks) ? "PASS" : "FAIL",
       "timestamp" => Time.now.utc.iso8601,
+      "_volatile_fields" => ["timestamp"],
       "package" => {
         "name" => "igniter_lang",
         "version" => IgniterLang::VERSION,

@@ -69,6 +69,7 @@ module TemporalCacheKeyProof
       "status" => checks.values.all? ? "PASS" : "FAIL",
       "verdict" => checks.values.all? ? "temporal_key_required" : "blocked",
       "timestamp" => Time.now.utc.iso8601,
+      "_volatile_fields" => ["timestamp"],
       "cache_key_version" => CACHE_KEY_VERSION,
       "semantics" => semantics,
       "examples" => examples,
