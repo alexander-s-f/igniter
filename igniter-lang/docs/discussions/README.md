@@ -163,6 +163,7 @@ ledger-tbackend-runtime-binding-discussion-v0.md
 | [phase1-post-r23-regression-and-durability-pressure-v0.md](phase1-post-r23-regression-and-durability-pressure-v0.md) | S3-R24-X1-S | Does R24 regression honestly cover post-R23 chain; do registry/tamper-evidence imply production behavior? | complete — PROCEED (non-blockers only); P-8 + P-9 closed |
 | [phase1-production-audit-scope-and-registry-ownership-pressure-v0.md](phase1-production-audit-scope-and-registry-ownership-pressure-v0.md) | S3-R25-X1-S | Is the 25-cmd regression honest; is the Architect scope decision design-only; do registry options avoid binding? | complete — PROCEED (non-blockers only); P-13 closed; C2-A blocker 2 satisfied |
 | [phase1-production-durable-audit-design-pressure-v0.md](phase1-production-durable-audit-design-pressure-v0.md) | S3-R26-X1-S | Does durable audit design stay design-only; is signing recommendation not execution authorization; is audit traversal not Ledger replay? | complete — PROCEED (non-blockers only); P-10 + P-12 + P-14 closed |
+| [durable-audit-authorization-and-prop031-pressure-v0.md](durable-audit-authorization-and-prop031-pressure-v0.md) | S3-R27-X1-S | Does C1-A correctly hold (not grant) audit implementation authorization? Does PROP-031 stay within its language-lane scope with no Effect Surface or service-loop leakage? | complete — PROCEED (non-blockers only); P-15 + P-16 closed; OOF-M1 stage ambiguity flagged |
 
 ---
 
