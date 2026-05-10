@@ -572,6 +572,10 @@ Per META-EXPERT-013 §VI:
    `assumption_refs: ["homophily"]` in semantic_ir
 9. Negative fixture: `uses assumptions undeclared` → OOF-A1, `status: "blocked"`,
    SemanticIR `nil`
+10. **§P28-AC-1 (gate-added, S3-R31-C5-P):** Parser rejects any `assumption` body without
+    a name — a parse error is emitted and the program does not reach the Classifier.
+    This closes the P28 enforcement status for the `assumptions {}` surface.
+    Tested by: `oof_p28_unnamed_assumption_body` parse-error fixture.
 
 ---
 
@@ -640,12 +644,12 @@ Are `kind`, `statement`, `strength`, `source` the right four fields, or is
 `expires_at` (temporal validity) needed at PROP-032 time? Recommend deferring
 `expires_at` — it implies assumption lifecycle management which is out of scope.
 
-**OQ-3: Undeclared-name in evidence list**
+**OQ-3: Undeclared-name in evidence list** *(Resolved — S3-R31-C5-P, gate decision G-1)*
 
-Should `output foo evidence [a, homophily]` where `homophily` is undeclared trigger
-OOF-A1 (assumption missing) or OOF-P1 (unresolved symbol)? Recommend OOF-A1 when
-the name matches an expected assumption pattern (or when evidence list is the source);
-OOF-P1 for all other unresolved names. This distinction may need a TypeChecker rule.
+Evidence list names in `output` nodes are **not validated by PROP-032**. The Classifier
+does not inspect the `evidence` field; it passes through unchanged. Full OOF suite for
+evidence list validation is PROP-033 scope. OOF-A1 fires ONLY on `uses_assumptions`
+body declarations. No evidence-list OOF code is introduced in PROP-032.
 
 **OQ-4: `assumption_refs` in evidence OOF enforcement**
 
