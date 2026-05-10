@@ -2,7 +2,7 @@
 
 Status: active
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-09
+Last updated: 2026-05-10
 
 ---
 
@@ -158,3 +158,5 @@ Authorized signed-addendum scope:
 |------|------|--------|-------|
 | [gate3-decision-record-v0.md](gate3-decision-record-v0.md) | S3-R13-C1-A | approved-restricted-phase1 | Phase 1 implementation only: TEMPORAL History[T] valid_time via abstract proof-local/non-Ledger TBackend; pre-live blockers later closed by R20 signed addendum |
 | [gate3-live-read-decision-addendum-v0.md](gate3-live-read-decision-addendum-v0.md) | S3-R20-C1-A | signed-approved-restricted-phase1-live-read | Signed addendum for first restricted Phase 1 non-proof read path; Phase 2/Ledger/BiHistory/stream/OLAP/cache/durable audit remain closed |
+| [phase1-production-durable-audit-scope-decision-v0.md](phase1-production-durable-audit-scope-decision-v0.md) | S3-R25-C2-A | approved-for-design-only | Authorizes production durable audit design only; implementation/deployment/signing execution/Ledger/Phase 2 remain closed |
+| [phase1-production-registry-ownership-decision-v0.md](phase1-production-registry-ownership-decision-v0.md) | S3-R26-C2-A | approved-design-source-of-truth | Gate document store is the Phase 1 registry source of truth; generated content-addressed index is query artifact; package/runtime are cache/validator only |

@@ -10,7 +10,7 @@
 #   sequence             — monotonic append counter (0-based)
 #   previous_record_hash — SHA256 of the preceding record body; "genesis" for first
 #   record_hash          — SHA256 of this record body (excluding record_hash itself)
-#   storage_identity     — UUID fixed at store construction; binds records to one log
+#   storage_identity     — deterministic proof-local ID; binds records to one log
 #   created_at           — ISO8601 proof timestamp
 #
 # The chain enables gap detection, reorder detection, and content-integrity
@@ -26,7 +26,6 @@ require "digest"
 require "fileutils"
 require "json"
 require "pathname"
-require "securerandom"
 
 require_relative "../../lib/igniter_lang/temporal_access_runtime"
 require_relative "../../lib/igniter_lang/temporal_executor"
@@ -44,6 +43,10 @@ module Phase1ObservationTamperEvidenceShape
   GENESIS_HASH     = "genesis"
   FORMAT_VERSION   = "0.2.0"
   ALLOWED_OPERATION = "append_observation_record"
+  # Deterministic proof-local store identity — replaces SecureRandom.uuid so that
+  # the JSONL artifact (including hash chain) is stable across reruns.
+  # Production stores must use a runtime-generated UUID or infrastructure-bound identity.
+  PROOF_STORAGE_IDENTITY = "proof-local/phase1-tamper-evidence-shape/#{PROOF_AS_OF}"
 
   # Extends ProofLocalObservationStore with a hash-linked tamper_evidence block.
   # Each appended record carries:
@@ -56,7 +59,7 @@ module Phase1ObservationTamperEvidenceShape
     def initialize(path, created_at:)
       @path             = path
       @created_at       = created_at
-      @storage_identity = SecureRandom.uuid
+      @storage_identity = PROOF_STORAGE_IDENTITY
       @sequence         = 0
       @last_record_hash = GENESIS_HASH
       FileUtils.mkdir_p(path.dirname)

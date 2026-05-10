@@ -182,6 +182,7 @@ module Stage2CloseCandidate
       "status" => status,
       "verdict" => status == "PASS" ? "stage2_close_candidate" : "blocked",
       "timestamp" => Time.now.utc.iso8601,
+      "_volatile_fields" => ["timestamp"],
       "facade" => {
         "entrypoint" => "IgniterLang.compile",
         "facade_version" => facade.fetch("facade_version", "unknown"),
