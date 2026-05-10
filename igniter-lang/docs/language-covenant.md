@@ -10,16 +10,33 @@ Supersedes: nothing (new document)
 
 ---
 
-## Core Axiom
+## Core Axioms
+
+### Axiom 1 — Honesty
 
 > **A program is an honest account of what it does to the world.**
 
 If a program cannot say what it does — to which system, with what authority,
 with what consequence, and with what evidence — it should not compile.
 
+### Axiom 2 — Accountability (V-1)
+
+> **A program is an accountable semantic artifact.**
+
+Every language primitive exists to make accountability legible — to operators,
+to auditors, and to the program's own future maintainers.
+
+A language feature that makes the programmer's life easier but hides execution
+reality from audit violates this axiom. Accountability is not a constraint on
+the language — it is the reason the language exists.
+
+The two axioms are not alternatives. Honesty declares the commitment; accountability
+declares the mechanism. A program may be honest (it says what it does) and still
+fail to be accountable (no one can verify the claim). Both must hold.
+
 ---
 
-## The 26 Postulates
+## The 28 Postulates
 
 ### Postulate 1 — Contracts, Not Procedures
 
@@ -270,6 +287,58 @@ Every consequential decision receipt must either:
 A decision that produces no feedback into the system's understanding is
 an accountability debt.
 
+### Postulate 27 — Accountability as Architecture (V-1)
+
+Every language primitive exists to make accountability legible. There is no
+primitive that exists merely for ergonomics.
+
+| Primitive | Accountability role |
+|-----------|---------------------|
+| `receipt` | Execution trace — what ran, when, with what inputs and outputs |
+| `evidence` | Claim lineage — what output was derived from which prior facts |
+| `assumptions {}` | Epistemic provenance — what premises were declared and relied upon |
+| `constraints {}` | Normative boundary — what rules were obeyed and at what priority |
+| `escape` modifier | Declared I/O intent — which external systems were touched |
+| contract modifiers | Effect character — with what authority, reversibility, and consequence |
+| managed loops | Controlled iteration — no unbounded execution surface escapes audit |
+| synthetic markers | Simulated world visibility — no simulation masquerading as observation |
+| `form` constructors | Named domain constructor — no unnamed semantic structure |
+
+> A feature that makes the programmer's life easier but hides execution reality
+> from audit violates the Core Axiom and this postulate.
+
+The PROP Governance Filter (below) encodes this as a mandatory acceptance criterion.
+
+### Postulate 28 — No Unnamed Block May Carry Semantic Identity (V-4)
+
+An unnamed block is invisible to audit, linkage, and replay. If a block carries
+semantic identity — an effect, a loop policy, an assumption context, a constraint
+set — but has no name, it cannot be referenced in a receipt, linked in evidence,
+or surfaced in an observation.
+
+```igniter
+-- Forbidden: effect without a name is unauditable
+{
+  escape sensor_read
+  read value: Integer from "sensors/{id}"
+}
+
+-- Required: named declaration, referenceable in receipt
+escape sensor_read
+read value: Integer from "sensors/{id}"
+```
+
+This applies to every construct with semantic consequence:
+
+- `escape` declarations — named, referenced in `escape_boundaries` of receipts
+- loop class declarations — named, referenced in managed loop contract
+- `assumptions {}` blocks — named, carried through `evidence []` chain
+- `constraints {}` blocks — named, carried through `constraint_hash`
+- `invariant` blocks — named, referenced in violation observation receipts
+
+An unnamed construct that carries semantic consequence is a compile error.
+Naming is not bureaucracy — it is the prerequisite for accountability.
+
 ---
 
 ## Four Axes of Language Honesty
@@ -334,6 +403,42 @@ and Gap-J PROPs.
 
 ---
 
+## PROP Governance Filter (V-2)
+
+Every PROP that proposes a language feature must answer:
+
+> Does this feature leave the audit trail **more legible**, **neutral**, or **less legible**?
+
+| Answer | Acceptance |
+|--------|-----------|
+| More legible | Preferred — explicitly advances Axiom 2 (Accountability) |
+| Neutral | Permitted — does not harm audit legibility |
+| Less legible | Rejected — must not enter core |
+
+This filter applies at **PROP acceptance time**, before implementation. A PROP that
+cannot answer the legibility question is not ready for acceptance review.
+
+Applied across feature categories:
+
+| Feature category | Acceptance |
+|----------------|-----------|
+| Deterministic pure computation | Allowed without explicit declaration |
+| External access (I/O, time, randomness) | Requires explicit modifier |
+| Non-deterministic or environment-dependent | Requires explicit declaration |
+| Hidden state access | Forbidden |
+| Unnamed block carrying semantic identity | Forbidden (Postulate 28) |
+| Feature that hides execution from audit | Rejected by this filter |
+
+The filter is not a style rule. It is a direct consequence of Axiom 2 and Postulate 27.
+Any PROP accepted while failing this filter is an accountability debt against the
+language's own covenant.
+
+**Corollary for deprecation:** A feature that can be removed without harming audit
+legibility may be deprecated. A feature that, if removed, would reduce audit legibility
+is load-bearing and requires a replacement before removal.
+
+---
+
 ## Three Doctrines
 
 ### Honest Computing Doctrine
@@ -391,7 +496,7 @@ compensation path, and with a complete receipt trail. It does not fail silently.
 - `timeout` treated as `failure` (different types, different paths)
 - Hidden assumptions (must be declared, typed, and carried through evidence)
 - Hidden constraints (must be declared in `constraints {}`, not buried in thresholds)
-- Unnamed DSL blocks (every top-level construct must declare its nature)
+- Unnamed DSL blocks with semantic consequence (Postulate 28 — named, or not compiled)
 - Upward coercion without review (`assumed → observed` is a type error)
 - Pretending a consequential choice was simple (Postulate 24 — rejected alternatives must appear in receipt)
 
@@ -419,3 +524,5 @@ compensation path, and with a complete receipt trail. It does not fail silently.
 | 24 | Gap-J (constraints block) + ch12 | TBD | open |
 | 25 | Gap-J (constraints block) | TBD | open |
 | 26 | Gap-N (audit contract/pattern) | TBD | open |
+| 27 | Axiom 2 (Accountability) — all surfaces | — | Covenant governing |
+| 28 | Governance: unnamed block rule | — | Covenant governing |
