@@ -19,7 +19,7 @@ with what consequence, and with what evidence — it should not compile.
 
 ---
 
-## The 21 Postulates
+## The 26 Postulates
 
 ### Postulate 1 — Contracts, Not Procedures
 
@@ -201,6 +201,137 @@ receipt SimulationReceipt {
 A simulated receipt cannot be used where an observed receipt is expected.
 The type system enforces the distinction at contract boundaries.
 
+### Postulate 24 — Choices Are Not Simplified Away
+
+A system may be forced to choose under uncertainty and resource constraint.
+The language forbids pretending the choice was simple.
+
+Every consequential decision must expose:
+- what was known (observed inputs with confidence)
+- what was assumed (declared assumption set)
+- what constraints were obeyed
+- what alternatives were rejected (and why)
+- who authorized the choice (authority chain)
+- what consequences are expected
+- what cannot be compensated if it goes wrong
+
+This applies to financial allocation, logistics strategy, medical triage, robot
+dispatch, pricing, security action, and resource planning — not only to emergency
+rescue. Wherever a system is "forced to choose", the language makes that choice
+legible.
+
+> The system may be forced to choose.
+> The language forbids pretending the choice was simple.
+
+### Postulate 25 — Constraints Are Declared
+
+A constraint is a normative or operational boundary that a program must respect.
+Constraints are not buried in invariant thresholds, config values, or model weights.
+They are declared at the module level alongside assumptions.
+
+```igniter
+constraints {
+  constraint avoid_total_abandonment {
+    kind :ethical
+    priority 0.95
+    statement "No settlement may be completely ignored."
+  }
+  constraint budget_limit {
+    kind :resource
+    priority 1.0
+    statement "Do not allocate more crews than available."
+  }
+}
+```
+
+A program may optimize within its constraints.
+It must not hide the constraints it chose to obey.
+
+A contract that uses a constraint set must declare it explicitly (`uses constraints NAME`).
+Constraint sets enter receipts via `constraint_hash` — auditable, replayable, content-addressed.
+
+### Postulate 26 — Audit Completes the Decision
+
+A decision is not complete when it is executed. It is complete only when expected
+outcomes can be compared to observed outcomes — or when the system explicitly
+declares why such comparison is impossible.
+
+The PostAudit is not an afterthought. It closes the accountability loop:
+
+```
+Observe → Estimate → Plan → Decide → Approve → Act → Audit
+```
+
+Every consequential decision receipt must either:
+1. Carry a reference to its eventual audit receipt; or
+2. Declare `audit: :deferred` with a reason; or
+3. Declare `audit: :impossible` with a stated reason.
+
+A decision that produces no feedback into the system's understanding is
+an accountability debt.
+
+---
+
+## Four Axes of Language Honesty
+
+From the pressure specimens and cross-review (S3-R28), four distinct honesty axes
+have emerged. Each is orthogonal. All four must hold simultaneously.
+
+```
+epistemic honesty   — what we know, at what certainty, with what assumptions
+effect honesty      — what we change, with what authority, with what compensation
+constraint honesty  — what we must respect, of what kind, at what priority
+audit honesty       — what happened after, how expected vs actual compared
+```
+
+These axes map to the canonical execution pipeline:
+
+| Pipeline stage | Honesty axis | Contract class |
+|----------------|-------------|----------------|
+| Observe | epistemic | `observed contract` |
+| Estimate | epistemic | `pure contract` |
+| Plan | epistemic | `pure contract` |
+| Decide | constraint | `pure contract` + `uses constraints` |
+| Approve | effect | `privileged contract` |
+| Act | effect | `effect`/`irreversible contract` |
+| Audit | audit | `audit contract` / PostAudit pattern |
+
+---
+
+## The Epistemic State Machine
+
+Agent-D (cross-review S3-R28) named this: the honesty stack is not a certainty
+scale — it is an **epistemic state machine** with typed transitions.
+
+| State | Meaning | Example |
+|-------|---------|---------|
+| `observed` | Directly witnessed from the world | `drone.sensor.reading` |
+| `inferred` | Derived from observations by reasoning | `survivor_zone = derive_zone(signal)` |
+| `estimated` | Probabilistic quantified inference | `confidence: 0.72` |
+| `assumed` | Declared premise (`kind: :empirical/:heuristic`) | `assumptions {}` block |
+| `simulated` | Synthetic world state | `epistemic_kind: :synthetic` |
+| `decided` | Chosen action under constraints | `StrategyDecision` |
+| `executed` | External consequence receipt | `DispatchReceipt` |
+| `audited` | Expected vs actual comparison | `PostAuditReceipt` |
+
+**Critical rule — No Upward Coercion:**
+
+A value may not move to a higher-certainty epistemic state without an explicit
+typed conversion or human review:
+
+```
+assumed   → observed    FORBIDDEN without explicit review
+simulated → executed    FORBIDDEN (type error)
+estimated → known       FORBIDDEN (no silent certainty upgrade)
+inferred  → fact        FORBIDDEN
+```
+
+This rule is enforced by the type system at contract boundaries.
+
+**Open (S3-R28):** The exact mechanism for the `uses assumptions` / `uses constraints`
+declaration and how it gates upward coercion is not yet specified. Requires Gap-H
+and Gap-J PROPs.
+
 ---
 
 ## Three Doctrines
@@ -223,6 +354,9 @@ The language must not hide:
 | Provenance | Output with unknown source | `output ... evidence [refs]` |
 | Assumptions | Premise buried in weights/config/threshold | `assumptions {}` block — declared, typed, hashable |
 | Synthetic world | Simulation presented as observation | `:synthetic` mode + `honesty_statement` in receipt |
+| Constraints | Normative boundary in config/hardcoded constant | `constraints {}` block — declared, typed, `constraint_hash` |
+| Rejected alternatives | "We chose X" without showing what was rejected | `StrategyDecision.rejected` — discarded options in receipt |
+| Audit gap | Decision with no outcome feedback | `audit:` field in decision receipt — Postulate 26 |
 
 ### Managed Recursion Doctrine
 
@@ -250,32 +384,38 @@ compensation path, and with a complete receipt trail. It does not fail silently.
 - Hidden effects (all must be declared in modifier + Effect Surface)
 - Silent type erasure (`Any` at boundaries)
 - Implicit side effects in pure contracts
-- `now()` in a `pure` contract body (OOF-M1 — hidden temporal dependency)
+- `now()` anywhere — time must enter as explicit input or tick binding (OOF-M1; see CL-4)
 - Non-idempotent operations under automatic retry
 - Unbounded loops (every repetition has a class)
 - Simulated receipts masquerading as real (separate types)
 - `timeout` treated as `failure` (different types, different paths)
 - Hidden assumptions (must be declared, typed, and carried through evidence)
+- Hidden constraints (must be declared in `constraints {}`, not buried in thresholds)
 - Unnamed DSL blocks (every top-level construct must declare its nature)
+- Upward coercion without review (`assumed → observed` is a type error)
+- Pretending a consequential choice was simple (Postulate 24 — rejected alternatives must appear in receipt)
 
 ---
 
 ## Cross-Reference to Spec
 
-| Postulate | Spec chapter | PROP |
-|-----------|-------------|------|
-| 1–2 | ch1 (Identity), ch2 (Grammar) | PROP-001, PROP-014 |
-| 3 | ch9 (Temporal) | PROP-022 |
-| 4, 7, 16, 17, 19 | ch12 (Effect Surface) | PROP-035 |
-| 5 | ch9 (BiHistory) | PROP-022 |
-| 6, 20 | ch10 (Modifiers §10.5) | PROP-031, PROP-033 |
-| 8 | ch12 (receipt field) | PROP-035 |
-| 9 | ch12 (authority field) | PROP-035 |
-| 10 | ch11 (Profile System) | PROP-034 |
-| 11, 12, 13 | ch10 (observed modifier) | PROP-031 |
-| 14 | ch13 (Managed Recursion) | PROP-036+ |
-| 15 | ch12 (failure taxonomy) | PROP-035 |
-| 18 | ch10 (pure/irreversible separation) | PROP-031 |
-| 21 | ch12 (Effect Surface, all fields) | PROP-035 |
-| 22 | Gap-H (assumptions block) | TBD |
-| 23 | Gap-H (synthetic receipt type) | TBD |
+| Postulate | Spec chapter | PROP | Status |
+|-----------|-------------|------|--------|
+| 1–2 | ch1 (Identity), ch2 (Grammar) | PROP-001, PROP-014 | ✅ |
+| 3 | ch9 (Temporal) | PROP-022 | ✅ |
+| 4, 7, 16, 17, 19 | ch12 (Effect Surface) | PROP-035 | pending |
+| 5 | ch9 (BiHistory) | PROP-022 | ✅ |
+| 6, 20 | ch10 (Modifiers §10.5) | PROP-031, PROP-033 | PROP-031 ✅ |
+| 8 | ch12 (receipt field) | PROP-035 | pending |
+| 9 | ch12 (authority field) | PROP-035 | pending |
+| 10 | ch11 (Profile System) | PROP-034 | pending |
+| 11, 12, 13 | ch10 (observed modifier) | PROP-031 | ✅ |
+| 14 | ch13 (Managed Recursion) | PROP-036+ | pending |
+| 15 | ch12 (failure taxonomy) | PROP-035 | pending |
+| 18 | ch10 (pure/irreversible separation) | PROP-031 | ✅ |
+| 21 | ch12 (Effect Surface, all fields) | PROP-035 | pending |
+| 22 | Gap-H (assumptions block) | TBD | open |
+| 23 | Gap-H (synthetic receipt type) | TBD | open |
+| 24 | Gap-J (constraints block) + ch12 | TBD | open |
+| 25 | Gap-J (constraints block) | TBD | open |
+| 26 | Gap-N (audit contract/pattern) | TBD | open |
