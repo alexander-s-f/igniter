@@ -1,4 +1,4 @@
-contract IntegerWindowSum {
+observed contract IntegerWindowSum {
   in device_id: String
   stream readings: Integer
 

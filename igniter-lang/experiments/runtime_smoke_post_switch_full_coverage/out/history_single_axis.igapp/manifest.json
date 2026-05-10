@@ -1,12 +1,12 @@
 {
-  "artifact_hash": "sha256:67a41017bbbf3b16f4089520bde64d75383f3333c88d7d34fa7a83bb0b44f462",
+  "artifact_hash": "sha256:b5bd94b99784d1c1407b47df04ad16bf89e390362f63f98fd52e3d679f39b99f",
   "assembler": "igapp-assembler-proof-stage1-v0",
-  "compilation_report_ref": "compilation_report/096b47d88eccf388",
+  "compilation_report_ref": "compilation_report/a665c46ab1d6b320",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
     "TechnicianJobCountAt": {
       "contract_path": "contracts/technician_job_count_at.json",
-      "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+      "contract_ref": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d",
       "fragment_class": "temporal",
       "temporal": {
         "axes": [
@@ -35,7 +35,7 @@
     }
   },
   "contract_refs": {
-    "TechnicianJobCountAt": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572"
+    "TechnicianJobCountAt": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d"
   },
   "contracts": [
     "TechnicianJobCountAt"
@@ -60,14 +60,14 @@
   "grammar_version": "0.1.0",
   "kind": "igapp_manifest",
   "language_version": "0.1.0",
-  "program_id": "semanticir/096b47d88eccf388",
+  "program_id": "semanticir/a665c46ab1d6b320",
   "schema_descriptor": {
     "migrations": [],
     "trait_bounds": []
   },
   "schema_version": "0.1.0",
-  "semantic_ir_ref": "semanticir/096b47d88eccf388",
-  "source_hash": "sha256:096b47d88eccf388186cda7faddcfc7e2b3753ba63fea0e0b68f48afe63ed2fb",
+  "semantic_ir_ref": "semanticir/a665c46ab1d6b320",
+  "source_hash": "sha256:a665c46ab1d6b320e16f8fd630e1f593272e46171cb1b0888a6a0a556447c423",
   "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/history_type_proof/history_integer_point_access.ig",
   "warnings": []
 }

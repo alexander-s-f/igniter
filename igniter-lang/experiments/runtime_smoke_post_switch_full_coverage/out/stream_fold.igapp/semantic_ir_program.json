@@ -1,9 +1,9 @@
 {
-  "compilation_report_ref": "compilation_report/24ac47cf19b864a1",
+  "compilation_report_ref": "compilation_report/562f8bfaedb33e6c",
   "contracts": [
     {
       "contract_name": "IntegerWindowSum",
-      "contract_ref": "contract/IntegerWindowSum/sha256:97bb953bb0e7c4efab4b55de",
+      "contract_ref": "contract/IntegerWindowSum/sha256:9b53d448554ab86549a8fbc3",
       "escape_boundaries": [
         {
           "name": "stream_input",
@@ -27,6 +27,7 @@
         }
       ],
       "kind": "contract_ir",
+      "modifier": "observed",
       "nodes": [
         {
           "escape_capability": "stream_input",
@@ -91,7 +92,7 @@
   "grammar_version": "0.1.0",
   "kind": "semantic_ir_program",
   "module": null,
-  "program_id": "semanticir/24ac47cf19b864a1",
-  "source_hash": "sha256:24ac47cf19b864a19d4321e3cd37ef0a52137cb85422a2347af5af8dc6ea31ae",
+  "program_id": "semanticir/562f8bfaedb33e6c",
+  "source_hash": "sha256:562f8bfaedb33e6c39e385b138d8153015faccdb0207e5acb031e83dd49b2571",
   "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/inputs/stream_fold.ig"
 }

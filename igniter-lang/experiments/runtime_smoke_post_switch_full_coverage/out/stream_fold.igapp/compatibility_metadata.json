@@ -1,7 +1,7 @@
 {
   "canonical_artifact": "semantic_ir_program.json",
-  "canonical_semantic_ir_ref": "semanticir/24ac47cf19b864a1",
-  "compilation_report_ref": "compilation_report/24ac47cf19b864a1",
+  "canonical_semantic_ir_ref": "semanticir/562f8bfaedb33e6c",
+  "compilation_report_ref": "compilation_report/562f8bfaedb33e6c",
   "format_version": "0.1.0",
   "kind": "igapp_compatibility_metadata",
   "loader_shape": "runtime_machine_memory_proof.prop0191_direct_v0",

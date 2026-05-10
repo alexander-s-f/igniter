@@ -1,9 +1,9 @@
 {
-  "compilation_report_ref": "compilation_report/096b47d88eccf388",
+  "compilation_report_ref": "compilation_report/a665c46ab1d6b320",
   "contracts": [
     {
       "contract_name": "TechnicianJobCountAt",
-      "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+      "contract_ref": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d",
       "escape_boundaries": [
         {
           "name": "history_read",
@@ -35,6 +35,7 @@
         }
       ],
       "kind": "contract_ir",
+      "modifier": "observed",
       "nodes": [
         {
           "axis": "valid_time",
@@ -116,7 +117,7 @@
   "grammar_version": "0.1.0",
   "kind": "semantic_ir_program",
   "module": "Fixture.HistoryTypeProof",
-  "program_id": "semanticir/096b47d88eccf388",
-  "source_hash": "sha256:096b47d88eccf388186cda7faddcfc7e2b3753ba63fea0e0b68f48afe63ed2fb",
+  "program_id": "semanticir/a665c46ab1d6b320",
+  "source_hash": "sha256:a665c46ab1d6b320e16f8fd630e1f593272e46171cb1b0888a6a0a556447c423",
   "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/history_type_proof/history_integer_point_access.ig"
 }

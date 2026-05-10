@@ -175,11 +175,10 @@ module IgniterLang
 
     def contract_fragment_for(declarations, diagnostics, modifier: "pure")
       return "oof" unless diagnostics.empty?
-      return "escape" unless modifier == "pure"
       return "core" if declarations.all? { |decl| decl.fetch("fragment_class") == "core" }
       return "temporal" if declarations.any? { |decl| decl.fetch("fragment_class") == "temporal" } &&
                            declarations.none? { |decl| decl.fetch("fragment_class") == "oof" }
-      return "escape" if declarations.any? { |decl| decl.fetch("fragment_class") == "escape" } &&
+      return "escape" if (modifier != "pure" || declarations.any? { |decl| decl.fetch("fragment_class") == "escape" }) &&
                          declarations.none? { |decl| decl.fetch("fragment_class") == "oof" }
 
       "oof"

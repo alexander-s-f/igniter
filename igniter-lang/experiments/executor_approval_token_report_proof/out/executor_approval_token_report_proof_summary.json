@@ -13,9 +13,9 @@
   },
   "context": {
     "artifact_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/executor_approval_token_report_proof/out/history_single_axis.igapp",
-    "artifact_ref": "igapp/sha256:67a41017bbbf3b16f4089520bde64d75383f3333c88d7d34fa7a83bb0b44f462",
+    "artifact_ref": "igapp/sha256:b5bd94b99784d1c1407b47df04ad16bf89e390362f63f98fd52e3d679f39b99f",
     "contract_id": "TechnicianJobCountAt",
-    "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+    "contract_ref": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d",
     "required_capabilities": [
       "history_read"
     ],

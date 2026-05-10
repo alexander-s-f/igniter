@@ -1,6 +1,6 @@
 module Fixture.TypedEmissionParity
 
-contract SparkCRMBiHistorySourceParity {
+observed contract SparkCRMBiHistorySourceParity {
   input technician_id: String
   input valid_time: DateTime
   input transaction_time: DateTime

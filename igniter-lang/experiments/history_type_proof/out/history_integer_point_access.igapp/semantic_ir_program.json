@@ -1,5 +1,5 @@
 {
-  "compilation_report_ref": "compilation_report/history/096b47d88eccf388",
+  "compilation_report_ref": "compilation_report/history/a665c46ab1d6b320",
   "contracts": [
     {
       "contract_name": "TechnicianJobCountAt",
@@ -85,8 +85,8 @@
   "format_version": "0.1.0",
   "kind": "semantic_ir_program",
   "module": "Fixture.HistoryTypeProof",
-  "program_id": "semanticir/history/096b47d88eccf388",
-  "source_hash": "sha256:096b47d88eccf388186cda7faddcfc7e2b3753ba63fea0e0b68f48afe63ed2fb",
+  "program_id": "semanticir/history/a665c46ab1d6b320",
+  "source_hash": "sha256:a665c46ab1d6b320e16f8fd630e1f593272e46171cb1b0888a6a0a556447c423",
   "source_path": "igniter-lang/experiments/history_type_proof/history_integer_point_access.ig",
-  "typecheck_ref": "typed_program/255a11bf9e45377e"
+  "typecheck_ref": "typed_program/0db5ec0d2bb0359f"
 }

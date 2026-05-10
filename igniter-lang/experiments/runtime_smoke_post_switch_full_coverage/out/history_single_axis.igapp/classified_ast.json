@@ -1,5 +1,5 @@
 {
-  "compilation_report_ref": "compilation_report/096b47d88eccf388",
+  "compilation_report_ref": "compilation_report/a665c46ab1d6b320",
   "contracts": [
     "TechnicianJobCountAt"
   ],
@@ -11,8 +11,8 @@
   ],
   "oof_count": 0,
   "pass_result": "ok",
-  "program_id": "semanticir/096b47d88eccf388",
-  "semantic_ir_ref": "semanticir/096b47d88eccf388",
-  "source_hash": "sha256:096b47d88eccf388186cda7faddcfc7e2b3753ba63fea0e0b68f48afe63ed2fb",
+  "program_id": "semanticir/a665c46ab1d6b320",
+  "semantic_ir_ref": "semanticir/a665c46ab1d6b320",
+  "source_hash": "sha256:a665c46ab1d6b320e16f8fd630e1f593272e46171cb1b0888a6a0a556447c423",
   "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/history_type_proof/history_integer_point_access.ig"
 }

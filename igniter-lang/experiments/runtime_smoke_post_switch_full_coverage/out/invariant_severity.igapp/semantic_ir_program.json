@@ -3,7 +3,7 @@
   "contracts": [
     {
       "contract_name": "DrugOrderGate",
-      "contract_ref": "contract/DrugOrderGate/sha256:bbe9a3e5b52a8cde191edab0",
+      "contract_ref": "contract/DrugOrderGate/sha256:286c14ba16aa97c94725c3b0",
       "escape_boundaries": [],
       "fragment_class": "core",
       "inputs": [
@@ -25,6 +25,7 @@
         }
       ],
       "kind": "contract_ir",
+      "modifier": "pure",
       "nodes": [
         {
           "deps": [

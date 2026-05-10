@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:fc8ffd3f5b56db58ae864db7f25737b3b872d609f5b63e64ac6c8008745be4a8",
+  "artifact_hash": "sha256:c3cb6a6f21fabff441966f6ed9e3ce67b82f0847e7264e8005cc1e5a86b9b2df",
   "compute_nodes": [],
   "contract_id": "SparkCRMBiHistorySourceParity",
   "escape_set": [
@@ -44,7 +44,7 @@
       "type_tag": "Option[String]"
     }
   ],
-  "source_contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+  "source_contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:6fdfb064ad6bd736bf006bbc",
   "temporal_nodes": [
     {
       "axis": "bitemporal",

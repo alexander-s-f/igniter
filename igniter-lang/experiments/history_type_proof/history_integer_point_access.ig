@@ -1,6 +1,6 @@
 module Fixture.HistoryTypeProof
 
-contract TechnicianJobCountAt {
+observed contract TechnicianJobCountAt {
   input technician_id: String
   input as_of: DateTime
 

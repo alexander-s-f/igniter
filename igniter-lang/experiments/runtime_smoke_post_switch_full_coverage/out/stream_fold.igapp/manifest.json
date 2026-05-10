@@ -1,17 +1,17 @@
 {
-  "artifact_hash": "sha256:0423bb20b23b6e31c567f980035c1feb90f6166b16bbe39e44d7af84685a920a",
+  "artifact_hash": "sha256:0ed9919235decaebc36c704fd0d88bf4a7ff157e7d9e08630653d4379704fb96",
   "assembler": "igapp-assembler-proof-stage1-v0",
-  "compilation_report_ref": "compilation_report/24ac47cf19b864a1",
+  "compilation_report_ref": "compilation_report/562f8bfaedb33e6c",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
     "IntegerWindowSum": {
       "contract_path": "contracts/integer_window_sum.json",
-      "contract_ref": "contract/IntegerWindowSum/sha256:97bb953bb0e7c4efab4b55de",
+      "contract_ref": "contract/IntegerWindowSum/sha256:9b53d448554ab86549a8fbc3",
       "fragment_class": "escape"
     }
   },
   "contract_refs": {
-    "IntegerWindowSum": "contract/IntegerWindowSum/sha256:97bb953bb0e7c4efab4b55de"
+    "IntegerWindowSum": "contract/IntegerWindowSum/sha256:9b53d448554ab86549a8fbc3"
   },
   "contracts": [
     "IntegerWindowSum"
@@ -36,14 +36,14 @@
   "grammar_version": "0.1.0",
   "kind": "igapp_manifest",
   "language_version": "0.1.0",
-  "program_id": "semanticir/24ac47cf19b864a1",
+  "program_id": "semanticir/562f8bfaedb33e6c",
   "schema_descriptor": {
     "migrations": [],
     "trait_bounds": []
   },
   "schema_version": "0.1.0",
-  "semantic_ir_ref": "semanticir/24ac47cf19b864a1",
-  "source_hash": "sha256:24ac47cf19b864a19d4321e3cd37ef0a52137cb85422a2347af5af8dc6ea31ae",
+  "semantic_ir_ref": "semanticir/562f8bfaedb33e6c",
+  "source_hash": "sha256:562f8bfaedb33e6c39e385b138d8153015faccdb0207e5acb031e83dd49b2571",
   "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/inputs/stream_fold.ig",
   "warnings": []
 }

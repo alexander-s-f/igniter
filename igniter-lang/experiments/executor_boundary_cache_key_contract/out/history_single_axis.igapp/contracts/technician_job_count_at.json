@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:67a41017bbbf3b16f4089520bde64d75383f3333c88d7d34fa7a83bb0b44f462",
+  "artifact_hash": "sha256:b5bd94b99784d1c1407b47df04ad16bf89e390362f63f98fd52e3d679f39b99f",
   "compute_nodes": [],
   "contract_id": "TechnicianJobCountAt",
   "escape_set": [
@@ -38,7 +38,7 @@
       "type_tag": "Option[Integer]"
     }
   ],
-  "source_contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+  "source_contract_ref": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d",
   "temporal_nodes": [
     {
       "axis": "valid_time",

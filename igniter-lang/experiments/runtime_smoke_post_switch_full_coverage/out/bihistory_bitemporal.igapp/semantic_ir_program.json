@@ -1,9 +1,9 @@
 {
-  "compilation_report_ref": "compilation_report/b6603c347619e2b6",
+  "compilation_report_ref": "compilation_report/be0323c6c60beda4",
   "contracts": [
     {
       "contract_name": "SparkCRMBiHistorySourceParity",
-      "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+      "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:6fdfb064ad6bd736bf006bbc",
       "escape_boundaries": [
         {
           "name": "bihistory_read",
@@ -43,6 +43,7 @@
         }
       ],
       "kind": "contract_ir",
+      "modifier": "observed",
       "nodes": [
         {
           "axis": "bitemporal",
@@ -128,7 +129,7 @@
   "grammar_version": "0.1.0",
   "kind": "semantic_ir_program",
   "module": "Fixture.TypedEmissionParity",
-  "program_id": "semanticir/b6603c347619e2b6",
-  "source_hash": "sha256:b6603c347619e2b67adec81d31305ed961c8736f22b2c595d6abab5d83d22772",
+  "program_id": "semanticir/be0323c6c60beda4",
+  "source_hash": "sha256:be0323c6c60beda48be46dd29bc9d01d56204c0a534f976fb593212c51a639ce",
   "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/typed_emission_main_path_parity/sparkcrm_bihistory_source.ig"
 }

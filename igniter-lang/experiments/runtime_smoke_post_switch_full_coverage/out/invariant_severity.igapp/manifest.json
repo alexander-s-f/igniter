@@ -1,17 +1,17 @@
 {
-  "artifact_hash": "sha256:51c9f76f2297238fd0f5ddd77656f03574a35e16452ce2420c610b1a302ff4dd",
+  "artifact_hash": "sha256:6a551e7af771dbb192d944e18b45c4a507610ed5e0924e7d1e1af7cda0ef4a30",
   "assembler": "igapp-assembler-proof-stage1-v0",
   "compilation_report_ref": "compilation_report/0000000000000000",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
     "DrugOrderGate": {
       "contract_path": "contracts/drug_order_gate.json",
-      "contract_ref": "contract/DrugOrderGate/sha256:bbe9a3e5b52a8cde191edab0",
+      "contract_ref": "contract/DrugOrderGate/sha256:286c14ba16aa97c94725c3b0",
       "fragment_class": "core"
     }
   },
   "contract_refs": {
-    "DrugOrderGate": "contract/DrugOrderGate/sha256:bbe9a3e5b52a8cde191edab0"
+    "DrugOrderGate": "contract/DrugOrderGate/sha256:286c14ba16aa97c94725c3b0"
   },
   "contracts": [
     "DrugOrderGate"

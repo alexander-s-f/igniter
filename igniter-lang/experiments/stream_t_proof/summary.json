@@ -308,7 +308,7 @@
     "stream_t": "ingress_flow_escape_channel_windowed_before_core_fold"
   },
   "semantic_ir_program": {
-    "compilation_report_ref": "compilation_report/bcd96b852717defc",
+    "compilation_report_ref": "compilation_report/cddc28b3c3ef5c9d",
     "contracts": [
       {
         "contract_name": "IntegerWindowSum",
@@ -401,8 +401,8 @@
     "grammar_version": "0.1.0",
     "kind": "semantic_ir_program",
     "module": "Fixture.StreamT",
-    "program_id": "semanticir/bcd96b852717defc",
-    "source_hash": "sha256:bcd96b852717defcecf4221d622a71d5859f362e654ed7f571c2a717636ac2cf",
+    "program_id": "semanticir/cddc28b3c3ef5c9d",
+    "source_hash": "sha256:cddc28b3c3ef5c9d92ac873609f614cc89862e8fb423fde80349a9030c3bab5a",
     "source_path": "experiments/stream_t_proof/stream_integer_window.ig"
   },
   "semantic_ir_report": {
@@ -411,9 +411,9 @@
     "grammar_version": "0.1.0",
     "kind": "compilation_report",
     "pass_result": "ok",
-    "program_id": "compilation_report/bcd96b852717defc",
-    "semantic_ir_ref": "semanticir/bcd96b852717defc",
-    "source_hash": "sha256:bcd96b852717defcecf4221d622a71d5859f362e654ed7f571c2a717636ac2cf",
+    "program_id": "compilation_report/cddc28b3c3ef5c9d",
+    "semantic_ir_ref": "semanticir/cddc28b3c3ef5c9d",
+    "source_hash": "sha256:cddc28b3c3ef5c9d92ac873609f614cc89862e8fb423fde80349a9030c3bab5a",
     "source_path": "experiments/stream_t_proof/stream_integer_window.ig",
     "stages": {
       "classify": "ok",

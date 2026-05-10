@@ -38,7 +38,7 @@
     "core_add": {
       "program_id": "semanticir/e9664d5446df4e46",
       "contract_id": "Add",
-      "contract_ref": "contract/Add/sha256:7379226c21b2cdcd69464bb7",
+      "contract_ref": "contract/Add/sha256:a295317f00612299f676cd02",
       "fragment": "core",
       "manifest_fragment_class": "core",
       "cache_key_schema_hint": {
@@ -55,9 +55,9 @@
       }
     },
     "history_single_axis": {
-      "program_id": "semanticir/096b47d88eccf388",
+      "program_id": "semanticir/a665c46ab1d6b320",
       "contract_id": "TechnicianJobCountAt",
-      "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+      "contract_ref": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d",
       "fragment": "temporal",
       "manifest_fragment_class": "temporal",
       "cache_key_schema_hint": {
@@ -85,9 +85,9 @@
       }
     },
     "bihistory_bitemporal": {
-      "program_id": "semanticir/b6603c347619e2b6",
+      "program_id": "semanticir/be0323c6c60beda4",
       "contract_id": "SparkCRMBiHistorySourceParity",
-      "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+      "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:6fdfb064ad6bd736bf006bbc",
       "fragment": "temporal",
       "manifest_fragment_class": "temporal",
       "cache_key_schema_hint": {
@@ -132,10 +132,10 @@
       },
       "cache_key": {
         "kind": "runtime_cache_key",
-        "key": "cache/0ab2e3824b196278",
-        "hash": "sha256:0ab2e3824b196278b451bb16f638e23ba2fc2844ae022f3aba4b02d42ddd0361",
+        "key": "cache/cf1da74f60de3ca3",
+        "hash": "sha256:cf1da74f60de3ca3bc626f16afc1886f7539f1738e8c6fcc8dabdaf2e28fcfe2",
         "material": {
-          "contract_ref": "contract/Add/sha256:7379226c21b2cdcd69464bb7",
+          "contract_ref": "contract/Add/sha256:a295317f00612299f676cd02",
           "fragment": "CORE",
           "inputs": {
             "a": 19,
@@ -148,14 +148,14 @@
       "validation": {
         "kind": "cache_key_validation",
         "status": "accepted",
-        "expected_key_hash": "sha256:0ab2e3824b196278b451bb16f638e23ba2fc2844ae022f3aba4b02d42ddd0361",
-        "requested_key_hash": "sha256:0ab2e3824b196278b451bb16f638e23ba2fc2844ae022f3aba4b02d42ddd0361",
+        "expected_key_hash": "sha256:cf1da74f60de3ca3bc626f16afc1886f7539f1738e8c6fcc8dabdaf2e28fcfe2",
+        "requested_key_hash": "sha256:cf1da74f60de3ca3bc626f16afc1886f7539f1738e8c6fcc8dabdaf2e28fcfe2",
         "cache_key": {
           "kind": "runtime_cache_key",
-          "key": "cache/0ab2e3824b196278",
-          "hash": "sha256:0ab2e3824b196278b451bb16f638e23ba2fc2844ae022f3aba4b02d42ddd0361",
+          "key": "cache/cf1da74f60de3ca3",
+          "hash": "sha256:cf1da74f60de3ca3bc626f16afc1886f7539f1738e8c6fcc8dabdaf2e28fcfe2",
           "material": {
-            "contract_ref": "contract/Add/sha256:7379226c21b2cdcd69464bb7",
+            "contract_ref": "contract/Add/sha256:a295317f00612299f676cd02",
             "fragment": "CORE",
             "inputs": {
               "a": 19,
@@ -187,11 +187,11 @@
       },
       "temporal_key": {
         "kind": "runtime_cache_key",
-        "key": "cache/4ef3d6b065c6a43f",
-        "hash": "sha256:4ef3d6b065c6a43ffc1babcea19eb24a020fc46b9f23fff1fc1e9c24d02879c1",
+        "key": "cache/1df909e86162ee8a",
+        "hash": "sha256:1df909e86162ee8ae3ed6937bf78d38d274b0950eb9bb5a0543cf340647f3dd6",
         "material": {
           "axis": "valid_time",
-          "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+          "contract_ref": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d",
           "fragment": "TEMPORAL",
           "inputs": {
             "technician_id": "tech-1"
@@ -209,11 +209,11 @@
       },
       "second_temporal_key": {
         "kind": "runtime_cache_key",
-        "key": "cache/a2462c5fbf8f6a7c",
-        "hash": "sha256:a2462c5fbf8f6a7c5e376c9dc808d7104e6d8416a8bc2b4621994ca565a9ffea",
+        "key": "cache/b86d24ed545b918a",
+        "hash": "sha256:b86d24ed545b918adfe6d0b5813c4f8ec479bb769ef35e671fe3438ffd4de50d",
         "material": {
           "axis": "valid_time",
-          "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+          "contract_ref": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d",
           "fragment": "TEMPORAL",
           "inputs": {
             "technician_id": "tech-1"
@@ -231,10 +231,10 @@
       },
       "core_shaped_key_attempt": {
         "kind": "runtime_cache_key",
-        "key": "cache/e9ec37002511ed42",
-        "hash": "sha256:e9ec37002511ed428087df1063a62673c92cfa6589b3ec07faad5f30b91fad78",
+        "key": "cache/e0cec1efafade85c",
+        "hash": "sha256:e0cec1efafade85ceef2c93f99f92e0e67c5cac908c93b284603764a78755742",
         "material": {
-          "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+          "contract_ref": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d",
           "fragment": "CORE",
           "inputs": {
             "technician_id": "tech-1"
@@ -246,15 +246,15 @@
       "accepted_temporal_key": {
         "kind": "cache_key_validation",
         "status": "accepted",
-        "expected_key_hash": "sha256:4ef3d6b065c6a43ffc1babcea19eb24a020fc46b9f23fff1fc1e9c24d02879c1",
-        "requested_key_hash": "sha256:4ef3d6b065c6a43ffc1babcea19eb24a020fc46b9f23fff1fc1e9c24d02879c1",
+        "expected_key_hash": "sha256:1df909e86162ee8ae3ed6937bf78d38d274b0950eb9bb5a0543cf340647f3dd6",
+        "requested_key_hash": "sha256:1df909e86162ee8ae3ed6937bf78d38d274b0950eb9bb5a0543cf340647f3dd6",
         "cache_key": {
           "kind": "runtime_cache_key",
-          "key": "cache/4ef3d6b065c6a43f",
-          "hash": "sha256:4ef3d6b065c6a43ffc1babcea19eb24a020fc46b9f23fff1fc1e9c24d02879c1",
+          "key": "cache/1df909e86162ee8a",
+          "hash": "sha256:1df909e86162ee8ae3ed6937bf78d38d274b0950eb9bb5a0543cf340647f3dd6",
           "material": {
             "axis": "valid_time",
-            "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+            "contract_ref": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d",
             "fragment": "TEMPORAL",
             "inputs": {
               "technician_id": "tech-1"
@@ -278,13 +278,13 @@
         "reason_code": "executor.cache_key_schema_mismatch",
         "message": "executor boundary rejected CORE cache key for TEMPORAL contract",
         "contract_id": "TechnicianJobCountAt",
-        "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+        "contract_ref": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d",
         "requested_key": {
           "kind": "runtime_cache_key",
-          "key": "cache/e9ec37002511ed42",
-          "hash": "sha256:e9ec37002511ed428087df1063a62673c92cfa6589b3ec07faad5f30b91fad78",
+          "key": "cache/e0cec1efafade85c",
+          "hash": "sha256:e0cec1efafade85ceef2c93f99f92e0e67c5cac908c93b284603764a78755742",
           "material": {
-            "contract_ref": "contract/TechnicianJobCountAt/sha256:8fe50f919712a4313c3c0572",
+            "contract_ref": "contract/TechnicianJobCountAt/sha256:6a8b74776e2fc30f121a5f7d",
             "fragment": "CORE",
             "inputs": {
               "technician_id": "tech-1"
@@ -324,11 +324,11 @@
       },
       "temporal_key": {
         "kind": "runtime_cache_key",
-        "key": "cache/761fc7190a7375d5",
-        "hash": "sha256:761fc7190a7375d55aa9093e84d1c035348560232550e77960e78bad2c23c211",
+        "key": "cache/4609dc26f9c25043",
+        "hash": "sha256:4609dc26f9c25043438def832f1fc097b23fef762d7fce23a5abddab9f284c0b",
         "material": {
           "axis": "bitemporal",
-          "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+          "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:6fdfb064ad6bd736bf006bbc",
           "fragment": "TEMPORAL",
           "inputs": {
             "technician_id": "tech-17"
@@ -351,11 +351,11 @@
       },
       "second_temporal_key": {
         "kind": "runtime_cache_key",
-        "key": "cache/8dce7234084e7bde",
-        "hash": "sha256:8dce7234084e7bde0a57ebe8c269f05213b81eb881a7b0adb2fec45c5c160090",
+        "key": "cache/c94387d459544e7e",
+        "hash": "sha256:c94387d459544e7e027635b61522587f5910568431ae87567e0d6f3c6e7c1fd2",
         "material": {
           "axis": "bitemporal",
-          "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+          "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:6fdfb064ad6bd736bf006bbc",
           "fragment": "TEMPORAL",
           "inputs": {
             "technician_id": "tech-17"
@@ -378,10 +378,10 @@
       },
       "core_shaped_key_attempt": {
         "kind": "runtime_cache_key",
-        "key": "cache/d73b5053120fafba",
-        "hash": "sha256:d73b5053120fafba053abad20216ee35895def22818f087ecb41adb70c1534de",
+        "key": "cache/37b40cf6bff921a9",
+        "hash": "sha256:37b40cf6bff921a999b9a5ebb0d977a4f1b7c458695a815a747d8749f096ac20",
         "material": {
-          "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+          "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:6fdfb064ad6bd736bf006bbc",
           "fragment": "CORE",
           "inputs": {
             "technician_id": "tech-17"
@@ -393,15 +393,15 @@
       "accepted_temporal_key": {
         "kind": "cache_key_validation",
         "status": "accepted",
-        "expected_key_hash": "sha256:761fc7190a7375d55aa9093e84d1c035348560232550e77960e78bad2c23c211",
-        "requested_key_hash": "sha256:761fc7190a7375d55aa9093e84d1c035348560232550e77960e78bad2c23c211",
+        "expected_key_hash": "sha256:4609dc26f9c25043438def832f1fc097b23fef762d7fce23a5abddab9f284c0b",
+        "requested_key_hash": "sha256:4609dc26f9c25043438def832f1fc097b23fef762d7fce23a5abddab9f284c0b",
         "cache_key": {
           "kind": "runtime_cache_key",
-          "key": "cache/761fc7190a7375d5",
-          "hash": "sha256:761fc7190a7375d55aa9093e84d1c035348560232550e77960e78bad2c23c211",
+          "key": "cache/4609dc26f9c25043",
+          "hash": "sha256:4609dc26f9c25043438def832f1fc097b23fef762d7fce23a5abddab9f284c0b",
           "material": {
             "axis": "bitemporal",
-            "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+            "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:6fdfb064ad6bd736bf006bbc",
             "fragment": "TEMPORAL",
             "inputs": {
               "technician_id": "tech-17"
@@ -430,13 +430,13 @@
         "reason_code": "executor.cache_key_schema_mismatch",
         "message": "executor boundary rejected CORE cache key for TEMPORAL contract",
         "contract_id": "SparkCRMBiHistorySourceParity",
-        "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+        "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:6fdfb064ad6bd736bf006bbc",
         "requested_key": {
           "kind": "runtime_cache_key",
-          "key": "cache/d73b5053120fafba",
-          "hash": "sha256:d73b5053120fafba053abad20216ee35895def22818f087ecb41adb70c1534de",
+          "key": "cache/37b40cf6bff921a9",
+          "hash": "sha256:37b40cf6bff921a999b9a5ebb0d977a4f1b7c458695a815a747d8749f096ac20",
           "material": {
-            "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:5dd3ef1459bdc96f811ff730",
+            "contract_ref": "contract/SparkCRMBiHistorySourceParity/sha256:6fdfb064ad6bd736bf006bbc",
             "fragment": "CORE",
             "inputs": {
               "technician_id": "tech-17"

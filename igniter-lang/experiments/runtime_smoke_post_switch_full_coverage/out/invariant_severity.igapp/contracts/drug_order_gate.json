@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:51c9f76f2297238fd0f5ddd77656f03574a35e16452ce2420c610b1a302ff4dd",
+  "artifact_hash": "sha256:6a551e7af771dbb192d944e18b45c4a507610ed5e0924e7d1e1af7cda0ef4a30",
   "compute_nodes": [
     {
       "dependencies": [
@@ -45,7 +45,7 @@
       "type_tag": "Bool"
     }
   ],
-  "source_contract_ref": "contract/DrugOrderGate/sha256:bbe9a3e5b52a8cde191edab0",
+  "source_contract_ref": "contract/DrugOrderGate/sha256:286c14ba16aa97c94725c3b0",
   "type_signature": {
     "inputs": {
       "has_warning": "Bool",

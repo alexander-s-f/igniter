@@ -25,7 +25,7 @@ module RuntimeSmokePostSwitchFullCoverage
   INVARIANT_TYPED_FIXTURE = LANG_ROOT / "experiments/typechecker_proof/golden/invariant_severity_valid.typed.json"
 
   STREAM_SOURCE = <<~IGNITER
-    contract IntegerWindowSum {
+    observed contract IntegerWindowSum {
       input device_id: String
       stream readings: Integer
 

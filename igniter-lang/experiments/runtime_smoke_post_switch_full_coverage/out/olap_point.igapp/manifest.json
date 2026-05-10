@@ -1,17 +1,17 @@
 {
-  "artifact_hash": "sha256:730040012371cbed2509a43039050a7881ca31f625dd2101fbf20bf99eb33130",
+  "artifact_hash": "sha256:07664dc60e8dc0952c51d6e8bcac0a78f3a3b7b518d1c79bbc300a0e418aaf6b",
   "assembler": "igapp-assembler-proof-stage1-v0",
   "compilation_report_ref": "compilation_report/a6e15b10f5610279",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
     "RegionalDailyRevenuePoint": {
       "contract_path": "contracts/regional_daily_revenue_point.json",
-      "contract_ref": "contract/RegionalDailyRevenuePoint/sha256:9960ce0b199bb8bf26d38648",
+      "contract_ref": "contract/RegionalDailyRevenuePoint/sha256:51aadce3a54da5dbdb3192c5",
       "fragment_class": "core"
     }
   },
   "contract_refs": {
-    "RegionalDailyRevenuePoint": "contract/RegionalDailyRevenuePoint/sha256:9960ce0b199bb8bf26d38648"
+    "RegionalDailyRevenuePoint": "contract/RegionalDailyRevenuePoint/sha256:51aadce3a54da5dbdb3192c5"
   },
   "contracts": [
     "RegionalDailyRevenuePoint"

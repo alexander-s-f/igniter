@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:0423bb20b23b6e31c567f980035c1feb90f6166b16bbe39e44d7af84685a920a",
+  "artifact_hash": "sha256:0ed9919235decaebc36c704fd0d88bf4a7ff157e7d9e08630653d4379704fb96",
   "compute_nodes": [],
   "contract_id": "IntegerWindowSum",
   "escape_set": [
@@ -32,7 +32,7 @@
       "type_tag": "Integer"
     }
   ],
-  "source_contract_ref": "contract/IntegerWindowSum/sha256:97bb953bb0e7c4efab4b55de",
+  "source_contract_ref": "contract/IntegerWindowSum/sha256:9b53d448554ab86549a8fbc3",
   "stream_nodes": [
     {
       "dependencies": [],
