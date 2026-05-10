@@ -1,0 +1,350 @@
+{
+  "kind": "compiler_profile_descriptor",
+  "format_version": "0.1.0",
+  "profile_spec": {
+    "kind": "compiler_profile_spec_candidate",
+    "name": "IgniterLangSelfAssemblyProfileSpec",
+    "slot_order": [
+      "core",
+      "oof_registry",
+      "fragment_registry",
+      "escape_boundary",
+      "contract_modifiers",
+      "temporal",
+      "stream",
+      "olap",
+      "invariant",
+      "assumptions",
+      "evidence_observation",
+      "compiler_accountability"
+    ],
+    "required_slots": [
+      "compiler_accountability",
+      "core",
+      "escape_boundary",
+      "fragment_registry",
+      "oof_registry"
+    ],
+    "optional_slots": [
+      "assumptions",
+      "contract_modifiers",
+      "evidence_observation",
+      "invariant",
+      "olap",
+      "stream",
+      "temporal"
+    ]
+  },
+  "profile_source": {
+    "kind": "hypothetical_igniter_lang_profile_source",
+    "format_version": "0.1.0",
+    "parser_status": "not_implemented_descriptor_only",
+    "canonical_source_digest": "sha256:ee6d42bce2941f55a08e1976c2ffc769d63b7f5123ac786799ce11a87451e92f"
+  },
+  "pack_descriptors": [
+    {
+      "slot": "core",
+      "name": "CoreLanguagePack",
+      "implementation_id": "core_language.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "core_language"
+      ],
+      "requires_slots": [],
+      "registries": {
+        "parser_rules": [
+          "core.compute",
+          "core.contract",
+          "core.input",
+          "core.output"
+        ],
+        "classifier_rules": [
+          "core.core_fragment_default"
+        ],
+        "typechecker_rules": [
+          "core.contract_io",
+          "core.value_types"
+        ],
+        "semanticir_handlers": [
+          "core.compute_node",
+          "core.contract_node"
+        ],
+        "assembler_hooks": [
+          "core.contract_index"
+        ],
+        "fragment_classes": [
+          "core"
+        ]
+      }
+    },
+    {
+      "slot": "oof_registry",
+      "name": "OOFRegistry",
+      "implementation_id": "oof_registry.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "oof_registry"
+      ],
+      "requires_slots": [],
+      "registries": {
+        "oof_descriptors": [
+          "assembler_oof",
+          "classifier_oof",
+          "parser_oof",
+          "runtime_oof",
+          "typechecker_oof"
+        ]
+      }
+    },
+    {
+      "slot": "fragment_registry",
+      "name": "FragmentRegistry",
+      "implementation_id": "fragment_registry.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "fragment_registry"
+      ],
+      "requires_slots": [],
+      "registries": {
+        "fragment_classes": [
+          "core",
+          "epistemic",
+          "escape",
+          "oof",
+          "stream",
+          "temporal"
+        ]
+      }
+    },
+    {
+      "slot": "escape_boundary",
+      "name": "EscapeBoundaryPack",
+      "implementation_id": "escape_boundary.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "escape_boundary"
+      ],
+      "requires_slots": [
+        "core",
+        "fragment_registry",
+        "oof_registry"
+      ],
+      "registries": {
+        "classifier_rules": [
+          "escape.detect_escape_boundary"
+        ],
+        "semanticir_handlers": [
+          "escape.escape_boundary_node"
+        ],
+        "assembler_hooks": [
+          "escape.requirements_from_boundaries"
+        ]
+      }
+    },
+    {
+      "slot": "contract_modifiers",
+      "name": "ContractModifiersPack",
+      "implementation_id": "contract_modifiers.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "contract_modifiers"
+      ],
+      "requires_slots": [
+        "core"
+      ],
+      "registries": {
+        "parser_rules": [
+          "contract_modifiers.assume",
+          "contract_modifiers.observe"
+        ],
+        "classifier_rules": [
+          "contract_modifiers.modifier_precedence"
+        ],
+        "typechecker_rules": [
+          "contract_modifiers.modifier_allowed_shapes"
+        ],
+        "semanticir_handlers": [
+          "contract_modifiers.modifier_metadata"
+        ]
+      }
+    },
+    {
+      "slot": "temporal",
+      "name": "TemporalPack",
+      "implementation_id": "temporal.metadata_only.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "temporal"
+      ],
+      "requires_slots": [
+        "core",
+        "escape_boundary",
+        "fragment_registry"
+      ],
+      "registries": {
+        "parser_rules": [
+          "temporal.bihistory_type",
+          "temporal.history_type"
+        ],
+        "classifier_rules": [
+          "temporal.temporal_fragment_precedence"
+        ],
+        "typechecker_rules": [
+          "temporal.bitemporal_access",
+          "temporal.valid_time_access"
+        ],
+        "semanticir_handlers": [
+          "temporal.temporal_access_node"
+        ],
+        "assembler_hooks": [
+          "temporal.compatibility_guard",
+          "temporal.requirements"
+        ]
+      }
+    },
+    {
+      "slot": "stream",
+      "name": "StreamPack",
+      "implementation_id": "stream.metadata_only.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "stream"
+      ],
+      "requires_slots": [
+        "core",
+        "fragment_registry"
+      ],
+      "registries": {
+        "parser_rules": [
+          "stream.fold_stream",
+          "stream.stream_input"
+        ],
+        "semanticir_handlers": [
+          "stream.stream_node"
+        ],
+        "assembler_hooks": [
+          "stream.stream_nodes_metadata"
+        ]
+      }
+    },
+    {
+      "slot": "olap",
+      "name": "OLAPPack",
+      "implementation_id": "olap.metadata_only.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "olap_point"
+      ],
+      "requires_slots": [
+        "core",
+        "fragment_registry"
+      ],
+      "registries": {
+        "parser_rules": [
+          "olap.dims_record",
+          "olap.olap_point"
+        ],
+        "typechecker_rules": [
+          "olap.dims_shape"
+        ],
+        "semanticir_handlers": [
+          "olap.olap_point_node"
+        ]
+      }
+    },
+    {
+      "slot": "invariant",
+      "name": "InvariantPack",
+      "implementation_id": "invariant.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "invariant"
+      ],
+      "requires_slots": [
+        "core"
+      ],
+      "registries": {
+        "parser_rules": [
+          "invariant.invariant"
+        ],
+        "classifier_rules": [
+          "invariant.invariant_fragment"
+        ],
+        "semanticir_handlers": [
+          "invariant.invariant_node"
+        ]
+      }
+    },
+    {
+      "slot": "assumptions",
+      "name": "AssumptionsPack",
+      "implementation_id": "assumptions.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "assumptions"
+      ],
+      "requires_slots": [
+        "contract_modifiers"
+      ],
+      "registries": {
+        "parser_rules": [
+          "assumptions.assume"
+        ],
+        "semanticir_handlers": [
+          "assumptions.assumption_metadata"
+        ]
+      }
+    },
+    {
+      "slot": "evidence_observation",
+      "name": "EvidenceObservationPack",
+      "implementation_id": "evidence_observation.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "evidence_observation"
+      ],
+      "requires_slots": [
+        "core"
+      ],
+      "registries": {
+        "parser_rules": [
+          "evidence.observe"
+        ],
+        "semanticir_handlers": [
+          "evidence.observation_node"
+        ]
+      }
+    },
+    {
+      "slot": "compiler_accountability",
+      "name": "CompilationReceiptPack",
+      "implementation_id": "compilation_receipt.self_assembly.v0",
+      "capability_owner": true,
+      "provides_capabilities": [
+        "compilation_receipt",
+        "compiler_accountability"
+      ],
+      "requires_slots": [
+        "core"
+      ],
+      "registries": {
+        "assembler_hooks": [
+          "receipt.emit",
+          "receipt.link_compatibility_report",
+          "receipt.redact"
+        ],
+        "receipt_surfaces": [
+          "embedded_igapp_receipt",
+          "external_signed_receipt_bundle",
+          "ilk_metadata_index"
+        ]
+      }
+    }
+  ],
+  "descriptor_digest": "compiler_profile_descriptor/sha256:6ee9c9c82ee1604b98a07f75",
+  "schema_ref": {
+    "kind": "compiler_profile_descriptor_schema",
+    "format_version": "0.1.0",
+    "digest": "sha256:78572c82ce0859f5859e5aab07bf3608d1d771918676bbc20dfae9fbfc5c6677"
+  }
+}

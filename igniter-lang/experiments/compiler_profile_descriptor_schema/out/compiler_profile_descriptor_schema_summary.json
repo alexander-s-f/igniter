@@ -1,0 +1,89 @@
+{
+  "kind": "compiler_profile_descriptor_schema_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-descriptor-schema-v0",
+  "status": "PASS",
+  "schema_path": "igniter-lang/experiments/compiler_profile_descriptor_schema/out/compiler_profile_descriptor_schema.json",
+  "canonical_descriptor_path": "igniter-lang/experiments/compiler_profile_descriptor_schema/out/canonical_profile_descriptor.json",
+  "descriptor_digest": "compiler_profile_descriptor/sha256:6ee9c9c82ee1604b98a07f75",
+  "negative_results": {
+    "missing_profile_spec": {
+      "status": "rejected",
+      "code": "schema.missing_field",
+      "message": "profile_descriptor is missing fields",
+      "details": {
+        "fields": [
+          "profile_spec"
+        ]
+      }
+    },
+    "wrong_kind": {
+      "status": "rejected",
+      "code": "schema.wrong_kind",
+      "message": "wrong descriptor kind",
+      "details": {
+        "kind": "not_a_profile_descriptor"
+      }
+    },
+    "full_language_source_status": {
+      "status": "rejected",
+      "code": "schema.full_language_source_out_of_scope",
+      "message": "profile source parser status is out of scope",
+      "details": {
+        "parser_status": "full_language_parser_required"
+      }
+    },
+    "duplicate_slot": {
+      "status": "rejected",
+      "code": "schema.duplicate_slot",
+      "message": "duplicate slot",
+      "details": {
+        "slot": "temporal",
+        "first_pack": "TemporalPack",
+        "second_pack": "TemporalPackCopy"
+      }
+    },
+    "helper_only_pack": {
+      "status": "rejected",
+      "code": "schema.duplicate_slot",
+      "message": "duplicate slot",
+      "details": {
+        "slot": "compiler_accountability",
+        "first_pack": "CompilationReceiptPack",
+        "second_pack": "ParserHelpersPack"
+      }
+    },
+    "rule_owner_mismatch": {
+      "status": "rejected",
+      "code": "schema.rule_owner_mismatch",
+      "message": "rule owner mismatch",
+      "details": {
+        "rule": "core.illegal_temporal_rule",
+        "pack_slot": "temporal",
+        "expected_slot": "core"
+      }
+    }
+  },
+  "checks": {
+    "input.bootstrap_passed": true,
+    "schema.has_descriptor_kinds": true,
+    "schema.has_error_taxonomy": true,
+    "descriptor.has_digest_and_schema_ref": true,
+    "canonicalization.input_order_independent_digest": true,
+    "canonicalization.pack_order_matches_slot_order": true,
+    "bridge.future_syntax_not_authorized": true,
+    "negative.missing_profile_spec": true,
+    "negative.wrong_kind": true,
+    "negative.full_language_source_status": true,
+    "negative.duplicate_slot": true,
+    "negative.helper_only_pack": true,
+    "negative.rule_owner_mismatch": true
+  },
+  "non_goals": [
+    "No JSON Schema dependency or standardization claim.",
+    "No parser syntax authorization.",
+    "No production BootstrapDescriptorKernel extraction.",
+    "No CompilerKernel dispatch changes.",
+    "No .igapp or .ilk changes."
+  ]
+}

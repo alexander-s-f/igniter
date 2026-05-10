@@ -1,0 +1,88 @@
+{
+  "kind": "bootstrap_descriptor_kernel_summary",
+  "format_version": "0.1.0",
+  "track": "bootstrap-descriptor-kernel-v0",
+  "status": "PASS",
+  "manifest_path": "igniter-lang/experiments/bootstrap_descriptor_kernel/out/bootstrap_compiler_profile_manifest.json",
+  "profile_id": "bootstrap_compiler_profile/sha256:98222cdd7ce1497c90462165",
+  "negative_results": {
+    "missing_required_core": {
+      "status": "rejected",
+      "code": "bootstrap.missing_required_slot",
+      "message": "missing required slots",
+      "details": {
+        "slots": [
+          "core"
+        ]
+      }
+    },
+    "duplicate_temporal_slot": {
+      "status": "rejected",
+      "code": "bootstrap.duplicate_slot",
+      "message": "slot temporal filled more than once",
+      "details": {
+        "slot": "temporal",
+        "first_pack": "TemporalPack",
+        "second_pack": "TemporalPackCopy"
+      }
+    },
+    "helper_only_pack": {
+      "status": "rejected",
+      "code": "bootstrap.unknown_slot",
+      "message": "unknown slot parser_helpers",
+      "details": {
+        "slot": "parser_helpers"
+      }
+    },
+    "missing_dependency": {
+      "status": "rejected",
+      "code": "bootstrap.missing_required_slot",
+      "message": "missing required slots",
+      "details": {
+        "slots": [
+          "fragment_registry"
+        ]
+      }
+    },
+    "rule_owner_mismatch": {
+      "status": "rejected",
+      "code": "bootstrap.rule_owner_mismatch",
+      "message": "core.illegal_temporal_rule belongs to core, not temporal",
+      "details": {
+        "rule": "core.illegal_temporal_rule",
+        "pack_slot": "temporal",
+        "expected_slot": "core"
+      }
+    },
+    "full_language_source_rejected": {
+      "status": "rejected",
+      "code": "bootstrap.full_language_source_out_of_scope",
+      "message": "bootstrap kernel accepts descriptors, not full language source",
+      "details": {
+        "parser_status": "full_language_parser_required"
+      }
+    }
+  },
+  "checks": {
+    "input.self_assembly_passed": true,
+    "manifest.kind_and_frozen": true,
+    "manifest.required_slots_present": true,
+    "manifest.seed_scope_explicit": true,
+    "manifest.no_runtime_authority": true,
+    "determinism.input_order_independent_profile_id": true,
+    "negative.missing_required_core_rejected": true,
+    "negative.duplicate_temporal_rejected": true,
+    "negative.helper_only_pack_rejected": true,
+    "negative.missing_dependency_rejected": true,
+    "negative.rule_owner_mismatch_rejected": true,
+    "negative.full_language_source_rejected": true
+  },
+  "non_goals": [
+    "No production BootstrapDescriptorKernel implementation.",
+    "No self-hosted compiler implementation.",
+    "No parser support for profile syntax.",
+    "No CompilerKernel dispatch.",
+    "No .igapp or .ilk changes.",
+    "No runtime execution authority."
+  ]
+}

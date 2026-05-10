@@ -1,0 +1,78 @@
+{
+  "kind": "compiler_profile_descriptor_schema",
+  "format_version": "0.1.0",
+  "descriptor_kinds": {
+    "profile_descriptor": {
+      "required_fields": [
+        "kind",
+        "format_version",
+        "profile_spec",
+        "profile_source",
+        "pack_descriptors"
+      ],
+      "kind_value": "compiler_profile_descriptor"
+    },
+    "profile_source": {
+      "required_fields": [
+        "kind",
+        "format_version",
+        "parser_status",
+        "canonical_source_digest"
+      ],
+      "allowed_parser_status": [
+        "not_implemented_descriptor_only"
+      ]
+    },
+    "profile_spec": {
+      "required_fields": [
+        "kind",
+        "name",
+        "slot_order",
+        "required_slots",
+        "optional_slots"
+      ]
+    },
+    "pack_descriptor": {
+      "required_fields": [
+        "slot",
+        "name",
+        "implementation_id",
+        "capability_owner",
+        "provides_capabilities",
+        "requires_slots",
+        "registries"
+      ],
+      "capability_owner_required": true
+    }
+  },
+  "canonicalization": {
+    "hash_algorithm": "sha256",
+    "object_keys": "lexicographic",
+    "pack_descriptors": "sort_by_slot_order_then_name",
+    "array_policy": {
+      "slot_order": "preserve",
+      "required_slots": "sort",
+      "optional_slots": "sort",
+      "provides_capabilities": "sort",
+      "requires_slots": "sort",
+      "registry_entries": "sort"
+    },
+    "digest_prefix": "compiler_profile_descriptor/sha256:"
+  },
+  "error_codes": {
+    "schema.missing_field": "Required field is absent.",
+    "schema.wrong_kind": "Descriptor kind does not match schema.",
+    "schema.full_language_source_out_of_scope": "Profile source demands full language parser.",
+    "schema.unknown_slot": "Pack uses a slot not declared by profile spec.",
+    "schema.duplicate_slot": "Two packs fill the same slot.",
+    "schema.missing_required_slot": "Profile spec required slot has no pack.",
+    "schema.missing_dependency_slot": "Pack requires a missing slot.",
+    "schema.helper_only_pack_rejected": "Pack has no semantic capability ownership.",
+    "schema.rule_owner_mismatch": "Rule id prefix belongs to another semantic slot."
+  },
+  "bridge_to_future_syntax": {
+    "profile_source_syntax_authorized": false,
+    "descriptor_first": true,
+    "future_lowering_target": "compiler_profile_descriptor"
+  }
+}

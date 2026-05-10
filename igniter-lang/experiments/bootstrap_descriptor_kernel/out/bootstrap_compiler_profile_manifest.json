@@ -1,0 +1,311 @@
+{
+  "kind": "bootstrap_compiler_profile_manifest",
+  "format_version": "0.1.0",
+  "profile_spec": "IgniterLangSelfAssemblyProfileSpec",
+  "source_digest": "sha256:ee6d42bce2941f55a08e1976c2ffc769d63b7f5123ac786799ce11a87451e92f",
+  "slot_assignments": {
+    "core": {
+      "name": "CoreLanguagePack",
+      "implementation_id": "core_language.self_assembly.v0",
+      "provides_capabilities": [
+        "core_language"
+      ],
+      "requires_slots": []
+    },
+    "oof_registry": {
+      "name": "OOFRegistry",
+      "implementation_id": "oof_registry.self_assembly.v0",
+      "provides_capabilities": [
+        "oof_registry"
+      ],
+      "requires_slots": []
+    },
+    "fragment_registry": {
+      "name": "FragmentRegistry",
+      "implementation_id": "fragment_registry.self_assembly.v0",
+      "provides_capabilities": [
+        "fragment_registry"
+      ],
+      "requires_slots": []
+    },
+    "escape_boundary": {
+      "name": "EscapeBoundaryPack",
+      "implementation_id": "escape_boundary.self_assembly.v0",
+      "provides_capabilities": [
+        "escape_boundary"
+      ],
+      "requires_slots": [
+        "core",
+        "oof_registry",
+        "fragment_registry"
+      ]
+    },
+    "contract_modifiers": {
+      "name": "ContractModifiersPack",
+      "implementation_id": "contract_modifiers.self_assembly.v0",
+      "provides_capabilities": [
+        "contract_modifiers"
+      ],
+      "requires_slots": [
+        "core"
+      ]
+    },
+    "temporal": {
+      "name": "TemporalPack",
+      "implementation_id": "temporal.metadata_only.self_assembly.v0",
+      "provides_capabilities": [
+        "temporal"
+      ],
+      "requires_slots": [
+        "core",
+        "fragment_registry",
+        "escape_boundary"
+      ]
+    },
+    "stream": {
+      "name": "StreamPack",
+      "implementation_id": "stream.metadata_only.self_assembly.v0",
+      "provides_capabilities": [
+        "stream"
+      ],
+      "requires_slots": [
+        "core",
+        "fragment_registry"
+      ]
+    },
+    "olap": {
+      "name": "OLAPPack",
+      "implementation_id": "olap.metadata_only.self_assembly.v0",
+      "provides_capabilities": [
+        "olap_point"
+      ],
+      "requires_slots": [
+        "core",
+        "fragment_registry"
+      ]
+    },
+    "invariant": {
+      "name": "InvariantPack",
+      "implementation_id": "invariant.self_assembly.v0",
+      "provides_capabilities": [
+        "invariant"
+      ],
+      "requires_slots": [
+        "core"
+      ]
+    },
+    "assumptions": {
+      "name": "AssumptionsPack",
+      "implementation_id": "assumptions.self_assembly.v0",
+      "provides_capabilities": [
+        "assumptions"
+      ],
+      "requires_slots": [
+        "contract_modifiers"
+      ]
+    },
+    "evidence_observation": {
+      "name": "EvidenceObservationPack",
+      "implementation_id": "evidence_observation.self_assembly.v0",
+      "provides_capabilities": [
+        "evidence_observation"
+      ],
+      "requires_slots": [
+        "core"
+      ]
+    },
+    "compiler_accountability": {
+      "name": "CompilationReceiptPack",
+      "implementation_id": "compilation_receipt.self_assembly.v0",
+      "provides_capabilities": [
+        "compiler_accountability",
+        "compilation_receipt"
+      ],
+      "requires_slots": [
+        "core"
+      ]
+    }
+  },
+  "registries": {
+    "core": {
+      "parser_rules": [
+        "core.contract",
+        "core.input",
+        "core.output",
+        "core.compute"
+      ],
+      "classifier_rules": [
+        "core.core_fragment_default"
+      ],
+      "typechecker_rules": [
+        "core.value_types",
+        "core.contract_io"
+      ],
+      "semanticir_handlers": [
+        "core.contract_node",
+        "core.compute_node"
+      ],
+      "assembler_hooks": [
+        "core.contract_index"
+      ],
+      "fragment_classes": [
+        "core"
+      ]
+    },
+    "oof_registry": {
+      "oof_descriptors": [
+        "parser_oof",
+        "classifier_oof",
+        "typechecker_oof",
+        "assembler_oof",
+        "runtime_oof"
+      ]
+    },
+    "fragment_registry": {
+      "fragment_classes": [
+        "core",
+        "escape",
+        "temporal",
+        "stream",
+        "oof",
+        "epistemic"
+      ]
+    },
+    "escape_boundary": {
+      "classifier_rules": [
+        "escape.detect_escape_boundary"
+      ],
+      "semanticir_handlers": [
+        "escape.escape_boundary_node"
+      ],
+      "assembler_hooks": [
+        "escape.requirements_from_boundaries"
+      ]
+    },
+    "contract_modifiers": {
+      "parser_rules": [
+        "contract_modifiers.observe",
+        "contract_modifiers.assume"
+      ],
+      "classifier_rules": [
+        "contract_modifiers.modifier_precedence"
+      ],
+      "typechecker_rules": [
+        "contract_modifiers.modifier_allowed_shapes"
+      ],
+      "semanticir_handlers": [
+        "contract_modifiers.modifier_metadata"
+      ]
+    },
+    "temporal": {
+      "parser_rules": [
+        "temporal.history_type",
+        "temporal.bihistory_type"
+      ],
+      "classifier_rules": [
+        "temporal.temporal_fragment_precedence"
+      ],
+      "typechecker_rules": [
+        "temporal.valid_time_access",
+        "temporal.bitemporal_access"
+      ],
+      "semanticir_handlers": [
+        "temporal.temporal_access_node"
+      ],
+      "assembler_hooks": [
+        "temporal.requirements",
+        "temporal.compatibility_guard"
+      ]
+    },
+    "stream": {
+      "parser_rules": [
+        "stream.stream_input",
+        "stream.fold_stream"
+      ],
+      "semanticir_handlers": [
+        "stream.stream_node"
+      ],
+      "assembler_hooks": [
+        "stream.stream_nodes_metadata"
+      ]
+    },
+    "olap": {
+      "parser_rules": [
+        "olap.olap_point",
+        "olap.dims_record"
+      ],
+      "typechecker_rules": [
+        "olap.dims_shape"
+      ],
+      "semanticir_handlers": [
+        "olap.olap_point_node"
+      ]
+    },
+    "invariant": {
+      "parser_rules": [
+        "invariant.invariant"
+      ],
+      "classifier_rules": [
+        "invariant.invariant_fragment"
+      ],
+      "semanticir_handlers": [
+        "invariant.invariant_node"
+      ]
+    },
+    "assumptions": {
+      "parser_rules": [
+        "assumptions.assume"
+      ],
+      "semanticir_handlers": [
+        "assumptions.assumption_metadata"
+      ]
+    },
+    "evidence_observation": {
+      "parser_rules": [
+        "evidence.observe"
+      ],
+      "semanticir_handlers": [
+        "evidence.observation_node"
+      ]
+    },
+    "compiler_accountability": {
+      "assembler_hooks": [
+        "receipt.emit",
+        "receipt.redact",
+        "receipt.link_compatibility_report"
+      ],
+      "receipt_surfaces": [
+        "embedded_igapp_receipt",
+        "external_signed_receipt_bundle",
+        "ilk_metadata_index"
+      ]
+    }
+  },
+  "bootstrap_seed": {
+    "trusted_seed": true,
+    "responsibilities": [
+      "descriptor_load",
+      "slot_validation",
+      "dependency_validation",
+      "rule_ownership_validation",
+      "profile_freeze",
+      "profile_id_digest"
+    ],
+    "non_responsibilities": [
+      "full_language_parse",
+      "user_contract_typecheck",
+      "runtime_evaluate",
+      "ledger_or_tbackend_access",
+      "self_hosting_claim"
+    ]
+  },
+  "dispatch_mode": "descriptor_validated_no_compiler_dispatch",
+  "frozen": true,
+  "authority": {
+    "validates_descriptors": true,
+    "parses_full_language": false,
+    "self_hosted_compiler": false,
+    "runtime_execution_authority": false
+  },
+  "profile_id": "bootstrap_compiler_profile/sha256:98222cdd7ce1497c90462165"
+}
