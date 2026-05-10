@@ -107,6 +107,8 @@ Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             post-R27/R28 matrix PASS 29/29 with volatile lint first;
                             production durable audit implementation still not authorized;
                             PROP-031 contract modifiers implementation/proof PASS;
+                            R29 startup_time override design closed; proof pending;
+                            R29 Covenant/CSM governance docs landed;
                             implementation/signing execution still closed
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
@@ -279,6 +281,13 @@ Round 28 landed:
   S3-R28-X1-S: audit/PROP-031 pressure          ⚠️ found interim 26/29 blocker; superseded by later fix/rerun
   S3-R28-C4-P: values/cross-review + fixture fix ✅ temporal precedence fix; 10/10 proof surfaces PASS
   S3-R28-C3-P: post-R27/R28 regression matrix   ✅ 29/29 PASS; volatile lint first; ready for Architect review
+Round 29 landed:
+  S3-R29-C1-A: audit implementation auth        ⏳ not found/deferred; no authorization landed
+  S3-R29-C2-P: startup_time override interface  ✅ design-only; policy_ref + signed policy model; proof pending
+  S3-R29-C3-P: PROP-031 compatibility addendum  ✅ §14 + errata; doc-only; no new grammar/code
+  S3-R29-C4-P: Covenant accountability filter   ✅ Axiom 2, P27/P28, PROP Governance Filter; doc-only
+  S3-R29-C5-P: canonical semantic model         ✅ CSM index created; implemented entities have golden anchors
+  S3-R29-X1-S: auth/canon pressure              ✅ PROCEED; non-blockers only; P-28 deferred to R30
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers;
@@ -387,6 +396,10 @@ Source .ig
        PROP-031 implementation/proof              ✅ parser/classifier/typechecker/SemanticIR + contract_modifiers proof PASS
        post-R28 regression matrix                 ✅ volatile lint first; final sequential matrix 29/29 PASS
        production durable audit implementation     🚫 still not authorized; Architect review/decision required
+       startup_time override interface             ✅ R29 design-only; authority-signed policy_ref; proof pending
+       PROP-031 compatibility addendum             ✅ R29 §14 documents Stage 3 migration, OOF-M1 ownership, V-3
+       Covenant accountability governance          ✅ R29 Axiom 2, P27/P28, PROP Governance Filter; no compiler semantics
+       canonical semantic model                    ✅ R29 CSM index; golden anchors required for implemented entities
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -494,10 +507,18 @@ Production durable audit authorization:
                      implementation track. R28 closes the named design/proof blockers: compliance_posture is
                      store-bound + verification-bound (14/14 PASS), production signer rejects nil/no-op/stub/local
                      patterns (18/18 PASS), startup_time has a 24h fail-closed design bound, the design amendment
-                     landed, and the final post-R27/R28 regression matrix is 29/29 PASS. Implementation,
+                     landed, and the final post-R27/R28 regression matrix is 29/29 PASS. R29 did not land an
+                     Architect authorization decision; it safely deferred C1 and added design/governance inputs.
+                     Implementation,
                      deployment, production signing execution/key management, Ledger/Phase 2, BiHistory, stream/OLAP,
                      production cache, writes/replay/compact/subscribe, runtime registry implementation, and broader
                      `gate3_authorized` remain closed without explicit Architect authorization.
+Startup freshness override:
+                     design closed ✅ by S3-R29-C2-P. Override authority is a deployment manifest `policy_ref` plus
+                     bundled content-addressed, authority-signed freshness policy document. Direct env-var/config
+                     seconds are rejected; env var may only point to a manifest path. Allowed range is 1h..72h, with
+                     >24h requiring signed reason + expiry and >72h requiring new governance. No proof script or
+                     production validator landed; R30 proof-local validator is recommended.
 Deterministic artifact enforcement:
                      validator shipped ✅; `experiments/volatile_fields_lint/volatile_fields_lint.rb` PASSes with
                      4 annotated artifacts and 0 violations. Artifact stability survey is complete. R28 matrix
@@ -509,10 +530,19 @@ PROP-031:
                      emitter support landed; SemanticIR uses `contract_name`; OOF-M1 is detected in Classifier and
                      propagated by TypeChecker; contract_modifiers proof PASSes. No Effect Surface validation, no
                      `via profile`, no service-loop detection, no authority resolution, and no runtime enforcement.
+                     R29 adds PROP-031 §14 compatibility addendum: Stage 1/2 backward compatibility confirmed,
+                     Stage 3 `observed` migration documented, `stream` -> OOF-M1 via ESCAPE body documented,
+                     temporal precedence (V-3) documented, and OOF-M1 pipeline ownership clarified.
 Proof fixture readiness:
                      contract modifiers fixture plan was executed in R28 ✅; goldens and runner landed. Final evidence
                      records `contract_modifiers_proof` PASS in the 29-command matrix and
                      `contract_modifiers_proof --check-golden` PASS 22/22 in Agent-D cross-review.
+Covenant / CSM:
+                     R29 governance docs landed ✅. The Language Covenant now separates Honesty and Accountability,
+                     adds P27 Accountability as Architecture, P28 No Unnamed Block, and a PROP Governance Filter.
+                     The Canonical Semantic Model lives at `docs/dev/canonical-semantic-model.md`; implemented or
+                     experiment-pass entities require golden anchors, while unanchored entities remain
+                     `spec_candidate`. These are governance/context changes, not new compiler semantics.
 Reason codes:       LEGACY_ALIASES deprecation signal ✅; lib/ executor emits canonical
                      `runtime.temporal_scope_exclusion`; sealed old fixtures are not retroactively edited;
                      alias removal remains Phase 2 housekeeping.
@@ -520,8 +550,10 @@ Pre-signing remaining:
                       none for restricted Phase 1 live-read addendum; closed by S3-R20-C1-A.
 Pre-production remaining:
                       production durable audit implementation authorization; production signing/key management
-                      execution; startup_time override interface design; real commit SHA / no `workspace-current`;
-                      optional Time.now grep hook; Phase 2 addendum gaps
+                      execution; startup_time override proof-local validator; tighter-policy expiry decision;
+                      proof-local freshness authority fixture rules; V-3 temporal+observed dedicated golden;
+                      P28 enforcement gap table; META-EXPERT-013 Governance Filter reconciliation;
+                      real commit SHA / no `workspace-current`; optional Time.now grep hook; Phase 2 addendum gaps
 Runtime observations: proof-backed ✅ proof-local file persistence + tamper-evidence shape; production durable audit still open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; restricted Phase 1 eval now signed-scope only
@@ -641,20 +673,32 @@ S3-R28 result:        Durable-audit design/proof blockers and PROP-031 implement
                       fixtures and rerunning a final sequential matrix: 29/29 PASS with volatile_fields_lint first.
                       R29 should route Architect implementation-authorization review only as a decision round, plus
                       startup_time override design and PROP-031 compatibility note if those non-blockers remain desired.
+S3-R29 result:        Architect production durable audit implementation authorization did not land; this is a safe
+                      deferral, not an implicit hold release. C2 closes startup_time override interface design only:
+                      policy_ref + bundled authority-signed policy, no direct env/config seconds, no online lookup,
+                      and no proof script yet. C3 adds PROP-031 §14 compatibility addendum and errata, documenting
+                      Stage 3 migration, stream-triggered OOF-M1, V-3 temporal precedence, and Classifier->TypeChecker
+                      OOF-M1 ownership. C4 adds Covenant Axiom 2, P27/P28, and the PROP Governance Filter as
+                      governance only. C5 creates `docs/dev/canonical-semantic-model.md`; implemented entities need
+                      golden anchors and unanchored entities stay `spec_candidate`. X1 says PROCEED with non-blockers
+                      only and routes R30: Architect authorization decision, startup_time override validator,
+                      V-3 dedicated golden, P28 enforcement gap table, META-EXPERT-013 reconciliation, and PROP-032.
 ```
 
 ### Spec Freshness
 
 | Surface | Freshness | Current anchor | Remaining doc debt |
 |---------|-----------|----------------|--------------------|
-| Agent context | ✅ current S3-R22 | `docs/agent-context.md` | Keep next movement in sync after each status round |
+| Agent context | ✅ current S3-R29 | `docs/agent-context.md` | CSM read trigger added for compiler/language entity changes |
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
+| Language Covenant | ✅ R29 governance sync | `covenant-accountability-postulates-r29-v0`; `docs/language-covenant.md` | P28 enforcement gap table and META-EXPERT-013 §VI reconciliation remain follow-ups |
+| Canonical Semantic Model | ✅ R29 bootstrap | `canonical-semantic-model-bootstrap-r29-v0`; `docs/dev/canonical-semantic-model.md` | Maintain entity rows when compiler entities are added/removed; V-3 dedicated golden and loop-lane note remain follow-ups |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
 | Ch7 Runtime | ✅ synced through R17 lib boundary; R28 proof/design evidence current | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0`; `phase1-production-durable-audit-v0`; `phase1-production-registry-ownership-decision-v0`; `deterministic-regression-artifact-policy-v0`; `phase1-production-durable-audit-implementation-authorization-review-v0`; `volatile-fields-lint-and-artifact-stability-survey-v0`; `production-durable-audit-blocker-amendment-and-validation-proofs-v0`; `post-r27-regression-matrix-with-volatile-lint-v0` | R28 closes design/proof blockers and regression matrix; production audit implementation, deployment, signing execution/key management, and Phase 2 remain closed |
 | Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
-| Contract modifiers | ✅ implementation/proof S3-R28 | `PROP-031-contract-modifiers-v0`; `contract-modifiers-proof-fixture-plan-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `agent-d-cross-review-values-and-meta-cards-r28-v0` | Parser/classifier/typechecker/SemanticIR support landed with proof PASS; Effect Surface/Profile/authority/runtime enforcement still absent by design |
+| Contract modifiers | ✅ implementation/proof + R29 addendum | `PROP-031-contract-modifiers-v0`; `contract-modifiers-proof-fixture-plan-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `agent-d-cross-review-values-and-meta-cards-r28-v0`; `prop031-compatibility-addendum-r29-v0` | Parser/classifier/typechecker/SemanticIR support landed with proof PASS; §14 documents migration/OOF-M1/V-3; Effect Surface/Profile/authority/runtime enforcement still absent by design |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
 
@@ -813,6 +857,22 @@ DOC-DEBT-34  S3-R28 PROP-031 status:
              resolved. Effect Surface validation, `via profile`, authority
              resolution, service-loop checks, and runtime enforcement remain
              future proposals/work.
+DOC-DEBT-35  S3-R29 authorization status:
+             Architect production durable audit implementation authorization did
+             not land in R29. C1 deferral is safe and no unauthorized
+             implementation/deployment/signing/storage was attempted. R30 may
+             route the decision; do not infer authorization from readiness.
+DOC-DEBT-36  S3-R29 startup_time override:
+             override interface design is closed, but no proof-local validator
+             exists yet. R30 should implement the matrix, decide whether all
+             non-default policies require expiry, and specify accepted/rejected
+             proof-local authority fixture patterns.
+DOC-DEBT-37  S3-R29 Covenant/CSM follow-ups:
+             P28 is a governing commitment and not fully current enforcement.
+             Track Compiler/Grammar enforcement gap table, reconcile the PROP
+             Governance Filter with META-EXPERT-013 §VI, add V-3 dedicated
+             temporal+observed golden, and keep CSM rows synchronized with new
+             compiler entities.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -844,7 +904,8 @@ PROP-029   Entrypoint/section surface    proposal; parser/typechecker proof pend
 PROP-030   Executor approval token       proposal; Gate 3 prerequisite + Phase 1 authority check
 PROP-030A  TEMPORAL scope exclusion      proposal; runtime.temporal_scope_exclusion
 PROP-031   Contract modifiers            experiment-pass; parser/classifier/typechecker/SemanticIR
-                                         implementation + proof PASS; no Effect Surface/Profile/runtime enforcement
+                                         implementation + proof PASS; R29 §14 compatibility addendum;
+                                         no Effect Surface/Profile/runtime enforcement
 PROP-032+  Stage 3 candidates            queued by pressure review; not canon without proposal/proof
 ```
 

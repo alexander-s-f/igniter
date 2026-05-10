@@ -28,6 +28,17 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 29 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `startup-time-freshness-override-interface-v0.md` | done | Design-only override interface: constant 24h default + deployment manifest policy_ref + bundled authority-signed policy; direct env/config seconds rejected; no proof script or production implementation |
+| `prop031-compatibility-addendum-r29-v0.md` | done | PROP-031 §14 compatibility addendum + errata; documents Stage 3 migration, stream-triggered OOF-M1, temporal precedence, and Classifier→TypeChecker ownership; doc-only |
+| `covenant-accountability-postulates-r29-v0.md` | done | Covenant adds Honesty/Accountability split, P27/P28, and PROP Governance Filter; governance only, no compiler semantics |
+| `canonical-semantic-model-bootstrap-r29-v0.md` | done | Creates `../dev/canonical-semantic-model.md`; implemented/experiment-pass entities require golden anchors; unanchored entries remain `spec_candidate` |
+| `../discussions/r29-authorization-and-canon-pressure-v0.md` | complete — PROCEED (non-blockers only) | Confirms S3-R29-C1 Architect authorization did not land; no unauthorized implementation; P-24..P-27 closed; P-28 deferred to R30 |
+| `stage3-round29-status-curation-v0.md` | done | R29 status/context/index sync — this track |
+
 ## Stage 3 Round 28 Evidence
 
 | Track | Status | Notes |
@@ -492,12 +503,17 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| production durable audit implementation authorization decision | Architect review of the R28 design/proof/regression package; may authorize only a bounded implementation track if explicit decision says so | Architect Supervisor | recommended for R29 decision round |
-| startup_time override interface design | Specify whether the 24h freshness bound is constant/config/env/deployment manifest and how overrides are authorized | Research Agent / Bridge Agent | recommended before implementation auth |
-| PROP-031 compatibility addendum | Note that Stage 3 legacy fixtures with implicit-pure escape bodies required `observed` migration; Stage 1/2 compatibility remained PASS | Compiler/Grammar Expert | recommended doc note |
-| Covenant accountability postulates | Add Postulate 24, governance audit-trail filter, and no-unnamed-semantic-block postulate from Agent-D cross-review | Meta Expert | recommended for R29 |
-| canonical semantic model bootstrap | Create a compact verifiable entity index with pipeline entry, fragment class, golden anchor, PROP, and Covenant anchor | Meta Expert | recommended for R29 |
-| Gap-H / PROP-032 queue resolution | Resolve numbering conflict between queued `via profile` and Agent-D assumptions agenda before authoring the next PROP | Meta Expert / Compiler/Grammar Expert | recommended for R29 |
+| production durable audit implementation authorization decision | Architect review of R28-R29 evidence package; may authorize only a bounded implementation track if explicit decision says so | Architect Supervisor | recommended for R30 decision round; S3-R29-C1 absent/deferred |
+| startup_time override proof-local validator | Implement C2-P matrix for policy_ref + signed policy validation; include fail-closed cases and accepted/rejected proof-local authority patterns | Research Agent / Implementation Agent | recommended for R30 |
+| V-3 temporal+observed golden | Add dedicated `observed + temporal body -> fragment_class: "temporal"` proof/golden to `contract_modifiers_proof` | Compiler/Grammar Expert | recommended for R30 |
+| P28 enforcement gap table | Document currently enforced vs governing-only no-unnamed-block surfaces | Compiler/Grammar Expert | recommended for R30 |
+| PROP Governance Filter reconciliation | Reconcile Covenant PROP Governance Filter with META-EXPERT-013 §VI as normative acceptance guidance | Meta Expert | recommended for R30 |
+| PROP-032 assumptions draft | Draft Gap-H assumptions block proposal and minimum fixture plan; resolve queue conflict with current `via profile` placeholder first | Meta Expert / Compiler/Grammar Expert | recommended for R30 |
+| startup_time override interface design | Specify whether the 24h freshness bound is constant/config/env/deployment manifest and how overrides are authorized | Research Agent / Bridge Agent | done in S3-R29-C2-P; design only |
+| PROP-031 compatibility addendum | Note that Stage 3 legacy fixtures with implicit-pure escape bodies required `observed` migration; Stage 1/2 compatibility remained PASS | Compiler/Grammar Expert | done in S3-R29-C3-P |
+| Covenant accountability postulates | Add Postulate 27, Postulate 28, and governance audit-trail filter from R28 cross-review | Meta Expert | done in S3-R29-C4-P |
+| canonical semantic model bootstrap | Create a compact verifiable entity index with pipeline entry, fragment class, golden anchor, PROP, and Covenant anchor | Meta Expert | done in S3-R29-C5-P |
+| Gap-H / PROP-032 queue resolution | Resolve numbering conflict between queued `via profile` and Agent-D assumptions agenda before authoring the next PROP | Meta Expert / Compiler/Grammar Expert | still open; route before PROP-032 authoring |
 | durable audit design amendment | Record compliance_posture store-binding, signer no-op rejection, and startup-time staleness bound in `phase1-production-durable-audit-v0` | Research Agent / Bridge Agent | done in S3-R28-C1-P |
 | bounded audit validation proofs | Prove compliance_posture store-binding and signer no-op/stub rejection without implementing full durable audit | Research Agent / Implementation Agent | done in S3-R28-C1-P |
 | post-R27 full regression matrix rerun | Add `volatile_fields_lint` first; rerun prior matrix plus any new proof steps | Research Agent | done in S3-R28-C3-P; 29/29 PASS |

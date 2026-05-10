@@ -2,7 +2,7 @@
 
 Status: active current-context capsule
 Maintained by: `[Igniter-Lang Meta Expert]` in Status Curator mode
-Last updated: 2026-05-09
+Last updated: 2026-05-10
 
 ---
 
@@ -32,6 +32,18 @@ Every non-discussion slice should read, in order:
 7. assigned track/proposal/source files
 8. relevant spec chapters only when the card touches language semantics
 
+Compiler/Grammar or language-entity cards that add parser nodes, fragment
+classes, SemanticIR entities, OOF codes, or golden-backed language concepts
+should also read:
+
+```text
+igniter-lang/docs/dev/canonical-semantic-model.md
+```
+
+The CSM maintenance rule is current as of S3-R29: if a compiler entity is added
+or removed, update the CSM row; if the entity lacks a golden anchor, its status is
+at most `spec_candidate`.
+
 Read `igniter-lang/docs/value-index.md` when the card asks for strategy,
 documentation compaction, archaeology routing, applied pressure, or next-round
 planning. It is a hoisted durable-idea map, not required context for every
@@ -45,6 +57,32 @@ igniter-lang/docs/discussions/README.md
 
 Bridge/package cards should read package docs only when the card names that
 boundary.
+
+---
+
+## Current R29 Patch
+
+```text
+Production durable audit implementation authorization:
+  status: not authorized / not landed / not deployed
+  latest: S3-R29-C1 did not land; X1 says safe deferral, no unauthorized implementation
+
+R28 proof package:
+  compliance_posture proof: PASS 14/14
+  signer validation proof: PASS 18/18
+  final post-R27/R28 matrix: PASS 29/29 with volatile_fields_lint first
+
+R29 additions:
+  startup_time override interface: design-only, proof pending
+  PROP-031 §14 compatibility addendum: landed, doc-only
+  Covenant Axiom 2 + P27/P28 + PROP Governance Filter: landed, doc-only
+  Canonical Semantic Model: docs/dev/canonical-semantic-model.md, living index
+
+R30 likely route:
+  Architect authorization decision, startup_time override validator,
+  V-3 temporal+observed golden, P28 enforcement gap table,
+  META-EXPERT-013 §VI reconciliation, PROP-032 assumptions draft
+```
 
 ---
 
