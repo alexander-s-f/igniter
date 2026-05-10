@@ -1,0 +1,27 @@
+{
+  "kind": "igniter_lang_self_assembly_profile_sketch_summary",
+  "format_version": "0.1.0",
+  "track": "igniter-lang-self-assembly-profile-sketch-v0",
+  "status": "PASS",
+  "model_path": "igniter-lang/experiments/igniter_lang_self_assembly_profile_sketch/out/igniter_lang_self_assembly_profile_model.json",
+  "self_assembly_profile_id": "igniter_lang_self_assembly_profile/sha256:0fb290159ddded0e26b25424",
+  "checks": {
+    "input.preflight_passed": true,
+    "input.receipt_storage_passed": true,
+    "bootstrap.seed_is_explicit": true,
+    "profile.required_slots_present": true,
+    "profile.all_packs_are_capability_owners": true,
+    "profile.includes_compiler_accountability_pack": true,
+    "profile.temporal_variant_changes_profile_id": true,
+    "pipeline.bootstrap_before_profile_before_receipt": true,
+    "authority.not_claiming_self_hosted_implementation": true,
+    "authority.no_runtime_execution_authority": true
+  },
+  "non_goals": [
+    "No self-hosted compiler implementation.",
+    "No parser support for profile source syntax.",
+    "No CompilerKernel production code.",
+    "No .igapp or .ilk format changes.",
+    "No runtime execution authority."
+  ]
+}
