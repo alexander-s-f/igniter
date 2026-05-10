@@ -1,7 +1,7 @@
 # Spec Extension Gap Analysis
 
-Status: reference · S3-R26
-Date: 2026-05-10
+Status: reference · S3-R27
+Date: 2026-05-10 (updated 2026-05-10)
 Author: `[Igniter-Lang Meta Expert]`
 Governance: META-EXPERT-013
 
@@ -144,6 +144,131 @@ service contract Monitor(...)
 
 ---
 
+## Gap-H: `assumptions {}` Block — HIGH / Stage 3 Language Lane candidate
+
+**Source:** `social_simulation.ig` pressure specimen + interview-agent-D-2.md
+
+**Missing from impl and proposed spec:** `assumptions {}` as a top-level language
+construct. Currently used in specimen but has no grammar, no AST node, no semantics.
+
+```igniter
+assumptions {
+  assumption homophily {
+    kind :synthetic
+    statement "People with similar beliefs interact more often."
+    strength 0.70
+    evidence_note "Synthetic assumption for experiment, not a claim about reality."
+  }
+
+  assumption group_pressure {
+    kind :synthetic
+    statement "A group slowly pulls member beliefs toward its dominant norm."
+    strength 0.45
+  }
+}
+```
+
+**Nature:** Epistemic primitive — sibling of `profile`, `receipt`, `type`, not plain
+data. An assumption is:
+
+```
+Assumption = named premise + optional parameter + audit dependency
+```
+
+Three distinct representations:
+- `AssumptionRef` — compile-time reference (how it appears in `evidence [...]`)
+- `AssumptionRecord` — DTO snapshot (how it enters receipts)
+- `AssumptionSet` — module-level collection with stable hash for replay
+
+**Why core (not library):**
+1. Assumptions influence audit lineage
+2. Must be carried through receipts
+3. Must be replayable: `same code + same inputs + same assumption_hash = reproducible`
+4. Compiler must see dependency: `SimulateInteraction depends_on assumption homophily`
+5. Profile can enforce `hidden_assumptions: forbidden`
+
+**Key operations declared by this construct:**
+- `homophily.strength` — assumption field access inside contracts (typed, not a hidden global)
+- `evidence [homophily]` — include in output evidence chain
+- `current_assumptions()` — stdlib call producing current `AssumptionSet`
+- `assumption_hash()` — stable hash of the set for receipts
+
+**Impl change:** new top-level grammar production + new compiler pass (AssumptionRegistry).
+**Backward compatible:** additive. Existing programs unaffected.
+**Proposal:** TBD (candidate PROP after PROP-033)
+**Spec:** TBD (ch10 extension or new ch?)
+
+---
+
+## Gap-I: `form` Keyword — MEDIUM / Stage 3 Language Lane candidate
+
+**Source:** `social_simulation.ig` analysis — `population "Small Town Pilot" { }` has
+no declared type, no grammar anchor, no formal semantics.
+
+**Problem:** Domain-specific named struct literals appear as top-level module declarations
+but have no core primitive to back them. `population`, `groups`, `scenario`, `placement`
+all need the same pattern: a named constructor alias over a declared type.
+
+**Solution:** `form` as a core primitive — a named constructor alias:
+
+```igniter
+-- Library or module defines the type:
+type PopulationSpec {
+  name: String
+  people: Int
+  age_distribution: Map[Range[Int], Decimal]
+  traits: Map[Symbol, TraitDistribution]
+  beliefs: Map[Symbol, BeliefDistribution]
+  epistemic_kind: Symbol
+}
+
+-- Module registers the constructor alias:
+form population -> PopulationSpec
+```
+
+After that declaration, the user writes:
+
+```igniter
+population "Small Town Pilot" {
+  people 500
+  age_distribution { 18..30 => 0.25, 31..50 => 0.45, 51..80 => 0.30 }
+  epistemic_kind :synthetic
+}
+```
+
+Which is sugar for a module-level named constant of type `PopulationSpec`:
+
+```igniter
+const small_town_pilot: PopulationSpec = PopulationSpec {
+  name: "Small Town Pilot"
+  people: 500
+  ...
+}
+```
+
+**Why this matters:**
+- `form` is core; `population`, `appointment`, `part`, `vehicle` are user-defined — nothing
+  domain-specific enters the core grammar
+- The contract always types its input as `PopulationSpec`, not `population`
+- The named artifact gets a content hash, enters lineage, appears in receipts — just like
+  any other typed module-level constant
+
+**Answers the question "what type/contract accepts this as input?":**
+
+```igniter
+-- Contracts use the type, not the form name:
+pure contract GenerateInitialSociety(pop: PopulationSpec, as_of: Timestamp)
+  -> state: SocietyState
+```
+
+**Impl change:** new top-level grammar production `form-decl`; name registered in module
+namespace; no new runtime semantics (compiles to typed constant).
+**Backward compatible:** additive.
+**Proposal:** TBD (can parallel PROP-034 or follow it)
+**Spec:** TBD
+
+---
+
 ## Gap-G: Additional Constructs (not yet in proposals)
 
 | Construct | Example | Notes |
@@ -178,5 +303,100 @@ valid and are not affected by the extension.
 | 3 | PROP-033 | Gap-E (evidence) | 3 Language Lane |
 | 4 | PROP-034 | Gap-C (profile system) | 3 new Lane |
 | 5 | PROP-035 | Gap-D (effect surface) | 3 new Lane |
-| 6 | PROP-036+ | Gap-F (service loops) | 4 |
+| 6 | TBD | Gap-H (assumptions block) | 3 Language Lane candidate |
+| 7 | TBD | Gap-I (form keyword) | 3 Language Lane candidate |
+| 8 | PROP-036+ | Gap-F (service loops) | 4 |
 | — | TBD | Gap-G (view, placement) | 4+ |
+
+---
+
+## Clarifications (S3-R27)
+
+Findings from `social_simulation.ig` pressure specimen (interview-agent-D-2.md).
+These are not new gaps — they are architectural decisions that must be settled
+before downstream PROPs land.
+
+### CL-1: `recursive` is not an effect modifier
+
+**Problem:** The specimen uses `recursive contract RunSimulation` with `decreases`
+and `max_depth`. This places `recursive` in the same syntactic position as
+`pure | observed | effect | privileged | irreversible`.
+
+**Decision:** These two axes are orthogonal and must not share the same position:
+
+```
+Effect axis:  pure | observed | effect | privileged | irreversible  (PROP-031)
+Loop axis:    recursive | service                                   (ch13, Stage 4)
+```
+
+A contract can be both `pure` and `recursive` simultaneously:
+
+```igniter
+pure recursive contract Fibonacci(n: Int, fuel: Int) decreases fuel -> result: Int
+```
+
+**Action:** Add grammar note to PROP-031 §11 forbidding `recursive` as modifier.
+`recursive` and `service` are reserved for ch13 syntax, orthogonal to effect axis.
+
+---
+
+### CL-2: Profile field values — `:symbol` is canonical
+
+**Problem:** The specimen mixes two forms:
+
+```igniter
+time: explicit    -- bare identifier  ← ambiguous: variable ref or enum literal?
+lifecycle: :audit -- symbol literal   ← clear
+```
+
+**Decision:** All profile field values that are semantic categories (not strings,
+not integers) must use `:symbol` form. Bare identifiers are not valid in profile
+field position.
+
+```igniter
+-- Canonical (correct):
+profile audited_social_simulation {
+  time: :explicit
+  lifecycle: :audit
+  backend: :ledger
+  honesty: :strict
+}
+
+-- Invalid:
+profile p { time: explicit }  -- compile error: bare identifier in profile field
+```
+
+Profile field types are symbol unions:
+
+```igniter
+type TimeMode     = :explicit | :implicit | :realtime
+type LifecycleMode = :audit   | :durable  | :ephemeral
+type BackendMode  = :ledger   | :memory   | :network
+```
+
+**Action:** PROP-034 (Profile System) must specify profile field types as symbol
+unions and enforce `:symbol` literal syntax. `time: explicit` is a grammar error.
+
+---
+
+### CL-3: `now()` is forbidden in `pure` contracts
+
+**Problem:** The specimen calls `now()` inside `RunSocialSimulation` which has no
+modifier (implicit `pure`). `now()` is non-deterministic — a hidden temporal dependency.
+
+**Decision:** `now()` in a `pure` or implicit-pure contract body is OOF-M1 violation.
+Time must be an explicit input:
+
+```igniter
+-- Forbidden (OOF-M1):
+pure contract Foo { ... produced_at: now() ... }
+
+-- Correct:
+pure contract Foo(as_of: Timestamp) { ... produced_at: as_of ... }
+```
+
+`now()` is only valid in `observed`, `effect`, `privileged`, or `irreversible` contracts,
+or in the top-level orchestration call site.
+
+**Action:** Already covered by OOF-M1 in PROP-031 §5. No new PROP needed.
+Document as a specific instance: `now()` call = implicit escape dependency.

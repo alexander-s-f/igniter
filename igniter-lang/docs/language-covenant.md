@@ -161,6 +161,46 @@ If it cannot claim them, it should not act.
 
 > Declare it. Own it. Do not outsource responsibility.
 
+### Postulate 22 — Assumption Visibility
+
+Every assumption a program relies on must be declared, typed, and carried through
+its evidence chain. A system may rely on assumptions. It must not hide them.
+
+```igniter
+assumptions {
+  assumption homophily {
+    kind :synthetic
+    statement "People with similar beliefs interact more often."
+    strength 0.70
+  }
+}
+
+-- Assumptions flow through evidence:
+output interaction evidence [a, b, homophily]
+```
+
+Hidden assumptions are technical debt against truth. They accumulate inside weights,
+prompts, thresholds, and undocumented heuristics. Igniter makes them explicit.
+
+> An assumption is not a weakness. A hidden assumption is.
+
+### Postulate 23 — Synthetic World Visibility
+
+A synthetic world must identify itself as synthetic. Simulated state, generated
+populations, and modelled societies are different from observed reality. They must
+carry explicit epistemic markers that survive receipts and lineage traversal.
+
+```igniter
+receipt SimulationReceipt {
+  mode: :synthetic          -- not :observed, not :inferred
+  honesty_statement: String -- required for synthetic receipts
+  assumption_hash: String   -- hash of the AssumptionSet used
+}
+```
+
+A simulated receipt cannot be used where an observed receipt is expected.
+The type system enforces the distinction at contract boundaries.
+
 ---
 
 ## Three Doctrines
@@ -181,6 +221,8 @@ The language must not hide:
 | Irreversibility | "Just retry" | `compensation` field or `no_compensation` |
 | Ambiguity | Generic `Any` at boundary | No `Any` at contract boundaries |
 | Provenance | Output with unknown source | `output ... evidence [refs]` |
+| Assumptions | Premise buried in weights/config/threshold | `assumptions {}` block — declared, typed, hashable |
+| Synthetic world | Simulation presented as observation | `:synthetic` mode + `honesty_statement` in receipt |
 
 ### Managed Recursion Doctrine
 
@@ -208,10 +250,13 @@ compensation path, and with a complete receipt trail. It does not fail silently.
 - Hidden effects (all must be declared in modifier + Effect Surface)
 - Silent type erasure (`Any` at boundaries)
 - Implicit side effects in pure contracts
+- `now()` in a `pure` contract body (OOF-M1 — hidden temporal dependency)
 - Non-idempotent operations under automatic retry
 - Unbounded loops (every repetition has a class)
 - Simulated receipts masquerading as real (separate types)
 - `timeout` treated as `failure` (different types, different paths)
+- Hidden assumptions (must be declared, typed, and carried through evidence)
+- Unnamed DSL blocks (every top-level construct must declare its nature)
 
 ---
 
@@ -232,3 +277,5 @@ compensation path, and with a complete receipt trail. It does not fail silently.
 | 15 | ch12 (failure taxonomy) | PROP-035 |
 | 18 | ch10 (pure/irreversible separation) | PROP-031 |
 | 21 | ch12 (Effect Surface, all fields) | PROP-035 |
+| 22 | Gap-H (assumptions block) | TBD |
+| 23 | Gap-H (synthetic receipt type) | TBD |
