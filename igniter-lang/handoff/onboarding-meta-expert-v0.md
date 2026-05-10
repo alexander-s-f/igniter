@@ -37,11 +37,24 @@ Read `docs/value-index.md` for strategy, curation, or stage planning.
 
 ```text
 Stage: Stage 3 open
-Gate 3 request: drafted; HOLD pending revision
-Next controlling route: runtime-temporal-executor-gate3-request-revision-v0
-Gate approval: Architect-only; not Meta-owned
+Gate 3 Phase 1: signed-approved-restricted live read (R20)
+Phase 1 production durable audit: bounded implementation authorized by Architect decision (S3-R30-C1-A)
+Still closed: production deployment, Ledger/Phase 2, BiHistory, stream/OLAP production executor,
+              production cache, concrete HSM/KMS onboarding, broad RuntimeMachine binding
+Current route: R30 decision/proof/governance consolidation
+Gate approval: Architect-only; Meta may request/review/reroute but never approve
 Status Curator: Meta mode for round-close maps
 ```
+
+Controlling live maps:
+
+- `igniter-lang/docs/agent-context.md`
+- `igniter-lang/docs/current-status.md`
+- `igniter-lang/docs/gates/README.md`
+- `igniter-lang/docs/dev/canonical-semantic-model.md`
+
+If this onboarding card disagrees with those maps, the maps win and this card is
+stale.
 
 ---
 
@@ -78,15 +91,27 @@ Before claiming `done`:
 ## Recommended Current Slices
 
 ```text
-Track: runtime-temporal-executor-gate3-request-revision-v0
-Goal: apply X1 HOLD edits to the Gate 3 request before Architect review.
-```
-
-```text
-Mode: Status Curator
 Track: stage3-round-status-curation-v0
 Goal: close a round by updating current-status, tracks index, agent-context,
       and value-index only where durable.
+```
+
+```text
+Track: semantic-governance-heat-map-v0
+Goal: expose drift between Covenant, spec, PROP, compiler/runtime, and proof
+      anchors using the CSM and current maps.
+```
+
+```text
+Track: covenant-promise-enforcement-path-rule-v0
+Goal: make every Covenant promise declare an enforcement path:
+      enforced / planned PROP / spec_candidate / doctrine-only.
+```
+
+```text
+Track: prop032-assumptions-draft-routing-v0
+Goal: route Gap-H assumptions work as a single active Language Lane vector,
+      without opening form/loops/constraints/effect surface in parallel.
 ```
 
 ---

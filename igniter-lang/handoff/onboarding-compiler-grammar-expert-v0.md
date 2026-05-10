@@ -38,11 +38,11 @@ Do not read archives or package docs unless the card explicitly asks.
 ```text
 Stage: Stage 3 open
 Typed emission: switched to emit_typed
-PROP-028: TEMPORAL fragment/cache semantics active; runtime executor pending
-PROP-029: entrypoint/section proposal; parser/typechecker proof pending
-PROP-030: ExecutorApprovalToken proposal; report/guard proofs landed
-Gate 3 request: drafted; HOLD pending revision; no syntax authorization
-Spec-lag: Ch6 invariant metadata sync and Ch7 gate approval sync may be needed
+PROP-031: contract modifiers implemented/proven; §14 compatibility addendum landed
+Gate 3 Phase 1: signed-approved-restricted live read (R20)
+Phase 1 production durable audit: bounded implementation authorized (S3-R30-C1-A)
+Language lane focus: one active PROP vector at a time; next likely Gap-H assumptions (PROP-032)
+CSM rule: implemented/experiment-pass entities need golden anchors
 ```
 
 ---
@@ -81,20 +81,21 @@ Before claiming `done`:
 ## Recommended Current Slices
 
 ```text
-Track: spec-ch6-invariant-source-metadata-sync-v0
-Goal: document optional invariant source_metadata/source_span in Ch6 after
-      S3-R10 implementation landed.
+Track: observed-temporal-precedence-golden-v0
+Goal: add a dedicated golden proving `observed` + temporal body keeps
+      fragment_class: "temporal".
 ```
 
 ```text
-Track: entrypoint-section-parser-typechecker-v0
-Goal: only after implementation assignment/proof scope is clear, formal-check
-      PROP-029 parser/typechecker acceptance and OOF rules.
+Track: p28-unnamed-block-enforcement-gap-table-v0
+Goal: list which unnamed semantic blocks are currently enforced vs Covenant
+      commitment only.
 ```
 
 ```text
-Track: spec-ch7-gate3-approval-sync
-Goal: only if Gate 3 is approved, sync Ch7 with approval-token/runtime ordering.
+Track: prop032-assumptions-draft-v0
+Goal: draft assumptions {} as the single active Language Lane PROP; do not open
+      forms/loops/constraints/effect surface in parallel.
 ```
 
 ---

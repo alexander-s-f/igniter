@@ -38,7 +38,10 @@ Read `docs/value-index.md` when asked for strategy or durable product pressure.
 ```text
 Stage: Stage 3 open
 Primary strategic pressure: prove language/runtime utility without widening gates
-Gate 3: request drafted; HOLD pending revision
+Gate 3 Phase 1: signed-approved-restricted live read (R20)
+Phase 1 production durable audit: bounded implementation authorized (S3-R30-C1-A)
+Still closed: production deployment, Ledger/Phase 2, BiHistory, stream/OLAP production executor,
+              production cache, concrete HSM/KMS onboarding, broad RuntimeMachine binding
 Hot product domains: Spark CRM, OSINT, home-lab/mesh, tooling/FFI/MCP
 Output style: longer, less frequent, high-signal pressure maps
 ```

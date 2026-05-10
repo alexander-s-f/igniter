@@ -40,10 +40,11 @@ the assigned card names them.
 ```text
 Stage: Stage 3 open
 Production compiler path: Parser -> Classifier -> TypeChecker -> emit_typed -> Assembler
-TEMPORAL load: proof-local allowed
-TEMPORAL evaluate: closed
-Gate 3 request: drafted; HOLD pending revision
-Gate 3 live ops: closed
+Gate 3 Phase 1: signed-approved-restricted live read (R20)
+Phase 1 production durable audit: bounded implementation authorized (S3-R30-C1-A)
+Proof focus: validators, golden fixtures, regression matrices, and bounded conformance proofs
+Still closed: production deployment, Ledger/Phase 2, BiHistory, stream/OLAP production executor,
+              production cache, concrete HSM/KMS onboarding, broad RuntimeMachine binding
 ```
 
 ---
@@ -62,7 +63,7 @@ Gate 3 live ops: closed
 - round-close status curation by default
 - package integration
 - implementation inside `lib/` unless explicitly assigned
-- Gate 3 approval
+- Architect approval or bounded implementation scope
 
 ---
 
@@ -80,15 +81,15 @@ Before claiming `done`:
 ## Recommended Current Slices
 
 ```text
-Track: runtime-report-enforcement-preflight-v0
-Goal: prove production RuntimeMachine must consult composed CompatibilityReport
-      before executor/cache/TBackend entry, without opening Gate 3.
+Track: startup-time-freshness-override-validator-v0
+Goal: implement proof-local validator for signed freshness policy overrides
+      without production registry or online lookup.
 ```
 
 ```text
-Track: compatibility-report-composition-shape-v0
-Goal: compose the separate proof-local report dimensions into one proposed
-      production report shape, still report/proof-only.
+Track: post-audit-implementation-regression-matrix-v0
+Goal: rerun the full matrix after bounded audit implementation work lands,
+      with volatile_fields_lint first.
 ```
 
 ---

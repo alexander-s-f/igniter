@@ -38,10 +38,11 @@ integration slice.
 
 ```text
 Gate 2 descriptor metadata: ratified, report-only
-Gate 3 request: drafted; HOLD pending revision
-Gate 3 live operations: closed
-Ledger/TBackend: descriptor/report mapping only; no live read/write/replay
-First Gate 3 scope recommendation: History[T] valid_time read-only; BiHistory excluded
+Gate 3 Phase 1: signed-approved-restricted live read (R20)
+Phase 1 production durable audit: bounded implementation authorized (S3-R30-C1-A)
+Ledger/TBackend Phase 2: closed; real Ledger adapter/package binding requires separate Architect addendum
+Still closed: BiHistory, stream/OLAP production executor, production cache, broad RuntimeMachine binding,
+              concrete HSM/KMS onboarding, production deployment
 ```
 
 ---
@@ -78,15 +79,15 @@ Before claiming `done`:
 ## Recommended Current Slices
 
 ```text
-Track: compatibility-report-package-adoption-v0
-Goal: prepare package-side adoption request for report-only descriptor shape,
-      preserving runtime_enforced:false and no live binding.
+Track: production-durable-audit-package-boundary-map-v0
+Goal: map the bounded audit implementation touch points to package/platform
+      boundaries without authorizing Ledger, Phase 2, or deployment.
 ```
 
 ```text
-Track: gate3-ledger-adapter-phase-boundary-v0
-Goal: clarify proof-local MemoryBackend vs real Ledger-backed adapter phases
-      after Gate 3 request revision.
+Track: ledger-adapter-phase2-boundary-v0
+Goal: keep the real Ledger-backed TBackend adapter as a separate future Gate
+      addendum; do not infer it from Phase 1 audit authorization.
 ```
 
 ---

@@ -39,7 +39,10 @@ Do not read broad history unless the assigned review target requires it.
 
 ```text
 Stage: Stage 3 open
-Gate 3 request: drafted; HOLD pending revision
+Gate 3 Phase 1: signed-approved-restricted live read (R20)
+Phase 1 production durable audit: bounded implementation authorized (S3-R30-C1-A)
+Still closed: production deployment, Ledger/Phase 2, BiHistory, stream/OLAP production executor,
+              production cache, concrete HSM/KMS onboarding, broad RuntimeMachine binding
 Useful lenses: runtime-pressure, product-pressure, comprehension-pressure,
                implementation-pressure, meta-pressure
 Authority: may borrow a lens when assigned, but never Architect authority
@@ -80,9 +83,9 @@ Before claiming `done`:
 
 ```text
 Mode: discussion
-Track: gate3-request-revision-safety-pressure-v0
-Goal: after request revision, verify whether HOLD blockers were closed before
-      Architect review.
+Track: r30-durable-audit-implementation-pressure-v0
+Goal: verify bounded audit implementation work does not widen into deployment,
+      Ledger, Phase 2, production cache, or real key management.
 ```
 
 ```text

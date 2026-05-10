@@ -54,10 +54,11 @@ lib/igniter_lang/
   version.rb              VersionBump: 0.1.0.pre.stage2
 
 Open surfaces (implementation work):
-  PROP-029  entrypoint/section parser surface   proposal; parser proof OPEN
-  PROP-030  executor approval token             proposal; report/guard proofs landed; production impl CLOSED
-  Gate 3 request revision                       Meta/Gate-doc work; not Implementation-owned by default
-  invariant_persistence                         Stage 2 deferred gap; no production impl
+  Phase 1 production durable audit              bounded implementation authorized by S3-R30-C1-A
+  startup_time freshness override validator     proof-local validator needed
+  PROP-031 observed+temporal golden             proof/golden follow-up needed
+  P28 unnamed-block enforcement gap table        Compiler/Grammar-owned, not implementation by default
+  PROP-032 assumptions                          draft/proof planning next; no parser implementation yet
 ```
 
 ---
@@ -83,10 +84,11 @@ Gate: proposal-only until proof PASS. Do not update spec without proof.
 
 File: `igniter-lang/docs/proposals/PROP-030-executor-approval-token-contract-v0.md`
 
-Status: `proposal` — Gate 3 prerequisite, not authorization.
+Status: `proposal` — Gate 3 prerequisite, not broad authorization.
 S3-R10 already landed report-only token validation and proof-local guarded
-runtime enforcement. Production token validation remains closed until an
-Architect-approved Gate 3 decision explicitly assigns it.
+runtime enforcement. R20 signed restricted Phase 1 live-read scope; S3-R30-C1-A
+authorizes only bounded durable audit implementation work. Do not broaden token
+or runtime authority surfaces from this onboarding card alone.
 
 What may be needed later, after approval:
 - production `ExecutorApprovalToken` struct/class in `lib/`
@@ -94,8 +96,41 @@ What may be needed later, after approval:
 - production authority/revocation/signature integration
 - proof that valid token still cannot bypass a closed or out-of-scope gate
 
-Gate: Gate 3 remains closed. Do not implement production token validation from
-this onboarding doc alone.
+Gate: Gate 3 Phase 1 is restricted and signed; Phase 2/Ledger/BiHistory/cache
+remain closed. Do not implement production token validation beyond an explicitly
+assigned bounded track.
+
+### Phase 1 Production Durable Audit — Bounded Implementation
+
+File:
+`igniter-lang/docs/gates/phase1-production-durable-audit-implementation-authorization-decision-v0.md`
+
+Status: `approved-bounded-implementation` — implementation track authorized,
+deployment closed.
+
+Authorized implementation surfaces:
+- audit record schema validation
+- signer abstraction contract proof
+- append-only audit store interface proof
+- restart rebuild proof
+- startup freshness policy validator
+- format_version enforcement proof
+- audit traversal/reader proof
+- appender/reader role boundary proof
+- excluded-surface regression proof
+- post-implementation regression matrix
+
+Still closed:
+- production deployment
+- concrete HSM/KMS onboarding
+- production signing execution/key management
+- production authority registry implementation
+- broad RuntimeMachine binding
+- Ledger adapter / Phase 2
+- BiHistory
+- stream/OLAP production executor
+- production cache
+- general write/replay/compact/subscribe
 
 ---
 
@@ -124,16 +159,16 @@ ruby igniter-lang/experiments/production_compiler_cli/production_compiler_cli_pr
 
 ---
 
-## Entry State (as of 2026-05-09)
+## Entry State (as of 2026-05-10)
 
 ```text
 Stage 1:         CLOSED ✅
 Stage 2:         CLOSED ✅ (5 deferred gaps carried to Stage 3)
 Stage 3:         OPEN  ⏳
-Gate 3:          CLOSED 🚫 (request drafted, HOLD for two edits)
+Gate 3 Phase 1:  SIGNED-APPROVED-RESTRICTED LIVE READ ✅
+Durable audit:   BOUNDED IMPLEMENTATION AUTHORIZED ✅ (deployment closed)
 emit_typed path: SWITCHED ✅ production
-TEMPORAL load:   PROOF-LOCAL ✅
-TEMPORAL eval:   REFUSED 🚫
+TEMPORAL eval:   restricted Phase 1 only; Phase 2/Ledger/BiHistory closed
 TBackend Gate 2: RATIFIED ✅ (metadata-only, no live binding)
 Release gate:    PASS ✅ (publish not attempted)
 ```
@@ -142,39 +177,35 @@ Release gate:    PASS ✅ (publish not attempted)
 
 ## Recommended First Slice
 
-**Card candidate:** `S3-R12-C1-P`
+**Card candidate:** `S3-R30-C2-P`
 
 ```text
-Track: prop-029-entrypoint-section-parser-proof-v0
+Track: startup-time-freshness-override-validator-v0
 Agent: [Igniter-Lang Implementation Agent]
 Role:  implementation-agent
 
 Goal:
-  - Read PROP-029
-  - Write parser proof in experiments/prop029_entrypoint_section_proof/
-  - Confirm source/polymorphic_add.ig parse path still PASS as regression
-  - Return: proof PASS/FAIL + golden delta + any proposal gaps as [Q]
+  - Read startup-time-freshness-override-interface-v0 and S3-R30-C1-A
+  - Implement proof-local validator for signed freshness policies
+  - Cover default 24h, valid tighter/looser policy, hash/signature/authority/expiry/range failures
+  - Decide whether all non-default policies require expires_at and document it
 
 Acceptance:
   - proof script runs without error
-  - entrypoint/section nodes appear in ParsedProgram output
-  - golden fixture created or existing fixture updated with [D]
-  - Stage 1/2 close candidates still PASS
+  - refusal codes match R29 design
+  - no production registry, online lookup, Ledger, or HSM/KMS integration
+  - full relevant regression matrix routed after implementation
 ```
 
-Alternatively, if Gate 3 revision is assigned first:
+Alternatively, if durable audit core implementation is assigned:
 
 ```text
-Track: gate3-request-revision-authority-ref-v0
+Track: production-durable-audit-bounded-implementation-v0
 Goal:
-  - Add authority_ref to Gate 3 request decision record
-  - Make audit observation non-optional
-  - Return: revised doc + no other file changes
+  - Implement only surfaces authorized by S3-R30-C1-A
+  - Produce schema/signer/store/rebuild/reader/role/excluded-surface proofs
+  - Keep deployment, Ledger, Phase 2, concrete HSM/KMS, and broad RuntimeMachine binding closed
 ```
-
-Note: Gate 3 request revision is normally Meta/Gate ownership. Implementation
-Agent should take it only if the handoff explicitly assigns a docs-only
-implementation-support pass and names the exact gate file.
 
 ---
 
