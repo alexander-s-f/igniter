@@ -103,7 +103,10 @@ Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             deterministic artifact policy implemented;
                             R27 implementation authorization HELD;
                             volatile lint + artifact survey done;
-                            PROP-031 contract modifiers proposal + fixture plan landed;
+                            R28 durable-audit blocker amendments + bounded proofs landed;
+                            post-R27/R28 matrix PASS 29/29 with volatile lint first;
+                            production durable audit implementation still not authorized;
+                            PROP-031 contract modifiers implementation/proof PASS;
                             implementation/signing execution still closed
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
@@ -270,6 +273,12 @@ Round 27 landed:
   S3-R27-C3-P: PROP-031 contract modifiers      ✅ proposal; no parser/compiler implementation
   S3-R27-C4-P: contract modifier fixture plan   ✅ ready for implementation card; no PASS claims
   S3-R27-X1-S: audit/PROP-031 pressure          ✅ PROCEED; non-blockers only; R28 blockers routed
+Round 28 landed:
+  S3-R28-C1-P: audit blocker amendments/proofs  ✅ Blockers 1/2/3/7 closed; proofs 14/14 + 18/18 PASS
+  S3-R28-C2-P: PROP-031 implementation          ✅ parser/classifier/typechecker/SemanticIR + proof PASS
+  S3-R28-X1-S: audit/PROP-031 pressure          ⚠️ found interim 26/29 blocker; superseded by later fix/rerun
+  S3-R28-C4-P: values/cross-review + fixture fix ✅ temporal precedence fix; 10/10 proof surfaces PASS
+  S3-R28-C3-P: post-R27/R28 regression matrix   ✅ 29/29 PASS; volatile lint first; ready for Architect review
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers;
@@ -368,11 +377,16 @@ Source .ig
        registry ownership decision               ✅ S3-R26 C2 gate docs source of truth + generated index
        deterministic artifact policy             ✅ S3-R26 C3 implemented; no Gate 3 auth change
        durable audit design pressure             ✅ S3-R26 X1 PROCEED; low items routed before auth
-       durable audit implementation auth         ⏸ S3-R27 C1 HOLD; blockers remain before authorization
-       volatile fields lint/artifact survey       ✅ S3-R27 C2 PASS; lint + survey closed, matrix integration open
-       PROP-031 contract modifiers               ✅ S3-R27 C3 proposal only; no implementation/PASS
+       durable audit implementation auth         ⏸ S3-R27 HOLD; R28 evidence ready for Architect decision
+       volatile fields lint/artifact survey       ✅ S3-R27 C2 PASS; R28 matrix integration closed
+       PROP-031 contract modifiers               ✅ S3-R27 proposal/plan superseded by R28 implementation/PASS
        contract modifiers proof fixture plan      ✅ S3-R27 C4 plan only; implementation-ready, no fixtures created
        audit + PROP-031 pressure                  ✅ S3-R27 X1 PROCEED; non-blockers routed
+       durable audit blocker amendments           ✅ S3-R28 C1 closes Blockers 1/2/3/7 by design + bounded proofs
+       production durable audit bounded proofs     ✅ compliance posture 14/14 PASS; signer validation 18/18 PASS
+       PROP-031 implementation/proof              ✅ parser/classifier/typechecker/SemanticIR + contract_modifiers proof PASS
+       post-R28 regression matrix                 ✅ volatile lint first; final sequential matrix 29/29 PASS
+       production durable audit implementation     🚫 still not authorized; Architect review/decision required
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -448,9 +462,10 @@ Registry storage semantics:
                      content-addressed decision-ref verification are proven. Direct active -> superseded is blocked
                      in v0; production registry ownership/signing/key management remain open.
 Regression readiness:
-                     current Gate 3 Phase 1 matrix ✅ 25/25 PASS after R25; includes the R24 durable registry
-                     storage and observation tamper-evidence fixtures. This is readiness evidence only, not
-                     production implementation authorization.
+                     current Gate 3 Phase 1 / R28 matrix ✅ 29/29 PASS after R28; includes volatile_fields_lint
+                     as the first command, prior 25-command Phase 1 chain, Stage 1/2 regressions, C1 compliance
+                     posture + signer-validation proofs, and C2 contract-modifier proof. This is readiness
+                     evidence only, not production implementation authorization.
 Production durable audit:
                      approved for design only ✅ by S3-R25-C2-A. The next design track may specify signing
                      boundary, restart rebuild, format_version enforcement, retention/audit traversal semantics,
@@ -475,33 +490,38 @@ Deterministic artifacts:
                      byte-stable across consecutive runs; stage2 summary marks `timestamp` volatile. Lint enforcement
                      and full artifact survey remain follow-ups.
 Production durable audit authorization:
-                     HOLD ⏸ by S3-R27-C1-A. The design is review-ready, but implementation remains closed until
-                     pre-authorization blockers close and a later Architect decision explicitly authorizes a bounded
-                     implementation track. `_volatile_fields` lint and full artifact survey are closed by S3-R27-C2-P;
-                     compliance_posture store-binding, signer no-op rejection, startup freshness bound, design
-                     amendment, post-R27 regression, and updated pressure review remain open.
+                     HOLD ⏸ by S3-R27-C1-A until a later Architect decision explicitly authorizes a bounded
+                     implementation track. R28 closes the named design/proof blockers: compliance_posture is
+                     store-bound + verification-bound (14/14 PASS), production signer rejects nil/no-op/stub/local
+                     patterns (18/18 PASS), startup_time has a 24h fail-closed design bound, the design amendment
+                     landed, and the final post-R27/R28 regression matrix is 29/29 PASS. Implementation,
+                     deployment, production signing execution/key management, Ledger/Phase 2, BiHistory, stream/OLAP,
+                     production cache, writes/replay/compact/subscribe, runtime registry implementation, and broader
+                     `gate3_authorized` remain closed without explicit Architect authorization.
 Deterministic artifact enforcement:
                      validator shipped ✅; `experiments/volatile_fields_lint/volatile_fields_lint.rb` PASSes with
-                     4 annotated artifacts and 0 violations. Artifact stability survey is complete. Regression matrix
-                     integration and a grep/pre-commit check for newly-added unannotated `Time.now` remain follow-ups.
+                     4 annotated artifacts and 0 violations. Artifact stability survey is complete. R28 matrix
+                     integration is closed: volatile_fields_lint runs as step 1 in the 29-command matrix. A
+                     grep/pre-commit check for newly-added unannotated `Time.now` remains optional follow-up.
 PROP-031:
-                     contract modifiers proposal ✅; optional `pure|observed|effect|privileged|irreversible` prefix,
-                     implicit `pure` default, OOF-M1 only, no Effect Surface/Profile/authority/runtime enforcement.
-                     Status is proposal; no parser/classifier/typechecker/SemanticIR implementation has landed.
+                     contract modifiers implementation/proof ✅; optional `pure|observed|effect|privileged|irreversible`
+                     prefix, implicit `pure` default, OOF-M1 only. Parser, Classifier, TypeChecker, and SemanticIR
+                     emitter support landed; SemanticIR uses `contract_name`; OOF-M1 is detected in Classifier and
+                     propagated by TypeChecker; contract_modifiers proof PASSes. No Effect Surface validation, no
+                     `via profile`, no service-loop detection, no authority resolution, and no runtime enforcement.
 Proof fixture readiness:
-                     contract modifiers fixture plan ✅; fixture set and command matrix are ready for implementation
-                     card, but no fixtures were created and no PASS is claimed. Before goldens lock, resolve
-                     SemanticIR `contract_name` vs `name` shape and OOF-M1 pipeline stage ambiguity.
+                     contract modifiers fixture plan was executed in R28 ✅; goldens and runner landed. Final evidence
+                     records `contract_modifiers_proof` PASS in the 29-command matrix and
+                     `contract_modifiers_proof --check-golden` PASS 22/22 in Agent-D cross-review.
 Reason codes:       LEGACY_ALIASES deprecation signal ✅; lib/ executor emits canonical
                      `runtime.temporal_scope_exclusion`; sealed old fixtures are not retroactively edited;
                      alias removal remains Phase 2 housekeeping.
 Pre-signing remaining:
                       none for restricted Phase 1 live-read addendum; closed by S3-R20-C1-A.
 Pre-production remaining:
-                      production durable audit implementation authorization; signer-validation proof; compliance_posture
-                      store-identity binding proof; startup-time staleness bound; production signing/key management
-                      execution; real commit SHA / no `workspace-current`; volatile-fields matrix integration /
-                      Time.now grep hook; post-R27 full regression rerun; Phase 2 addendum gaps
+                      production durable audit implementation authorization; production signing/key management
+                      execution; startup_time override interface design; real commit SHA / no `workspace-current`;
+                      optional Time.now grep hook; Phase 2 addendum gaps
 Runtime observations: proof-backed ✅ proof-local file persistence + tamper-evidence shape; production durable audit still open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; restricted Phase 1 eval now signed-scope only
@@ -610,6 +630,17 @@ S3-R27 result:        Implementation authorization remains held while determinis
                       C4 prepares the contract modifier proof fixture plan with no fixtures/PASS claims. X1 says PROCEED
                       with non-blockers only and routes R28: durable-audit design amendment/proofs, post-R27 regression,
                       PROP-031 implementation with OOF-M1 stage + `contract_name` alignment, and volatile-field grep hook.
+S3-R28 result:        Durable-audit design/proof blockers and PROP-031 implementation evidence landed, but production
+                      durable audit implementation is still not authorized. C1 closes compliance_posture store-binding
+                      and signer rejection with bounded proofs (14/14 + 18/18 PASS), adds the 24h startup_time
+                      fail-closed design amendment, and keeps deployment/signing execution/Ledger/Phase 2/BiHistory/
+                      stream/OLAP/cache/write/replay/compact/subscribe closed. C2 implements PROP-031 across parser,
+                      classifier, typechecker, and SemanticIR; OOF-M1 stage and `contract_name` shape are machine
+                      verifiable. X1 found an intermediate 26/29 regression blocker from Stage 3 fixture migration;
+                      later Agent-D/final C3 evidence resolved it by adding `observed` to legacy temporal/stream
+                      fixtures and rerunning a final sequential matrix: 29/29 PASS with volatile_fields_lint first.
+                      R29 should route Architect implementation-authorization review only as a decision round, plus
+                      startup_time override design and PROP-031 compatibility note if those non-blockers remain desired.
 ```
 
 ### Spec Freshness
@@ -621,9 +652,9 @@ S3-R27 result:        Implementation authorization remains held while determinis
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
-| Ch7 Runtime | ✅ synced through R17 lib boundary; R27 auth hold + lint | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0`; `phase1-production-durable-audit-v0`; `phase1-production-registry-ownership-decision-v0`; `deterministic-regression-artifact-policy-v0`; `phase1-production-durable-audit-implementation-authorization-review-v0`; `volatile-fields-lint-and-artifact-stability-survey-v0` | R27 holds implementation authorization; volatile-field lint and artifact survey are closed; production audit implementation, signing execution/key management, and Phase 2 remain closed |
+| Ch7 Runtime | ✅ synced through R17 lib boundary; R28 proof/design evidence current | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0`; `phase1-production-durable-audit-v0`; `phase1-production-registry-ownership-decision-v0`; `deterministic-regression-artifact-policy-v0`; `phase1-production-durable-audit-implementation-authorization-review-v0`; `volatile-fields-lint-and-artifact-stability-survey-v0`; `production-durable-audit-blocker-amendment-and-validation-proofs-v0`; `post-r27-regression-matrix-with-volatile-lint-v0` | R28 closes design/proof blockers and regression matrix; production audit implementation, deployment, signing execution/key management, and Phase 2 remain closed |
 | Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
-| Contract modifiers | ✅ proposal S3-R27 | `PROP-031-contract-modifiers-v0`; `contract-modifiers-proof-fixture-plan-v0` | Proposal only; parser/classifier/typechecker/SemanticIR implementation and proof fixtures not landed |
+| Contract modifiers | ✅ implementation/proof S3-R28 | `PROP-031-contract-modifiers-v0`; `contract-modifiers-proof-fixture-plan-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `agent-d-cross-review-values-and-meta-cards-r28-v0` | Parser/classifier/typechecker/SemanticIR support landed with proof PASS; Effect Surface/Profile/authority/runtime enforcement still absent by design |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
 
@@ -762,17 +793,26 @@ DOC-DEBT-30  S3-R26 R27 carry:
              survey, post-R26 full regression rerun, and registry implementation
              planning under the registry authorization gate.
 DOC-DEBT-31  S3-R27 audit authorization status:
-             production durable audit implementation authorization is HELD by
-             S3-R27-C1-A. Lint/survey blockers are closed by S3-R27-C2-P, but
-             compliance_posture store-binding, signer no-op rejection,
-             startup freshness bound, design amendment, post-R27 regression,
-             and updated pressure review remain before authorization.
+             production durable audit implementation authorization was HELD by
+             S3-R27-C1-A. R28 later closed the named design/proof/regression
+             blockers, but did not itself authorize implementation.
 DOC-DEBT-32  S3-R27 PROP-031 status:
-             PROP-031 contract modifiers is proposal-only. C4 fixture plan is
-             ready for implementation card, but no parser/compiler changes,
-             no fixtures, and no PASS claims exist. Implementation must resolve
-             OOF-M1 stage ambiguity and `contract_name` vs `name` expected
-             SemanticIR shape before goldens are locked.
+             PROP-031 was proposal-only at R27 close. R28 supersedes that state:
+             implementation/proof landed, with OOF-M1 stage and `contract_name`
+             SemanticIR shape resolved.
+DOC-DEBT-33  S3-R28 durable audit status:
+             R28 closes the design/proof/regression evidence package for
+             implementation-authorization review: compliance posture 14/14,
+             signer validation 18/18, startup_time design amendment, and final
+             29/29 matrix PASS. It does not authorize or land production durable
+             audit implementation, production signing execution, registry
+             runtime binding, Ledger/Phase 2, or any excluded surface.
+DOC-DEBT-34  S3-R28 PROP-031 status:
+             PROP-031 implementation/proof landed for parser, classifier,
+             typechecker, and SemanticIR. OOF-M1 stage and `contract_name` are
+             resolved. Effect Surface validation, `via profile`, authority
+             resolution, service-loop checks, and runtime enforcement remain
+             future proposals/work.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -803,7 +843,8 @@ PROP-028   TEMPORAL fragment class       ⚙️ proposal + classifier/typechecke
 PROP-029   Entrypoint/section surface    proposal; parser/typechecker proof pending
 PROP-030   Executor approval token       proposal; Gate 3 prerequisite + Phase 1 authority check
 PROP-030A  TEMPORAL scope exclusion      proposal; runtime.temporal_scope_exclusion
-PROP-031   Contract modifiers            proposal; optional modifier prefix; implementation/proof pending
+PROP-031   Contract modifiers            experiment-pass; parser/classifier/typechecker/SemanticIR
+                                         implementation + proof PASS; no Effect Surface/Profile/runtime enforcement
 PROP-032+  Stage 3 candidates            queued by pressure review; not canon without proposal/proof
 ```
 
