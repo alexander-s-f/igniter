@@ -17,7 +17,10 @@ Language reference             → language-spec.md
 Operating model                → operating-model.md
 Operating scheduler            → operating-scheduler.md
 Agent orchestra pattern         → agent-orchestra-pattern.md
-Stage 1 spec (frozen)          → spec/  (ch1–ch9)
+Language spec (ch1–ch9 accepted, ch10–ch13 proposed) → spec/
+Language covenant              → language-covenant.md
+Spec extension gap analysis    → spec-extension-gap-analysis.md
+External pressure specimens    → experiments/external_pressure_specimens/
 Current scoreboard             → current-status.md
 Track index                    → tracks/README.md
 Discussion format             → discussions/README.md
