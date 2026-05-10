@@ -1,0 +1,171 @@
+{
+  "kind": "phase1_durable_observation_persistence_shape_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R23-C1-P",
+  "track": "phase1-durable-observation-persistence-shape-v0",
+  "status": "PASS",
+  "addendum": {
+    "path": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+    "status": "signed-approved-restricted-phase1-live-read",
+    "signed": true
+  },
+  "store": {
+    "path": "igniter-lang/experiments/phase1_durable_observation_persistence_shape/out/phase1_observation_store.jsonl",
+    "mode": "proof_local_file",
+    "production_durable_audit": false,
+    "production_compliance_claim": false,
+    "ledger": false
+  },
+  "persistable_shape": {
+    "kind": "phase1_observation_persistence_record",
+    "persistence_mode": "proof_local_file",
+    "fields": [
+      "temporal_live_read_observation",
+      "compatibility_report_ref",
+      "authority_ref",
+      "signed_addendum_ref",
+      "backend_identity",
+      "result"
+    ],
+    "caveat": {
+      "audit_ready": true,
+      "production_durable_audit": false,
+      "production_compliance_claim": false,
+      "ledger": false
+    }
+  },
+  "cases": {
+    "allowed_observation_persisted": {
+      "receipt": {
+        "status": "persisted",
+        "kind": "phase1_observation_persistence_receipt",
+        "record_id": "phase1/obs/a90ce4ee72effd9f1319",
+        "store_ref": "phase1_observation_store.jsonl",
+        "operation": "append_observation_record",
+        "adapter_family": "proof_local_file",
+        "production_durable_audit": false,
+        "ledger_write": false
+      },
+      "line_count_before": 0,
+      "line_count_after": 1,
+      "record": {
+        "kind": "phase1_observation_persistence_record",
+        "format_version": "0.1.0",
+        "record_id": "phase1/obs/a90ce4ee72effd9f1319",
+        "persistence_mode": "proof_local_file",
+        "persisted_at": "2026-05-10T00:00:00Z",
+        "source_envelope_kind": "audit_ready_temporal_read_envelope",
+        "source_envelope_id": "b73de0fa2f085147d54d",
+        "temporal_live_read_observation": {
+          "kind": "temporal_live_read_observation",
+          "contract_id": "HistoryAxesTest",
+          "node": "price_at",
+          "axis": "valid_time",
+          "subject": "sku/prod-001/price",
+          "as_of": "2026-05-09T12:00:00Z",
+          "result_present": true,
+          "backend_identity": {
+            "kind": "proof_local_memory_backend",
+            "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+          },
+          "backend_observation_ref": "obs/history_access/2201acce248519a5",
+          "persistence": "proof_local"
+        },
+        "compatibility_report_ref": "compat/phase1/2ee0d8d8867a4714",
+        "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+        "signed_addendum_ref": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+        "backend_identity": {
+          "kind": "proof_local_memory_backend",
+          "class_name": "IgniterLang::TemporalAccessRuntime::MemoryBackend"
+        },
+        "result": {
+          "status": "allowed",
+          "reason_code": "runtime.temporal_evaluation_ready",
+          "result_present": true
+        },
+        "caveat": {
+          "audit_ready": true,
+          "production_durable_audit": false,
+          "production_compliance_claim": false,
+          "ledger": false
+        }
+      }
+    },
+    "ledger_adapter_excluded": {
+      "refusal": {
+        "status": "blocked",
+        "kind": "phase1_observation_persistence_refusal",
+        "reason_code": "persistence.ledger_adapter_excluded",
+        "operation": "append_observation_record",
+        "adapter_family": "ledger",
+        "production_durable_audit": false,
+        "ledger_write": false
+      },
+      "line_count_before": 1,
+      "line_count_after": 1
+    },
+    "write_excluded": {
+      "refusal": {
+        "status": "blocked",
+        "kind": "phase1_observation_persistence_refusal",
+        "reason_code": "persistence.phase1_operation_excluded",
+        "operation": "write",
+        "adapter_family": "proof_local_file",
+        "production_durable_audit": false,
+        "ledger_write": false
+      },
+      "line_count_before": 1,
+      "line_count_after": 1
+    },
+    "replay_excluded": {
+      "refusal": {
+        "status": "blocked",
+        "kind": "phase1_observation_persistence_refusal",
+        "reason_code": "persistence.phase1_operation_excluded",
+        "operation": "replay",
+        "adapter_family": "proof_local_file",
+        "production_durable_audit": false,
+        "ledger_write": false
+      },
+      "line_count_before": 1,
+      "line_count_after": 1
+    },
+    "compact_excluded": {
+      "refusal": {
+        "status": "blocked",
+        "kind": "phase1_observation_persistence_refusal",
+        "reason_code": "persistence.phase1_operation_excluded",
+        "operation": "compact",
+        "adapter_family": "proof_local_file",
+        "production_durable_audit": false,
+        "ledger_write": false
+      },
+      "line_count_before": 1,
+      "line_count_after": 1
+    },
+    "subscribe_excluded": {
+      "refusal": {
+        "status": "blocked",
+        "kind": "phase1_observation_persistence_refusal",
+        "reason_code": "persistence.phase1_operation_excluded",
+        "operation": "subscribe",
+        "adapter_family": "proof_local_file",
+        "production_durable_audit": false,
+        "ledger_write": false
+      },
+      "line_count_before": 1,
+      "line_count_after": 1
+    }
+  },
+  "checks": {
+    "allowed_observation.persisted_once": true,
+    "record.minimum_shape_present": true,
+    "record.audit_ready_not_production_audit": true,
+    "ledger_adapter.excluded": true,
+    "write.excluded": true,
+    "replay.excluded": true,
+    "compact.excluded": true,
+    "subscribe.excluded": true,
+    "negative_cases.did_not_append": true
+  }
+}
