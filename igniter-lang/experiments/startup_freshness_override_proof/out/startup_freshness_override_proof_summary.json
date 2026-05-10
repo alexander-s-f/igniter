@@ -1,0 +1,324 @@
+{
+  "kind": "startup_freshness_override_proof_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R30-C2-P",
+  "track": "startup-time-freshness-override-validator-v0",
+  "startup_time": "2026-05-10T12:00:00Z",
+  "status": "PASS",
+  "total_cases": 28,
+  "cases_pass": 28,
+  "cases_fail": 0,
+  "decisions": {
+    "D1_all_non_default_require_expires_at": "All non-default policies (max_age_seconds != 86400) require expires_at. Closes C-1 from S3-R29-X1-S.",
+    "D2_format_kind_code": "format_version / kind failures use audit.registry.freshness_policy_format_invalid. New code in this proof — not in R29 design spec.",
+    "D3_direct_seconds_api_guard": "direct_override_seconds must be nil; non-nil produces audit.registry.direct_seconds_override_rejected."
+  },
+  "cases": {
+    "default_no_policy": {
+      "expected_decision": "accepted",
+      "expected_code": "audit.registry.startup_time_default_bound_used",
+      "actual_decision": "accepted",
+      "actual_code": "audit.registry.startup_time_default_bound_used",
+      "pass": true,
+      "effective_max_age_seconds": 86400,
+      "report_kind": "audit_registry_startup_freshness_check"
+    },
+    "tighter_6h_valid": {
+      "expected_decision": "accepted",
+      "expected_code": "audit.registry.startup_time_override_accepted",
+      "actual_decision": "accepted",
+      "actual_code": "audit.registry.startup_time_override_accepted",
+      "pass": true,
+      "effective_max_age_seconds": 21600,
+      "report_kind": "audit_registry_startup_freshness_check"
+    },
+    "looser_48h_valid": {
+      "expected_decision": "accepted",
+      "expected_code": "audit.registry.startup_time_override_accepted",
+      "actual_decision": "accepted",
+      "actual_code": "audit.registry.startup_time_override_accepted",
+      "pass": true,
+      "effective_max_age_seconds": 172800,
+      "report_kind": "audit_registry_startup_freshness_check"
+    },
+    "min_bound_1h_valid": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.startup_time_staleness_exceeded",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.startup_time_staleness_exceeded",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "min_bound_1h_fresh_registry": {
+      "expected_decision": "accepted",
+      "expected_code": "audit.registry.startup_time_override_accepted",
+      "actual_decision": "accepted",
+      "actual_code": "audit.registry.startup_time_override_accepted",
+      "pass": true,
+      "effective_max_age_seconds": 3600,
+      "report_kind": "audit_registry_startup_freshness_check"
+    },
+    "max_bound_72h_valid": {
+      "expected_decision": "accepted",
+      "expected_code": "audit.registry.startup_time_override_accepted",
+      "actual_decision": "accepted",
+      "actual_code": "audit.registry.startup_time_override_accepted",
+      "pass": true,
+      "effective_max_age_seconds": 259200,
+      "report_kind": "audit_registry_startup_freshness_check"
+    },
+    "policy_file_missing": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_missing",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_missing",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "hash_mismatch": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_hash_mismatch",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_hash_mismatch",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "signature_missing": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_signature_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_signature_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "signature_stub": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_signature_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_signature_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "authority_local": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_authority_untrusted",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_authority_untrusted",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "authority_test": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_authority_untrusted",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_authority_untrusted",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "authority_stub": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_authority_untrusted",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_authority_untrusted",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "authority_ref_mismatch": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_authority_untrusted",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_authority_untrusted",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "expired_policy": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_expired",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_expired",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "bound_below_1h": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_bound_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_bound_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "bound_above_72h": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_bound_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_bound_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "non_integer_bound_string": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_bound_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_bound_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "non_integer_bound_float": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_bound_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_bound_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "looser_missing_reason": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_bound_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_bound_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "looser_missing_expires_at": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_bound_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_bound_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "tighter_missing_expires_at": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_bound_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_bound_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "stale_registry_under_tighter_bound": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.startup_time_staleness_exceeded",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.startup_time_staleness_exceeded",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "stale_registry_under_default_bound": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.startup_time_staleness_exceeded",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.startup_time_staleness_exceeded",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "anchor_invalid_nil": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.startup_time_anchor_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.startup_time_anchor_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "wrong_format_version": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_format_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_format_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "wrong_kind": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.freshness_policy_format_invalid",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.freshness_policy_format_invalid",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    },
+    "direct_seconds_env_rejected": {
+      "expected_decision": "refused",
+      "expected_code": "audit.registry.direct_seconds_override_rejected",
+      "actual_decision": "refused",
+      "actual_code": "audit.registry.direct_seconds_override_rejected",
+      "pass": true,
+      "effective_max_age_seconds": null,
+      "report_kind": "audit_registry_startup_freshness_refusal"
+    }
+  },
+  "checks": {
+    "case.default_no_policy.pass": true,
+    "case.tighter_6h_valid.pass": true,
+    "case.looser_48h_valid.pass": true,
+    "case.min_bound_1h_valid.pass": true,
+    "case.min_bound_1h_fresh_registry.pass": true,
+    "case.max_bound_72h_valid.pass": true,
+    "case.policy_file_missing.pass": true,
+    "case.hash_mismatch.pass": true,
+    "case.signature_missing.pass": true,
+    "case.signature_stub.pass": true,
+    "case.authority_local.pass": true,
+    "case.authority_test.pass": true,
+    "case.authority_stub.pass": true,
+    "case.authority_ref_mismatch.pass": true,
+    "case.expired_policy.pass": true,
+    "case.bound_below_1h.pass": true,
+    "case.bound_above_72h.pass": true,
+    "case.non_integer_bound_string.pass": true,
+    "case.non_integer_bound_float.pass": true,
+    "case.looser_missing_reason.pass": true,
+    "case.looser_missing_expires_at.pass": true,
+    "case.tighter_missing_expires_at.pass": true,
+    "case.stale_registry_under_tighter_bound.pass": true,
+    "case.stale_registry_under_default_bound.pass": true,
+    "case.anchor_invalid_nil.pass": true,
+    "case.wrong_format_version.pass": true,
+    "case.wrong_kind.pass": true,
+    "case.direct_seconds_env_rejected.pass": true,
+    "invariant.accepted_cases_have_check_report_kind": true,
+    "invariant.refused_cases_have_refusal_report_kind": true,
+    "invariant.no_case_enables_production_gate_authority": true,
+    "invariant.default_case_uses_86400s": true,
+    "invariant.tighter_case_uses_21600s": true,
+    "invariant.looser_case_uses_172800s": true,
+    "invariant.d1_tighter_missing_expires_at_refused": true,
+    "invariant.d3_direct_seconds_rejected": true,
+    "invariant.no_production_signing_required": true,
+    "invariant.no_ledger_accessed": true,
+    "invariant.no_phase2_accessed": true,
+    "invariant.no_online_lookup": true
+  },
+  "non_authorization": {
+    "production_durable_audit_implementation": false,
+    "production_signing_execution": false,
+    "production_registry_service": false,
+    "ledger_accessed": false,
+    "phase2_accessed": false,
+    "online_lookup": false,
+    "gate3_authorized_enabled": false
+  },
+  "_volatile_fields": [
+    "startup_time"
+  ]
+}
