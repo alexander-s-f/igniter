@@ -1,0 +1,232 @@
+{
+  "kind": "production_durable_audit_bounded_implementation_proof_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R31-C1-P",
+  "track": "phase1-production-durable-audit-bounded-implementation-v0",
+  "authorization_ref": "architect-supervisor://igniter-lang/gates/phase1-production-durable-audit/bounded-implementation-v0/2026-05-10",
+  "proof_timestamp": "2026-05-10T12:00:00Z",
+  "status": "PASS",
+  "total_cases": 29,
+  "cases_pass": 29,
+  "cases_fail": 0,
+  "surfaces": {
+    "surface_1_schema_validation": "PASS",
+    "surface_2_signer_abstraction": "PASS",
+    "surface_3_store_interface": "PASS",
+    "surface_4_excluded_surfaces": "PASS"
+  },
+  "cases": {
+    "schema.valid_record_accepted": {
+      "pass": true,
+      "code": null,
+      "compliance_posture.production_durable_audit": false
+    },
+    "schema.format_version_missing_refused": {
+      "pass": true,
+      "code": "audit.record.format_version_missing"
+    },
+    "schema.format_version_unrecognized_refused": {
+      "pass": true,
+      "code": "audit.record.format_version_unrecognized"
+    },
+    "schema.kind_wrong_refused": {
+      "pass": true,
+      "code": "audit.record.kind_unrecognized"
+    },
+    "schema.sequence_zero_refused": {
+      "pass": true,
+      "code": "audit.record.sequence_invalid"
+    },
+    "schema.sequence_not_integer_refused": {
+      "pass": true,
+      "code": "audit.record.sequence_invalid"
+    },
+    "schema.previous_hash_invalid_refused": {
+      "pass": true,
+      "code": "audit.record.previous_hash_invalid"
+    },
+    "schema.record_hash_mismatch_refused": {
+      "pass": true,
+      "code": "audit.record.record_hash_mismatch"
+    },
+    "schema.ledger_storage_refused": {
+      "pass": true,
+      "code": "audit.record.storage_identity_untrusted"
+    },
+    "schema.ledger_binding_true_refused": {
+      "pass": true,
+      "code": "audit.record.storage_identity_untrusted"
+    },
+    "schema.stub_signature_signer_refused_at_store": {
+      "pass": true,
+      "code": "audit.store.signer_invalid"
+    },
+    "schema.caller_compliance_posture_ignored": {
+      "pass": true,
+      "derived_production_durable_audit": false
+    },
+    "signer.interface_conformance": {
+      "pass": true,
+      "required_methods": [
+        "valid?",
+        "sign",
+        "authority_ref",
+        "signing_key_id"
+      ]
+    },
+    "signer.valid_config_accepted": {
+      "pass": true,
+      "valid": true
+    },
+    "signer.nil_key_id_refused": {
+      "pass": true,
+      "code": "audit.signer.configuration_invalid"
+    },
+    "signer.stub_public_key_source_refused": {
+      "pass": true,
+      "code": "audit.signer.configuration_invalid"
+    },
+    "store.first_record_genesis_prev_hash": {
+      "pass": true,
+      "prev_hash": "genesis"
+    },
+    "store.second_record_chains_from_first": {
+      "pass": true,
+      "first_record_hash": "sha256:5eb76f257ee3f4caf6d43dd18cd98a8c23856de7f8abbc284e80aac2dadecf47",
+      "second_prev_hash": "sha256:5eb76f257ee3f4caf6d43dd18cd98a8c23856de7f8abbc284e80aac2dadecf47",
+      "linked": true
+    },
+    "store.chain_verification_valid": {
+      "pass": true,
+      "verified": true,
+      "record_count": 2,
+      "production_durable_audit": false
+    },
+    "store.update_refused": {
+      "pass": true,
+      "code": "audit.store.mutation_not_authorized"
+    },
+    "store.delete_refused": {
+      "pass": true,
+      "code": "audit.store.mutation_not_authorized"
+    },
+    "store.overwrite_refused": {
+      "pass": true,
+      "code": "audit.store.mutation_not_authorized"
+    },
+    "store.out_of_sequence_refused": {
+      "pass": true,
+      "code": "audit.store.sequence_invalid",
+      "expected_sequence": 3,
+      "got_sequence": 5
+    },
+    "store.ledger_storage_identity_refused": {
+      "pass": true,
+      "code": "audit.store.storage_identity_untrusted"
+    },
+    "excluded.no_ledger_adapter": {
+      "pass": true,
+      "note": "Phase1ProductionAuditStore uses in-memory append-only storage; no Ledger adapter class defined or instantiated"
+    },
+    "excluded.ledger_binding_false_in_all_records": {
+      "pass": true,
+      "record_count": 2
+    },
+    "excluded.no_phase2_surfaces": {
+      "pass": true,
+      "note": "BiHistory, stream/OLAP, production cache, Ledger writes/replay/compact/subscribe not defined or called in this proof"
+    },
+    "excluded.proof_local_audit_never_claims_production": {
+      "pass": true,
+      "record_count": 2
+    },
+    "excluded.gate3_authorized_not_widened": {
+      "pass": true,
+      "note": "No gate3_authorized: true call in this proof; audit store operates independently of temporal executor authorization"
+    }
+  },
+  "checks": {
+    "case.schema.valid_record_accepted": true,
+    "case.schema.format_version_missing_refused": true,
+    "case.schema.format_version_unrecognized_refused": true,
+    "case.schema.kind_wrong_refused": true,
+    "case.schema.sequence_zero_refused": true,
+    "case.schema.sequence_not_integer_refused": true,
+    "case.schema.previous_hash_invalid_refused": true,
+    "case.schema.record_hash_mismatch_refused": true,
+    "case.schema.ledger_storage_refused": true,
+    "case.schema.ledger_binding_true_refused": true,
+    "case.schema.stub_signature_signer_refused_at_store": true,
+    "case.schema.caller_compliance_posture_ignored": true,
+    "case.signer.interface_conformance": true,
+    "case.signer.valid_config_accepted": true,
+    "case.signer.nil_key_id_refused": true,
+    "case.signer.stub_public_key_source_refused": true,
+    "case.store.first_record_genesis_prev_hash": true,
+    "case.store.second_record_chains_from_first": true,
+    "case.store.chain_verification_valid": true,
+    "case.store.update_refused": true,
+    "case.store.delete_refused": true,
+    "case.store.overwrite_refused": true,
+    "case.store.out_of_sequence_refused": true,
+    "case.store.ledger_storage_identity_refused": true,
+    "case.excluded.no_ledger_adapter": true,
+    "case.excluded.ledger_binding_false_in_all_records": true,
+    "case.excluded.no_phase2_surfaces": true,
+    "case.excluded.proof_local_audit_never_claims_production": true,
+    "case.excluded.gate3_authorized_not_widened": true,
+    "invariant.no_production_durable_audit_in_proof_local": true,
+    "invariant.no_ledger_access": true,
+    "invariant.no_phase2_access": true,
+    "invariant.no_hsm_kms_onboarding": true,
+    "invariant.format_version_1_0_0_required": true
+  },
+  "remaining_blockers_before_deployment": [
+    {
+      "blocker": "B-A",
+      "description": "Restart rebuild proof not yet implemented",
+      "surface": "4 (restart rebuild)",
+      "required_before": "deployment authorization"
+    },
+    {
+      "blocker": "B-B",
+      "description": "Audit traversal / reader proof not yet implemented",
+      "surface": "6 (audit traversal)",
+      "required_before": "deployment authorization"
+    },
+    {
+      "blocker": "B-C",
+      "description": "Appender / reader role boundary proof not yet implemented",
+      "surface": "7 (role boundary)",
+      "required_before": "deployment authorization"
+    },
+    {
+      "blocker": "B-D",
+      "description": "Post-implementation full regression matrix not yet run (S3-R30-C1-A requires all new proofs + existing 29 commands PASS)",
+      "surface": "9 (regression matrix)",
+      "required_before": "deployment authorization"
+    },
+    {
+      "blocker": "B-E",
+      "description": "Production deployment, HSM/KMS onboarding, and production signing execution remain closed until S3-R30-C1-A follow-up review",
+      "surface": "non-authorization",
+      "required_before": "any production deployment"
+    }
+  ],
+  "non_authorization": {
+    "production_deployment": false,
+    "production_signing_execution": false,
+    "concrete_hsm_kms_onboarding": false,
+    "production_authority_registry": false,
+    "ledger_adapter": false,
+    "phase2": false,
+    "bihistory": false,
+    "stream_olap_executor": false,
+    "production_cache": false,
+    "broad_runtimemachine_binding": false,
+    "gate3_authorized_widened": false
+  },
+  "_volatile_fields": [
+    "proof_timestamp"
+  ]
+}
