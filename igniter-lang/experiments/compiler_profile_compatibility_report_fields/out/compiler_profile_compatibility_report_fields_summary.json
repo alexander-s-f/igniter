@@ -1,0 +1,233 @@
+{
+  "kind": "compiler_profile_compatibility_report_fields_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-compatibility-report-fields-v0",
+  "status": "PASS",
+  "report_schema": {
+    "kind": "proof_local_compatibility_report_schema",
+    "compiler_profile_status": {
+      "status_values": [
+        "absent_legacy",
+        "present_verified",
+        "mismatch",
+        "malformed",
+        "missing_required"
+      ],
+      "authority": "compiler_understanding_only"
+    },
+    "runtime_evaluation_readiness": {
+      "status_values": [
+        "ready",
+        "blocked",
+        "not_reached"
+      ],
+      "authority": "runtime_execution_gate"
+    },
+    "invariant": "compiler_profile_status.present_verified must not imply runtime_evaluation_readiness.ready"
+  },
+  "reports": {
+    "core_profile_match": {
+      "kind": "proof_local_compatibility_report",
+      "format_version": "0.1.0",
+      "case": "core_profile_match",
+      "artifact": {
+        "artifact_id": "core_add",
+        "fragment_class": "core",
+        "guard_policy": "evaluate_allowed"
+      },
+      "compiler_profile_status": {
+        "status": "present_verified",
+        "policy": "legacy_optional",
+        "manifest_compiler_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "expected_compiler_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "decision": "accept_profile_match",
+        "understanding_authority": true,
+        "runtime_authority": false
+      },
+      "runtime_evaluation_readiness": {
+        "status": "ready",
+        "decision": "core_evaluation_policy_available",
+        "reason_code": "runtime.core_policy_available",
+        "authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      },
+      "authority_separation": {
+        "compiler_profile_can_authorize_runtime": false,
+        "runtime_authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      }
+    },
+    "legacy_absent_profile": {
+      "kind": "proof_local_compatibility_report",
+      "format_version": "0.1.0",
+      "case": "legacy_absent_profile",
+      "artifact": {
+        "artifact_id": "core_add",
+        "fragment_class": "core",
+        "guard_policy": "evaluate_allowed"
+      },
+      "compiler_profile_status": {
+        "status": "absent_legacy",
+        "policy": "legacy_optional",
+        "manifest_compiler_profile_id": null,
+        "expected_compiler_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "decision": "accept_absent_legacy",
+        "understanding_authority": true,
+        "runtime_authority": false
+      },
+      "runtime_evaluation_readiness": {
+        "status": "ready",
+        "decision": "core_evaluation_policy_available",
+        "reason_code": "runtime.core_policy_available",
+        "authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      },
+      "authority_separation": {
+        "compiler_profile_can_authorize_runtime": false,
+        "runtime_authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      }
+    },
+    "mismatched_profile": {
+      "kind": "proof_local_compatibility_report",
+      "format_version": "0.1.0",
+      "case": "mismatched_profile",
+      "artifact": {
+        "artifact_id": "core_add",
+        "fragment_class": "core",
+        "guard_policy": "evaluate_allowed"
+      },
+      "compiler_profile_status": {
+        "status": "mismatch",
+        "policy": "legacy_optional",
+        "manifest_compiler_profile_id": "compiler_profile_unified/sha256:000000000000000000000000",
+        "expected_compiler_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "decision": "refuse_profile_mismatch",
+        "understanding_authority": false,
+        "runtime_authority": false
+      },
+      "runtime_evaluation_readiness": {
+        "status": "not_reached",
+        "decision": "not_reached",
+        "reason_code": "compiler_profile_refused_before_runtime",
+        "authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      },
+      "authority_separation": {
+        "compiler_profile_can_authorize_runtime": false,
+        "runtime_authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      }
+    },
+    "temporal_metadata_only_profile": {
+      "kind": "proof_local_compatibility_report",
+      "format_version": "0.1.0",
+      "case": "temporal_metadata_only_profile",
+      "artifact": {
+        "artifact_id": "history_valid",
+        "fragment_class": "temporal",
+        "guard_policy": "load_accept_evaluate_refuse"
+      },
+      "compiler_profile_status": {
+        "status": "present_verified",
+        "policy": "legacy_optional",
+        "manifest_compiler_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "expected_compiler_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "decision": "accept_profile_match",
+        "understanding_authority": true,
+        "runtime_authority": false
+      },
+      "runtime_evaluation_readiness": {
+        "status": "blocked",
+        "decision": "refuse",
+        "reason_code": "runtime.temporal_execution_unsupported",
+        "authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      },
+      "authority_separation": {
+        "compiler_profile_can_authorize_runtime": false,
+        "runtime_authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      }
+    },
+    "temporal_ledger_backed_no_approval": {
+      "kind": "proof_local_compatibility_report",
+      "format_version": "0.1.0",
+      "case": "temporal_ledger_backed_no_approval",
+      "artifact": {
+        "artifact_id": "history_valid",
+        "fragment_class": "temporal",
+        "guard_policy": "load_accept_evaluate_refuse"
+      },
+      "compiler_profile_status": {
+        "status": "present_verified",
+        "policy": "legacy_optional",
+        "manifest_compiler_profile_id": "compiler_profile_unified/sha256:218afff15eb1330652ea6af8",
+        "expected_compiler_profile_id": "compiler_profile_unified/sha256:218afff15eb1330652ea6af8",
+        "decision": "accept_profile_match",
+        "understanding_authority": true,
+        "runtime_authority": false
+      },
+      "runtime_evaluation_readiness": {
+        "status": "blocked",
+        "decision": "refuse",
+        "reason_code": "runtime.executor_approval_missing",
+        "authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      },
+      "authority_separation": {
+        "compiler_profile_can_authorize_runtime": false,
+        "runtime_authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      }
+    },
+    "temporal_ledger_backed_gate3_closed": {
+      "kind": "proof_local_compatibility_report",
+      "format_version": "0.1.0",
+      "case": "temporal_ledger_backed_gate3_closed",
+      "artifact": {
+        "artifact_id": "history_valid",
+        "fragment_class": "temporal",
+        "guard_policy": "load_accept_evaluate_refuse"
+      },
+      "compiler_profile_status": {
+        "status": "present_verified",
+        "policy": "legacy_optional",
+        "manifest_compiler_profile_id": "compiler_profile_unified/sha256:218afff15eb1330652ea6af8",
+        "expected_compiler_profile_id": "compiler_profile_unified/sha256:218afff15eb1330652ea6af8",
+        "decision": "accept_profile_match",
+        "understanding_authority": true,
+        "runtime_authority": false
+      },
+      "runtime_evaluation_readiness": {
+        "status": "blocked",
+        "decision": "refuse",
+        "reason_code": "runtime.temporal_gate3_closed",
+        "authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      },
+      "authority_separation": {
+        "compiler_profile_can_authorize_runtime": false,
+        "runtime_authorized_by_compiler_profile_id": false,
+        "live_operation_attempted": false
+      }
+    }
+  },
+  "checks": {
+    "schema.has_separate_compiler_profile_status": true,
+    "schema.has_separate_runtime_readiness": true,
+    "compiler.present_verified_not_runtime_authority": true,
+    "runtime.verified_temporal_metadata_only_still_blocked": true,
+    "runtime.ledger_backed_no_approval_still_blocked": true,
+    "runtime.ledger_backed_gate3_closed_still_blocked": true,
+    "compiler.mismatch_runtime_not_reached": true,
+    "legacy.absent_profile_status_not_runtime_authority": true,
+    "authority.no_report_claims_profile_runtime_authority": true,
+    "operation.no_live_operations_attempted": true
+  },
+  "non_goals": [
+    "No runtime enforcement changes.",
+    "No .igapp manifest changes.",
+    "No production CompatibilityReport implementation changes."
+  ]
+}
