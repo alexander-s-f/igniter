@@ -94,6 +94,95 @@ The sub-classification within ESCAPE is defined when Effect Surface (PROP-035) l
 
 ---
 
+## § 3.5 ParsedProgram AST Delta
+
+Each compiler stage gains exactly one field: `modifier`. All other fields are
+unchanged. The examples below use `ScoreRisk` (pure, no modifier in source) and
+`ReadSensor` (observed).
+
+### Stage 1 — Parser output (`parsed_program.contracts[]`)
+
+```json
+{
+  "kind": "contract",
+  "name": "ScoreRisk",
+  "modifier": "pure",
+  "type_params": [],
+  "body": [
+    { "kind": "input",   "name": "contradiction_count", "type_annotation": "Integer" },
+    { "kind": "compute", "name": "raw", "expr": { ... } },
+    { "kind": "output",  "name": "raw", "type_annotation": "Integer" }
+  ]
+}
+```
+
+`modifier` is always present after parsing. When the source has no modifier keyword
+the parser normalises to `"pure"`. Valid values: `"pure"`, `"observed"`, `"effect"`,
+`"privileged"`, `"irreversible"`.
+
+### Stage 2 — Classifier output (`classified_program.contracts[]`)
+
+```json
+{
+  "kind": "classified_contract",
+  "contract_id": "Proof.ContractModifiers.PureImplicit/ScoreRisk",
+  "name": "ScoreRisk",
+  "modifier": "pure",
+  "fragment_class": "core",
+  "symbols": [ ... ],
+  "declarations": [ ... ],
+  "dependency_graph": { "nodes": [ ... ], "edges": [ ... ] },
+  "oof_log": []
+}
+```
+
+`modifier` propagated from parser AST. `fragment_class` is set per §4.1.
+OOF-M1 fires here when `modifier == "pure"` and body contains `escape` — the
+`oof_log` entry is appended and `fragment_class` becomes `"oof"`.
+
+### Stage 3 — TypeChecker output (`typed_program.contracts[]`)
+
+```json
+{
+  "kind": "typed_contract",
+  "contract_id": "Proof.ContractModifiers.PureImplicit/ScoreRisk",
+  "name": "ScoreRisk",
+  "modifier": "pure",
+  "status": "accepted",
+  "fragment_class": "core",
+  "symbols": [ ... ],
+  "declarations": [ ... ],
+  "type_errors": []
+}
+```
+
+`modifier` propagated from `classified_contract`. `status` is `"blocked"` when
+OOF-M1 or other type errors are present.
+
+### Stage 4 — SemanticIR Emitter output (`semantic_ir.contracts[]`)
+
+```json
+{
+  "kind": "contract_ir",
+  "contract_ref": "contract/ScoreRisk/sha256:...",
+  "contract_name": "ScoreRisk",
+  "modifier": "pure",
+  "specialization_of": null,
+  "type_args": {},
+  "fragment_class": "core",
+  "inputs":  [ { "name": "contradiction_count", "type": { "name": "Integer", "params": [] }, "lifecycle": "local" } ],
+  "outputs": [ { "name": "raw",                 "type": { "name": "Integer", "params": [] }, "lifecycle": "session" } ],
+  "nodes":   [ ... ],
+  "escape_boundaries": []
+}
+```
+
+`modifier` defaults to `"pure"` when not present in typed_contract (defensive).
+For `"modifier": "observed"` the `fragment_class` is `"escape"` and
+`escape_boundaries` lists the declared escape capabilities.
+
+---
+
 ## § 4. Classifier Changes
 
 ### § 4.1 Modifier → fragment class mapping
@@ -156,17 +245,22 @@ The `contract_ir` node gains a `modifier` field:
 ```json
 {
   "kind": "contract_ir",
-  "name": "ExtractClaims",
+  "contract_ref": "contract/ExtractClaims/sha256:...",
+  "contract_name": "ExtractClaims",
   "modifier": "observed",
-  "fragment_class": "ESCAPE",
-  "nodes": [...],
+  "specialization_of": null,
+  "type_args": {},
+  "fragment_class": "escape",
+  "inputs": [...],
   "outputs": [...],
-  "requirements": [...],
+  "nodes": [...],
   "escape_boundaries": [...]
 }
 ```
 
 Default value: `"pure"` (when no modifier is present in source).
+Note: `contract_name` is the correct field name in the actual SemanticIR emitter
+(not `"name"`). See §3.5 for the complete delta at each stage.
 
 No other SemanticIR nodes change. The `modifier` field is informational in this PROP;
 runtime enforcement is Phase 2.
@@ -306,6 +400,80 @@ pure contract BrokenPure {
 
 Expected: compilation fails, OOF-M1 reported for `BrokenPure`.
 
+### § 10.6 Research Agent (C4) Fixture Plan
+
+**Experiment directory:** `experiments/contract_modifiers_proof/`
+
+**Fixture files to create:**
+
+| File | Kind | Expected `modifier` | Expected `fragment_class` | OOF? |
+|------|------|---------------------|--------------------------|------|
+| `pure_contract_implicit.ig` | positive | `"pure"` | `"core"` | none |
+| `pure_contract_explicit.ig` | positive | `"pure"` | `"core"` | none |
+| `observed_contract_basic.ig` | positive | `"observed"` | `"escape"` | none |
+| `modifier_variants.ig` | positive | `"effect"`, `"privileged"`, `"irreversible"` | `"escape"` | none |
+| `oof_m1_pure_with_escape.ig` | negative | `"pure"` | `"oof"` | OOF-M1 |
+
+**Backward compatibility fixtures (existing regression suite must PASS unchanged):**
+
+Run the full Stage 1–2 suite after implementing PROP-031:
+
+```bash
+ruby igniter-lang/experiments/stage1_close_candidate/stage1_close_candidate.rb
+ruby igniter-lang/experiments/source_to_semanticir_fixture/source_to_semanticir_fixture.rb --check-golden
+```
+
+**New experiment runner:**
+
+```bash
+ruby igniter-lang/experiments/contract_modifiers_proof/contract_modifiers_proof.rb
+```
+
+The runner must verify for each fixture:
+
+1. Parser emits `"modifier"` field in contract node (§3.5 Stage 1 shape)
+2. Classifier propagates `"modifier"` to `classified_contract` (§3.5 Stage 2 shape)
+3. TypeChecker propagates `"modifier"` to `typed_contract` (§3.5 Stage 3 shape)
+4. SemanticIR emits `"modifier"` in `contract_ir` (§3.5 Stage 4 shape)
+5. `fragment_class` matches table above
+6. OOF-M1 appears in `oof_log` for the negative fixture
+
+**Expected SemanticIR shape for `pure_contract_implicit.ig`:**
+
+```json
+{
+  "kind": "contract_ir",
+  "contract_name": "ScoreRisk",
+  "modifier": "pure",
+  "fragment_class": "core",
+  "escape_boundaries": []
+}
+```
+
+**Expected SemanticIR shape for `observed_contract_basic.ig`:**
+
+```json
+{
+  "kind": "contract_ir",
+  "contract_name": "ReadSensor",
+  "modifier": "observed",
+  "fragment_class": "escape",
+  "escape_boundaries": [{ "kind": "escape_boundary", "name": "sensor_read" }]
+}
+```
+
+**Expected OOF entry for `oof_m1_pure_with_escape.ig`:**
+
+```json
+{
+  "kind": "oof",
+  "code": "OOF-M1",
+  "contract": "BrokenPure",
+  "message": "pure contract 'BrokenPure' cannot declare escape capabilities; use 'observed' for read-only external access",
+  "severity": "error"
+}
+```
+
 ---
 
 ## § 11. Open Questions
@@ -320,7 +488,55 @@ are pure by definition. Modifier syntax is contract-only in this PROP.
 
 ---
 
-## § 12. Implementation Notes
+## § 12. PROP-032/033 Dependency List
+
+PROP-032 and PROP-033 are both gated on PROP-031. This section documents exactly
+what each downstream PROP inherits and what it must NOT add.
+
+### PROP-032 — `via profile_name` binding
+
+**Depends on:**
+- Grammar: the `contract-decl` production in §2.1 must already contain
+  `contract-modifier?`. PROP-032 extends it to:
+  ```
+  contract-decl ::= contract-modifier? "contract" ident type-params?
+                    "(" param-list? ")" ("->" output-spec)?
+                    ("via" ident)?
+                    "{" body-decl* "}"
+  ```
+  The `"via"` clause is positioned after the signature and before the body.
+  PROP-032 must not re-define `contract-modifier?` — it reuses the production
+  from PROP-031 verbatim.
+- Classifier: `classified_contract` must carry `modifier` so the classifier
+  can validate that profile constraints match modifier (e.g., a `pure` contract
+  cannot bind a profile that requires `effect`).
+- SemanticIR: `contract_ir` must carry `modifier` so the profile resolution
+  pass can emit `profile_binding` alongside it.
+
+**Must not touch:** OOF-M1 code or the modifier→fragment_class mapping. Those
+are frozen by PROP-031.
+
+### PROP-033 — `output ... evidence [refs]`
+
+**Depends on:**
+- Grammar: PROP-031 is required only to establish that modifiers exist; PROP-033
+  adds an optional `evidence [refs]` suffix to output declarations:
+  ```
+  output-decl ::= "output" ident (":" type)? ("evidence" "[" ref-list "]")?
+  ```
+  This is in the body, not on the contract header, so no grammar conflict with
+  modifiers.
+- SemanticIR: `contract_ir` must carry `modifier` so the emitter can validate
+  that evidence refs pointing to external observations are only present in
+  `observed`/`effect`/`privileged`/`irreversible` contracts (not `pure`).
+  This constraint is in PROP-033 scope, not PROP-031 scope.
+
+**Must not touch:** the contract-decl production or modifier logic. PROP-033 is
+body-level only.
+
+---
+
+## § 13. Implementation Notes
 
 Parser change is minimal: one optional token before `expect(:contract)` in
 `parse_contract_decl`. The token is stored in the AST node as `modifier` (string).
