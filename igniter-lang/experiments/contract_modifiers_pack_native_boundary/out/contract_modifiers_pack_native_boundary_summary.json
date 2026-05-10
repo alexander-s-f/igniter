@@ -1,0 +1,386 @@
+{
+  "kind": "contract_modifiers_pack_native_boundary_summary",
+  "format_version": "0.1.0",
+  "track": "contract-modifiers-pack-native-boundary-v0",
+  "status": "PASS",
+  "pack_manifest": {
+    "kind": "compiler_pack_manifest",
+    "format_version": "0.1.0",
+    "name": "ContractModifiersPack",
+    "implementation_id": "contract_modifiers.pack_boundary_descriptor.v0",
+    "boundary_mode": "native_manifest_descriptor_only",
+    "requires_packs": [
+      "CoreLanguagePack",
+      "EscapeBoundaryPack",
+      "OOFRegistry",
+      "FragmentRegistry"
+    ],
+    "provides_capabilities": [
+      "contract_modifiers",
+      "modifier_fragment_widening",
+      "oof_m1"
+    ],
+    "parser_rules": {
+      "contract_modifier_keywords": [
+        "pure",
+        "observed",
+        "effect",
+        "privileged",
+        "irreversible"
+      ],
+      "normalization": {
+        "missing_modifier": "pure",
+        "field": "modifier",
+        "stage": "parser"
+      }
+    },
+    "classifier_rules": {
+      "fragment_mapping": {
+        "pure": "body_fragment",
+        "observed": "escape_unless_temporal",
+        "effect": "escape",
+        "privileged": "escape",
+        "irreversible": "escape"
+      },
+      "temporal_precedence": "temporal_over_modifier_escape",
+      "oof_checks": [
+        "OOF-M1"
+      ]
+    },
+    "typechecker_rules": {
+      "propagates_oof": [
+        "OOF-M1"
+      ],
+      "status_on_oof": "blocked",
+      "field_passthrough": [
+        "modifier"
+      ]
+    },
+    "semanticir_handlers": {
+      "contract_ir_fields": [
+        "modifier"
+      ],
+      "blocked_contract_emit": "nil"
+    },
+    "assembler_hooks": {
+      "manifest_modifier_passthrough": "descriptive_only",
+      "igapp_format_change": false
+    },
+    "oof_descriptors": {
+      "OOF-M1": {
+        "owner_pack": "ContractModifiersPack",
+        "stage_owner": "classifier",
+        "propagates_to": "typechecker",
+        "severity": "error",
+        "message_stability": "public"
+      }
+    },
+    "manifest_id": "compiler_pack_manifest/ContractModifiersPack/sha256:27a7d6a2a7a92369f10e4d70"
+  },
+  "evidence": {
+    "source_golden_dir": "igniter-lang/experiments/contract_modifiers_proof/golden",
+    "shadow_profile_summary": "igniter-lang/experiments/compiler_pack_shadow_profile_proof/out/compiler_pack_shadow_profile_proof_summary.json",
+    "cases": {
+      "pure_contract_implicit": {
+        "expected": {
+          "expected_modifiers": [
+            "pure"
+          ],
+          "expected_fragments": [
+            "core"
+          ],
+          "semantic_ir": true
+        },
+        "parsed_modifiers": [
+          "pure"
+        ],
+        "classified_modifiers": [
+          "pure"
+        ],
+        "classified_fragments": [
+          "core"
+        ],
+        "typed_modifiers": [
+          "pure"
+        ],
+        "typed_statuses": [
+          "accepted"
+        ],
+        "typed_type_errors": [],
+        "semantic_ir_modifiers": [
+          "pure"
+        ],
+        "semantic_ir_fragments": [
+          "core"
+        ],
+        "semantic_ir_present": true,
+        "oof_log": []
+      },
+      "pure_contract_explicit": {
+        "expected": {
+          "expected_modifiers": [
+            "pure"
+          ],
+          "expected_fragments": [
+            "core"
+          ],
+          "semantic_ir": true
+        },
+        "parsed_modifiers": [
+          "pure"
+        ],
+        "classified_modifiers": [
+          "pure"
+        ],
+        "classified_fragments": [
+          "core"
+        ],
+        "typed_modifiers": [
+          "pure"
+        ],
+        "typed_statuses": [
+          "accepted"
+        ],
+        "typed_type_errors": [],
+        "semantic_ir_modifiers": [
+          "pure"
+        ],
+        "semantic_ir_fragments": [
+          "core"
+        ],
+        "semantic_ir_present": true,
+        "oof_log": []
+      },
+      "observed_contract_basic": {
+        "expected": {
+          "expected_modifiers": [
+            "observed"
+          ],
+          "expected_fragments": [
+            "escape"
+          ],
+          "semantic_ir": true
+        },
+        "parsed_modifiers": [
+          "observed"
+        ],
+        "classified_modifiers": [
+          "observed"
+        ],
+        "classified_fragments": [
+          "escape"
+        ],
+        "typed_modifiers": [
+          "observed"
+        ],
+        "typed_statuses": [
+          "accepted"
+        ],
+        "typed_type_errors": [],
+        "semantic_ir_modifiers": [
+          "observed"
+        ],
+        "semantic_ir_fragments": [
+          "escape"
+        ],
+        "semantic_ir_present": true,
+        "oof_log": []
+      },
+      "modifier_variants": {
+        "expected": {
+          "expected_modifiers": [
+            "effect",
+            "privileged",
+            "irreversible"
+          ],
+          "expected_fragments": [
+            "escape",
+            "escape",
+            "escape"
+          ],
+          "semantic_ir": true
+        },
+        "parsed_modifiers": [
+          "effect",
+          "privileged",
+          "irreversible"
+        ],
+        "classified_modifiers": [
+          "effect",
+          "privileged",
+          "irreversible"
+        ],
+        "classified_fragments": [
+          "escape",
+          "escape",
+          "escape"
+        ],
+        "typed_modifiers": [
+          "effect",
+          "privileged",
+          "irreversible"
+        ],
+        "typed_statuses": [
+          "accepted",
+          "accepted",
+          "accepted"
+        ],
+        "typed_type_errors": [],
+        "semantic_ir_modifiers": [
+          "effect",
+          "privileged",
+          "irreversible"
+        ],
+        "semantic_ir_fragments": [
+          "escape",
+          "escape",
+          "escape"
+        ],
+        "semantic_ir_present": true,
+        "oof_log": []
+      },
+      "observed_temporal_precedence": {
+        "expected": {
+          "expected_modifiers": [
+            "observed"
+          ],
+          "expected_fragments": [
+            "temporal"
+          ],
+          "semantic_ir": true
+        },
+        "parsed_modifiers": [
+          "observed"
+        ],
+        "classified_modifiers": [
+          "observed"
+        ],
+        "classified_fragments": [
+          "temporal"
+        ],
+        "typed_modifiers": [
+          "observed"
+        ],
+        "typed_statuses": [
+          "accepted"
+        ],
+        "typed_type_errors": [],
+        "semantic_ir_modifiers": [
+          "observed"
+        ],
+        "semantic_ir_fragments": [
+          "temporal"
+        ],
+        "semantic_ir_present": true,
+        "oof_log": []
+      },
+      "oof_m1_pure_with_escape": {
+        "expected": {
+          "expected_modifiers": [
+            "pure"
+          ],
+          "expected_fragments": [
+            "oof"
+          ],
+          "semantic_ir": false,
+          "expected_oof": "OOF-M1"
+        },
+        "parsed_modifiers": [
+          "pure"
+        ],
+        "classified_modifiers": [
+          "pure"
+        ],
+        "classified_fragments": [
+          "oof"
+        ],
+        "typed_modifiers": [
+          "pure"
+        ],
+        "typed_statuses": [
+          "blocked"
+        ],
+        "typed_type_errors": [
+          {
+            "rule": "OOF-M1",
+            "message": "pure contract 'BrokenPure' cannot declare escape capabilities; use 'observed' for read-only external access",
+            "node": "BrokenPure",
+            "line": null
+          }
+        ],
+        "semantic_ir_modifiers": [],
+        "semantic_ir_fragments": [],
+        "semantic_ir_present": false,
+        "oof_log": [
+          {
+            "rule": "OOF-M1",
+            "message": "pure contract 'BrokenPure' cannot declare escape capabilities; use 'observed' for read-only external access",
+            "node": "BrokenPure",
+            "line": null
+          }
+        ]
+      }
+    },
+    "shadow_profile_pack": {
+      "name": "ContractModifiersPack",
+      "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+      "status": "current_surface_shadow",
+      "requires_packs": [
+        "CoreLanguagePack",
+        "EscapeBoundaryPack",
+        "OOFRegistry",
+        "FragmentRegistry"
+      ],
+      "provides_capabilities": [
+        "contract_modifiers",
+        "modifier_fragment_widening"
+      ],
+      "parser_rules": [
+        "pure",
+        "observed",
+        "effect",
+        "privileged",
+        "irreversible"
+      ],
+      "classifier_rules": [
+        "modifier_passthrough",
+        "modifier_fragment_mapping",
+        "pure_escape_oof"
+      ],
+      "type_rules": [
+        "modifier_oof_propagation",
+        "modifier_typed_passthrough"
+      ],
+      "semanticir_handlers": [
+        "contract_ir_modifier"
+      ],
+      "assembler_hooks": [
+        "manifest_modifier_passthrough"
+      ],
+      "fragment_classes": [],
+      "oof_codes": [
+        "OOF-M1"
+      ]
+    },
+    "igapp_manifest_changes": []
+  },
+  "checks": {
+    "manifest.kind": true,
+    "manifest.boundary_mode_descriptor_only": true,
+    "manifest.requires_kernel_services": true,
+    "manifest.no_igapp_format_change": true,
+    "manifest.oof_m1_owned_by_pack": true,
+    "shadow_profile.compatible_pack_present": true,
+    "parser.modifiers_normalized": true,
+    "classifier.modifier_mapping": true,
+    "typechecker.modifier_passthrough": true,
+    "semanticir.modifier_field_for_emitted_contracts": true,
+    "classifier.oof_m1_negative_case": true,
+    "typechecker.oof_m1_blocks": true,
+    "semanticir.oof_m1_no_ir": true,
+    "classifier.temporal_precedence_over_modifier": true,
+    "proof.no_runtime_authorization": true,
+    "proof.no_manifest_changes": true
+  },
+  "next_recommended_slice": "compiler-kernel-pack-registry-spike-v0"
+}
