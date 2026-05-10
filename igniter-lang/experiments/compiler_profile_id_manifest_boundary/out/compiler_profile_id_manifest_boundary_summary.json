@@ -1,0 +1,168 @@
+{
+  "kind": "compiler_profile_id_manifest_boundary_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-id-manifest-boundary-plan-v0",
+  "status": "PASS",
+  "model": {
+    "profile_source": "igniter-lang/experiments/compiler_kernel_ordered_rule_precedence/out/compiler_kernel_ordered_rule_precedence_summary.json",
+    "profile_id": "ordered_rule_profile/sha256:674d7b6d7512186d5031555d",
+    "field_shape": {
+      "manifest_field": "compiler_profile_id",
+      "value": "ordered_rule_profile/sha256:674d7b6d7512186d5031555d",
+      "optional_profile_summary": {
+        "field": "compiler_profile",
+        "status": "deferred",
+        "reason": "manifest should carry stable id first; full profile summary may live in a sidecar after manifest PROP"
+      },
+      "profile_id_semantics": [
+        "Identifies the frozen compiler profile that assembled the artifact.",
+        "Includes pack implementation identities through the profile fingerprint.",
+        "Does not grant runtime execution authority."
+      ]
+    },
+    "policies": {
+      "legacy_optional": {
+        "absent": "accept_with_profile_status_absent_legacy",
+        "present_match": "accept_profile_match",
+        "present_mismatch": "refuse_profile_mismatch",
+        "malformed": "refuse_malformed_profile_id"
+      },
+      "profile_required": {
+        "absent": "refuse_missing_compiler_profile_id",
+        "present_match": "accept_profile_match",
+        "present_mismatch": "refuse_profile_mismatch",
+        "malformed": "refuse_malformed_profile_id"
+      }
+    },
+    "legacy_core": {
+      "program_id": "semanticir/e9664d5446df4e46",
+      "fragment_class": "core",
+      "has_compiler_profile_id": false,
+      "compiler_profile_id": null,
+      "manifest_hash": "sha256:08d4587149f3affbec1f5db25d31ad03c13faa8214d1c5836eacd63c47e42c5f"
+    },
+    "legacy_temporal": {
+      "program_id": "semanticir/history-valid-te",
+      "fragment_class": "temporal",
+      "has_compiler_profile_id": false,
+      "compiler_profile_id": null,
+      "manifest_hash": "sha256:74b262b74d46dd5ec8a7eab4a0fa2e63bbb2010846fc4ee66c212248c496eeb6"
+    },
+    "profiled_core": {
+      "program_id": "semanticir/e9664d5446df4e46",
+      "fragment_class": "core",
+      "has_compiler_profile_id": true,
+      "compiler_profile_id": "ordered_rule_profile/sha256:674d7b6d7512186d5031555d",
+      "manifest_hash": "sha256:230a0d022409a1c7f6784c3d1e92856bb2565d72eb399d31d8417836d2254921"
+    },
+    "profiled_temporal": {
+      "program_id": "semanticir/history-valid-te",
+      "fragment_class": "temporal",
+      "has_compiler_profile_id": true,
+      "compiler_profile_id": "ordered_rule_profile/sha256:674d7b6d7512186d5031555d",
+      "manifest_hash": "sha256:3ba7d47d210acd8310cb50c41e3819f58e0e6c0ab21a771818e3e0e6b47d2439"
+    },
+    "mismatched_profile": {
+      "program_id": "semanticir/e9664d5446df4e46",
+      "fragment_class": "core",
+      "has_compiler_profile_id": true,
+      "compiler_profile_id": "ordered_rule_profile/sha256:000000000000000000000000",
+      "manifest_hash": "sha256:a368890686d062be7e676cdd61ce3c880187ff88d4863f6785d931e65f301828"
+    },
+    "malformed_profile": {
+      "program_id": "semanticir/e9664d5446df4e46",
+      "fragment_class": "core",
+      "has_compiler_profile_id": true,
+      "compiler_profile_id": "not-a-profile-id",
+      "manifest_hash": "sha256:3df0e7cfc2b20bf11105cd7005ed0208b330a2b73e79957f4a332498995a68e4"
+    },
+    "compatibility_decisions": {
+      "legacy_absent_current_policy": {
+        "policy": "legacy_optional",
+        "decision": "accept_with_profile_status_absent_legacy",
+        "profile_status": "absent_legacy",
+        "runtime_authority": "unchanged_by_profile_id"
+      },
+      "legacy_absent_future_required_policy": {
+        "policy": "profile_required",
+        "decision": "refuse_missing_compiler_profile_id",
+        "profile_status": "invalid",
+        "runtime_authority": "unchanged_by_profile_id"
+      },
+      "profiled_core_current_policy": {
+        "policy": "legacy_optional",
+        "decision": "accept_profile_match",
+        "profile_status": "present_verified",
+        "runtime_authority": "unchanged_by_profile_id"
+      },
+      "profiled_temporal_current_policy": {
+        "policy": "legacy_optional",
+        "decision": "accept_profile_match",
+        "profile_status": "present_verified",
+        "runtime_authority": "unchanged_by_profile_id"
+      },
+      "mismatched_profile_current_policy": {
+        "policy": "legacy_optional",
+        "decision": "refuse_profile_mismatch",
+        "profile_status": "invalid",
+        "runtime_authority": "unchanged_by_profile_id"
+      },
+      "malformed_profile_current_policy": {
+        "policy": "legacy_optional",
+        "decision": "refuse_malformed_profile_id",
+        "profile_status": "invalid",
+        "runtime_authority": "unchanged_by_profile_id"
+      }
+    },
+    "artifact_hash_impact": {
+      "core_existing_hash": "sha256:9bee1fc0969af1175b2d0f288692fb6c241b61db4a1965f898739b8b1e257291",
+      "core_profiled_manifest_hash": "sha256:230a0d022409a1c7f6784c3d1e92856bb2565d72eb399d31d8417836d2254921",
+      "temporal_existing_hash": "sha256:a23d58b71650fc7e1fb5595fef11f888e89f85efb3691a88255dbed4b586b3c7",
+      "temporal_profiled_manifest_hash": "sha256:3ba7d47d210acd8310cb50c41e3819f58e0e6c0ab21a771818e3e0e6b47d2439",
+      "requires_reassembly_before_signing": true
+    },
+    "signed_artifact_implications": {
+      "signing_order": [
+        "finalize compiler profile",
+        "assemble manifest with compiler_profile_id",
+        "compute artifact_hash over profiled artifact material",
+        "sign artifact_hash and compiler_profile_id together"
+      ],
+      "approval_token_claims": {
+        "artifact_ref": "existing artifact hash or igapp ref",
+        "compiler_profile_id": "ordered_rule_profile/sha256:674d7b6d7512186d5031555d",
+        "effect": "prevents reusing approval for same artifact hash under a different compiler profile once profile id is required"
+      },
+      "ilk_implication": ".ilk/signed artifact metadata should include compiler_profile_id when manifest policy becomes profile_required"
+    }
+  },
+  "checks": {
+    "legacy.current_policy_accepts_absent": true,
+    "legacy.future_policy_refuses_absent": true,
+    "profiled.core_accepts_match": true,
+    "profiled.temporal_accepts_match": true,
+    "negative.mismatch_refused": true,
+    "negative.malformed_refused": true,
+    "field.profile_id_present_in_profiled_variants": true,
+    "artifact_hash.profile_field_changes_manifest_hash": true,
+    "recommendation.reassembly_before_signing": true,
+    "runtime.profile_id_grants_no_authority": true
+  },
+  "recommendation": {
+    "first_manifest_prop": "PROP-compiler-profile-id-manifest-v0",
+    "recommended_field": "compiler_profile_id",
+    "initial_policy": "legacy_optional",
+    "future_policy": "profile_required after profiled assembler adoption",
+    "do_not_add_yet": [
+      "Do not add compiler_profile_id to current assembler in this background slice.",
+      "Do not make RuntimeMachine refuse legacy artifacts yet.",
+      "Do not treat compiler_profile_id as runtime executor approval."
+    ]
+  },
+  "non_goals": [
+    "No existing .igapp manifest files are edited.",
+    "No assembler implementation changes.",
+    "No RuntimeMachine enforcement changes.",
+    "No signed artifact format changes."
+  ]
+}

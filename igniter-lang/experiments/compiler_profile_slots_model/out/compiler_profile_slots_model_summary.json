@@ -1,0 +1,560 @@
+{
+  "kind": "compiler_profile_slots_model_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-slots-model-v0",
+  "status": "PASS",
+  "profile_spec": {
+    "kind": "compiler_profile_spec",
+    "name": "Stage3ProofCompilerProfileSpec",
+    "format_version": "0.1.0",
+    "slot_order": [
+      "core",
+      "oof_registry",
+      "fragment_registry",
+      "escape_boundary",
+      "contract_modifiers",
+      "temporal",
+      "stream",
+      "olap",
+      "invariant",
+      "assumptions",
+      "evidence_observation",
+      "pipeline"
+    ],
+    "slots": {
+      "core": {
+        "cardinality": "exactly_one",
+        "accepts_pack_names": [
+          "CoreLanguagePack"
+        ],
+        "accepts_capabilities": [
+          "core_language"
+        ]
+      },
+      "oof_registry": {
+        "cardinality": "exactly_one",
+        "accepts_pack_names": [
+          "OOFRegistry"
+        ],
+        "accepts_capabilities": [
+          "oof_registry"
+        ]
+      },
+      "fragment_registry": {
+        "cardinality": "exactly_one",
+        "accepts_pack_names": [
+          "FragmentRegistry"
+        ],
+        "accepts_capabilities": [
+          "fragment_registry"
+        ]
+      },
+      "escape_boundary": {
+        "cardinality": "exactly_one",
+        "accepts_pack_names": [
+          "EscapeBoundaryPack"
+        ],
+        "accepts_capabilities": [
+          "escape_boundary"
+        ]
+      },
+      "contract_modifiers": {
+        "cardinality": "zero_or_one",
+        "accepts_pack_names": [
+          "ContractModifiersPack"
+        ],
+        "accepts_capabilities": [
+          "contract_modifiers"
+        ]
+      },
+      "temporal": {
+        "cardinality": "zero_or_one",
+        "accepts_pack_names": [
+          "TemporalPack",
+          "TemporalPackLedgerBacked"
+        ],
+        "accepts_capabilities": [
+          "temporal"
+        ]
+      },
+      "stream": {
+        "cardinality": "zero_or_one",
+        "accepts_pack_names": [
+          "StreamPack"
+        ],
+        "accepts_capabilities": [
+          "stream"
+        ]
+      },
+      "olap": {
+        "cardinality": "zero_or_one",
+        "accepts_pack_names": [
+          "OLAPPack"
+        ],
+        "accepts_capabilities": [
+          "olap_point"
+        ]
+      },
+      "invariant": {
+        "cardinality": "zero_or_one",
+        "accepts_pack_names": [
+          "InvariantPack"
+        ],
+        "accepts_capabilities": [
+          "invariant"
+        ]
+      },
+      "assumptions": {
+        "cardinality": "zero_or_one",
+        "accepts_pack_names": [
+          "AssumptionsPack"
+        ],
+        "accepts_capabilities": [
+          "assumptions"
+        ],
+        "requires_slots": [
+          "contract_modifiers"
+        ]
+      },
+      "evidence_observation": {
+        "cardinality": "zero_or_one",
+        "accepts_pack_names": [
+          "EvidenceObservationPack"
+        ],
+        "accepts_capabilities": [
+          "evidence_observation"
+        ]
+      },
+      "pipeline": {
+        "cardinality": "zero_or_one",
+        "accepts_pack_names": [
+          "PipelinePack"
+        ],
+        "accepts_capabilities": [
+          "pipeline_surface"
+        ]
+      }
+    }
+  },
+  "positive_profile": {
+    "kind": "compiler_profile_slots_model",
+    "format_version": "0.1.0",
+    "profile_spec": "Stage3ProofCompilerProfileSpec",
+    "slot_assignments": {
+      "core": {
+        "pack_name": "CoreLanguagePack",
+        "implementation_id": "core_language.proof_compiler_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "core_language",
+          "core_fragment",
+          "core_type_refs",
+          "core_semanticir"
+        ]
+      },
+      "oof_registry": {
+        "pack_name": "OOFRegistry",
+        "implementation_id": "oof_registry.shadow_descriptor_registry.v0",
+        "status": "kernel_service_candidate",
+        "provides_capabilities": [
+          "oof_registry",
+          "oof_descriptor_lookup",
+          "oof_stage_ownership"
+        ]
+      },
+      "fragment_registry": {
+        "pack_name": "FragmentRegistry",
+        "implementation_id": "fragment_registry.shadow_precedence_registry.v0",
+        "status": "kernel_service_candidate",
+        "provides_capabilities": [
+          "fragment_registry",
+          "fragment_precedence"
+        ]
+      },
+      "escape_boundary": {
+        "pack_name": "EscapeBoundaryPack",
+        "implementation_id": "escape_boundary.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "escape_boundary",
+          "read_surface",
+          "escape_fragment"
+        ]
+      },
+      "contract_modifiers": {
+        "pack_name": "ContractModifiersPack",
+        "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "contract_modifiers",
+          "modifier_fragment_widening"
+        ]
+      },
+      "temporal": {
+        "pack_name": "TemporalPack",
+        "implementation_id": "temporal.metadata_only_guarded.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "temporal",
+          "history_read",
+          "bihistory_read",
+          "temporal_access_node"
+        ]
+      },
+      "stream": {
+        "pack_name": "StreamPack",
+        "implementation_id": "stream.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "stream",
+          "stream_input",
+          "stream_window",
+          "fold_stream"
+        ]
+      },
+      "olap": {
+        "pack_name": "OLAPPack",
+        "implementation_id": "olap.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "olap_point",
+          "olap_type_ref",
+          "olap_access"
+        ]
+      },
+      "invariant": {
+        "pack_name": "InvariantPack",
+        "implementation_id": "invariant.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "invariant",
+          "invariant_severity",
+          "invariant_coverage"
+        ]
+      },
+      "assumptions": {
+        "pack_name": "AssumptionsPack",
+        "implementation_id": "assumptions.spec_shadow.v0",
+        "status": "proposed_shadow_only",
+        "provides_capabilities": [
+          "assumptions",
+          "epistemic_fragment",
+          "assumption_refs"
+        ]
+      },
+      "evidence_observation": {
+        "pack_name": "EvidenceObservationPack",
+        "implementation_id": "evidence_observation.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "evidence_observation",
+          "confidence_label_checks"
+        ]
+      },
+      "pipeline": {
+        "pack_name": "PipelinePack",
+        "implementation_id": "pipeline.current_parser_surface_shadow.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "pipeline_surface"
+        ]
+      }
+    },
+    "dispatch_mode": "slot_validation_only_no_compiler_dispatch",
+    "igapp_manifest_changes": [],
+    "profile_id": "compiler_profile_slots/sha256:f8ba55dd264db5f1268ba99f"
+  },
+  "reversed_input_profile": {
+    "profile_id": "compiler_profile_slots/sha256:f8ba55dd264db5f1268ba99f",
+    "slot_assignments": {
+      "core": {
+        "pack_name": "CoreLanguagePack",
+        "implementation_id": "core_language.proof_compiler_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "core_language",
+          "core_fragment",
+          "core_type_refs",
+          "core_semanticir"
+        ]
+      },
+      "oof_registry": {
+        "pack_name": "OOFRegistry",
+        "implementation_id": "oof_registry.shadow_descriptor_registry.v0",
+        "status": "kernel_service_candidate",
+        "provides_capabilities": [
+          "oof_registry",
+          "oof_descriptor_lookup",
+          "oof_stage_ownership"
+        ]
+      },
+      "fragment_registry": {
+        "pack_name": "FragmentRegistry",
+        "implementation_id": "fragment_registry.shadow_precedence_registry.v0",
+        "status": "kernel_service_candidate",
+        "provides_capabilities": [
+          "fragment_registry",
+          "fragment_precedence"
+        ]
+      },
+      "escape_boundary": {
+        "pack_name": "EscapeBoundaryPack",
+        "implementation_id": "escape_boundary.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "escape_boundary",
+          "read_surface",
+          "escape_fragment"
+        ]
+      },
+      "contract_modifiers": {
+        "pack_name": "ContractModifiersPack",
+        "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "contract_modifiers",
+          "modifier_fragment_widening"
+        ]
+      },
+      "temporal": {
+        "pack_name": "TemporalPack",
+        "implementation_id": "temporal.metadata_only_guarded.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "temporal",
+          "history_read",
+          "bihistory_read",
+          "temporal_access_node"
+        ]
+      },
+      "stream": {
+        "pack_name": "StreamPack",
+        "implementation_id": "stream.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "stream",
+          "stream_input",
+          "stream_window",
+          "fold_stream"
+        ]
+      },
+      "olap": {
+        "pack_name": "OLAPPack",
+        "implementation_id": "olap.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "olap_point",
+          "olap_type_ref",
+          "olap_access"
+        ]
+      },
+      "invariant": {
+        "pack_name": "InvariantPack",
+        "implementation_id": "invariant.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "invariant",
+          "invariant_severity",
+          "invariant_coverage"
+        ]
+      },
+      "assumptions": {
+        "pack_name": "AssumptionsPack",
+        "implementation_id": "assumptions.spec_shadow.v0",
+        "status": "proposed_shadow_only",
+        "provides_capabilities": [
+          "assumptions",
+          "epistemic_fragment",
+          "assumption_refs"
+        ]
+      },
+      "evidence_observation": {
+        "pack_name": "EvidenceObservationPack",
+        "implementation_id": "evidence_observation.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "evidence_observation",
+          "confidence_label_checks"
+        ]
+      },
+      "pipeline": {
+        "pack_name": "PipelinePack",
+        "implementation_id": "pipeline.current_parser_surface_shadow.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "pipeline_surface"
+        ]
+      }
+    }
+  },
+  "temporal_variant_profile": {
+    "profile_id": "compiler_profile_slots/sha256:90d00bebb3ad0bc3e5b714e9",
+    "slot_assignments": {
+      "core": {
+        "pack_name": "CoreLanguagePack",
+        "implementation_id": "core_language.proof_compiler_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "core_language",
+          "core_fragment",
+          "core_type_refs",
+          "core_semanticir"
+        ]
+      },
+      "oof_registry": {
+        "pack_name": "OOFRegistry",
+        "implementation_id": "oof_registry.shadow_descriptor_registry.v0",
+        "status": "kernel_service_candidate",
+        "provides_capabilities": [
+          "oof_registry",
+          "oof_descriptor_lookup",
+          "oof_stage_ownership"
+        ]
+      },
+      "fragment_registry": {
+        "pack_name": "FragmentRegistry",
+        "implementation_id": "fragment_registry.shadow_precedence_registry.v0",
+        "status": "kernel_service_candidate",
+        "provides_capabilities": [
+          "fragment_registry",
+          "fragment_precedence"
+        ]
+      },
+      "escape_boundary": {
+        "pack_name": "EscapeBoundaryPack",
+        "implementation_id": "escape_boundary.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "escape_boundary",
+          "read_surface",
+          "escape_fragment"
+        ]
+      },
+      "contract_modifiers": {
+        "pack_name": "ContractModifiersPack",
+        "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "contract_modifiers",
+          "modifier_fragment_widening"
+        ]
+      },
+      "temporal": {
+        "pack_name": "TemporalPackLedgerBacked",
+        "implementation_id": "temporal.ledger_tbackend_profile_slot_variant.v0",
+        "status": "variant_candidate",
+        "provides_capabilities": [
+          "temporal",
+          "history_read",
+          "bihistory_read",
+          "temporal_access_node"
+        ]
+      },
+      "stream": {
+        "pack_name": "StreamPack",
+        "implementation_id": "stream.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "stream",
+          "stream_input",
+          "stream_window",
+          "fold_stream"
+        ]
+      },
+      "olap": {
+        "pack_name": "OLAPPack",
+        "implementation_id": "olap.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "olap_point",
+          "olap_type_ref",
+          "olap_access"
+        ]
+      },
+      "invariant": {
+        "pack_name": "InvariantPack",
+        "implementation_id": "invariant.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "invariant",
+          "invariant_severity",
+          "invariant_coverage"
+        ]
+      },
+      "assumptions": {
+        "pack_name": "AssumptionsPack",
+        "implementation_id": "assumptions.spec_shadow.v0",
+        "status": "proposed_shadow_only",
+        "provides_capabilities": [
+          "assumptions",
+          "epistemic_fragment",
+          "assumption_refs"
+        ]
+      },
+      "evidence_observation": {
+        "pack_name": "EvidenceObservationPack",
+        "implementation_id": "evidence_observation.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "evidence_observation",
+          "confidence_label_checks"
+        ]
+      },
+      "pipeline": {
+        "pack_name": "PipelinePack",
+        "implementation_id": "pipeline.current_parser_surface_shadow.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "pipeline_surface"
+        ]
+      }
+    }
+  },
+  "negative_results": {
+    "missing_required_core": {
+      "raised": true,
+      "class": "MissingRequiredSlotError",
+      "message": "missing required slots: core"
+    },
+    "duplicate_temporal_variants": {
+      "raised": true,
+      "class": "DuplicateSlotFillError",
+      "message": "slot temporal already filled by TemporalPack; cannot add TemporalPackLedgerBacked"
+    },
+    "helper_pack_rejected": {
+      "raised": true,
+      "class": "UnknownPackSlotError",
+      "message": "no slot accepts ParserHelpersPack"
+    },
+    "assumptions_without_modifiers": {
+      "raised": true,
+      "class": "MissingSlotDependencyError",
+      "message": "slot assumptions requires missing slots: contract_modifiers"
+    }
+  },
+  "checks": {
+    "positive.profile_kind": true,
+    "positive.required_slots_present": true,
+    "positive.optional_slots_present": true,
+    "positive.dispatch_slot_validation_only": true,
+    "positive.no_igapp_manifest_changes": true,
+    "determinism.input_order_independent_assignments": true,
+    "determinism.input_order_independent_profile_id": true,
+    "variants.temporal_variant_changes_profile_id": true,
+    "variants.temporal_slot_accepts_alternate_implementation": true,
+    "negative.missing_required_core_rejected": true,
+    "negative.duplicate_temporal_variants_rejected": true,
+    "negative.helper_pack_rejected": true,
+    "negative.assumptions_without_modifiers_rejected": true
+  },
+  "design_signal": {
+    "profile_spec_role": "profile-of-profile; validates allowed slots before CompilerProfile finalization",
+    "prevents_over_splitting": "packs without semantic capability slots are rejected",
+    "supports_competing_implementations": "same slot can accept exactly one variant by implementation_id"
+  },
+  "non_goals": [
+    "No compiler pass dispatch.",
+    "No production CompilerProfileSpec implementation.",
+    "No .igapp manifest changes."
+  ]
+}
