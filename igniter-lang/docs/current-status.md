@@ -96,7 +96,9 @@ Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             R23 proof-local persistence/registry receipts/alias signal PASS;
                             R24 post-R23 regression 23/23 PASS;
                             proof-local registry storage semantics + tamper-evidence PASS;
-                            production durable audit/registry ownership/signing still closed
+                            R25 regression readiness 25/25 PASS;
+                            production durable audit approved for design only;
+                            implementation/registry ownership/signing still closed
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open
@@ -246,6 +248,11 @@ Round 24 landed:
   S3-R24-C2-P: durable registry storage semantics ✅ PASS 10/10; proof-local, no signing/Ledger/executor
   S3-R24-C3-P: observation tamper-evidence shape ✅ PASS 23/23; SHA256 chain, not production audit
   S3-R24-X1-S: regression/durability pressure   ✅ PROCEED; non-blockers only; P-8/P-9 closed
+Round 25 landed:
+  S3-R25-C1-P: post-R24 regression rerun        ✅ PASS 25/25; regression readiness, not implementation auth
+  S3-R25-C2-A: durable audit scope decision     ✅ approved-for-design-only; implementation still closed
+  S3-R25-C3-P: registry ownership options       ✅ gate document store + generated index recommended; no binding
+  S3-R25-X1-S: audit scope/registry pressure    ✅ PROCEED; non-blockers only; P-13 closed, P-14 added
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion;
                   other syntax candidates require proposal tracks
@@ -335,6 +342,10 @@ Source .ig
        durable registry storage semantics        ✅ S3-R24 C2 PASS 10/10; proof-local query/receipt semantics
        observation tamper-evidence shape         ✅ S3-R24 C3 PASS 23/23; content-integrity chain only
        post-R23 durability pressure              ✅ S3-R24 X1 PROCEED; high risks closed, low items routed
+       post-R24 regression rerun                 ✅ S3-R25 C1 PASS 25/25; current regression readiness
+       production durable audit scope            ✅ S3-R25 C2 design-only approval; implementation still closed
+       registry ownership options                ✅ S3-R25 C3 recommends gate docs + generated index; no decision binding
+       audit scope/ownership pressure            ✅ S3-R25 X1 PROCEED; design may continue, blockers remain
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -409,16 +420,30 @@ Registry storage semantics:
                      effective-time active/revoked/superseded lookup, receipt-chain verification, and
                      content-addressed decision-ref verification are proven. Direct active -> superseded is blocked
                      in v0; production registry ownership/signing/key management remain open.
+Regression readiness:
+                     current Gate 3 Phase 1 matrix ✅ 25/25 PASS after R25; includes the R24 durable registry
+                     storage and observation tamper-evidence fixtures. This is readiness evidence only, not
+                     production implementation authorization.
+Production durable audit:
+                     approved for design only ✅ by S3-R25-C2-A. The next design track may specify signing
+                     boundary, restart rebuild, format_version enforcement, retention/audit traversal semantics,
+                     storage identity, audit reader role, compliance language, refusal codes, blockers, and proof
+                     plan. Implementation, deployment, production signing execution/key management, Ledger/Phase 2,
+                     BiHistory, stream/OLAP, production cache, writes/replay/compact/subscribe, runtime registry
+                     implementation, and broader `gate3_authorized` remain closed.
+Production registry ownership:
+                     options analyzed ✅; recommended Phase 1 default is gate document store plus generated
+                     content-addressed registry index. Architect ownership/freshness/index-generation decision
+                     remains open before binding implementation assumptions.
 Reason codes:       LEGACY_ALIASES deprecation signal ✅; lib/ executor emits canonical
                      `runtime.temporal_scope_exclusion`; sealed old fixtures are not retroactively edited;
                      alias removal remains Phase 2 housekeeping.
 Pre-signing remaining:
                       none for restricted Phase 1 live-read addendum; closed by S3-R20-C1-A.
 Pre-production remaining:
-                      production durable audit with HSM/KMS signing, restart rebuild, retention/replay semantics,
-                      version enforcement, off-process persistence, and compliance language; production registry
-                      ownership/service; production signing/key management; real commit SHA / no
-                      `workspace-current`; next regression matrix expansion to 25 commands; Phase 2 addendum gaps
+                      production durable audit implementation authorization; production registry ownership/freshness
+                      decision or explicit decoupling statement; production signing/key management execution; real
+                      commit SHA / no `workspace-current`; deterministic regression artifact policy; Phase 2 addendum gaps
 Runtime observations: proof-backed ✅ proof-local file persistence + tamper-evidence shape; production durable audit still open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; restricted Phase 1 eval now signed-scope only
@@ -498,6 +523,16 @@ S3-R24 result:        Post-R23 consolidation and durability shaping landed witho
                       it is content integrity only, not HSM/KMS signing, production durable audit, Ledger, or compliance.
                       X1 says PROCEED with non-blockers only: P-8 and P-9 are closed; next matrix should expand to
                       25 commands, and production durable audit / registry ownership need Architect scope.
+S3-R25 result:        Regression readiness and production audit design scope landed without implementation authorization:
+                      C1 PASS 25/25 expands the canonical Gate 3 Phase 1 matrix by adding R24 registry storage and
+                      tamper-evidence fixtures; it is a regression record only. C2-A approves
+                      `phase1-production-durable-audit-v0` for design only, with implementation/deployment/signing
+                      execution/Ledger/Phase 2/BiHistory/stream/OLAP/cache/write/replay/compact/subscribe all closed
+                      until a later Architect decision. C3 compares registry ownership options and recommends gate
+                      document store plus generated content-addressed registry index as Phase 1 default, but no binding
+                      Architect ownership decision exists yet. X1 says PROCEED with non-blockers only, closes P-13,
+                      adds P-14 deterministic artifact policy, and recommends R26 design-only audit work plus registry
+                      ownership decision.
 ```
 
 ### Spec Freshness
@@ -509,7 +544,7 @@ S3-R24 result:        Post-R23 consolidation and durability shaping landed witho
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
-| Ch7 Runtime | ✅ synced through R17 lib boundary; R24 proof-local durability shapes | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0` | R24 adds full post-R23 regression and proof-local registry storage/tamper-evidence shapes; production durable audit, production registry ownership/service, production signing/key management, and Phase 2 remain closed |
+| Ch7 Runtime | ✅ synced through R17 lib boundary; R25 design-only audit scope | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0` | R25 closes regression readiness 25/25 and approves production durable audit design only; implementation, production signing/key management execution, registry ownership decision, and Phase 2 remain closed |
 | Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
@@ -623,6 +658,18 @@ DOC-DEBT-26  S3-R24 pre-production carry:
              durable audit still needs HSM/KMS signing, restart rebuild,
              version enforcement, retention/replay semantics, off-process
              persistence, and compliance language.
+DOC-DEBT-27  S3-R25 regression/design split:
+             post-R24 regression readiness is closed 25/25. Production durable
+             audit is approved for design only by S3-R25-C2-A; do not mark
+             implementation, deployment, signing execution/key management,
+             Ledger/Phase 2, BiHistory, stream/OLAP, cache, writes/replay/
+             compact/subscribe, or broader gate3_authorized as authorized.
+DOC-DEBT-28  S3-R25 R26 carry:
+             R26 should route `phase1-production-durable-audit-v0` as design
+             only, Architect registry ownership/freshness/index-generation
+             decision, and deterministic regression artifact policy. Registry
+             options recommend gate document store + generated content-addressed
+             index, but no binding Architect ownership decision exists yet.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes

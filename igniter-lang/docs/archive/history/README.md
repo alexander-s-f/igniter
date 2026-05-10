@@ -26,6 +26,7 @@ reports when origin or archive evidence matters.
 | [History-S12 Archive Rotation Candidate Ledger](./history-s12-archive-rotation-candidate-ledger.md) | Aggregates S1-S11 into cleanup packets, no-move zones, read temperatures, and exact future rotation candidates without moving files. |
 | [History-S13 External Pressure Corpus Map](./history-s13-external-pressure-corpus-map.md) | Classifies `playgrounds/docs/external/` as pressure atlas, benchmark corpus, grammar lab, boundary fixtures, and cold raw specimens. |
 | [History-S14 External Pressure Fixture Backlog](./history-s14-external-pressure-fixture-backlog.md) | Converts S13 external pressure into a non-authorizing backlog of proposal prerequisites, synthetic fixtures, grammar research, and boundary-only candidates. |
+| [History-S15 Syntax Pressure Backlog Map](./history-s15-syntax-pressure-backlog-map.md) | Separates current proposal-only syntax, private research pressure, and do-not-promote syntax zones across S10, S13, S14, and the external workbench. |
 
 ## Read Rule
 

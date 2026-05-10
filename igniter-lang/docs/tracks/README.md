@@ -28,6 +28,16 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 25 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `phase1-post-r24-regression-rerun-v0.md` | done | PASS 25/25; regression readiness only, expands matrix with R24 storage/tamper fixtures; no implementation authorization |
+| `../gates/phase1-production-durable-audit-scope-decision-v0.md` | approved-for-design-only | Architect approves `phase1-production-durable-audit-v0` design work only; implementation/deployment/signing execution/Ledger/Phase 2 remain closed |
+| `production-registry-ownership-options-v0.md` | done | Recommends gate document store + generated content-addressed registry index as Phase 1 default; no binding ownership decision or implementation |
+| `../discussions/phase1-production-audit-scope-and-registry-ownership-pressure-v0.md` | complete — PROCEED (non-blockers only) | X1 confirms 25-command matrix, design-only scope, closed excluded surfaces; closes P-13, adds P-14 deterministic artifact policy |
+| `stage3-round25-status-curation-v0.md` | done | R25 status/index sync — this track |
+
 ## Stage 3 Round 24 Evidence
 
 | Track | Status | Notes |
@@ -450,10 +460,14 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `phase1-production-durable-audit-v0` | Route production durable audit only with Architect scope: HSM/KMS signing, restart rebuild, version enforcement, retention/replay, off-process persistence, compliance language | Research Agent / Bridge Agent / Architect Supervisor | recommended for R25 scope decision |
-| post-R24 regression rerun expanding to 25 commands | Add R24 C2/C3 fixtures to the canonical matrix after same-round sequencing left C1 at 23 commands | Research Agent | recommended |
-| production registry ownership decision | Decide whether package, gate document store, or external authority service owns production registry storage before implementation | Architect Supervisor / Meta Expert / Bridge Agent | recommended |
-| `phase1-format-version-enforcement-v0` | Enforce tamper-evidence `format_version` before any production store integration | Implementation Agent / Research Agent | low-priority pre-production |
+| `phase1-production-durable-audit-v0` | Design only under S3-R25-C2-A: signing model recommendation, restart rebuild, format enforcement, retention/audit traversal, storage identity, audit reader, compliance language, error codes, blockers, proof plan | Research Agent / Bridge Agent | recommended for R26; no implementation authorization |
+| Architect registry ownership decision | Answer C3-P Q1-Q6: source of truth, freshness SLA, index generation owner, immutable anchor, external service receipt exposure, package authority prohibition | Architect Supervisor / Meta Expert / Bridge Agent | recommended for R26 |
+| deterministic artifact policy for regression harness | Decide how to handle nondeterministic proof outputs such as stage2 close JSON and tamper-evidence JSONL | Research Agent | low-priority R26 |
+| production durable audit implementation authorization | Later Architect decision after design pressure review, registry ownership/decoupling, signing boundary, rebuild/version proof plan, and non-Ledger statement | Architect Supervisor | closed until later decision |
+| `phase1-production-durable-audit-v0` scope decision | Route production durable audit only with Architect scope: HSM/KMS signing, restart rebuild, version enforcement, retention/replay, off-process persistence, compliance language | Architect Supervisor | approved-for-design-only in S3-R25-C2-A |
+| post-R24 regression rerun expanding to 25 commands | Add R24 C2/C3 fixtures to the canonical matrix after same-round sequencing left C1 at 23 commands | Research Agent | done in S3-R25-C1-P |
+| production registry ownership options | Compare package-owned registry, gate document store, and external authority service before binding implementation | Bridge Agent | done in S3-R25-C3-P; decision still open |
+| `phase1-format-version-enforcement-v0` | Enforce tamper-evidence `format_version` before any production store integration | Implementation Agent / Research Agent | design scope approved; implementation not authorized |
 | `phase1-post-r23-regression-rerun-v0` | Consolidate post-R19 fixtures, including R20-R23, into one current rerun before any scope-widening track | Research Agent | done in S3-R24-C1-P |
 | production durable audit track | Add tamper evidence/hash chain, storage identity, retention, replay semantics, and compliance language; not implied by R23 JSONL shape | Research Agent / Bridge Agent | superseded by R24 recommendation for `phase1-production-durable-audit-v0` with Architect scope |
 | durable registry storage semantics | Turn registry v1 receipts shape into durable/queryable storage; decide active -> superseded direct transition | Bridge Agent + Research Agent | done in S3-R24-C2-P |
