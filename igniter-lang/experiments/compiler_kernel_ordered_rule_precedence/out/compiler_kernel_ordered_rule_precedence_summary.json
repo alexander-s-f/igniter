@@ -1,0 +1,124 @@
+{
+  "kind": "compiler_kernel_ordered_rule_precedence_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-kernel-ordered-rule-precedence-v0",
+  "status": "PASS",
+  "positive_profile": {
+    "kind": "ordered_rule_profile_spike",
+    "format_version": "0.1.0",
+    "track": "compiler-kernel-ordered-rule-precedence-v0",
+    "dispatch_mode": "ordered_registry_only_no_compiler_dispatch",
+    "ordered_registries": {
+      "parser_rules": [
+        "contract_modifiers.parse_modifier_prefix",
+        "core.parse_contract_decl"
+      ],
+      "classifier_rules": [
+        "core.contract_fragment_default",
+        "escape.classify_escape_boundary",
+        "contract_modifiers.modifier_fragment_widening",
+        "contract_modifiers.oof_m1_pure_escape",
+        "temporal.temporal_precedence"
+      ],
+      "typechecker_rules": [
+        "core.typecheck_contract",
+        "contract_modifiers.propagate_oof_m1",
+        "temporal.typecheck_temporal_access"
+      ]
+    },
+    "strict_registries": {
+      "oof_descriptors": {
+        "OOF-P0": "CoreLanguagePack",
+        "OOF-P1": "CoreLanguagePack",
+        "OOF-TY0": "CoreLanguagePack",
+        "OOF-M1": "ContractModifiersPack",
+        "OOF-H1": "TemporalPack",
+        "OOF-BT1": "TemporalPack"
+      },
+      "fragment_classes": {
+        "core": "CoreLanguagePack",
+        "escape": "EscapeBoundaryPack",
+        "temporal": "TemporalPack"
+      }
+    },
+    "igapp_manifest_changes": [],
+    "profile_id": "ordered_rule_profile/sha256:674d7b6d7512186d5031555d"
+  },
+  "reversed_install_profile": {
+    "profile_id": "ordered_rule_profile/sha256:674d7b6d7512186d5031555d",
+    "ordered_registries": {
+      "parser_rules": [
+        "contract_modifiers.parse_modifier_prefix",
+        "core.parse_contract_decl"
+      ],
+      "classifier_rules": [
+        "core.contract_fragment_default",
+        "escape.classify_escape_boundary",
+        "contract_modifiers.modifier_fragment_widening",
+        "contract_modifiers.oof_m1_pure_escape",
+        "temporal.temporal_precedence"
+      ],
+      "typechecker_rules": [
+        "core.typecheck_contract",
+        "contract_modifiers.propagate_oof_m1",
+        "temporal.typecheck_temporal_access"
+      ]
+    }
+  },
+  "negative_results": {
+    "missing_before_reference": {
+      "raised": true,
+      "class": "MissingRuleReferenceError",
+      "message": "classifier_rules rule broken.rule references missing rule missing.rule"
+    },
+    "cycle_rejected": {
+      "raised": true,
+      "class": "RuleCycleError",
+      "message": "classifier_rules rule ordering contains a cycle"
+    },
+    "duplicate_ordered_rule_rejected": {
+      "raised": true,
+      "class": "DuplicateRuleError",
+      "message": "parser_rules already has rule dup.rule"
+    },
+    "duplicate_strict_oof_rejected": {
+      "raised": true,
+      "class": "DuplicateStrictKeyError",
+      "message": "oof_descriptors OOF-X1 already owned by OOFA"
+    }
+  },
+  "checks": {
+    "positive.dispatch_ordered_registry_only": true,
+    "positive.parser_modifier_before_contract": true,
+    "positive.classifier_temporal_after_modifier": true,
+    "positive.typechecker_order": true,
+    "positive.strict_oof_ownership": true,
+    "positive.strict_fragment_ownership": true,
+    "positive.no_igapp_manifest_changes": true,
+    "determinism.install_order_independent": true,
+    "determinism.profile_id_stable_for_same_rules": true,
+    "negative.missing_reference_rejected": true,
+    "negative.cycle_rejected": true,
+    "negative.duplicate_ordered_rule_rejected": true,
+    "negative.duplicate_strict_oof_rejected": true
+  },
+  "policy": {
+    "strict_registries": [
+      "oof_descriptors",
+      "fragment_classes"
+    ],
+    "ordered_registries": [
+      "parser_rules",
+      "classifier_rules",
+      "typechecker_rules"
+    ],
+    "tie_break": "priority_then_rule_id",
+    "missing_references": "error",
+    "cycles": "error"
+  },
+  "non_goals": [
+    "No compiler pass dispatch.",
+    "No production CompilerKernel implementation.",
+    "No .igapp manifest changes."
+  ]
+}
