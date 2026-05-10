@@ -3,7 +3,7 @@
   "contracts": [
     {
       "contract_name": "RegionalDailyRevenuePoint",
-      "contract_ref": "contract/RegionalDailyRevenuePoint/sha256:d5b38e5b32544809b052728d",
+      "contract_ref": "contract/RegionalDailyRevenuePoint/sha256:2e6075e52d6024d83994f1ac",
       "escape_boundaries": [],
       "fragment_class": "escape",
       "inputs": [
@@ -33,6 +33,7 @@
         }
       ],
       "kind": "contract_ir",
+      "modifier": "pure",
       "nodes": [
         {
           "kind": "olap_access_node",

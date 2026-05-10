@@ -1,17 +1,17 @@
 {
-  "artifact_hash": "sha256:93022bbc4939618cf35a2cd77ab30880d2a4d3971eb237663ee62e5d48981f74",
+  "artifact_hash": "sha256:64d50be958491e562418333a23290eb7e727c2be309291e195cfa0bceee5616e",
   "assembler": "igapp-assembler-proof-stage1-v0",
   "compilation_report_ref": "compilation_report/3996d52ebb40381b",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
     "ClaimEvidenceBundle": {
       "contract_path": "contracts/claim_evidence_bundle.json",
-      "contract_ref": "contract/ClaimEvidenceBundle/sha256:9223b4be6577dc58217eb6cd",
+      "contract_ref": "contract/ClaimEvidenceBundle/sha256:08aa7759c8de5770232c54b0",
       "fragment_class": "core"
     }
   },
   "contract_refs": {
-    "ClaimEvidenceBundle": "contract/ClaimEvidenceBundle/sha256:9223b4be6577dc58217eb6cd"
+    "ClaimEvidenceBundle": "contract/ClaimEvidenceBundle/sha256:08aa7759c8de5770232c54b0"
   },
   "contracts": [
     "ClaimEvidenceBundle"

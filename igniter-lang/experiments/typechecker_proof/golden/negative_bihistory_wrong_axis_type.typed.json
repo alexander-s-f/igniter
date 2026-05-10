@@ -13,6 +13,7 @@
       "kind": "typed_contract",
       "contract_id": "Fixture.BiHistoryAxes.BiHistoryWrongAxisType",
       "name": "BiHistoryWrongAxisType",
+      "modifier": "pure",
       "status": "blocked",
       "fragment_class": "temporal",
       "symbols": [

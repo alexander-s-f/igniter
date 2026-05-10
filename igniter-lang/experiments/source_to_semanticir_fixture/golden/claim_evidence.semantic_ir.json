@@ -10,8 +10,9 @@
   "contracts": [
     {
       "kind": "contract_ir",
-      "contract_ref": "contract/ClaimEvidenceBundle/sha256:9223b4be6577dc58217eb6cd",
+      "contract_ref": "contract/ClaimEvidenceBundle/sha256:08aa7759c8de5770232c54b0",
       "contract_name": "ClaimEvidenceBundle",
+      "modifier": "pure",
       "specialization_of": null,
       "type_args": {},
       "fragment_class": "core",

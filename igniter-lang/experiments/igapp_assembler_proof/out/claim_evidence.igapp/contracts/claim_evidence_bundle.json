@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:93022bbc4939618cf35a2cd77ab30880d2a4d3971eb237663ee62e5d48981f74",
+  "artifact_hash": "sha256:64d50be958491e562418333a23290eb7e727c2be309291e195cfa0bceee5616e",
   "compute_nodes": [
     {
       "dependencies": [
@@ -50,7 +50,7 @@
       "type_tag": "String"
     }
   ],
-  "source_contract_ref": "contract/ClaimEvidenceBundle/sha256:9223b4be6577dc58217eb6cd",
+  "source_contract_ref": "contract/ClaimEvidenceBundle/sha256:08aa7759c8de5770232c54b0",
   "type_signature": {
     "inputs": {
       "claim": "Claim",

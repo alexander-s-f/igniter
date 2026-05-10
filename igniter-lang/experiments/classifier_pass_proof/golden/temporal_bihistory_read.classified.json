@@ -12,6 +12,7 @@
       "kind": "classified_contract",
       "contract_id": "Fixture.Classifier.Temporal.TemporalBiHistoryRead",
       "name": "TemporalBiHistoryRead",
+      "modifier": "pure",
       "fragment_class": "temporal",
       "symbols": [
         {

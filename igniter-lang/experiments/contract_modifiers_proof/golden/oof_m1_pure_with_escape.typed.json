@@ -1,0 +1,74 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/e3a090962601fcdd",
+  "classified_program_id": "classifier_pass/14acb6cec23a5cee",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/oof_m1_pure_with_escape.ig",
+  "source_hash": "sha256:9cf3f2ac254d2f4cfe6c3270bcc1a1b5404587421d0a99ed29cea3f8e0c30c52",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.OofM1",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Proof.ContractModifiers.OofM1.BrokenPure",
+      "name": "BrokenPure",
+      "modifier": "pure",
+      "status": "blocked",
+      "fragment_class": "oof",
+      "symbols": [
+        {
+          "name": "sensor_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:sensor_id",
+          "kind": "input",
+          "name": "sensor_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "output:sensor_id",
+          "kind": "output",
+          "name": "sensor_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": [
+            "sensor_id"
+          ]
+        }
+      ],
+      "type_errors": [
+        {
+          "rule": "OOF-M1",
+          "message": "pure contract 'BrokenPure' cannot declare escape capabilities; use 'observed' for read-only external access",
+          "node": "BrokenPure",
+          "line": null
+        }
+      ]
+    }
+  ],
+  "type_errors": [
+    {
+      "rule": "OOF-M1",
+      "message": "pure contract 'BrokenPure' cannot declare escape capabilities; use 'observed' for read-only external access",
+      "node": "BrokenPure",
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

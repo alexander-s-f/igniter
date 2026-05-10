@@ -12,6 +12,7 @@
     {
       "kind": "contract",
       "name": "BadEvidenceLessAlertGate",
+      "modifier": "pure",
       "type_params": [],
       "body": [
         {

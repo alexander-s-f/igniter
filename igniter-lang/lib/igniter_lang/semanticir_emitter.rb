@@ -139,6 +139,7 @@ module IgniterLang
         "kind" => "contract_ir",
         "contract_ref" => nil,
         "contract_name" => contract.fetch("name"),
+        "modifier" => contract.fetch("modifier", "pure"),
         "specialization_of" => nil,
         "type_args" => {},
         "fragment_class" => contract.fetch("fragment_class"),
@@ -575,13 +576,22 @@ module IgniterLang
       end
 
       diagnostics.concat(evidence_gate_oofs(contract, sample_input, value_env))
+      modifier = contract.fetch("modifier", "pure")
+      fragment_class = if !diagnostics.empty?
+                         "oof"
+                       elsif modifier != "pure"
+                         "escape"
+                       else
+                         "core"
+                       end
       contract_ir = {
         "kind" => "contract_ir",
         "contract_ref" => nil,
         "contract_name" => contract.fetch("name"),
+        "modifier" => modifier,
         "specialization_of" => nil,
         "type_args" => {},
-        "fragment_class" => diagnostics.empty? ? "core" : "oof",
+        "fragment_class" => fragment_class,
         "inputs" => inputs,
         "outputs" => outputs,
         "nodes" => nodes,

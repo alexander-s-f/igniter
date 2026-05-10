@@ -12,6 +12,7 @@
       "kind": "classified_contract",
       "contract_id": "Fixture.StreamClassifier.StreamIngressEscape",
       "name": "StreamIngressEscape",
+      "modifier": "observed",
       "fragment_class": "escape",
       "symbols": [
         {

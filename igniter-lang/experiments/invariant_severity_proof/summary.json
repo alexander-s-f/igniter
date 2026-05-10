@@ -915,11 +915,12 @@
     "contracts": [
       {
         "contract_name": "MedicationDoseReview",
-        "contract_ref": "contract/MedicationDoseReview/sha256:6f6db8c773a3f935c5231ebe",
+        "contract_ref": "contract/MedicationDoseReview/sha256:d6106d057b4f725cdfda28bf",
         "escape_boundaries": [],
         "fragment_class": "core",
         "inputs": [],
         "kind": "contract_ir",
+        "modifier": "pure",
         "nodes": [
           {
             "deps": [],

@@ -1,0 +1,60 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/dc3d020124338f65",
+  "classified_program_id": "classifier_pass/40adea5527d19837",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/observed_contract_basic.ig",
+  "source_hash": "sha256:4174e9688096670154bf6063d5deab32ef0208723b76872aa1f9a5704b1ffc34",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.ObservedBasic",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Proof.ContractModifiers.ObservedBasic.ReadSensor",
+      "name": "ReadSensor",
+      "modifier": "observed",
+      "status": "accepted",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "sensor_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:sensor_id",
+          "kind": "input",
+          "name": "sensor_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "output:sensor_id",
+          "kind": "output",
+          "name": "sensor_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": [
+            "sensor_id"
+          ]
+        }
+      ],
+      "type_errors": []
+    }
+  ],
+  "type_errors": [],
+  "semantic_ir_ref": null
+}

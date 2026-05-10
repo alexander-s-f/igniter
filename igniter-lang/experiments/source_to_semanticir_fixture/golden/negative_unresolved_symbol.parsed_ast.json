@@ -12,6 +12,7 @@
     {
       "kind": "contract",
       "name": "BadUnresolvedSymbol",
+      "modifier": "pure",
       "type_params": [],
       "body": [
         {

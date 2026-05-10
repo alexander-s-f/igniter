@@ -12,6 +12,7 @@
     {
       "kind": "contract",
       "name": "Add",
+      "modifier": "pure",
       "type_params": [],
       "body": [
         {

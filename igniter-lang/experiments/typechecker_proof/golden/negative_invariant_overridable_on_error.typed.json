@@ -13,6 +13,7 @@
       "kind": "typed_contract",
       "contract_id": "Fixture.TypeChecker.OOF_I4.InvariantOverridableOnError",
       "name": "InvariantOverridableOnError",
+      "modifier": "pure",
       "status": "blocked",
       "fragment_class": "core",
       "symbols": [

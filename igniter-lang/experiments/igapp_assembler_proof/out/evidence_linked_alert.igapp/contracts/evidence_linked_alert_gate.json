@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:2d78c509ea7267a43710a42005271734bd419f846b5de0a1f538e1e5ad079e1a",
+  "artifact_hash": "sha256:5408b59b4f37af2d5ee8594c29df5289ad3db71f369c8000832dec78962aef88",
   "compute_nodes": [
     {
       "dependencies": [
@@ -114,7 +114,7 @@
       "type_tag": "Bool"
     }
   ],
-  "source_contract_ref": "contract/EvidenceLinkedAlertGate/sha256:8664a19fd8ce3a68b162b0e5",
+  "source_contract_ref": "contract/EvidenceLinkedAlertGate/sha256:a71c2385a8152a91bef77bde",
   "type_signature": {
     "inputs": {
       "alert": "EvidenceLinkedAlertInput"

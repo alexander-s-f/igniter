@@ -1,0 +1,137 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/77a3c4d5e30042c9",
+  "classified_program_id": "classifier_pass/044f19dd9841bbef",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/pure_contract_explicit.ig",
+  "source_hash": "sha256:931637f8dfdad374f0b50fd48767928f962446710adb0ad96464c4a57c0b64b7",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.PureExplicit",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Proof.ContractModifiers.PureExplicit.ScoreRisk",
+      "name": "ScoreRisk",
+      "modifier": "pure",
+      "status": "accepted",
+      "fragment_class": "core",
+      "symbols": [
+        {
+          "name": "contradiction_count",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "corroboration_count",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "raw",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:contradiction_count",
+          "kind": "input",
+          "name": "contradiction_count",
+          "fragment_class": "core",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "input:corroboration_count",
+          "kind": "input",
+          "name": "corroboration_count",
+          "fragment_class": "core",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "compute:raw",
+          "kind": "compute",
+          "name": "raw",
+          "fragment_class": "core",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": [
+            "contradiction_count",
+            "corroboration_count"
+          ],
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.integer.add",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "contradiction_count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                },
+                "deps": [
+                  "contradiction_count"
+                ]
+              },
+              {
+                "kind": "ref",
+                "name": "corroboration_count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                },
+                "deps": [
+                  "corroboration_count"
+                ]
+              }
+            ],
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            },
+            "deps": [
+              "contradiction_count",
+              "corroboration_count"
+            ]
+          }
+        },
+        {
+          "decl_id": "output:raw",
+          "kind": "output",
+          "name": "raw",
+          "fragment_class": "core",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": [
+            "raw"
+          ]
+        }
+      ],
+      "type_errors": []
+    }
+  ],
+  "type_errors": [],
+  "semantic_ir_ref": null
+}

@@ -29,6 +29,7 @@
       "kind": "classified_contract",
       "contract_id": "Fixture.SourceToSemanticIR.NegativeConfidence.BadConfidenceAsBool",
       "name": "BadConfidenceAsBool",
+      "modifier": "pure",
       "fragment_class": "oof",
       "symbols": [
         {

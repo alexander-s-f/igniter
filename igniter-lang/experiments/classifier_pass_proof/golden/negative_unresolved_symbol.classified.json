@@ -12,6 +12,7 @@
       "kind": "classified_contract",
       "contract_id": "Fixture.SourceToSemanticIR.Negative.BadUnresolvedSymbol",
       "name": "BadUnresolvedSymbol",
+      "modifier": "pure",
       "fragment_class": "oof",
       "symbols": [
         {

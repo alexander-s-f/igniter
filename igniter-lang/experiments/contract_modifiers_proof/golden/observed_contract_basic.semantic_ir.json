@@ -1,0 +1,43 @@
+{
+  "kind": "semantic_ir_program",
+  "format_version": "0.1.0",
+  "program_id": "semanticir/4174e96880966701",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:4174e9688096670154bf6063d5deab32ef0208723b76872aa1f9a5704b1ffc34",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/observed_contract_basic.ig",
+  "module": "Proof.ContractModifiers.ObservedBasic",
+  "compilation_report_ref": "compilation_report/4174e96880966701",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/ReadSensor/sha256:d58f4bcc56053f33d69c636e",
+      "contract_name": "ReadSensor",
+      "modifier": "observed",
+      "specialization_of": null,
+      "type_args": {},
+      "fragment_class": "escape",
+      "inputs": [
+        {
+          "name": "sensor_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "local"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "sensor_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [],
+      "escape_boundaries": []
+    }
+  ]
+}

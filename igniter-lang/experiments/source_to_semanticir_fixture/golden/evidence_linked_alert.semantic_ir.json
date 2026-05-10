@@ -10,8 +10,9 @@
   "contracts": [
     {
       "kind": "contract_ir",
-      "contract_ref": "contract/EvidenceLinkedAlertGate/sha256:8664a19fd8ce3a68b162b0e5",
+      "contract_ref": "contract/EvidenceLinkedAlertGate/sha256:a71c2385a8152a91bef77bde",
       "contract_name": "EvidenceLinkedAlertGate",
+      "modifier": "pure",
       "specialization_of": null,
       "type_args": {},
       "fragment_class": "core",

@@ -12,6 +12,7 @@
     {
       "kind": "contract",
       "name": "EvidenceLinkedAlertGate",
+      "modifier": "pure",
       "type_params": [],
       "body": [
         {

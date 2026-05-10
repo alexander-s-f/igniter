@@ -144,12 +144,27 @@ module IgniterLang
 
       diagnostics.concat(stream_missing_window_oofs(fold_stream_stream_refs, window_declarations))
       diagnostics.concat(evidence_gate_oofs(contract, sample_input))
-      contract_fragment = contract_fragment_for(declarations, diagnostics)
+
+      modifier = contract.fetch("modifier", "pure")
+      if modifier == "pure"
+        escape_decl = declarations.find { |decl| decl.fetch("fragment_class") == "escape" }
+        if escape_decl
+          diagnostics << oof(
+            "OOF-M1",
+            "pure contract '#{contract.fetch("name")}' cannot declare escape capabilities; " \
+            "use 'observed' for read-only external access",
+            contract.fetch("name")
+          )
+        end
+      end
+
+      contract_fragment = contract_fragment_for(declarations, diagnostics, modifier: modifier)
 
       {
         "kind" => "classified_contract",
         "contract_id" => contract_id(parsed_program, contract),
         "name" => contract.fetch("name"),
+        "modifier" => modifier,
         "fragment_class" => contract_fragment,
         "symbols" => symbol_table(symbol_kinds, symbol_fragments),
         "declarations" => declarations,
@@ -158,8 +173,9 @@ module IgniterLang
       }
     end
 
-    def contract_fragment_for(declarations, diagnostics)
+    def contract_fragment_for(declarations, diagnostics, modifier: "pure")
       return "oof" unless diagnostics.empty?
+      return "escape" unless modifier == "pure"
       return "core" if declarations.all? { |decl| decl.fetch("fragment_class") == "core" }
       return "temporal" if declarations.any? { |decl| decl.fetch("fragment_class") == "temporal" } &&
                            declarations.none? { |decl| decl.fetch("fragment_class") == "oof" }

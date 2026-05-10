@@ -13,6 +13,7 @@
       "kind": "typed_contract",
       "contract_id": "Fixture.TypeChecker.InvariantSeverityValid.DrugOrderGate",
       "name": "DrugOrderGate",
+      "modifier": "pure",
       "status": "accepted",
       "fragment_class": "core",
       "symbols": [

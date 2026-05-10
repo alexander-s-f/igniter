@@ -12,6 +12,7 @@
     {
       "kind": "contract",
       "name": "StreamFoldCore",
+      "modifier": "observed",
       "type_params": [],
       "body": [
         {

@@ -377,6 +377,8 @@ module IgniterLang
 
     # ---- Top-level declarations --------------------------------------------
 
+    CONTRACT_MODIFIERS = %w[pure observed effect privileged irreversible].freeze
+
     def parse_top_decl
       tok = peek
       case tok.value
@@ -384,6 +386,16 @@ module IgniterLang
       when "impl"           then advance; parse_impl_decl
       when "contract_shape" then advance; parse_contract_shape_decl
       when "contract"       then advance; parse_contract_decl
+      when *CONTRACT_MODIFIERS
+        modifier = tok.value
+        advance
+        if peek.value == "contract"
+          advance
+          parse_contract_decl(modifier: modifier)
+        else
+          @errors << { "message" => "Expected 'contract' after modifier '#{modifier}'", "line" => tok.line }
+          nil
+        end
       when "type"           then advance; parse_type_decl
       when "def"            then advance; parse_function_decl
       when "pipeline"       then advance; parse_pipeline_decl
@@ -579,7 +591,7 @@ module IgniterLang
       { "kind" => "step", "name" => name, "ref" => ref }
     end
 
-    def parse_contract_decl
+    def parse_contract_decl(modifier: nil)
       name = name_token!(%i[ident])
       type_params = peek_type?(:lbracket) ? parse_contract_type_params : []
       implements = peek_kw?("implements") ? parse_implements_clause : nil
@@ -589,7 +601,7 @@ module IgniterLang
         body << parse_body_decl
       end
       expect_type!(:rbrace)
-      node = { "kind" => "contract", "name" => name, "type_params" => type_params }
+      node = { "kind" => "contract", "name" => name, "modifier" => modifier || "pure", "type_params" => type_params }
       node["implements"] = implements if implements
       node["body"] = body.compact
       node

@@ -1,0 +1,40 @@
+{
+  "kind": "parsed_program",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/oof_m1_pure_with_escape.ig",
+  "source_hash": "sha256:9cf3f2ac254d2f4cfe6c3270bcc1a1b5404587421d0a99ed29cea3f8e0c30c52",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.OofM1",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "BrokenPure",
+      "modifier": "pure",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "sensor_id",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "escape",
+          "name": "sensor_read"
+        },
+        {
+          "kind": "output",
+          "name": "sensor_id",
+          "type_annotation": "String"
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "olap_points": [],
+  "parse_errors": []
+}

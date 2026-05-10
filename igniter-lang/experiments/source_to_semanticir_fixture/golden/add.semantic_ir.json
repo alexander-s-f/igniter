@@ -10,8 +10,9 @@
   "contracts": [
     {
       "kind": "contract_ir",
-      "contract_ref": "contract/Add/sha256:7379226c21b2cdcd69464bb7",
+      "contract_ref": "contract/Add/sha256:a295317f00612299f676cd02",
       "contract_name": "Add",
+      "modifier": "pure",
       "specialization_of": null,
       "type_args": {},
       "fragment_class": "core",

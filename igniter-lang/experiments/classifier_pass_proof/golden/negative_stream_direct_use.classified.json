@@ -12,6 +12,7 @@
       "kind": "classified_contract",
       "contract_id": "Fixture.StreamClassifier.StreamDirectUse",
       "name": "StreamDirectUse",
+      "modifier": "observed",
       "fragment_class": "oof",
       "symbols": [
         {

@@ -1,0 +1,57 @@
+{
+  "kind": "parsed_program",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/pure_contract_explicit.ig",
+  "source_hash": "sha256:931637f8dfdad374f0b50fd48767928f962446710adb0ad96464c4a57c0b64b7",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.PureExplicit",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "ScoreRisk",
+      "modifier": "pure",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "contradiction_count",
+          "type_annotation": "Integer"
+        },
+        {
+          "kind": "input",
+          "name": "corroboration_count",
+          "type_annotation": "Integer"
+        },
+        {
+          "kind": "compute",
+          "name": "raw",
+          "expr": {
+            "kind": "binary_op",
+            "op": "+",
+            "left": {
+              "kind": "ref",
+              "name": "contradiction_count"
+            },
+            "right": {
+              "kind": "ref",
+              "name": "corroboration_count"
+            }
+          }
+        },
+        {
+          "kind": "output",
+          "name": "raw",
+          "type_annotation": "Integer"
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "olap_points": [],
+  "parse_errors": []
+}

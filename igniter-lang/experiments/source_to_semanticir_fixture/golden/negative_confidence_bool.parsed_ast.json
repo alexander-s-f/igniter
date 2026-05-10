@@ -12,6 +12,7 @@
     {
       "kind": "contract",
       "name": "BadConfidenceAsBool",
+      "modifier": "pure",
       "type_params": [],
       "body": [
         {

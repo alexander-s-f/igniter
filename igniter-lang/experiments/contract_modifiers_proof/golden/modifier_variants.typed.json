@@ -1,0 +1,188 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/453c5d4e2b14b60f",
+  "classified_program_id": "classifier_pass/56434fc3f19c9e78",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/modifier_variants.ig",
+  "source_hash": "sha256:1a1012d72e1ed01f3afe913340ed0ebf50dd51f463b0acee702ce34d2651eec9",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.Variants",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Proof.ContractModifiers.Variants.NotifyUser",
+      "name": "NotifyUser",
+      "modifier": "effect",
+      "status": "accepted",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "body",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "user_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:user_id",
+          "kind": "input",
+          "name": "user_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "input:body",
+          "kind": "input",
+          "name": "body",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "output:user_id",
+          "kind": "output",
+          "name": "user_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": [
+            "user_id"
+          ]
+        }
+      ],
+      "type_errors": []
+    },
+    {
+      "kind": "typed_contract",
+      "contract_id": "Proof.ContractModifiers.Variants.ApproveExpense",
+      "name": "ApproveExpense",
+      "modifier": "privileged",
+      "status": "accepted",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "amount",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "expense_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:expense_id",
+          "kind": "input",
+          "name": "expense_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "input:amount",
+          "kind": "input",
+          "name": "amount",
+          "fragment_class": "core",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "output:expense_id",
+          "kind": "output",
+          "name": "expense_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": [
+            "expense_id"
+          ]
+        }
+      ],
+      "type_errors": []
+    },
+    {
+      "kind": "typed_contract",
+      "contract_id": "Proof.ContractModifiers.Variants.ArchiveRecord",
+      "name": "ArchiveRecord",
+      "modifier": "irreversible",
+      "status": "accepted",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "record_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:record_id",
+          "kind": "input",
+          "name": "record_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "output:record_id",
+          "kind": "output",
+          "name": "record_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": [
+            "record_id"
+          ]
+        }
+      ],
+      "type_errors": []
+    }
+  ],
+  "type_errors": [],
+  "semantic_ir_ref": null
+}

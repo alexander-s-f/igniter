@@ -1,0 +1,91 @@
+{
+  "kind": "semantic_ir_program",
+  "format_version": "0.1.0",
+  "program_id": "semanticir/a5d9716466bc7830",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:a5d9716466bc7830b3d189007f8f6f0f237ce0835fffee57c12f9b4c75c644c2",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/pure_contract_implicit.ig",
+  "module": "Proof.ContractModifiers.PureImplicit",
+  "compilation_report_ref": "compilation_report/a5d9716466bc7830",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/ScoreRisk/sha256:73701366efc218647852ba2a",
+      "contract_name": "ScoreRisk",
+      "modifier": "pure",
+      "specialization_of": null,
+      "type_args": {},
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "name": "contradiction_count",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "lifecycle": "local"
+        },
+        {
+          "name": "corroboration_count",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "lifecycle": "local"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "raw",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "compute",
+          "name": "raw",
+          "expr": {
+            "kind": "call",
+            "fn": "stdlib.integer.add",
+            "args": [
+              {
+                "kind": "ref",
+                "name": "contradiction_count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "corroboration_count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "deps": [
+            "contradiction_count",
+            "corroboration_count"
+          ],
+          "fragment": "core"
+        }
+      ],
+      "escape_boundaries": []
+    }
+  ]
+}

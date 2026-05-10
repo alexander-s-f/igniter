@@ -1,0 +1,119 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/d843010abfd7d5b5",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/pure_contract_implicit.ig",
+  "source_hash": "sha256:a5d9716466bc7830b3d189007f8f6f0f237ce0835fffee57c12f9b4c75c644c2",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.PureImplicit",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Proof.ContractModifiers.PureImplicit.ScoreRisk",
+      "name": "ScoreRisk",
+      "modifier": "pure",
+      "fragment_class": "core",
+      "symbols": [
+        {
+          "name": "contradiction_count",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "corroboration_count",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "raw",
+          "kind": "compute",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:contradiction_count",
+          "kind": "input",
+          "name": "contradiction_count",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        },
+        {
+          "decl_id": "input:corroboration_count",
+          "kind": "input",
+          "name": "corroboration_count",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        },
+        {
+          "decl_id": "compute:raw",
+          "kind": "compute",
+          "name": "raw",
+          "fragment_class": "core",
+          "deps": [
+            "contradiction_count",
+            "corroboration_count"
+          ],
+          "missing_refs": [],
+          "expr_kind": "binary_op",
+          "expr": {
+            "kind": "binary_op",
+            "op": "+",
+            "left": {
+              "kind": "ref",
+              "name": "contradiction_count"
+            },
+            "right": {
+              "kind": "ref",
+              "name": "corroboration_count"
+            }
+          }
+        },
+        {
+          "decl_id": "output:raw",
+          "kind": "output",
+          "name": "raw",
+          "fragment_class": "core",
+          "deps": [
+            "raw"
+          ],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:contradiction_count",
+          "input:corroboration_count",
+          "compute:raw",
+          "output:raw"
+        ],
+        "edges": [
+          {
+            "from": "input:contradiction_count",
+            "to": "compute:raw",
+            "kind": "symbol"
+          },
+          {
+            "from": "input:corroboration_count",
+            "to": "compute:raw",
+            "kind": "symbol"
+          },
+          {
+            "from": "compute:raw",
+            "to": "output:raw",
+            "kind": "symbol"
+          }
+        ]
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}

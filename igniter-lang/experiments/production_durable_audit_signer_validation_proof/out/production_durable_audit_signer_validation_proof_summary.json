@@ -1,0 +1,125 @@
+{
+  "kind": "production_durable_audit_signer_validation_proof",
+  "format_version": "0.1.0",
+  "track": "production-durable-audit-blocker-amendment-and-validation-proofs-v0",
+  "status": "PASS",
+  "verdict": "signer_no_op_rejection_proven",
+  "proof_as_of": "2026-05-10T00:00:00Z",
+  "blocker_closed": "C1-A-Blocker-2",
+  "blocker_signal": "production signer configuration rejects nil/no-op/stub/local-test signers and requires trusted signing_key_id, signing_key_version, signing_authority_ref, and verification metadata",
+  "validator_constants": {
+    "blocked_key_id_exact": [
+      "local",
+      "test",
+      "stub",
+      "noop",
+      "no-op",
+      "dev",
+      "development"
+    ],
+    "blocked_key_id_prefix": [
+      "local-test",
+      "stub-",
+      "test-",
+      "noop-",
+      "no-op-",
+      "dev-"
+    ],
+    "blocked_authority_exact": [
+      "test",
+      "stub",
+      "local"
+    ],
+    "blocked_authority_prefix": [
+      "test-",
+      "stub-",
+      "local-"
+    ],
+    "blocked_public_key_source_contains": [
+      "stub",
+      "local",
+      "test"
+    ]
+  },
+  "checks": [
+    {
+      "name": "signer.nil_signer_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.nil_signing_key_id_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.empty_signing_key_id_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.local_test_key_id_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.stub_key_id_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.test_prefix_key_id_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.no_op_key_id_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.nil_signing_key_version_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.empty_signing_key_version_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.nil_signing_authority_ref_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.test_signing_authority_ref_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.local_signing_authority_ref_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.nil_verification_metadata_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.empty_verification_metadata_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.stub_public_key_source_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.local_public_key_source_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.valid_production_signer_accepted",
+      "status": "PASS"
+    },
+    {
+      "name": "signer.rejection_carries_reason_code",
+      "status": "PASS"
+    }
+  ],
+  "caveat": {
+    "proof_local_only": true,
+    "production_durable_audit": false,
+    "implementation_authorized": false,
+    "signing_key_not_issued": true,
+    "no_production_hsm_kms": true
+  }
+}

@@ -1,17 +1,17 @@
 {
-  "artifact_hash": "sha256:2d78c509ea7267a43710a42005271734bd419f846b5de0a1f538e1e5ad079e1a",
+  "artifact_hash": "sha256:5408b59b4f37af2d5ee8594c29df5289ad3db71f369c8000832dec78962aef88",
   "assembler": "igapp-assembler-proof-stage1-v0",
   "compilation_report_ref": "compilation_report/37008b8855a287cc",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
     "EvidenceLinkedAlertGate": {
       "contract_path": "contracts/evidence_linked_alert_gate.json",
-      "contract_ref": "contract/EvidenceLinkedAlertGate/sha256:8664a19fd8ce3a68b162b0e5",
+      "contract_ref": "contract/EvidenceLinkedAlertGate/sha256:a71c2385a8152a91bef77bde",
       "fragment_class": "core"
     }
   },
   "contract_refs": {
-    "EvidenceLinkedAlertGate": "contract/EvidenceLinkedAlertGate/sha256:8664a19fd8ce3a68b162b0e5"
+    "EvidenceLinkedAlertGate": "contract/EvidenceLinkedAlertGate/sha256:a71c2385a8152a91bef77bde"
   },
   "contracts": [
     "EvidenceLinkedAlertGate"

@@ -1,7 +1,7 @@
 {
   "kind": "olap_typechecker_semanticir_boundary",
   "negative_dimension_type_mismatch": {
-    "classified_program_id": "classifier_pass/olap_357ccc7e36ccd0d1",
+    "classified_program_id": "classifier_pass/olap_d646629f0191d1f1",
     "contracts": [
       {
         "contract_id": "Fixture.OLAPPoint.RegionalDailyRevenuePoint",
@@ -259,6 +259,7 @@
         ],
         "fragment_class": "escape",
         "kind": "typed_contract",
+        "modifier": "pure",
         "name": "RegionalDailyRevenuePoint",
         "status": "blocked",
         "symbols": [
@@ -331,7 +332,7 @@
         "source_ref": "synthetic_fulfilled_order_facts"
       }
     ],
-    "program_id": "typed_pass/4e65d5f61458302d",
+    "program_id": "typed_pass/6256aeded25d3dd9",
     "semantic_ir_ref": null,
     "source_hash": "sha256:8ae0d8de45a3602abd9a86b44241547c116bf422a7b9fff5b7bdec48bb4060f9",
     "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
@@ -347,7 +348,7 @@
     "typechecker_version": "typed-pass-executable-proof-v0"
   },
   "negative_empty_without_source": {
-    "classified_program_id": "classifier_pass/olap_357ccc7e36ccd0d1",
+    "classified_program_id": "classifier_pass/olap_d646629f0191d1f1",
     "contracts": [
       {
         "contract_id": "Fixture.OLAPPoint.RegionalDailyRevenuePoint",
@@ -605,6 +606,7 @@
         ],
         "fragment_class": "escape",
         "kind": "typed_contract",
+        "modifier": "pure",
         "name": "RegionalDailyRevenuePoint",
         "status": "blocked",
         "symbols": [
@@ -677,7 +679,7 @@
         "source_ref": null
       }
     ],
-    "program_id": "typed_pass/4e65d5f61458302d",
+    "program_id": "typed_pass/6256aeded25d3dd9",
     "semantic_ir_ref": null,
     "source_hash": "sha256:8ae0d8de45a3602abd9a86b44241547c116bf422a7b9fff5b7bdec48bb4060f9",
     "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
@@ -693,7 +695,7 @@
     "typechecker_version": "typed-pass-executable-proof-v0"
   },
   "negative_missing_dimension": {
-    "classified_program_id": "classifier_pass/olap_357ccc7e36ccd0d1",
+    "classified_program_id": "classifier_pass/olap_d646629f0191d1f1",
     "contracts": [
       {
         "contract_id": "Fixture.OLAPPoint.RegionalDailyRevenuePoint",
@@ -920,6 +922,7 @@
         ],
         "fragment_class": "escape",
         "kind": "typed_contract",
+        "modifier": "pure",
         "name": "RegionalDailyRevenuePoint",
         "status": "blocked",
         "symbols": [
@@ -992,7 +995,7 @@
         "source_ref": "synthetic_fulfilled_order_facts"
       }
     ],
-    "program_id": "typed_pass/4e65d5f61458302d",
+    "program_id": "typed_pass/6256aeded25d3dd9",
     "semantic_ir_ref": null,
     "source_hash": "sha256:8ae0d8de45a3602abd9a86b44241547c116bf422a7b9fff5b7bdec48bb4060f9",
     "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
@@ -1089,6 +1092,7 @@
           }
         ],
         "kind": "contract",
+        "modifier": "pure",
         "name": "RegionalDailyRevenuePoint",
         "type_params": []
       }
@@ -1133,7 +1137,7 @@
     "types": []
   },
   "positive_typed": {
-    "classified_program_id": "classifier_pass/olap_357ccc7e36ccd0d1",
+    "classified_program_id": "classifier_pass/olap_d646629f0191d1f1",
     "contracts": [
       {
         "contract_id": "Fixture.OLAPPoint.RegionalDailyRevenuePoint",
@@ -1391,6 +1395,7 @@
         ],
         "fragment_class": "escape",
         "kind": "typed_contract",
+        "modifier": "pure",
         "name": "RegionalDailyRevenuePoint",
         "status": "accepted",
         "symbols": [
@@ -1456,7 +1461,7 @@
         "source_ref": "synthetic_fulfilled_order_facts"
       }
     ],
-    "program_id": "typed_pass/4e65d5f61458302d",
+    "program_id": "typed_pass/6256aeded25d3dd9",
     "semantic_ir_ref": null,
     "source_hash": "sha256:8ae0d8de45a3602abd9a86b44241547c116bf422a7b9fff5b7bdec48bb4060f9",
     "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
@@ -1465,7 +1470,7 @@
     "typechecker_version": "typed-pass-executable-proof-v0"
   },
   "rollup_warning": {
-    "classified_program_id": "classifier_pass/olap_357ccc7e36ccd0d1",
+    "classified_program_id": "classifier_pass/olap_d646629f0191d1f1",
     "contracts": [
       {
         "contract_id": "Fixture.OLAPPoint.RegionalDailyRevenuePoint",
@@ -1622,6 +1627,7 @@
         ],
         "fragment_class": "escape",
         "kind": "typed_contract",
+        "modifier": "pure",
         "name": "RegionalDailyRevenuePoint",
         "status": "accepted",
         "symbols": [
@@ -1715,7 +1721,7 @@
         "source_ref": "synthetic_fulfilled_order_facts"
       }
     ],
-    "program_id": "typed_pass/4e65d5f61458302d",
+    "program_id": "typed_pass/6256aeded25d3dd9",
     "semantic_ir_ref": null,
     "source_hash": "sha256:8ae0d8de45a3602abd9a86b44241547c116bf422a7b9fff5b7bdec48bb4060f9",
     "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
@@ -1737,7 +1743,7 @@
     "contracts": [
       {
         "contract_name": "RegionalDailyRevenuePoint",
-        "contract_ref": "contract/RegionalDailyRevenuePoint/sha256:d5b38e5b32544809b052728d",
+        "contract_ref": "contract/RegionalDailyRevenuePoint/sha256:2e6075e52d6024d83994f1ac",
         "escape_boundaries": [],
         "fragment_class": "escape",
         "inputs": [
@@ -1767,6 +1773,7 @@
           }
         ],
         "kind": "contract_ir",
+        "modifier": "pure",
         "nodes": [
           {
             "kind": "olap_access_node",

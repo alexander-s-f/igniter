@@ -12,6 +12,7 @@
     {
       "kind": "contract",
       "name": "StreamDirectUse",
+      "modifier": "observed",
       "type_params": [],
       "body": [
         {

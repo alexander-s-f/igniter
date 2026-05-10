@@ -1,0 +1,83 @@
+{
+  "kind": "production_durable_audit_compliance_posture_proof",
+  "format_version": "0.1.0",
+  "track": "production-durable-audit-blocker-amendment-and-validation-proofs-v0",
+  "status": "PASS",
+  "verdict": "compliance_posture_store_binding_proven",
+  "proof_as_of": "2026-05-10T00:00:00Z",
+  "blocker_closed": "C1-A-Blocker-1",
+  "blocker_signal": "compliance_posture.production_durable_audit is derived from approved store identity and verification only; caller assertion is not accepted",
+  "evaluator_constants": {
+    "accepted_production_kinds": [
+      "phase1_production_audit_store"
+    ],
+    "proof_local_kinds": [
+      "proof_local_file",
+      "proof_local_jsonl",
+      "proof_local_memory"
+    ]
+  },
+  "checks": [
+    {
+      "name": "posture.proof_local_file_kind_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.proof_local_jsonl_kind_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.proof_local_memory_kind_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.nil_storage_identity_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.unknown_kind_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.test_store_kind_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.ledger_binding_true_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.chain_unverified_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.signature_unverified_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.both_verifications_failed_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.production_kind_all_verified_emits_true",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.caller_true_claim_ignored_for_proof_local",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.caller_false_claim_ignored_for_verified_production",
+      "status": "PASS"
+    },
+    {
+      "name": "posture.successful_production_append_cannot_emit_false",
+      "status": "PASS"
+    }
+  ],
+  "caveat": {
+    "proof_local_only": true,
+    "production_durable_audit": false,
+    "implementation_authorized": false
+  }
+}

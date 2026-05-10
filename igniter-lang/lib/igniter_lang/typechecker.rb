@@ -114,6 +114,7 @@ module IgniterLang
         "kind" => "typed_contract",
         "contract_id" => classified_contract.fetch("contract_id"),
         "name" => classified_contract.fetch("name"),
+        "modifier" => classified_contract.fetch("modifier", "pure"),
         "status" => status,
         "fragment_class" => classified_contract.fetch("fragment_class"),
         "symbols" => symbol_types.keys.sort.map do |name|

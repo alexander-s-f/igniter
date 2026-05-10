@@ -12,6 +12,7 @@
       "kind": "classified_contract",
       "contract_id": "Fixture.SourceToSemanticIR.Add.Add",
       "name": "Add",
+      "modifier": "pure",
       "fragment_class": "core",
       "symbols": [
         {

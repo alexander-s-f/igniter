@@ -12,6 +12,7 @@
     {
       "kind": "contract",
       "name": "StreamMissingWindow",
+      "modifier": "observed",
       "type_params": [],
       "body": [
         {

@@ -1,0 +1,40 @@
+{
+  "kind": "parsed_program",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/observed_contract_basic.ig",
+  "source_hash": "sha256:4174e9688096670154bf6063d5deab32ef0208723b76872aa1f9a5704b1ffc34",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.ObservedBasic",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "ReadSensor",
+      "modifier": "observed",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "sensor_id",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "escape",
+          "name": "sensor_read"
+        },
+        {
+          "kind": "output",
+          "name": "sensor_id",
+          "type_annotation": "String"
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "olap_points": [],
+  "parse_errors": []
+}

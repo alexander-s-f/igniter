@@ -39,6 +39,7 @@
       "kind": "classified_contract",
       "contract_id": "Fixture.SourceToSemanticIR.Alert.EvidenceLinkedAlertGate",
       "name": "EvidenceLinkedAlertGate",
+      "modifier": "pure",
       "fragment_class": "core",
       "symbols": [
         {

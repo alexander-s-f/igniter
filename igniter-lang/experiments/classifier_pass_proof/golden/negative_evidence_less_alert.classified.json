@@ -39,6 +39,7 @@
       "kind": "classified_contract",
       "contract_id": "Fixture.SourceToSemanticIR.NegativeAlert.BadEvidenceLessAlertGate",
       "name": "BadEvidenceLessAlertGate",
+      "modifier": "pure",
       "fragment_class": "oof",
       "symbols": [
         {

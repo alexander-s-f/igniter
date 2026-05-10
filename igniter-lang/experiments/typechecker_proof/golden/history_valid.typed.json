@@ -13,6 +13,7 @@
       "kind": "typed_contract",
       "contract_id": "Fixture.HistoryAxes.HistoryAxesTest",
       "name": "HistoryAxesTest",
+      "modifier": "pure",
       "status": "accepted",
       "fragment_class": "temporal",
       "symbols": [

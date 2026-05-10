@@ -13,6 +13,7 @@
       "kind": "typed_contract",
       "contract_id": "Fixture.SourceToSemanticIR.Negative.BadUnresolvedSymbol",
       "name": "BadUnresolvedSymbol",
+      "modifier": "pure",
       "status": "blocked",
       "fragment_class": "oof",
       "symbols": [

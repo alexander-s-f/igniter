@@ -13,6 +13,7 @@
       "kind": "typed_contract",
       "contract_id": "Fixture.HistoryAxes.HistoryMissingAsOf",
       "name": "HistoryMissingAsOf",
+      "modifier": "pure",
       "status": "blocked",
       "fragment_class": "temporal",
       "symbols": [

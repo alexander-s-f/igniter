@@ -24,6 +24,7 @@
       "kind": "typed_contract",
       "contract_id": "Fixture.SourceToSemanticIR.NegativeConfidence.BadConfidenceAsBool",
       "name": "BadConfidenceAsBool",
+      "modifier": "pure",
       "status": "blocked",
       "fragment_class": "oof",
       "symbols": [

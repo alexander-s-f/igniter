@@ -13,6 +13,7 @@
       "kind": "typed_contract",
       "contract_id": "Fixture.BiHistoryAxes.BiHistoryMissingVt",
       "name": "BiHistoryMissingVt",
+      "modifier": "pure",
       "status": "blocked",
       "fragment_class": "temporal",
       "symbols": [

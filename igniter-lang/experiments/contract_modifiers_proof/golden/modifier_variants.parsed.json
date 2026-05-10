@@ -1,0 +1,94 @@
+{
+  "kind": "parsed_program",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/modifier_variants.ig",
+  "source_hash": "sha256:1a1012d72e1ed01f3afe913340ed0ebf50dd51f463b0acee702ce34d2651eec9",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.Variants",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "NotifyUser",
+      "modifier": "effect",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "user_id",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "input",
+          "name": "body",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "escape",
+          "name": "notification_send"
+        },
+        {
+          "kind": "output",
+          "name": "user_id",
+          "type_annotation": "String"
+        }
+      ]
+    },
+    {
+      "kind": "contract",
+      "name": "ApproveExpense",
+      "modifier": "privileged",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "expense_id",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "input",
+          "name": "amount",
+          "type_annotation": "Integer"
+        },
+        {
+          "kind": "escape",
+          "name": "approval_write"
+        },
+        {
+          "kind": "output",
+          "name": "expense_id",
+          "type_annotation": "String"
+        }
+      ]
+    },
+    {
+      "kind": "contract",
+      "name": "ArchiveRecord",
+      "modifier": "irreversible",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "record_id",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "escape",
+          "name": "archive_write"
+        },
+        {
+          "kind": "output",
+          "name": "record_id",
+          "type_annotation": "String"
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "olap_points": [],
+  "parse_errors": []
+}

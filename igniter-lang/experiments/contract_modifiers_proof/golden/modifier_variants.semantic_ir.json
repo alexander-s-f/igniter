@@ -1,0 +1,121 @@
+{
+  "kind": "semantic_ir_program",
+  "format_version": "0.1.0",
+  "program_id": "semanticir/1a1012d72e1ed01f",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:1a1012d72e1ed01f3afe913340ed0ebf50dd51f463b0acee702ce34d2651eec9",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/modifier_variants.ig",
+  "module": "Proof.ContractModifiers.Variants",
+  "compilation_report_ref": "compilation_report/1a1012d72e1ed01f",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/NotifyUser/sha256:8e308a8e3e5e33cfddb4f98b",
+      "contract_name": "NotifyUser",
+      "modifier": "effect",
+      "specialization_of": null,
+      "type_args": {},
+      "fragment_class": "escape",
+      "inputs": [
+        {
+          "name": "user_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "local"
+        },
+        {
+          "name": "body",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "local"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "user_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [],
+      "escape_boundaries": []
+    },
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/ApproveExpense/sha256:31c60f646247aee38a77f233",
+      "contract_name": "ApproveExpense",
+      "modifier": "privileged",
+      "specialization_of": null,
+      "type_args": {},
+      "fragment_class": "escape",
+      "inputs": [
+        {
+          "name": "expense_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "local"
+        },
+        {
+          "name": "amount",
+          "type": {
+            "name": "Integer",
+            "params": []
+          },
+          "lifecycle": "local"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "expense_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [],
+      "escape_boundaries": []
+    },
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/ArchiveRecord/sha256:710e56d7d49e4d3744fef5f9",
+      "contract_name": "ArchiveRecord",
+      "modifier": "irreversible",
+      "specialization_of": null,
+      "type_args": {},
+      "fragment_class": "escape",
+      "inputs": [
+        {
+          "name": "record_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "local"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "record_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [],
+      "escape_boundaries": []
+    }
+  ]
+}

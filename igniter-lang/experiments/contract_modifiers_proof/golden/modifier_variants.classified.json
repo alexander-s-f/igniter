@@ -1,0 +1,221 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/56434fc3f19c9e78",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/contract_modifiers_proof/fixtures/modifier_variants.ig",
+  "source_hash": "sha256:1a1012d72e1ed01f3afe913340ed0ebf50dd51f463b0acee702ce34d2651eec9",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.Variants",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Proof.ContractModifiers.Variants.NotifyUser",
+      "name": "NotifyUser",
+      "modifier": "effect",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "body",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "user_id",
+          "kind": "input",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:user_id",
+          "kind": "input",
+          "name": "user_id",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "input:body",
+          "kind": "input",
+          "name": "body",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "escape:notification_send",
+          "kind": "escape",
+          "name": "notification_send",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "output:user_id",
+          "kind": "output",
+          "name": "user_id",
+          "fragment_class": "core",
+          "deps": [
+            "user_id"
+          ],
+          "missing_refs": [],
+          "type_annotation": "String"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:user_id",
+          "input:body",
+          "escape:notification_send",
+          "output:user_id"
+        ],
+        "edges": [
+          {
+            "from": "input:user_id",
+            "to": "output:user_id",
+            "kind": "symbol"
+          }
+        ]
+      },
+      "oof_log": []
+    },
+    {
+      "kind": "classified_contract",
+      "contract_id": "Proof.ContractModifiers.Variants.ApproveExpense",
+      "name": "ApproveExpense",
+      "modifier": "privileged",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "amount",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "expense_id",
+          "kind": "input",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:expense_id",
+          "kind": "input",
+          "name": "expense_id",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "input:amount",
+          "kind": "input",
+          "name": "amount",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "Integer"
+        },
+        {
+          "decl_id": "escape:approval_write",
+          "kind": "escape",
+          "name": "approval_write",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "output:expense_id",
+          "kind": "output",
+          "name": "expense_id",
+          "fragment_class": "core",
+          "deps": [
+            "expense_id"
+          ],
+          "missing_refs": [],
+          "type_annotation": "String"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:expense_id",
+          "input:amount",
+          "escape:approval_write",
+          "output:expense_id"
+        ],
+        "edges": [
+          {
+            "from": "input:expense_id",
+            "to": "output:expense_id",
+            "kind": "symbol"
+          }
+        ]
+      },
+      "oof_log": []
+    },
+    {
+      "kind": "classified_contract",
+      "contract_id": "Proof.ContractModifiers.Variants.ArchiveRecord",
+      "name": "ArchiveRecord",
+      "modifier": "irreversible",
+      "fragment_class": "escape",
+      "symbols": [
+        {
+          "name": "record_id",
+          "kind": "input",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:record_id",
+          "kind": "input",
+          "name": "record_id",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "escape:archive_write",
+          "kind": "escape",
+          "name": "archive_write",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "output:record_id",
+          "kind": "output",
+          "name": "record_id",
+          "fragment_class": "core",
+          "deps": [
+            "record_id"
+          ],
+          "missing_refs": [],
+          "type_annotation": "String"
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:record_id",
+          "escape:archive_write",
+          "output:record_id"
+        ],
+        "edges": [
+          {
+            "from": "input:record_id",
+            "to": "output:record_id",
+            "kind": "symbol"
+          }
+        ]
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}

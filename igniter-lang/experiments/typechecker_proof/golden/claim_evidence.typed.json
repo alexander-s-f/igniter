@@ -54,6 +54,7 @@
       "kind": "typed_contract",
       "contract_id": "Fixture.SourceToSemanticIR.ClaimEvidence.ClaimEvidenceBundle",
       "name": "ClaimEvidenceBundle",
+      "modifier": "pure",
       "status": "accepted",
       "fragment_class": "core",
       "symbols": [

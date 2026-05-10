@@ -70,6 +70,7 @@
       "kind": "classified_contract",
       "contract_id": "Fixture.SourceToSemanticIR.ClaimEvidence.ClaimEvidenceBundle",
       "name": "ClaimEvidenceBundle",
+      "modifier": "pure",
       "fragment_class": "core",
       "symbols": [
         {
