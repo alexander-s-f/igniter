@@ -170,7 +170,7 @@ Required top-level shape:
     "signing_key_id": "kms-or-hsm-key-id",
     "signing_key_version": "key-version",
     "signing_authority_ref": "authority/signing/gate3/phase1/audit",
-    "signed_payload_hash": "sha256:<canonical-record-with-signature-null>",
+    "signed_payload_hash": "sha256:<canonical-record-with-r32-excluded-fields-null>",
     "signature_algorithm": "provider-selected-asymmetric-algorithm",
     "signature_value": "base64-signature",
     "signed_at": "ISO8601"
@@ -193,12 +193,95 @@ Required top-level shape:
 
 Notes:
 
-- `record_hash` is computed over canonical JSON with `chain.record_hash = null`
-  and `signature.signature_value = null`.
+- `record_hash` is computed over canonical JSON with all R32 excluded fields
+  nulled as defined in "R32 Hash/Posture Amendment" below.
 - `signed_payload_hash` must equal the same canonical body hash used for
-  signing.
-- `record_id` is derived from `record_hash`, not from a mutable storage cursor.
+  signing, but is itself excluded from that body hash because it mirrors the
+  derived hash value.
+- `record_id` is derived from `record_hash`, not from a mutable storage cursor,
+  and is excluded from the body hash.
 - `ledger_binding` must remain `false`.
+
+---
+
+## R32 Hash/Posture Amendment
+
+Source: `durable-audit-hash-and-posture-design-amendment-v0`
+
+[D] Canonical `record_hash` excludes exactly these five fields by setting them
+to JSON `null` in the deep-copied record before canonicalization:
+
+| Field | Exact reason excluded |
+|-------|-----------------------|
+| `chain.record_hash` | Self-referential field being computed. Including it would make the hash circular. |
+| `signature.signature_value` | Produced after the hash is known and signed. Including it would require signing a value that does not exist yet. |
+| `signature.signed_payload_hash` | Mirrors the canonical body hash / `record_hash`. Including it would create a derived-field loop and duplicate the value being proven. |
+| `record_id` | Derived from `record_hash` / hash prefix. It is an address for the record, not an input to the hash. |
+| `compliance_posture` | Derived from storage identity, signature/key trust, chain verification, and authorization context. It is stored as an auditor-visible snapshot but is never authoritative input to the hash. |
+
+Canonical algorithm:
+
+```text
+record_for_hash = deep_copy(record)
+record_for_hash.chain.record_hash = null
+record_for_hash.signature.signature_value = null
+record_for_hash.signature.signed_payload_hash = null
+record_for_hash.record_id = null
+record_for_hash.compliance_posture = null
+
+canonical_json(record_for_hash)
+  -> all Hash keys sorted recursively
+  -> null values rendered as JSON null
+  -> no whitespace
+
+record_hash = "sha256:" + SHA256.hexdigest(canonical_json)
+signature.signed_payload_hash = record_hash
+record_id = "audit/phase1/" + record_hash prefix
+```
+
+[D] `compliance_posture` is **stored, derived, and mismatch-checked**.
+
+Production records keep a `compliance_posture` field because auditors need to
+see the posture asserted at append time. However, the stored value is a derived
+snapshot, not caller authority and not hash authority.
+
+Rules:
+
+1. Appenders MUST ignore caller-provided `compliance_posture`.
+2. Appenders MUST derive `compliance_posture` after hash/signature/storage
+   validation has enough evidence.
+3. Readers and restart rebuild MUST re-derive `compliance_posture` from the
+   record and verification context.
+4. Stored posture MUST exactly match derived posture.
+5. Mismatch is an audit validation failure and MUST NOT be exported as compliant
+   production durable audit evidence.
+
+Derived posture inputs:
+
+- `storage_identity.kind == "phase1_production_audit_store"`;
+- `storage_identity.ledger_binding == false`;
+- storage identity is not local, stub, proof-local, or Ledger-like;
+- chain sequence and previous hash continuity verify;
+- recomputed `chain.record_hash` matches stored `chain.record_hash`;
+- `signature.signed_payload_hash == chain.record_hash`;
+- signature and signing authority verify against trusted metadata;
+- `authorization_ref` / signed addendum evidence remains within the restricted
+  Gate 3 Phase 1 scope.
+
+Refusal code:
+
+```text
+audit.record.compliance_posture_mismatch
+```
+
+This code is emitted when stored `compliance_posture` differs from the
+re-derived posture during schema validation, restart rebuild, or audit
+traversal.
+
+[R] The R31 proof-local implementation overwrote caller posture during
+validation. Production reader/rebuild must be stricter: after a record is
+persisted, mismatch between stored and derived posture is evidence of tampering,
+stale serialization, or incompatible validator semantics.
 
 ---
 
@@ -208,22 +291,25 @@ Recommended model: HSM/KMS-backed signing abstraction.
 
 Writer flow:
 
-1. Build the production audit record with `record_hash = null` and
-   `signature_value = null`.
-2. Canonicalize using `json-canonical-sorted-keys-v1`.
+1. Build the production audit record with the five R32 excluded fields nulled in
+   the canonical hash copy.
+2. Canonicalize the copied record using `json-canonical-sorted-keys-v1`.
 3. Compute `record_hash = sha256(canonical_record_body)`.
 4. Set `record_id` from the hash.
-5. Sign the canonical body hash through the signer abstraction.
-6. Append the completed record to the off-process append-only store.
+5. Set `signature.signed_payload_hash = record_hash`.
+6. Derive and store `compliance_posture`.
+7. Sign the canonical body hash through the signer abstraction.
+8. Append the completed record to the off-process append-only store.
 
 Verification flow:
 
-1. Recompute canonical body hash with `record_hash` and `signature_value` nulled.
+1. Recompute canonical body hash with the five R32 excluded fields nulled.
 2. Verify it matches `chain.record_hash` and `signature.signed_payload_hash`.
 3. Resolve `signing_key_id` and `signing_key_version` from a trusted key
    metadata source.
 4. Verify `signature_value`.
 5. Verify signing authority is allowed for Gate 3 Phase 1 audit only.
+6. Re-derive and mismatch-check `compliance_posture`.
 
 [R] Key recommendation: use asymmetric signing with externally managed private
 keys. The audit system should never persist private keys. Rotated key versions
@@ -245,15 +331,18 @@ from persisted records:
    `previous_record_hash == prior.chain.record_hash`.
 7. Recompute each `record_hash`.
 8. Verify each signature.
-9. Verify retention metadata is present and internally consistent.
-10. Verify each record remains within restricted Phase 1 scope.
-11. Set next append cursor to `last.sequence + 1` only after full verification.
+9. Re-derive `compliance_posture` and require exact match with stored posture.
+10. Verify retention metadata is present and internally consistent.
+11. Verify each record remains within restricted Phase 1 scope.
+12. Set next append cursor to `last.sequence + 1` only after full verification.
 
 Failure posture:
 
 - fail closed;
 - do not append new records;
 - emit a rebuild failure report;
+- emit `audit.record.compliance_posture_mismatch` when posture mismatch is the
+  detected cause;
 - require operator or automated recovery workflow outside the executor path;
 - never auto-truncate, auto-compact, or auto-repair the production audit log.
 
@@ -299,10 +388,11 @@ Audit traversal means:
 
 - read records in chain order;
 - verify hash and signature continuity;
+- re-derive and mismatch-check `compliance_posture`;
 - filter by allowed audit query fields;
 - export an auditor-visible report;
 - refuse traversal if gaps, reorder, hash mismatch, signature mismatch, or
-  retention violations are detected.
+  retention/posture violations are detected.
 
 Allowed audit queries:
 
@@ -446,6 +536,7 @@ Proposed code list:
 | `audit.chain.previous_hash_mismatch` | Previous hash does not match prior record hash. |
 | `audit.chain.record_hash_mismatch` | Recomputed hash differs from stored hash. |
 | `audit.chain.truncation_detected` | Expected chain tail is missing. |
+| `audit.record.compliance_posture_mismatch` | Stored posture differs from re-derived posture. |
 | `audit.signature.missing` | Signature block or value missing. |
 | `audit.signature.invalid` | Signature verification failed. |
 | `audit.signature.untrusted_key` | Key id/version is not trusted for Phase 1 audit. |
