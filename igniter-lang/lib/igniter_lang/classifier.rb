@@ -11,8 +11,9 @@ module IgniterLang
     end
 
     def classify(parsed_program, sample_input:)
+      assumption_registry = assumption_registry(parsed_program)
       contracts = parsed_program.fetch("contracts").map do |contract|
-        classify_contract(parsed_program, contract, sample_input)
+        classify_contract(parsed_program, contract, sample_input, assumption_registry)
       end
 
       result = {
@@ -28,6 +29,7 @@ module IgniterLang
         "oof_log" => contracts.flat_map { |contract| contract.fetch("oof_log") },
         "semantic_ir_ref" => nil
       }
+      result["assumption_registry"] = assumption_registry.values unless assumption_registry.empty?
       olap_points = parsed_program.fetch("olap_points", [])
       result["olap_points"] = olap_points unless olap_points.empty?
       result
@@ -61,9 +63,10 @@ module IgniterLang
       "classifier_pass/#{Digest::SHA256.hexdigest(seed)[0, 16]}"
     end
 
-    def classify_contract(parsed_program, contract, sample_input)
+    def classify_contract(parsed_program, contract, sample_input, assumption_registry)
       diagnostics = []
       declarations = []
+      assumption_refs = []
       symbol_fragments = {}
       symbol_kinds = {}
       compute_exprs = {}
@@ -94,6 +97,21 @@ module IgniterLang
         when "window"
           window_declarations << node
           declarations << classified_decl(node.merge("name" => node.fetch("label", "_window")), "escape", [], [])
+        when "uses_assumptions"
+          name = node.fetch("name")
+          assumption_refs << name
+          symbol_fragments[name] = "core"
+          symbol_kinds[name] = "assumption"
+          missing = assumption_registry.key?(name) ? [] : [name]
+          unless missing.empty?
+            diagnostics << oof(
+              "OOF-A1",
+              "contract '#{contract.fetch("name")}' uses assumptions '#{name}' but no " \
+              "assumption named '#{name}' is declared in this module",
+              "uses_assumptions:#{name}"
+            )
+          end
+          declarations << classified_decl(node, "epistemic", [], missing)
         when "fold_stream"
           bound = node.fetch("bound", nil)
           result_fragment = bound ? "core" : "oof"
@@ -160,7 +178,7 @@ module IgniterLang
 
       contract_fragment = contract_fragment_for(declarations, diagnostics, modifier: modifier)
 
-      {
+      result = {
         "kind" => "classified_contract",
         "contract_id" => contract_id(parsed_program, contract),
         "name" => contract.fetch("name"),
@@ -171,6 +189,8 @@ module IgniterLang
         "dependency_graph" => dependency_graph(declarations),
         "oof_log" => diagnostics
       }
+      result["assumption_refs"] = assumption_refs.uniq unless assumption_refs.empty?
+      result
     end
 
     def contract_fragment_for(declarations, diagnostics, modifier: "pure")
@@ -180,8 +200,22 @@ module IgniterLang
                            declarations.none? { |decl| decl.fetch("fragment_class") == "oof" }
       return "escape" if (modifier != "pure" || declarations.any? { |decl| decl.fetch("fragment_class") == "escape" }) &&
                          declarations.none? { |decl| decl.fetch("fragment_class") == "oof" }
+      return "epistemic" if declarations.any? { |decl| decl.fetch("fragment_class") == "epistemic" } &&
+                            declarations.none? { |decl| decl.fetch("fragment_class") == "oof" }
 
       "oof"
+    end
+
+    def assumption_registry(parsed_program)
+      parsed_program.fetch("assumptions", []).each_with_object({}) do |assumption, registry|
+        name = assumption.fetch("name")
+        registry[name] = {
+          "kind" => "assumption_entry",
+          "name" => name,
+          "fields" => assumption.fetch("fields", {}),
+          "declared_in_module" => parsed_program.fetch("module")
+        }
+      end
     end
 
     def stream_missing_window_oofs(fold_stream_stream_refs, window_declarations)
