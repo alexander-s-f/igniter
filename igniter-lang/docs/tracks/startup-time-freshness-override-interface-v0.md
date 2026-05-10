@@ -117,7 +117,7 @@ path and falls back to the built-in 24h bound when no signed policy is present.
 
 | Bound | Decision |
 |-------|----------|
-| `>= 3600` and `< 86400` seconds | Allowed with valid signed policy; this tightens the default. |
+| `>= 3600` and `< 86400` seconds | Allowed with valid signed policy and `expires_at`; this tightens the default. |
 | `86400` seconds | Default; no policy required. |
 | `> 86400` and `<= 259200` seconds | Allowed only with valid signed policy, non-empty reason, and policy expiry. This supports bounded air-gapped/offline deployments. |
 | `< 3600` seconds | Refuse. Too tight for reliable startup operations without a separate design decision. |
@@ -150,8 +150,8 @@ Required validation:
 6. Policy signature verifies against trusted verification metadata.
 7. Policy is not expired at startup.
 8. `max_age_seconds` is an integer inside the allowed range.
-9. If `max_age_seconds > 86400`, policy has a non-empty `reason` and
-   `expires_at`.
+9. If `max_age_seconds != 86400`, policy has `expires_at`.
+10. If `max_age_seconds > 86400`, policy has a non-empty `reason`.
 
 The same process that rejected nil/no-op/stub signers in R28 should reject
 local/test/stub policy authorities. A proof-local implementation can reuse the
@@ -172,7 +172,9 @@ Invalid override input never silently falls back to a looser bound.
 | Policy signature invalid/missing | Fail startup closed. | `audit.registry.freshness_policy_signature_invalid` |
 | Authority untrusted / local / stub | Fail startup closed. | `audit.registry.freshness_policy_authority_untrusted` |
 | Policy expired | Fail startup closed. | `audit.registry.freshness_policy_expired` |
-| `max_age_seconds` missing/non-integer/out of range | Fail startup closed. | `audit.registry.freshness_policy_bound_invalid` |
+| Policy format/kind invalid, or `expires_at` not ISO8601 | Fail startup closed. | `audit.registry.freshness_policy_format_invalid` |
+| `max_age_seconds` missing/non-integer/out of range, or non-default policy missing `expires_at` | Fail startup closed. | `audit.registry.freshness_policy_bound_invalid` |
+| Direct seconds override attempted | Fail startup closed. | `audit.registry.direct_seconds_override_rejected` |
 | Registry index older than effective bound | Fail startup closed. | `audit.registry.startup_time_staleness_exceeded` |
 | Registry anchor invalid | Fail startup closed. | `audit.registry.startup_time_anchor_invalid` |
 
@@ -297,9 +299,12 @@ Recommended proof-local validation cases:
 | bound below 1h | refused |
 | bound above 72h | refused |
 | non-integer bound | refused |
+| tighter policy missing `expires_at` | refused with `freshness_policy_bound_invalid` |
+| wrong `format_version` | refused with `freshness_policy_format_invalid` |
+| wrong `kind` | refused with `freshness_policy_format_invalid` |
 | stale registry under effective bound | refused with `startup_time_staleness_exceeded` |
 | invalid registry anchor | refused with `startup_time_anchor_invalid` |
-| env var attempts direct seconds | refused / ignored with diagnostic |
+| env var or API attempts direct seconds | refused with `direct_seconds_override_rejected` |
 
 No proof is added in this card because the requested deliverable is interface
 design. The matrix above is intentionally small enough for a proof-local R30
@@ -331,6 +336,77 @@ Acceptance should require:
 
 Only after that proof passes should Architect decide whether this interface is
 ready to be part of a production durable audit implementation authorization.
+
+---
+
+## R31 Amendment: Validator Alignment D1/D2/D3
+
+R30 landed the proof-local validator and clarified three design points. This
+R31 amendment makes the R29 design match the proof.
+
+### [D1] All Non-Default Policies Require `expires_at`
+
+[D] Any signed freshness policy with:
+
+```text
+max_age_seconds != 86400
+```
+
+must carry `expires_at`.
+
+This applies to both tighter policies (`< 86400`) and looser policies
+(`> 86400`). The previous R29 wording only required expiry for policies looser
+than the default. The validator correctly refuses an eternal tighter policy:
+
+```text
+tighter_missing_expires_at -> audit.registry.freshness_policy_bound_invalid
+```
+
+The default 24h path still needs no policy document and no `expires_at`.
+
+### [D2] Structural Policy Format Failures Have A Dedicated Code
+
+[D] Structural document failures use:
+
+```text
+audit.registry.freshness_policy_format_invalid
+```
+
+This code covers:
+
+- unrecognized `format_version`;
+- wrong `kind`;
+- present but non-ISO8601 `expires_at`.
+
+These are not signature failures. Keeping the code separate prevents structural
+JSON/schema errors from being confused with cryptographic verification errors.
+
+### [D3] Direct Seconds Override Is Explicitly Rejected
+
+[D] Any direct seconds bypass is refused with:
+
+```text
+audit.registry.direct_seconds_override_rejected
+```
+
+This includes direct API parameters, direct env-var seconds values, and local
+config seconds values. Env vars may point to a manifest or policy bundle path;
+they may not carry authority for the freshness bound.
+
+### Proof-Local Boundary Preserved
+
+[D] This amendment does not authorize:
+
+- production durable audit writer implementation;
+- production signing execution;
+- production authority registry;
+- Ledger;
+- Phase 2;
+- online lookup;
+- per-invocation policy fetch.
+
+The design remains proof-local until a separately approved production
+implementation card lands.
 
 ---
 

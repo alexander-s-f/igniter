@@ -2,6 +2,7 @@
 
 Status: living document
 Card: S3-R30-C4-P
+Last updated: S3-R31-C3-S (2026-05-10)
 Agent: [Igniter-Lang Meta Expert]
 Role: meta-expert
 Track: semantic-governance-heat-map-v0
@@ -69,17 +70,18 @@ Supersedes: nothing (new document)
 
 | entity | P | Spec | PROP | Parse | Class | TC | SIR | RT | Au | Debt |
 |--------|---|------|------|-------|-------|----|-----|----|----|------|
-| `assumptions {}` block | P22, P27, P28 | Gap-H | PROP-032‡ | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem/gov |
-| `uses assumptions NAME` | P22 | Gap-H | PROP-032‡ | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem/gov |
+| `assumptions {}` block | P22, P27, P28 | Gap-H | PROP-032 | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | 🔴 | gov |
+| `uses assumptions NAME` | P22 | Gap-H | PROP-032 | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | 🔴 | gov |
 | Epistemic state machine (no-upward-coercion guard) | P11, P13, ESM | ch10 (partial) | Gap-H / TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | gov |
 | Synthetic world marker (`:synthetic` mode) | P12, P23 | Gap-H | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem/gov |
 | `constraints {}` block | P25, P27, P28 | Gap-J | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem/gov |
 | `uses constraints NAME` | P25 | Gap-J | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem/gov |
 | PostAudit receipt pattern | P26 | Gap-N | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | gov |
 
-‡ PROP-032 queue conflict: proposals/README.md reserves PROP-032 for `via profile binding`;
-  canonical-semantic-model.md and agent-context.md assign PROP-032 to the assumptions block.
-  This conflict is unresolved as of R29. See §Governance Issues below.
+> **GI-1 resolved (S3-R30-C6-P):** PROP-032 assigned to `assumptions {}` block (Gap-H,
+> `proposal` status — PROP authored, no compiler implementation yet). `via profile binding`
+> renumbered to PROP-033 (queued). Assumptions rows upgraded from `sem/gov` → `gov` debt
+> (formal PROP now exists; pipeline stages remain 🟡 until compiler implementation lands).
 
 ---
 
@@ -163,10 +165,10 @@ gap analysis → PROP before a golden anchor can be created.
 
 | entity | P | Spec | PROP | Parse | Class | TC | SIR | RT | Au | Debt |
 |--------|---|------|------|-------|-------|----|-----|----|----|------|
-| `output … evidence [refs]` syntax | P6, P20, P27 | ch10 §10.5 | PROP-033 (queued) | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | 🔴 | sem |
+| `output … evidence [refs]` syntax | P6, P20, P27 | ch10 §10.5 | PROP-034 (queued) | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | 🔴 | sem |
 | Contract composition algebra (`>>`, `\|\|`, …) | P20 | ch10 | PROP-002 (proposal) | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | 🔴 | sem |
-| Profile System (compile-time policy gate) | P10 | ch11 | PROP-034 (queued) | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | gov |
-| `via profile` binding | P10 | ch11 | PROP-032‡ (queue conflict) | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | gov |
+| Profile System (compile-time policy gate) | P10 | ch11 | PROP-035 (queued) | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | gov |
+| `via profile` binding | P10 | ch11 | PROP-033 (queued) | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | gov |
 
 ---
 
@@ -177,29 +179,19 @@ gap analysis → PROP before a golden anchor can be created.
 | PROP Governance Filter (V-2) | Axiom 2, P27 | — (Covenant) | Covenant §PROP-Gov-Filter | gov |
 | P28 OOF enforcement gap table | P28 | — | TBD (assigned to Compiler/Grammar Expert) | gov |
 | META-EXPERT-013 §VI ↔ PROP Governance Filter reconciliation | Axiom 2, P27 | — | META-EXPERT-013 + Covenant | gov |
-| startup_time freshness override validator | P27, Axiom 2 | — (design track R29) | — | impl |
-| V-3 (`observed + temporal → temporal`) dedicated golden | P3, P4 | ch9, ch10 | PROP-031, PROP-028 | impl |
-| PROP-032 queue conflict (see §Governance Issues) | P10, P22 | — | proposals/README.md | gov |
+| startup_time freshness override validator | P27, Axiom 2 | — (design track R29) | — (28/28 PASS S3-R31) | none |
+| V-3 (`observed + temporal → temporal`) dedicated golden | P3, P4 | ch9, ch10 | PROP-031, PROP-028 (25/25 PASS S3-R31) | none |
 
 ---
 
 ## Governance Issues
 
-### GI-1 — PROP-032 Queue Conflict (HIGH)
+### GI-1 — PROP-032 Queue Conflict — RESOLVED (S3-R30-C6-P)
 
-`proposals/README.md` reserves PROP-032 for `via profile binding` (depends: PROP-031, Stage 3,
-priority: high). `canonical-semantic-model.md` and `agent-context.md` both assign PROP-032 to
-the `assumptions {}` block (Gap-H).
-
-These assignments are mutually exclusive. Until resolved, neither Gap-H nor `via profile` can
-proceed to authoring without risk of a number collision.
-
-**Blocking:** assumptions block authoring, `via profile` authoring, PROP-033 onwards.
-
-**Recommended resolution:** Assign PROP-032 to `assumptions {}` (Gap-H, higher governance
-priority per Four Axes of Honesty); renumber `via profile binding` to PROP-033; shift
-`output evidence syntax` to PROP-034 and the Profile System to PROP-035 (or keep
-PROP-035 for Effect Surface and find a later slot). Requires Architect decision.
+Resolved: PROP-032 assigned to `assumptions {}` block (Gap-H). `via profile binding`
+renumbered to PROP-033; `output evidence syntax` to PROP-034; profile declarations /
+authority resolution to PROP-035. Effect Surface = TBD. Tracking rows in Domain 2 and
+Domain 7 updated; queue conflict row removed from Domain 8.
 
 ### GI-2 — Effect Surface Coverage Gap (CRITICAL)
 
@@ -239,12 +231,12 @@ class but does not enforce epistemic transition validity.
 
 | debt_type | Entity count | Hotspot |
 |-----------|-------------|---------|
-| `gov` | 15 | Effect Surface (PROP-035) — blocks 7 postulates; highest single leverage |
-| `sem/gov` | 7 | assumptions (Gap-H), constraints (Gap-J), synthetic markers, epistemic coercion, unnamed-block OOF |
-| `sem` | 7 | form (Gap-I), loop classes ×4, evidence syntax (PROP-033), composition algebra (PROP-002) |
+| `gov` | 16 | Effect Surface (PROP-035) — blocks 7 postulates; highest single leverage |
+| `sem/gov` | 5 | constraints (Gap-J), synthetic markers, epistemic coercion, unnamed-block OOF |
+| `sem` | 7 | form (Gap-I), loop classes ×4, evidence syntax (PROP-034), composition algebra (PROP-002) |
 | `impl/gov` | 5 | `observed`/`effect`/`privileged`/`irreversible` modifiers + receipt production shape |
-| `impl` | 10 | History[T] parser+runtime, BiHistory[T] runtime, OOF-I1/I3/I5, startup_time validator, V-3 golden |
-| `none` | 9 | core contract, `pure` modifier, OOF-P1/S2/S4/CE4/OS2, as_of, OOF-M1 |
+| `impl` | 8 | History[T] parser+runtime, BiHistory[T] runtime, OOF-I1/I3/I5 |
+| `none` | 11 | core contract, `pure` modifier, OOF-P1/S2/S4/CE4/OS2, as_of, OOF-M1, startup_time validator (28/28 PASS), V-3 golden (25/25 PASS) |
 
 ### By domain heat
 
@@ -257,7 +249,7 @@ class but does not enforce epistemic transition validity.
 | Form + Loop | 5 full | 0 | 0 | sem |
 | OOF Registry | 3 deferred + 3 new | 2 (OOF-M1) | 6 | impl / sem/gov |
 | Composition + Evidence | 4 full | 0 | 0 | sem / gov |
-| Governance Layer | 4 open | 0 | 0 | gov |
+| Governance Layer | 3 open | 0 | 0 | gov |
 
 ---
 
@@ -265,11 +257,11 @@ class but does not enforce epistemic transition validity.
 
 Priority ordering is by governance leverage × current proof readiness.
 
-### R31-1 — PROP-032 Queue Conflict Resolution (prerequisite)
+### R31-1 — PROP-032 Queue Conflict Resolution — DONE (S3-R30-C6-P)
 
-Resolve GI-1 before any authoring work on assumptions, `via profile`, or evidence syntax.
-Route as an Architect decision with the proposal/README.md renumbering. This unblocks R31-2
-and R31-3.
+GI-1 resolved. PROP-032 = `assumptions {}` block; `via profile binding` = PROP-033;
+`output evidence syntax` = PROP-034; profile/authority = PROP-035.
+R31-2 and R31-3 are now unblocked.
 
 ### R31-2 — assumptions {} Block: Proposal + Minimal Fixture (HIGH)
 
@@ -302,12 +294,12 @@ a bounded scope: author PROP-035 for the Effect Surface declaration shape only (
 compensation, timeout taxonomy, and audit reference as deferred §N.N addenda to keep the
 first PROP tractable.
 
-### R31-6 — V-3 Golden Anchor (LOW, small)
+### R31-6 — V-3 Golden Anchor — DONE (S3-R31-C3-S)
 
-Add one golden file `observed_temporal_contract.semantic_ir.json` to
-`contract_modifiers_proof/golden/` proving that `observed` + `History[T]` body classifies
-as `temporal`. Bundle with the next PROP-031-touching track or startup_time validator work.
-Closes the last CSM follow-up from R29.
+Golden anchor `observed_temporal_precedence.classified.json` (25/25 PASS) exists in
+`contract_modifiers_proof/golden/`. CSM `observed` modifier row updated with secondary
+V-3 temporal anchor. Startup_time validator also closed (28/28 PASS). Both removed from
+`impl` debt.
 
 ### R31-7 — constraints {} Block and Gap-J Gap Analysis (LOW)
 
