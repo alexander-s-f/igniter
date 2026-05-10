@@ -1,0 +1,87 @@
+{
+  "kind": "semantic_ir_program",
+  "format_version": "0.1.0",
+  "program_id": "semanticir/hand_authored_v3",
+  "grammar_version": "0.1.0",
+  "source_hash": "hand_authored_v3_temporal_precedence_proof",
+  "source_path": "experiments/contract_modifiers_proof/fixtures/observed_temporal_precedence.ig",
+  "module": "Proof.ContractModifiers.ObservedTemporalPrecedence",
+  "compilation_report_ref": "compilation_report/hand_authored_v3",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/ReadHistory/sha256:e9be8321facf9af498f9463c",
+      "contract_name": "ReadHistory",
+      "modifier": "observed",
+      "specialization_of": null,
+      "type_args": {},
+      "fragment_class": "temporal",
+      "inputs": [
+        {
+          "name": "sku_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "lifecycle": "local"
+        },
+        {
+          "name": "as_of",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          },
+          "lifecycle": "local"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "price_history",
+          "type": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "temporal_input_node",
+          "name": "price_history",
+          "type": {
+            "constructor": "History",
+            "element_type": "String"
+          },
+          "store_ref": null,
+          "lifecycle": "durable",
+          "axis": "valid_time",
+          "node_fragment_class": "temporal",
+          "value_fragment_class": "core",
+          "required_capability": "history_read",
+          "required_caps": [
+            "history_read"
+          ],
+          "fragment": "temporal"
+        }
+      ],
+      "escape_boundaries": [
+        {
+          "name": "history_read",
+          "required_caps": [
+            "history_read"
+          ],
+          "produces": [
+            "history_access_observation"
+          ]
+        }
+      ]
+    }
+  ]
+}

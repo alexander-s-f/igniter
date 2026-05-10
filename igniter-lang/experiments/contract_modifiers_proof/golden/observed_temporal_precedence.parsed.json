@@ -1,0 +1,72 @@
+{
+  "kind": "parsed_program",
+  "source_path": "experiments/contract_modifiers_proof/fixtures/observed_temporal_precedence.ig",
+  "source_hash": "hand_authored_v3_temporal_precedence_proof",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.ObservedTemporalPrecedence",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "ReadHistory",
+      "modifier": "observed",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "sku_id",
+          "type_annotation": "String"
+        },
+        {
+          "kind": "input",
+          "name": "as_of",
+          "type_annotation": "DateTime"
+        },
+        {
+          "kind": "escape",
+          "name": "history_read"
+        },
+        {
+          "kind": "read",
+          "name": "price_history",
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "from": "sku/{sku_id}/price",
+          "lifecycle": "durable"
+        },
+        {
+          "kind": "output",
+          "name": "price_history",
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "olap_points": [],
+  "parse_errors": []
+}

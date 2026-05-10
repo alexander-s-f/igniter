@@ -28,6 +28,14 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 30 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `covenant-promise-enforcement-path-rule-v0.md` | done | Formalizes enforcement path rule for every Covenant promise; adds enforcement registry to `language-covenant.md`; five-status vocabulary (enforced/planned PROP/spec_candidate/doctrine-only/partial); 28-postulate status table; P28 per-surface table (invariant enforced; escape Unknown → OQ-P28-1 routed to Compiler/Grammar Expert); 4 OQs for Compiler/Grammar Expert |
+
+---
+
 ## Stage 3 Round 29 Evidence
 
 | Track | Status | Notes |

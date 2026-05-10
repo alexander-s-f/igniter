@@ -1,0 +1,121 @@
+{
+  "kind": "classified_program",
+  "classifier_version": "classifier-pass-executable-proof-v0",
+  "program_id": "classifier_pass/da05a15f413f737a",
+  "source_path": "experiments/contract_modifiers_proof/fixtures/observed_temporal_precedence.ig",
+  "source_hash": "hand_authored_v3_temporal_precedence_proof",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.ObservedTemporalPrecedence",
+  "type_declarations": [],
+  "contracts": [
+    {
+      "kind": "classified_contract",
+      "contract_id": "Proof.ContractModifiers.ObservedTemporalPrecedence.ReadHistory",
+      "name": "ReadHistory",
+      "modifier": "observed",
+      "fragment_class": "temporal",
+      "symbols": [
+        {
+          "name": "as_of",
+          "kind": "input",
+          "fragment_class": "core"
+        },
+        {
+          "name": "price_history",
+          "kind": "temporal_read",
+          "fragment_class": "core"
+        },
+        {
+          "name": "sku_id",
+          "kind": "input",
+          "fragment_class": "core"
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:sku_id",
+          "kind": "input",
+          "name": "sku_id",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "String"
+        },
+        {
+          "decl_id": "input:as_of",
+          "kind": "input",
+          "name": "as_of",
+          "fragment_class": "core",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": "DateTime"
+        },
+        {
+          "decl_id": "escape:history_read",
+          "kind": "escape",
+          "name": "history_read",
+          "fragment_class": "escape",
+          "deps": [],
+          "missing_refs": []
+        },
+        {
+          "decl_id": "read:price_history",
+          "kind": "read",
+          "name": "price_history",
+          "fragment_class": "temporal",
+          "deps": [],
+          "missing_refs": [],
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "node_fragment_class": "temporal",
+          "value_fragment_class": "core",
+          "required_capability": "history_read",
+          "temporal_axis": "valid_time"
+        },
+        {
+          "decl_id": "output:price_history",
+          "kind": "output",
+          "name": "price_history",
+          "fragment_class": "core",
+          "deps": [
+            "price_history"
+          ],
+          "missing_refs": [],
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "dependency_graph": {
+        "nodes": [
+          "input:sku_id",
+          "input:as_of",
+          "escape:history_read",
+          "read:price_history",
+          "output:price_history"
+        ],
+        "edges": []
+      },
+      "oof_log": []
+    }
+  ],
+  "oof_log": [],
+  "semantic_ir_ref": null
+}

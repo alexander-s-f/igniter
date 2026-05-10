@@ -1,7 +1,7 @@
 # Igniter-Lang Language Covenant
 
 Status: governing
-Date: 2026-05-10
+Date: 2026-05-10 (enforcement registry added: S3-R30-C5-P)
 Author: `[Igniter-Lang Meta Expert]`
 Supersedes: nothing (new document)
 
@@ -504,25 +504,172 @@ compensation path, and with a complete receipt trail. It does not fail silently.
 
 ## Cross-Reference to Spec
 
-| Postulate | Spec chapter | PROP | Status |
-|-----------|-------------|------|--------|
-| 1–2 | ch1 (Identity), ch2 (Grammar) | PROP-001, PROP-014 | ✅ |
-| 3 | ch9 (Temporal) | PROP-022 | ✅ |
-| 4, 7, 16, 17, 19 | ch12 (Effect Surface) | PROP-035 | pending |
-| 5 | ch9 (BiHistory) | PROP-022 | ✅ |
-| 6, 20 | ch10 (Modifiers §10.5) | PROP-031, PROP-033 | PROP-031 ✅ |
-| 8 | ch12 (receipt field) | PROP-035 | pending |
-| 9 | ch12 (authority field) | PROP-035 | pending |
-| 10 | ch11 (Profile System) | PROP-034 | pending |
-| 11, 12, 13 | ch10 (observed modifier) | PROP-031 | ✅ |
-| 14 | ch13 (Managed Recursion) | PROP-036+ | pending |
-| 15 | ch12 (failure taxonomy) | PROP-035 | pending |
-| 18 | ch10 (pure/irreversible separation) | PROP-031 | ✅ |
-| 21 | ch12 (Effect Surface, all fields) | PROP-035 | pending |
-| 22 | Gap-H (assumptions block) | TBD | open |
-| 23 | Gap-H (synthetic receipt type) | TBD | open |
-| 24 | Gap-J (constraints block) + ch12 | TBD | open |
-| 25 | Gap-J (constraints block) | TBD | open |
-| 26 | Gap-N (audit contract/pattern) | TBD | open |
-| 27 | Axiom 2 (Accountability) — all surfaces | — | Covenant governing |
-| 28 | Governance: unnamed block rule | — | Covenant governing |
+| Postulate | Spec chapter | PROP | Spec status | Enforcement status |
+|-----------|-------------|------|-------------|-------------------|
+| 1–2 | ch1 (Identity), ch2 (Grammar) | PROP-001, PROP-014 | ✅ | `enforced` |
+| 3 | ch9 (Temporal) | PROP-022 | ✅ | `enforced` |
+| 4, 7, 16, 17, 19 | ch12 (Effect Surface) | PROP-035 | pending | `planned PROP` |
+| 5 | ch9 (BiHistory) | PROP-022 | ✅ | `enforced` |
+| 6, 20 | ch10 (Modifiers §10.5) | PROP-031, PROP-033 | PROP-031 ✅ | `planned PROP` (PROP-033) |
+| 8 | ch12 (receipt field) | PROP-035 | pending | `planned PROP` |
+| 9 | ch12 (authority field) | PROP-035 | pending | `planned PROP` |
+| 10 | ch11 (Profile System) | PROP-034 | pending | `planned PROP` |
+| 11 | ch10 (observed modifier) | PROP-031 | ✅ | `planned PROP` (PROP-035 required-field enforcement) |
+| 12 | ch10 (observed modifier) | PROP-031 | ✅ | `planned PROP` (PROP-035 receipt type enforcement) |
+| 13 | ch10 (observed modifier) | PROP-031 | ✅ | `enforced` (classifier fragment class) |
+| 14 | ch13 (Managed Recursion) | PROP-036+ | pending | `planned PROP` |
+| 15 | ch12 (failure taxonomy) | PROP-035 | pending | `planned PROP` |
+| 18 | ch10 (pure/irreversible separation) | PROP-031 | ✅ | `enforced` |
+| 21 | ch12 (Effect Surface, all fields) | PROP-035 | pending | `planned PROP` |
+| 22 | Gap-H (assumptions block) | PROP-032 | open | `planned PROP` |
+| 23 | Gap-H (synthetic receipt type) | TBD | open | `spec_candidate` |
+| 24 | Gap-J (constraints block) + ch12 | TBD | open | `spec_candidate` |
+| 25 | Gap-J (constraints block) | TBD | open | `spec_candidate` |
+| 26 | Gap-N (audit contract/pattern) | TBD | open | `spec_candidate` |
+| 27 | Axiom 2 (Accountability) — all surfaces | — | Covenant governing | `doctrine-only` |
+| 28 | Governance: unnamed block rule | PROP-035 + PROP-036+ | partial | `partial` — see enforcement registry |
+
+---
+
+## Covenant Promise Enforcement Registry
+
+Every Covenant promise must declare an enforcement path. This section assigns
+a formal status to every postulate and defines the rule for new additions.
+
+### Status Vocabulary
+
+| Status | Meaning | Required citation |
+|--------|---------|------------------|
+| `enforced` | The compiler currently rejects violations at parse, classify, or type-check time | Cite the mechanism and the implementing PROP or proof anchor |
+| `planned PROP` | A PROP exists or is queued that will wire compiler enforcement | Cite PROP number or named queue slot (Gap label if no PROP yet drafted) |
+| `spec_candidate` | The concept is defined in the Covenant or CSM but no PROP is queued | Cite CSM row; state what evidence or design work is needed to advance to a PROP |
+| `doctrine-only` | Intentionally not a compiler rule; compliance maintained by a non-compiler mechanism | Explain the enforcement mechanism (PROP filter, review gate, governance policy) |
+| `partial` | Enforced for some named surfaces; pending PROP for others | Expand in a per-surface subtable |
+
+### Rule
+
+> Every postulate added to the Covenant must carry one of the statuses above
+> before it is accepted. A postulate without a status is incomplete.
+>
+> - `planned PROP` requires a cited PROP number or named queue slot.
+> - `spec_candidate` requires a cited CSM row.
+> - `doctrine-only` requires an explicit statement of the non-compiler enforcement mechanism.
+> - `partial` requires a per-surface subtable.
+>
+> When a PROP advances and wires enforcement, the postulate status must be
+> updated to `enforced` in the same PROP card or an accompanying Meta Expert
+> card. Enforcement status drift (PROP ships but Covenant table not updated)
+> is a spec-lag item subject to META-EXPERT-012 lifecycle policy.
+
+### Postulate Enforcement Status Registry
+
+| Postulate | Promise summary | Enforcement status | Mechanism / PROP |
+|-----------|----------------|-------------------|-----------------|
+| P1 | Contracts are dependency graphs, not sequences | `enforced` | GraphCompiler validates DAG; DSL rejects imperative sequences |
+| P2 | Every computation declares its dependencies | `enforced` | Compiler requires explicit `depends_on:`/`with:` on all compute nodes |
+| P3 | Time is an explicit parameter (`as_of: DateTime`) | `enforced` | TEMPORAL fragment (PROP-022 ✅); History[T] requires `as_of` input; `now()` forbidden (OOF-M1) |
+| P4 | Every side effect is named (`escape` modifier) | `planned PROP` | PROP-035 (Effect Surface); effect declaration not yet enforced as required field on all I/O |
+| P5 | Contract outputs are immutable values | `enforced` | Frozen CompiledGraph; append-only history type; no mutation API at runtime |
+| P6 | Every output carries a provenance chain (`evidence []`) | `planned PROP` | PROP-033 — evidence chains at composition boundaries; not yet enforced at output declaration |
+| P7 | Effect Surface readable from contract header alone | `planned PROP` | PROP-035 — Effect Surface as separate declared block |
+| P8 | Receipts are immutable proofs of specific operations | `planned PROP` | PROP-035 — receipt field schema with required fields |
+| P9 | Authority is a typed value, not an ambient role | `planned PROP` | PROP-035 — `authority:` required field on privileged/irreversible contracts |
+| P10 | Profiles are compile-time policy, not runtime config | `planned PROP` | PROP-034 (Profile System) |
+| P11 | Uncertainty is a required typed field, not silently dropped | `planned PROP` | PROP-035 — required-field enforcement on observation types; PROP-031 ✅ classifies modifier |
+| P12 | Simulated receipts are a different type from real receipts | `planned PROP` | PROP-031 ✅ classifies fragment; PROP-035 enforces type incompatibility at contract boundaries |
+| P13 | Real / model / human observations are distinct types | `enforced` | PROP-031 ✅ — classifier assigns fragment class; modifier system enforces distinction at classification |
+| P14 | Every repetition belongs to a loop class with a compiler-verified contract | `planned PROP` | PROP-036+ (Managed Recursion) |
+| P15 | Timeout is `UnknownExternalOutcome`, not `ObservedFailure` | `planned PROP` | PROP-035 — failure taxonomy with distinct types |
+| P16 | Non-idempotent operations under retry are a compile error | `planned PROP` | PROP-035 — idempotency key requirement on retry-enabled profiles |
+| P17 | Irreversible contracts name their compensation or declare `no_compensation` | `planned PROP` | PROP-035 — `compensation:` required field on irreversible contracts |
+| P18 | Irreversible contract unreachable from pure context | `enforced` | PROP-031 ✅ — pure/irreversible separation enforced at classifier; TypeChecker propagates fragment class |
+| P19 | Profile may declare max reversibility level; exceeding it is a compile error | `planned PROP` | PROP-035 + PROP-034 — reversibility scale + profile enforcement |
+| P20 | Contract composition preserves evidence chains | `planned PROP` | PROP-033 — evidence chain DAG validation at composition boundaries |
+| P21 | A program names all its consequences | `planned PROP` | PROP-035 — Effect Surface; all effect fields required at declaration |
+| P22 | Every assumption is declared, typed, and carried through evidence | `planned PROP` | PROP-032 (Gap-H) — assumptions block; `uses assumptions NAME` enforced at call site |
+| P23 | Synthetic world state must carry epistemic markers that survive receipts | `spec_candidate` | CSM: `SimulationReceipt` shape defined; no PROP yet; requires Gap-H PROP + receipt type system |
+| P24 | Consequential choices must expose inputs, assumptions, constraints, alternatives, authority | `spec_candidate` | CSM: `StrategyDecision` shape defined; no PROP yet; requires Gap-J PROP + ch12 effect surface |
+| P25 | Constraints are declared, typed, and carried through `constraint_hash` | `spec_candidate` | CSM: `constraints {}` block defined; no PROP yet; Gap-J PROP required before implementation |
+| P26 | A decision is complete only when expected outcome is compared to actual | `spec_candidate` | CSM: `PostAuditReceipt` shape defined; Gap-N PROP required; `audit:` field on decision receipts |
+| P27 | Every language primitive exists to make accountability legible | `doctrine-only` | Enforced by the PROP Governance Filter at proposal acceptance time, not by compiler. P27 IS the governance axiom from which all compiler-enforced postulates derive their authority. No compiler rule needed — any PROP that reduces audit legibility is rejected by the filter. |
+| P28 | No unnamed block may carry semantic identity | `partial` | `invariant` blocks: `enforced` (parser requires name). Other surfaces: see P28 enforcement table below. |
+
+---
+
+### Postulate 28 — Per-Surface Enforcement Table
+
+P28 applies to five named construct families. Enforcement status differs across
+surfaces because some have no compiler implementation yet.
+
+| P28 surface | What P28 requires | Current enforcement | Enforcement path |
+|------------|-------------------|---------------------|-----------------|
+| `invariant` block | Must have a name; referenced in violation observation receipts | **`enforced`** — parser requires name; unnamed `invariant` is a parse error today | Already enforced; anchor: parser spec |
+| `escape` declaration | Must be named; referenced in `escape_boundaries` of receipts | **Unknown** — Compiler/Grammar Expert must verify (OQ-P28-1 below) | `planned PROP` — PROP-035 (Effect Surface) should formalize naming requirement |
+| Loop class declaration | Must be named; referenced in managed loop contract | **N/A** — loop classes not yet implemented | `planned PROP` — PROP-036+ (Managed Recursion); naming requirement must be explicit in PROP draft |
+| `assumptions {}` block | Must be named; carried through `evidence []` chain | **N/A** — Gap-H not yet implemented | `planned PROP` — PROP-032 (Gap-H); `uses assumptions NAME` syntax enforces naming |
+| `constraints {}` block | Must be named; carried through `constraint_hash` | **N/A** — Gap-J not yet implemented | `spec_candidate` → `planned PROP` when Gap-J PROP is queued |
+
+**P28 current enforcement summary:** Only `invariant` block naming is enforced by
+the compiler today. All other P28 surfaces are either unimplemented or unverified.
+P28 is a **governing commitment** across the full surface; current enforcement is
+partial. A future card (or OQ-P28-1 response from Compiler/Grammar Expert) should
+promote the `escape` declaration row from Unknown to Enforced or Planned PROP.
+
+---
+
+### Open Questions for Compiler/Grammar Expert (from this section)
+
+**OQ-P28-1 — `escape` declaration naming enforcement**
+
+Is an unnamed `escape` declaration currently a parse error, or is it silently
+accepted? Specifically:
+
+```igniter
+-- Is this currently refused by the parser?
+escape
+read value: Integer from "sensors/{id}"
+
+-- Or is escape always positional/anonymous at this stage?
+escape sensor_read
+read value: Integer from "sensors/{id}"
+```
+
+Expected answer: the Compiler/Grammar Expert should check the parser and classify
+the `escape` row in the P28 surface table as `enforced` (parse error today) or
+`planned PROP` (not yet wired). This closes the "Unknown" entry above and the
+longstanding OQ-1 from `covenant-accountability-postulates-r29-v0.md`.
+
+Deliverable: a single row update to the P28 surface table above, either in a
+Compiler/Grammar Expert track doc or as an addendum to this section.
+
+**OQ-P28-2 — PROP-035 Effect Surface should include a P28 enforcement clause**
+
+When PROP-035 (Effect Surface) is drafted, it should include an explicit clause
+requiring that every `escape` declaration carry a name that appears in the receipt
+`escape_boundaries` field. This ensures that P28 enforcement for escape declarations
+is a first-class PROP-035 acceptance criterion, not a later errata.
+
+Question for Compiler/Grammar Expert: should PROP-035 be the home for escape naming
+enforcement, or should a separate escape-naming-enforcement PROP be filed?
+
+**OQ-P28-3 — PROP-036+ loop class naming**
+
+When PROP-036+ (Managed Recursion) is drafted, the loop class naming requirement
+from P28 must be an explicit acceptance condition in the PROP. No unnamed loop
+class may carry a managed-loop contract.
+
+Question for Compiler/Grammar Expert: should the P28 requirement for loop class
+naming be stated in the PROP-036+ acceptance criteria or in a separate invariant
+section of ch13?
+
+**OQ-Enforcement-1 — enforcement status table maintenance ownership**
+
+The Postulate Enforcement Status Registry above must be kept current as PROPs
+ship. Who owns updates?
+
+Proposed rule: the PROP card that wires new enforcement must update the registry
+as part of its deliverables (or route the update to a same-round Meta Expert status
+card). If the PROP ships without updating the registry, the gap is a spec-lag item
+tracked by META-EXPERT-012.
+
+Question: should this rule be added to META-EXPERT-013 §VI acceptance criteria?

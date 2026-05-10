@@ -1,0 +1,123 @@
+{
+  "kind": "typed_program",
+  "typechecker_version": "typed-pass-executable-proof-v0",
+  "program_id": "typed_pass/ce88d0329972f20a",
+  "classified_program_id": "classifier_pass/da05a15f413f737a",
+  "source_path": "experiments/contract_modifiers_proof/fixtures/observed_temporal_precedence.ig",
+  "source_hash": "hand_authored_v3_temporal_precedence_proof",
+  "grammar_version": "0.1.0",
+  "module": "Proof.ContractModifiers.ObservedTemporalPrecedence",
+  "type_env": {},
+  "contracts": [
+    {
+      "kind": "typed_contract",
+      "contract_id": "Proof.ContractModifiers.ObservedTemporalPrecedence.ReadHistory",
+      "name": "ReadHistory",
+      "modifier": "observed",
+      "status": "accepted",
+      "fragment_class": "temporal",
+      "symbols": [
+        {
+          "name": "as_of",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          },
+          "resolved": true
+        },
+        {
+          "name": "price_history",
+          "type": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "resolved": true
+        },
+        {
+          "name": "sku_id",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "resolved": true
+        }
+      ],
+      "declarations": [
+        {
+          "decl_id": "input:sku_id",
+          "kind": "input",
+          "name": "sku_id",
+          "fragment_class": "core",
+          "type": {
+            "name": "String",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "input:as_of",
+          "kind": "input",
+          "name": "as_of",
+          "fragment_class": "core",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          },
+          "deps": []
+        },
+        {
+          "decl_id": "read:price_history",
+          "kind": "read",
+          "name": "price_history",
+          "fragment_class": "temporal",
+          "type": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "deps": [],
+          "node_fragment_class": "temporal",
+          "value_fragment_class": "core",
+          "required_capability": "history_read",
+          "temporal_axis": "valid_time"
+        },
+        {
+          "decl_id": "output:price_history",
+          "kind": "output",
+          "name": "price_history",
+          "fragment_class": "core",
+          "type": {
+            "kind": "type_ref",
+            "name": "History",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          },
+          "deps": [
+            "price_history"
+          ]
+        }
+      ],
+      "type_errors": []
+    }
+  ],
+  "type_errors": [],
+  "semantic_ir_ref": null
+}
