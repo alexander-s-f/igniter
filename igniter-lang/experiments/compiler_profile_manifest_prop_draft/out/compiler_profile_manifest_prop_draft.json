@@ -1,0 +1,78 @@
+{
+  "kind": "compiler_profile_manifest_prop_draft_candidate",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-manifest-prop-draft-v0",
+  "status": "draft_candidate",
+  "source_evidence": {
+    "manifest_boundary": "igniter-lang/experiments/compiler_profile_id_manifest_boundary/out/compiler_profile_id_manifest_boundary_summary.json",
+    "compatibility_report_fields": "igniter-lang/experiments/compiler_profile_compatibility_report_fields/out/compiler_profile_compatibility_report_fields_summary.json",
+    "receipt_storage_policy": "igniter-lang/experiments/compilation_receipt_authority_and_storage/out/compilation_receipt_authority_and_storage_summary.json"
+  },
+  "proposed_manifest_field": {
+    "name": "compiler_profile_id",
+    "type": "string",
+    "example": "ordered_rule_profile/sha256:674d7b6d7512186d5031555d",
+    "placement": "top_level_manifest_field",
+    "required_policy_initial": "legacy_optional",
+    "required_policy_future": "profile_required",
+    "authority": "compiler_understanding_only",
+    "runtime_execution_authority": false
+  },
+  "artifact_hash_and_signature_policy": {
+    "compiler_profile_id_participates_in_artifact_hash": true,
+    "add_before_artifact_hash": true,
+    "add_before_signing": true,
+    "post_signing_annotation_allowed": false,
+    "profile_body_inline_initially_allowed": false,
+    "expanded_profile_sidecar_future": true
+  },
+  "loader_policy": {
+    "legacy_optional": {
+      "absent": "accept_absent_legacy",
+      "match": "accept_profile_match",
+      "mismatch": "refuse_profile_mismatch",
+      "malformed": "refuse_malformed_profile_id"
+    },
+    "profile_required": {
+      "absent": "refuse_missing_compiler_profile_id",
+      "match": "accept_profile_match",
+      "mismatch": "refuse_profile_mismatch",
+      "malformed": "refuse_malformed_profile_id"
+    }
+  },
+  "compatibility_report_fields": {
+    "compiler_profile_status": [
+      "absent_legacy",
+      "present_verified",
+      "mismatch",
+      "malformed",
+      "missing_required"
+    ],
+    "runtime_evaluation_readiness": [
+      "ready",
+      "blocked",
+      "not_reached"
+    ],
+    "invariant": "compiler_profile_status.present_verified must not imply runtime_evaluation_readiness.ready"
+  },
+  "compilation_receipt_relationship": {
+    "receipt_may_reference_compiler_profile_id": true,
+    "receipt_may_reference_manifest_digest": true,
+    "receipt_signature_does_not_authorize_runtime": true,
+    "storage_policy_ref": "igniter-lang/experiments/compilation_receipt_authority_and_storage/out/compilation_receipt_storage_policy.json"
+  },
+  "migration_order": [
+    "Finalize PROP for compiler_profile_id field and compatibility policies.",
+    "Add report-only loader support for absent_legacy/mismatch/malformed/missing_required.",
+    "Add assembler support behind legacy_optional policy and update proof fixtures.",
+    "Regenerate artifact hashes/goldens intentionally.",
+    "Add CompilationReceipt references after manifest hash ordering is stable.",
+    "Consider profile_required only after profiled artifacts are normal."
+  ],
+  "implementation_cards": [
+    "assembler-compiler-profile-id-field-v0",
+    "loader-compiler-profile-status-report-v0",
+    "artifact-hash-profile-id-golden-migration-v0",
+    "compilation-receipt-manifest-link-v0"
+  ]
+}

@@ -211,17 +211,32 @@
       "stdout_first_line": "PASS profile_source_lowering_target",
       "stderr": "",
       "check_count": 14
+    },
+    {
+      "id": "compiler_profile_manifest_prop_draft",
+      "phase": "manifest_prop_draft",
+      "claim": "compiler_profile_id manifest field draft composes manifest boundary, report fields, and receipt storage evidence.",
+      "command": "igniter-lang/experiments/compiler_profile_manifest_prop_draft/compiler_profile_manifest_prop_draft.rb",
+      "summary_path": "igniter-lang/experiments/compiler_profile_manifest_prop_draft/out/compiler_profile_manifest_prop_draft_summary.json",
+      "track_doc": "igniter-lang/docs/tracks/compiler-profile-manifest-prop-draft-v0.md",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "stdout_first_line": "PASS compiler_profile_manifest_prop_draft",
+      "stderr": "",
+      "check_count": 10
     }
   ],
   "checks": {
     "chain.starts_with_shadow_profile": true,
-    "chain.ends_with_profile_source_lowering_target": true,
+    "chain.includes_profile_source_lowering_target": true,
+    "chain.ends_with_manifest_prop_draft": true,
     "chain.all_commands_exited_zero": true,
     "chain.all_summaries_pass": true,
     "chain.has_expected_phase_count": true,
     "chain.has_receipt_and_storage_phases": true,
     "chain.has_self_assembly_and_bootstrap_phases": true,
     "chain.has_descriptor_and_lowering_phases": true,
+    "chain.has_manifest_prop_draft_phase": true,
     "scope.no_runtime_authority_phase": true
   },
   "what_this_index_authorizes": [
@@ -237,7 +252,7 @@
   ],
   "recommended_next": [
     "profile-source-syntax-pressure-v0",
-    "compiler-profile-manifest-prop-draft-v0",
+    "compiler-profile-manifest-prop-promotion-v0",
     "compiler-profile-descriptor-error-taxonomy-sharpening-v0"
   ]
 }

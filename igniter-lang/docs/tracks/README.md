@@ -28,6 +28,18 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Background Compiler Profile Foundation
+
+These tracks are proof-local foundation work for future Profile/Pack compiler
+architecture. They are not production migration authorization.
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `compiler-profile-chain-closure-index-v0.md` | done | Closure index PASS 17/17 from shadow profile through manifest PROP draft; guard only, no dispatch/.igapp/.ilk/runtime authority change |
+| `compiler-profile-manifest-prop-draft-v0.md` | done | PROP-ready draft candidate for top-level `compiler_profile_id`; legacy_optional/profile_required policies; hash/signature ordering; no official PROP number claimed |
+
+---
+
 ## Stage 3 Round 32 Evidence
 
 | Track | Status | Notes |

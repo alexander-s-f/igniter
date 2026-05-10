@@ -12,8 +12,8 @@ Date: 2026-05-10
 ## Goal
 
 Provide one index for the full background compiler profile / pack architecture
-chain from the original shadow profile proof through descriptor schema and future
-profile-source lowering target.
+chain from the original shadow profile proof through descriptor schema,
+profile-source lowering target, and manifest PROP draft candidate.
 
 This is an index and proof guard. It does not authorize production pack
 migration, compiler dispatch rewrite, profile syntax, `.igapp`/`.ilk` changes, or
@@ -64,6 +64,7 @@ PASS compiler_profile_chain_closure_index
 | 14 | bootstrap seed | `bootstrap_descriptor_kernel` | `bootstrap-descriptor-kernel-v0` |
 | 15 | descriptor schema | `compiler_profile_descriptor_schema` | `compiler-profile-descriptor-schema-v0` |
 | 16 | future syntax target | `profile_source_lowering_target` | `profile-source-lowering-target-v0` |
+| 17 | manifest PROP draft | `compiler_profile_manifest_prop_draft` | `compiler-profile-manifest-prop-draft-v0` |
 
 ---
 
@@ -94,6 +95,10 @@ pack descriptors, while keeping the bootstrap seed explicit.
 
 [S] Descriptor schema and lowering target are now modeled before syntax exists.
 
+[S] `compiler_profile_id` manifest PROP draft candidate now composes manifest
+boundary, CompatibilityReport field split, receipt storage policy, and migration
+order.
+
 ---
 
 ## Guard Checks
@@ -102,13 +107,15 @@ The closure runner verifies:
 
 ```text
 chain.starts_with_shadow_profile
-chain.ends_with_profile_source_lowering_target
+chain.includes_profile_source_lowering_target
+chain.ends_with_manifest_prop_draft
 chain.all_commands_exited_zero
 chain.all_summaries_pass
 chain.has_expected_phase_count
 chain.has_receipt_and_storage_phases
 chain.has_self_assembly_and_bootstrap_phases
 chain.has_descriptor_and_lowering_phases
+chain.has_manifest_prop_draft_phase
 scope.no_runtime_authority_phase
 ```
 
@@ -147,14 +154,14 @@ signed production audit claim
 profile-source-syntax-pressure-v0
   Compiler/Grammar-facing pressure doc for possible syntax and ambiguity.
 
-compiler-profile-manifest-prop-draft-v0
-  Formalize compiler_profile_id placement, hash/signature ordering, and legacy policy.
+compiler-profile-manifest-prop-promotion-v0
+  Promote the draft candidate into a numbered PROP after Architect/Compiler-Expert routing.
 
 compiler-profile-descriptor-error-taxonomy-sharpening-v0
   Tighten helper-only / duplicate-slot / dependency error precedence.
 ```
 
-My recommendation: do `compiler-profile-manifest-prop-draft-v0` first if the
+My recommendation: do `compiler-profile-manifest-prop-promotion-v0` first if the
 goal is production path alignment, or `profile-source-syntax-pressure-v0` first
 if the goal is self-assembly language design.
 
@@ -170,15 +177,16 @@ Track: compiler-profile-chain-closure-index-v0
 Status: done
 
 [D] Decisions:
-- Created one closure index from shadow profile through profile-source lowering.
+- Created one closure index from shadow profile through manifest PROP draft.
 - The index is a proof guard and navigation map, not migration authorization.
 - Runtime authority remains out of scope across the chain.
 
 [S] Signals:
-- 16/16 indexed proofs PASS.
+- 17/17 indexed proofs PASS.
 - The chain covers shadow profile, pack boundary, kernel registry, ordering,
   manifest plan, slots, unified profile, authority, reports, receipts,
-  self-assembly, bootstrap seed, descriptor schema, and lowering target.
+  self-assembly, bootstrap seed, descriptor schema, lowering target, and
+  manifest PROP draft.
 
 [T] Tests:
 - ruby igniter-lang/experiments/compiler_profile_chain_closure_index/compiler_profile_chain_closure_index.rb -> PASS
@@ -189,7 +197,6 @@ Status: done
 
 [Next]
 - Continue from one of:
-  compiler-profile-manifest-prop-draft-v0
   profile-source-syntax-pressure-v0
   compiler-profile-descriptor-error-taxonomy-sharpening-v0
 ```

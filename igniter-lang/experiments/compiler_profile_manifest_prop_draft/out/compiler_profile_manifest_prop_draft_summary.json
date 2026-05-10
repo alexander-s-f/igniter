@@ -1,0 +1,26 @@
+{
+  "kind": "compiler_profile_manifest_prop_draft_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-manifest-prop-draft-v0",
+  "status": "PASS",
+  "draft_path": "igniter-lang/experiments/compiler_profile_manifest_prop_draft/out/compiler_profile_manifest_prop_draft.json",
+  "checks": {
+    "input.manifest_boundary_passed": true,
+    "input.report_fields_passed": true,
+    "input.receipt_storage_passed": true,
+    "field.compiler_profile_id_top_level": true,
+    "authority.no_runtime_execution_authority": true,
+    "hash.before_hash_and_signing": true,
+    "hash.no_post_signing_annotation": true,
+    "policy.has_legacy_and_required_modes": true,
+    "report.separates_profile_and_runtime_fields": true,
+    "migration.has_ordered_implementation_cards": true
+  },
+  "non_goals": [
+    "No official PROP number claimed.",
+    "No assembler implementation.",
+    "No .igapp fixture update.",
+    "No RuntimeMachine enforcement change.",
+    "No signed artifact implementation."
+  ]
+}

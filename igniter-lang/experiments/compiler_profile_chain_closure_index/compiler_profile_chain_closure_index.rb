@@ -144,6 +144,14 @@ module CompilerProfileChainClosureIndex
       "command" => "igniter-lang/experiments/profile_source_lowering_target/profile_source_lowering_target.rb",
       "summary_path" => "igniter-lang/experiments/profile_source_lowering_target/out/profile_source_lowering_target_summary.json",
       "track_doc" => "igniter-lang/docs/tracks/profile-source-lowering-target-v0.md"
+    },
+    {
+      "id" => "compiler_profile_manifest_prop_draft",
+      "phase" => "manifest_prop_draft",
+      "claim" => "compiler_profile_id manifest field draft composes manifest boundary, report fields, and receipt storage evidence.",
+      "command" => "igniter-lang/experiments/compiler_profile_manifest_prop_draft/compiler_profile_manifest_prop_draft.rb",
+      "summary_path" => "igniter-lang/experiments/compiler_profile_manifest_prop_draft/out/compiler_profile_manifest_prop_draft_summary.json",
+      "track_doc" => "igniter-lang/docs/tracks/compiler-profile-manifest-prop-draft-v0.md"
     }
   ].freeze
 
@@ -173,7 +181,7 @@ module CompilerProfileChainClosureIndex
       ],
       "recommended_next" => [
         "profile-source-syntax-pressure-v0",
-        "compiler-profile-manifest-prop-draft-v0",
+        "compiler-profile-manifest-prop-promotion-v0",
         "compiler-profile-descriptor-error-taxonomy-sharpening-v0"
       ]
     }
@@ -198,13 +206,15 @@ module CompilerProfileChainClosureIndex
     phases = entries.map { |entry| entry.fetch("phase") }
     {
       "chain.starts_with_shadow_profile" => entries.first.fetch("id") == "compiler_pack_shadow_profile_proof",
-      "chain.ends_with_profile_source_lowering_target" => entries.last.fetch("id") == "profile_source_lowering_target",
+      "chain.includes_profile_source_lowering_target" => entries.any? { |entry| entry.fetch("id") == "profile_source_lowering_target" },
+      "chain.ends_with_manifest_prop_draft" => entries.last.fetch("id") == "compiler_profile_manifest_prop_draft",
       "chain.all_commands_exited_zero" => entries.all? { |entry| entry.fetch("exit_status").zero? },
       "chain.all_summaries_pass" => entries.all? { |entry| entry.fetch("proof_status") == "PASS" },
-      "chain.has_expected_phase_count" => phases.length == 16,
+      "chain.has_expected_phase_count" => phases.length == 17,
       "chain.has_receipt_and_storage_phases" => phases.include?("build_receipt") && phases.include?("receipt_storage"),
       "chain.has_self_assembly_and_bootstrap_phases" => phases.include?("self_assembly") && phases.include?("bootstrap_seed"),
       "chain.has_descriptor_and_lowering_phases" => phases.include?("descriptor_schema") && phases.include?("future_syntax_target"),
+      "chain.has_manifest_prop_draft_phase" => phases.include?("manifest_prop_draft"),
       "scope.no_runtime_authority_phase" => entries.none? { |entry| entry.fetch("phase").include?("runtime_authority") }
     }
   end
