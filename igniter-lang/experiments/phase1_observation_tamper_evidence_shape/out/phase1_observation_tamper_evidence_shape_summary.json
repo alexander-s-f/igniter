@@ -1,0 +1,79 @@
+{
+  "kind": "phase1_observation_tamper_evidence_shape_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R24-C3-P",
+  "track": "phase1-observation-tamper-evidence-shape-v0",
+  "status": "PASS",
+  "tamper_evidence_shape": {
+    "block_name": "tamper_evidence",
+    "format_version": "0.2.0",
+    "fields": {
+      "sequence": "Integer — 0-based append counter; gap detection",
+      "previous_record_hash": "String — SHA256 of previous record body; 'genesis' for first",
+      "record_hash": "String — SHA256 of this record body (with record_hash=nil); content integrity",
+      "storage_identity": "String — UUID fixed at store init; cross-log mixing detection",
+      "created_at": "String — ISO8601 proof timestamp"
+    },
+    "hash_algorithm": "SHA256",
+    "canonical_form": "JSON with recursively sorted keys (Ruby Hash#sort)",
+    "chain_start": "previous_record_hash == 'genesis' for sequence 0",
+    "scope": "proof-local file-backed JSONL only",
+    "not_production": "not a cryptographic commitment; not production durable audit"
+  },
+  "checks": {
+    "shape.sequence_present": true,
+    "shape.previous_hash_present": true,
+    "shape.record_hash_present": true,
+    "shape.storage_identity_present": true,
+    "shape.created_at_present": true,
+    "chain.first_sequence_zero": true,
+    "chain.first_previous_genesis": true,
+    "chain.second_sequence_one": true,
+    "chain.second_links_to_first": true,
+    "chain.storage_identity_consistent": true,
+    "receipt.sequence_zero": true,
+    "receipt.previous_genesis": true,
+    "receipt.record_hash_present": true,
+    "integrity.r1_hash_verifiable": true,
+    "integrity.r2_hash_verifiable": true,
+    "caveat.audit_ready": true,
+    "caveat.not_production_audit": true,
+    "excluded.ledger_blocked": true,
+    "excluded.write_blocked": true,
+    "excluded.replay_blocked": true,
+    "excluded.compact_blocked": true,
+    "excluded.subscribe_blocked": true,
+    "chain.only_allowed_appended": true
+  },
+  "production_durable_audit_recommendation": {
+    "recommended_track": "phase1-production-durable-audit-v0",
+    "required_additions": [
+      "HSM or KMS signing key per record (replaces SHA256-only chain)",
+      "retention policy and TTL specification",
+      "replay semantics: ordered replay, idempotent re-read",
+      "storage identity tied to infrastructure (not in-memory UUID)",
+      "compliance language: GDPR/SOC2/PCI scope if applicable",
+      "separate audit role: read-only audit accessor distinct from executor",
+      "off-process persistence: not file-backed; dedicated audit store",
+      "tamper detection alerting: gap/reorder detection wired to alerting surface"
+    ],
+    "pre_conditions": [
+      "gate3-live-read-decision-addendum-v0 issued and live reads unblocked",
+      "phase1-backend-identity-guard-v0 closed (C-1)",
+      "AT-10 persistence gap (R3) resolved with production store binding"
+    ],
+    "not_this_track": [
+      "production signing infrastructure",
+      "Ledger integration",
+      "write/replay/compact/subscribe operations",
+      "compliance claims"
+    ]
+  },
+  "store": {
+    "path": "igniter-lang/experiments/phase1_observation_tamper_evidence_shape/out/phase1_tamper_evident_store.jsonl",
+    "mode": "proof_local_file",
+    "production_durable_audit": false,
+    "production_compliance_claim": false,
+    "ledger": false
+  }
+}

@@ -1,0 +1,352 @@
+{
+  "kind": "phase1_durable_registry_storage_semantics_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R24-C2-P",
+  "track": "phase1-durable-registry-storage-semantics-v0",
+  "status": "PASS",
+  "durable_registry_service_semantics": {
+    "storage_identity_required": true,
+    "query_by_authority_ref": true,
+    "effective_time_lookup": true,
+    "receipt_chain_verification": true,
+    "content_addressed_decision_ref_verification": true,
+    "active_to_superseded_direct_transition_allowed": false,
+    "supersession_requires_revocation_first": true
+  },
+  "state_machine": {
+    "draft": [
+      "active"
+    ],
+    "active": [
+      "revoked"
+    ],
+    "revoked": [
+      "superseded"
+    ],
+    "superseded": []
+  },
+  "storage_schema": {
+    "storage_identity": {
+      "kind": "proof_local_gate3_authority_registry_store",
+      "storage_id": "stable store identifier",
+      "schema_version": "gate3_authority_registry_storage.v0",
+      "durability_model": "proof_local|production_later"
+    },
+    "entries": {
+      "<authority_ref>": "registry v1 entry with issued_at/revoked_at/superseded_at"
+    },
+    "receipts": {
+      "<receipt_id>": "transition receipt"
+    }
+  },
+  "cases": {
+    "storage_identity": {
+      "status": "ok",
+      "storage_id": "registry/gate3/phase1/proof-local",
+      "schema_version": "gate3_authority_registry_storage.v0",
+      "queryable_by_authority_ref": true,
+      "durable_semantics": "proof_local_file_backed_fixture",
+      "production_signing": false,
+      "ledger_binding": false
+    },
+    "query_active_by_authority_ref": {
+      "status": "ok",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "query_at": "2026-05-09T12:00:00Z",
+      "lookup_status": "active",
+      "caller_may_pass_gate3_authorized": true,
+      "effective_times": {
+        "issued_at": "2026-05-09T00:00:00Z",
+        "revoked_at": null,
+        "superseded_at": null
+      },
+      "receipt_refs": {
+        "issuance": "receipt/gate3-registry-storage/25a8832d3b33a23c",
+        "revocation": null,
+        "supersession": null
+      },
+      "executor_called": false
+    },
+    "query_revoked_after_effective_time": {
+      "status": "ok",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "query_at": "2026-05-10T12:00:00Z",
+      "lookup_status": "revoked",
+      "caller_may_pass_gate3_authorized": false,
+      "effective_times": {
+        "issued_at": "2026-05-09T00:00:00Z",
+        "revoked_at": "2026-05-10T00:00:00Z",
+        "superseded_at": null
+      },
+      "receipt_refs": {
+        "issuance": "receipt/gate3-registry-storage/25a8832d3b33a23c",
+        "revocation": "receipt/gate3-registry-storage/abab343f9286f117",
+        "supersession": null
+      },
+      "executor_called": false
+    },
+    "query_superseded_after_effective_time": {
+      "status": "ok",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "query_at": "2026-05-11T12:00:00Z",
+      "lookup_status": "superseded",
+      "caller_may_pass_gate3_authorized": false,
+      "effective_times": {
+        "issued_at": "2026-05-09T00:00:00Z",
+        "revoked_at": "2026-05-10T00:00:00Z",
+        "superseded_at": "2026-05-11T00:00:00Z"
+      },
+      "receipt_refs": {
+        "issuance": "receipt/gate3-registry-storage/25a8832d3b33a23c",
+        "revocation": "receipt/gate3-registry-storage/abab343f9286f117",
+        "supersession": "receipt/gate3-registry-storage/3655db860cf3becc"
+      },
+      "executor_called": false
+    },
+    "receipt_chain_verified": {
+      "status": "ok",
+      "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+      "verified": true,
+      "receipt_count": 3,
+      "receipt_ids": [
+        "receipt/gate3-registry-storage/25a8832d3b33a23c",
+        "receipt/gate3-registry-storage/abab343f9286f117",
+        "receipt/gate3-registry-storage/3655db860cf3becc"
+      ],
+      "content_addressed_decision_refs_verified": true,
+      "executor_called": false
+    },
+    "content_address_mismatch_blocks_verification": {
+      "status": "blocked",
+      "reason_code": "storage.content_address_decision_ref_invalid",
+      "blocked_stage": "verify_receipt_chain",
+      "caller_may_pass_gate3_authorized": false,
+      "executor_called": false,
+      "production_signing": false,
+      "production_key_management": false,
+      "ledger_binding": false
+    },
+    "direct_active_to_superseded_blocked": {
+      "status": "blocked",
+      "reason_code": "storage.supersession_requires_revoked",
+      "blocked_stage": "supersession",
+      "caller_may_pass_gate3_authorized": false,
+      "executor_called": false,
+      "production_signing": false,
+      "production_key_management": false,
+      "ledger_binding": false,
+      "from_status": "active"
+    },
+    "missing_authority_ref_query_blocks": {
+      "status": "blocked",
+      "reason_code": "storage.authority_ref_missing",
+      "blocked_stage": "query",
+      "caller_may_pass_gate3_authorized": false,
+      "executor_called": false,
+      "production_signing": false,
+      "production_key_management": false,
+      "ledger_binding": false
+    },
+    "transition_results": {
+      "issuance": {
+        "status": "ok",
+        "entry": {
+          "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+          "registry_version": "gate3_authority_registry.v1",
+          "status": "active",
+          "issued_at": "2026-05-09T00:00:00Z",
+          "revoked_at": null,
+          "superseded_at": null,
+          "superseded_by": null,
+          "allowed_scope": {
+            "gate": "gate3",
+            "phase": "phase1",
+            "executor": "IgniterLang::TemporalExecutor::Phase1",
+            "operation": "history_valid_time_read",
+            "history_axis": "valid_time",
+            "backend_family": "memory_or_explicit_non_ledger"
+          },
+          "required_capability": "history_read",
+          "decision_ref": {
+            "document_path": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+            "git_commit": "workspace-current",
+            "content_sha256": "sha256:1b1f1b9bae989634bdebcf7d211995f9e1482493dfda4f0cc6df571405325433",
+            "status": "signed-approved-restricted-phase1-live-read",
+            "signed_on": "2026-05-09",
+            "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+          },
+          "receipt_refs": {
+            "issuance": "receipt/gate3-registry-storage/25a8832d3b33a23c",
+            "revocation": null,
+            "supersession": null
+          }
+        },
+        "receipt": {
+          "kind": "gate3_authority_registry_storage_transition_receipt",
+          "receipt_version": "0.1.0",
+          "transition": "issuance",
+          "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+          "from_status": null,
+          "to_status": "active",
+          "effective_at": "2026-05-09T00:00:00Z",
+          "decision_ref": {
+            "document_path": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+            "git_commit": "workspace-current",
+            "content_sha256": "sha256:1b1f1b9bae989634bdebcf7d211995f9e1482493dfda4f0cc6df571405325433",
+            "status": "signed-approved-restricted-phase1-live-read",
+            "signed_on": "2026-05-09",
+            "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+          },
+          "caused_by_ref": null,
+          "superseded_by": null,
+          "production_signing": false,
+          "production_key_management": false,
+          "ledger_binding": false,
+          "receipt_id": "receipt/gate3-registry-storage/25a8832d3b33a23c"
+        },
+        "caller_may_pass_gate3_authorized": true,
+        "reason_code": "authority_registry.active",
+        "executor_called": false
+      },
+      "revocation": {
+        "status": "ok",
+        "entry": {
+          "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+          "registry_version": "gate3_authority_registry.v1",
+          "status": "revoked",
+          "issued_at": "2026-05-09T00:00:00Z",
+          "revoked_at": "2026-05-10T00:00:00Z",
+          "superseded_at": null,
+          "superseded_by": null,
+          "allowed_scope": {
+            "gate": "gate3",
+            "phase": "phase1",
+            "executor": "IgniterLang::TemporalExecutor::Phase1",
+            "operation": "history_valid_time_read",
+            "history_axis": "valid_time",
+            "backend_family": "memory_or_explicit_non_ledger"
+          },
+          "required_capability": "history_read",
+          "decision_ref": {
+            "document_path": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+            "git_commit": "workspace-current",
+            "content_sha256": "sha256:1b1f1b9bae989634bdebcf7d211995f9e1482493dfda4f0cc6df571405325433",
+            "status": "signed-approved-restricted-phase1-live-read",
+            "signed_on": "2026-05-09",
+            "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+          },
+          "receipt_refs": {
+            "issuance": "receipt/gate3-registry-storage/25a8832d3b33a23c",
+            "revocation": "receipt/gate3-registry-storage/abab343f9286f117",
+            "supersession": null
+          }
+        },
+        "receipt": {
+          "kind": "gate3_authority_registry_storage_transition_receipt",
+          "receipt_version": "0.1.0",
+          "transition": "revocation",
+          "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+          "from_status": "active",
+          "to_status": "revoked",
+          "effective_at": "2026-05-10T00:00:00Z",
+          "decision_ref": {
+            "document_path": "proof-local://gate3-registry-storage/revocation",
+            "git_commit": "workspace-current",
+            "content_sha256": "sha256:c13e94d73dc200de7853208fabf0674cb444fba83e74681e4db1f04a62bca96f",
+            "status": "proof-local",
+            "signed_on": null,
+            "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+          },
+          "caused_by_ref": "receipt/gate3-registry-storage/25a8832d3b33a23c",
+          "superseded_by": null,
+          "production_signing": false,
+          "production_key_management": false,
+          "ledger_binding": false,
+          "receipt_id": "receipt/gate3-registry-storage/abab343f9286f117"
+        },
+        "caller_may_pass_gate3_authorized": false,
+        "reason_code": "authority_registry.revoked",
+        "executor_called": false
+      },
+      "supersession": {
+        "status": "ok",
+        "entry": {
+          "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+          "registry_version": "gate3_authority_registry.v1",
+          "status": "superseded",
+          "issued_at": "2026-05-09T00:00:00Z",
+          "revoked_at": "2026-05-10T00:00:00Z",
+          "superseded_at": "2026-05-11T00:00:00Z",
+          "superseded_by": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v1/2026-05-11",
+          "allowed_scope": {
+            "gate": "gate3",
+            "phase": "phase1",
+            "executor": "IgniterLang::TemporalExecutor::Phase1",
+            "operation": "history_valid_time_read",
+            "history_axis": "valid_time",
+            "backend_family": "memory_or_explicit_non_ledger"
+          },
+          "required_capability": "history_read",
+          "decision_ref": {
+            "document_path": "igniter-lang/docs/gates/gate3-live-read-decision-addendum-v0.md",
+            "git_commit": "workspace-current",
+            "content_sha256": "sha256:1b1f1b9bae989634bdebcf7d211995f9e1482493dfda4f0cc6df571405325433",
+            "status": "signed-approved-restricted-phase1-live-read",
+            "signed_on": "2026-05-09",
+            "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+          },
+          "receipt_refs": {
+            "issuance": "receipt/gate3-registry-storage/25a8832d3b33a23c",
+            "revocation": "receipt/gate3-registry-storage/abab343f9286f117",
+            "supersession": "receipt/gate3-registry-storage/3655db860cf3becc"
+          }
+        },
+        "receipt": {
+          "kind": "gate3_authority_registry_storage_transition_receipt",
+          "receipt_version": "0.1.0",
+          "transition": "supersession",
+          "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09",
+          "from_status": "revoked",
+          "to_status": "superseded",
+          "effective_at": "2026-05-11T00:00:00Z",
+          "decision_ref": {
+            "document_path": "proof-local://gate3-registry-storage/supersession",
+            "git_commit": "workspace-current",
+            "content_sha256": "sha256:87bfa2b276ff155c48b2116a2ea365e6cb160639f38d820823722225d84c64c8",
+            "status": "proof-local",
+            "signed_on": null,
+            "authority_ref": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v0/2026-05-09"
+          },
+          "caused_by_ref": "receipt/gate3-registry-storage/abab343f9286f117",
+          "superseded_by": "architect-supervisor://igniter-lang/gates/gate3/runtime-temporal-executor/restricted-history-valid-time-v1/2026-05-11",
+          "production_signing": false,
+          "production_key_management": false,
+          "ledger_binding": false,
+          "receipt_id": "receipt/gate3-registry-storage/3655db860cf3becc"
+        },
+        "caller_may_pass_gate3_authorized": false,
+        "reason_code": "authority_registry.superseded",
+        "executor_called": false
+      }
+    }
+  },
+  "checks": {
+    "storage_identity.present": true,
+    "query.active_by_authority_ref": true,
+    "query.revoked_after_effective_time": true,
+    "query.superseded_after_effective_time": true,
+    "receipt_chain.verified": true,
+    "content_address_mismatch.blocks": true,
+    "direct_active_to_superseded.blocked": true,
+    "missing_authority_ref.blocks": true,
+    "no_case_uses_signing_or_ledger": true,
+    "no_case_calls_executor": true
+  },
+  "non_authorization": {
+    "proof_local_only": true,
+    "production_signing": false,
+    "production_key_management": false,
+    "ledger_binding": false,
+    "temporal_executor_called": false
+  }
+}
