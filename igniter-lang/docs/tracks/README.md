@@ -32,7 +32,14 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `covenant-promise-enforcement-path-rule-v0.md` | done | Formalizes enforcement path rule for every Covenant promise; adds enforcement registry to `language-covenant.md`; five-status vocabulary (enforced/planned PROP/spec_candidate/doctrine-only/partial); 28-postulate status table; P28 per-surface table (invariant enforced; escape Unknown → OQ-P28-1 routed to Compiler/Grammar Expert); 4 OQs for Compiler/Grammar Expert |
+| `../gates/phase1-production-durable-audit-implementation-authorization-decision-v0.md` | approved-bounded-implementation | Authorizes bounded Phase 1 production durable audit implementation track only; production deployment, concrete HSM/KMS, Ledger/Phase 2, BiHistory, stream/OLAP, cache, broad RuntimeMachine binding, and excluded surfaces remain closed |
+| `startup-time-freshness-override-validator-v0.md` | done | Proof-local validator PASS 28/28 + 12/12 invariants; all non-default policies require `expires_at`; direct seconds refused; no Ledger/Phase2/online lookup/gate authority |
+| `observed-temporal-precedence-golden-r30-v0.md` | done | V-3 observed+temporal precedence anchored in `contract_modifiers_proof`; check-golden PASS 25/25; no grammar added |
+| `semantic-governance-heat-map-v0.md` | done | Creates `../dev/semantic-governance-heat-map.md`; 8 domains, GI-1..GI-5; doc-only drift index; X1 notes two stale-credit rows after same-round C2/C3 landed |
+| `covenant-promise-enforcement-path-rule-v0.md` | done | Formalizes enforcement path rule for every Covenant promise; enforcement registry added; P28 partial; OQ-P28-1 and OQ-Filter-1 routed |
+| `prop032-assumptions-block-draft-r30-v0.md` | done | PROP-032 assumptions block drafted and queue renumbering applied in proposals index; proposes `epistemic` fragment and OOF-A1; no parser/classifier/SemanticIR implementation or proof |
+| `../discussions/r30-decision-heatmap-and-assumptions-pressure-v0.md` | complete — PROCEED (non-blockers only) | Confirms bounded authorization only; P-28/P-29/P-30/P-32 closed; P-31 and new P-33..P-36 routed |
+| `stage3-round30-status-curation-v0.md` | done | R30 status/context/index sync — this track |
 
 ---
 
@@ -511,12 +518,20 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| production durable audit implementation authorization decision | Architect review of R28-R29 evidence package; may authorize only a bounded implementation track if explicit decision says so | Architect Supervisor | recommended for R30 decision round; S3-R29-C1 absent/deferred |
-| startup_time override proof-local validator | Implement C2-P matrix for policy_ref + signed policy validation; include fail-closed cases and accepted/rejected proof-local authority patterns | Research Agent / Implementation Agent | recommended for R30 |
-| V-3 temporal+observed golden | Add dedicated `observed + temporal body -> fragment_class: "temporal"` proof/golden to `contract_modifiers_proof` | Compiler/Grammar Expert | recommended for R30 |
-| P28 enforcement gap table | Document currently enforced vs governing-only no-unnamed-block surfaces | Compiler/Grammar Expert | recommended for R30 |
-| PROP Governance Filter reconciliation | Reconcile Covenant PROP Governance Filter with META-EXPERT-013 §VI as normative acceptance guidance | Meta Expert | recommended for R30 |
-| PROP-032 assumptions draft | Draft Gap-H assumptions block proposal and minimum fixture plan; resolve queue conflict with current `via profile` placeholder first | Meta Expert / Compiler/Grammar Expert | recommended for R30 |
+| bounded production durable audit implementation track | Implement only the C1-A authorized surfaces, then run excluded-surface regression and post-implementation matrix before any deployment decision | Implementation Agent / Research Agent | recommended for R31; deployment still closed |
+| OQ-Filter-1 Architect decision | Decide PROP acceptance authority: Covenant Governance Filter vs META-EXPERT-013 §VI vs consolidated lifecycle doc | Architect Supervisor / Meta Expert | recommended for R31 |
+| PROP-032 implementation gate | State explicit acceptance/authorization trigger before classifier work on `epistemic`, OOF-A1, and assumptions pipeline begins | Architect Supervisor / Compiler/Grammar Expert | recommended before PROP-032 implementation |
+| startup override design addendum | Amend R29 design with D1 all non-default expiry and D2/D3 new refusal codes from R30 proof | Research Agent / Meta Expert | recommended for R31 |
+| Heat Map + CSM stale-credit sync | Update Heat Map rows for startup validator and V-3 golden; add CSM secondary observed+temporal anchor | Meta Expert | recommended for R31 |
+| OQ-P28-1 escape naming answer | Verify whether unnamed `escape` declaration is currently parse error; update Covenant P28 table | Compiler/Grammar Expert | recommended for R31 |
+| PROP-032 proof cycle | After gate: implement assumptions classifier/TypeChecker/SemanticIR support and Research Agent fixtures | Compiler/Grammar Expert / Research Agent | gated; no work before authorization |
+| OOF-I1/I3/I5 closure | PROP-025 addendum + targeted fixtures for deferred invariant OOF anchors | Research Agent / Compiler/Grammar Expert | recommended parallel R31 |
+| production durable audit implementation authorization decision | Architect review of R28-R29 evidence package; may authorize only a bounded implementation track if explicit decision says so | Architect Supervisor | done in S3-R30-C1-A; deployment still closed |
+| startup_time override proof-local validator | Implement C2-P matrix for policy_ref + signed policy validation; include fail-closed cases and accepted/rejected proof-local authority patterns | Research Agent / Implementation Agent | done in S3-R30-C2-P; 28/28 PASS |
+| V-3 temporal+observed golden | Add dedicated `observed + temporal body -> fragment_class: "temporal"` proof/golden to `contract_modifiers_proof` | Compiler/Grammar Expert | done in S3-R30-C3-P; 25/25 PASS |
+| P28 enforcement gap table | Document currently enforced vs governing-only no-unnamed-block surfaces | Compiler/Grammar Expert / Meta Expert | done in S3-R30-C5-P; OQ-P28-1 remains |
+| PROP Governance Filter reconciliation | Reconcile Covenant PROP Governance Filter with META-EXPERT-013 §VI as normative acceptance guidance | Meta Expert / Architect Supervisor | still open as OQ-Filter-1 |
+| PROP-032 assumptions draft | Draft Gap-H assumptions block proposal and minimum fixture plan; resolve queue conflict with current `via profile` placeholder first | Meta Expert / Compiler/Grammar Expert | done in S3-R30-C6-P; proposal only |
 | startup_time override interface design | Specify whether the 24h freshness bound is constant/config/env/deployment manifest and how overrides are authorized | Research Agent / Bridge Agent | done in S3-R29-C2-P; design only |
 | PROP-031 compatibility addendum | Note that Stage 3 legacy fixtures with implicit-pure escape bodies required `observed` migration; Stage 1/2 compatibility remained PASS | Compiler/Grammar Expert | done in S3-R29-C3-P |
 | Covenant accountability postulates | Add Postulate 27, Postulate 28, and governance audit-trail filter from R28 cross-review | Meta Expert | done in S3-R29-C4-P |

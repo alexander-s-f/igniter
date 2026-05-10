@@ -44,6 +44,17 @@ The CSM maintenance rule is current as of S3-R29: if a compiler entity is added
 or removed, update the CSM row; if the entity lacks a golden anchor, its status is
 at most `spec_candidate`.
 
+Governance, PROP authoring, language-lane planning, or cross-layer drift cards
+should also read:
+
+```text
+igniter-lang/docs/dev/semantic-governance-heat-map.md
+```
+
+The Heat Map is current as of S3-R30 as a drift index, with two known stale-credit
+rows noted by R30-X1: startup_time validator and V-3 golden landed after the map
+was authored.
+
 Read `igniter-lang/docs/value-index.md` when the card asks for strategy,
 documentation compaction, archaeology routing, applied pressure, or next-round
 planning. It is a hoisted durable-idea map, not required context for every
@@ -60,12 +71,15 @@ boundary.
 
 ---
 
-## Current R29 Patch
+## Current R30 Patch
 
 ```text
 Production durable audit implementation authorization:
-  status: not authorized / not landed / not deployed
-  latest: S3-R29-C1 did not land; X1 says safe deferral, no unauthorized implementation
+  status: bounded implementation authorized / implementation not landed / deployment closed
+  latest: S3-R30-C1-A approved bounded Phase 1 production durable audit implementation
+  still closed: deployment, concrete HSM/KMS, production signing/key management,
+    Ledger, Phase 2, BiHistory, stream/OLAP, production cache,
+    broad RuntimeMachine binding, general write/replay/compact/subscribe
 
 R28 proof package:
   compliance_posture proof: PASS 14/14
@@ -73,15 +87,22 @@ R28 proof package:
   final post-R27/R28 matrix: PASS 29/29 with volatile_fields_lint first
 
 R29 additions:
-  startup_time override interface: design-only, proof pending
+  startup_time override interface: design-only; R30 later adds proof validator
   PROP-031 §14 compatibility addendum: landed, doc-only
   Covenant Axiom 2 + P27/P28 + PROP Governance Filter: landed, doc-only
   Canonical Semantic Model: docs/dev/canonical-semantic-model.md, living index
 
-R30 likely route:
-  Architect authorization decision, startup_time override validator,
-  V-3 temporal+observed golden, P28 enforcement gap table,
-  META-EXPERT-013 §VI reconciliation, PROP-032 assumptions draft
+R30 additions:
+  startup_time override validator: proof-local PASS 28/28; gate authority false
+  V-3 observed+temporal golden: contract_modifiers_proof PASS 25/25
+  Heat Map: docs/dev/semantic-governance-heat-map.md, living drift index
+  Covenant enforcement registry: 28 postulates classified; P28 partial
+  PROP-032 assumptions: proposal/draft only; no parser/classifier/proof
+
+R31 likely route:
+  bounded durable audit implementation track, OQ-Filter-1 Architect decision,
+  PROP-032 implementation gate before classifier work, Heat Map/CSM stale-credit sync,
+  startup override design addendum for D1/D2/D3, OQ-P28-1 escape naming answer
 ```
 
 ---
