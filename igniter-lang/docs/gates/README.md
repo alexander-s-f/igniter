@@ -142,7 +142,7 @@ Authorized signed-addendum scope:
 | Real Ledger adapter/package binding | closed | Requires explicit Architect addendum after Phase 1 |
 | BiHistory / transaction-time | closed | Requires separate gate; cannot be added by quiet Phase 1/2 addendum |
 | Production cache | closed | Requires separate approval; proof-local cache does not imply production memoization |
-| Durable audit / production storage | closed | R21 C1 is audit-ready/not-persisted only; durable-observation-persistence-v0 remains future |
+| Durable audit / production storage | bounded implementation authorized / deployment closed | S3-R30-C1-A authorizes only the bounded Phase 1 production durable audit implementation track; production deployment, Ledger, Phase 2, concrete HSM/KMS, and broad RuntimeMachine binding remain closed |
 
 ---
 
@@ -161,3 +161,4 @@ Authorized signed-addendum scope:
 | [phase1-production-durable-audit-scope-decision-v0.md](phase1-production-durable-audit-scope-decision-v0.md) | S3-R25-C2-A | approved-for-design-only | Authorizes production durable audit design only; implementation/deployment/signing execution/Ledger/Phase 2 remain closed |
 | [phase1-production-registry-ownership-decision-v0.md](phase1-production-registry-ownership-decision-v0.md) | S3-R26-C2-A | approved-design-source-of-truth | Gate document store is the Phase 1 registry source of truth; generated content-addressed index is query artifact; package/runtime are cache/validator only |
 | [phase1-production-durable-audit-implementation-authorization-review-v0.md](phase1-production-durable-audit-implementation-authorization-review-v0.md) | S3-R27-C1-A | hold-before-implementation-authorization | Holds production durable audit implementation until store-bound compliance, signer validation, freshness bound, volatile-field lint, artifact survey, rerun, amendment, and pressure review close |
+| [phase1-production-durable-audit-implementation-authorization-decision-v0.md](phase1-production-durable-audit-implementation-authorization-decision-v0.md) | S3-R30-C1-A | approved-bounded-implementation | Authorizes bounded Phase 1 production durable audit implementation track only; production deployment, concrete HSM/KMS, Ledger, Phase 2, BiHistory, stream/OLAP, cache, and broad RuntimeMachine binding remain closed |
