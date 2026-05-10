@@ -41,6 +41,12 @@ module IgniterLang
       CORE_REFUSAL            = SCOPE_EXCLUSION
       EVALUATION_READY        = "runtime.temporal_evaluation_ready"
 
+      # Deprecated string literals from pre-S3-R18-C2-P experiment fixtures.
+      # The lib/ executor emits SCOPE_EXCLUSION for all three scenarios — these old
+      # strings are NOT emitted. S3-R14-C2-P and S3-R15-C2-P experiments that check
+      # the old strings are sealed proof artifacts; do not retroactively update them.
+      # Phase 2 migration: remove this constant once all non-experiment callers are
+      # verified to use ReasonCode::SCOPE_EXCLUSION or "runtime.temporal_scope_exclusion".
       LEGACY_ALIASES = {
         "runtime.non_temporal_not_covered" => SCOPE_EXCLUSION,
         "runtime.temporal_executor_bihistory_excluded" => SCOPE_EXCLUSION,

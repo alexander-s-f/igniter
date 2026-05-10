@@ -1,0 +1,46 @@
+{
+  "kind": "phase1_reason_code_legacy_aliases_deprecation_signal_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R23-C3-P",
+  "track": "phase1-reason-code-legacy-aliases-deprecation-signal-v0",
+  "status": "PASS",
+  "checks": {
+    "unit.scope_exclusion_is_canonical": true,
+    "unit.non_temporal_alias": true,
+    "unit.bihistory_excluded_alias": true,
+    "unit.core_refusal_alias": true,
+    "unit.all_three_identical": true,
+    "legacy.frozen": true,
+    "legacy.size": true,
+    "legacy.non_temporal_mapped": true,
+    "legacy.bihistory_mapped": true,
+    "legacy.core_refusal_mapped": true,
+    "legacy.no_stray_keys": true,
+    "executor.non_temporal.blocked": true,
+    "executor.non_temporal.scope_exclusion": true,
+    "executor.non_temporal.blocked_at_scope": true,
+    "executor.non_temporal.no_legacy_string": true,
+    "executor.bihistory.blocked": true,
+    "executor.bihistory.scope_exclusion": true,
+    "executor.bihistory.no_legacy_string": true,
+    "executor.core_scope.blocked": true,
+    "executor.core_scope.scope_exclusion": true,
+    "executor.core_scope.no_legacy_string": true
+  },
+  "migration_recommendation": {
+    "phase2_action": "remove LEGACY_ALIASES constant from ReasonCode module",
+    "pre_condition": "all callers verified to use ReasonCode::SCOPE_EXCLUSION or the canonical string directly",
+    "sealed_fixtures": "do not update S3-R14-C2-P / S3-R15-C2-P experiment files — they are proof artifacts, not live callers",
+    "search_command": "grep -r \"runtime\\.non_temporal_not_covered\\|runtime\\.temporal_executor_bihistory_excluded\\|runtime\\.temporal_executor_core_refusal\" igniter-lang/",
+    "migration_path": [
+      "1. Audit all callers outside igniter-lang/experiments/ for legacy string usage",
+      "2. Replace legacy string literals with ReasonCode::SCOPE_EXCLUSION or \"runtime.temporal_scope_exclusion\"",
+      "3. Remove LEGACY_ALIASES from ReasonCode module (one-line deletion)",
+      "4. Confirm no callers remain by running search_command above (expecting only sealed fixtures)"
+    ]
+  },
+  "sealed_fixtures": [
+    "experiments/temporal_executor_phase1_preflight — S3-R14-C2-P (uses old codes; do not update)",
+    "experiments/temporal_executor_composition_integration — S3-R15-C2-P (uses old codes; do not update)"
+  ]
+}
