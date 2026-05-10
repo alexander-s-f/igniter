@@ -1,9 +1,9 @@
 # Igniter-Lang Language Specification
 
-Version: 1.0 — Stage 2 R11 sync
+Version: 1.1 — Stage 3 R26 extension
 Maintainer: `[Igniter-Lang Meta Expert]`
 Status: living document
-Last updated: 2026-05-07
+Last updated: 2026-05-10
 
 > Source of truth for each section is the cited PROP.
 > This document is the readable synthesis — not the decision record.
@@ -23,6 +23,10 @@ Last updated: 2026-05-07
 | [7](ch7-runtime.md) | RuntimeMachine | accepted |
 | [8](ch8-stdlib.md) | Stdlib | accepted |
 | [9](ch9-stage2-reserved.md) | Stage 2 Reserved Primitives | deferred |
+| [10](ch10-contract-modifiers.md) | Contract Modifiers | proposed · PROP-031 |
+| [11](ch11-profile-system.md) | Profile System | proposed · PROP-034 |
+| [12](ch12-effect-surface.md) | Effect Surface | proposed · PROP-035 |
+| [13](ch13-managed-recursion.md) | Managed Recursion and Service Loops | proposed · Stage 4 |
 
 ---
 
