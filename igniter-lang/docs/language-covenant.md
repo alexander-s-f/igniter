@@ -586,7 +586,7 @@ a formal status to every postulate and defines the rule for new additions.
 | P19 | Profile may declare max reversibility level; exceeding it is a compile error | `planned PROP` | PROP-035 + PROP-034 — reversibility scale + profile enforcement |
 | P20 | Contract composition preserves evidence chains | `planned PROP` | PROP-033 — evidence chain DAG validation at composition boundaries |
 | P21 | A program names all its consequences | `planned PROP` | PROP-035 — Effect Surface; all effect fields required at declaration |
-| P22 | Every assumption is declared, typed, and carried through evidence | `planned PROP` | PROP-032 (Gap-H) — assumptions block; `uses assumptions NAME` enforced at call site |
+| P22 | Every assumption is declared, typed, and carried through evidence | `planned PROP` | PROP-032 (Gap-H) — assumptions block; `uses assumptions NAME` enforced at call site. ⚠️ Queue conflict: proposals/README.md reserves PROP-032 for `via profile binding`; CSM and agent-context assign PROP-032 to this surface. Must be resolved before authoring. See semantic-governance-heat-map.md §GI-1. |
 | P23 | Synthetic world state must carry epistemic markers that survive receipts | `spec_candidate` | CSM: `SimulationReceipt` shape defined; no PROP yet; requires Gap-H PROP + receipt type system |
 | P24 | Consequential choices must expose inputs, assumptions, constraints, alternatives, authority | `spec_candidate` | CSM: `StrategyDecision` shape defined; no PROP yet; requires Gap-J PROP + ch12 effect surface |
 | P25 | Constraints are declared, typed, and carried through `constraint_hash` | `spec_candidate` | CSM: `constraints {}` block defined; no PROP yet; Gap-J PROP required before implementation |
@@ -673,3 +673,22 @@ card). If the PROP ships without updating the registry, the gap is a spec-lag it
 tracked by META-EXPERT-012.
 
 Question: should this rule be added to META-EXPERT-013 §VI acceptance criteria?
+
+**OQ-Filter-1 — PROP Governance Filter source-of-truth (Architect decision required)**
+
+The PROP Governance Filter (V-2) is a Covenant section (§PROP Governance Filter above).
+META-EXPERT-013 §VI defines PROP acceptance criteria. Both govern what PROPs may contain,
+but they are separate documents with no normative cross-reference. When a PROP is under
+review, authors face two governance sources without a stated precedence rule.
+
+Three options:
+
+| Option | Description |
+|--------|-------------|
+| A | Covenant is normative. META-EXPERT-013 §VI cites it and defers to it. |
+| B | META-EXPERT-013 §VI is the operational reference. Covenant §PROP-Gov-Filter cites §VI. |
+| C | A new META-EXPERT proposal consolidates both into a single PROP lifecycle document. |
+
+Route to Architect for a decision. Until resolved, use both: Covenant for the legibility
+principle (audit trail more/neutral/less legible), META-EXPERT-013 §VI for the acceptance
+checklist. This is P-31 in the pre-production checklist (r29-authorization-and-canon-pressure-v0.md).

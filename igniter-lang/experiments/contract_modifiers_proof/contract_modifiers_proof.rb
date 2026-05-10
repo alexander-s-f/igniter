@@ -40,6 +40,11 @@ module ContractModifiersProof
       ],
       sample_input: { "user_id" => "u-001", "body" => "hi", "expense_id" => "e-001",
                       "amount" => 100, "record_id" => "r-001" }
+    },
+    "observed_temporal_precedence" => {
+      json_source: "observed_temporal_precedence.parsed_ast.json",
+      expected_contracts: [{ name: "ReadHistory", modifier: "observed", fragment_class: "temporal" }],
+      sample_input: { "sku_id" => "sku-001", "as_of" => "2026-01-01T00:00:00Z" }
     }
   }.freeze
 
@@ -78,10 +83,13 @@ module ContractModifiersProof
     outputs = {}
 
     (POSITIVE_CASES.merge(NEGATIVE_CASES)).each do |case_id, config|
-      source_path = File.join(FIXTURE_DIR, config.fetch(:source))
-      source = File.read(source_path)
-      parsed_program = IgniterLang::ParsedProgram.parse(source, source_path: source_path)
-      parsed = parsed_program.to_h
+      parsed = if config[:json_source]
+                 JSON.parse(File.read(File.join(FIXTURE_DIR, config.fetch(:json_source))))
+               else
+                 source_path = File.join(FIXTURE_DIR, config.fetch(:source))
+                 source = File.read(source_path)
+                 IgniterLang::ParsedProgram.parse(source, source_path: source_path).to_h
+               end
       sample_input = config.fetch(:sample_input)
       classified = classifier.classify(parsed, sample_input: sample_input)
       typed = typechecker.typecheck(classified)
@@ -124,6 +132,10 @@ module ContractModifiersProof
     checks["classifier.modifier_mapping.pure_explicit"]  = classifier_modifier_ok?(outputs, "pure_contract_explicit",  "pure",        "core")
     checks["classifier.modifier_mapping.observed"]       = classifier_modifier_ok?(outputs, "observed_contract_basic", "observed",    "escape")
     checks["classifier.modifier_mapping.variants"]       = classifier_variants_ok?(outputs)
+
+    checks["parser.observed_temporal"]                     = parser_modifier_ok?(outputs, "observed_temporal_precedence", "observed")
+    checks["classifier.temporal_precedence_over_modifier"] = classifier_modifier_ok?(outputs, "observed_temporal_precedence", "observed", "temporal")
+    checks["semanticir.modifier_field.observed_temporal"]  = semanticir_modifier_ok?(outputs, "observed_temporal_precedence", "observed", "temporal")
 
     checks["classifier.pure_normalization_equal"] = pure_normalization_equal?(outputs)
 

@@ -107,7 +107,7 @@ The existing Cross-Reference to Spec table in the Covenant was updated to add an
 makes the distinction visible at a glance without requiring a separate lookup in
 the registry.
 
-### 4 Open Questions Routed to Compiler/Grammar Expert
+### 6. Open Questions Routed to Compiler/Grammar Expert (5 OQs)
 
 | OQ | Summary |
 |----|---------|
@@ -115,6 +115,11 @@ the registry.
 | OQ-P28-2 | Should PROP-035 include an explicit P28 enforcement clause for escape naming, or should a separate PROP handle it? |
 | OQ-P28-3 | PROP-036+ (Managed Recursion) must state the P28 loop class naming requirement as an explicit acceptance criterion. Confirm placement: PROP-036+ acceptance criteria or ch13 invariant section? |
 | OQ-Enforcement-1 | Should the enforcement registry maintenance rule be added to META-EXPERT-013 §VI PROP acceptance criteria, so every PROP card includes a Covenant registry update obligation? |
+| OQ-Filter-1 | PROP Governance Filter (Covenant §V-2) and META-EXPERT-013 §VI coexist without normative cross-reference. Route to Architect: which is the primary source of truth? Three options: (A) Covenant normative, (B) META-EXPERT-013 §VI normative, (C) new consolidated lifecycle document. This is P-31 in the pre-production checklist. |
+
+OQ-Filter-1 was added in the R30-C5 amendment pass (same day) after S3-R30-C4-P
+(heat map) identified the conflict as a formal governance issue. OQ-P28-1 through
+OQ-Enforcement-1 were in the original committed version.
 
 ---
 
@@ -122,8 +127,8 @@ the registry.
 
 | File | Change |
 |------|--------|
-| `docs/language-covenant.md` | Added "Covenant Promise Enforcement Registry" section: status vocabulary, rule, 28-postulate status table, P28 per-surface enforcement table, 4 open questions. Updated Cross-Reference to Spec table with enforcement column. Updated header date. |
-| `docs/tracks/covenant-promise-enforcement-path-rule-v0.md` | This track doc. |
+| `docs/language-covenant.md` | Added "Covenant Promise Enforcement Registry" section: status vocabulary, rule, 28-postulate status table, P28 per-surface enforcement table, 5 open questions. Updated Cross-Reference to Spec table with enforcement column. P22 entry updated to note PROP-032 queue conflict (GI-1, from heat map). |
+| `docs/tracks/covenant-promise-enforcement-path-rule-v0.md` | This track doc (supersedes original committed version, adds amendment record). |
 
 ---
 
@@ -167,6 +172,12 @@ boundaries). Both require PROP-035 for full enforcement. Classifying them as
 `enforced` based on PROP-031 alone would overstate current compiler capability.
 `planned PROP` is the honest status.
 
+**D6 — P22 queue conflict noted in-place (amendment from R30-C4 heat map).**
+The original commit did not know about the PROP-032 queue conflict because the
+heat map (R30-C4-P) was created in the same round. A targeted amendment to P22's
+registry entry adds the conflict reference. This keeps the Covenant as the single
+source of truth for P22's enforcement status without requiring a separate document.
+
 ---
 
 ## Scope Boundaries
@@ -198,10 +209,15 @@ Status: done
   escape declaration status: Unknown (OQ-P28-1 routed to Compiler/Grammar Expert).
 - Maintenance rule: enforcement status must be updated when PROP ships enforcement.
   Drift = spec-lag item.
+- P22 entry amended to reference PROP-032 queue conflict (GI-1 from heat map).
+- OQ-Filter-1 added: PROP Governance Filter vs META-EXPERT-013 §VI source-of-truth
+  requires Architect decision (routes P-31 from pre-production checklist).
 
 [S] Shipped / Signals
 - docs/language-covenant.md: Covenant Promise Enforcement Registry section added.
   Cross-Reference to Spec table updated with enforcement column.
+  P22 entry amended (GI-1 queue conflict note).
+  OQ-Filter-1 added (5th open question).
 - docs/tracks/covenant-promise-enforcement-path-rule-v0.md: this track doc.
 
 [T] Tests / Proofs
@@ -211,17 +227,20 @@ Status: done
 - OQ-P28-1 (escape declaration naming enforcement) must be answered before PROP-035
   is scoped. If escape declarations are currently unnamed and silently accepted, the
   PROP-035 acceptance criteria must include a P28 enforcement clause.
-- OQ-Enforcement-1: adding registry maintenance to META-EXPERT-013 §VI acceptance
-  criteria prevents enforcement drift as future PROPs ship.
+- OQ-Filter-1 (OQ-Enforcement-1 / P-31): Architect decision needed on which document
+  is the primary PROP acceptance authority (Covenant vs META-EXPERT-013 §VI). Until
+  resolved, both must be consulted and PROP authors may not know precedence.
 - The four `spec_candidate` postulates (P23, P24, P25, P26) have no PROP queued.
-  Gap-H and Gap-J are HIGH priority (R29-X1-S R30 recommendation). Each Gap-PROP
-  draft must include an explicit P28 enforcement clause for its construct family.
+  Gap-H and Gap-J are HIGH priority. Each Gap-PROP draft must include an explicit
+  P28 enforcement clause for its construct family.
+- P22 PROP-032 queue conflict (GI-1): blocks both assumptions authoring and `via
+  profile` authoring. Architect decision required before R31 PROP work begins.
 
-[Next]:
+[Next]
 - Compiler/Grammar Expert: answer OQ-P28-1 (escape declaration naming).
-  Deliverable: single row update to P28 surface table + note in a C/GE track doc.
-- META-EXPERT: add OQ-Enforcement-1 resolution to META-EXPERT-013 §VI in a future
-  META-EXPERT proposal card.
+  Deliverable: single row update to P28 surface table.
+- Architect: decide OQ-Filter-1 (PROP Governance Filter source-of-truth). P-31.
+- Architect: decide GI-1 (PROP-032 queue conflict: assumptions vs. via-profile).
 - PROP-035 draft: must include P28 enforcement clause for escape declarations.
 - PROP-036+ draft: must include P28 enforcement clause for loop class naming.
 - PROP-032 (Gap-H) draft: must include P28 enforcement clause for assumptions block.

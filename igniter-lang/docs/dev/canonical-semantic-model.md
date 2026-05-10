@@ -42,7 +42,7 @@ Source: S3-R29-C2-P (R28 meta-card) + S3-R29-C5-P (R29 bootstrap)
 |--------|--------|---------------------|---------------------|---------------|------|----------|
 | Contract (pure, unmodified) | implemented | Parser | `core` | `contract_modifiers_proof/golden/pure_contract_implicit.semantic_ir.json` | PROP-031 | P1, P2 |
 | Contract modifier: `pure` (explicit) | implemented | Parser | `core` | `contract_modifiers_proof/golden/pure_contract_explicit.semantic_ir.json` | PROP-031 | P1, P2 |
-| Contract modifier: `observed` | experiment-pass | Parser | `escape` or `temporal`† | `contract_modifiers_proof/golden/observed_contract_basic.semantic_ir.json` | PROP-031 | P4, P7 |
+| Contract modifier: `observed` | experiment-pass | Parser | `escape` or `temporal`† | `contract_modifiers_proof/golden/observed_contract_basic.semantic_ir.json` (escape path); `contract_modifiers_proof/golden/observed_temporal_precedence.classified.json` (temporal path — V-3) | PROP-031 | P4, P7 |
 | Contract modifier: `effect` | experiment-pass | Parser | `escape` | `contract_modifiers_proof/golden/modifier_variants.semantic_ir.json` | PROP-031 | P4, P17, P19 |
 | Contract modifier: `privileged` | experiment-pass | Parser | `escape` | `contract_modifiers_proof/golden/modifier_variants.semantic_ir.json` | PROP-031 | P9 |
 | Contract modifier: `irreversible` | experiment-pass | Parser | `escape` | `contract_modifiers_proof/golden/modifier_variants.semantic_ir.json` | PROP-031 | P17, P19 |
@@ -97,8 +97,8 @@ The golden anchor covers FFI-level receipt descriptors only.
 
 | entity | status | pipeline_entry_point | classifier_fragment | golden_anchor | PROP | Covenant |
 |--------|--------|---------------------|---------------------|---------------|------|----------|
-| `assumptions { assumption NAME { ... } }` block | spec_candidate | Parser (Gap-H) | — (epistemic fragment class TBD) | — | TBD (PROP-032) | P22, P28 |
-| `uses assumptions NAME` declaration | spec_candidate | Classifier (Gap-H) | — | — | TBD (PROP-032) | P22 |
+| `assumptions { assumption NAME { ... } }` block | proposed | Parser | `epistemic` (new — PROP-032 §5.1) | — | PROP-032 | P22, P27, P28 |
+| `uses assumptions NAME` declaration | proposed | Classifier | `epistemic` | — | PROP-032 | P22, P28 |
 
 ### Form Constructor
 
@@ -143,8 +143,8 @@ Entities without a golden anchor as of R29. All are at most `spec_candidate`.
 
 | entity | gap | blocking PROP |
 |--------|-----|---------------|
-| `assumptions {}` block | Gap-H — no parser node, no classifier fragment class | PROP-032 (TBD) |
-| `uses assumptions NAME` | Gap-H | PROP-032 (TBD) |
+| `assumptions {}` block | Gap-H — PROP-032 authored (S3-R30-C6-P); no compiler implementation yet | PROP-032 |
+| `uses assumptions NAME` | Gap-H — PROP-032 authored; no classifier implementation yet | PROP-032 |
 | `form NAME -> T` | Gap-I — no parser keyword, no fragment class | TBD |
 | Loop class (all variants) | Stage 3 Language Lane — no parser, no classifier | PROP-036+ |
 | OOF-I1 | Stage 2 deferred invariant OOF | PROP-025 addendum |

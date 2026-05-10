@@ -44,6 +44,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-030](PROP-030-executor-approval-token-contract-v0.md) | proposal | ExecutorApprovalToken contract; explicit approval as Gate 3 prerequisite; no executor or Gate 3 authorization |
 | [PROP-030A](PROP-030A-temporal-scope-exclusion-errata-v0.md) | proposal | Errata to PROP-030: canonical `runtime.temporal_scope_exclusion` refusal for out-of-scope TEMPORAL executor artifacts |
 | [PROP-031](PROP-031-contract-modifiers-v0.md) | experiment-pass | Contract modifiers: optional `pure/observed/effect/privileged/irreversible` prefix, implicit pure default, OOF-M1 only; parser/classifier/typechecker/SemanticIR proof PASS; no Effect Surface/Profile/authority/runtime enforcement |
+| [PROP-032](PROP-032-assumptions-block-v0.md) | proposal | `assumptions {}` block + `uses assumptions NAME` declaration; new `epistemic` fragment class; OOF-A1; evidence + receipt propagation; Covenant P22/P27/P28. GI-1 resolution: supersedes prior queue assignment of PROP-032 to `via profile binding` |
 
 ---
 
@@ -67,14 +68,17 @@ They remain active intake. Verification requires Architect authorization.
 
 ## Queued (not yet authored)
 
-PROP-031 is authored. New Stage 3+ proposal IDs should start from **PROP-032**.
+PROP-032 is authored (assumptions block). New Stage 3+ proposal IDs should start from **PROP-033**.
+
+**Queue renumbering (GI-1 resolution, S3-R30-C6-P):** PROP-032 was previously assigned to
+`via profile binding`. It is now PROP-032 = `assumptions {}` block. All downstream IDs shift +1.
 
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|
-| PROP-032 | via profile binding | PROP-031 | 3 | high |
-| PROP-033 | output evidence syntax | PROP-031 | 3 | high |
-| PROP-034 | profile declarations / authority resolution | PROP-031 + PROP-032 | 3 | medium |
-| PROP-035 | Effect Surface | PROP-031 | 3 | medium |
+| PROP-033 | `via profile binding` | PROP-031 | 3 | high |
+| PROP-034 | `output evidence syntax` | PROP-031, PROP-032 | 3 | high |
+| PROP-035 | profile declarations / authority resolution | PROP-031, PROP-033 | 3 | medium |
+| TBD | Effect Surface | PROP-031 | 3 | medium |
 | TBD | Prior queued ideas need renumbering/requeue | — | 3+ | medium |
 
 ---
@@ -116,4 +120,4 @@ closed                all authorized scope experiment-PASS; META-EXPERT decision
 
 Stage 1 PROPs: see `accepted/` — frozen read-only.
 Stage 2 closed PROPs: in `proposals/` with `Status: closed`.
-New Stage 3 proposals after PROP-031: start from PROP-032.
+New Stage 3 proposals after PROP-032: start from PROP-033.
