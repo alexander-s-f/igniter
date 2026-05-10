@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-09
+Last updated: 2026-05-10
 
 ---
 
@@ -27,6 +27,16 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 | Historical archaeology | `../archive/` or git history |
 
 ---
+
+## Stage 3 Round 24 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `phase1-post-r23-regression-rerun-v0.md` | done | PASS 23/23; full post-R23 proof chain rerun, no production implementation authorization |
+| `phase1-durable-registry-storage-semantics-v0.md` | done | PASS 10/10; proof-local durable/queryable registry storage semantics, direct active -> superseded blocked; no signing/Ledger/executor |
+| `phase1-observation-tamper-evidence-shape-v0.md` | done | PASS 23/23; proof-local tamper_evidence block and SHA256 canonical hash chain; not production durable audit, signing, Ledger, or compliance |
+| `../discussions/phase1-post-r23-regression-and-durability-pressure-v0.md` | complete — PROCEED (non-blockers only) | X1 closes P-8/P-9, confirms excluded surfaces closed, and routes 25-command rerun plus production durable-audit/registry ownership decisions |
+| `stage3-round24-status-curation-v0.md` | done | R24 status/index sync — this track |
 
 ## Stage 3 Round 23 Evidence
 
@@ -440,9 +450,14 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `phase1-post-r23-regression-rerun-v0` | Consolidate post-R19 fixtures, including R20-R23, into one current rerun before any scope-widening track | Research Agent | recommended next |
-| production durable audit track | Add tamper evidence/hash chain, storage identity, retention, replay semantics, and compliance language; not implied by R23 JSONL shape | Research Agent / Bridge Agent | after regression |
-| durable registry storage semantics | Turn registry v1 receipts shape into durable/queryable storage; decide active -> superseded direct transition | Bridge Agent + Research Agent | after regression |
+| `phase1-production-durable-audit-v0` | Route production durable audit only with Architect scope: HSM/KMS signing, restart rebuild, version enforcement, retention/replay, off-process persistence, compliance language | Research Agent / Bridge Agent / Architect Supervisor | recommended for R25 scope decision |
+| post-R24 regression rerun expanding to 25 commands | Add R24 C2/C3 fixtures to the canonical matrix after same-round sequencing left C1 at 23 commands | Research Agent | recommended |
+| production registry ownership decision | Decide whether package, gate document store, or external authority service owns production registry storage before implementation | Architect Supervisor / Meta Expert / Bridge Agent | recommended |
+| `phase1-format-version-enforcement-v0` | Enforce tamper-evidence `format_version` before any production store integration | Implementation Agent / Research Agent | low-priority pre-production |
+| `phase1-post-r23-regression-rerun-v0` | Consolidate post-R19 fixtures, including R20-R23, into one current rerun before any scope-widening track | Research Agent | done in S3-R24-C1-P |
+| production durable audit track | Add tamper evidence/hash chain, storage identity, retention, replay semantics, and compliance language; not implied by R23 JSONL shape | Research Agent / Bridge Agent | superseded by R24 recommendation for `phase1-production-durable-audit-v0` with Architect scope |
+| durable registry storage semantics | Turn registry v1 receipts shape into durable/queryable storage; decide active -> superseded direct transition | Bridge Agent + Research Agent | done in S3-R24-C2-P |
+| `phase1-observation-tamper-evidence-shape-v0` | Add proof-local tamper_evidence fields and content-integrity hash chain to observation persistence shape | Implementation Agent / Research Agent | done in S3-R24-C3-P |
 | production `git_commit` compliance amendment | Treat `workspace-current` as non-compliant outside proof-local mode; require CI/registry-supplied immutable ref | Bridge Agent / Research Agent | before production |
 | `gate3-production-signing-v1` | Production signer identity, key rotation, signature algorithm, verification policy, deployment trust store | Bridge Agent / Architect Supervisor | after registry v1 |
 | `phase1-durable-observation-persistence-shape-v0` | Define proof-local file-backed JSONL observation persistence shape with explicit non-production caveats | Research Agent | done in S3-R23-C1-P |

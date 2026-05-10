@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-09
+Last updated: 2026-05-10
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -94,7 +94,9 @@ Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             R21 audit-ready envelope + registry shape PASS;
                             R22 end-to-end invocation + content-addressed addendum ref PASS;
                             R23 proof-local persistence/registry receipts/alias signal PASS;
-                            production audit/signing still closed
+                            R24 post-R23 regression 23/23 PASS;
+                            proof-local registry storage semantics + tamper-evidence PASS;
+                            production durable audit/registry ownership/signing still closed
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open
@@ -239,6 +241,11 @@ Round 23 landed:
   S3-R23-C2-P: registry v1 receipts shape       ✅ PASS 11/11; issuance→revocation→supersession
   S3-R23-C3-P: legacy alias deprecation signal  ✅ PASS 21/21; lib-prep 17/17 unaffected
   S3-R23-X1-S: audit/registry v1 pressure       ✅ PROCEED; non-blockers only; P-8/P-9 routed
+Round 24 landed:
+  S3-R24-C1-P: post-R23 regression rerun        ✅ PASS 23/23; no production auth
+  S3-R24-C2-P: durable registry storage semantics ✅ PASS 10/10; proof-local, no signing/Ledger/executor
+  S3-R24-C3-P: observation tamper-evidence shape ✅ PASS 23/23; SHA256 chain, not production audit
+  S3-R24-X1-S: regression/durability pressure   ✅ PROCEED; non-blockers only; P-8/P-9 closed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion;
                   other syntax candidates require proposal tracks
@@ -324,6 +331,10 @@ Source .ig
        registry v1 transition receipts          ✅ S3-R23 C2 PASS 11/11; no signing/keys/executor
        legacy alias deprecation signal          ✅ S3-R23 C3 PASS 21/21; removal deferred to Phase 2
        audit/registry v1 pressure               ✅ S3-R23 X1 PROCEED; non-blockers only
+       post-R23 regression rerun                 ✅ S3-R24 C1 PASS 23/23; R24 fixtures not yet in matrix
+       durable registry storage semantics        ✅ S3-R24 C2 PASS 10/10; proof-local query/receipt semantics
+       observation tamper-evidence shape         ✅ S3-R24 C3 PASS 23/23; content-integrity chain only
+       post-R23 durability pressure              ✅ S3-R24 X1 PROCEED; high risks closed, low items routed
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -385,19 +396,30 @@ Observation persistence:
                      proof-local file-backed JSONL shape ✅; `phase1_observation_persistence_record` appends only
                      allowed Phase 1 observation records and carries `production_durable_audit: false`,
                      `production_compliance_claim: false`, and `ledger: false`.
+Observation tamper evidence:
+                     proof-local SHA256 canonical JSON chain ✅; records carry sequence, previous_record_hash,
+                     record_hash, storage_identity, and created_at. This is content-integrity/gap/reorder shape
+                     only: not cryptographic authorization, not production durable audit, not production signing,
+                     and chain state is not rebuilt from JSONL on restart.
 Registry receipts:  proof-local registry v1 receipts shape ✅; issuance -> revocation -> supersession receipts
                      are linked by `caused_by_ref`; decision refs must be content-addressed; no production signing,
                      no keys, no durable registry service, no executor call.
+Registry storage semantics:
+                     proof-local durable/queryable registry semantics ✅; storage identity, query by authority_ref,
+                     effective-time active/revoked/superseded lookup, receipt-chain verification, and
+                     content-addressed decision-ref verification are proven. Direct active -> superseded is blocked
+                     in v0; production registry ownership/signing/key management remain open.
 Reason codes:       LEGACY_ALIASES deprecation signal ✅; lib/ executor emits canonical
                      `runtime.temporal_scope_exclusion`; sealed old fixtures are not retroactively edited;
                      alias removal remains Phase 2 housekeeping.
 Pre-signing remaining:
                       none for restricted Phase 1 live-read addendum; closed by S3-R20-C1-A.
 Pre-production remaining:
-                      production durable audit with tamper evidence/storage identity/retention/replay semantics;
-                      durable authority registry service; production signing/key management; real commit SHA / no
-                      `workspace-current`; post-R23 regression matrix rerun; Phase 2 addendum gaps
-Runtime observations: proof-backed ✅ proof-local file persistence shape; production durable audit still open
+                      production durable audit with HSM/KMS signing, restart rebuild, retention/replay semantics,
+                      version enforcement, off-process persistence, and compliance language; production registry
+                      ownership/service; production signing/key management; real commit SHA / no
+                      `workspace-current`; next regression matrix expansion to 25 commands; Phase 2 addendum gaps
+Runtime observations: proof-backed ✅ proof-local file persistence + tamper-evidence shape; production durable audit still open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; restricted Phase 1 eval now signed-scope only
 Release gate:        bin/release-gate ✅ PASS; local artifact + checksum rebuilt; publish.status=not_attempted
@@ -467,6 +489,15 @@ S3-R23 result:        Phase 1 persistence/registry hardening landed without scop
                       adds the LEGACY_ALIASES deprecation signal and proves lib/ emits only canonical
                       `runtime.temporal_scope_exclusion`; lib-prep regression remains 17/17 PASS. X1 says PROCEED
                       with non-blockers only and recommends R24 run `phase1-post-r23-regression-rerun-v0`.
+S3-R24 result:        Post-R23 consolidation and durability shaping landed without scope widening:
+                      C1 PASS 23/23 reruns the full post-R23 proof chain and grants no production implementation auth.
+                      C2 PASS 10/10 defines proof-local durable/queryable registry storage semantics, including
+                      authority_ref lookup, effective-time status, receipt-chain verification, and blocked direct
+                      active -> superseded transition; no signing, Ledger, executor, package, or production service.
+                      C3 PASS 23/23 adds proof-local observation tamper-evidence fields and SHA256 canonical hash chain;
+                      it is content integrity only, not HSM/KMS signing, production durable audit, Ledger, or compliance.
+                      X1 says PROCEED with non-blockers only: P-8 and P-9 are closed; next matrix should expand to
+                      25 commands, and production durable audit / registry ownership need Architect scope.
 ```
 
 ### Spec Freshness
@@ -478,7 +509,7 @@ S3-R23 result:        Phase 1 persistence/registry hardening landed without scop
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
-| Ch7 Runtime | ✅ synced through R17 lib boundary; R23 proof-local persistence/registry shapes | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0` | R23 adds proof-local persistence/registry receipt shapes and alias deprecation signal; production durable audit, production registry service, production signing, and Phase 2 remain closed |
+| Ch7 Runtime | ✅ synced through R17 lib boundary; R24 proof-local durability shapes | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0` | R24 adds full post-R23 regression and proof-local registry storage/tamper-evidence shapes; production durable audit, production registry ownership/service, production signing/key management, and Phase 2 remain closed |
 | Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
@@ -580,6 +611,18 @@ DOC-DEBT-24  S3-R23 pre-production carry:
              tamper evidence, storage identity, retention, replay semantics,
              and compliance language. Registry design still needs durable
              storage and the active -> superseded transition decision.
+DOC-DEBT-25  S3-R24 proof-local durability shaping:
+             post-R23 regression rerun is closed 23/23; registry storage
+             semantics and observation tamper-evidence are proof-local and
+             explicitly non-authorizing. Keep production durable audit,
+             production registry ownership/service, signing/key management,
+             and Phase 2 closed without Architect scope.
+DOC-DEBT-26  S3-R24 pre-production carry:
+             next regression rerun should expand to 25 commands by adding the
+             R24 registry storage and tamper-evidence fixtures. Production
+             durable audit still needs HSM/KMS signing, restart rebuild,
+             version enforcement, retention/replay semantics, off-process
+             persistence, and compliance language.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
