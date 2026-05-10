@@ -1,0 +1,209 @@
+{
+  "kind": "compiler_profile_spec_and_rule_unification_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-spec-and-rule-profile-unification-v0",
+  "status": "PASS",
+  "positive_profile": {
+    "kind": "compiler_profile_unified",
+    "format_version": "0.1.0",
+    "profile_spec_name": "Stage3ProofCompilerProfileSpec",
+    "profile_spec_digest": "sha256:11cb97b56be8182a97ccfcfb",
+    "slot_assignments": {
+      "core": {
+        "pack_name": "CoreLanguagePack",
+        "implementation_id": "core_language.proof_compiler_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "core_language",
+          "core_fragment",
+          "core_type_refs",
+          "core_semanticir"
+        ]
+      },
+      "oof_registry": {
+        "pack_name": "OOFRegistry",
+        "implementation_id": "oof_registry.shadow_descriptor_registry.v0",
+        "status": "kernel_service_candidate",
+        "provides_capabilities": [
+          "oof_registry",
+          "oof_descriptor_lookup",
+          "oof_stage_ownership"
+        ]
+      },
+      "fragment_registry": {
+        "pack_name": "FragmentRegistry",
+        "implementation_id": "fragment_registry.shadow_precedence_registry.v0",
+        "status": "kernel_service_candidate",
+        "provides_capabilities": [
+          "fragment_registry",
+          "fragment_precedence"
+        ]
+      },
+      "escape_boundary": {
+        "pack_name": "EscapeBoundaryPack",
+        "implementation_id": "escape_boundary.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "escape_boundary",
+          "read_surface",
+          "escape_fragment"
+        ]
+      },
+      "contract_modifiers": {
+        "pack_name": "ContractModifiersPack",
+        "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "contract_modifiers",
+          "modifier_fragment_widening"
+        ]
+      },
+      "temporal": {
+        "pack_name": "TemporalPack",
+        "implementation_id": "temporal.metadata_only_guarded.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "temporal",
+          "history_read",
+          "bihistory_read",
+          "temporal_access_node"
+        ]
+      },
+      "stream": {
+        "pack_name": "StreamPack",
+        "implementation_id": "stream.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "stream",
+          "stream_input",
+          "stream_window",
+          "fold_stream"
+        ]
+      },
+      "olap": {
+        "pack_name": "OLAPPack",
+        "implementation_id": "olap.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "olap_point",
+          "olap_type_ref",
+          "olap_access"
+        ]
+      },
+      "invariant": {
+        "pack_name": "InvariantPack",
+        "implementation_id": "invariant.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "invariant",
+          "invariant_severity",
+          "invariant_coverage"
+        ]
+      },
+      "assumptions": {
+        "pack_name": "AssumptionsPack",
+        "implementation_id": "assumptions.spec_shadow.v0",
+        "status": "proposed_shadow_only",
+        "provides_capabilities": [
+          "assumptions",
+          "epistemic_fragment",
+          "assumption_refs"
+        ]
+      },
+      "evidence_observation": {
+        "pack_name": "EvidenceObservationPack",
+        "implementation_id": "evidence_observation.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "evidence_observation",
+          "confidence_label_checks"
+        ]
+      },
+      "pipeline": {
+        "pack_name": "PipelinePack",
+        "implementation_id": "pipeline.current_parser_surface_shadow.v0",
+        "status": "current_surface_shadow",
+        "provides_capabilities": [
+          "pipeline_surface"
+        ]
+      }
+    },
+    "ordered_registries": {
+      "parser_rules": [
+        "contract_modifiers.parse_modifier_prefix",
+        "core.parse_contract_decl"
+      ],
+      "classifier_rules": [
+        "core.contract_fragment_default",
+        "escape.classify_escape_boundary",
+        "contract_modifiers.modifier_fragment_widening",
+        "contract_modifiers.oof_m1_pure_escape",
+        "temporal.temporal_precedence"
+      ],
+      "typechecker_rules": [
+        "core.typecheck_contract",
+        "contract_modifiers.propagate_oof_m1",
+        "temporal.typecheck_temporal_access"
+      ]
+    },
+    "strict_registries": {
+      "oof_descriptors": {
+        "OOF-P0": "CoreLanguagePack",
+        "OOF-P1": "CoreLanguagePack",
+        "OOF-TY0": "CoreLanguagePack",
+        "OOF-M1": "ContractModifiersPack",
+        "OOF-H1": "TemporalPack",
+        "OOF-BT1": "TemporalPack"
+      },
+      "fragment_classes": {
+        "core": "CoreLanguagePack",
+        "escape": "EscapeBoundaryPack",
+        "temporal": "TemporalPack"
+      }
+    },
+    "source_profile_ids": {
+      "slot_profile_id": "compiler_profile_slots/sha256:f8ba55dd264db5f1268ba99f",
+      "ordered_rule_profile_id": "ordered_rule_profile/sha256:674d7b6d7512186d5031555d"
+    },
+    "dispatch_mode": "unified_profile_only_no_compiler_dispatch",
+    "igapp_manifest_changes": [],
+    "validation_errors": [],
+    "profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3"
+  },
+  "temporal_variant_profile": {
+    "profile_id": "compiler_profile_unified/sha256:e174876e23e16293227be9c3",
+    "changed_slot": "temporal"
+  },
+  "rule_variant_profile": {
+    "profile_id": "compiler_profile_unified/sha256:1fca295dee6ce859a22a55f8",
+    "changed_registry": "classifier_rules"
+  },
+  "invalid_owner_profile": {
+    "profile_id": "compiler_profile_unified/sha256:a50a85384c9bf47aae0084fb",
+    "validation_errors": [
+      {
+        "kind": "unknown_rule_prefix",
+        "registry": "parser_rules",
+        "rule_id": "parser_helpers.normalize_tokens",
+        "prefix": "parser_helpers"
+      }
+    ]
+  },
+  "checks": {
+    "positive.profile_kind": true,
+    "positive.no_validation_errors": true,
+    "positive.dispatch_unified_profile_only": true,
+    "positive.no_igapp_manifest_changes": true,
+    "positive.strict_owners_have_slots": true,
+    "positive.ordered_rules_have_slots": true,
+    "fingerprint.slot_implementation_change_changes_profile": true,
+    "fingerprint.ordered_rule_graph_change_changes_profile": true,
+    "negative.unknown_rule_owner_rejected_by_validation": true,
+    "lineage.source_profile_ids_recorded": true
+  },
+  "non_goals": [
+    "No compiler pass dispatch.",
+    "No production CompilerProfile implementation.",
+    "No .igapp manifest changes."
+  ]
+}
