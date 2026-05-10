@@ -1,0 +1,115 @@
+{
+  "kind": "compiler_kernel_pack_registry_spike_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-kernel-pack-registry-spike-v0",
+  "status": "PASS",
+  "positive_profile": {
+    "kind": "compiler_kernel_profile_spike",
+    "format_version": "0.1.0",
+    "pack_names": [
+      "CoreLanguagePack",
+      "OOFRegistry",
+      "FragmentRegistry",
+      "EscapeBoundaryPack",
+      "ContractModifiersPack"
+    ],
+    "implementation_ids": {
+      "CoreLanguagePack": "core_language.registry_spike_stub.v0",
+      "OOFRegistry": "oof_registry.registry_spike_stub.v0",
+      "FragmentRegistry": "fragment_registry.registry_spike_stub.v0",
+      "EscapeBoundaryPack": "escape_boundary.registry_spike_stub.v0",
+      "ContractModifiersPack": "contract_modifiers.pack_boundary_descriptor.v0"
+    },
+    "provided_capabilities": [
+      "contract_modifiers",
+      "core_language",
+      "escape_boundary",
+      "fragment_registry",
+      "modifier_fragment_widening",
+      "oof_m1",
+      "oof_registry"
+    ],
+    "registries": {
+      "parser_rules": {
+        "pure": true,
+        "observed": true,
+        "effect": true,
+        "privileged": true,
+        "irreversible": true
+      },
+      "classifier_rules": {
+        "OOF-M1": true
+      },
+      "typechecker_rules": {
+        "OOF-M1": true
+      },
+      "semanticir_handlers": {
+        "modifier": true
+      },
+      "assembler_hooks": {
+        "manifest_modifier_passthrough": true,
+        "igapp_format_change": true
+      },
+      "oof_descriptors": {
+        "OOF-M1": true
+      },
+      "fragment_classes": {
+        "core": true,
+        "oof": true,
+        "escape": true,
+        "temporal": true,
+        "stream": true,
+        "epistemic": true
+      }
+    },
+    "dispatch_mode": "registry_only_no_compiler_dispatch",
+    "igapp_manifest_changes": [],
+    "profile_id": "compiler_kernel_profile_spike/sha256:1378398e4c6ab9769cc34f28"
+  },
+  "variant_profile": {
+    "profile_id": "compiler_kernel_profile_spike/sha256:bb2a36a37570c34a4f6c970c",
+    "changed_implementation": "ContractModifiersPack"
+  },
+  "negative_results": {
+    "duplicate_pack_name": {
+      "raised": true,
+      "class": "DuplicatePackError",
+      "message": "pack already installed: CoreLanguagePack"
+    },
+    "missing_dependency": {
+      "raised": true,
+      "class": "MissingDependencyError",
+      "message": "ContractModifiersPack missing dependencies: CoreLanguagePack, EscapeBoundaryPack, OOFRegistry, FragmentRegistry"
+    },
+    "duplicate_registry_key": {
+      "raised": true,
+      "class": "DuplicateRegistryKeyError",
+      "message": "parser_rules already has pure"
+    },
+    "frozen_after_finalize": {
+      "raised": true,
+      "class": "FrozenKernelError",
+      "message": "kernel already finalized"
+    }
+  },
+  "checks": {
+    "positive.profile_kind": true,
+    "positive.dispatch_registry_only": true,
+    "positive.pack_order": true,
+    "positive.contract_modifier_rules_registered": true,
+    "positive.oof_m1_registered": true,
+    "positive.fragment_classes_registered": true,
+    "positive.no_igapp_manifest_changes": true,
+    "fingerprint.implementation_id_changes_profile": true,
+    "negative.duplicate_pack_rejected": true,
+    "negative.missing_dependency_rejected": true,
+    "negative.duplicate_registry_key_rejected": true,
+    "negative.frozen_kernel_rejects_install": true
+  },
+  "non_goals": [
+    "No compiler pass dispatch.",
+    "No CompilerOrchestrator changes.",
+    "No .igapp manifest changes.",
+    "No production package extraction."
+  ]
+}
