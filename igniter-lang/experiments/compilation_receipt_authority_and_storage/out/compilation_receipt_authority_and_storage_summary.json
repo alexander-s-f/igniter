@@ -1,0 +1,38 @@
+{
+  "kind": "compilation_receipt_authority_and_storage_summary",
+  "format_version": "0.1.0",
+  "track": "compilation-receipt-authority-and-storage-v0",
+  "status": "PASS",
+  "policy_path": "igniter-lang/experiments/compilation_receipt_authority_and_storage/out/compilation_receipt_storage_policy.json",
+  "policy_digest": "sha256:13295f1371546d166c1d81442b51f8a04344b444ce52ca957ef10892e9c907b1",
+  "checks": {
+    "input.receipt_proof_passed": true,
+    "policy.has_three_storage_surfaces": true,
+    "authority.no_surface_grants_runtime_execution": true,
+    "embedded.requires_hash_ordering_before_signed_surface": true,
+    "signed_payload_uses_digests_not_local_paths": true,
+    "public_view_redacts_local_paths_and_commands": true,
+    "redaction.restricted_fields_named": true,
+    "compatibility_report_link_present_without_authority_leak": true,
+    "receipt_digest_preserved": true,
+    "source_receipt_remains_non_production_audit": true
+  },
+  "storage_surfaces": [
+    "embedded_igapp_receipt",
+    "external_signed_receipt_bundle",
+    "ilk_metadata_index"
+  ],
+  "recommended_progression": [
+    "Keep proof-local receipts outside .igapp while the manifest PROP is open.",
+    "Add optional embedded .igapp/compilation_receipt.json only after artifact hash ordering is specified.",
+    "Add external signed receipt bundle before claiming production audit authority.",
+    "Let .ilk index receipt digests and lineage, not replace signed receipts."
+  ],
+  "non_goals": [
+    "No production receipt storage implementation.",
+    "No .igapp file layout change.",
+    "No signing or key-management implementation.",
+    "No CompatibilityReport production change.",
+    "No runtime execution authority."
+  ]
+}

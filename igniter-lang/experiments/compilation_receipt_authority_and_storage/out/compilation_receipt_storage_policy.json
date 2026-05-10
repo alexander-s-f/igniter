@@ -1,0 +1,468 @@
+{
+  "kind": "proof_local_compilation_receipt_storage_policy",
+  "format_version": "0.1.0",
+  "track": "compilation-receipt-authority-and-storage-v0",
+  "receipt_ref": "igniter-lang/experiments/compiler_profile_auditable_build_receipt/out/compilation_receipt.add.json",
+  "receipt_digest": "sha256:4d3679ad9ff188d289810080f584a9cd86f6a6a0f4479c028a158efb33e7be54",
+  "storage_surfaces": {
+    "embedded_igapp_receipt": {
+      "candidate_path": ".igapp/compilation_receipt.json",
+      "authority_level": "co_located_build_explanation",
+      "stores": "public_receipt_view",
+      "digest": "sha256:8cb4b9aad6d7b0957003dc880eddc1724ace1076760b8a1ffe673d6397618fcb",
+      "signed": false,
+      "production_audit_authority": false,
+      "runtime_execution_authority": false,
+      "artifact_hash_requirement": "must_be_defined_before_embedding_in_signed_surface",
+      "use_when": "local inspection, deterministic rebuild explanation, developer support"
+    },
+    "external_signed_receipt_bundle": {
+      "candidate_path": "<artifact>.compilation_receipt.bundle.json",
+      "authority_level": "signed_build_attestation_candidate",
+      "stores": "signed_receipt_payload_candidate",
+      "digest": "sha256:480be50c3e3caa2b4f543f22cab3ab9cf0c73685af0d245a1351d17289dbb985",
+      "signed": true,
+      "production_audit_authority": "only_after_key_management_and_retention_policy",
+      "runtime_execution_authority": false,
+      "signature_surface": [
+        "kind",
+        "format_version",
+        "receipt_digest",
+        "public_receipt_digest",
+        "artifact_hash",
+        "manifest_digest",
+        "source_hash",
+        "compiler_profile_id",
+        "program_id",
+        "authority",
+        "signature_policy"
+      ],
+      "use_when": "release audit, accountable compilation, external verification"
+    },
+    "ilk_metadata_index": {
+      "candidate_path": ".ilk/compilation_receipts/<receipt_digest>.json",
+      "authority_level": "lineage_index",
+      "stores": "receipt refs, digests, artifact refs, profile ids, compatibility report refs",
+      "digest": "sha256:0c3d8e165ccd3d9e886a6ab906f603ebfef5e9f498c90d83c41d5ce9dcf75f6c",
+      "signed": false,
+      "production_audit_authority": false,
+      "runtime_execution_authority": false,
+      "use_when": "query, lineage, retention index, cross-artifact navigation"
+    }
+  },
+  "redaction_policy": {
+    "public_fields": [
+      "kind",
+      "format_version",
+      "program_id",
+      "source.source_hash",
+      "compiler_profile_id",
+      "compiler_profile_preflight",
+      "stages",
+      "packs_and_rules",
+      "diagnostics",
+      "warnings",
+      "requirements",
+      "artifact",
+      "authority",
+      "receipt_policy"
+    ],
+    "restricted_fields": [
+      "source.path",
+      "compile_command.cli",
+      "compile_command.direct_api",
+      "compatibility.runtime_smoke.outputs"
+    ],
+    "rules": [
+      "Public receipts may expose digests and refs, not local absolute paths.",
+      "Commands are retained in restricted receipt data unless explicitly approved for support bundles.",
+      "Runtime smoke outputs are evidence, not runtime authority; expose summaries before values.",
+      "Signed payloads should sign digests and policy claims, not every local machine detail."
+    ]
+  },
+  "public_receipt_view": {
+    "kind": "proof_local_compilation_receipt",
+    "format_version": "0.1.0",
+    "program_id": "semanticir/e9664d5446df4e46",
+    "source": {
+      "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc"
+    },
+    "compiler_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+    "compiler_profile_preflight": {
+      "status": "PASS",
+      "summary_ref": "igniter-lang/experiments/compiler_profile_preflight_chain_index/out/compiler_profile_preflight_chain_index_summary.json",
+      "indexed_proofs": [
+        {
+          "id": "compiler_pack_shadow_profile_proof",
+          "scope": "shadow_profile",
+          "boundary": "monolith_described_as_profile",
+          "proof_status": "PASS",
+          "summary_path": "igniter-lang/experiments/compiler_pack_shadow_profile_proof/out/compiler_pack_shadow_profile_proof_summary.json"
+        },
+        {
+          "id": "contract_modifiers_pack_native_boundary",
+          "scope": "pack_candidate",
+          "boundary": "first_optional_semantic_pack",
+          "proof_status": "PASS",
+          "summary_path": "igniter-lang/experiments/contract_modifiers_pack_native_boundary/out/contract_modifiers_pack_native_boundary_summary.json"
+        },
+        {
+          "id": "compiler_kernel_pack_registry_spike",
+          "scope": "kernel_model",
+          "boundary": "pack_install_finalize_fingerprint",
+          "proof_status": "PASS",
+          "summary_path": "igniter-lang/experiments/compiler_kernel_pack_registry_spike/out/compiler_kernel_pack_registry_spike_summary.json"
+        },
+        {
+          "id": "compiler_kernel_ordered_rule_precedence",
+          "scope": "ordering_model",
+          "boundary": "before_after_priority_cycle_detection",
+          "proof_status": "PASS",
+          "summary_path": "igniter-lang/experiments/compiler_kernel_ordered_rule_precedence/out/compiler_kernel_ordered_rule_precedence_summary.json"
+        },
+        {
+          "id": "compiler_profile_id_manifest_boundary",
+          "scope": "manifest_plan",
+          "boundary": "compiler_profile_id_before_artifact_hash",
+          "proof_status": "PASS",
+          "summary_path": "igniter-lang/experiments/compiler_profile_id_manifest_boundary/out/compiler_profile_id_manifest_boundary_summary.json"
+        },
+        {
+          "id": "compiler_profile_slots_model",
+          "scope": "profile_spec",
+          "boundary": "semantic_slots_and_pack_cardinality",
+          "proof_status": "PASS",
+          "summary_path": "igniter-lang/experiments/compiler_profile_slots_model/out/compiler_profile_slots_model_summary.json"
+        },
+        {
+          "id": "compiler_profile_spec_and_rule_unification",
+          "scope": "unified_profile",
+          "boundary": "slots_plus_ordered_rules_fingerprint",
+          "proof_status": "PASS",
+          "summary_path": "igniter-lang/experiments/compiler_profile_spec_and_rule_unification/out/compiler_profile_spec_and_rule_unification_summary.json"
+        },
+        {
+          "id": "compiler_profile_authority_boundary",
+          "scope": "authority_boundary",
+          "boundary": "understanding_authority_not_runtime_authority",
+          "proof_status": "PASS",
+          "summary_path": "igniter-lang/experiments/compiler_profile_authority_boundary/out/compiler_profile_authority_boundary_summary.json"
+        },
+        {
+          "id": "compiler_profile_compatibility_report_fields",
+          "scope": "report_shape",
+          "boundary": "profile_status_separate_from_runtime_readiness",
+          "proof_status": "PASS",
+          "summary_path": "igniter-lang/experiments/compiler_profile_compatibility_report_fields/out/compiler_profile_compatibility_report_fields_summary.json"
+        }
+      ]
+    },
+    "stages": [
+      {
+        "name": "classify",
+        "status": "ok",
+        "source": "compilation_report"
+      },
+      {
+        "name": "emit",
+        "status": "ok",
+        "source": "compilation_report"
+      },
+      {
+        "name": "parse",
+        "status": "ok",
+        "source": "compilation_report"
+      },
+      {
+        "name": "typecheck",
+        "status": "ok",
+        "source": "compilation_report"
+      },
+      {
+        "name": "assemble",
+        "status": "ok",
+        "source": "compiler_result"
+      },
+      {
+        "name": "runtime_smoke",
+        "status": "trusted",
+        "source": "compiler_result"
+      }
+    ],
+    "packs_and_rules": {
+      "profile_spec_name": "Stage3ProofCompilerProfileSpec",
+      "profile_spec_digest": "sha256:11cb97b56be8182a97ccfcfb",
+      "slot_assignments": {
+        "core": {
+          "pack_name": "CoreLanguagePack",
+          "implementation_id": "core_language.proof_compiler_adapter.v0",
+          "status": "current_surface_shadow",
+          "provides_capabilities": [
+            "core_language",
+            "core_fragment",
+            "core_type_refs",
+            "core_semanticir"
+          ]
+        },
+        "oof_registry": {
+          "pack_name": "OOFRegistry",
+          "implementation_id": "oof_registry.shadow_descriptor_registry.v0",
+          "status": "kernel_service_candidate",
+          "provides_capabilities": [
+            "oof_registry",
+            "oof_descriptor_lookup",
+            "oof_stage_ownership"
+          ]
+        },
+        "fragment_registry": {
+          "pack_name": "FragmentRegistry",
+          "implementation_id": "fragment_registry.shadow_precedence_registry.v0",
+          "status": "kernel_service_candidate",
+          "provides_capabilities": [
+            "fragment_registry",
+            "fragment_precedence"
+          ]
+        },
+        "escape_boundary": {
+          "pack_name": "EscapeBoundaryPack",
+          "implementation_id": "escape_boundary.current_monolith_adapter.v0",
+          "status": "current_surface_shadow",
+          "provides_capabilities": [
+            "escape_boundary",
+            "read_surface",
+            "escape_fragment"
+          ]
+        },
+        "contract_modifiers": {
+          "pack_name": "ContractModifiersPack",
+          "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+          "status": "current_surface_shadow",
+          "provides_capabilities": [
+            "contract_modifiers",
+            "modifier_fragment_widening"
+          ]
+        },
+        "temporal": {
+          "pack_name": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v0",
+          "status": "current_surface_shadow",
+          "provides_capabilities": [
+            "temporal",
+            "history_read",
+            "bihistory_read",
+            "temporal_access_node"
+          ]
+        },
+        "stream": {
+          "pack_name": "StreamPack",
+          "implementation_id": "stream.current_monolith_adapter.v0",
+          "status": "current_surface_shadow",
+          "provides_capabilities": [
+            "stream",
+            "stream_input",
+            "stream_window",
+            "fold_stream"
+          ]
+        },
+        "olap": {
+          "pack_name": "OLAPPack",
+          "implementation_id": "olap.current_monolith_adapter.v0",
+          "status": "current_surface_shadow",
+          "provides_capabilities": [
+            "olap_point",
+            "olap_type_ref",
+            "olap_access"
+          ]
+        },
+        "invariant": {
+          "pack_name": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v0",
+          "status": "current_surface_shadow",
+          "provides_capabilities": [
+            "invariant",
+            "invariant_severity",
+            "invariant_coverage"
+          ]
+        },
+        "assumptions": {
+          "pack_name": "AssumptionsPack",
+          "implementation_id": "assumptions.spec_shadow.v0",
+          "status": "proposed_shadow_only",
+          "provides_capabilities": [
+            "assumptions",
+            "epistemic_fragment",
+            "assumption_refs"
+          ]
+        },
+        "evidence_observation": {
+          "pack_name": "EvidenceObservationPack",
+          "implementation_id": "evidence_observation.current_monolith_adapter.v0",
+          "status": "current_surface_shadow",
+          "provides_capabilities": [
+            "evidence_observation",
+            "confidence_label_checks"
+          ]
+        },
+        "pipeline": {
+          "pack_name": "PipelinePack",
+          "implementation_id": "pipeline.current_parser_surface_shadow.v0",
+          "status": "current_surface_shadow",
+          "provides_capabilities": [
+            "pipeline_surface"
+          ]
+        }
+      },
+      "ordered_registries": {
+        "parser_rules": [
+          "contract_modifiers.parse_modifier_prefix",
+          "core.parse_contract_decl"
+        ],
+        "classifier_rules": [
+          "core.contract_fragment_default",
+          "escape.classify_escape_boundary",
+          "contract_modifiers.modifier_fragment_widening",
+          "contract_modifiers.oof_m1_pure_escape",
+          "temporal.temporal_precedence"
+        ],
+        "typechecker_rules": [
+          "core.typecheck_contract",
+          "contract_modifiers.propagate_oof_m1",
+          "temporal.typecheck_temporal_access"
+        ]
+      },
+      "strict_registries": {
+        "oof_descriptors": {
+          "OOF-P0": "CoreLanguagePack",
+          "OOF-P1": "CoreLanguagePack",
+          "OOF-TY0": "CoreLanguagePack",
+          "OOF-M1": "ContractModifiersPack",
+          "OOF-H1": "TemporalPack",
+          "OOF-BT1": "TemporalPack"
+        },
+        "fragment_classes": {
+          "core": "CoreLanguagePack",
+          "escape": "EscapeBoundaryPack",
+          "temporal": "TemporalPack"
+        }
+      }
+    },
+    "diagnostics": [],
+    "warnings": [],
+    "requirements": {
+      "capabilities": {
+        "effect_kinds": [],
+        "required_caps": []
+      },
+      "effects": [],
+      "ffi": [],
+      "fragments": [
+        "core"
+      ],
+      "lifecycle": {
+        "has_audit": false,
+        "has_window": false,
+        "min_lifecycle": "local"
+      },
+      "required_tbackend_caps": {
+        "append_atomic": false,
+        "compact_enabled": false,
+        "consistency": "strong",
+        "read_as_of": false,
+        "replay_enabled": false,
+        "snapshot_enabled": false,
+        "subscribe_enabled": false
+      },
+      "temporal": {
+        "axes": [],
+        "coordinate_refs": [],
+        "min_consistency": "strong",
+        "requires_as_of": false,
+        "requires_replay": false,
+        "requires_snapshot": false,
+        "requires_transaction_time": false,
+        "requires_valid_time": false,
+        "slices": [],
+        "windows": []
+      }
+    },
+    "artifact": {
+      "path": "igniter-lang/experiments/production_compiler_cli/out/add.igapp",
+      "kind": "igapp_manifest",
+      "format_version": "0.1.0",
+      "fragment_class": "core",
+      "artifact_hash": "sha256:0a39c880326db497a7a6a8298f2e6d99dffc40cd084c15cf47d081b77deaaac8",
+      "proof_local_manifest_payload_digest": "sha256:7e36f789624532a708c40241800fde449d437de16bac2e066fb30bad294123b1",
+      "contract_index": {
+        "Add": {
+          "contract_path": "contracts/add.json",
+          "contract_ref": "contract/Add/sha256:a295317f00612299f676cd02",
+          "fragment_class": "core"
+        }
+      },
+      "manifest_ref": "igniter-lang/experiments/production_compiler_cli/out/add.igapp/manifest.json",
+      "manifest_digest": "sha256:e790e93b01b075d5ddacf0476e477c198db616904d5e0ceb6d841ce7e34a0bde",
+      "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+      "compilation_report_ref": "compilation_report/e9664d5446df4e46"
+    },
+    "authority": {
+      "proves_compiler_understanding": true,
+      "authorizes_runtime_execution": false,
+      "is_signed_receipt": false,
+      "is_production_audit_trail": false
+    },
+    "receipt_policy": {
+      "deterministic": true,
+      "machine_readable": true,
+      "hashable": true,
+      "safe_to_show": true,
+      "proof_local_only": true,
+      "redacted_view": true
+    }
+  },
+  "signed_receipt_payload_candidate": {
+    "kind": "signed_compilation_receipt_payload_candidate",
+    "format_version": "0.1.0",
+    "receipt_digest": "sha256:4d3679ad9ff188d289810080f584a9cd86f6a6a0f4479c028a158efb33e7be54",
+    "public_receipt_digest": "sha256:8cb4b9aad6d7b0957003dc880eddc1724ace1076760b8a1ffe673d6397618fcb",
+    "artifact_hash": "sha256:0a39c880326db497a7a6a8298f2e6d99dffc40cd084c15cf47d081b77deaaac8",
+    "manifest_digest": "sha256:e790e93b01b075d5ddacf0476e477c198db616904d5e0ceb6d841ce7e34a0bde",
+    "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+    "compiler_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+    "program_id": "semanticir/e9664d5446df4e46",
+    "authority": {
+      "build_attestation": true,
+      "runtime_execution_authority": false
+    },
+    "signature_policy": {
+      "algorithm": "TBD",
+      "key_management": "TBD",
+      "canonical_json": "required",
+      "timestamp_authority": "TBD",
+      "revocation_policy": "TBD"
+    }
+  },
+  "compatibility_report_link": {
+    "compatibility_metadata_present": true,
+    "runtime_smoke_present": true,
+    "receipt_should_be_report_input": true,
+    "report_should_not_treat_receipt_as_runtime_authority": true,
+    "future_fields": [
+      "compilation_receipt_status",
+      "compilation_receipt_digest",
+      "signed_receipt_status",
+      "receipt_redaction_policy"
+    ]
+  },
+  "authority_invariant": {
+    "receipt_can_explain_build": true,
+    "receipt_can_prove_compiler_understanding": true,
+    "receipt_can_authorize_runtime_execution": false,
+    "runtime_authority_remains_compatibility_report_and_runtime_guard": true
+  },
+  "recommended_progression": [
+    "Keep proof-local receipts outside .igapp while the manifest PROP is open.",
+    "Add optional embedded .igapp/compilation_receipt.json only after artifact hash ordering is specified.",
+    "Add external signed receipt bundle before claiming production audit authority.",
+    "Let .ilk index receipt digests and lineage, not replace signed receipts."
+  ]
+}
