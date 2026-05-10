@@ -1,0 +1,156 @@
+{
+  "kind": "compiler_profile_preflight_chain_index_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-preflight-chain-index-v0",
+  "status": "PASS",
+  "chain": [
+    {
+      "id": "compiler_pack_shadow_profile_proof",
+      "scope": "shadow_profile",
+      "boundary": "monolith_described_as_profile",
+      "command": "/Users/alex/.rbenv/versions/3.2.2/bin/ruby igniter-lang/experiments/compiler_pack_shadow_profile_proof/compiler_pack_shadow_profile_proof.rb",
+      "summary_path": "igniter-lang/experiments/compiler_pack_shadow_profile_proof/out/compiler_pack_shadow_profile_proof_summary.json",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "check_count": 13,
+      "stdout_first_line": "PASS compiler_pack_shadow_profile_proof",
+      "stderr": ""
+    },
+    {
+      "id": "contract_modifiers_pack_native_boundary",
+      "scope": "pack_candidate",
+      "boundary": "first_optional_semantic_pack",
+      "command": "/Users/alex/.rbenv/versions/3.2.2/bin/ruby igniter-lang/experiments/contract_modifiers_pack_native_boundary/contract_modifiers_pack_native_boundary.rb",
+      "summary_path": "igniter-lang/experiments/contract_modifiers_pack_native_boundary/out/contract_modifiers_pack_native_boundary_summary.json",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "check_count": 16,
+      "stdout_first_line": "PASS contract_modifiers_pack_native_boundary",
+      "stderr": ""
+    },
+    {
+      "id": "compiler_kernel_pack_registry_spike",
+      "scope": "kernel_model",
+      "boundary": "pack_install_finalize_fingerprint",
+      "command": "/Users/alex/.rbenv/versions/3.2.2/bin/ruby igniter-lang/experiments/compiler_kernel_pack_registry_spike/compiler_kernel_pack_registry_spike.rb",
+      "summary_path": "igniter-lang/experiments/compiler_kernel_pack_registry_spike/out/compiler_kernel_pack_registry_spike_summary.json",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "check_count": 12,
+      "stdout_first_line": "PASS compiler_kernel_pack_registry_spike",
+      "stderr": ""
+    },
+    {
+      "id": "compiler_kernel_ordered_rule_precedence",
+      "scope": "ordering_model",
+      "boundary": "before_after_priority_cycle_detection",
+      "command": "/Users/alex/.rbenv/versions/3.2.2/bin/ruby igniter-lang/experiments/compiler_kernel_ordered_rule_precedence/compiler_kernel_ordered_rule_precedence.rb",
+      "summary_path": "igniter-lang/experiments/compiler_kernel_ordered_rule_precedence/out/compiler_kernel_ordered_rule_precedence_summary.json",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "check_count": 13,
+      "stdout_first_line": "PASS compiler_kernel_ordered_rule_precedence",
+      "stderr": ""
+    },
+    {
+      "id": "compiler_profile_id_manifest_boundary",
+      "scope": "manifest_plan",
+      "boundary": "compiler_profile_id_before_artifact_hash",
+      "command": "/Users/alex/.rbenv/versions/3.2.2/bin/ruby igniter-lang/experiments/compiler_profile_id_manifest_boundary/compiler_profile_id_manifest_boundary.rb",
+      "summary_path": "igniter-lang/experiments/compiler_profile_id_manifest_boundary/out/compiler_profile_id_manifest_boundary_summary.json",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "check_count": 10,
+      "stdout_first_line": "PASS compiler_profile_id_manifest_boundary",
+      "stderr": ""
+    },
+    {
+      "id": "compiler_profile_slots_model",
+      "scope": "profile_spec",
+      "boundary": "semantic_slots_and_pack_cardinality",
+      "command": "/Users/alex/.rbenv/versions/3.2.2/bin/ruby igniter-lang/experiments/compiler_profile_slots_model/compiler_profile_slots_model.rb",
+      "summary_path": "igniter-lang/experiments/compiler_profile_slots_model/out/compiler_profile_slots_model_summary.json",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "check_count": 13,
+      "stdout_first_line": "PASS compiler_profile_slots_model",
+      "stderr": ""
+    },
+    {
+      "id": "compiler_profile_spec_and_rule_unification",
+      "scope": "unified_profile",
+      "boundary": "slots_plus_ordered_rules_fingerprint",
+      "command": "/Users/alex/.rbenv/versions/3.2.2/bin/ruby igniter-lang/experiments/compiler_profile_spec_and_rule_unification/compiler_profile_spec_and_rule_unification.rb",
+      "summary_path": "igniter-lang/experiments/compiler_profile_spec_and_rule_unification/out/compiler_profile_spec_and_rule_unification_summary.json",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "check_count": 10,
+      "stdout_first_line": "PASS compiler_profile_spec_and_rule_unification",
+      "stderr": ""
+    },
+    {
+      "id": "compiler_profile_authority_boundary",
+      "scope": "authority_boundary",
+      "boundary": "understanding_authority_not_runtime_authority",
+      "command": "/Users/alex/.rbenv/versions/3.2.2/bin/ruby igniter-lang/experiments/compiler_profile_authority_boundary/compiler_profile_authority_boundary.rb",
+      "summary_path": "igniter-lang/experiments/compiler_profile_authority_boundary/out/compiler_profile_authority_boundary_summary.json",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "check_count": 9,
+      "stdout_first_line": "PASS compiler_profile_authority_boundary",
+      "stderr": ""
+    },
+    {
+      "id": "compiler_profile_compatibility_report_fields",
+      "scope": "report_shape",
+      "boundary": "profile_status_separate_from_runtime_readiness",
+      "command": "/Users/alex/.rbenv/versions/3.2.2/bin/ruby igniter-lang/experiments/compiler_profile_compatibility_report_fields/compiler_profile_compatibility_report_fields.rb",
+      "summary_path": "igniter-lang/experiments/compiler_profile_compatibility_report_fields/out/compiler_profile_compatibility_report_fields_summary.json",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "check_count": 10,
+      "stdout_first_line": "PASS compiler_profile_compatibility_report_fields",
+      "stderr": ""
+    }
+  ],
+  "checks": {
+    "chain.all_commands_exited_zero": true,
+    "chain.all_summaries_pass": true,
+    "chain.required_boundaries_indexed": true,
+    "profile.unified_id_reaches_authority_boundary": true,
+    "profile.manifest_plan_requires_reassembly_before_signing": true,
+    "ordering.cycle_and_missing_reference_guards_present": true,
+    "authority.compiler_profile_never_authorizes_runtime": true,
+    "report.profile_status_separate_from_runtime_readiness": true,
+    "report.verified_temporal_still_blocked": true,
+    "scope.shadow_and_pack_proofs_present": true
+  },
+  "migration_blockers": [
+    {
+      "id": "manifest_prop_required",
+      "status": "blocked",
+      "reason": "compiler_profile_id is proof-local until a manifest PROP and assembler migration are approved."
+    },
+    {
+      "id": "dispatch_kernel_not_authorized",
+      "status": "blocked",
+      "reason": "Current compiler dispatch remains monolithic until post-POC migration authorization."
+    },
+    {
+      "id": "ordered_registry_contract_not_canonical",
+      "status": "open",
+      "reason": "before/after/priority semantics are proven, but not yet a production CompilerKernel API."
+    },
+    {
+      "id": "compatibility_report_field_names_not_production",
+      "status": "open",
+      "reason": "compiler_profile_status and runtime_evaluation_readiness are proof-local proposed fields."
+    }
+  ],
+  "non_goals": [
+    "No compiler dispatch changes.",
+    "No production CompilerKernel or CompilerPack implementation.",
+    "No .igapp manifest changes.",
+    "No runtime authority changes."
+  ]
+}

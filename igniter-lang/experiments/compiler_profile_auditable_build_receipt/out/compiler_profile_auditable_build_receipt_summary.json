@@ -1,0 +1,34 @@
+{
+  "kind": "compiler_profile_auditable_build_receipt_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-auditable-build-receipt-v0",
+  "status": "PASS",
+  "receipt_path": "igniter-lang/experiments/compiler_profile_auditable_build_receipt/out/compilation_receipt.add.json",
+  "receipt_digest": "sha256:4d3679ad9ff188d289810080f584a9cd86f6a6a0f4479c028a158efb33e7be54",
+  "checks": {
+    "inputs.preflight_command_passed": true,
+    "inputs.compiler_proof_command_passed": true,
+    "receipt.has_compiler_profile_id": true,
+    "receipt.source_digest_matches_manifest": true,
+    "receipt.includes_parse_to_assemble_stages": true,
+    "receipt.includes_packs_rules_requirements_diagnostics": true,
+    "receipt.artifact_hash_declared_and_manifest_digest_present": true,
+    "receipt.authority_does_not_grant_runtime": true,
+    "receipt.policy_machine_readable_hashable_safe_to_show": true,
+    "receipt.not_signed_or_production_audit": true
+  },
+  "receipt_preview": {
+    "kind": "proof_local_compilation_receipt",
+    "program_id": "semanticir/e9664d5446df4e46",
+    "compiler_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+    "artifact_hash": "sha256:0a39c880326db497a7a6a8298f2e6d99dffc40cd084c15cf47d081b77deaaac8",
+    "stage_count": 6,
+    "diagnostic_count": 0
+  },
+  "non_goals": [
+    "No production CompilationReceipt implementation.",
+    "No assembler output changes.",
+    "No .igapp manifest changes.",
+    "No signing, key management, Ledger, or runtime execution authority."
+  ]
+}
