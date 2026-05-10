@@ -2,7 +2,7 @@
 
 Status: living document
 Card: S3-R30-C4-P
-Last updated: S3-R31-C3-S (2026-05-10)
+Last updated: S3-R32-C2-S (2026-05-10)
 Agent: [Igniter-Lang Meta Expert]
 Role: meta-expert
 Track: semantic-governance-heat-map-v0
@@ -178,7 +178,7 @@ gap analysis → PROP before a golden anchor can be created.
 |--------|-----------|------|------------|------|
 | PROP Governance Filter (V-2) | Axiom 2, P27 | — (Covenant) | Covenant §PROP-Gov-Filter | gov |
 | P28 OOF enforcement gap table | P28 | — | TBD (assigned to Compiler/Grammar Expert) | gov |
-| META-EXPERT-013 §VI ↔ PROP Governance Filter reconciliation | Axiom 2, P27 | — | META-EXPERT-013 + Covenant | gov |
+| META-EXPERT-013 §VI ↔ PROP Governance Filter reconciliation | Axiom 2, P27 | — | S3-R31-C2-A authority decision; Covenant normative, META-EXPERT-013 operational | none |
 | startup_time freshness override validator | P27, Axiom 2 | — (design track R29) | — (28/28 PASS S3-R31) | none |
 | V-3 (`observed + temporal → temporal`) dedicated golden | P3, P4 | ch9, ch10 | PROP-031, PROP-028 (25/25 PASS S3-R31) | none |
 
@@ -192,6 +192,16 @@ Resolved: PROP-032 assigned to `assumptions {}` block (Gap-H). `via profile bind
 renumbered to PROP-033; `output evidence syntax` to PROP-034; profile declarations /
 authority resolution to PROP-035. Effect Surface = TBD. Tracking rows in Domain 2 and
 Domain 7 updated; queue conflict row removed from Domain 8.
+
+### GI-1a — Covenant / META-EXPERT-013 Authority Split — RESOLVED (S3-R31-C2-A, synced S3-R32-C2-S)
+
+Resolved: the Language Covenant is the normative PROP acceptance authority and
+META-EXPERT-013 is the operational routing/checklist document. PROP authors must
+answer the Covenant audit-legibility filter first, then satisfy the operational
+checklist. If the two documents appear to conflict, the Covenant controls.
+
+This closes the Domain 8 authority-split row. It does not authorize PROP-032
+implementation or any new language semantics.
 
 ### GI-2 — Effect Surface Coverage Gap (CRITICAL)
 
@@ -231,7 +241,7 @@ class but does not enforce epistemic transition validity.
 
 | debt_type | Entity count | Hotspot |
 |-----------|-------------|---------|
-| `gov` | 16 | Effect Surface (PROP-035) — blocks 7 postulates; highest single leverage |
+| `gov` | 15 | Effect Surface (PROP-035) — blocks 7 postulates; highest single leverage |
 | `sem/gov` | 5 | constraints (Gap-J), synthetic markers, epistemic coercion, unnamed-block OOF |
 | `sem` | 7 | form (Gap-I), loop classes ×4, evidence syntax (PROP-034), composition algebra (PROP-002) |
 | `impl/gov` | 5 | `observed`/`effect`/`privileged`/`irreversible` modifiers + receipt production shape |
@@ -249,7 +259,7 @@ class but does not enforce epistemic transition validity.
 | Form + Loop | 5 full | 0 | 0 | sem |
 | OOF Registry | 3 deferred + 3 new | 2 (OOF-M1) | 6 | impl / sem/gov |
 | Composition + Evidence | 4 full | 0 | 0 | sem / gov |
-| Governance Layer | 3 open | 0 | 0 | gov |
+| Governance Layer | 2 open | 0 | 1 | gov |
 
 ---
 

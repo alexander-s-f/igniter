@@ -28,6 +28,14 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 32 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `r32-governance-authority-sync-v0.md` | done | Closes P-39/P-40 follow-up docs: META-EXPERT-013 defers to Covenant, Covenant OQ-Filter-1 points to S3-R31-C2-A, Heat Map Domain 8 authority split is closed; no PROP-032 implementation authorization |
+
+---
+
 ## Stage 3 Round 31 Evidence
 
 | Track | Status | Notes |
@@ -541,8 +549,8 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 |-----------|---------|------|--------|
 | audit hash/posture design amendment | Document C1-P canonical hash excluded fields and resolve compliance_posture stored-vs-derived model before restart rebuild/traversal proofs | Research Agent / Implementation Agent | recommended for R32; closes P-37/P-38 |
 | C1-P surface-numbering errata | Add note that C1-P prose says "surfaces 1-4" but delivered C1-A surfaces 1/2/3/8; blocker table remains correct | Meta Expert / Research Agent | recommended for R32 |
-| META-EXPERT-013 Covenant authority note | Add C2-A authority rule: Covenant normative, META-EXPERT-013 operational/checklist only | Compiler/Grammar Expert / Meta Expert | recommended for R32; closes P-40 |
-| Covenant/Heat Map OQ-Filter sync | Add C2-A pointer to Covenant and update Heat Map Domain 8 row from open gov debt to closed decision | Meta Expert | recommended for R32; closes P-39 |
+| META-EXPERT-013 Covenant authority note | Add C2-A authority rule: Covenant normative, META-EXPERT-013 operational/checklist only | Compiler/Grammar Expert / Meta Expert | done in S3-R32-C2-S; closes P-40 |
+| Covenant/Heat Map OQ-Filter sync | Add C2-A pointer to Covenant and update Heat Map Domain 8 row from open gov debt to closed decision | Meta Expert | done in S3-R32-C2-S; closes P-39 |
 | PROP-032 Phase 1 implementation | Implement assumptions Classifier/TypeChecker/SemanticIR support and Research Agent fixtures per C5-P gate template | Compiler/Grammar Expert / Research Agent | gate satisfied; implementation/proof not landed |
 | B-A restart rebuild proof | Prove restart rebuild against the bounded audit canonical hash and compliance_posture model | Implementation Agent / Research Agent | recommended after P-37/P-38 |
 | B-B traversal/reader proof | Prove audit traversal/reader behavior without production deployment or Ledger widening | Implementation Agent / Research Agent | recommended after P-38 |

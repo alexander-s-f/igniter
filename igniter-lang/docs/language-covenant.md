@@ -674,21 +674,32 @@ tracked by META-EXPERT-012.
 
 Question: should this rule be added to META-EXPERT-013 §VI acceptance criteria?
 
-**OQ-Filter-1 — PROP Governance Filter source-of-truth (Architect decision required)**
+**OQ-Filter-1 — PROP Governance Filter source-of-truth (RESOLVED by S3-R31-C2-A)**
 
 The PROP Governance Filter (V-2) is a Covenant section (§PROP Governance Filter above).
 META-EXPERT-013 §VI defines PROP acceptance criteria. Both govern what PROPs may contain,
-but they are separate documents with no normative cross-reference. When a PROP is under
-review, authors face two governance sources without a stated precedence rule.
+but they were separate documents with no normative cross-reference. S3-R31-C2-A
+resolved the precedence rule:
+
+```text
+Covenant is normative. META-EXPERT-013 cites it and defers to it.
+```
+
+Authority reference:
+`docs/gates/prop-governance-authority-decision-v0.md`.
+
+When a PROP is under review, authors must answer the Covenant audit-legibility
+filter first, then satisfy the operational checklist in META-EXPERT-013.
+META-EXPERT-013 may add stricter process requirements, but it may not weaken the
+Covenant.
 
 Three options:
 
 | Option | Description |
 |--------|-------------|
-| A | Covenant is normative. META-EXPERT-013 §VI cites it and defers to it. |
+| A | Covenant is normative. META-EXPERT-013 §VI cites it and defers to it. **Selected by S3-R31-C2-A.** |
 | B | META-EXPERT-013 §VI is the operational reference. Covenant §PROP-Gov-Filter cites §VI. |
 | C | A new META-EXPERT proposal consolidates both into a single PROP lifecycle document. |
 
-Route to Architect for a decision. Until resolved, use both: Covenant for the legibility
-principle (audit trail more/neutral/less legible), META-EXPERT-013 §VI for the acceptance
-checklist. This is P-31 in the pre-production checklist (r29-authorization-and-canon-pressure-v0.md).
+P-31 / OQ-Filter-1 is closed. This resolution does not authorize any new
+language semantics or PROP-032 implementation.

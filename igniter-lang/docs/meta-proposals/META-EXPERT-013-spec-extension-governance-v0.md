@@ -34,6 +34,21 @@ describes Stage 1–2 implementation. These additions are Stage 3+ scope.
 
 ## II. Decisions
 
+### Authority Note: Covenant First, META-013 Operational
+
+**Decision: The Language Covenant is the normative authority for PROP
+acceptance. META-EXPERT-013 is the operational routing and checklist document
+for Stage 3 language-lane work.**
+
+Authority reference:
+`docs/gates/prop-governance-authority-decision-v0.md` (S3-R31-C2-A).
+
+Every PROP acceptance review must answer the Covenant PROP Governance Filter
+first: whether the proposed feature makes the audit trail more legible, neutral,
+or less legible. META-EXPERT-013 supplies sequencing, role handoffs, and
+acceptance checklist shape, but it may not weaken the Covenant. If this document
+and the Covenant appear to conflict, the Covenant controls.
+
 ### Decision 1: Spec Placement — Extend, Do Not Replace
 
 **Decision: Add new spec chapters ch10+ alongside ch1–ch9. Do not modify ch1–ch9.**
@@ -70,7 +85,7 @@ External Pressure Reviewer findings enter igniter-lang through the standard rout
 ```
 External Pressure Reviewer (findings in docs/ + experiments/)
   → META-EXPERT-013 (this document — routing decision)
-  → [Compiler/Grammar Expert]: PROP-031, PROP-032, PROP-033
+  → [Compiler/Grammar Expert]: PROP-031, PROP-032, PROP-033, PROP-034
   → [Research Agent]: regression fixtures for each PROP
   → [Meta Expert]: round-close curation after each PROP lands
 ```
@@ -81,26 +96,30 @@ This is NOT a "spec migration". It is a phased additive extension through normal
 
 ## III. Priority Ordering
 
-### Phase 1 — Stage 3 Language Lane (no new Gate required)
+### Phase 1 — Stage 3 Language Lane
 
-Rationale: All three are optional grammar additions. Backward compatible. Language Lane
-precedent established by PROP-028 (TEMPORAL fragment class). No Gate needed.
+Rationale: These are additive language-lane proposals. Backward compatibility and
+implementation authorization are proven per PROP, not inferred from this routing
+table.
 
 | Order | PROP | Title | Key change |
 |-------|------|-------|------------|
 | 1 | PROP-031 | Contract Modifiers | Optional modifier prefix; 5 fragment-class extensions |
-| 2 | PROP-032 | `via profile` Binding | Optional clause on contract declaration |
-| 3 | PROP-033 | `output ... evidence [refs]` | Optional evidence provenance in output |
+| 2 | PROP-032 | `assumptions {}` Block | Declared assumptions + `uses assumptions NAME`; proposal only until explicit implementation/proof |
+| 3 | PROP-033 | `via profile` Binding | Optional clause on contract declaration |
+| 4 | PROP-034 | `output ... evidence [refs]` | Optional evidence provenance in output |
 
-PROP-031 is the gating dependency. PROP-032 and PROP-033 can be sequenced immediately
-after or concurrently if Research Agent bandwidth allows.
+PROP-031 is the gating dependency. PROP-032 is proposal-only until an explicit
+implementation/proof card authorizes compiler work. PROP-033 and PROP-034 remain
+queued language-lane proposals and do not authorize parser/compiler changes until
+their own proposal and proof cards land.
 
 ### Phase 2 — New Lane (Architect decision required)
 
 | Order | PROP | Title | Dependency |
 |-------|------|-------|------------|
-| 4 | PROP-034 | Profile Declarations | PROP-031 + PROP-032 |
-| 5 | PROP-035 | Effect Surface | PROP-031 (effect modifier must exist) |
+| 5 | PROP-035 | Profile Declarations / Authority Resolution | PROP-031 + PROP-033 |
+| TBD | TBD | Effect Surface | PROP-031 (effect modifier must exist) |
 
 Profile declarations require a new compiler pass (policy-gate enforcement). This is
 semantic scope, not parser scope. Needs Architect authorization for new Lane.
@@ -119,8 +138,8 @@ New chapters to be authored (English, status: proposed until PROP lands):
 | Chapter | File | Source material | PROP dependency |
 |---------|------|-----------------|-----------------|
 | ch10 | `ch10-contract-modifiers.md` | PROP-Contract-v0 §1, §1.1 | PROP-031 |
-| ch11 | `ch11-profile-system.md` | PROP-Profile-v0 §2–6 | PROP-034 |
-| ch12 | `ch12-effect-surface.md` | PROP-External-Effects-v0 | PROP-035 |
+| ch11 | `ch11-profile-system.md` | PROP-Profile-v0 §2–6 | PROP-035 |
+| ch12 | `ch12-effect-surface.md` | PROP-External-Effects-v0 | TBD |
 | ch13 | `ch13-managed-recursion.md` | PROP-Loop-v0 | Stage 4 |
 
 ch10 stub is created now (proposed status) to anchor grammar discussion.
@@ -132,22 +151,19 @@ ch11–ch13 stubs created now (proposed status) to establish chapter structure.
 
 **→ [Igniter-Lang Compiler/Grammar Expert]:**
 
-1. Author `PROP-031-contract-modifiers-v0.md` — see §VI for acceptance criteria
-2. Author `PROP-032-via-profile-binding-v0.md` after PROP-031 regression PASS
-3. Author `PROP-033-output-evidence-syntax-v0.md` after PROP-031 regression PASS
-4. Write `ch10-contract-modifiers.md` (proposed status) as spec anchor for PROP-031
+1. Keep `PROP-032-assumptions-block-v0.md` proposal-only until an explicit implementation/proof card
+2. Author `PROP-033-via-profile-binding-v0.md` after PROP-031 regression PASS
+3. Author `PROP-034-output-evidence-syntax-v0.md` after PROP-031 regression PASS
+4. Keep `ch10-contract-modifiers.md` as the accepted anchor for PROP-031 work
 
 **→ [Igniter-Lang Research Agent]:**
 
-1. Prepare regression fixtures for PROP-031:
-   - `experiments/contract_modifiers_proof/pure_contract_basic.ig`
-   - `experiments/contract_modifiers_proof/observed_contract_escape.ig`
-   - `experiments/contract_modifiers_proof/oof_pure_with_escape.ig` (negative case)
-2. Existing fixtures must continue to PASS with no modifier (backward compat proof)
+1. Prepare PROP-032 implementation fixtures only when the explicit implementation/proof card lands.
+2. Keep existing PROP-031 fixtures as regression anchors for modifier behavior.
 
 **→ [Igniter-Lang Meta Expert] (self):**
 
-1. Open Architect channel for Phase 2 Lane decision after PROP-031 lands
+1. Open Architect channel for Phase 2 Lane decision only when a queued Phase 2 card is ready
 2. Update `current-status.md` after each PROP-03x closes
 
 ---
@@ -177,7 +193,8 @@ Proposed acceptance criteria for `[Architect / Codex]` approval:
 | OOF-M2 | `effect/privileged/irreversible` without required Effect Surface fields | error (Phase 2) |
 | OOF-M3 | `irreversible` without `compensation` or explicit `no_compensation` | warn (Phase 2) |
 
-OOF-M2 and OOF-M3 are deferred to PROP-035 (Effect Surface). Document now to reserve codes.
+OOF-M2 and OOF-M3 are deferred to the future Effect Surface PROP. Document now
+to reserve codes.
 
 ---
 
@@ -195,11 +212,11 @@ OOF-M2 and OOF-M3 are deferred to PROP-035 (Effect Surface). Document now to res
 ## IX. Handoff
 
 ```
-Next action:  [Compiler/Grammar Expert] authors PROP-031
-After that:   [Research Agent] prepares regression fixtures
-After that:   PROP-031 regression PASS → META-EXPERT round-close curation
-Then:         PROP-032 + PROP-033 in parallel
-Then:         Architect request for Phase 2 Lane (Profile + Effect Surface)
+Current:      PROP-031 is experiment-pass; PROP-032 is proposal with Phase 1 gate satisfied
+Next action:  PROP-032 implementation/proof card may proceed only under its explicit gate
+Then:         PROP-033 + PROP-034 remain queued; each needs its own proposal/proof path
+Then:         Architect request for Phase 2 Lane (Profile / Authority + Effect Surface) only when scoped
 ```
 
-Blocker: none. PROP-031 can start immediately.
+Blocker: no authority blocker for this routing note. This document does not
+authorize PROP-032 implementation beyond the existing gate status.

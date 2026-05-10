@@ -316,6 +316,8 @@ Round 31 landed:
   S3-R31-C7-P: compiler pack shadow/pre-POC      ✅ shadow reports/proofs; no dispatch, no .igapp change, no migration authorization
   S3-R31-shadow: compiler_profile_id boundary    ✅ proof-local plan PASS; manifest PROP required before implementation
   S3-R31-X1-S: bounded audit/governance pressure ✅ PROCEED; P-37..P-40 and B-A..B-D routed
+Round 32 partial:
+  S3-R32-C2-S: governance authority sync         ✅ P-39/P-40 doc follow-ups closed; no PROP-032 implementation authorization
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -603,6 +605,7 @@ Covenant / CSM:
                      Enforcement Registry: all 28 postulates have enforcement status; P28 is partial; escape naming is
                      Unknown and routed as OQ-P28-1. R31 C2-A closes OQ-Filter-1: the Covenant is normative and
                      META-EXPERT-013 is operational. R31 C3-S closes Heat Map stale-credit rows and GI-1 queue drift.
+                     R32 C2-S applies the follow-up pointers in Covenant, META-EXPERT-013, and Heat Map Domain 8.
                      These are governance/context changes, not new compiler semantics.
 PROP-032:
                      assumptions block proposal ✅ drafted in R30. PROP-032 is `assumptions {}` + `uses assumptions NAME`,
@@ -628,8 +631,7 @@ Pre-production remaining:
                       deployment authorization; production signing/key management execution; concrete HSM/KMS;
                       production authority registry; canonical hash excluded-fields design amendment; compliance_posture
                       storage-vs-derived model; proof-local freshness authority fixture rules before production signer work;
-                      C1-P surface numbering errata note; OQ-P28-1 escape naming answer; META-EXPERT-013 Covenant authority note; Covenant/Heat Map
-                      OQ-Filter-1 closure pointers; PROP-032 implementation/proof cycle;
+                      C1-P surface numbering errata note; OQ-P28-1 escape naming answer; PROP-032 implementation/proof cycle;
                       real commit SHA / no `workspace-current`; optional Time.now grep hook; Phase 2 addendum gaps
 Runtime observations: proof-backed ✅ proof-local file persistence + tamper-evidence shape; production durable audit still open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
@@ -780,17 +782,21 @@ S3-R31 result:        Bounded durable-audit implementation began proof-locally: 
                       and shadow tracks record Profile-Baseline-Pack / compiler-pack pre-POC direction only: no compiler
                       dispatch, rewrite, `.igapp` change, or migration authorization. X1 says PROCEED and routes P-37
                       through P-40 plus B-A/B-B/B-C/B-D to R32.
+S3-R32 partial:     C2-S closes P-39/P-40 by applying the C2-A authority hierarchy to active docs:
+                      META-EXPERT-013 now defers to the Covenant as normative, Covenant OQ-Filter-1 points to
+                      the gate decision, and Heat Map Domain 8 marks the authority split closed. No new language
+                      semantics or PROP-032 implementation authorization.
 ```
 
 ### Spec Freshness
 
 | Surface | Freshness | Current anchor | Remaining doc debt |
 |---------|-----------|----------------|--------------------|
-| Agent context | ✅ current S3-R31 | `docs/agent-context.md` | R31 bounded audit + compiler-pack shadow boundary visible |
+| Agent context | ✅ current S3-R32 | `docs/agent-context.md` | R31 bounded audit + compiler-pack shadow boundary visible; R32 authority sync visible |
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
-| Language Covenant | ✅ R31 authority decided | `covenant-accountability-postulates-r29-v0`; `covenant-promise-enforcement-path-rule-v0`; `docs/gates/prop-governance-authority-decision-v0.md`; `docs/language-covenant.md` | OQ-P28-1 escape naming remains; add Covenant OQ-Filter-1 resolution pointer |
+| Language Covenant | ✅ R32 authority pointers synced | `covenant-accountability-postulates-r29-v0`; `covenant-promise-enforcement-path-rule-v0`; `docs/gates/prop-governance-authority-decision-v0.md`; `docs/language-covenant.md` | OQ-P28-1 escape naming remains |
 | Canonical Semantic Model | ✅ R30 assumptions note | `canonical-semantic-model-bootstrap-r29-v0`; `docs/dev/canonical-semantic-model.md`; `observed-temporal-precedence-golden-r30-v0` | Maintain entity rows when compiler entities are added/removed; add secondary observed+temporal anchor in next CSM touch |
-| Semantic Governance Heat Map | ✅ synced S3-R31 | `semantic-governance-heat-map-v0`; `r31-governance-map-sync-v0`; `docs/dev/semantic-governance-heat-map.md` | OQ-Filter-1 row still needs C2-A closure pointer |
+| Semantic Governance Heat Map | ✅ authority split synced S3-R32 | `semantic-governance-heat-map-v0`; `r31-governance-map-sync-v0`; `docs/dev/semantic-governance-heat-map.md`; `r32-governance-authority-sync-v0` | Maintain when new governance issues open/close |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
@@ -1006,8 +1012,9 @@ DOC-DEBT-43  S3-R31 audit design amendments:
              but delivered C1-A surfaces 1/2/3/8; the blocker table is correct.
 DOC-DEBT-44  S3-R31 governance authority sync:
              C2-A closes OQ-Filter-1: Covenant normative, META-EXPERT-013
-             operational. Add the Covenant pointer, META-EXPERT-013 note, and
-             Heat Map Domain 8 closure in the next doc-maintenance slice.
+             operational. Closed by S3-R32-C2-S: Covenant pointer,
+             META-EXPERT-013 authority note, and Heat Map Domain 8 closure
+             are applied. No PROP-032 implementation authorization.
 DOC-DEBT-45  S3-R31 compiler-pack shadow work:
              Profile-Baseline-Pack is post-POC direction only. Shadow profile,
              native-style ContractModifiersPack descriptor, kernel registry spike,

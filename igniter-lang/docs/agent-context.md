@@ -55,8 +55,9 @@ The Heat Map is current as of S3-R30 as a drift index, with two known stale-cred
 rows noted by R30-X1: startup_time validator and V-3 golden landed after the map
 was authored.
 
-As of S3-R31, the Heat Map stale-credit rows are synced, but the OQ-Filter-1 row
-still needs the C2-A closure pointer.
+As of S3-R32-C2-S, the Heat Map stale-credit rows and OQ-Filter-1 authority row
+are synced. The Covenant is normative for PROP acceptance; META-EXPERT-013 is
+the operational checklist and defers to the Covenant.
 
 Compiler architecture / compiler-pack / profile migration cards should also read:
 
@@ -125,8 +126,8 @@ R31 additions:
   compiler_profile_id: proof-local boundary plan PASS; manifest PROP required
 
 R32 likely route:
-  audit hash/posture design amendment (P-37/P-38), C2-A follow-up sync
-  (P-39/P-40), PROP-032 Phase 1 implementation, B-A/B-B/B-C/B-D audit surfaces,
+  audit hash/posture design amendment (P-37/P-38), PROP-032 Phase 1 implementation,
+  B-A/B-B/B-C/B-D audit surfaces,
   OQ-P28-1, and compiler_profile_id manifest PROP draft.
 ```
 
