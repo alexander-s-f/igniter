@@ -98,7 +98,10 @@ Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             proof-local registry storage semantics + tamper-evidence PASS;
                             R25 regression readiness 25/25 PASS;
                             production durable audit approved for design only;
-                            implementation/registry ownership/signing still closed
+                            R26 durable audit design ready for implementation review;
+                            registry source-of-truth decided for design;
+                            deterministic artifact policy implemented;
+                            implementation/signing execution still closed
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open
@@ -253,6 +256,11 @@ Round 25 landed:
   S3-R25-C2-A: durable audit scope decision     ✅ approved-for-design-only; implementation still closed
   S3-R25-C3-P: registry ownership options       ✅ gate document store + generated index recommended; no binding
   S3-R25-X1-S: audit scope/registry pressure    ✅ PROCEED; non-blockers only; P-13 closed, P-14 added
+Round 26 landed:
+  S3-R26-C1-P: production durable audit design  ✅ ready for implementation auth review; design only
+  S3-R26-C2-A: registry ownership decision      ✅ gate docs source of truth; generated index query artifact
+  S3-R26-C3-P: deterministic artifact policy    ✅ policy implemented; tamper JSONL stable; stage2 timestamp volatile
+  S3-R26-X1-S: durable audit design pressure    ✅ PROCEED; non-blockers only; implementation still closed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion;
                   other syntax candidates require proposal tracks
@@ -346,6 +354,10 @@ Source .ig
        production durable audit scope            ✅ S3-R25 C2 design-only approval; implementation still closed
        registry ownership options                ✅ S3-R25 C3 recommends gate docs + generated index; no decision binding
        audit scope/ownership pressure            ✅ S3-R25 X1 PROCEED; design may continue, blockers remain
+       production durable audit design           ✅ S3-R26 C1 ready for implementation authorization review
+       registry ownership decision               ✅ S3-R26 C2 gate docs source of truth + generated index
+       deterministic artifact policy             ✅ S3-R26 C3 implemented; no Gate 3 auth change
+       durable audit design pressure             ✅ S3-R26 X1 PROCEED; low items routed before auth
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
        descriptor metadata                      ✅ Gate 2 ratified
@@ -431,19 +443,32 @@ Production durable audit:
                      plan. Implementation, deployment, production signing execution/key management, Ledger/Phase 2,
                      BiHistory, stream/OLAP, production cache, writes/replay/compact/subscribe, runtime registry
                      implementation, and broader `gate3_authorized` remain closed.
+Production durable audit design:
+                     S3-R26-C1-P done ✅; design defines production audit record schema, HSM/KMS-backed signing
+                     recommendation, restart rebuild, `format_version: 1.0.0` enforcement, retention/audit traversal,
+                     off-process storage identity, audit reader role, compliance boundaries, refusal codes, 10
+                     implementation blockers, and proof plan. Status is ready for implementation authorization
+                     review, not implementation authorization.
 Production registry ownership:
-                     options analyzed ✅; recommended Phase 1 default is gate document store plus generated
-                     content-addressed registry index. Architect ownership/freshness/index-generation decision
-                     remains open before binding implementation assumptions.
+                     decided for design ✅; gate document store is Phase 1 source of truth, generated
+                     content-addressed registry index is the query artifact, and package/runtime consumers may only be
+                     read-only cache/validator. Registry implementation remains closed pending a later Architect
+                     decision and implementation blockers.
+Deterministic artifacts:
+                     policy implemented ✅; proof artifacts should prefer deterministic-by-construction constants or
+                     `_volatile_fields` annotations. Tamper-evidence JSONL now uses `PROOF_STORAGE_IDENTITY` and is
+                     byte-stable across consecutive runs; stage2 summary marks `timestamp` volatile. Lint enforcement
+                     and full artifact survey remain follow-ups.
 Reason codes:       LEGACY_ALIASES deprecation signal ✅; lib/ executor emits canonical
                      `runtime.temporal_scope_exclusion`; sealed old fixtures are not retroactively edited;
                      alias removal remains Phase 2 housekeeping.
 Pre-signing remaining:
                       none for restricted Phase 1 live-read addendum; closed by S3-R20-C1-A.
 Pre-production remaining:
-                      production durable audit implementation authorization; production registry ownership/freshness
-                      decision or explicit decoupling statement; production signing/key management execution; real
-                      commit SHA / no `workspace-current`; deterministic regression artifact policy; Phase 2 addendum gaps
+                      production durable audit implementation authorization; signer-validation proof; compliance_posture
+                      store-identity binding proof; `_volatile_fields` lint; full artifact stability survey;
+                      startup-time staleness bound; production signing/key management execution; real commit SHA / no
+                      `workspace-current`; post-R26 full regression rerun; Phase 2 addendum gaps
 Runtime observations: proof-backed ✅ proof-local file persistence + tamper-evidence shape; production durable audit still open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
 TEMPORAL lowering:   classifier/typechecker/SemanticIR/assembler manifest ✅; restricted Phase 1 eval now signed-scope only
@@ -533,6 +558,16 @@ S3-R25 result:        Regression readiness and production audit design scope lan
                       Architect ownership decision exists yet. X1 says PROCEED with non-blockers only, closes P-13,
                       adds P-14 deterministic artifact policy, and recommends R26 design-only audit work plus registry
                       ownership decision.
+S3-R26 result:        Production durable audit design, registry ownership decision, and deterministic artifact policy landed
+                      without implementation authorization. C1 designs the production durable audit surface and is ready
+                      for implementation authorization review, but it ships no executable implementation and keeps signing
+                      execution, deployment, Ledger/Phase 2, BiHistory, stream/OLAP, cache, writes/replay/compact/
+                      subscribe closed. C2-A decides the registry source-of-truth model for design: gate document store
+                      plus generated content-addressed registry index; package/runtime are read-only cache/validator only.
+                      C3 implements the deterministic artifact policy: tamper-evidence JSONL uses a proof constant and is
+                      byte-stable, while stage2 summary marks `timestamp` volatile. X1 says PROCEED with non-blockers
+                      only and routes implementation-authorization review, `_volatile_fields` lint, artifact survey,
+                      post-R26 full regression rerun, and registry implementation planning.
 ```
 
 ### Spec Freshness
@@ -544,7 +579,7 @@ S3-R25 result:        Regression readiness and production audit design scope lan
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
-| Ch7 Runtime | ✅ synced through R17 lib boundary; R25 design-only audit scope | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0` | R25 closes regression readiness 25/25 and approves production durable audit design only; implementation, production signing/key management execution, registry ownership decision, and Phase 2 remain closed |
+| Ch7 Runtime | ✅ synced through R17 lib boundary; R26 design/ownership/policy | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0`; `phase1-production-durable-audit-v0`; `phase1-production-registry-ownership-decision-v0`; `deterministic-regression-artifact-policy-v0` | R26 delivers durable audit design ready for implementation review, registry source-of-truth decision, and deterministic artifact policy; implementation, signing execution/key management, registry implementation, and Phase 2 remain closed |
 | Proposal index | ✅ synced S3-R9 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0` | PROP-028/022A close awaits parser syntax/runtime decision; PROP-029/030 are proposal-only |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
@@ -670,6 +705,19 @@ DOC-DEBT-28  S3-R25 R26 carry:
              decision, and deterministic regression artifact policy. Registry
              options recommend gate document store + generated content-addressed
              index, but no binding Architect ownership decision exists yet.
+DOC-DEBT-29  S3-R26 design/decision/policy landed:
+             durable audit design is ready for implementation authorization
+             review, not implementation. Registry ownership is decided for
+             design purposes: gate docs are source of truth, generated index is
+             query artifact, package/runtime are cache/validator only.
+             Deterministic artifact policy is implemented for the known
+             nondeterministic artifacts.
+DOC-DEBT-30  S3-R26 R27 carry:
+             before implementation authorization, route compliance_posture
+             store-binding proof, signer-validation proof, startup-time
+             staleness bound, `_volatile_fields` lint, full artifact stability
+             survey, post-R26 full regression rerun, and registry implementation
+             planning under the registry authorization gate.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes

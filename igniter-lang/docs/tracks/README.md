@@ -28,6 +28,16 @@ New agents should start from `docs/README.md`, `docs/operating-model.md`,
 
 ---
 
+## Stage 3 Round 26 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `phase1-production-durable-audit-v0.md` | done | Production durable audit design; ready for implementation authorization review, not implementation authorization; defines schema/signing/rebuild/version/traversal/storage/reader/compliance/error/blocker/proof plan |
+| `../gates/phase1-production-registry-ownership-decision-v0.md` | approved-design-source-of-truth | Gate document store is source of truth; generated content-addressed registry index is query artifact; package/runtime are read-only cache/validator only |
+| `deterministic-regression-artifact-policy-v0.md` | done | Two-tier artifact policy implemented; tamper-evidence JSONL byte-stable; stage2 summary marks `timestamp` volatile |
+| `../discussions/phase1-production-durable-audit-design-pressure-v0.md` | complete — PROCEED (non-blockers only) | X1 confirms design-only scope, signing recommendation not execution auth, audit traversal not replay, registry self-auth prohibited, deterministic policy scoped |
+| `stage3-round26-status-curation-v0.md` | done | R26 status/index sync — this track |
+
 ## Stage 3 Round 25 Evidence
 
 | Track | Status | Notes |
@@ -460,9 +470,14 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| `phase1-production-durable-audit-v0` | Design only under S3-R25-C2-A: signing model recommendation, restart rebuild, format enforcement, retention/audit traversal, storage identity, audit reader, compliance language, error codes, blockers, proof plan | Research Agent / Bridge Agent | recommended for R26; no implementation authorization |
-| Architect registry ownership decision | Answer C3-P Q1-Q6: source of truth, freshness SLA, index generation owner, immutable anchor, external service receipt exposure, package authority prohibition | Architect Supervisor / Meta Expert / Bridge Agent | recommended for R26 |
-| deterministic artifact policy for regression harness | Decide how to handle nondeterministic proof outputs such as stage2 close JSON and tamper-evidence JSONL | Research Agent | low-priority R26 |
+| implementation authorization review for `phase1-production-durable-audit-v0` | Architect review of C1-P design; add compliance_posture store-binding and signer-validation proof requirements before authorization | Architect Supervisor / Meta Expert / External Pressure Reviewer | recommended for R27 |
+| `_volatile_fields` lint script | Validate committed JSON artifacts never mark status/checks/verdict/boolean checks as volatile | Implementation Agent / Research Agent | recommended for R27 |
+| full artifact stability survey | Run two-consecutive-run diff method across committed artifacts not verified in C3-P | Research Agent | recommended for R27 |
+| post-R26 full regression matrix rerun | Re-run current matrix after R26 design/policy changes; include new proof steps if added | Research Agent | recommended for R27 |
+| registry implementation planning | Draft generated index schema and proof plan under registry implementation authorization gate | Bridge Agent / Architect Supervisor | recommended for R27 |
+| `phase1-production-durable-audit-v0` | Design only under S3-R25-C2-A: signing model recommendation, restart rebuild, format enforcement, retention/audit traversal, storage identity, audit reader, compliance language, error codes, blockers, proof plan | Research Agent / Bridge Agent | done in S3-R26-C1-P; ready for implementation auth review |
+| Architect registry ownership decision | Answer C3-P Q1-Q6: source of truth, freshness SLA, index generation owner, immutable anchor, external service receipt exposure, package authority prohibition | Architect Supervisor / Meta Expert / Bridge Agent | done in S3-R26-C2-A for design; implementation still closed |
+| deterministic artifact policy for regression harness | Decide how to handle nondeterministic proof outputs such as stage2 close JSON and tamper-evidence JSONL | Research Agent | done in S3-R26-C3-P |
 | production durable audit implementation authorization | Later Architect decision after design pressure review, registry ownership/decoupling, signing boundary, rebuild/version proof plan, and non-Ledger statement | Architect Supervisor | closed until later decision |
 | `phase1-production-durable-audit-v0` scope decision | Route production durable audit only with Architect scope: HSM/KMS signing, restart rebuild, version enforcement, retention/replay, off-process persistence, compliance language | Architect Supervisor | approved-for-design-only in S3-R25-C2-A |
 | post-R24 regression rerun expanding to 25 commands | Add R24 C2/C3 fixtures to the canonical matrix after same-round sequencing left C1 at 23 commands | Research Agent | done in S3-R25-C1-P |
