@@ -28,6 +28,7 @@ reports when origin or archive evidence matters.
 | [History-S14 External Pressure Fixture Backlog](./history-s14-external-pressure-fixture-backlog.md) | Converts S13 external pressure into a non-authorizing backlog of proposal prerequisites, synthetic fixtures, grammar research, and boundary-only candidates. |
 | [History-S15 Syntax Pressure Backlog Map](./history-s15-syntax-pressure-backlog-map.md) | Separates current proposal-only syntax, private research pressure, and do-not-promote syntax zones across S10, S13, S14, and the external workbench. |
 | [History-S16 Playgrounds-Rotation-1 Approval Packet](./history-s16-playgrounds-rotation-1-approval-packet.md) | Drafts a conservative cleanup approval packet for `playgrounds/docs`: metadata cleanup, tiny private indexes, no Markdown deletion, no nested `.git` changes. |
+| [History-S17 Forms / Effects / Contracts Research Snapshot](./history-s17-forms-research-snapshot.md) | Compresses the private Agent-C forms/effects/contracts/profile/loop research line into values, live research, do-not-promote zones, and next-stage slices. |
 
 ## Read Rule
 
