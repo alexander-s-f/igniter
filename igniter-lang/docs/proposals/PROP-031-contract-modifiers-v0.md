@@ -84,12 +84,15 @@ without modification.
 | Modifier | Effect character | Classifier | Compile-time constraint |
 |----------|-----------------|------------|------------------------|
 | `pure` (default) | No IO, deterministic | CORE | Body must not contain `escape` declarations |
-| `observed` | Read-only external | ESCAPE | Body may contain `escape` for reads |
+| `observed` | Read-only external | ESCAPE or TEMPORAL† | Body may contain `escape` for reads |
 | `effect` | Reversible external mutation | ESCAPE | (Effect Surface in PROP-035) |
 | `privileged` | Requires authority | ESCAPE | (Authority in PROP-035) |
 | `irreversible` | Permanent consequence | ESCAPE | (Compensation in PROP-035) |
 
-`observed`, `effect`, `privileged`, and `irreversible` are all ESCAPE at this stage.
+†`observed` contracts whose body contains temporal declarations (`History[T]`, `BiHistory[T]`)
+receive `fragment_class: "temporal"` rather than `"escape"`. See §4.1 and §14.4.
+
+`effect`, `privileged`, and `irreversible` are ESCAPE at this stage.
 The sub-classification within ESCAPE is defined when Effect Surface (PROP-035) lands.
 
 ---
@@ -191,15 +194,17 @@ The Classifier receives the modifier from the parser AST. Mapping:
 
 ```
 pure         → propagate existing CORE/ESCAPE logic (no change)
-observed     → ESCAPE (regardless of body content)
-effect       → ESCAPE (regardless of body content)
-privileged   → ESCAPE (regardless of body content)
-irreversible → ESCAPE (regardless of body content)
+observed     → TEMPORAL if body contains temporal declarations; otherwise ESCAPE
+effect       → ESCAPE
+privileged   → ESCAPE
+irreversible → ESCAPE
 ```
 
-For `pure` contracts, the existing CORE/ESCAPE propagation logic applies as before.
-The modifier does not override a body-level ESCAPE signal — it only enforces that
-pure contracts do not carry ESCAPE content (see § 5 OOF rules).
+For `pure` contracts, the existing CORE/ESCAPE propagation logic applies.
+For non-pure modifiers, the modifier widens fragment class to ESCAPE — but only
+when no temporal declarations are present in the body. Temporal declarations take
+precedence: a contract classified as TEMPORAL retains that class regardless of
+modifier. See §14.4 for the rationale and §14.5 for OOF-M1 pipeline ownership.
 
 ### § 4.2 Fragment class in classified program
 
@@ -217,12 +222,13 @@ The classified program emits `modifier` alongside `fragment_class` per contract:
 
 ---
 
-## § 5. TypeChecker Changes
+## § 5. Classifier and TypeChecker Changes
 
 ### § 5.1 OOF-M1: pure contract with escape body
 
-A `pure contract` (explicit or implicit) whose body contains an `escape` declaration
-is an error. Pure contracts make a determinism promise that escape violates.
+A `pure contract` (explicit or implicit) whose body contains an `escape`-class
+declaration is an error. Pure contracts make a determinism promise that escape
+violates.
 
 ```
 OOF-M1  pure contract body contains escape declaration
@@ -231,7 +237,13 @@ OOF-M1  pure contract body contains escape declaration
                     use 'observed' for read-only external access"
 ```
 
-This is the only TypeChecker addition in PROP-031. Effect Surface constraints
+**Stage ownership:** OOF-M1 is **detected by the Classifier**, not the TypeChecker.
+The Classifier appends the OOF-M1 entry to `oof_log` and sets `fragment_class: "oof"`.
+The TypeChecker propagates this to `type_errors` and sets `status: "blocked"`.
+The SemanticIR Emitter returns `nil` for any contract with non-empty `type_errors`.
+See §14.5 for the complete two-stage pipeline description.
+
+This is the only OOF code introduced in PROP-031. Effect Surface constraints
 (OOF-M2, OOF-M3) are deferred to PROP-035.
 
 ---
@@ -311,7 +323,7 @@ module Proof.ContractModifiers.PureImplicit
 contract ScoreRisk {
   input contradiction_count: Integer
   input corroboration_count: Integer
-  compute raw = contradiction_count - corroboration_count
+  compute raw = contradiction_count + corroboration_count
   output raw: Integer
 }
 ```
@@ -327,7 +339,7 @@ module Proof.ContractModifiers.PureExplicit
 pure contract ScoreRisk {
   input contradiction_count: Integer
   input corroboration_count: Integer
-  compute raw = contradiction_count - corroboration_count
+  compute raw = contradiction_count + corroboration_count
   output raw: Integer
 }
 ```
@@ -361,7 +373,7 @@ module Proof.ContractModifiers.Variants
 
 effect contract NotifyUser {
   input user_id: String
-  input message: String
+  input body: String
   escape notification_send
   output sent: Bool
 }
@@ -483,6 +495,12 @@ temporal read (`history_at`)? Current answer: No — TEMPORAL classification is
 determined by body content (PROP-028), not by modifier. The modifier is orthogonal.
 PROP-028 + PROP-031 compose independently.
 
+**Implementation result (R28):** Confirmed. An `observed` contract with temporal
+reads (`History[T]`, `BiHistory[T]`) in its body receives `fragment_class: "temporal"`,
+not `"escape"`. The Classifier assigns temporal precedence over the modifier-based
+ESCAPE signal. See §14.4 for the full precedence rule and §4.1 for the corrected
+mapping table.
+
 **Q2:** Should modifiers be allowed on functions (`def`)? Current answer: No — functions
 are pure by definition. Modifier syntax is contract-only in this PROP.
 
@@ -541,13 +559,135 @@ body-level only.
 Parser change is minimal: one optional token before `expect(:contract)` in
 `parse_contract_decl`. The token is stored in the AST node as `modifier` (string).
 
-Classifier change: read `modifier` from AST; if non-nil and not `"pure"`, classify as
-ESCAPE before body analysis.
+Classifier change (two responsibilities):
+1. Read `modifier` from AST; widen fragment class to ESCAPE when `modifier != "pure"`
+   and no temporal declarations are present in the body (temporal takes precedence).
+2. If `modifier == "pure"` and any body declaration is ESCAPE-class, append OOF-M1
+   to `oof_log` and set `fragment_class: "oof"`. *(OOF-M1 is a Classifier detection,
+   not a TypeChecker detection — see §14.5.)*
 
-TypeChecker change: after body analysis, if `modifier == "pure"` and any node is ESCAPE,
-emit OOF-M1.
+TypeChecker change: propagate `oof_log` entries from the classified contract to
+`type_errors`; set `status: "blocked"` when `type_errors` is non-empty.
 
-SemanticIR change: include `modifier` in the `emit_contract_ir` output.
+SemanticIR change: include `modifier` in the `emit_contract_ir` output; return `nil`
+(no `contract_ir` emitted) when `type_errors` is non-empty.
 
 Total estimated scope: ~50 lines across parser.rb, classifier.rb, typechecker.rb,
 semanticir_emitter.rb. Low risk.
+
+---
+
+## § 14. Compatibility Addendum (R28)
+
+*Added: 2026-05-10. Card: S3-R29-C3-P. Supersedes no prior section — clarifies
+implementation behavior discovered during Stage 3 proof (R28).*
+
+### § 14.1 Stage 1 / Stage 2 Backward Compatibility
+
+Stage 1 (Parser) and Stage 2 (Classifier) regression suites passed without
+modification after PROP-031 landed. All five Stage 1 close-candidate fixtures and
+seven Stage 2 close-candidate fixtures produced identical output. The parser
+inserts `modifier: "pure"` for all existing contracts that carry no modifier keyword;
+no fixture source changes were required at Stage 1 or Stage 2.
+
+Acceptance criterion 6 (§9) is confirmed: all existing Stage 1–2 regression
+fixtures PASS without modification.
+
+### § 14.2 Stage 3 Migration — Implicit-Pure Contracts with Escape Bodies
+
+Three Stage 3 integration fixtures required migration after PROP-031. Each contract
+had no explicit modifier (implicitly `pure`) but contained `escape`-class body
+declarations. Under PROP-031 these are OOF-M1 violations and will not emit
+SemanticIR. The fix is to add `observed` to each contract header.
+
+| Contract | Fixture file | Body trigger |
+|----------|-------------|-------------|
+| `IntegerWindowSum` | `runtime_smoke_post_switch_full_coverage/inputs/stream_fold.ig` | `stream` node → ESCAPE via stream ingress |
+| `TechnicianJobCountAt` | `history_type_proof/history_integer_point_access.ig` | `escape history_read` |
+| `SparkCRMBiHistorySourceParity` | `typed_emission_main_path_parity/sparkcrm_bihistory_source.ig` | `escape bihistory_read` |
+
+**Note — `runtime_smoke_post_switch_full_coverage`:** The file
+`inputs/stream_fold.ig` is a transient artifact regenerated at runtime from the
+`STREAM_SOURCE` constant in `runtime_smoke_post_switch_full_coverage.rb`. Editing
+the `.ig` file directly has no effect across proof runs. The canonical source of
+truth is the constant in the Ruby runner.
+
+### § 14.3 Stream Inputs Trigger OOF-M1
+
+The `stream` keyword in a contract body produces a `stream_ingress` declaration.
+The Classifier assigns `fragment_class: "escape"` to stream ingress nodes, because
+stream sources are external I/O. A contract with a `stream` input and no explicit
+modifier is implicitly `pure` but carries an ESCAPE-class body node — OOF-M1 fires.
+
+This is correct behavior, not a bug. Stream contracts read from external ingress
+and belong to the `observed` modifier class. Migration pattern:
+
+```igniter
+-- OOF-M1 (pure implicit, stream body):
+contract IntegerWindowSum {
+  stream readings: Integer
+  ...
+}
+
+-- Correct:
+observed contract IntegerWindowSum {
+  stream readings: Integer
+  ...
+}
+```
+
+This behavior is not visible from modifier semantics alone — the trigger is the
+body-level classification of `stream_ingress`, not an explicit `escape` keyword.
+Authors adding `stream` to a new contract must include an explicit modifier.
+
+### § 14.4 Temporal Declarations Take Precedence Over Modifier-Based ESCAPE
+
+The Classifier rule for `observed` (and all non-pure modifiers) is:
+
+> If body contains temporal declarations (`History[T]`, `BiHistory[T]`), assign
+> `fragment_class: "temporal"`. Otherwise, widen to `"escape"`.
+
+This refines the §4.1 mapping. The parenthetical "(regardless of body content)"
+appearing in earlier versions of §4.1 was incorrect and has been removed.
+
+**Concrete cases:**
+
+| Modifier | Body content | fragment_class |
+|----------|-------------|----------------|
+| `observed` | temporal reads only | `"temporal"` |
+| `observed` | escape declarations only | `"escape"` |
+| `observed` | temporal + escape | `"temporal"` |
+| `effect` / `privileged` / `irreversible` | any | `"escape"` |
+| `pure` | escape declarations | `"oof"` (OOF-M1) |
+
+**Rationale (V-3):** the temporal fragment class is a refined subtype of ESCAPE. The
+runtime inspection infrastructure (`TemporalInspectionRuntime`) routes contracts to
+temporal handling based on `fragment_class: "temporal"`. Overriding this with
+`"escape"` destroys the semantic distinction and breaks the inspection path silently.
+The Classifier preserves it by giving temporal declarations priority.
+
+This behavior composes correctly with PROP-028 (temporal fragment classification).
+PROP-028 and PROP-031 are orthogonal; the Classifier resolves the precedence at
+classification time.
+
+### § 14.5 OOF-M1 Pipeline Ownership
+
+The §5.1 section header and §13 implementation note previously attributed OOF-M1
+detection to the TypeChecker. The correct attribution is the **Classifier**. Both
+sections have been corrected in this document.
+
+Full pipeline for OOF-M1:
+
+| Stage | Action |
+|-------|--------|
+| **Classifier** | Detects `modifier == "pure"` + ESCAPE-class body declaration; appends OOF-M1 entry to `oof_log`; sets `fragment_class: "oof"` on the `classified_contract` |
+| **TypeChecker** | Receives `classified_contract` with non-empty `oof_log`; propagates entries to `type_errors`; sets `status: "blocked"` on `typed_contract` |
+| **SemanticIR Emitter** | Receives `typed_contract` with non-empty `type_errors`; returns `nil` — no `contract_ir` is emitted for the invalid contract |
+
+The two-stage split is intentional: Classifier handles structural errors (knowable
+from the modifier field and body node classification, before type resolution);
+TypeChecker handles semantic errors (requiring resolved types). OOF-M1 is structural.
+
+**Golden artifact evidence:** the `oof_log` field appears in Stage 2 (`classified_program`)
+and the `type_errors` field in Stage 3 (`typed_program`). Verified by
+`contract_modifiers_proof --check-golden` (22/22 PASS, R28).
