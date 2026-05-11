@@ -315,6 +315,32 @@
       "stdout_first_line": "PASS profile_source_syntax_grammar_boundary",
       "stderr": "",
       "check_count": 11
+    },
+    {
+      "id": "compiler_profile_validator_implementation_plan",
+      "phase": "validator_implementation_plan",
+      "claim": "Compiler profile descriptor validator has a no-code implementation plan based on schema, taxonomy, and grammar boundary.",
+      "command": "igniter-lang/experiments/compiler_profile_validator_implementation_plan/compiler_profile_validator_implementation_plan.rb",
+      "summary_path": "igniter-lang/experiments/compiler_profile_validator_implementation_plan/out/compiler_profile_validator_implementation_plan_summary.json",
+      "track_doc": "igniter-lang/docs/tracks/compiler-profile-validator-implementation-plan-v0.md",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "stdout_first_line": "PASS compiler_profile_validator_implementation_plan",
+      "stderr": "",
+      "check_count": 11
+    },
+    {
+      "id": "compiler_profile_manifest_prop_architect_routing",
+      "phase": "manifest_prop_architect_routing",
+      "claim": "compiler_profile_id manifest PROP packet is ready for Architect routing without assigning a number or mutating proposal queue.",
+      "command": "igniter-lang/experiments/compiler_profile_manifest_prop_architect_routing/compiler_profile_manifest_prop_architect_routing.rb",
+      "summary_path": "igniter-lang/experiments/compiler_profile_manifest_prop_architect_routing/out/compiler_profile_manifest_prop_architect_routing_summary.json",
+      "track_doc": "igniter-lang/docs/tracks/compiler-profile-manifest-prop-architect-routing-v0.md",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "stdout_first_line": "PASS compiler_profile_manifest_prop_architect_routing",
+      "stderr": "",
+      "check_count": 12
     }
   ],
   "checks": {
@@ -327,7 +353,9 @@
     "chain.includes_prop_numbering_decision_request": true,
     "chain.includes_descriptor_error_taxonomy": true,
     "chain.includes_profile_syntax_compiler_review": true,
-    "chain.ends_with_profile_syntax_grammar_boundary": true,
+    "chain.includes_profile_syntax_grammar_boundary": true,
+    "chain.includes_validator_implementation_plan": true,
+    "chain.ends_with_manifest_prop_architect_routing": true,
     "chain.all_commands_exited_zero": true,
     "chain.all_summaries_pass": true,
     "chain.has_expected_phase_count": true,
@@ -342,6 +370,8 @@
     "chain.has_descriptor_error_taxonomy_phase": true,
     "chain.has_profile_syntax_compiler_review_phase": true,
     "chain.has_profile_syntax_grammar_boundary_phase": true,
+    "chain.has_validator_implementation_plan_phase": true,
+    "chain.has_manifest_prop_architect_routing_phase": true,
     "scope.no_runtime_authority_phase": true
   },
   "what_this_index_authorizes": [
@@ -356,8 +386,8 @@
     "No runtime execution authority."
   ],
   "recommended_next": [
-    "compiler-profile-validator-implementation-plan-v0",
-    "compiler-profile-manifest-prop-architect-routing-v0",
-    "profile-source-syntax-grammar-boundary-review-v0"
+    "compiler-profile-manifest-prop-architect-decision-v0",
+    "profile-source-syntax-grammar-boundary-review-v0",
+    "compiler-profile-validator-proof-local-spike-v0"
   ]
 }

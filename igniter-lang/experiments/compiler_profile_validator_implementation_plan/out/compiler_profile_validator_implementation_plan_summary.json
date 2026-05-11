@@ -1,0 +1,28 @@
+{
+  "kind": "compiler_profile_validator_implementation_plan_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-validator-implementation-plan-v0",
+  "status": "PASS",
+  "plan_path": "igniter-lang/experiments/compiler_profile_validator_implementation_plan/out/compiler_profile_validator_implementation_plan.json",
+  "checks": {
+    "input.schema_passed": true,
+    "input.taxonomy_passed": true,
+    "input.grammar_boundary_passed": true,
+    "plan.no_code_status": true,
+    "module.path_is_candidate_not_created": true,
+    "pipeline.order_matches_taxonomy": true,
+    "diagnostics.machine_code_and_first_failure": true,
+    "api.pure_validate_no_mutation": true,
+    "blocked.manifest_and_parser_remain_blocked": true,
+    "grammar_boundary.syntax_not_accepted": true,
+    "scope.no_lib_or_runtime_authority": true
+  },
+  "non_goals": [
+    "No validator implementation.",
+    "No lib/ file creation.",
+    "No parser syntax.",
+    "No compiler dispatch change.",
+    "No .igapp/.ilk format change.",
+    "No runtime execution authority."
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "kind": "compiler_profile_manifest_prop_architect_routing_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-manifest-prop-architect-routing-v0",
+  "status": "PASS",
+  "routing_packet_path": "igniter-lang/experiments/compiler_profile_manifest_prop_architect_routing/out/compiler_profile_manifest_prop_architect_routing_packet.json",
+  "checks": {
+    "input.numbering_decision_passed": true,
+    "routing.ready_for_architect": true,
+    "routing.primary_owner_architect": true,
+    "routing.research_has_no_decision_authority": true,
+    "queue.prop033_occupied_and_candidate_prop036": true,
+    "proposal.payload_has_compiler_profile_id_field": true,
+    "proposal.recommends_unified_profile_id": true,
+    "firewall.present_verified_not_runtime_ready": true,
+    "blocked.implementation_cards_remain_blocked": true,
+    "scope.no_prop_number_assigned": true,
+    "scope.no_proposal_queue_mutation": true,
+    "scope.no_runtime_authority": true
+  },
+  "non_goals": [
+    "No official PROP number assignment.",
+    "No proposal file creation.",
+    "No proposal index mutation.",
+    "No assembler or loader implementation.",
+    "No artifact hash/golden migration.",
+    "No .igapp/.ilk format change.",
+    "No runtime execution authority."
+  ]
+}

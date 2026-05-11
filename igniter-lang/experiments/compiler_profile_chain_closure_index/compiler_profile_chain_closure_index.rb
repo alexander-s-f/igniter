@@ -208,6 +208,22 @@ module CompilerProfileChainClosureIndex
       "command" => "igniter-lang/experiments/profile_source_syntax_grammar_boundary/profile_source_syntax_grammar_boundary.rb",
       "summary_path" => "igniter-lang/experiments/profile_source_syntax_grammar_boundary/out/profile_source_syntax_grammar_boundary_summary.json",
       "track_doc" => "igniter-lang/docs/tracks/profile-source-syntax-grammar-boundary-v0.md"
+    },
+    {
+      "id" => "compiler_profile_validator_implementation_plan",
+      "phase" => "validator_implementation_plan",
+      "claim" => "Compiler profile descriptor validator has a no-code implementation plan based on schema, taxonomy, and grammar boundary.",
+      "command" => "igniter-lang/experiments/compiler_profile_validator_implementation_plan/compiler_profile_validator_implementation_plan.rb",
+      "summary_path" => "igniter-lang/experiments/compiler_profile_validator_implementation_plan/out/compiler_profile_validator_implementation_plan_summary.json",
+      "track_doc" => "igniter-lang/docs/tracks/compiler-profile-validator-implementation-plan-v0.md"
+    },
+    {
+      "id" => "compiler_profile_manifest_prop_architect_routing",
+      "phase" => "manifest_prop_architect_routing",
+      "claim" => "compiler_profile_id manifest PROP packet is ready for Architect routing without assigning a number or mutating proposal queue.",
+      "command" => "igniter-lang/experiments/compiler_profile_manifest_prop_architect_routing/compiler_profile_manifest_prop_architect_routing.rb",
+      "summary_path" => "igniter-lang/experiments/compiler_profile_manifest_prop_architect_routing/out/compiler_profile_manifest_prop_architect_routing_summary.json",
+      "track_doc" => "igniter-lang/docs/tracks/compiler-profile-manifest-prop-architect-routing-v0.md"
     }
   ].freeze
 
@@ -236,9 +252,9 @@ module CompilerProfileChainClosureIndex
         "No runtime execution authority."
       ],
       "recommended_next" => [
-        "compiler-profile-validator-implementation-plan-v0",
-        "compiler-profile-manifest-prop-architect-routing-v0",
-        "profile-source-syntax-grammar-boundary-review-v0"
+        "compiler-profile-manifest-prop-architect-decision-v0",
+        "profile-source-syntax-grammar-boundary-review-v0",
+        "compiler-profile-validator-proof-local-spike-v0"
       ]
     }
     write_json(SUMMARY_PATH, summary)
@@ -270,10 +286,12 @@ module CompilerProfileChainClosureIndex
       "chain.includes_prop_numbering_decision_request" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_prop_numbering_decision" },
       "chain.includes_descriptor_error_taxonomy" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_descriptor_error_taxonomy_sharpening" },
       "chain.includes_profile_syntax_compiler_review" => entries.any? { |entry| entry.fetch("id") == "profile_source_syntax_compiler_review" },
-      "chain.ends_with_profile_syntax_grammar_boundary" => entries.last.fetch("id") == "profile_source_syntax_grammar_boundary",
+      "chain.includes_profile_syntax_grammar_boundary" => entries.any? { |entry| entry.fetch("id") == "profile_source_syntax_grammar_boundary" },
+      "chain.includes_validator_implementation_plan" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_validator_implementation_plan" },
+      "chain.ends_with_manifest_prop_architect_routing" => entries.last.fetch("id") == "compiler_profile_manifest_prop_architect_routing",
       "chain.all_commands_exited_zero" => entries.all? { |entry| entry.fetch("exit_status").zero? },
       "chain.all_summaries_pass" => entries.all? { |entry| entry.fetch("proof_status") == "PASS" },
-      "chain.has_expected_phase_count" => phases.length == 24,
+      "chain.has_expected_phase_count" => phases.length == 26,
       "chain.has_receipt_and_storage_phases" => phases.include?("build_receipt") && phases.include?("receipt_storage"),
       "chain.has_self_assembly_and_bootstrap_phases" => phases.include?("self_assembly") && phases.include?("bootstrap_seed"),
       "chain.has_descriptor_and_lowering_phases" => phases.include?("descriptor_schema") && phases.include?("future_syntax_target"),
@@ -285,6 +303,8 @@ module CompilerProfileChainClosureIndex
       "chain.has_descriptor_error_taxonomy_phase" => phases.include?("descriptor_error_taxonomy"),
       "chain.has_profile_syntax_compiler_review_phase" => phases.include?("profile_syntax_compiler_review"),
       "chain.has_profile_syntax_grammar_boundary_phase" => phases.include?("profile_syntax_grammar_boundary"),
+      "chain.has_validator_implementation_plan_phase" => phases.include?("validator_implementation_plan"),
+      "chain.has_manifest_prop_architect_routing_phase" => phases.include?("manifest_prop_architect_routing"),
       "scope.no_runtime_authority_phase" => entries.none? { |entry| entry.fetch("phase").include?("runtime_authority") }
     }
   end

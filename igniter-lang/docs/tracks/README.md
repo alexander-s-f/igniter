@@ -35,7 +35,7 @@ architecture. They are not production migration authorization.
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `compiler-profile-chain-closure-index-v0.md` | done | Closure index PASS 24/24 from shadow profile through profile syntax Compiler/Grammar decision boundary; guard only, no dispatch/.igapp/.ilk/runtime authority change |
+| `compiler-profile-chain-closure-index-v0.md` | done | Closure index PASS 26/26 from shadow profile through manifest PROP Architect routing readiness; guard only, no dispatch/.igapp/.ilk/runtime authority change |
 | `compiler-profile-manifest-prop-draft-v0.md` | done | PROP-ready draft candidate for top-level `compiler_profile_id`; legacy_optional/profile_required policies; hash/signature ordering; no official PROP number claimed |
 | `profile-source-syntax-pressure-v0.md` | done | Compiler/Grammar-facing syntax pressure; descriptor-data style preferred before parser work; block-style syntax pressure-only |
 | `compiler-profile-manifest-prop-review-ready-v0.md` | done | Architect-review-ready packet; locks authority firewall, receipt/profile lane split, required exactly-one slots, slot-order dispatch invariant, and bootstrap traceability |
@@ -44,6 +44,8 @@ architecture. They are not production migration authorization.
 | `compiler-profile-descriptor-error-taxonomy-sharpening-v0.md` | done | Descriptor diagnostic precedence: shape -> slot assignment -> pack semantics -> registry ordering; helper-only does not override slot errors |
 | `profile-source-syntax-compiler-review-v0.md` | done | Research baseline for Compiler/Grammar review; descriptor-first accepted for research, block syntax pressure-only, parser work unauthorized |
 | `profile-source-syntax-grammar-boundary-v0.md` | done | Compiler/Grammar-owned decision boundary; Research recommends accept_baseline_only but accepts no grammar and opens no parser work |
+| `compiler-profile-validator-implementation-plan-v0.md` | done | No-code validator plan: descriptor shape -> slots -> pack semantics -> registry ordering -> canonicalize/fingerprint; no lib file created |
+| `compiler-profile-manifest-prop-architect-routing-v0.md` | done | Architect routing packet for `compiler_profile_id` manifest PROP; no PROP number assigned, no proposal queue mutation, implementation cards stay blocked |
 
 ---
 

@@ -1,0 +1,142 @@
+{
+  "kind": "compiler_profile_validator_implementation_plan",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-validator-implementation-plan-v0",
+  "status": "implementation_plan_ready_no_code",
+  "inputs": {
+    "schema_ref": "igniter-lang/experiments/compiler_profile_descriptor_schema/out/compiler_profile_descriptor_schema.json",
+    "taxonomy_ref": "igniter-lang/experiments/compiler_profile_descriptor_error_taxonomy_sharpening/out/compiler_profile_descriptor_error_taxonomy.json",
+    "grammar_boundary_ref": "igniter-lang/experiments/profile_source_syntax_grammar_boundary/out/profile_source_syntax_grammar_boundary_packet.json"
+  },
+  "recommended_future_module": {
+    "path_candidate": "igniter-lang/lib/igniter_lang/compiler_profile_validator.rb",
+    "namespace_candidate": "IgniterLang::CompilerProfileValidator",
+    "owner_role": "[Igniter-Lang Implementation Agent]",
+    "status": "plan_only_not_created"
+  },
+  "validator_pipeline": [
+    {
+      "step": "descriptor_shape",
+      "input": "raw descriptor hash",
+      "output": "shape_validated_descriptor_or_diagnostic",
+      "codes": [
+        "schema.missing_field",
+        "schema.wrong_kind",
+        "schema.full_language_source_out_of_scope"
+      ],
+      "implementation_notes": [
+        "Check required fields and descriptor kind before touching slots.",
+        "Reject full language parser status while profile syntax remains unauthorized."
+      ]
+    },
+    {
+      "step": "slot_assignment",
+      "input": "shape_validated_descriptor",
+      "output": "slot_map_or_diagnostic",
+      "codes": [
+        "schema.unknown_slot",
+        "schema.duplicate_slot",
+        "schema.missing_required_slot"
+      ],
+      "implementation_notes": [
+        "Known slot, duplicate slot, and required slot diagnostics win before helper-only checks.",
+        "Canonical order comes from CompilerProfileSpec.slot_order."
+      ]
+    },
+    {
+      "step": "pack_semantics",
+      "input": "slot_map",
+      "output": "semantic_pack_map_or_diagnostic",
+      "codes": [
+        "schema.missing_dependency_slot",
+        "schema.helper_only_pack_rejected",
+        "schema.rule_owner_mismatch"
+      ],
+      "implementation_notes": [
+        "Check dependencies before helper-only and rule-owner checks.",
+        "helper_only_pack_rejected requires a known non-conflicting slot."
+      ]
+    },
+    {
+      "step": "registry_ordering",
+      "input": "semantic_pack_map",
+      "output": "validated_registry_order_or_diagnostic",
+      "codes": [
+        "registry.duplicate_ordered_rule",
+        "registry.duplicate_strict_key",
+        "registry.missing_rule_reference",
+        "registry.rule_cycle"
+      ],
+      "implementation_notes": [
+        "Run missing-reference and cycle checks after pack ownership is valid.",
+        "Keep strict registry duplicate diagnostics distinct from ordered-rule duplicates."
+      ]
+    },
+    {
+      "step": "canonicalize_and_fingerprint",
+      "input": "fully validated descriptor",
+      "output": "canonical descriptor with digest",
+      "codes": [],
+      "implementation_notes": [
+        "Use schema canonicalization rules.",
+        "Do not include runtime authority or evaluation readiness."
+      ]
+    }
+  ],
+  "diagnostic_contract": {
+    "machine_code_required": true,
+    "human_message_required": true,
+    "details_required": true,
+    "first_failure_wins": true,
+    "shape": {
+      "status": "invalid",
+      "code": "schema.duplicate_slot",
+      "message": "human-readable text",
+      "details": {
+        "slot": "temporal"
+      }
+    }
+  },
+  "public_api_candidate": {
+    "validate": {
+      "signature": "validate(descriptor_hash) -> ValidationResult",
+      "pure": true,
+      "mutates_input": false
+    },
+    "canonicalize": {
+      "signature": "canonicalize(valid_descriptor_hash) -> canonical_descriptor_hash",
+      "requires_valid_descriptor": true
+    },
+    "fingerprint": {
+      "signature": "fingerprint(canonical_descriptor_hash) -> compiler_profile_descriptor/sha256:<digest>",
+      "requires_canonical_descriptor": true
+    }
+  },
+  "implementation_slice_order": [
+    "Add proof-local validator class in experiments mirroring this plan.",
+    "Move validator to lib only after Implementation Agent accepts scope.",
+    "Wire descriptor schema proof to use validator while preserving outputs.",
+    "Only later consider manifest/assembler integration after PROP approval."
+  ],
+  "blocked_surfaces": [
+    "profile source parser syntax",
+    "profile syntax golden fixtures",
+    "manifest compiler_profile_id implementation",
+    "CompilerKernel dispatch rewrite",
+    "runtime profile compatibility enforcement"
+  ],
+  "grammar_boundary_constraints": {
+    "syntax_accepted_by_this_plan": false,
+    "parser_implementation_authorized": false,
+    "future_syntax_must_lower_into": "compiler_profile_descriptor",
+    "surface_slot_order_authoritative": false
+  },
+  "non_authorizations": [
+    "No validator code is implemented by this plan.",
+    "No lib/ file is created by this plan.",
+    "No parser syntax is authorized.",
+    "No compiler dispatch is changed.",
+    "No .igapp/.ilk format is changed.",
+    "No runtime execution authority is introduced."
+  ]
+}

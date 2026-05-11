@@ -79,6 +79,7 @@ incoming document
 | File | Status | Owner | Destination / Next Action |
 |------|--------|-------|---------------------------|
 | [profile-baseline-pack-pattern-analysis.md](profile-baseline-pack-pattern-analysis.md) | `promoted-dev-doc` + `promoted-track` | Architect Supervisor | Direction crystallized in `docs/dev/compiler-profile-architecture-direction.md`; track record in `docs/tracks/compiler-profile-architecture-direction-v0.md`; next no-code research card: `compiler-pack-boundary-report-v0` |
+| [runtime-loop-semantics-exploration.md](runtime-loop-semantics-exploration.md) | `promoted-track` | [Igniter-Lang Research Agent] | Proof-backed track record in `docs/tracks/external-progression-runtime-model-v0.md`; proof in `experiments/external_progression_runtime_model/`; next action: Architect decision on formal progression semantics proposal |
 
 ---
 
@@ -92,4 +93,3 @@ At round close or stage close:
    archive/history and remove it from active inbox.
 4. If the source remains useful for an active card, keep it in inbox but mark
    the exact card/track that owns the next action.
-

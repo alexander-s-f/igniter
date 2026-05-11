@@ -1,0 +1,109 @@
+{
+  "kind": "compiler_profile_manifest_prop_architect_routing_packet",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-manifest-prop-architect-routing-v0",
+  "status": "ready_for_architect_routing",
+  "routing_target": {
+    "primary_owner": "[Architect Supervisor / Codex]",
+    "secondary_review_owner": "[Igniter-Lang Compiler/Grammar Expert]",
+    "requested_action": "assign_or_route_official_prop_number",
+    "research_agent_decision_authority": false
+  },
+  "source_packets": {
+    "numbering_decision_packet": "igniter-lang/experiments/compiler_profile_prop_numbering_decision/out/compiler_profile_prop_numbering_decision_packet.json",
+    "promotion_packet": "igniter-lang/experiments/compiler_profile_manifest_prop_promotion/out/compiler_profile_manifest_prop_promotion_packet.json"
+  },
+  "queue_state": {
+    "prop033_occupied_by": "`via profile binding`",
+    "highest_explicit_prop_id_seen": "PROP-035",
+    "next_free_id_if_queue_unchanged": "PROP-036",
+    "official_prop_number_assigned_by_this_packet": false
+  },
+  "recommended_route": {
+    "preferred": "assign_next_free_id_if_queue_unchanged",
+    "candidate_id": "PROP-036",
+    "do_not_reassign_without_architect": [
+      "PROP-033",
+      "PROP-034",
+      "PROP-035"
+    ],
+    "alternate_routes": [
+      "Requeue via profile binding and assign compiler_profile_id manifest semantics to PROP-033.",
+      "Keep this as a non-numbered draft until proposal queue is reconciled."
+    ]
+  },
+  "prop_payload_ready_for_review": {
+    "title": "compiler_profile_id manifest semantics",
+    "sections": [
+      "status",
+      "problem",
+      "field_shape",
+      "hash_and_signature_policy",
+      "loader_policy",
+      "compatibility_report_policy",
+      "compilation_receipt_relationship",
+      "slot_order_and_profile_identity",
+      "bootstrap_and_audit_traceability",
+      "migration_order",
+      "implementation_cards"
+    ],
+    "field": "compiler_profile_id",
+    "profile_id_source_recommendation": "unified_compiler_profile_id",
+    "initial_rollout": "legacy_optional",
+    "future_rollout": "profile_required_after_migration_evidence",
+    "hash_and_signature_ordering": "compiler_profile_id participates in artifact hash and must be added before signing"
+  },
+  "architect_decisions_requested": [
+    "Assign official PROP number or choose requeue path.",
+    "Confirm unified_compiler_profile_id as manifest authority source.",
+    "Approve legacy_optional -> profile_required migration policy.",
+    "Approve hash/signature ordering.",
+    "Choose expanded profile material storage surface.",
+    "Decide whether implementation cards may open after proposal approval."
+  ],
+  "must_preserve": {
+    "authority_invariants": {
+      "present_verified_implies_runtime_ready": false,
+      "receipt_runtime_execution_authority": false,
+      "profile_runtime_execution_authority": false,
+      "required_exactly_one_slots": [
+        "core",
+        "oof_registry",
+        "fragment_registry",
+        "escape_boundary"
+      ],
+      "future_dispatch_order_source": "CompilerProfileSpec.slot_order",
+      "surface_slot_order_authoritative": false,
+      "bootstrap_seed_explicit": true
+    },
+    "blocked_until_numbering_decision": [
+      "assembler-compiler-profile-id-field-v0",
+      "loader-compiler-profile-status-report-v0",
+      "artifact-hash-profile-id-golden-migration-v0",
+      "compilation-receipt-manifest-link-v0"
+    ],
+    "present_verified_implies_runtime_ready": false,
+    "proposal_queue_mutation_allowed_by_this_packet": false,
+    "official_prop_number_assigned_by_this_packet": false
+  },
+  "blocked_implementation_cards": [
+    "assembler-compiler-profile-id-field-v0",
+    "loader-compiler-profile-status-report-v0",
+    "artifact-hash-profile-id-golden-migration-v0",
+    "compilation-receipt-manifest-link-v0"
+  ],
+  "non_authorizations": [
+    "No runtime execution authority.",
+    "No parser syntax authorization.",
+    "No assembler or loader implementation.",
+    "No .igapp/.ilk format mutation before PROP approval.",
+    "No production dispatch rewrite.",
+    "No official PROP number is claimed by this promotion packet.",
+    "No proposal queue mutation is performed by this promotion packet.",
+    "This packet is a decision request, not the decision itself.",
+    "No official proposal queue state is changed.",
+    "This routing packet does not assign the official PROP number.",
+    "This routing packet does not create or edit proposal files.",
+    "This routing packet does not unblock implementation cards."
+  ]
+}

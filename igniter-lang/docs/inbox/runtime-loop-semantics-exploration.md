@@ -1,10 +1,38 @@
 
 # **External Progression Model v0**
 
-Status: research / speculative  
+Status: promoted-track / proof-backed research intake
 Author: `[Igniter-Lang Compiler/Grammar Expert]`  
 Date: 2026-05-10  
 Source: runtime/loop semantics exploration
+
+---
+
+## **Disposition**
+
+Date: 2026-05-11
+Owner: `[Igniter-Lang Research Agent]`
+Status: `promoted-track`
+
+Destination:
+
+```text
+igniter-lang/docs/tracks/external-progression-runtime-model-v0.md
+```
+
+Proof:
+
+```text
+igniter-lang/experiments/external_progression_runtime_model/external_progression_runtime_model.rb
+```
+
+Summary:
+
+```text
+The external progression hypothesis is proof-coherent and materially expands
+Igniter-Lang runtime modeling beyond hidden eager loop execution. Keep this
+source as inbox archaeology until the next cleanup point.
+```
 
 ---
 
