@@ -11,6 +11,7 @@ require "json"
 # Grammar (subset):
 #   SourceFile   := ModuleDecl? ImportDecl* TopDecl*
 #   TopDecl      := ContractDecl | TypeDecl | FunctionDecl | OLAPPointDecl
+#                 | AssumptionsDecl
 #                 | TraitDecl | ImplDecl | ContractShapeDecl
 #   ContractDecl := "contract" Name TypeParams? Implements? "{" BodyDecl* "}"
 #   BodyDecl     := EscapeDecl | InputDecl | ReadDecl | ComputeDecl
@@ -42,6 +43,7 @@ module IgniterLang
     module import contract contract_shape type def trait impl
     input output compute read snapshot window escape
     stream fold_stream
+    assumptions assumption uses
     olap_point
     invariant predicate severity label message overridable_with
     from lifecycle using implements
@@ -267,7 +269,7 @@ module IgniterLang
       program = { "kind" => "source_file", "module" => nil, "imports" => [],
                   "traits" => [], "impls" => [], "contract_shapes" => [],
                   "contracts" => [], "types" => [], "functions" => [],
-                  "pipelines" => [], "olap_points" => [],
+                  "pipelines" => [], "olap_points" => [], "assumptions" => [],
                   "parse_errors" => [] }
 
       # optional module declaration
@@ -294,6 +296,7 @@ module IgniterLang
         when "function"       then program["functions"]       << decl
         when "pipeline"       then program["pipelines"]       << decl
         when "olap_point"     then program["olap_points"]     << decl
+        when "assumptions"    then program["assumptions"].concat(decl.fetch("assumptions", []))
         end
       end
 
@@ -400,11 +403,109 @@ module IgniterLang
       when "def"            then advance; parse_function_decl
       when "pipeline"       then advance; parse_pipeline_decl
       when "olap_point"     then advance; parse_olap_point_decl
+      when "assumptions"    then advance; parse_assumptions_block
       else
         @errors << { "message" => "Unexpected token: #{tok.value}", "line" => tok.line }
         advance
         nil
       end
+    end
+
+    def parse_assumptions_block
+      expect_type!(:lbrace)
+      assumptions = []
+      until peek_type?(:rbrace) || peek_type?(:eof)
+        tok = peek
+        if tok.value == "assumption"
+          advance
+          assumption = parse_assumption_decl(tok)
+          assumptions << assumption if assumption
+        else
+          add_parse_error(
+            rule: "OOF-P0",
+            message: "Expected 'assumption' declaration inside assumptions block",
+            token: tok.value.to_s,
+            line: tok.line,
+            col: tok.col
+          )
+          advance
+        end
+      end
+      expect_type!(:rbrace)
+      { "kind" => "assumptions", "assumptions" => assumptions }
+    end
+
+    def parse_assumption_decl(assumption_tok)
+      unless peek_ident?
+        add_parse_error(
+          rule: "OOF-P28",
+          message: "assumption declaration requires a name",
+          token: peek&.value.to_s,
+          line: assumption_tok.line,
+          col: assumption_tok.col
+        )
+        skip_balanced_block if peek_type?(:lbrace)
+        return nil
+      end
+
+      name = name_token!(%i[ident])
+      expect_type!(:lbrace)
+      fields = {}
+      until peek_type?(:rbrace) || peek_type?(:eof)
+        field_tok = peek
+        field = name_token!(%i[ident keyword])
+        fields[field] = parse_assumption_field_value(field, field_tok)
+        advance if peek_type?(:comma)
+      end
+      expect_type!(:rbrace)
+      { "kind" => "assumption_decl", "name" => name, "fields" => fields }
+    end
+
+    def parse_assumption_field_value(field, field_tok)
+      advance if peek_type?(:colon)
+      case field
+      when "kind"
+        if peek_type?(:symbol_lit)
+          advance.value
+        else
+          add_parse_error(rule: "OOF-P0", message: "assumption kind requires a symbol literal", token: field, line: field_tok.line, col: field_tok.col)
+          nil
+        end
+      when "statement", "source"
+        parse_optional_string_assumption_field(field, field_tok)
+      when "strength"
+        parse_assumption_strength(field_tok)
+      else
+        add_parse_error(rule: "OOF-P0", message: "Unknown assumption field: #{field}", token: field, line: field_tok.line, col: field_tok.col)
+        nil
+      end
+    end
+
+    def parse_optional_string_assumption_field(field, field_tok)
+      return advance.value if peek_type?(:string_lit)
+      return nil if peek_type?(:nil_lit) && advance
+
+      add_parse_error(
+        rule: "OOF-P0",
+        message: "assumption #{field} requires a string literal",
+        token: field,
+        line: field_tok.line,
+        col: field_tok.col
+      )
+      nil
+    end
+
+    def parse_assumption_strength(field_tok)
+      return advance.value if peek_type?(:float_lit) || peek_type?(:int_lit)
+
+      add_parse_error(
+        rule: "OOF-P0",
+        message: "assumption strength requires a numeric literal",
+        token: "strength",
+        line: field_tok.line,
+        col: field_tok.col
+      )
+      nil
     end
 
     def parse_pipeline_decl
@@ -670,6 +771,7 @@ module IgniterLang
       when "stream"   then advance; parse_stream_decl
       when "fold_stream" then advance; parse_fold_stream_decl
       when "invariant"   then advance; parse_invariant_decl
+      when "uses"        then advance; parse_uses_decl
       when "pipeline"
         add_parse_error(
           rule: "OOF-P2",
@@ -730,7 +832,38 @@ module IgniterLang
       lifecycle = peek_kw?("lifecycle") ? (advance; parse_lifecycle) : nil
       node = { "kind" => "output", "name" => name, "type_annotation" => type_ref }
       node["lifecycle"] = lifecycle if lifecycle
+      node["evidence"] = parse_evidence_list if peek_value?("evidence")
       node
+    end
+
+    def parse_uses_decl
+      tok = peek
+      unless peek_kw?("assumptions")
+        add_parse_error(
+          rule: "OOF-P0",
+          message: "uses declaration currently supports only 'uses assumptions NAME'",
+          token: tok&.value.to_s,
+          line: tok&.line || 0,
+          col: tok&.col || 0
+        )
+        skip_until_body_boundary
+        return nil
+      end
+      advance
+      name = name_token!(%i[ident])
+      { "kind" => "uses_assumptions", "name" => name }
+    end
+
+    def parse_evidence_list
+      expect_value!("evidence")
+      expect_type!(:lbracket)
+      refs = []
+      until peek_type?(:rbracket) || peek_type?(:eof)
+        refs << name_token!(%i[ident keyword])
+        advance if peek_type?(:comma)
+      end
+      expect_type!(:rbracket)
+      refs
     end
 
     def parse_compute_decl
@@ -1253,7 +1386,7 @@ module IgniterLang
 
     def body_boundary_token?(tok)
       tok&.type == :keyword &&
-        %w[input output compute read snapshot window escape stream fold_stream pipeline step scoped_by tenant_free].include?(tok.value)
+        %w[input output compute read snapshot window escape stream fold_stream invariant uses pipeline step scoped_by tenant_free].include?(tok.value)
     end
 
     def olap_clause_boundary?(tok, next_tok)
@@ -1560,6 +1693,7 @@ module IgniterLang
         "functions"       => @ast["functions"],
         "pipelines"       => @ast.fetch("pipelines", []),
         "olap_points"     => @ast.fetch("olap_points", []),
+        "assumptions"     => @ast.fetch("assumptions", []),
         "parse_errors"    => @errors
       }
     end
@@ -1568,6 +1702,10 @@ module IgniterLang
       decimal_type_ref = lambda { |n|
         n.is_a?(Hash) && n["kind"] == "type_ref" && n["name"] == "Decimal"
       }
+      return "assumptions-v0" if @ast.fetch("assumptions", []).any? ||
+                                 @ast.fetch("contracts", []).any? { |c|
+                                   c.fetch("body", []).any? { |n| n.is_a?(Hash) && n["kind"] == "uses_assumptions" }
+                                 }
       return "olap-point-v0" if @ast.fetch("olap_points", []).any?
 
       has_decimal = @ast.fetch("contracts", []).any? { |c|

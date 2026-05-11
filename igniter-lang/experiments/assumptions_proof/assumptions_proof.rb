@@ -6,6 +6,7 @@ require "json"
 require "pathname"
 
 require_relative "../../lib/igniter_lang/classifier"
+require_relative "../../lib/igniter_lang/parser"
 require_relative "../../lib/igniter_lang/semanticir_emitter"
 require_relative "../../lib/igniter_lang/typechecker"
 
@@ -39,16 +40,22 @@ module AssumptionsProof
       expected_typed_status: "blocked"
     }
   }.freeze
+  PARSER_ERROR_CASES = {
+    "oof_p28_unnamed_assumption_body" => {
+      expected_rule: "OOF-P28"
+    }
+  }.freeze
 
   module_function
 
   def run(mode: :write)
     FileUtils.mkdir_p(GOLDEN_DIR)
     outputs = build_outputs
-    write_outputs(outputs) if mode == :write
+    parser_error_outputs = build_parser_error_outputs
+    write_outputs(outputs, parser_error_outputs) if mode == :write
 
-    checks = build_checks(outputs)
-    checks = checks.merge(build_golden_checks(outputs)) if mode == :check_golden
+    checks = build_checks(outputs, parser_error_outputs)
+    checks = checks.merge(build_golden_checks(outputs, parser_error_outputs)) if mode == :check_golden
     checks.each { |label, ok| puts "#{label}: #{ok ? "ok" : "FAIL"}" }
     puts "golden.dir: #{rel(GOLDEN_DIR)}"
 
@@ -65,6 +72,7 @@ module AssumptionsProof
     emitter = IgniterLang::SemanticIREmitter.new
     CASES.each_with_object({}) do |(case_id, config), outputs|
       parsed = read_json(File.join(FIXTURE_DIR, "#{case_id}.parsed_ast.json"))
+      parsed = parse_source_case(case_id) if File.exist?(File.join(FIXTURE_DIR, "#{case_id}.ig"))
       classified = classifier.classify(parsed, sample_input: {})
       typed = typechecker.typecheck(classified)
       emitted = emitter.emit_typed(typed)
@@ -79,7 +87,14 @@ module AssumptionsProof
     end
   end
 
-  def write_outputs(outputs)
+  def build_parser_error_outputs
+    PARSER_ERROR_CASES.each_with_object({}) do |(case_id, config), outputs|
+      parsed = parse_source_case(case_id)
+      outputs[case_id] = { parsed: parsed, config: config }
+    end
+  end
+
+  def write_outputs(outputs, parser_error_outputs)
     outputs.each do |case_id, result|
       write_json(File.join(GOLDEN_DIR, "#{case_id}.classified.json"), result.fetch(:classified))
       write_json(File.join(GOLDEN_DIR, "#{case_id}.typed.json"), result.fetch(:typed))
@@ -91,10 +106,16 @@ module AssumptionsProof
       end
       write_json(File.join(GOLDEN_DIR, "#{case_id}.compilation_report.json"), result.fetch(:compilation_report))
     end
+    parser_error_outputs.each do |case_id, result|
+      write_json(File.join(GOLDEN_DIR, "#{case_id}.parsed_ast.json"), result.fetch(:parsed))
+    end
   end
 
-  def build_checks(outputs)
+  def build_checks(outputs, parser_error_outputs)
     {
+      "parser.assumption_sources_parse" => outputs.values.all? { |result| result.fetch(:parsed).fetch("parse_errors").empty? },
+      "parser.assumptions_grammar_version" => outputs.values.all? { |result| result.fetch(:parsed).fetch("grammar_version") == "assumptions-v0" },
+      "parser.p28_unnamed_assumption_body" => parser_error?(parser_error_outputs, "oof_p28_unnamed_assumption_body"),
       "classifier.assumption_basic_escape" => classified_ok?(outputs, "assumption_basic"),
       "classifier.epistemic_only_fragment" => classified_ok?(outputs, "epistemic_only_pure"),
       "classifier.oof_a1_fragment" => classified_ok?(outputs, "oof_a1_undeclared_assumption"),
@@ -129,11 +150,12 @@ module AssumptionsProof
       "golden.classified_outputs" => Dir[File.join(GOLDEN_DIR, "*.classified.json")].length == CASES.length,
       "golden.typed_outputs" => Dir[File.join(GOLDEN_DIR, "*.typed.json")].length == CASES.length,
       "golden.semanticir_outputs" => Dir[File.join(GOLDEN_DIR, "*.semantic_ir.json")].length == 2,
-      "golden.compilation_report_outputs" => Dir[File.join(GOLDEN_DIR, "*.compilation_report.json")].length == CASES.length
+      "golden.compilation_report_outputs" => Dir[File.join(GOLDEN_DIR, "*.compilation_report.json")].length == CASES.length,
+      "golden.parser_error_outputs" => parser_error_golden_count == PARSER_ERROR_CASES.length
     }
   end
 
-  def build_golden_checks(outputs)
+  def build_golden_checks(outputs, parser_error_outputs)
     {
       "check.golden_classified_equal" => outputs.all? do |case_id, result|
         golden_equal?(File.join(GOLDEN_DIR, "#{case_id}.classified.json"), result.fetch(:classified))
@@ -148,8 +170,17 @@ module AssumptionsProof
       "check.golden_compilation_report_equal" => outputs.all? do |case_id, result|
         golden_equal?(File.join(GOLDEN_DIR, "#{case_id}.compilation_report.json"), result.fetch(:compilation_report))
       end,
+      "check.golden_parser_errors_equal" => parser_error_outputs.all? do |case_id, result|
+        golden_equal?(File.join(GOLDEN_DIR, "#{case_id}.parsed_ast.json"), result.fetch(:parsed))
+      end,
       "check.deterministic_generation" => deterministic_outputs?
     }
+  end
+
+  def parser_error?(outputs, case_id)
+    result = outputs.fetch(case_id)
+    expected_rule = result.fetch(:config).fetch(:expected_rule)
+    result.fetch(:parsed).fetch("parse_errors").any? { |entry| entry.fetch("rule") == expected_rule }
   end
 
   def classified_ok?(outputs, case_id)
@@ -326,11 +357,16 @@ module AssumptionsProof
   def deterministic_outputs?
     first = build_outputs
     second = build_outputs
+    first_parser_errors = build_parser_error_outputs
+    second_parser_errors = build_parser_error_outputs
     CASES.keys.all? do |case_id|
       render_json(first.fetch(case_id).fetch(:classified)) == render_json(second.fetch(case_id).fetch(:classified)) &&
         render_json(first.fetch(case_id).fetch(:typed)) == render_json(second.fetch(case_id).fetch(:typed)) &&
         render_json(first.fetch(case_id).fetch(:semantic_ir)) == render_json(second.fetch(case_id).fetch(:semantic_ir)) &&
         render_json(first.fetch(case_id).fetch(:compilation_report)) == render_json(second.fetch(case_id).fetch(:compilation_report))
+    end && PARSER_ERROR_CASES.keys.all? do |case_id|
+      render_json(first_parser_errors.fetch(case_id).fetch(:parsed)) ==
+        render_json(second_parser_errors.fetch(case_id).fetch(:parsed))
     end
   end
 
@@ -350,6 +386,11 @@ module AssumptionsProof
     JSON.parse(File.read(path))
   end
 
+  def parse_source_case(case_id)
+    path = File.join(FIXTURE_DIR, "#{case_id}.ig")
+    IgniterLang::ParsedProgram.parse(File.read(path), source_path: rel(path)).to_h
+  end
+
   def write_json(path, object)
     File.write(path, render_json(object))
   end
@@ -366,6 +407,12 @@ module AssumptionsProof
 
   def rel(path)
     Pathname.new(path).relative_path_from(Pathname.new(ROOT)).to_s
+  end
+
+  def parser_error_golden_count
+    PARSER_ERROR_CASES.keys.count do |case_id|
+      File.exist?(File.join(GOLDEN_DIR, "#{case_id}.parsed_ast.json"))
+    end
   end
 end
 

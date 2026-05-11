@@ -1,12 +1,12 @@
 {
   "kind": "semantic_ir_program",
   "format_version": "0.1.0",
-  "program_id": "semanticir/af41d1abf384bd72",
+  "program_id": "semanticir/5db461bd079352eb",
   "grammar_version": "assumptions-v0",
-  "source_hash": "sha256:af41d1abf384bd721811fc6ed453a4c0d09504ba097280f3e7abb4b43caac476",
-  "source_path": "experiments/assumptions_proof/fixtures/assumption_basic.ig",
-  "module": "Risk.Scoring",
-  "compilation_report_ref": "compilation_report/af41d1abf384bd72",
+  "source_hash": "sha256:5db461bd079352eb400ddde3b44c6a860c03f815f03b20e4310e46d9d439c916",
+  "source_path": "experiments/source_to_semanticir_fixture/assumption_basic.ig",
+  "module": "Fixture.SourceToSemanticIR.Assumptions",
+  "compilation_report_ref": "compilation_report/5db461bd079352eb",
   "contracts": [
     {
       "kind": "contract_ir",
@@ -102,7 +102,7 @@
         "statement": "People with similar beliefs interact more often.",
         "strength": 0.7
       },
-      "declared_in_module": "Risk.Scoring"
+      "declared_in_module": "Fixture.SourceToSemanticIR.Assumptions"
     }
   ]
 }

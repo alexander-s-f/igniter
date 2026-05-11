@@ -1,0 +1,83 @@
+{
+  "kind": "parsed_program",
+  "source_path": "igniter-lang/experiments/source_to_semanticir_fixture/assumption_basic.ig",
+  "source_hash": "sha256:5db461bd079352eb400ddde3b44c6a860c03f815f03b20e4310e46d9d439c916",
+  "grammar_version": "assumptions-v0",
+  "module": "Fixture.SourceToSemanticIR.Assumptions",
+  "imports": [],
+  "traits": [],
+  "impls": [],
+  "contract_shapes": [],
+  "contracts": [
+    {
+      "kind": "contract",
+      "name": "ScoreInteraction",
+      "modifier": "observed",
+      "type_params": [],
+      "body": [
+        {
+          "kind": "input",
+          "name": "a",
+          "type_annotation": "Signal"
+        },
+        {
+          "kind": "input",
+          "name": "b",
+          "type_annotation": "Signal"
+        },
+        {
+          "kind": "uses_assumptions",
+          "name": "homophily"
+        },
+        {
+          "kind": "escape",
+          "name": "profile_source"
+        },
+        {
+          "kind": "compute",
+          "name": "score",
+          "expr": {
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "homophily"
+            },
+            "field": "strength"
+          }
+        },
+        {
+          "kind": "output",
+          "name": "score",
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "Decimal",
+            "params": [
+              4
+            ]
+          },
+          "evidence": [
+            "a",
+            "b",
+            "homophily"
+          ]
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "functions": [],
+  "pipelines": [],
+  "olap_points": [],
+  "assumptions": [
+    {
+      "kind": "assumption_decl",
+      "name": "homophily",
+      "fields": {
+        "kind": "heuristic",
+        "statement": "People with similar beliefs interact more often.",
+        "strength": 0.7
+      }
+    }
+  ],
+  "parse_errors": []
+}

@@ -25,7 +25,8 @@
   "positive_contracts": [
     "Add",
     "ClaimEvidenceBundle",
-    "EvidenceLinkedAlertGate"
+    "EvidenceLinkedAlertGate",
+    "ScoreInteraction"
   ],
   "negative_rules": {
     "negative_unresolved_symbol": "OOF-P1",

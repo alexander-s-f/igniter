@@ -1,11 +1,11 @@
 {
   "kind": "typed_program",
   "typechecker_version": "typed-pass-executable-proof-v0",
-  "program_id": "typed_pass/84736e12fc30eee1",
-  "classified_program_id": "classifier_pass/c99e15bf155bf008",
-  "source_path": "assumptions/oof_a1_undeclared_assumption.ig",
-  "source_hash": "sha256:oof-a1-undeclared-assumption",
-  "grammar_version": "igniter-parser-proof-v0",
+  "program_id": "typed_pass/aefb1db5b8c576c2",
+  "classified_program_id": "classifier_pass/aa5bf3656b30cf64",
+  "source_path": "igniter-lang/experiments/assumptions_proof/fixtures/oof_a1_undeclared_assumption.ig",
+  "source_hash": "sha256:8fdf5465f8ac9d6f007e50b81395d580f22b7bb3c90ae0374ee013c540cf6d70",
+  "grammar_version": "assumptions-v0",
   "module": "Risk.Scoring",
   "type_env": {
     "Assumption": {

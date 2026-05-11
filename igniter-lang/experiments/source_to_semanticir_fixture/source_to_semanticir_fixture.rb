@@ -6,7 +6,9 @@ require "fileutils"
 require "pathname"
 
 require_relative "../parser/igniter_lang_parser"
+require_relative "../../lib/igniter_lang/classifier"
 require_relative "../../lib/igniter_lang/semanticir_emitter"
+require_relative "../../lib/igniter_lang/typechecker"
 
 module SourceToSemanticIRFixture
   ROOT = File.expand_path("../../..", __dir__)
@@ -51,6 +53,12 @@ module SourceToSemanticIRFixture
           "confidence_label" => "medium"
         }
       }
+    },
+    "assumption_basic" => {
+      source: "assumption_basic.ig",
+      expected_contract: "ScoreInteraction",
+      pipeline: :typed,
+      sample_input: {}
     },
     "negative_unresolved_symbol" => {
       source: "negative_unresolved_symbol.ig",
@@ -106,9 +114,17 @@ module SourceToSemanticIRFixture
 
   def build_outputs
     emitter = IgniterLang::SemanticIREmitter.new
+    classifier = IgniterLang::Classifier.new
+    typechecker = IgniterLang::TypeChecker.new
     CASES.each_with_object({}) do |(case_id, config), outputs|
       parsed = parse_case(config.fetch(:source))
-      result = emitter.emit(parsed, sample_input: config.fetch(:sample_input))
+      result = if config.fetch(:pipeline, :parsed) == :typed
+                 classified = classifier.classify(parsed, sample_input: config.fetch(:sample_input))
+                 typed = typechecker.typecheck(classified)
+                 emitter.emit_typed(typed)
+               else
+                 emitter.emit(parsed, sample_input: config.fetch(:sample_input))
+               end
       outputs[case_id] = {
         parsed: parsed,
         semantic_ir: result.fetch("semantic_ir"),
@@ -149,7 +165,7 @@ module SourceToSemanticIRFixture
         "always_emitted" => true,
         "negative_semantic_ir_emitted" => false
       },
-      "positive_contracts" => %w[Add ClaimEvidenceBundle EvidenceLinkedAlertGate],
+      "positive_contracts" => %w[Add ClaimEvidenceBundle EvidenceLinkedAlertGate ScoreInteraction],
       "negative_rules" => {
         "negative_unresolved_symbol" => "OOF-P1",
         "negative_evidence_less_alert" => "OOF-OS2",
@@ -186,13 +202,17 @@ module SourceToSemanticIRFixture
       "semanticir.envelope.evidence_linked_alert" => canonical_program?(outputs.fetch("evidence_linked_alert").fetch(:semantic_ir)),
       "report.evidence_linked_alert" => compilation_report_ok?(outputs, "evidence_linked_alert", "ok"),
       "semanticir.evidence_linked_alert" => alert_gate_ok?(outputs),
+      "parse.assumption_basic" => parsed_ok?(outputs, "assumption_basic"),
+      "semanticir.envelope.assumption_basic" => canonical_program?(outputs.fetch("assumption_basic").fetch(:semantic_ir)),
+      "report.assumption_basic" => compilation_report_ok?(outputs, "assumption_basic", "ok"),
+      "semanticir.assumption_basic" => assumption_basic_ok?(outputs),
       "negative.unresolved_symbol" => negative_report_only?(outputs, "negative_unresolved_symbol", "OOF-P1"),
       "negative.evidence_less_alert" => negative_report_only?(outputs, "negative_evidence_less_alert", "OOF-OS2"),
       "negative.confidence_bool" => negative_report_only?(outputs, "negative_confidence_bool", "OOF-CE4"),
       "stdlib.monomorphic_ops" => monomorphic_ops?(outputs),
-      "golden.ast_outputs" => golden_count(".parsed_ast.json", 10),
-      "golden.semanticir_outputs" => golden_count(".semantic_ir.json", 3),
-      "golden.compilation_report_outputs" => golden_count(".compilation_report.json", 6)
+      "golden.ast_outputs" => golden_count(".parsed_ast.json", 11),
+      "golden.semanticir_outputs" => golden_count(".semantic_ir.json", 4),
+      "golden.compilation_report_outputs" => golden_count(".compilation_report.json", 7)
     }
   end
 
@@ -219,6 +239,16 @@ module SourceToSemanticIRFixture
       operators.include?("stdlib.bool.and")
   end
 
+  def assumption_basic_ok?(outputs)
+    semantic_ir = outputs.fetch("assumption_basic").fetch(:semantic_ir)
+    contract = only_contract(outputs, "assumption_basic")
+    assumption_node = contract.fetch("nodes").find { |node| node.fetch("kind") == "assumption_ref_node" }
+    semantic_ir.fetch("assumption_registry").any? { |entry| entry.fetch("name") == "homophily" } &&
+      contract.fetch("contract_name") == "ScoreInteraction" &&
+      contract.fetch("assumption_refs") == ["homophily"] &&
+      assumption_node&.fetch("assumption_ref") == "homophily"
+  end
+
   def compilation_report_ok?(outputs, case_id, expected_result)
     report = outputs.fetch(case_id).fetch(:compilation_report)
     semantic_ir = outputs.fetch(case_id).fetch(:semantic_ir)
@@ -238,7 +268,9 @@ module SourceToSemanticIRFixture
   def monomorphic_ops?(outputs)
     ops = outputs.values.filter_map { |result| result.fetch(:semantic_ir) }.flat_map do |program|
       program.fetch("contracts").flat_map do |contract|
-        contract.fetch("nodes").flat_map { |node| expr_fns(node.fetch("expr")) }
+        contract.fetch("nodes")
+          .select { |node| node.fetch("kind") == "compute" }
+          .flat_map { |node| expr_fns(node.fetch("expr")) }
       end
     end
     !ops.include?("stdlib.numeric.add") &&
@@ -342,9 +374,19 @@ module SourceToSemanticIRFixture
                        effect_declarations ffi_requirements projection_descriptors boundary_descriptors].any? { |key| contract.key?(key) }
     return false unless contract.fetch("inputs").all? { |port| canonical_port?(port) }
     return false unless contract.fetch("outputs").all? { |port| canonical_port?(port) }
-    return false unless contract.fetch("nodes").all? { |node| canonical_compute_node?(node) }
+    return false unless contract.fetch("nodes").all? { |node| canonical_node?(node) }
 
     true
+  rescue KeyError
+    false
+  end
+
+  def canonical_node?(node)
+    case node.fetch("kind")
+    when "compute" then canonical_compute_node?(node)
+    when "assumption_ref_node" then canonical_assumption_ref_node?(node)
+    else false
+    end
   rescue KeyError
     false
   end
@@ -358,6 +400,15 @@ module SourceToSemanticIRFixture
     return false unless %w[core escape oof].include?(node.fetch("fragment"))
 
     canonical_expr?(node.fetch("expr"))
+  rescue KeyError
+    false
+  end
+
+  def canonical_assumption_ref_node?(node)
+    node.fetch("name").is_a?(String) &&
+      node.fetch("assumption_ref").is_a?(String) &&
+      canonical_type?(node.fetch("type")) &&
+      node.fetch("fragment") == "epistemic"
   rescue KeyError
     false
   end

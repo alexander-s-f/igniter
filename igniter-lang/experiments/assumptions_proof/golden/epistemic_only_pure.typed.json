@@ -1,11 +1,11 @@
 {
   "kind": "typed_program",
   "typechecker_version": "typed-pass-executable-proof-v0",
-  "program_id": "typed_pass/ed06ef631fdf3021",
-  "classified_program_id": "classifier_pass/397b9b6169015128",
-  "source_path": "assumptions/epistemic_only_pure.ig",
-  "source_hash": "sha256:epistemic-only-pure",
-  "grammar_version": "igniter-parser-proof-v0",
+  "program_id": "typed_pass/d792386ef3eb9cbc",
+  "classified_program_id": "classifier_pass/fffc7884d72e0395",
+  "source_path": "igniter-lang/experiments/assumptions_proof/fixtures/epistemic_only_pure.ig",
+  "source_hash": "sha256:02fc3a092b4b5189344f4073e990fb75c89c92debc4d8833afdf9ec1e0000c50",
+  "grammar_version": "assumptions-v0",
   "module": "Risk.Scoring",
   "type_env": {
     "Assumption": {
@@ -125,8 +125,11 @@
           "name": "score",
           "fragment_class": "core",
           "type": {
+            "kind": "type_ref",
             "name": "Decimal",
-            "params": []
+            "params": [
+              4
+            ]
           },
           "deps": [
             "score"

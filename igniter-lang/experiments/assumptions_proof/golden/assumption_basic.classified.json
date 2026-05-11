@@ -1,10 +1,10 @@
 {
   "kind": "classified_program",
   "classifier_version": "classifier-pass-executable-proof-v0",
-  "program_id": "classifier_pass/68f4fd3674a8cadb",
-  "source_path": "assumptions/assumption_basic.ig",
-  "source_hash": "sha256:assumption-basic",
-  "grammar_version": "igniter-parser-proof-v0",
+  "program_id": "classifier_pass/b29aba0a4b1afd24",
+  "source_path": "igniter-lang/experiments/assumptions_proof/fixtures/assumption_basic.ig",
+  "source_hash": "sha256:af41d1abf384bd721811fc6ed453a4c0d09504ba097280f3e7abb4b43caac476",
+  "grammar_version": "assumptions-v0",
   "module": "Risk.Scoring",
   "type_declarations": [],
   "contracts": [
@@ -99,7 +99,13 @@
             "score"
           ],
           "missing_refs": [],
-          "type_annotation": "Decimal"
+          "type_annotation": {
+            "kind": "type_ref",
+            "name": "Decimal",
+            "params": [
+              4
+            ]
+          }
         }
       ],
       "dependency_graph": {
@@ -134,8 +140,7 @@
       "fields": {
         "kind": "heuristic",
         "statement": "People with similar beliefs interact more often.",
-        "strength": 0.7,
-        "source": null
+        "strength": 0.7
       },
       "declared_in_module": "Risk.Scoring"
     }

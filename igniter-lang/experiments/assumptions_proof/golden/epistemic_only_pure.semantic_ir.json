@@ -1,16 +1,16 @@
 {
   "kind": "semantic_ir_program",
   "format_version": "0.1.0",
-  "program_id": "semanticir/epistemic-only-p",
-  "grammar_version": "igniter-parser-proof-v0",
-  "source_hash": "sha256:epistemic-only-pure",
-  "source_path": "assumptions/epistemic_only_pure.ig",
+  "program_id": "semanticir/02fc3a092b4b5189",
+  "grammar_version": "assumptions-v0",
+  "source_hash": "sha256:02fc3a092b4b5189344f4073e990fb75c89c92debc4d8833afdf9ec1e0000c50",
+  "source_path": "experiments/assumptions_proof/fixtures/epistemic_only_pure.ig",
   "module": "Risk.Scoring",
-  "compilation_report_ref": "compilation_report/epistemic-only-p",
+  "compilation_report_ref": "compilation_report/02fc3a092b4b5189",
   "contracts": [
     {
       "kind": "contract_ir",
-      "contract_ref": "contract/PureEpistemicScore/sha256:4e73a1f0729eefbbf83a8bb4",
+      "contract_ref": "contract/PureEpistemicScore/sha256:103fced2fd60620fbee74fe5",
       "contract_name": "PureEpistemicScore",
       "modifier": "pure",
       "specialization_of": null,
@@ -30,8 +30,11 @@
         {
           "name": "score",
           "type": {
+            "kind": "type_ref",
             "name": "Decimal",
-            "params": []
+            "params": [
+              4
+            ]
           },
           "lifecycle": "session"
         }

@@ -1,10 +1,10 @@
 {
   "kind": "compilation_report",
   "format_version": "0.1.0",
-  "program_id": "compilation_report/assumption-basic",
-  "grammar_version": "igniter-parser-proof-v0",
-  "source_hash": "sha256:assumption-basic",
-  "source_path": "assumptions/assumption_basic.ig",
+  "program_id": "compilation_report/af41d1abf384bd72",
+  "grammar_version": "assumptions-v0",
+  "source_hash": "sha256:af41d1abf384bd721811fc6ed453a4c0d09504ba097280f3e7abb4b43caac476",
+  "source_path": "experiments/assumptions_proof/fixtures/assumption_basic.ig",
   "pass_result": "ok",
   "stages": {
     "parse": "ok",
@@ -13,5 +13,5 @@
     "emit": "ok"
   },
   "diagnostics": [],
-  "semantic_ir_ref": "semanticir/assumption-basic"
+  "semantic_ir_ref": "semanticir/af41d1abf384bd72"
 }

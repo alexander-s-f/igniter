@@ -383,6 +383,22 @@
           "status": "PASS"
         },
         {
+          "name": "parse.assumption_basic",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.envelope.assumption_basic",
+          "status": "PASS"
+        },
+        {
+          "name": "report.assumption_basic",
+          "status": "PASS"
+        },
+        {
+          "name": "semanticir.assumption_basic",
+          "status": "PASS"
+        },
+        {
           "name": "negative.unresolved_symbol",
           "status": "PASS"
         },
@@ -456,6 +472,10 @@
         "semanticir.envelope.evidence_linked_alert: ok",
         "report.evidence_linked_alert: ok",
         "semanticir.evidence_linked_alert: ok",
+        "parse.assumption_basic: ok",
+        "semanticir.envelope.assumption_basic: ok",
+        "report.assumption_basic: ok",
+        "semanticir.assumption_basic: ok",
         "negative.unresolved_symbol: ok",
         "negative.evidence_less_alert: ok",
         "negative.confidence_bool: ok",

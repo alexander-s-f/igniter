@@ -1,0 +1,17 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/5db461bd079352eb",
+  "grammar_version": "assumptions-v0",
+  "source_hash": "sha256:5db461bd079352eb400ddde3b44c6a860c03f815f03b20e4310e46d9d439c916",
+  "source_path": "experiments/source_to_semanticir_fixture/assumption_basic.ig",
+  "pass_result": "ok",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "ok",
+    "emit": "ok"
+  },
+  "diagnostics": [],
+  "semantic_ir_ref": "semanticir/5db461bd079352eb"
+}
