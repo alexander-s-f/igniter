@@ -1,0 +1,30 @@
+{
+  "kind": "profile_source_syntax_compiler_review_summary",
+  "format_version": "0.1.0",
+  "track": "profile-source-syntax-compiler-review-v0",
+  "status": "PASS",
+  "review_packet_path": "igniter-lang/experiments/profile_source_syntax_compiler_review/out/profile_source_syntax_compiler_review_packet.json",
+  "checks": {
+    "input.syntax_pressure_passed": true,
+    "input.taxonomy_passed": true,
+    "scope.research_baseline_status": true,
+    "authority.syntax_not_authorized": true,
+    "baseline.lowering_target_descriptor": true,
+    "baseline.surface_order_not_authoritative": true,
+    "candidate.descriptor_data_accepted_as_baseline": true,
+    "candidate.block_style_pressure_only": true,
+    "candidate.inline_pack_body_rejected": true,
+    "diagnostics.reuses_descriptor_taxonomy": true,
+    "matrix.rejects_parser_work_now": true,
+    "handoff.names_compiler_grammar_target": true,
+    "scope.no_runtime_or_format_authority": true
+  },
+  "non_goals": [
+    "No parser implementation.",
+    "No profile source syntax authorization.",
+    "No grammar/spec edits.",
+    "No production lowering code.",
+    "No CompilerKernel dispatch changes.",
+    "No .igapp/.ilk change."
+  ]
+}

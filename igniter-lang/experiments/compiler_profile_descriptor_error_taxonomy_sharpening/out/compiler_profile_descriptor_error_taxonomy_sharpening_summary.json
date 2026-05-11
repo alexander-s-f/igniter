@@ -1,0 +1,27 @@
+{
+  "kind": "compiler_profile_descriptor_error_taxonomy_sharpening_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-descriptor-error-taxonomy-sharpening-v0",
+  "status": "PASS",
+  "taxonomy_path": "igniter-lang/experiments/compiler_profile_descriptor_error_taxonomy_sharpening/out/compiler_profile_descriptor_error_taxonomy.json",
+  "checks": {
+    "input.descriptor_schema_passed": true,
+    "input.slots_model_passed": true,
+    "input.ordered_rule_precedence_passed": true,
+    "precedence.shape_before_slots_before_semantics_before_registry": true,
+    "precedence.duplicate_slot_wins_over_helper_collision": true,
+    "precedence.helper_only_specific_case_documented": true,
+    "precedence.dependency_before_registry": true,
+    "precedence.rule_owner_mismatch_after_slot_checks": true,
+    "registry.missing_reference_and_cycle_documented": true,
+    "guidance.first_failure_wins": true,
+    "scope.no_runtime_authority": true
+  },
+  "non_goals": [
+    "No production validator implementation.",
+    "No descriptor schema mutation.",
+    "No compiler dispatch change.",
+    "No .igapp/.ilk change.",
+    "No runtime execution authority."
+  ]
+}

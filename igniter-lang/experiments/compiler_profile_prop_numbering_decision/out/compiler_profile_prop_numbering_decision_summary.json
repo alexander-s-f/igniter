@@ -1,0 +1,31 @@
+{
+  "kind": "compiler_profile_prop_numbering_decision_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-prop-numbering-decision-v0",
+  "status": "PASS",
+  "decision_packet_path": "igniter-lang/experiments/compiler_profile_prop_numbering_decision/out/compiler_profile_prop_numbering_decision_packet.json",
+  "checks": {
+    "input.promotion_passed": true,
+    "queue.prop033_occupied": true,
+    "queue.next_free_candidate_is_prop036": true,
+    "decision.no_official_number_assigned": true,
+    "decision.route_is_architect_owned": true,
+    "manifest.recommends_unified_profile_id": true,
+    "firewall.present_verified_not_runtime_ready": true,
+    "lanes.no_runtime_authority": true,
+    "slots.required_exactly_one_preserved": true,
+    "slots.future_dispatch_order_preserved": true,
+    "bootstrap.explicit_seed_preserved": true,
+    "blocked_cards_still_blocked": true,
+    "scope.no_proposal_index_mutation": true,
+    "scope.no_decision_claimed": true
+  },
+  "non_goals": [
+    "No official PROP number assigned.",
+    "No proposal file created.",
+    "No proposal index mutation.",
+    "No .igapp/.ilk format change.",
+    "No compiler dispatch or assembler implementation.",
+    "No runtime execution authority."
+  ]
+}

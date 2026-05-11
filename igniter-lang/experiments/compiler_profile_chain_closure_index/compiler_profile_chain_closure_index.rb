@@ -176,6 +176,30 @@ module CompilerProfileChainClosureIndex
       "command" => "igniter-lang/experiments/compiler_profile_manifest_prop_promotion/compiler_profile_manifest_prop_promotion.rb",
       "summary_path" => "igniter-lang/experiments/compiler_profile_manifest_prop_promotion/out/compiler_profile_manifest_prop_promotion_summary.json",
       "track_doc" => "igniter-lang/docs/tracks/compiler-profile-manifest-prop-promotion-v0.md"
+    },
+    {
+      "id" => "compiler_profile_prop_numbering_decision",
+      "phase" => "prop_numbering_decision_request",
+      "claim" => "Compiler profile manifest PROP has an Architect-owned numbering decision request without assigning a number.",
+      "command" => "igniter-lang/experiments/compiler_profile_prop_numbering_decision/compiler_profile_prop_numbering_decision.rb",
+      "summary_path" => "igniter-lang/experiments/compiler_profile_prop_numbering_decision/out/compiler_profile_prop_numbering_decision_summary.json",
+      "track_doc" => "igniter-lang/docs/tracks/compiler-profile-prop-numbering-decision-v0.md"
+    },
+    {
+      "id" => "compiler_profile_descriptor_error_taxonomy_sharpening",
+      "phase" => "descriptor_error_taxonomy",
+      "claim" => "Descriptor diagnostics have a first-failure precedence model for shape, slots, pack semantics, and registry ordering.",
+      "command" => "igniter-lang/experiments/compiler_profile_descriptor_error_taxonomy_sharpening/compiler_profile_descriptor_error_taxonomy_sharpening.rb",
+      "summary_path" => "igniter-lang/experiments/compiler_profile_descriptor_error_taxonomy_sharpening/out/compiler_profile_descriptor_error_taxonomy_sharpening_summary.json",
+      "track_doc" => "igniter-lang/docs/tracks/compiler-profile-descriptor-error-taxonomy-sharpening-v0.md"
+    },
+    {
+      "id" => "profile_source_syntax_compiler_review",
+      "phase" => "profile_syntax_compiler_review",
+      "claim" => "Profile source syntax has a research baseline and Compiler/Grammar review packet without syntax authorization.",
+      "command" => "igniter-lang/experiments/profile_source_syntax_compiler_review/profile_source_syntax_compiler_review.rb",
+      "summary_path" => "igniter-lang/experiments/profile_source_syntax_compiler_review/out/profile_source_syntax_compiler_review_summary.json",
+      "track_doc" => "igniter-lang/docs/tracks/profile-source-syntax-compiler-review-v0.md"
     }
   ].freeze
 
@@ -204,9 +228,9 @@ module CompilerProfileChainClosureIndex
         "No runtime execution authority."
       ],
       "recommended_next" => [
-        "compiler-profile-prop-numbering-decision-v0",
-        "compiler-profile-descriptor-error-taxonomy-sharpening-v0",
-        "profile-source-syntax-compiler-review-v0"
+        "profile-source-syntax-grammar-boundary-v0",
+        "compiler-profile-manifest-prop-architect-routing-v0",
+        "compiler-profile-validator-implementation-plan-v0"
       ]
     }
     write_json(SUMMARY_PATH, summary)
@@ -234,10 +258,13 @@ module CompilerProfileChainClosureIndex
       "chain.includes_manifest_prop_draft" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_manifest_prop_draft" },
       "chain.includes_syntax_pressure" => entries.any? { |entry| entry.fetch("id") == "profile_source_syntax_pressure" },
       "chain.includes_manifest_prop_review_ready" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_manifest_prop_review_ready" },
-      "chain.ends_with_manifest_prop_promotion" => entries.last.fetch("id") == "compiler_profile_manifest_prop_promotion",
+      "chain.includes_manifest_prop_promotion" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_manifest_prop_promotion" },
+      "chain.includes_prop_numbering_decision_request" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_prop_numbering_decision" },
+      "chain.includes_descriptor_error_taxonomy" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_descriptor_error_taxonomy_sharpening" },
+      "chain.ends_with_profile_syntax_compiler_review" => entries.last.fetch("id") == "profile_source_syntax_compiler_review",
       "chain.all_commands_exited_zero" => entries.all? { |entry| entry.fetch("exit_status").zero? },
       "chain.all_summaries_pass" => entries.all? { |entry| entry.fetch("proof_status") == "PASS" },
-      "chain.has_expected_phase_count" => phases.length == 20,
+      "chain.has_expected_phase_count" => phases.length == 23,
       "chain.has_receipt_and_storage_phases" => phases.include?("build_receipt") && phases.include?("receipt_storage"),
       "chain.has_self_assembly_and_bootstrap_phases" => phases.include?("self_assembly") && phases.include?("bootstrap_seed"),
       "chain.has_descriptor_and_lowering_phases" => phases.include?("descriptor_schema") && phases.include?("future_syntax_target"),
@@ -245,6 +272,9 @@ module CompilerProfileChainClosureIndex
       "chain.has_syntax_pressure_phase" => phases.include?("syntax_pressure"),
       "chain.has_manifest_review_ready_phase" => phases.include?("manifest_prop_review_ready"),
       "chain.has_manifest_promotion_phase" => phases.include?("manifest_prop_promotion"),
+      "chain.has_prop_numbering_decision_request_phase" => phases.include?("prop_numbering_decision_request"),
+      "chain.has_descriptor_error_taxonomy_phase" => phases.include?("descriptor_error_taxonomy"),
+      "chain.has_profile_syntax_compiler_review_phase" => phases.include?("profile_syntax_compiler_review"),
       "scope.no_runtime_authority_phase" => entries.none? { |entry| entry.fetch("phase").include?("runtime_authority") }
     }
   end

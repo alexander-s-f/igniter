@@ -1,0 +1,140 @@
+{
+  "kind": "profile_source_syntax_compiler_review_packet",
+  "format_version": "0.1.0",
+  "track": "profile-source-syntax-compiler-review-v0",
+  "status": "research_baseline_for_compiler_grammar_review",
+  "review_scope": {
+    "question": "Should Igniter-Lang ever gain human profile source syntax, and if so what must it lower into?",
+    "current_recommendation": "descriptor_first_now; human syntax remains pressure_only",
+    "parser_implementation_authorized": false,
+    "profile_source_syntax_authorized": false,
+    "compiler_grammar_review_required": true
+  },
+  "baseline_invariants": {
+    "lowering_target": "compiler_profile_descriptor",
+    "descriptor_first": true,
+    "surface_slot_order_authoritative": false,
+    "canonical_slot_order_source": "CompilerProfileSpec.slot_order",
+    "future_dispatch_order": "must_equal descriptor_slot_order",
+    "runtime_authority_claims_allowed": false,
+    "inline_pack_bodies_allowed": false,
+    "implicit_capability_ownership_allowed": false
+  },
+  "candidate_review": {
+    "descriptor_data_style": {
+      "recommendation": "accept_as_research_baseline",
+      "status": "preferred_before_parser_work",
+      "reason": "Matches descriptor schema and avoids parser churn."
+    },
+    "block_style": {
+      "recommendation": "keep_as_pressure_specimen",
+      "status": "pressure_only",
+      "review_required_for": [
+        "header_grammar",
+        "implementation_id_token_shape",
+        "registry_list_boundaries",
+        "source_digest_policy",
+        "diagnostics_mapping"
+      ]
+    },
+    "inline_pack_body_style": {
+      "recommendation": "reject",
+      "status": "rejected",
+      "reason": "Profile source may select implementation ids, not define pack implementations inline."
+    }
+  },
+  "compiler_grammar_questions": [
+    {
+      "id": "slot_header_vs_contract_header",
+      "question": "profile slot declarations must not parse like contract declarations",
+      "route": "Compiler/Grammar",
+      "research_baseline": "must preserve descriptor-first lowering"
+    },
+    {
+      "id": "implementation_id_token_shape",
+      "question": "implementation ids contain dots and versions; lexer/token policy must be explicit",
+      "route": "Compiler/Grammar",
+      "research_baseline": "must preserve descriptor-first lowering"
+    },
+    {
+      "id": "registry_entry_list_boundaries",
+      "question": "comma/newline/block termination must be deterministic",
+      "route": "Compiler/Grammar",
+      "research_baseline": "must preserve descriptor-first lowering"
+    },
+    {
+      "id": "profile_source_digest",
+      "question": "digest policy must decide source text vs lowered AST",
+      "route": "Architect + Compiler/Grammar",
+      "research_baseline": "must preserve descriptor-first lowering"
+    },
+    {
+      "id": "syntax_diagnostics_pre_lowering",
+      "question": "Which syntax errors should exist before descriptor validation runs?",
+      "route": "Compiler/Grammar",
+      "research_baseline": "descriptor taxonomy remains first-failure model after lowering"
+    },
+    {
+      "id": "surface_order_vs_profile_spec_order",
+      "question": "Should source order be accepted when it differs from CompilerProfileSpec.slot_order?",
+      "route": "Compiler/Grammar",
+      "research_baseline": "source order may vary, but lowered descriptor order must follow CompilerProfileSpec.slot_order"
+    }
+  ],
+  "diagnostic_baseline": {
+    "source": "igniter-lang/experiments/compiler_profile_descriptor_error_taxonomy_sharpening/out/compiler_profile_descriptor_error_taxonomy.json",
+    "first_failure_order": [
+      "descriptor_shape",
+      "slot_assignment",
+      "pack_semantics",
+      "registry_ordering"
+    ],
+    "profile_syntax_diagnostics_should_reuse_descriptor_codes": true,
+    "syntax_specific_codes_allowed_only_before_lowering": true,
+    "human_text_may_vary_machine_codes_must_not": true
+  },
+  "accept_reject_narrowing_matrix": {
+    "accept_now": [
+      "descriptor data/profile descriptor as the research baseline",
+      "lowering target = compiler_profile_descriptor",
+      "surface slot order is non-authoritative"
+    ],
+    "keep_pressure_only": [
+      "human block-style profile syntax",
+      "source text digest policy",
+      "profile syntax golden fixtures"
+    ],
+    "reject_now": [
+      "inline pack implementation bodies",
+      "runtime authority clauses",
+      "implicit capability ownership",
+      "parser implementation work"
+    ],
+    "requires_compiler_grammar_decision": [
+      "profile header grammar",
+      "slot declaration grammar",
+      "implementation id lexical grammar",
+      "registry entry separators and block termination",
+      "source diagnostic shape before descriptor lowering"
+    ]
+  },
+  "handoff_recommendation": {
+    "to": "[Igniter-Lang Compiler/Grammar Expert]",
+    "recommended_track": "profile-source-syntax-grammar-boundary-v0",
+    "recommended_verdict": "accept_descriptor_first_and_keep_block_syntax_pressure_only",
+    "do_not_start_parser_until": [
+      "Architect authorizes syntax work.",
+      "Compiler/Grammar accepts a grammar boundary.",
+      "Digest policy is decided.",
+      "Descriptor diagnostics mapping is accepted."
+    ]
+  },
+  "non_authorizations": [
+    "No parser implementation.",
+    "No profile source syntax authorization.",
+    "No production lowering implementation.",
+    "No CompilerKernel dispatch change.",
+    "No runtime execution authority.",
+    "No .igapp/.ilk format mutation."
+  ]
+}
