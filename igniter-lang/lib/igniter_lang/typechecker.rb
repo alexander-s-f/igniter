@@ -12,6 +12,9 @@ module IgniterLang
 
     def typecheck(classified_program)
       @type_shapes = type_shapes(classified_program)
+      @assumption_registry = classified_program.fetch("assumption_registry", [])
+      @type_shapes["Assumption"] = assumption_shape if assumptions_present?(classified_program)
+      @assumption_errors = assumption_errors_by_name(@assumption_registry)
       @olap_env = olap_env(classified_program.fetch("olap_points", []))
       @olap_errors = olap_declaration_errors(@olap_env)
       typed_contracts = classified_program.fetch("contracts").map do |contract|
@@ -32,6 +35,7 @@ module IgniterLang
         "type_errors" => typed_contracts.flat_map { |contract| contract.fetch("type_errors") },
         "semantic_ir_ref" => nil
       }
+      result["assumption_registry"] = @assumption_registry unless @assumption_registry.empty?
       result["olap_points"] = @olap_env.values.map { |decl| decl.fetch("semantic_node") } unless @olap_env.empty?
       type_warnings = typed_contracts.flat_map { |contract| contract.fetch("type_warnings", []) }
       result["type_warnings"] = type_warnings unless type_warnings.empty?
@@ -59,7 +63,8 @@ module IgniterLang
 
     def typecheck_contract(classified_contract)
       declared_oofs = classified_contract.fetch("oof_log")
-      type_errors = declared_oofs + @olap_errors
+      assumption_refs = classified_contract.fetch("assumption_refs", [])
+      type_errors = declared_oofs + @olap_errors + assumption_refs.flat_map { |name| @assumption_errors.fetch(name, []) }
       type_warnings = []
       symbol_types = {}
       typed_decls = []
@@ -89,6 +94,10 @@ module IgniterLang
           result_type = fold_stream_result_type(decl)
           symbol_types[decl.fetch("name")] = result_type
           typed_decls << typed_decl(decl, result_type, decl.fetch("expr", nil), decl.fetch("deps", []))
+        when "uses_assumptions"
+          type = type_ir("Assumption")
+          symbol_types[decl.fetch("name")] = type
+          typed_decls << typed_decl(decl, type, nil, [])
         when "invariant"
           # TINV-1/2/3: Resolve predicate_ref, validate overridable_with, compute output_effect
           check_invariant(decl, symbol_types, type_errors, invariant_effects)
@@ -123,6 +132,7 @@ module IgniterLang
         "declarations" => typed_decls,
         "type_errors" => dedupe_errors(type_errors)
       }
+      result["assumption_refs"] = assumption_refs unless assumption_refs.empty?
       warnings = dedupe_errors(type_warnings)
       result["type_warnings"] = warnings unless warnings.empty?
       result
@@ -149,6 +159,38 @@ module IgniterLang
         result[key] = decl.fetch(key) if decl.key?(key)
       end
       result
+    end
+
+    def assumption_shape
+      {
+        "kind" => type_ir("Symbol"),
+        "statement" => type_ir("String"),
+        "strength" => type_ir("Decimal"),
+        "source" => type_ir("String")
+      }
+    end
+
+    def assumptions_present?(classified_program)
+      @assumption_registry.any? ||
+        classified_program.fetch("contracts").any? { |contract| contract.fetch("assumption_refs", []).any? }
+    end
+
+    def assumption_errors_by_name(registry)
+      registry.each_with_object({}) do |entry, errors|
+        strength = entry.fetch("fields", {}).fetch("strength", nil)
+        next if strength.nil? || valid_assumption_strength?(strength)
+
+        errors[entry.fetch("name")] ||= []
+        errors[entry.fetch("name")] << oof(
+          "TASSUMP-1",
+          "assumption strength must be between 0.0 and 1.0",
+          "assumption:#{entry.fetch("name")}"
+        )
+      end
+    end
+
+    def valid_assumption_strength?(strength)
+      strength.is_a?(Numeric) && strength >= 0.0 && strength <= 1.0
     end
 
     def infer_expr(expr, symbol_types, type_errors, type_warnings, node_name)

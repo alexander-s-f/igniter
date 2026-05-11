@@ -45,30 +45,12 @@
           "kind": "compute",
           "name": "score",
           "expr": {
-            "kind": "binary_op",
-            "op": "*",
-            "left": {
-              "kind": "call",
-              "fn": "similarity",
-              "args": [
-                {
-                  "kind": "ref",
-                  "name": "a"
-                },
-                {
-                  "kind": "ref",
-                  "name": "b"
-                }
-              ]
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "homophily"
             },
-            "right": {
-              "kind": "field_access",
-              "object": {
-                "kind": "ref",
-                "name": "homophily"
-              },
-              "field": "strength"
-            }
+            "field": "strength"
           }
         },
         {
