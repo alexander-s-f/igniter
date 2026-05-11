@@ -1,0 +1,71 @@
+{
+  "proof_id": "S3-R34-C1-P",
+  "track": "durable-audit-reader-traversal-proof-v0",
+  "authorization_ref": "architect-supervisor://igniter-lang/gates/phase1-production-durable-audit/bounded-implementation-v0/2026-05-10",
+  "proof_timestamp": "2026-05-11T00:00:00Z",
+  "status": "PASS",
+  "total_cases": 26,
+  "passed": 26,
+  "failed": 0,
+  "invariants_passed": 4,
+  "invariants_total": 4,
+  "surfaces": [
+    {
+      "surface": 1,
+      "cases": 4,
+      "passed": 4,
+      "status": "PASS"
+    },
+    {
+      "surface": 2,
+      "cases": 4,
+      "passed": 4,
+      "status": "PASS"
+    },
+    {
+      "surface": 3,
+      "cases": 3,
+      "passed": 3,
+      "status": "PASS"
+    },
+    {
+      "surface": 4,
+      "cases": 6,
+      "passed": 6,
+      "status": "PASS"
+    },
+    {
+      "surface": 5,
+      "cases": 4,
+      "passed": 4,
+      "status": "PASS"
+    },
+    {
+      "surface": 6,
+      "cases": 5,
+      "passed": 5,
+      "status": "PASS"
+    }
+  ],
+  "decisions": {
+    "D1": "Full chain verification runs on ALL records; output filters applied after",
+    "D2": "compliant_export true only when integrity_failures=[], posture_mismatches=[], total_scanned>0",
+    "D3": "Reader role is phase1_audit_reader; all mutating/authorizing ops return audit.reader.unauthorized",
+    "D4": "Posture-mismatch records excluded from verified_records and reported in posture_mismatches"
+  },
+  "remaining_blockers": {
+    "B-C": "Appender / reader role boundary proof (surface 7 of S3-R30-C1-A)",
+    "B-D": "Post-implementation full regression matrix; must include P-43 confirmation",
+    "P-43": "Production store append must gate on clean rebuild status (before deployment authorization)"
+  },
+  "non_authorization": {
+    "production_durable_audit": false,
+    "gate3_authorized": false,
+    "ledger": false,
+    "bihistory": false,
+    "stream_olap": false,
+    "hsm_kms": false,
+    "runtime_machine_binding": false,
+    "lib_changes": false
+  }
+}
