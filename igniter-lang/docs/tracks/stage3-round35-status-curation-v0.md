@@ -116,7 +116,29 @@ PROP-037+ placeholder. Neither was accepted or assigned by R35 evidence.
 
 ---
 
+## R36 Preflight Supersession
+
+S3-R36-C3-S supersedes the forward-looking status in this track with later landed
+evidence:
+
+| Before in this track | Current preflight state |
+|----------------------|-------------------------|
+| PROP-036 authored-pending-review | PROP-036 accepted proposal-only by `S3-R35-C3-A`; implementation still requires a separate Architect card |
+| Progression unassigned at PROP-037+ | PROP-037 assigned numbering-only by `S3-R35-C4-A`; proposal not authored and implementation closed |
+| PROP-032 Phase 4 still open | Phase 4 proof landed in `S3-R35-C5-P`; PROP-032 promoted to experiment-pass by `S3-R36-C2-A` for bounded compiler behavior only |
+| B-E ready for review | B-E restricted Phase 1 durable audit deployment scope approved by `S3-R36-C1-A`; excluded runtime/Ledger/HSM/KMS surfaces remain closed |
+
+The R36 recommendations below are preserved as historical output of S3-R35-C2-S,
+but they should not be used as the active planning baseline.
+
+---
+
 ## R36 Recommendation
+
+**Superseded by S3-R36-C3-S preflight:** Items 2, 3, and 4 below have landed or
+changed status. The current route is restricted durable-audit deployment follow-up,
+PROP-036 design/proof follow-up if authorized, PROP-037 formal authoring, and
+PROP-032 Ch2/governance-map sync.
 
 Route R36 around four concrete decisions/slices:
 

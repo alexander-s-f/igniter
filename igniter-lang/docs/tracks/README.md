@@ -52,6 +52,16 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 36 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../gates/durable-audit-b-e-deployment-review-decision-v0.md` | approved-restricted-phase1-production-durable-audit-deployment-scope | Opens bounded audit append/read/rebuild deployment scope only; Ledger, Phase 2, BiHistory, stream/OLAP, cache, broad RuntimeMachine, concrete HSM/KMS onboarding, and general persistence remain closed |
+| `../gates/prop032-assumptions-experiment-pass-decision-v0.md` | experiment-pass | Promotes PROP-032 bounded compiler surface; PROP-033 evidence validation, runtime receipts, and production behavior remain excluded |
+| `stage3-round36-status-preflight-sync-v0.md` | done | Preflights R35 same-round decisions plus R36 C1/C2 before further implementation/proposal work; fixes stale R35 C2-S recommendations in living maps |
+
+---
+
 ## Stage 3 Round 35 Evidence
 
 | Track | Status | Notes |
@@ -62,7 +72,7 @@ architecture. They are not production migration authorization.
 | `../gates/prop036-compiler-profile-id-acceptance-decision-v0.md` | accepted-proposal-only | Accepts PROP-036 as proposal-only; no `.igapp`, loader, assembler, runtime, dispatch, Ledger, Phase 2, or production behavior authorization |
 | `../gates/progression-prop-number-assignment-decision-v0.md` | approved-numbering-only | Assigns PROP-037 to external progression and service liveness semantics; proposal authoring next; no parser/runtime/fragment-class implementation auth |
 | `prop032-assumptions-phase4-parser-proof-v0.md` | done | Closes PROP-032 Phase 4 parser/P28/source proof; recommends experiment-pass review; no PROP-033 evidence validation or runtime receipt work |
-| `proposal-lifecycle-status-labels-sync-v0.md` | done | Clarifies proposal lifecycle labels and active maps: Track done is not Proposal accepted; PROP-036 accepted proposal-only; PROP-037 assigned numbering-only; PROP-032 experiment-pass decision still pending |
+| `proposal-lifecycle-status-labels-sync-v0.md` | done | Clarifies proposal lifecycle labels and active maps: Track done is not Proposal accepted; PROP-036 accepted proposal-only; PROP-037 assigned numbering-only; later R36 C2-A promotes PROP-032 to experiment-pass |
 
 ---
 
@@ -617,10 +627,10 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| B-E production deployment review | Architect review for production deployment/signing/HSM/KMS after B-D PASS; keep Ledger/Phase2/BiHistory/stream/OLAP/cache closed unless separately authorized | Architect Supervisor | next R36 priority; B-D closed, deployment still not approved |
+| restricted durable-audit deployment follow-up | Implement/configure only the S3-R36-C1-A bounded audit append/read/rebuild deployment scope: storage identity, signer abstraction refusal behavior, startup rebuild, appender/reader roles, refusal-code export, rollback/disable, post-deployment smoke | Implementation Agent / Architect Supervisor | B-E restricted scope approved; concrete HSM/KMS and excluded surfaces still closed |
 | PROP-036 design/proof follow-up | Open only a C3-A-authorized design/proof card such as loader status report or artifact hash ordering; implementation remains blocked | Compiler/Grammar Expert / Architect Supervisor | proposal accepted by S3-R35-C3-A; implementation still closed |
 | PROP-037 authoring | Author formal external progression/service-liveness PROP using C4-A as numbering authority | Compiler/Grammar Expert / Architect Supervisor | number assigned by S3-R35-C4-A; proposal not authored |
-| PROP-032 experiment-pass governance | Decide whether Phase 1-4 evidence promotes PROP-032 to experiment-pass; do not include PROP-033 evidence validation/runtime receipts | Meta Expert / Architect Supervisor | Phase 4 proof done in S3-R35-C5-P; governance decision open |
+| PROP-032 Ch2/Heat Map sync | Apply S3-R36-C2-A follow-up docs: Ch2 source grammar and governance maps; keep PROP-033 evidence validation/runtime receipts excluded | Meta Expert / Compiler/Grammar Expert | experiment-pass landed; follow-up docs remain |
 | OQ-P28-1 escape naming answer | Verify whether unnamed `escape` declaration is currently parse error; update Covenant P28 table | Compiler/Grammar Expert | still open; route before PROP-035 |
 | OOF-I1/I3/I5 closure | PROP-025 addendum + targeted fixtures for deferred invariant OOF anchors | Research Agent / Compiler/Grammar Expert | still deferred; route when invariant lane reopens |
 | `_volatile_fields` Time.now grep hook | Detect newly-added unannotated `Time.now` usage in experiment scripts | Implementation Agent / Research Agent | optional follow-up; not required for R28 close |
