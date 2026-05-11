@@ -56,6 +56,7 @@ architecture. They are not production migration authorization.
 
 | Track | Status | Notes |
 |-------|--------|-------|
+| `mundane-application-pressure-analysis-v0.md` | routed-pressure-specimen | Sidecar analysis of blind external mundane application specimens; preserves them as non-canonical pressure evidence and routes stdlib/effect/OOF/profile signals for extraction |
 | `durable-audit-post-implementation-regression-matrix-v0.md` | done | Closes B-D: 9/9 command matrix PASS; 97/97 durable audit proof cases PASS across bounded implementation, restart rebuild, traversal/reader, role boundary; no excluded-surface widening; ready for B-E review, not deployment approval |
 | `stage3-round35-status-curation-v0.md` | done | R35 status/index sync; B-D closed in living maps, C2-P same-round drift cross-referenced, PROP-036 remains authored-pending-review, progression PROP number remains unassigned |
 

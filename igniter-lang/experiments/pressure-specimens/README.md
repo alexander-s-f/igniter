@@ -12,6 +12,32 @@ They are engineered thought-experiments created to:
 - Demonstrate Forms, Profiles, External Progression, Epistemic State Machine, Effect Surface, Assumptions/Constraints, PostAudit and other emerging language features
 - Serve as living artifacts for External Pressure Review and language evolution
 
+### Status / Authority
+
+Pressure specimens are **non-canonical** by default.
+
+They do not authorize:
+
+- parser syntax
+- type-system changes
+- runtime behavior
+- stdlib implementation
+- Effect Surface implementation
+- production capability binding
+
+Their lifecycle is:
+
+```text
+specimen -> pressure analysis -> extracted signal -> proposal/spec track -> implementation only after explicit gate
+```
+
+When a specimen produces useful pressure, it should be routed through a track
+document instead of being left as an ambiguous experiment.
+
+Current routed analyses:
+
+- `docs/tracks/mundane-application-pressure-analysis-v0.md` — disposition and signal extraction route for `mundane-application-pressure-v0`.
+
 ### Philosophy
 
 > "We develop the language by attacking it with the hardest possible problems — not by starting with hello-world and todo lists."
@@ -41,6 +67,7 @@ The more ambitious and safety-critical the domain — the more valuable the spec
 2. Use them during External Pressure Review sessions.
 3. Treat every awkwardness, missing primitive, or ugly form as a **feature request** for the language.
 4. They serve as input for compiler spec, Form System evolution, and runtime model.
+5. Do not promote syntax or semantics from a specimen without a named proposal/spec track.
 
 ### Related Documents
 
