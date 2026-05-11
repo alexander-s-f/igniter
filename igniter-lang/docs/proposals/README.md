@@ -44,7 +44,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-030](PROP-030-executor-approval-token-contract-v0.md) | authored-pending-review | ExecutorApprovalToken contract; explicit approval as Gate 3 prerequisite; no executor or Gate 3 authorization |
 | [PROP-030A](PROP-030A-temporal-scope-exclusion-errata-v0.md) | authored-pending-review | Errata to PROP-030: canonical `runtime.temporal_scope_exclusion` refusal for out-of-scope TEMPORAL executor artifacts |
 | [PROP-031](PROP-031-contract-modifiers-v0.md) | experiment-pass | Contract modifiers: optional `pure/observed/effect/privileged/irreversible` prefix, implicit pure default, OOF-M1 only; parser/classifier/typechecker/SemanticIR proof PASS; no Effect Surface/Profile/authority/runtime enforcement |
-| [PROP-032](PROP-032-assumptions-block-v0.md) | implemented-proof | `assumptions {}` block + `uses assumptions NAME`; Phase 1/2/3/4 compiler proofs landed; experiment-pass governance decision still open |
+| [PROP-032](PROP-032-assumptions-block-v0.md) | experiment-pass | `assumptions {}` block + `uses assumptions NAME`; Phase 1/2/3/4 compiler proofs accepted by S3-R36-C2-A; PROP-033 evidence validation and runtime receipts remain excluded |
 | [PROP-036](PROP-036-compiler-profile-manifest-identity-v0.md) | accepted | `compiler_profile_id` manifest identity; accepted proposal-only by S3-R35-C3-A; separate implementation authorization required before code |
 
 ---
@@ -69,7 +69,7 @@ They remain active intake. Verification requires Architect authorization.
 
 ## Queued (not yet authored)
 
-PROP-032 is authored and partially implemented by proof (assumptions block). New Stage 3+
+PROP-032 is authored and promoted to experiment-pass by proof (assumptions block). New Stage 3+
 proposal IDs must consult this queue before claiming a number.
 
 **Queue renumbering (GI-1 resolution, S3-R30-C6-P):** PROP-032 was previously assigned to
