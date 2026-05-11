@@ -232,6 +232,14 @@ module CompilerProfileChainClosureIndex
       "command" => "igniter-lang/experiments/progression_pack_shadow_boundary/progression_pack_shadow_boundary.rb",
       "summary_path" => "igniter-lang/experiments/progression_pack_shadow_boundary/out/progression_pack_shadow_boundary_summary.json",
       "track_doc" => "igniter-lang/docs/tracks/progression-pack-shadow-boundary-v0.md"
+    },
+    {
+      "id" => "compiler_profile_r32_shadow_chain_backreference",
+      "phase" => "r32_shadow_chain_backreference",
+      "claim" => "R32 M-3 shadow dependency-map pressure is answered by the compiler profile closure index.",
+      "command" => "igniter-lang/experiments/compiler_profile_r32_shadow_chain_backreference/compiler_profile_r32_shadow_chain_backreference.rb",
+      "summary_path" => "igniter-lang/experiments/compiler_profile_r32_shadow_chain_backreference/out/compiler_profile_r32_shadow_chain_backreference_summary.json",
+      "track_doc" => "igniter-lang/docs/tracks/compiler-profile-r32-shadow-chain-backreference-v0.md"
     }
   ].freeze
 
@@ -298,10 +306,11 @@ module CompilerProfileChainClosureIndex
       "chain.includes_profile_syntax_grammar_boundary" => entries.any? { |entry| entry.fetch("id") == "profile_source_syntax_grammar_boundary" },
       "chain.includes_validator_implementation_plan" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_validator_implementation_plan" },
       "chain.includes_manifest_prop_architect_routing" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_manifest_prop_architect_routing" },
-      "chain.ends_with_progression_pack_shadow_boundary" => entries.last.fetch("id") == "progression_pack_shadow_boundary",
+      "chain.includes_progression_pack_shadow_boundary" => entries.any? { |entry| entry.fetch("id") == "progression_pack_shadow_boundary" },
+      "chain.ends_with_r32_shadow_chain_backreference" => entries.last.fetch("id") == "compiler_profile_r32_shadow_chain_backreference",
       "chain.all_commands_exited_zero" => entries.all? { |entry| entry.fetch("exit_status").zero? },
       "chain.all_summaries_pass" => entries.all? { |entry| entry.fetch("proof_status") == "PASS" },
-      "chain.has_expected_phase_count" => phases.length == 27,
+      "chain.has_expected_phase_count" => phases.length == 28,
       "chain.has_receipt_and_storage_phases" => phases.include?("build_receipt") && phases.include?("receipt_storage"),
       "chain.has_self_assembly_and_bootstrap_phases" => phases.include?("self_assembly") && phases.include?("bootstrap_seed"),
       "chain.has_descriptor_and_lowering_phases" => phases.include?("descriptor_schema") && phases.include?("future_syntax_target"),
@@ -316,6 +325,7 @@ module CompilerProfileChainClosureIndex
       "chain.has_validator_implementation_plan_phase" => phases.include?("validator_implementation_plan"),
       "chain.has_manifest_prop_architect_routing_phase" => phases.include?("manifest_prop_architect_routing"),
       "chain.has_progression_pack_shadow_boundary_phase" => phases.include?("progression_pack_shadow_boundary"),
+      "chain.has_r32_shadow_chain_backreference_phase" => phases.include?("r32_shadow_chain_backreference"),
       "scope.no_runtime_authority_phase" => entries.none? { |entry| entry.fetch("phase").include?("runtime_authority") }
     }
   end

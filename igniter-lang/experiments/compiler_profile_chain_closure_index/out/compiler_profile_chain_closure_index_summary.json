@@ -354,6 +354,19 @@
       "stdout_first_line": "PASS progression_pack_shadow_boundary",
       "stderr": "",
       "check_count": 10
+    },
+    {
+      "id": "compiler_profile_r32_shadow_chain_backreference",
+      "phase": "r32_shadow_chain_backreference",
+      "claim": "R32 M-3 shadow dependency-map pressure is answered by the compiler profile closure index.",
+      "command": "igniter-lang/experiments/compiler_profile_r32_shadow_chain_backreference/compiler_profile_r32_shadow_chain_backreference.rb",
+      "summary_path": "igniter-lang/experiments/compiler_profile_r32_shadow_chain_backreference/out/compiler_profile_r32_shadow_chain_backreference_summary.json",
+      "track_doc": "igniter-lang/docs/tracks/compiler-profile-r32-shadow-chain-backreference-v0.md",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "stdout_first_line": "PASS compiler_profile_r32_shadow_chain_backreference",
+      "stderr": "",
+      "check_count": 6
     }
   ],
   "checks": {
@@ -369,7 +382,8 @@
     "chain.includes_profile_syntax_grammar_boundary": true,
     "chain.includes_validator_implementation_plan": true,
     "chain.includes_manifest_prop_architect_routing": true,
-    "chain.ends_with_progression_pack_shadow_boundary": true,
+    "chain.includes_progression_pack_shadow_boundary": true,
+    "chain.ends_with_r32_shadow_chain_backreference": true,
     "chain.all_commands_exited_zero": true,
     "chain.all_summaries_pass": true,
     "chain.has_expected_phase_count": true,
@@ -387,6 +401,7 @@
     "chain.has_validator_implementation_plan_phase": true,
     "chain.has_manifest_prop_architect_routing_phase": true,
     "chain.has_progression_pack_shadow_boundary_phase": true,
+    "chain.has_r32_shadow_chain_backreference_phase": true,
     "scope.no_runtime_authority_phase": true
   },
   "what_this_index_authorizes": [

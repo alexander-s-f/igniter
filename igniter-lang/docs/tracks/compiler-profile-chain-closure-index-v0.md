@@ -14,7 +14,8 @@ Date: 2026-05-10
 Provide one index for the full background compiler profile / pack architecture
 chain from the original shadow profile proof through descriptor schema,
 profile-source lowering target, manifest PROP draft candidate, and syntax
-pressure, ending at the ProgressionPack shadow boundary.
+pressure, ending at the ProgressionPack shadow boundary and the R32 shadow-chain
+backreference.
 
 This is an index and proof guard. It does not authorize production pack
 migration, compiler dispatch rewrite, profile syntax, `.igapp`/`.ilk` changes, or
@@ -29,6 +30,8 @@ Added:
 ```text
 igniter-lang/experiments/compiler_profile_chain_closure_index/compiler_profile_chain_closure_index.rb
 igniter-lang/experiments/compiler_profile_chain_closure_index/out/compiler_profile_chain_closure_index_summary.json
+igniter-lang/experiments/compiler_profile_r32_shadow_chain_backreference/compiler_profile_r32_shadow_chain_backreference.rb
+igniter-lang/experiments/compiler_profile_r32_shadow_chain_backreference/out/compiler_profile_r32_shadow_chain_backreference_summary.json
 ```
 
 Command:
@@ -76,6 +79,7 @@ PASS compiler_profile_chain_closure_index
 | 25 | validator implementation plan | `compiler_profile_validator_implementation_plan` | `compiler-profile-validator-implementation-plan-v0` |
 | 26 | manifest PROP Architect routing | `compiler_profile_manifest_prop_architect_routing` | `compiler-profile-manifest-prop-architect-routing-v0` |
 | 27 | progression pack shadow boundary | `progression_pack_shadow_boundary` | `progression-pack-shadow-boundary-v0` |
+| 28 | R32 shadow-chain backreference | `compiler_profile_r32_shadow_chain_backreference` | `compiler-profile-r32-shadow-chain-backreference-v0` |
 
 ---
 
@@ -146,6 +150,9 @@ implementation cards.
 future profile-assembled compiler, separate from StreamPack, TemporalPack, and
 PipelinePack.
 
+[S] R32 external pressure item M-3 is now explicitly backreferenced: the closure
+index is the current dependency-map answer for the background shadow proof chain.
+
 ---
 
 ## Guard Checks
@@ -165,7 +172,8 @@ chain.includes_profile_syntax_compiler_review
 chain.includes_profile_syntax_grammar_boundary
 chain.includes_validator_implementation_plan
 chain.includes_manifest_prop_architect_routing
-chain.ends_with_progression_pack_shadow_boundary
+chain.includes_progression_pack_shadow_boundary
+chain.ends_with_r32_shadow_chain_backreference
 chain.all_commands_exited_zero
 chain.all_summaries_pass
 chain.has_expected_phase_count
@@ -183,6 +191,7 @@ chain.has_profile_syntax_grammar_boundary_phase
 chain.has_validator_implementation_plan_phase
 chain.has_manifest_prop_architect_routing_phase
 chain.has_progression_pack_shadow_boundary_phase
+chain.has_r32_shadow_chain_backreference_phase
 scope.no_runtime_authority_phase
 ```
 
@@ -250,12 +259,12 @@ Track: compiler-profile-chain-closure-index-v0
 Status: done
 
 [D] Decisions:
-- Created one closure index from shadow profile through ProgressionPack shadow boundary readiness.
+- Created one closure index from shadow profile through ProgressionPack shadow boundary readiness and R32 M-3 backreference.
 - The index is a proof guard and navigation map, not migration authorization.
 - Runtime authority remains out of scope across the chain.
 
 [S] Signals:
-- 27/27 indexed proofs PASS.
+- 28/28 indexed proofs PASS.
 - The chain covers shadow profile, pack boundary, kernel registry, ordering,
   manifest plan, slots, unified profile, authority, reports, receipts,
   self-assembly, bootstrap seed, descriptor schema, lowering target, and
@@ -263,7 +272,8 @@ Status: done
   numbering decision request readiness, descriptor diagnostic precedence, and
   profile syntax Compiler/Grammar review baseline, grammar boundary readiness,
   validator implementation plan readiness, and manifest PROP Architect routing
-  readiness, and ProgressionPack shadow boundary readiness.
+  readiness, ProgressionPack shadow boundary readiness, and R32 shadow-chain
+  backreference readiness.
 
 [T] Tests:
 - ruby igniter-lang/experiments/compiler_profile_chain_closure_index/compiler_profile_chain_closure_index.rb -> PASS

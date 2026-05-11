@@ -35,7 +35,8 @@ architecture. They are not production migration authorization.
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `compiler-profile-chain-closure-index-v0.md` | done | Closure index PASS 27/27 from shadow profile through ProgressionPack shadow boundary; guard only, no dispatch/.igapp/.ilk/runtime authority change |
+| `compiler-profile-chain-closure-index-v0.md` | done | Closure index PASS 28/28 from shadow profile through ProgressionPack shadow boundary and R32 M-3 backreference; guard only, no dispatch/.igapp/.ilk/runtime authority change |
+| `compiler-profile-r32-shadow-chain-backreference-v0.md` | done | Backreferences R32 pressure item M-3 to the closure index; marks shadow dependency-map ask addressed without closing manifest PROP numbering or durable audit items |
 | `compiler-profile-manifest-prop-draft-v0.md` | done | PROP-ready draft candidate for top-level `compiler_profile_id`; legacy_optional/profile_required policies; hash/signature ordering; no official PROP number claimed |
 | `profile-source-syntax-pressure-v0.md` | done | Compiler/Grammar-facing syntax pressure; descriptor-data style preferred before parser work; block-style syntax pressure-only |
 | `compiler-profile-manifest-prop-review-ready-v0.md` | done | Architect-review-ready packet; locks authority firewall, receipt/profile lane split, required exactly-one slots, slot-order dispatch invariant, and bootstrap traceability |

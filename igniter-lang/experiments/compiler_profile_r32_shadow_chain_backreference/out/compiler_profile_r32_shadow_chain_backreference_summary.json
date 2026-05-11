@@ -1,0 +1,30 @@
+{
+  "kind": "compiler_profile_r32_shadow_chain_backreference_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-r32-shadow-chain-backreference-v0",
+  "status": "PASS",
+  "r32_pressure_item": "M-3",
+  "disposition": "addressed-by-closure-index",
+  "backreferences": {
+    "pressure_discussion": "igniter-lang/docs/discussions/r32-durable-audit-prop032-and-compiler-profile-pressure-v0.md",
+    "closure_index": "igniter-lang/docs/tracks/compiler-profile-chain-closure-index-v0.md",
+    "track_doc": "igniter-lang/docs/tracks/compiler-profile-r32-shadow-chain-backreference-v0.md"
+  },
+  "checks": {
+    "discussion.names_m3_shadow_dependency_map": true,
+    "discussion.points_to_closure_index": true,
+    "track_records_m3_disposition": true,
+    "track_links_pressure_and_index": true,
+    "track_preserves_shadow_scope": true,
+    "closure_index_includes_backreference": true
+  },
+  "what_this_authorizes": [
+    "Treat the closure index as the current dependency-map answer for R32 M-3."
+  ],
+  "what_this_does_not_authorize": [
+    "No production CompilerKernel implementation.",
+    "No compiler dispatch rewrite.",
+    "No .igapp/.ilk format change.",
+    "No runtime execution authority."
+  ]
+}
