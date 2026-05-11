@@ -77,15 +77,23 @@ PROP-032 is authored (assumptions block). New Stage 3+ proposal IDs should start
 **PROP-036 assignment (S3-R33-C3-A, authored S3-R34-C5-P):** PROP-036 is assigned
 to and authored for `compiler_profile_id` manifest identity. It remains proposal
 only: no implementation, `.igapp` mutation, loader/assembler/runtime binding,
-dispatch migration, or runtime execution authority. Managed recursion / service
-loop placeholders must use PROP-037+ or later until formally assigned.
+dispatch migration, or runtime execution authority.
+
+**PROP-037 assignment (S3-R35-C4-A):** PROP-037 is assigned to external
+progression and service liveness semantics. This is numbering-only: the proposal
+is not authored or accepted yet, and no parser, TypeChecker, SemanticIR,
+RuntimeMachine scheduler, Ledger/TBackend, durable queue, production execution,
+ProgressionPack migration, or new fragment class is authorized. Managed local
+recursion / loop-class extension placeholders must use PROP-038+ or later until
+formally assigned.
 
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|
 | PROP-033 | `via profile binding` | PROP-031 | 3 | high |
 | PROP-034 | `output evidence syntax` | PROP-031, PROP-032 | 3 | high |
 | PROP-035 | profile declarations / authority resolution | PROP-031, PROP-033 | 3 | medium |
-| PROP-037+ | managed recursion / service loops placeholder | future routing decision; PROP-036 unavailable | 4+ | unassigned |
+| PROP-037 | external progression and service liveness semantics | PROP-023, Ch13 managed recursion, R34 progression scope draft | 3 | high |
+| PROP-038+ | managed local recursion / loop-class extensions placeholder | future routing decision; PROP-037 owns progression/service liveness | 4+ | unassigned |
 | TBD | Effect Surface | PROP-031 | 3 | medium |
 | TBD | Prior queued ideas need renumbering/requeue | — | 3+ | medium |
 
@@ -130,5 +138,6 @@ Stage 1 PROPs: see `accepted/` — frozen read-only.
 Stage 2 closed PROPs: in `proposals/` with `Status: closed`.
 New Stage 3 proposal IDs must consult the queued table above. PROP-033 through
 PROP-035 are reserved there; PROP-036 is authored for compiler profile manifest
-identity; managed recursion / service loops use PROP-037+ as placeholder only
-until formal assignment.
+identity; PROP-037 is assigned to external progression and service liveness
+semantics; managed local recursion / loop-class extensions use PROP-038+ as
+placeholder only until formal assignment.
