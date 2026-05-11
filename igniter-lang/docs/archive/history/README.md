@@ -30,6 +30,7 @@ reports when origin or archive evidence matters.
 | [History-S16 Playgrounds-Rotation-1 Approval Packet](./history-s16-playgrounds-rotation-1-approval-packet.md) | Drafts a conservative cleanup approval packet for `playgrounds/docs`: metadata cleanup, tiny private indexes, no Markdown deletion, no nested `.git` changes. |
 | [History-S17 Forms / Effects / Contracts Research Snapshot](./history-s17-forms-research-snapshot.md) | Compresses the private Agent-C forms/effects/contracts/profile/loop research line into values, live research, do-not-promote zones, and next-stage slices. |
 | [History-S18 External Effects Minimal Slice Map](./history-s18-external-effects-minimal-slice-map.md) | Separates implemented PROP-031 contract modifiers from still-unrealized Effect Surface/Profile/receipt/runtime accountability work. |
+| [History-S19 Evidence / Receipt Minimal Slice Map](./history-s19-evidence-receipt-minimal-slice-map.md) | Separates passive source evidence syntax, PROP-032 assumption evidence-adjacent behavior, runtime receipts/observations, and future Effect Surface receipts. |
 
 ## Read Rule
 
