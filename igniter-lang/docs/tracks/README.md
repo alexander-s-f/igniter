@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-10
+Last updated: 2026-05-11
 
 ---
 
@@ -56,6 +56,10 @@ architecture. They are not production migration authorization.
 | Track | Status | Notes |
 |-------|--------|-------|
 | `r32-governance-authority-sync-v0.md` | done | Closes P-39/P-40 follow-up docs: META-EXPERT-013 defers to Covenant, Covenant OQ-Filter-1 points to S3-R31-C2-A, Heat Map Domain 8 authority split is closed; no PROP-032 implementation authorization |
+| `durable-audit-hash-and-posture-design-amendment-v0.md` | done | Closes P-37/P-38; five canonical hash excluded fields documented; compliance_posture stored+derived+mismatch-checked; B-A/B-B/B-C unblocked; no deployment auth |
+| `prop032-assumptions-phase1-classifier-implementation-v0.md` | done | Classifier Phase 1 landed: assumption_registry, uses_assumptions, assumption_refs, epistemic precedence, OOF-A1; assumptions_proof + regressions PASS; TypeChecker/SemanticIR open |
+| `../discussions/r32-durable-audit-prop032-and-compiler-profile-pressure-v0.md` | complete — PROCEED (non-blockers only) | P-37..P-40 closed; B-A still open; PROP-032 Phase 2 unblocked; compiler_profile_id PROP number needed |
+| `stage3-round32-status-curation-v0.md` | done | R32 status/context/index sync — this track |
 
 ---
 
@@ -570,23 +574,25 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| audit hash/posture design amendment | Document C1-P canonical hash excluded fields and resolve compliance_posture stored-vs-derived model before restart rebuild/traversal proofs | Research Agent / Implementation Agent | recommended for R32; closes P-37/P-38 |
-| C1-P surface-numbering errata | Add note that C1-P prose says "surfaces 1-4" but delivered C1-A surfaces 1/2/3/8; blocker table remains correct | Meta Expert / Research Agent | recommended for R32 |
+| B-A restart rebuild proof | Verify hash/chain first, derive compliance_posture, compare stored vs derived, refuse mismatch with `audit.record.compliance_posture_mismatch`; define cursor-stop vs full-scan abort | Implementation Agent / Research Agent | recommended for R33; now unblocked |
+| PROP-032 Phase 2 TypeChecker | Propagate OOF-A1 from classified `oof_log` to `type_errors`, passthrough `assumption_refs`, add strength range check; include SemanticIR if atomic golden regeneration is feasible | Compiler/Grammar Expert / Research Agent | recommended for R33; Phase 1 goldens landed |
+| compiler_profile_id PROP number decision | Assign formal PROP number before manifest feature enters acceptance gate or implementation planning | Architect Supervisor / Meta Expert | recommended for R33; closes P-41 |
+| B-B traversal/reader proof | Prove audit traversal/reader behavior; reader must re-derive compliance_posture for every returned record | Implementation Agent / Research Agent | recommended after/with B-A |
+| B-C appender/reader role boundary | Prove appender vs reader role separation within bounded audit scope | Implementation Agent / Research Agent | may run with B-B |
+| B-D post-implementation matrix | Run full matrix including new audit proofs before any deployment review | Research Agent | required before follow-up Architect review |
+| audit hash/posture design amendment | Document C1-P canonical hash excluded fields and resolve compliance_posture stored-vs-derived model before restart rebuild/traversal proofs | Research Agent / Implementation Agent | done in S3-R32-C1-P; closes P-37/P-38 |
+| C1-P surface-numbering errata | Add note that C1-P prose says "surfaces 1-4" but delivered C1-A surfaces 1/2/3/8; blocker table remains correct | Meta Expert / Research Agent | done in S3-R32-C1-P |
 | META-EXPERT-013 Covenant authority note | Add C2-A authority rule: Covenant normative, META-EXPERT-013 operational/checklist only | Compiler/Grammar Expert / Meta Expert | done in S3-R32-C2-S; closes P-40 |
 | Covenant/Heat Map OQ-Filter sync | Add C2-A pointer to Covenant and update Heat Map Domain 8 row from open gov debt to closed decision | Meta Expert | done in S3-R32-C2-S; closes P-39 |
-| PROP-032 Phase 1 implementation | Implement assumptions Classifier/TypeChecker/SemanticIR support and Research Agent fixtures per C5-P gate template | Compiler/Grammar Expert / Research Agent | gate satisfied; implementation/proof not landed |
-| B-A restart rebuild proof | Prove restart rebuild against the bounded audit canonical hash and compliance_posture model | Implementation Agent / Research Agent | recommended after P-37/P-38 |
-| B-B traversal/reader proof | Prove audit traversal/reader behavior without production deployment or Ledger widening | Implementation Agent / Research Agent | recommended after P-38 |
-| B-C appender/reader role boundary | Prove appender vs reader role separation within bounded audit scope | Implementation Agent / Research Agent | may run with B-B after design questions close |
-| B-D post-implementation matrix | Run full matrix including new audit proofs before any deployment review | Research Agent | required before follow-up Architect review |
-| compiler_profile_id manifest PROP | Draft explicit manifest/profile PROP before any `.igapp` implementation | Compiler/Grammar Expert / Architect Supervisor | recommended after R31 shadow boundary plan PASS |
+| PROP-032 Phase 1 implementation | Implement assumptions Classifier boundary and Research Agent fixtures per C5-P gate template | Compiler/Grammar Expert / Research Agent | done in S3-R32-C3-P; TypeChecker/SemanticIR open |
+| compiler_profile_id manifest PROP | Draft explicit manifest/profile PROP before any `.igapp` implementation | Compiler/Grammar Expert / Architect Supervisor | draft/routing packet exists; number decision still open |
 | bounded production durable audit implementation track | Implement only the C1-A authorized surfaces, then run excluded-surface regression and post-implementation matrix before any deployment decision | Implementation Agent / Research Agent | partially done in S3-R31-C1-P; B-A/B-B/B-C/B-D remain |
 | OQ-Filter-1 Architect decision | Decide PROP acceptance authority: Covenant Governance Filter vs META-EXPERT-013 §VI vs consolidated lifecycle doc | Architect Supervisor / Meta Expert | done in S3-R31-C2-A |
 | PROP-032 implementation gate | State explicit acceptance/authorization trigger before classifier work on `epistemic`, OOF-A1, and assumptions pipeline begins | Architect Supervisor / Compiler/Grammar Expert | done in S3-R31-C5-P; Phase 1 gate satisfied |
 | startup override design addendum | Amend R29 design with D1 all non-default expiry and D2/D3 new refusal codes from R30 proof | Research Agent / Meta Expert | done in S3-R31-C4-P |
 | Heat Map + CSM stale-credit sync | Update Heat Map rows for startup validator and V-3 golden; add CSM secondary observed+temporal anchor | Meta Expert | done in S3-R31-C3-S |
 | OQ-P28-1 escape naming answer | Verify whether unnamed `escape` declaration is currently parse error; update Covenant P28 table | Compiler/Grammar Expert | still open; route before PROP-035 |
-| OOF-I1/I3/I5 closure | PROP-025 addendum + targeted fixtures for deferred invariant OOF anchors | Research Agent / Compiler/Grammar Expert | still recommended parallel R32 |
+| OOF-I1/I3/I5 closure | PROP-025 addendum + targeted fixtures for deferred invariant OOF anchors | Research Agent / Compiler/Grammar Expert | still recommended parallel R33 |
 | production durable audit implementation authorization decision | Architect review of R28-R29 evidence package; may authorize only a bounded implementation track if explicit decision says so | Architect Supervisor | done in S3-R30-C1-A; deployment still closed |
 | startup_time override proof-local validator | Implement C2-P matrix for policy_ref + signed policy validation; include fail-closed cases and accepted/rejected proof-local authority patterns | Research Agent / Implementation Agent | done in S3-R30-C2-P; 28/28 PASS |
 | V-3 temporal+observed golden | Add dedicated `observed + temporal body -> fragment_class: "temporal"` proof/golden to `contract_modifiers_proof` | Compiler/Grammar Expert | done in S3-R30-C3-P; 25/25 PASS |

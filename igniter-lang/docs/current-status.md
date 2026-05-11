@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-10
+Last updated: 2026-05-11
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -114,19 +114,22 @@ Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             startup_time override validator PASS 28/28;
                             Heat Map + Covenant enforcement registry landed;
                             R31 bounded audit proof-local surfaces PASS 29/29;
+                            R32 hash/posture design amendment closed P-37/P-38;
+                            B-A restart rebuild unblocked but not landed;
                             restart rebuild/traversal/reader/role-boundary/matrix still open;
                             implementation/signing execution still closed
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open;
                             PROP-032 assumptions block drafted;
-                            Phase 1 gate satisfied; implementation/proof not landed
+                            Phase 1 Classifier landed; TypeChecker/SemanticIR/full proof open
 Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             invariant typed-shape delta accepted/discharged;
                             invariant source metadata preserved;
                             parsed emitter retained as Stage 1 legacy/comparison;
                             Profile-Baseline-Pack target direction recorded;
-                            shadow compiler-pack proofs are pre-POC/no-dispatch only
+                            shadow compiler-pack proofs are pre-POC/no-dispatch only;
+                            compiler_profile_id PROP number still open
 ─────────────────────────────────────────────────────────────────
 STAGE 3 CLOSED:   NO
 Round 1 landed:
@@ -316,8 +319,12 @@ Round 31 landed:
   S3-R31-C7-P: compiler pack shadow/pre-POC      ✅ shadow reports/proofs; no dispatch, no .igapp change, no migration authorization
   S3-R31-shadow: compiler_profile_id boundary    ✅ proof-local plan PASS; manifest PROP required before implementation
   S3-R31-X1-S: bounded audit/governance pressure ✅ PROCEED; P-37..P-40 and B-A..B-D routed
-Round 32 partial:
+Round 32 landed:
+  S3-R32-C1-P: audit hash/posture amendment      ✅ P-37/P-38 closed; B-A/B-B/B-C unblocked; no deployment auth
   S3-R32-C2-S: governance authority sync         ✅ P-39/P-40 doc follow-ups closed; no PROP-032 implementation authorization
+  S3-R32-C3-P: PROP-032 Classifier Phase 1       ✅ assumption_registry/uses_assumptions/epistemic/OOF-A1 proof PASS; TypeChecker/SemanticIR open
+  S3-R32-X1-S: R32 pressure review               ✅ PROCEED; P-41/P-42 + B-A routed to R33
+  S3-R32-shadow: compiler profile foundation     ✅ closure index/backreference; no dispatch/.igapp/.ilk/runtime authority
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -438,7 +445,8 @@ Source .ig
        Covenant enforcement registry               ✅ R30 status vocabulary + P28 per-surface table
        bounded durable audit proof-local impl       ✅ R31 surfaces 1/2/3/8 PASS 29/29; deployment closed
        PROP governance authority                    ✅ R31 Covenant normative, META-EXPERT-013 operational
-       PROP-032 assumptions                         🟡 Phase 1 gate satisfied; compiler implementation/proof not landed
+       audit hash/posture amendment                 ✅ R32 closes P-37/P-38; B-A unblocked
+       PROP-032 assumptions                         🟡 Classifier Phase 1 landed; TypeChecker/SemanticIR open
        compiler Profile-Baseline-Pack               🟡 post-POC direction + shadow proofs; no dispatch/migration
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
@@ -562,7 +570,10 @@ Production durable audit bounded implementation:
                      5/5 invariant checks PASS. Proof classes live in the experiment script; no `lib/` writer,
                      production registry, Ledger, Phase 2, online lookup, HSM/KMS, or deployment path was added.
                      `gate3_authorized: false` and `production_durable_audit: false` remain true for all proof-local
-                     outputs. Remaining before deployment review: B-A restart rebuild, B-B traversal/reader,
+                     outputs. R32 C1-P closes P-37/P-38: canonical record_hash excludes five fields and
+                     compliance_posture is stored as an auditor-visible snapshot, derived as the authoritative value,
+                     and mismatch-checked by reader/rebuild with `audit.record.compliance_posture_mismatch`.
+                     Remaining before deployment review: B-A restart rebuild, B-B traversal/reader,
                      B-C appender/reader role boundary, B-D full post-implementation regression matrix, and B-E
                      separate Architect production deployment/signing/HSM/KMS review.
 Startup freshness override:
@@ -612,15 +623,18 @@ PROP-032:
                      proposes new `epistemic` fragment class and OOF-A1 pipeline, and resolves the prior queue conflict
                      by renumbering `via profile` to PROP-033. R31 C5-P satisfies the Phase 1 implementation gate and
                      specifies OOF-A1, `epistemic` guard insertion, P28-AC-1, and the next implementation-card template.
-                     Still no parser/classifier/typechecker/SemanticIR implementation, no golden files, and no
-                     experiment PASS.
+                     R32 C3-P implements Phase 1 Classifier only: `assumption_registry`, `uses_assumptions`,
+                     `assumption_refs`, `epistemic` fragment precedence, and OOF-A1; assumptions_proof and regression
+                     checks PASS. No parser grammar, TypeChecker, SemanticIR, evidence-list validation, runtime
+                     behavior, or experiment PASS. Phase 2 TypeChecker is unblocked by classified goldens.
 Compiler profile/pack architecture:
                      R31 records Profile-Baseline-Pack as the post-POC compiler architecture direction. Shadow work
                      proves a compiler pack boundary, shadow profile, registry spike, ordered rule precedence, and
                      `compiler_profile_id` manifest boundary plan, but all are proof-local/pre-POC: no CompilerKernel
-                     dispatch, no current compiler rewrite, no `.igapp` manifest change, no real
-                     `compiler_profile_id` adoption, and no native pack migration authorization. A manifest/profile
-                     PROP is required before assembler or loader implementation.
+                     dispatch, no current compiler rewrite, no `.igapp`/`.ilk` manifest change, no real
+                     `compiler_profile_id` adoption, and no native pack migration authorization. R32 shadow work adds
+                     a closure index/backreference that answers the dependency-map pressure item. A manifest/profile
+                     PROP number is still required before assembler or loader implementation.
 Reason codes:       LEGACY_ALIASES deprecation signal ✅; lib/ executor emits canonical
                      `runtime.temporal_scope_exclusion`; sealed old fixtures are not retroactively edited;
                      alias removal remains Phase 2 housekeeping.
@@ -629,9 +643,9 @@ Pre-signing remaining:
 Pre-production remaining:
                       bounded production durable audit B-A/B-B/B-C surfaces; post-implementation regression matrix;
                       deployment authorization; production signing/key management execution; concrete HSM/KMS;
-                      production authority registry; canonical hash excluded-fields design amendment; compliance_posture
-                      storage-vs-derived model; proof-local freshness authority fixture rules before production signer work;
-                      C1-P surface numbering errata note; OQ-P28-1 escape naming answer; PROP-032 implementation/proof cycle;
+                      production authority registry; proof-local freshness authority fixture rules before production signer work;
+                      OQ-P28-1 escape naming answer; PROP-032 Phase 2 TypeChecker + Phase 3 SemanticIR/proof cycle;
+                      compiler_profile_id PROP number decision;
                       real commit SHA / no `workspace-current`; optional Time.now grep hook; Phase 2 addendum gaps
 Runtime observations: proof-backed ✅ proof-local file persistence + tamper-evidence shape; production durable audit still open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
@@ -782,10 +796,15 @@ S3-R31 result:        Bounded durable-audit implementation began proof-locally: 
                       and shadow tracks record Profile-Baseline-Pack / compiler-pack pre-POC direction only: no compiler
                       dispatch, rewrite, `.igapp` change, or migration authorization. X1 says PROCEED and routes P-37
                       through P-40 plus B-A/B-B/B-C/B-D to R32.
-S3-R32 partial:     C2-S closes P-39/P-40 by applying the C2-A authority hierarchy to active docs:
-                      META-EXPERT-013 now defers to the Covenant as normative, Covenant OQ-Filter-1 points to
-                      the gate decision, and Heat Map Domain 8 marks the authority split closed. No new language
-                      semantics or PROP-032 implementation authorization.
+S3-R32 result:      C1-P closes P-37/P-38 by amending the durable-audit design with the five-field canonical hash
+                      algorithm and stored+derived+mismatch-checked compliance_posture model. B-A/B-B/B-C are
+                      unblocked, but not landed. C2-S closes P-39/P-40 by applying the C2-A authority hierarchy to
+                      active docs. C3-P implements PROP-032 Phase 1 Classifier only: assumptions registry,
+                      uses_assumptions, assumption_refs, epistemic fragment precedence, and OOF-A1 with proof PASS.
+                      No parser grammar, TypeChecker, SemanticIR, evidence-list validation, runtime behavior, or
+                      experiment-pass landed. Shadow compiler-profile work adds a closure index/backreference for the
+                      dependency-map pressure item only; no dispatch, `.igapp`/`.ilk`, runtime, or migration authority.
+                      X1 says PROCEED and routes B-A, PROP-032 Phase 2, and compiler_profile_id PROP numbering to R33.
 ```
 
 ### Spec Freshness
@@ -800,10 +819,10 @@ S3-R32 partial:     C2-S closes P-39/P-40 by applying the C2-A authority hierarc
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced S3-R9 stream metadata + R10 invariant evidence | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0` | Future Ch6 sync should document optional invariant source_metadata/source_span |
-| Ch7 Runtime | ✅ R31 bounded proof-local implementation partial | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0`; `phase1-production-durable-audit-v0`; `phase1-production-registry-ownership-decision-v0`; `deterministic-regression-artifact-policy-v0`; `phase1-production-durable-audit-implementation-authorization-review-v0`; `production-durable-audit-blocker-amendment-and-validation-proofs-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `phase1-production-durable-audit-implementation-authorization-decision-v0`; `startup-time-freshness-override-validator-v0`; `phase1-production-durable-audit-bounded-implementation-v0` | Surfaces 1/2/3/8 proof-local PASS; B-A/B-B/B-C/B-D and production deployment/signing/HSM/KMS remain open |
-| Proposal index | ✅ synced S3-R31 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0`; `PROP-032-assumptions-block-v0`; `prop032-assumptions-implementation-gate-review-v0` | PROP-032 remains proposal; Phase 1 gate satisfied, implementation/proof not landed |
+| Ch7 Runtime | ✅ R32 audit design unblock / deployment closed | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0`; `phase1-production-durable-audit-v0`; `phase1-production-registry-ownership-decision-v0`; `deterministic-regression-artifact-policy-v0`; `phase1-production-durable-audit-implementation-authorization-review-v0`; `production-durable-audit-blocker-amendment-and-validation-proofs-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `phase1-production-durable-audit-implementation-authorization-decision-v0`; `startup-time-freshness-override-validator-v0`; `phase1-production-durable-audit-bounded-implementation-v0`; `durable-audit-hash-and-posture-design-amendment-v0` | P-37/P-38 closed; B-A/B-B/B-C/B-D and production deployment/signing/HSM/KMS remain open |
+| Proposal index | ✅ synced S3-R32 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0`; `PROP-032-assumptions-block-v0`; `prop032-assumptions-implementation-gate-review-v0`; `prop032-assumptions-phase1-classifier-implementation-v0` | PROP-032 remains proposal; Phase 1 Classifier landed; TypeChecker/SemanticIR/full proof not landed |
 | Contract modifiers | ✅ implementation/proof + R30 V-3 golden | `PROP-031-contract-modifiers-v0`; `contract-modifiers-proof-fixture-plan-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `agent-d-cross-review-values-and-meta-cards-r28-v0`; `prop031-compatibility-addendum-r29-v0`; `observed-temporal-precedence-golden-r30-v0` | Parser/classifier/typechecker/SemanticIR support landed with proof PASS; §14 documents migration/OOF-M1/V-3; V-3 golden PASS 25/25; Effect Surface/Profile/authority/runtime enforcement still absent by design |
-| Compiler pack architecture | 🟡 shadow/pre-POC only | `compiler-profile-architecture-direction-v0`; `compiler-pack-boundary-report-v0`; `compiler-pack-shadow-profile-proof-v0`; `contract-modifiers-pack-native-boundary-v0`; `compiler-kernel-pack-registry-spike-v0`; `compiler-kernel-ordered-rule-precedence-v0`; `compiler-profile-id-manifest-boundary-plan-v0` | No compiler dispatch, no rewrite, no real `.igapp` profile id, no native migration authorization; manifest PROP required |
+| Compiler pack architecture | 🟡 shadow/pre-POC only | `compiler-profile-architecture-direction-v0`; `compiler-pack-boundary-report-v0`; `compiler-pack-shadow-profile-proof-v0`; `contract-modifiers-pack-native-boundary-v0`; `compiler-kernel-pack-registry-spike-v0`; `compiler-kernel-ordered-rule-precedence-v0`; `compiler-profile-id-manifest-boundary-plan-v0`; `compiler-profile-chain-closure-index-v0`; `compiler-profile-r32-shadow-chain-backreference-v0` | No compiler dispatch, no rewrite, no real `.igapp`/`.ilk` profile id, no native migration authorization; manifest PROP number required |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
 
@@ -987,9 +1006,8 @@ DOC-DEBT-38  S3-R30 bounded durable audit authorization:
              remain closed until a later Architect decision.
 DOC-DEBT-39  S3-R30 startup/V-3 proof closures:
              startup_time override validator PASSes 28/28 and V-3 observed+
-             temporal golden PASSes 25/25. Heat Map still has stale-credit rows
-             for both; update Heat Map and add CSM secondary observed modifier
-             anchor in the next map-maintenance slice.
+             temporal golden PASSes 25/25. R31/R32 map syncs closed the stale
+             Heat Map rows and authority-split row.
 DOC-DEBT-40  S3-R30 PROP-032 status:
              PROP-032 assumptions block is proposal/draft only. It proposes an
              `epistemic` fragment class and OOF-A1 but does not implement parser,
@@ -1006,10 +1024,10 @@ DOC-DEBT-42  S3-R31 bounded audit implementation:
              B-A/B-B/B-C/B-D must close before any deployment review.
 DOC-DEBT-43  S3-R31 audit design amendments:
              C1-P discovered D1 canonical hash excluded fields and Q2
-             compliance_posture storage/re-derivation ambiguity. Route a design
-             amendment before restart rebuild/traversal proofs depend on this.
-             Also add a one-line errata for C1-P wording: it says "surfaces 1-4"
-             but delivered C1-A surfaces 1/2/3/8; the blocker table is correct.
+             compliance_posture storage/re-derivation ambiguity. Closed by
+             S3-R32-C1-P with five-field hash algorithm, stored+derived+
+             mismatch-checked compliance_posture, and the C1-P wording ambiguity
+             resolved.
 DOC-DEBT-44  S3-R31 governance authority sync:
              C2-A closes OQ-Filter-1: Covenant normative, META-EXPERT-013
              operational. Closed by S3-R32-C2-S: Covenant pointer,
@@ -1022,6 +1040,21 @@ DOC-DEBT-45  S3-R31 compiler-pack shadow work:
              not authorize compiler dispatch, `.igapp` changes, native migration,
              or PROP-032 implementation. Draft a manifest/profile PROP before
              assembler or loader work.
+DOC-DEBT-46  S3-R32 durable audit unblock:
+             P-37/P-38 are closed. The design now defines five hash-excluded
+             fields and stored+derived+mismatch-checked compliance_posture.
+             B-A restart rebuild is unblocked but still open; it must include an
+             explicit `audit.record.compliance_posture_mismatch` refusal case.
+DOC-DEBT-47  S3-R32 PROP-032 Phase 1:
+             Classifier support landed with assumptions_proof and regression
+             checks PASS. PROP-032 remains proposal, not experiment-pass.
+             TypeChecker OOF-A1 propagation and SemanticIR/golden regeneration
+             remain open.
+DOC-DEBT-48  S3-R32 compiler profile governance:
+             The shadow dependency-map item is answered by the closure index and
+             backreference. The compiler_profile_id manifest feature still needs
+             an Architect/Meta PROP number decision before acceptance or
+             implementation cards.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -1056,8 +1089,8 @@ PROP-031   Contract modifiers            experiment-pass; parser/classifier/type
                                          implementation + proof PASS; R29 §14 compatibility addendum;
                                          no Effect Surface/Profile/runtime enforcement
 PROP-032   Assumptions block             proposal; assumptions {} + uses assumptions NAME;
-                                         Phase 1 gate satisfied; epistemic fragment proposed,
-                                         no implementation/proof/experiment-pass
+                                         Phase 1 Classifier landed; TypeChecker/SemanticIR/full
+                                         proof and experiment-pass still open
 PROP-033+  Stage 3 candidates            queued by pressure review; not canon without proposal/proof
 ```
 

@@ -2,7 +2,7 @@
 
 Status: active current-context capsule
 Maintained by: `[Igniter-Lang Meta Expert]` in Status Curator mode
-Last updated: 2026-05-10
+Last updated: 2026-05-11
 
 ---
 
@@ -71,6 +71,10 @@ pack migration. The R31 `compiler_profile_id` boundary plan is proof-local only:
 no assembler output, RuntimeMachine behavior, signed artifact format, or `.ilk`
 metadata changed.
 
+As of S3-R32 shadow work, the compiler profile chain has a closure index and
+R32 backreference. Treat it as a dependency/regeneration map only; it does not
+assign a PROP number or open migration.
+
 Read `igniter-lang/docs/value-index.md` when the card asks for strategy,
 documentation compaction, archaeology routing, applied pressure, or next-round
 planning. It is a hoisted durable-idea map, not required context for every
@@ -87,13 +91,14 @@ boundary.
 
 ---
 
-## Current R31 Patch
+## Current R32 Patch
 
 ```text
 Production durable audit implementation authorization:
   status: bounded implementation partially landed proof-locally / deployment closed
   latest: S3-R31-C1-P closes schema, signer, append-only store, excluded-surface
     regression with 29/29 PASS and 5/5 invariants
+  R32: hash/posture design amendment closes P-37/P-38 and unblocks B-A/B-B/B-C
   still closed: deployment, concrete HSM/KMS, production signing/key management,
     Ledger, Phase 2, BiHistory, stream/OLAP, production cache,
     broad RuntimeMachine binding, general write/replay/compact/subscribe
@@ -121,14 +126,19 @@ R30 additions:
 R31 additions:
   OQ-Filter-1: closed; Covenant normative, META-EXPERT-013 operational
   startup override D1/D2/D3: design amended to match proof
-  PROP-032: Phase 1 gate satisfied; implementation/proof not landed
+  PROP-032: Phase 1 gate satisfied
   compiler-pack shadow: post-POC direction/proofs only; no dispatch or .igapp change
   compiler_profile_id: proof-local boundary plan PASS; manifest PROP required
 
-R32 likely route:
-  audit hash/posture design amendment (P-37/P-38), PROP-032 Phase 1 implementation,
-  B-A/B-B/B-C/B-D audit surfaces,
-  OQ-P28-1, and compiler_profile_id manifest PROP draft.
+R32 additions:
+  audit hash/posture amendment: P-37/P-38 closed; mismatch code specified
+  governance authority sync: P-39/P-40 closed
+  PROP-032: Phase 1 Classifier landed; TypeChecker/SemanticIR/full proof open
+  compiler profile shadow chain: closure index/backreference answers dependency-map ask
+
+R33 likely route:
+  B-A restart rebuild proof with mismatch refusal, PROP-032 Phase 2 TypeChecker,
+  compiler_profile_id PROP number decision, then B-B/B-C/B-D.
 ```
 
 ---
@@ -212,6 +222,7 @@ Source .ig
        Gate 2 ratification record               ✅ ratified
        Phase 1 abstract non-Ledger adapter      ✅ implementation authorized
        bounded audit schema/signer/store proof   ✅ R31 proof-local 29/29; no deployment
+       hash/posture design amendment             ✅ R32 closes P-37/P-38
        restart rebuild/traversal/reader proofs   🚫 B-A/B-B/B-C/B-D still required
        Ledger adapter / package binding         🚫 Phase 2 addendum required
        live Ledger operations                   🚫 closed
@@ -257,8 +268,8 @@ legacy/internal comparison, not the production path.
 | Gate 3 prerequisite package | LANDED | Gate 2 ratified, PROP-030 drafted, token report proof, guarded enforcement, executor cache-key proof, and package descriptor report consumption landed; this is not Gate 3 authorization. |
 | Gate 3 Phase 1 | SIGNED-APPROVED-RESTRICTED LIVE READ | R20 closes the signature blocker for the restricted Phase 1 addendum only. Executor does not self-authorize; caller policy/evidence owns `gate3_authorized: true`. Phase 2 stays closed. |
 | Production durable audit | BOUNDED PROOF-LOCAL PARTIAL | R30 authorizes bounded implementation; R31 C1-P proves schema/signer/store/excluded-surface regression only. Deployment, HSM/KMS, production signing/key management, Ledger, Phase 2, and broad runtime binding remain closed. |
-| PROP-032 assumptions | PHASE 1 GATE SATISFIED / NOT IMPLEMENTED | R31 C5-P allows issuing the implementation card. No parser/classifier/typechecker/SemanticIR implementation, goldens, experiment PASS, or proposal lifecycle promotion has landed. |
-| Compiler pack architecture | SHADOW / POST-POC ONLY | R31 C6/C7 and shadow proofs describe Profile-Baseline-Pack, pack boundaries, registries, ordered rules, and `compiler_profile_id` manifest planning. They do not route current compiler execution through packs or change `.igapp`. |
+| PROP-032 assumptions | PHASE 1 CLASSIFIER LANDED / NOT EXPERIMENT-PASS | R32 C3-P lands Classifier-only `assumption_registry`, `uses_assumptions`, `assumption_refs`, `epistemic`, and OOF-A1. No parser grammar, TypeChecker, SemanticIR, evidence-list validation, runtime behavior, or proposal promotion. |
+| Compiler pack architecture | SHADOW / POST-POC ONLY | R31/R32 shadow proofs describe Profile-Baseline-Pack, pack boundaries, registries, ordered rules, `compiler_profile_id`, and the closure index. They do not route current compiler execution through packs or change `.igapp`/`.ilk`. |
 | TBackend Gate 3 Phase 2 | CLOSED | Real Ledger adapter/package binding, BiHistory, stream/OLAP, writes/replay/compact/subscribe, and production cache need separate Architect approval/addendum as specified. |
 | Release publish | CLOSED | `bin/release-gate` may build artifacts; RubyGems publish needs explicit approval and MFA owner action. |
 | Syntax pressure | PRESSURE ONLY | Review routes proposal candidates; S3-R14 C7-C10 added truth-system, HTTP/knowledge/legal, emergency mesh, and marketplace pressure; no syntax is canon without proposal/proof. |
