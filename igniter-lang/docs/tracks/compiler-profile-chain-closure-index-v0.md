@@ -14,7 +14,7 @@ Date: 2026-05-10
 Provide one index for the full background compiler profile / pack architecture
 chain from the original shadow profile proof through descriptor schema,
 profile-source lowering target, manifest PROP draft candidate, and syntax
-pressure, ending at a profile syntax Compiler/Grammar review baseline.
+pressure, ending at a profile syntax Compiler/Grammar decision boundary.
 
 This is an index and proof guard. It does not authorize production pack
 migration, compiler dispatch rewrite, profile syntax, `.igapp`/`.ilk` changes, or
@@ -72,6 +72,7 @@ PASS compiler_profile_chain_closure_index
 | 21 | PROP numbering decision request | `compiler_profile_prop_numbering_decision` | `compiler-profile-prop-numbering-decision-v0` |
 | 22 | descriptor error taxonomy | `compiler_profile_descriptor_error_taxonomy_sharpening` | `compiler-profile-descriptor-error-taxonomy-sharpening-v0` |
 | 23 | profile syntax compiler review | `profile_source_syntax_compiler_review` | `profile-source-syntax-compiler-review-v0` |
+| 24 | profile syntax grammar boundary | `profile_source_syntax_grammar_boundary` | `profile-source-syntax-grammar-boundary-v0` |
 
 ---
 
@@ -126,6 +127,10 @@ descriptor shape, slot assignment, pack semantics, then registry ordering.
 descriptor-first input is accepted for research, block syntax remains
 pressure-only, and parser implementation remains unauthorized.
 
+[S] Profile source syntax now has a Compiler/Grammar-owned decision boundary:
+Research recommends `accept_baseline_only`, but does not accept grammar or open
+parser implementation.
+
 ---
 
 ## Guard Checks
@@ -141,7 +146,8 @@ chain.includes_manifest_prop_review_ready
 chain.includes_manifest_prop_promotion
 chain.includes_prop_numbering_decision_request
 chain.includes_descriptor_error_taxonomy
-chain.ends_with_profile_syntax_compiler_review
+chain.includes_profile_syntax_compiler_review
+chain.ends_with_profile_syntax_grammar_boundary
 chain.all_commands_exited_zero
 chain.all_summaries_pass
 chain.has_expected_phase_count
@@ -155,6 +161,7 @@ chain.has_manifest_promotion_phase
 chain.has_prop_numbering_decision_request_phase
 chain.has_descriptor_error_taxonomy_phase
 chain.has_profile_syntax_compiler_review_phase
+chain.has_profile_syntax_grammar_boundary_phase
 scope.no_runtime_authority_phase
 ```
 
@@ -190,20 +197,19 @@ signed production audit claim
 [R] Three good next branches:
 
 ```text
-profile-source-syntax-grammar-boundary-v0
-  Let Compiler/Grammar accept, narrow, or reject the research baseline.
-
 compiler-profile-manifest-prop-architect-routing-v0
   Route the decision packet to Architect without changing implementation.
 
 compiler-profile-validator-implementation-plan-v0
   Plan a future descriptor validator using the sharpened taxonomy.
+
+profile-source-syntax-grammar-boundary-review-v0
+  Let Compiler/Grammar accept, narrow, reject, or defer the boundary.
 ```
 
-My recommendation: do `profile-source-syntax-grammar-boundary-v0` next if the
-goal is self-assembly language design, or
-`compiler-profile-validator-implementation-plan-v0` if the goal is future
-implementation readiness.
+My recommendation: do `compiler-profile-validator-implementation-plan-v0` next
+if continuing in Research, or route `profile-source-syntax-grammar-boundary-review-v0`
+to Compiler/Grammar if the goal is language design authority.
 
 ---
 
@@ -217,18 +223,18 @@ Track: compiler-profile-chain-closure-index-v0
 Status: done
 
 [D] Decisions:
-- Created one closure index from shadow profile through profile syntax Compiler/Grammar review readiness.
+- Created one closure index from shadow profile through profile syntax grammar boundary readiness.
 - The index is a proof guard and navigation map, not migration authorization.
 - Runtime authority remains out of scope across the chain.
 
 [S] Signals:
-- 23/23 indexed proofs PASS.
+- 24/24 indexed proofs PASS.
 - The chain covers shadow profile, pack boundary, kernel registry, ordering,
   manifest plan, slots, unified profile, authority, reports, receipts,
   self-assembly, bootstrap seed, descriptor schema, lowering target, and
   manifest PROP draft, syntax pressure, review readiness, promotion readiness,
   numbering decision request readiness, descriptor diagnostic precedence, and
-  profile syntax Compiler/Grammar review baseline.
+  profile syntax Compiler/Grammar review baseline and grammar boundary readiness.
 
 [T] Tests:
 - ruby igniter-lang/experiments/compiler_profile_chain_closure_index/compiler_profile_chain_closure_index.rb -> PASS
@@ -239,7 +245,7 @@ Status: done
 
 [Next]
 - Continue from one of:
-  profile-source-syntax-grammar-boundary-v0
-  compiler-profile-manifest-prop-architect-routing-v0
   compiler-profile-validator-implementation-plan-v0
+  compiler-profile-manifest-prop-architect-routing-v0
+  profile-source-syntax-grammar-boundary-review-v0
 ```

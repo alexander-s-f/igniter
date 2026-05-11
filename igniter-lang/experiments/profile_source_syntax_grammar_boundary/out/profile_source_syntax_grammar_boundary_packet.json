@@ -1,0 +1,129 @@
+{
+  "kind": "profile_source_syntax_grammar_boundary_packet",
+  "format_version": "0.1.0",
+  "track": "profile-source-syntax-grammar-boundary-v0",
+  "status": "compiler_grammar_boundary_ready",
+  "role_boundary": {
+    "prepared_by": "[Igniter-Lang Research Agent]",
+    "decision_owner": "[Igniter-Lang Compiler/Grammar Expert]",
+    "architect_authorization_required_before_parser_work": true,
+    "research_agent_may_accept_syntax": false,
+    "syntax_accepted_by_this_packet": false
+  },
+  "baseline_refs": {
+    "review_packet": "igniter-lang/experiments/profile_source_syntax_compiler_review/out/profile_source_syntax_compiler_review_packet.json",
+    "review_status": "research_baseline_for_compiler_grammar_review",
+    "recommended_track": "profile-source-syntax-grammar-boundary-v0"
+  },
+  "fixed_research_constraints": {
+    "descriptor_first_now": true,
+    "human_syntax_pressure_only": true,
+    "lowering_target": "compiler_profile_descriptor",
+    "surface_slot_order_authoritative": false,
+    "canonical_slot_order_source": "CompilerProfileSpec.slot_order",
+    "parser_implementation_authorized": false,
+    "profile_source_syntax_authorized": false,
+    "runtime_authority_claims_allowed": false,
+    "inline_pack_bodies_allowed": false,
+    "implicit_capability_ownership_allowed": false
+  },
+  "compiler_grammar_verdict_options": {
+    "accept_baseline_only": {
+      "meaning": "Accept descriptor-first research baseline and keep human syntax pressure-only.",
+      "unblocks": [
+        "descriptor-based profile validation planning"
+      ],
+      "does_not_unblock": [
+        "parser implementation",
+        "profile syntax goldens"
+      ]
+    },
+    "narrow_block_syntax_pressure": {
+      "meaning": "Keep human syntax alive but narrow allowed grammar shape before a proposal.",
+      "must_decide": [
+        "profile_header_grammar",
+        "slot_declaration_grammar",
+        "implementation_id_lexical_shape",
+        "registry_entry_separator_policy",
+        "pre_lowering_diagnostic_codes"
+      ]
+    },
+    "reject_human_syntax_for_now": {
+      "meaning": "Use descriptor data only and close human syntax pressure until a later stage.",
+      "still_preserves": [
+        "compiler_profile_descriptor",
+        "CompilerProfileSpec.slot_order"
+      ]
+    },
+    "defer_for_architect_digest_policy": {
+      "meaning": "Defer syntax decision until source digest authority is decided.",
+      "blocked_on": [
+        "source_text_vs_lowered_ast_digest_policy"
+      ]
+    }
+  },
+  "minimum_acceptance_conditions_for_future_syntax": [
+    "Must lower into compiler_profile_descriptor.",
+    "Must preserve CompilerProfileSpec.slot_order as canonical descriptor/future dispatch order.",
+    "Must reject runtime authority claims.",
+    "Must reject inline pack implementation bodies.",
+    "Must require explicit capability ownership.",
+    "Must reuse descriptor diagnostic taxonomy after lowering.",
+    "Must have pre-lowering syntax diagnostic machine codes.",
+    "Must have explicit source digest policy before golden fixtures."
+  ],
+  "grammar_questions_to_answer": [
+    {
+      "id": "slot_header_vs_contract_header",
+      "question": "profile slot declarations must not parse like contract declarations",
+      "route": "Compiler/Grammar",
+      "research_baseline": "must preserve descriptor-first lowering"
+    },
+    {
+      "id": "implementation_id_token_shape",
+      "question": "implementation ids contain dots and versions; lexer/token policy must be explicit",
+      "route": "Compiler/Grammar",
+      "research_baseline": "must preserve descriptor-first lowering"
+    },
+    {
+      "id": "registry_entry_list_boundaries",
+      "question": "comma/newline/block termination must be deterministic",
+      "route": "Compiler/Grammar",
+      "research_baseline": "must preserve descriptor-first lowering"
+    },
+    {
+      "id": "profile_source_digest",
+      "question": "digest policy must decide source text vs lowered AST",
+      "route": "Architect + Compiler/Grammar",
+      "research_baseline": "must preserve descriptor-first lowering"
+    },
+    {
+      "id": "syntax_diagnostics_pre_lowering",
+      "question": "Which syntax errors should exist before descriptor validation runs?",
+      "route": "Compiler/Grammar",
+      "research_baseline": "descriptor taxonomy remains first-failure model after lowering"
+    },
+    {
+      "id": "surface_order_vs_profile_spec_order",
+      "question": "Should source order be accepted when it differs from CompilerProfileSpec.slot_order?",
+      "route": "Compiler/Grammar",
+      "research_baseline": "source order may vary, but lowered descriptor order must follow CompilerProfileSpec.slot_order"
+    }
+  ],
+  "recommended_research_verdict": {
+    "verdict": "accept_baseline_only",
+    "reason": "Descriptor-first path is already proofable; human syntax lacks grammar and digest decisions.",
+    "next_compiler_grammar_artifact": "profile-source-syntax-grammar-boundary-review-v0"
+  },
+  "non_authorizations": [
+    "No parser implementation.",
+    "No profile source syntax authorization.",
+    "No production lowering implementation.",
+    "No CompilerKernel dispatch change.",
+    "No runtime execution authority.",
+    "No .igapp/.ilk format mutation.",
+    "No grammar acceptance by Research Agent.",
+    "No profile syntax proposal is created by this packet.",
+    "No parser implementation card is opened by this packet."
+  ]
+}

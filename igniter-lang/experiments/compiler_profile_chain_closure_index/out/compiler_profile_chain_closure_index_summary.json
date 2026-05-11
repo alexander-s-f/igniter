@@ -302,6 +302,19 @@
       "stdout_first_line": "PASS profile_source_syntax_compiler_review",
       "stderr": "",
       "check_count": 13
+    },
+    {
+      "id": "profile_source_syntax_grammar_boundary",
+      "phase": "profile_syntax_grammar_boundary",
+      "claim": "Profile source syntax has a Compiler/Grammar-owned decision boundary without grammar acceptance or parser work.",
+      "command": "igniter-lang/experiments/profile_source_syntax_grammar_boundary/profile_source_syntax_grammar_boundary.rb",
+      "summary_path": "igniter-lang/experiments/profile_source_syntax_grammar_boundary/out/profile_source_syntax_grammar_boundary_summary.json",
+      "track_doc": "igniter-lang/docs/tracks/profile-source-syntax-grammar-boundary-v0.md",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "stdout_first_line": "PASS profile_source_syntax_grammar_boundary",
+      "stderr": "",
+      "check_count": 11
     }
   ],
   "checks": {
@@ -313,7 +326,8 @@
     "chain.includes_manifest_prop_promotion": true,
     "chain.includes_prop_numbering_decision_request": true,
     "chain.includes_descriptor_error_taxonomy": true,
-    "chain.ends_with_profile_syntax_compiler_review": true,
+    "chain.includes_profile_syntax_compiler_review": true,
+    "chain.ends_with_profile_syntax_grammar_boundary": true,
     "chain.all_commands_exited_zero": true,
     "chain.all_summaries_pass": true,
     "chain.has_expected_phase_count": true,
@@ -327,6 +341,7 @@
     "chain.has_prop_numbering_decision_request_phase": true,
     "chain.has_descriptor_error_taxonomy_phase": true,
     "chain.has_profile_syntax_compiler_review_phase": true,
+    "chain.has_profile_syntax_grammar_boundary_phase": true,
     "scope.no_runtime_authority_phase": true
   },
   "what_this_index_authorizes": [
@@ -341,8 +356,8 @@
     "No runtime execution authority."
   ],
   "recommended_next": [
-    "profile-source-syntax-grammar-boundary-v0",
+    "compiler-profile-validator-implementation-plan-v0",
     "compiler-profile-manifest-prop-architect-routing-v0",
-    "compiler-profile-validator-implementation-plan-v0"
+    "profile-source-syntax-grammar-boundary-review-v0"
   ]
 }

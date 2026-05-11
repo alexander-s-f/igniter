@@ -1,0 +1,28 @@
+{
+  "kind": "profile_source_syntax_grammar_boundary_summary",
+  "format_version": "0.1.0",
+  "track": "profile-source-syntax-grammar-boundary-v0",
+  "status": "PASS",
+  "boundary_packet_path": "igniter-lang/experiments/profile_source_syntax_grammar_boundary/out/profile_source_syntax_grammar_boundary_packet.json",
+  "checks": {
+    "input.compiler_review_passed": true,
+    "role.decision_owner_is_compiler_grammar": true,
+    "role.research_does_not_accept_syntax": true,
+    "authority.parser_work_still_requires_architect": true,
+    "constraints.lowering_target_descriptor": true,
+    "constraints.surface_order_not_authoritative": true,
+    "constraints.no_runtime_or_inline_pack_bodies": true,
+    "verdict_options.include_accept_narrow_reject_defer": true,
+    "future_conditions.include_digest_and_diagnostics": true,
+    "recommendation.accept_baseline_only": true,
+    "scope.no_parser_card_opened": true
+  },
+  "non_goals": [
+    "No grammar acceptance.",
+    "No parser implementation.",
+    "No profile source syntax authorization.",
+    "No spec edit.",
+    "No profile syntax golden fixture.",
+    "No .igapp/.ilk or runtime authority change."
+  ]
+}
