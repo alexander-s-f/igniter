@@ -52,6 +52,15 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 35 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `durable-audit-post-implementation-regression-matrix-v0.md` | done | Closes B-D: 9/9 command matrix PASS; 97/97 durable audit proof cases PASS across bounded implementation, restart rebuild, traversal/reader, role boundary; no excluded-surface widening; ready for B-E review, not deployment approval |
+| `stage3-round35-status-curation-v0.md` | done | R35 status/index sync; B-D closed in living maps, C2-P same-round drift cross-referenced, PROP-036 remains authored-pending-review, progression PROP number remains unassigned |
+
+---
+
 ## Stage 3 Round 34 Evidence
 
 | Track | Status | Notes |
@@ -603,11 +612,10 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| B-D post-implementation matrix | Run the full bounded durable-audit matrix after B-A/B-B/B-C/P-43 closures; include excluded-surface regression and prior Stage 3 proof chain | Research Agent / Implementation Agent | next R35 priority; required before B-E |
+| B-E production deployment review | Architect review for production deployment/signing/HSM/KMS after B-D PASS; keep Ledger/Phase2/BiHistory/stream/OLAP/cache closed unless separately authorized | Architect Supervisor | next R36 priority; B-D closed, deployment still not approved |
 | PROP-036 acceptance gate | Review authored `PROP-036-compiler-profile-manifest-identity-v0.md`; issue accept / conditional accept / hold / reject before any implementation card | Architect Supervisor / Meta Expert | open P-45; proposal authored, implementation blocked |
 | PROP-037+ formal assignment | Assign a formal number for the progression/service-liveness PROP before formal authoring claims `PROP-037` or later | Architect Supervisor / Meta Expert | open P-46; scope draft ready, number not assigned |
 | PROP-032 Phase 4 | Add parser grammar for `assumptions {}` / `uses assumptions NAME`, P28 unnamed-assumption parse-error fixture, and real source-to-SemanticIR fixture | Compiler/Grammar Expert / Research Agent | open; Phase 1/2/3 landed, experiment-pass not reached |
-| B-E production deployment review | Review production deployment/signing/HSM/KMS only after B-D PASS; keep Ledger/Phase2/BiHistory/stream/OLAP/cache closed unless separately authorized | Architect Supervisor | blocked on B-D |
 | OQ-P28-1 escape naming answer | Verify whether unnamed `escape` declaration is currently parse error; update Covenant P28 table | Compiler/Grammar Expert | still open; route before PROP-035 |
 | OOF-I1/I3/I5 closure | PROP-025 addendum + targeted fixtures for deferred invariant OOF anchors | Research Agent / Compiler/Grammar Expert | still deferred; route when invariant lane reopens |
 | `_volatile_fields` Time.now grep hook | Detect newly-added unannotated `Time.now` usage in experiment scripts | Implementation Agent / Research Agent | optional follow-up; not required for R28 close |

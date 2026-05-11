@@ -220,11 +220,18 @@ All confirmed absent from this proof:
 
 ## Open Blockers After This Card
 
+> Status curation note (S3-R35-C2-S): this table was written before the
+> same-round B-B proof was incorporated into the cumulative map. Current state:
+> B-B is closed by `durable-audit-reader-traversal-proof-v0.md`, B-C/P-43 are
+> closed by this card, and B-D is closed by
+> `durable-audit-post-implementation-regression-matrix-v0.md`. B-E remains the
+> next Architect deployment review route; production deployment is not approved.
+
 | Blocker | Description |
 |---------|-------------|
-| B-B | Audit traversal / reader proof (surface 6 of S3-R30-C1-A). Must re-derive `compliance_posture` for every returned record per R32 D3. |
-| B-D | Post-implementation full regression matrix (surface 9 of S3-R30-C1-A). Requires B-B and B-C both done. P-43 is now closed; may proceed when B-B completes. |
-| B-E | Follow-up Architect production deployment review. Requires B-B, B-C, B-D all closed. |
+| B-B | Closed by `durable-audit-reader-traversal-proof-v0.md` (S3-R34-C1-P), PASS 26/26 + 4/4 invariants. |
+| B-D | Closed by `durable-audit-post-implementation-regression-matrix-v0.md` (S3-R35-C1-P), PASS 9/9 commands and 97/97 durable audit proof cases. |
+| B-E | Follow-up Architect production deployment review. Now review-ready after B-D PASS; production deployment/signing/HSM/KMS remain closed until explicit Architect decision. |
 
 B-C is now closed by this card. P-43 is now closed by this card.
 
@@ -249,4 +256,4 @@ B-C is done. P-43 is closed.
 
 The `audit.writer.rebuild_not_clean` gate is the required production
 implementation guard. Deployment authorization (B-E) remains blocked until
-B-B and B-D complete.
+B-E Architect review issues an explicit deployment decision.

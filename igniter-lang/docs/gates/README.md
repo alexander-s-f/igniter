@@ -142,7 +142,7 @@ Authorized signed-addendum scope:
 | Real Ledger adapter/package binding | closed | Requires explicit Architect addendum after Phase 1 |
 | BiHistory / transaction-time | closed | Requires separate gate; cannot be added by quiet Phase 1/2 addendum |
 | Production cache | closed | Requires separate approval; proof-local cache does not imply production memoization |
-| Durable audit / production storage | bounded implementation authorized / deployment closed | S3-R30-C1-A authorizes only the bounded Phase 1 production durable audit implementation track; production deployment, Ledger, Phase 2, concrete HSM/KMS, and broad RuntimeMachine binding remain closed |
+| Durable audit / production storage | B-D matrix closed / deployment review ready / deployment closed | S3-R30-C1-A authorizes only the bounded Phase 1 production durable audit implementation track; S3-R35-C1-P closes B-D with 9/9 commands PASS and 97/97 durable audit cases PASS; production deployment, production signing execution, Ledger, Phase 2, concrete HSM/KMS, and broad RuntimeMachine binding remain closed until a later Architect deployment decision |
 
 ---
 
