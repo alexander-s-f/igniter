@@ -52,6 +52,14 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 33 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `external-progression-semantics-decision-prep-v0.md` | done | Decision brief recommends formal PROP: progression as separate semantic primitive; service loop as surface over progression; stream/fold_stream distinct; no code/grammar/runtime auth |
+
+---
+
 ## Stage 3 Round 32 Evidence
 
 | Track | Status | Notes |
