@@ -165,7 +165,7 @@ authorize implementation unless an explicit gate or Architect decision says so.
 Supervisor-assigned cards should include a compact identifier:
 
 ```text
-Card: S2-R2-C3-P
+Card: S2-R2-C3-P1
 Agent: [Igniter-Lang Research Agent]
 Role: research-agent
 Track: production-compiler-diagnostics-extraction-v0
@@ -178,16 +178,34 @@ S2  = Stage 2
 R2  = supervisor round 2
 C3  = card 3 inside that round
 P   = parallel-safe; other agents may be working nearby
+P1  = parallel-safe series 1; cards with the same P-number may start together
+P2  = parallel-safe series 2; starts only after prior ordered/serial barrier clears
 B   = blocked/ordered; check Depends on before starting
 S   = serial/supervisor-only or should run after the round closes
+A   = architect/authority decision; usually supervisor-owned, no implementation unless explicitly scoped
+I   = implementation/code-writing slice; tests/proofs expected, preserve all stated exclusions
 ```
 
 Agents should copy the `Card:` line into their track document and handoff. When
-the suffix is `P`, assume neighboring agents may touch related docs or proof
-areas; keep edits inside the assigned scope and do not stage, restore, or clean
-unrelated files. When the suffix is `B`, do not start until the dependency is
-reported done by the supervisor or the assigned track explicitly says it is
-unblocked.
+the suffix is `P` or `P<number>`, assume neighboring agents may touch related
+docs or proof areas; keep edits inside the assigned scope and do not stage,
+restore, or clean unrelated files. Parallel series numbers are dispatch hints for
+the supervisor:
+
+```text
+R = [[C1-P1, C2-P1] -> C3-S -> [C4-P2, C5-P2]]
+```
+
+In this shape, `C1-P1` and `C2-P1` may run together; `C3-S` runs after P1
+finishes; `C4-P2` and `C5-P2` may run together after `C3-S`.
+
+When the suffix is `B`, do not start until the dependency is reported done by the
+supervisor or the assigned track explicitly says it is unblocked. When the suffix
+is `A`, treat the slice as an authority/gate decision: read the stated evidence,
+decide narrowly, and do not implement code. When the suffix is `I`, treat the
+slice as implementation work: make bounded code changes only inside the
+authorized surface, run the relevant proof matrix, and report any missing
+authority before widening scope.
 
 Agents should end every slice with a compact block:
 

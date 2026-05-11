@@ -52,6 +52,14 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 37 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0.md` | done | Closes P-50/P-52: Ch2 bounded PROP-032 source grammar synced, Heat Map assumptions rows show compiler experiment-pass, temporal audit pressure specimens marked non-canonical/non-evidence; PROP-033/runtime receipts still excluded |
+
+---
+
 ## Stage 3 Round 36 Evidence
 
 | Track | Status | Notes |
@@ -632,8 +640,8 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| P-50 PROP-032 Ch2/Heat Map sync | Confirm/apply S3-R36-C2-A follow-up docs for Ch2 source grammar and governance maps; keep PROP-033 evidence validation/runtime receipts excluded | Meta Expert / Compiler/Grammar Expert | open per R36 X1 |
-| P-52 temporal audit specimen disposition | Decide/archive/map `experiments/pressure-specimens/temporal-audit-pressure-v0/` without making it canonical by accident | Meta Expert / Research Agent | open per R36 X1 |
+| P-50 PROP-032 Ch2/Heat Map sync | Confirm/apply S3-R36-C2-A follow-up docs for Ch2 source grammar and governance maps; keep PROP-033 evidence validation/runtime receipts excluded | Meta Expert / Compiler/Grammar Expert | closed by `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0.md` |
+| P-52 temporal audit specimen disposition | Decide/archive/map `experiments/pressure-specimens/temporal-audit-pressure-v0/` without making it canonical by accident | Meta Expert / Research Agent | closed by `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0.md` |
 | P-51 restricted durable-audit deployment implementation | Implement/configure only the S3-R36-C1-A bounded audit append/read/rebuild deployment scope: storage identity, signer abstraction refusal behavior, startup rebuild, appender/reader roles, refusal-code export, rollback/disable, post-deployment smoke | Implementation Agent / Architect Supervisor | B-E restricted scope approved; concrete HSM/KMS and excluded surfaces still closed |
 | PROP-037 acceptance gate | Review authored external progression/service-liveness proposal: accept, amend, hold, or defer before any implementation planning | Architect / Meta Expert | authored-pending-review; no implementation auth |
 | Stage 3 language regression matrix | Run/reconcile temporal, stream, classifier, typechecker, SemanticIR, and assumptions surfaces together before downstream PROP-032 dependence | Compiler/Grammar Expert | recommended by R36 X1 |

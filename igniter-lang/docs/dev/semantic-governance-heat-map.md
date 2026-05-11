@@ -2,7 +2,7 @@
 
 Status: living document
 Card: S3-R30-C4-P
-Last updated: S3-R34-C3-S (2026-05-11)
+Last updated: S3-R37-C1-P (2026-05-11)
 Agent: [Igniter-Lang Meta Expert]
 Role: meta-expert
 Track: semantic-governance-heat-map-v0
@@ -70,18 +70,20 @@ Supersedes: nothing (new document)
 
 | entity | P | Spec | PROP | Parse | Class | TC | SIR | RT | Au | Debt |
 |--------|---|------|------|-------|-------|----|-----|----|----|------|
-| `assumptions {}` block | P22, P27, P28 | Gap-H | PROP-032 | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | 🔴 | gov |
-| `uses assumptions NAME` | P22 | Gap-H | PROP-032 | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | 🔴 | gov |
+| `assumptions {}` block | P22, P27, P28 | ch2, Gap-H | PROP-032 | ⚙️ | ⚙️ | ⚙️ | ⚙️ | 🔴 | ✅ | impl/gov |
+| `uses assumptions NAME` | P22 | ch2, Gap-H | PROP-032 | ⚙️ | ⚙️ | ⚙️ | ⚙️ | 🔴 | ✅ | impl/gov |
 | Epistemic state machine (no-upward-coercion guard) | P11, P13, ESM | ch10 (partial) | Gap-H / TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | gov |
 | Synthetic world marker (`:synthetic` mode) | P12, P23 | Gap-H | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem/gov |
 | `constraints {}` block | P25, P27, P28 | Gap-J | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem/gov |
 | `uses constraints NAME` | P25 | Gap-J | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem/gov |
 | PostAudit receipt pattern | P26 | Gap-N | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | gov |
 
-> **GI-1 resolved (S3-R30-C6-P):** PROP-032 assigned to `assumptions {}` block (Gap-H,
-> `proposal` status — PROP authored, no compiler implementation yet). `via profile binding`
-> renumbered to PROP-033 (queued). Assumptions rows upgraded from `sem/gov` → `gov` debt
-> (formal PROP now exists; pipeline stages remain 🟡 until compiler implementation lands).
+> **GI-1 resolved (S3-R30-C6-P), compiler status updated (S3-R37-C1-P):** PROP-032
+> assigned to `assumptions {}` block (Gap-H); `via profile binding` renumbered to
+> PROP-033. S3-R36-C2-A promotes the bounded compiler surface to experiment-pass:
+> parser, classifier, TypeChecker, and SemanticIR proof exist. Runtime receipts,
+> runtime assumption injection, cross-module sharing, and PROP-033 evidence validation
+> remain excluded.
 
 ---
 
@@ -251,10 +253,10 @@ PROP-037+ in active maps. This does not authorize `compiler_profile_id` implemen
 
 | debt_type | Entity count | Hotspot |
 |-----------|-------------|---------|
-| `gov` | 16 | Effect Surface (PROP-035) — blocks 7 postulates; highest single leverage; `compiler_profile_id` PROP-036 remains numbering-only |
+| `gov` | 14 | Effect Surface (PROP-035) — blocks 7 postulates; highest single leverage; `compiler_profile_id` PROP-036 remains numbering-only |
 | `sem/gov` | 5 | constraints (Gap-J), synthetic markers, epistemic coercion, unnamed-block OOF |
 | `sem` | 7 | form (Gap-I), loop classes ×4, evidence syntax (PROP-034), composition algebra (PROP-002) |
-| `impl/gov` | 5 | `observed`/`effect`/`privileged`/`irreversible` modifiers + receipt production shape |
+| `impl/gov` | 7 | `observed`/`effect`/`privileged`/`irreversible` modifiers + receipt production shape + assumptions runtime receipts excluded |
 | `impl` | 8 | History[T] parser+runtime, BiHistory[T] runtime, OOF-I1/I3/I5 |
 | `none` | 11 | core contract, `pure` modifier, OOF-P1/S2/S4/CE4/OS2, as_of, OOF-M1, startup_time validator (28/28 PASS), V-3 golden (25/25 PASS) |
 
@@ -263,7 +265,7 @@ PROP-037+ in active maps. This does not authorize `compiler_profile_id` implemen
 | domain | 🔴 gaps | ⚙️ partial | ✅ full | Highest debt |
 |--------|---------|-----------|--------|--------------|
 | Core Contract Shape | runtime enforcement (5 modifiers) | 5 modifiers | 1 entity | impl/gov |
-| Epistemic Declarations | 7 full | 0 | 0 | sem/gov |
+| Epistemic Declarations | 5 full | 2 | 0 | sem/gov / impl/gov |
 | Effect Surface | 5 full + 3 fields | 1 (receipt FFI shape) | 0 | gov (critical) |
 | Temporal Read | 1 (parser syntax) | 5 | 1 (as_of compiler) | impl |
 | Form + Loop | 5 full | 0 | 0 | sem |
@@ -283,15 +285,12 @@ GI-1 resolved. PROP-032 = `assumptions {}` block; `via profile binding` = PROP-0
 `output evidence syntax` = PROP-034; profile/authority = PROP-035.
 R31-2 and R31-3 are now unblocked.
 
-### R31-2 — assumptions {} Block: Proposal + Minimal Fixture (HIGH)
+### R31-2 — assumptions {} Block: Proposal + Minimal Fixture — DONE through S3-R36-C2-A
 
-Once PROP-032 is assigned to Gap-H, ask `[Igniter-Lang Compiler/Grammar Expert]` to author
-the PROP (grammar, fragment class, classifier detection, TypeChecker propagation) and ask
-`[Igniter-Lang Research Agent]` to create the minimum golden fixture: one positive case
-(declared assumption flows to evidence) + one OOF case (contract body reads undeclared
-assumption).
-
-This closes the most visible CSM anchor gap (rated HIGH in R30 CSM recommendations).
+PROP-032 was authored, then closed through Phase 1 Classifier, Phase 2 TypeChecker,
+Phase 3 SemanticIR, Phase 4 parser/P28, and S3-R36-C2-A experiment-pass review.
+The remaining gap is not compiler proof for the bounded surface; it is the excluded
+runtime/evidence-validation lane (PROP-033 and later).
 
 ### R31-3 — OOF-I1 / OOF-I3 / OOF-I5 Closure (HIGH, low-effort)
 

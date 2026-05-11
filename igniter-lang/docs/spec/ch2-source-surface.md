@@ -1,7 +1,7 @@
 # Ch2: Source Surface and Grammar
 
-Source PROPs: PROP-014, PROP-015
-Status: accepted (grammar kernel); partial (OOF rejection at parse time)
+Source PROPs: PROP-014, PROP-015; PROP-032 (bounded assumptions surface)
+Status: accepted (grammar kernel); partial (OOF rejection at parse time); PROP-032 experiment-pass for compiler surface only
 Proof: experiments/parser/ — 61 specs, add.ig + availability_projection.ig + polymorphic_add.ig
 
 ---
@@ -33,11 +33,19 @@ ModuleDecl    := "module" ModPath
 ImportDecl    := "import" ModPath ("." "{" Name ("," Name)* "}")?
 ModPath       := Name ("." Name)*
 
-TopDecl       := ContractDecl | TypeDecl | FunctionDecl | ExternalDecl
+TopDecl       := AssumptionsDecl | ContractDecl | TypeDecl | FunctionDecl | ExternalDecl
+
+AssumptionsDecl := "assumptions" "{" AssumptionDecl* "}"
+AssumptionDecl  := "assumption" Name "{" AssumptionField* "}"
+AssumptionField := "kind" ":" AssumptionKind
+                 | "statement" StrLiteral
+                 | "strength" FloatLit
+                 | "source" StrLiteral
+AssumptionKind  := ":heuristic"|":empirical"|":synthetic"|":calibrated"
 
 ContractDecl  := "contract" Name "{" BodyDecl* "}"
 BodyDecl      := EscapeDecl | InputDecl | ReadDecl | ComputeDecl
-               | SnapshotDecl | WindowDecl | OutputDecl
+               | SnapshotDecl | WindowDecl | UsesAssumptionsDecl | OutputDecl
 
 EscapeDecl    := "escape" Name
 InputDecl     := "input" Name ":" TypeRef
@@ -46,7 +54,9 @@ ComputeDecl   := "compute" Name "=" Expr
 SnapshotDecl  := "snapshot" Name "=" Expr LifecycleAnn?
 WindowDecl    := "window" StrLiteral "{" WindowOpt* "}"
 WindowOpt     := ("kind" | "unit" | "on_close") ":" Name
-OutputDecl    := "output" Name ":" TypeRef LifecycleAnn?
+UsesAssumptionsDecl := "uses" "assumptions" Name
+OutputDecl    := "output" Name ":" TypeRef LifecycleAnn? EvidenceAnn?
+EvidenceAnn   := "evidence" "[" Name ("," Name)* "]"
 LifecycleAnn  := "lifecycle" LifecycleClass
 LifecycleClass:= ":local"|":session"|":window"|":durable"|":audit"
 
@@ -121,6 +131,42 @@ Collision risks for a future PROP:
   without a proven AST shape. Keyword reservation belongs in the future PROP,
   not in this spec sync.
 
+## 2.2.2 Assumptions Surface (PROP-032 Experiment-Pass)
+
+PROP-032 adds a bounded compiler surface:
+
+```igniter
+assumptions {
+  assumption homophily {
+    kind      :heuristic
+    statement "People with similar beliefs interact more often."
+    strength  0.70
+  }
+}
+
+observed contract ScoreInteraction {
+  uses assumptions homophily
+  output score: Decimal[4] evidence [homophily]
+}
+```
+
+The accepted source surface is limited to:
+
+- one top-level `assumptions {}` block per module;
+- named `assumption NAME { ... }` declarations;
+- body-level `uses assumptions NAME` declarations;
+- passive parsing of `output ... evidence [...]` lists.
+
+Compiler status: experiment-pass by S3-R36-C2-A for parser, classifier,
+TypeChecker, and SemanticIR propagation. P28 unnamed-assumption rejection is part
+of this surface. OOF-A1 undeclared-assumption detection and TASSUMP-1 strength
+checks are compiler diagnostics, not runtime behavior.
+
+Explicit exclusions: PROP-033 evidence-list validation, runtime receipt
+`assumption_refs`, runtime injection of assumption values, cross-module
+assumption sharing, constraints/form/effect-surface behavior, and production
+RuntimeMachine behavior are not authorized by this Ch2 sync.
+
 ---
 
 ## 2.3 ParsedProgram Shape (PROP-014 §Part 3, PROP-018 §Part 2)
@@ -134,6 +180,7 @@ The parser emits a stable JSON structure:
   "source_path": "source/add.ig",
   "source_hash": "sha256:<hex>",
   "module": "Lang.Examples.Add",
+  "assumptions": [],
   "imports": [],
   "types": [],
   "functions": [],
@@ -163,6 +210,12 @@ The parser emits a stable JSON structure:
 
 **ParsedProgram is a stable boundary**: all downstream passes (classifier,
 typechecker, emitter) consume ParsedProgram JSON, never raw source.
+
+PROP-032-compatible ParsedProgram adds top-level `assumptions: []` when no
+assumptions are declared, `uses_assumptions` body nodes for explicit assumption
+dependencies, and parsed-only `evidence: [...]` on output nodes when present.
+Validation of evidence-list membership and runtime receipt propagation remain
+PROP-033 or later work.
 
 ---
 
