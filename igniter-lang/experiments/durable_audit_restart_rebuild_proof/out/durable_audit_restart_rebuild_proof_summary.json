@@ -1,0 +1,173 @@
+{
+  "kind": "durable_audit_restart_rebuild_proof_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R33-C1-P",
+  "track": "durable-audit-restart-rebuild-proof-v0",
+  "authorization_ref": "architect-supervisor://igniter-lang/gates/phase1-production-durable-audit/bounded-implementation-v0/2026-05-10",
+  "design_amendment": "durable-audit-hash-and-posture-design-amendment-v0 (S3-R32-C1-P)",
+  "proof_timestamp": "2026-05-10T12:00:00Z",
+  "status": "PASS",
+  "total_cases": 21,
+  "cases_pass": 21,
+  "cases_fail": 0,
+  "invariant_checks_pass": 6,
+  "invariant_checks_fail": 0,
+  "surfaces": {
+    "surface_1_clean_rebuild": "PASS",
+    "surface_2_chain_integrity": "PASS",
+    "surface_3_posture_mismatch": "PASS",
+    "surface_4_schema_failures": "PASS",
+    "surface_5_edge_cases": "PASS",
+    "surface_6_excluded_surfaces": "PASS"
+  },
+  "cases": {
+    "rebuild.empty_store": {
+      "pass": true,
+      "cursor": 1,
+      "verified": 0
+    },
+    "rebuild.single_record": {
+      "pass": true,
+      "cursor": 2,
+      "verified": 1
+    },
+    "rebuild.two_records": {
+      "pass": true,
+      "cursor": 3,
+      "verified": 2
+    },
+    "rebuild.five_records": {
+      "pass": true,
+      "cursor": 6,
+      "verified": 5
+    },
+    "rebuild.tampered_record_hash": {
+      "pass": true,
+      "first_failure_at": 2,
+      "error_code": "audit.chain.record_hash_mismatch"
+    },
+    "rebuild.tampered_previous_hash": {
+      "pass": true,
+      "first_failure_at": 2,
+      "error_code": "audit.chain.previous_hash_mismatch"
+    },
+    "rebuild.sequence_gap": {
+      "pass": true,
+      "first_failure_at": 2,
+      "error_code": "audit.chain.sequence_gap"
+    },
+    "rebuild.out_of_order": {
+      "pass": true,
+      "first_failure_at": 1,
+      "error_code": "audit.chain.sequence_gap"
+    },
+    "rebuild.compliance_posture_mismatch": {
+      "pass": true,
+      "first_failure_at": 2,
+      "error_code": "audit.record.compliance_posture_mismatch"
+    },
+    "rebuild.full_scan_reports_multiple_posture_errors": {
+      "pass": true,
+      "first_failure_at": 2,
+      "error_count": 2,
+      "verified_count": 1
+    },
+    "rebuild.cursor_stops_at_first_failure": {
+      "pass": true,
+      "cursor": 3,
+      "verified_count": 2,
+      "total_scanned": 5,
+      "first_failure_at": 3
+    },
+    "rebuild.wrong_format_version": {
+      "pass": true,
+      "first_failure_at": 2,
+      "error_code": "audit.record.format_version_unrecognized"
+    },
+    "rebuild.wrong_kind": {
+      "pass": true,
+      "first_failure_at": 2,
+      "error_code": "audit.record.kind_unrecognized"
+    },
+    "rebuild.storage_identity_mismatch": {
+      "pass": true,
+      "first_failure_at": 2,
+      "error_code": "audit.record.storage_identity_mismatch"
+    },
+    "rebuild.first_record_wrong_prev_hash": {
+      "pass": true,
+      "first_failure_at": 1,
+      "error_code": "audit.chain.previous_hash_mismatch"
+    },
+    "rebuild.signed_payload_hash_consistent": {
+      "pass": true,
+      "consistent": true,
+      "rebuild_success": true
+    },
+    "excluded.no_production_durable_audit_in_proof_local": {
+      "pass": true,
+      "count": 16
+    },
+    "excluded.no_ledger_access": {
+      "pass": true
+    },
+    "excluded.no_phase2_access": {
+      "pass": true
+    },
+    "excluded.no_hsm_kms": {
+      "pass": true
+    },
+    "excluded.gate3_authorized_not_widened": {
+      "pass": true
+    }
+  },
+  "invariant_checks": {
+    "invariant.no_production_durable_audit_in_proof_local": true,
+    "invariant.no_ledger_access": true,
+    "invariant.no_phase2_access": true,
+    "invariant.no_hsm_kms": true,
+    "invariant.cursor_never_past_first_failure": true,
+    "invariant.mismatch_code_used_for_posture_errors": true
+  },
+  "sharper_question_d1": {
+    "question": "On mismatch, does rebuild stop at cursor or abort full scan?",
+    "answer": "Cursor stops at first_failure_at. Full scan continues. cursor = first_failure_at. Never auto-repair or overwrite stored records."
+  },
+  "non_authorization": {
+    "production_deployment": false,
+    "ledger_adapter": false,
+    "phase2": false,
+    "bihistory": false,
+    "stream_olap": false,
+    "production_cache": false,
+    "hsm_kms_onboarding": false,
+    "broad_runtimemachine_binding": false,
+    "gate3_authorized": false
+  },
+  "remaining_blockers": [
+    {
+      "blocker": "B-B",
+      "description": "Audit traversal / reader proof not yet implemented (surface 6 of S3-R30-C1-A)",
+      "surface": "audit traversal",
+      "required_before": "deployment authorization"
+    },
+    {
+      "blocker": "B-C",
+      "description": "Appender / reader role boundary proof not yet implemented (surface 7 of S3-R30-C1-A)",
+      "surface": "role boundary",
+      "required_before": "deployment authorization"
+    },
+    {
+      "blocker": "B-D",
+      "description": "Post-implementation full regression matrix not yet run (S3-R30-C1-A surface 9 requires all new proofs + existing proofs PASS)",
+      "surface": "regression",
+      "required_before": "deployment authorization"
+    },
+    {
+      "blocker": "B-E",
+      "description": "Production deployment, HSM/KMS onboarding, and production signing remain closed until S3-R30-C1-A follow-up Architect review",
+      "surface": "non-authorization",
+      "required_before": "any production deployment"
+    }
+  ]
+}
