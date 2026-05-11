@@ -5,6 +5,7 @@ Agent: `[Igniter-Lang Compiler/Grammar Expert]`
 Role: compiler-grammar-expert
 Track: `prop036-compiler-profile-id-manifest-proposal-v0`
 Status: done
+Proposal lifecycle at card close: authored-pending-review (track done did not imply accepted; S3-R35-C3-A later accepted proposal-only)
 Date: 2026-05-11
 
 Affected neighbor roles: `[Igniter-Lang Research Agent]`,

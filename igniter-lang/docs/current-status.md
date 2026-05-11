@@ -125,16 +125,17 @@ Language          ⚙️ partial TEMPORAL through .igapp manifest index + load g
                             parser coordinate syntax and production runtime remain open
                             PROP-029 entrypoint/section drafted; parser proof still open;
                             PROP-032 assumptions block drafted;
-                            Phase 1 Classifier + Phase 2 TypeChecker + Phase 3 SemanticIR landed;
-                            parser grammar/P28/full experiment-pass still open
+                            Phase 1 Classifier + Phase 2 TypeChecker + Phase 3 SemanticIR
+                            + Phase 4 parser/P28/source proof landed;
+                            experiment-pass governance decision still open
 Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             invariant typed-shape delta accepted/discharged;
                             invariant source metadata preserved;
                             parsed emitter retained as Stage 1 legacy/comparison;
                             Profile-Baseline-Pack target direction recorded;
                             shadow compiler-pack proofs are pre-POC/no-dispatch only;
-                            compiler_profile_id assigned/authored as PROP-036 proposal;
-                            acceptance + implementation authorization still blocked
+                            compiler_profile_id accepted as PROP-036 proposal-only;
+                            implementation authorization still blocked
 ─────────────────────────────────────────────────────────────────
 STAGE 3 CLOSED:   NO
 Round 1 landed:
@@ -348,12 +349,17 @@ Round 34 landed:
 Round 35 landed:
   S3-R35-C1-P: durable audit B-D matrix          ✅ 9/9 commands PASS; 97/97 durable audit proof cases PASS
   S3-R35-C2-S: R35 status curation               ✅ B-D closed in maps; B-E review ready; no deployment auth
+  S3-R35-C3-A: PROP-036 acceptance               ✅ accepted-proposal-only; implementation still closed
+  S3-R35-C4-A: PROP-037 number assignment        ✅ progression/service liveness numbering-only; proposal not authored
+  S3-R35-C5-P: PROP-032 parser Phase 4           ✅ parser/P28/source-to-SemanticIR proof PASS; experiment-pass decision still pending
+  S3-R35-C6-S: proposal lifecycle labels sync    ✅ proposal labels clarified; Track done != Proposal accepted
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
                   queued slots include PROP-033 via profile, PROP-034 evidence,
-                  PROP-035 profile declarations, PROP-036 compiler_profile_id proposal,
-                  PROP-037+ progression/managed-recursion placeholder;
+                  PROP-035 profile declarations, PROP-036 compiler_profile_id accepted proposal,
+                  PROP-037 progression/service liveness assigned slot,
+                  PROP-038+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
 Arch approval required for: production durable audit deployment, concrete HSM/KMS,
                             Gate 3 Phase 2 Ledger adapter, BiHistory, stream/OLAP,
@@ -477,7 +483,7 @@ Source .ig
        audit appender/reader role boundary           ✅ R34 closes B-C and P-43; append requires clean rebuild status
        audit post-implementation matrix              ✅ R35 closes B-D; 9/9 commands, 97/97 audit cases PASS
        audit deployment review                       🟡 B-E ready to open; production deployment/signing still closed
-       PROP-032 assumptions                          🟡 Phase 1/2/3 landed; parser grammar/P28/full experiment-pass open
+       PROP-032 assumptions                          🟡 Phase 1/2/3/4 proofs landed; experiment-pass decision open
        compiler Profile-Baseline-Pack               🟡 post-POC direction + shadow proofs; no dispatch/migration
        memoize TEMPORAL                         🚫 proof-local only, no production cache
   -> Ledger / TBackend
@@ -664,9 +670,9 @@ PROP-032:
                      `assumption_refs`, `epistemic` fragment precedence, and OOF-A1; assumptions_proof and regression
                      checks PASS. R33 C2-P closes Phase 2 TypeChecker. R34 C4-P closes Phase 3 SemanticIR for typed
                      assumptions: accepted fixtures emit SemanticIR/golden report outputs; OOF-A1/TASSUMP-1 stay
-                     report-only with nil SemanticIR; no-assumption goldens remain unchanged. No parser grammar,
-                     P28 unnamed-assumption parse-error fixture, output evidence-list validation, runtime behavior,
-                     or full experiment PASS has landed. Phase 4 parser/source-to-SemanticIR remains open.
+                     report-only with nil SemanticIR; no-assumption goldens remain unchanged. R35 C5-P closes Phase 4:
+                     parser grammar, P28 unnamed-assumption parse-error fixture, and source-to-SemanticIR proof PASS.
+                     No output evidence-list validation, runtime behavior, or experiment-pass governance decision has landed.
 Compiler profile/pack architecture:
                      R31 records Profile-Baseline-Pack as the post-POC compiler architecture direction. Shadow work
                      proves a compiler pack boundary, shadow profile, registry spike, ordered rule precedence, and
@@ -675,9 +681,9 @@ Compiler profile/pack architecture:
                      `compiler_profile_id` adoption, and no native pack migration authorization. R32 shadow work adds
                      a closure index/backreference that answers the dependency-map pressure item. S3-R33-C3-A assigns
                      PROP-036 to the manifest identity as a numbering-only decision. S3-R34-C5-P authors
-                     `PROP-036-compiler-profile-manifest-identity-v0.md` as a proposal only. Acceptance by governance
-                     flow and a separate Architect implementation authorization are still required before assembler,
-                     loader, artifact-hash/golden migration, or receipt-link implementation.
+                     `PROP-036-compiler-profile-manifest-identity-v0.md`; S3-R35-C3-A accepts it as proposal-only.
+                     A separate Architect implementation authorization is still required before assembler, loader,
+                     artifact-hash/golden migration, or receipt-link implementation.
 Reason codes:       LEGACY_ALIASES deprecation signal ✅; lib/ executor emits canonical
                      `runtime.temporal_scope_exclusion`; sealed old fixtures are not retroactively edited;
                      alias removal remains Phase 2 housekeeping.
@@ -687,8 +693,8 @@ Pre-production remaining:
                       bounded production durable audit B-E Architect deployment review / deployment authorization;
                       production signing/key management execution; concrete HSM/KMS;
                       production authority registry; proof-local freshness authority fixture rules before production signer work;
-                      OQ-P28-1 escape naming answer; PROP-032 Phase 4 parser grammar + P28 fixture + full proof cycle;
-                      PROP-036 acceptance gate before any `.igapp` implementation; PROP-037+ formal number assignment for progression;
+                      OQ-P28-1 escape naming answer; PROP-032 experiment-pass governance decision after Phase 4 proof;
+                      PROP-036 implementation authorization before any `.igapp` implementation; PROP-037 formal proposal authoring;
                       real commit SHA / no `workspace-current`; optional Time.now grep hook; Phase 2 addendum gaps
 Runtime observations: proof-backed ✅ proof-local file persistence + tamper-evidence shape; production durable audit still open
 Temporal cache key:  proof + runtime contract + proof-local memoization ✅; production memoization not implemented
@@ -859,7 +865,7 @@ S3-R34 result:      C1-P closes B-B traversal/reader proof with 26/26 PASS and 4
                       invariants; its local Open Blockers table was later cross-referenced by R35 curation to remove
                       the same-round B-B drift. C3-S closes P-44 by moving managed recursion/service-loop
                       placeholders to PROP-037+ across active maps. C4-P closes PROP-032 Phase 3 SemanticIR for typed
-                      assumptions; Phase 4 parser grammar/P28/full experiment-pass remains open. C5-P authors PROP-036
+                      assumptions; Phase 4 parser grammar/P28/full experiment-pass remains open at R34 close. C5-P authors PROP-036
                       as proposal-only; P-45 acceptance gate is open before implementation. C6-P drafts progression
                       PROP scope without claiming a number; P-46 formal PROP-037+ assignment is open. B-D full
                       post-implementation regression matrix is the next audit prerequisite before B-E deployment review.
@@ -869,7 +875,12 @@ S3-R35 result:      C1-P closes B-D: 9/9 command matrix PASS and 97/97 durable a
                       is closed, and excluded surfaces remain false/absent. This makes the system ready for B-E
                       Architect deployment review, but it does not authorize production deployment, production signing,
                       concrete HSM/KMS, Ledger/Phase 2, BiHistory, stream/OLAP, production cache, or broad RuntimeMachine
-                      binding. No Architect decision accepting PROP-036 or assigning progression PROP-037+ landed in R35.
+                      binding. C3-A accepts PROP-036 as proposal-only; implementation remains closed behind a separate
+                      Architect authorization. C4-A assigns PROP-037 to external progression/service liveness as
+                      numbering-only; PROP authoring and implementation remain closed. C5-P completes PROP-032 Phase 4
+                      parser/P28/source proof and recommends experiment-pass review, but no lifecycle promotion decision
+                      has landed. C6-S clarifies proposal lifecycle labels and the rule that Track done does not imply
+                      Proposal accepted.
 ```
 
 ### Spec Freshness
@@ -878,16 +889,16 @@ S3-R35 result:      C1-P closes B-D: 9/9 command matrix PASS and 97/97 durable a
 |---------|-----------|----------------|--------------------|
 | Agent context | ✅ current S3-R32 | `docs/agent-context.md` | R31 bounded audit + compiler-pack shadow boundary visible; R32 authority sync visible |
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
-| Language Covenant | ✅ R34 placeholder sync | `covenant-accountability-postulates-r29-v0`; `covenant-promise-enforcement-path-rule-v0`; `docs/gates/prop-governance-authority-decision-v0.md`; `docs/language-covenant.md`; `prop036-placeholder-governance-sync-v0` | OQ-P28-1 escape naming remains; loop naming uses PROP-037+ placeholder |
+| Language Covenant | ✅ R34 placeholder sync | `covenant-accountability-postulates-r29-v0`; `covenant-promise-enforcement-path-rule-v0`; `docs/gates/prop-governance-authority-decision-v0.md`; `docs/language-covenant.md`; `prop036-placeholder-governance-sync-v0` | OQ-P28-1 escape naming remains; loop naming placeholder should move to PROP-038+ on next covenant touch after PROP-037 assignment |
 | Canonical Semantic Model | ✅ R34 placeholder sync | `canonical-semantic-model-bootstrap-r29-v0`; `docs/dev/canonical-semantic-model.md`; `observed-temporal-precedence-golden-r30-v0`; `prop036-placeholder-governance-sync-v0` | Maintain entity rows when compiler entities are added/removed; add secondary observed+temporal anchor in next CSM touch |
 | Semantic Governance Heat Map | ✅ PROP-036 sync S3-R34 | `semantic-governance-heat-map-v0`; `r31-governance-map-sync-v0`; `docs/dev/semantic-governance-heat-map.md`; `r32-governance-authority-sync-v0`; `prop036-placeholder-governance-sync-v0` | Maintain when new governance issues open/close |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
-| Ch6 SemanticIR / .igapp | ✅ synced through R34 PROP-032 Phase 3 | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0`; `prop032-assumptions-phase3-semanticir-v0` | PROP-032 typed-assumptions SemanticIR documented; parser grammar/P28/source syntax Phase 4 remains open |
+| Ch6 SemanticIR / .igapp | ✅ synced through R35 PROP-032 Phase 4 | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop032-assumptions-phase4-parser-proof-v0` | PROP-032 parser/P28/source proof landed; experiment-pass governance decision and Ch2 grammar sync remain |
 | Ch7 Runtime | ✅ R35 audit B-D closed / deployment review ready | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0`; `phase1-production-durable-audit-v0`; `phase1-production-registry-ownership-decision-v0`; `deterministic-regression-artifact-policy-v0`; `phase1-production-durable-audit-implementation-authorization-review-v0`; `production-durable-audit-blocker-amendment-and-validation-proofs-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `phase1-production-durable-audit-implementation-authorization-decision-v0`; `startup-time-freshness-override-validator-v0`; `phase1-production-durable-audit-bounded-implementation-v0`; `durable-audit-hash-and-posture-design-amendment-v0`; `durable-audit-restart-rebuild-proof-v0`; `durable-audit-reader-traversal-proof-v0`; `durable-audit-append-reader-role-boundary-proof-v0`; `durable-audit-post-implementation-regression-matrix-v0` | B-A/B-B/B-C/B-D/P-43 closed; B-E deployment review ready; production deployment/signing/HSM/KMS remain closed |
-| Proposal index | ✅ synced S3-R34 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0`; `PROP-032-assumptions-block-v0`; `prop032-assumptions-implementation-gate-review-v0`; `prop032-assumptions-phase1-classifier-implementation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop036-placeholder-governance-sync-v0`; `prop036-compiler-profile-id-manifest-proposal-v0`; `external-progression-prop-scope-draft-v0` | PROP-036 authored proposal pending acceptance; progression scope draft awaits PROP-037+ formal assignment |
+| Proposal index | ✅ lifecycle labels synced S3-R35 | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0`; `PROP-032-assumptions-block-v0`; `prop032-assumptions-implementation-gate-review-v0`; `prop032-assumptions-phase1-classifier-implementation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop036-placeholder-governance-sync-v0`; `prop036-compiler-profile-id-manifest-proposal-v0`; `progression-prop-number-assignment-decision-v0`; `proposal-lifecycle-status-labels-sync-v0` | Lifecycle labels explicit; PROP-036 accepted proposal-only; PROP-037 assigned numbering-only; PROP-032 experiment-pass decision still pending |
 | Contract modifiers | ✅ implementation/proof + R30 V-3 golden | `PROP-031-contract-modifiers-v0`; `contract-modifiers-proof-fixture-plan-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `agent-d-cross-review-values-and-meta-cards-r28-v0`; `prop031-compatibility-addendum-r29-v0`; `observed-temporal-precedence-golden-r30-v0` | Parser/classifier/typechecker/SemanticIR support landed with proof PASS; §14 documents migration/OOF-M1/V-3; V-3 golden PASS 25/25; Effect Surface/Profile/authority/runtime enforcement still absent by design |
-| Compiler pack architecture | 🟡 proposal authored / implementation blocked | `compiler-profile-architecture-direction-v0`; `compiler-pack-boundary-report-v0`; `compiler-pack-shadow-profile-proof-v0`; `contract-modifiers-pack-native-boundary-v0`; `compiler-kernel-pack-registry-spike-v0`; `compiler-kernel-ordered-rule-precedence-v0`; `compiler-profile-id-manifest-boundary-plan-v0`; `compiler-profile-chain-closure-index-v0`; `compiler-profile-r32-shadow-chain-backreference-v0`; `docs/gates/compiler-profile-manifest-prop-number-decision-v0.md`; `prop036-compiler-profile-id-manifest-proposal-v0` | PROP-036 authored but pending acceptance; no compiler dispatch, no rewrite, no real `.igapp`/`.ilk` profile id, no native migration authorization |
+| Compiler pack architecture | 🟡 accepted proposal / implementation blocked | `compiler-profile-architecture-direction-v0`; `compiler-pack-boundary-report-v0`; `compiler-pack-shadow-profile-proof-v0`; `contract-modifiers-pack-native-boundary-v0`; `compiler-kernel-pack-registry-spike-v0`; `compiler-kernel-ordered-rule-precedence-v0`; `compiler-profile-id-manifest-boundary-plan-v0`; `compiler-profile-chain-closure-index-v0`; `compiler-profile-r32-shadow-chain-backreference-v0`; `docs/gates/compiler-profile-manifest-prop-number-decision-v0.md`; `prop036-compiler-profile-id-manifest-proposal-v0`; `prop036-compiler-profile-id-acceptance-decision-v0` | PROP-036 accepted proposal-only; no compiler dispatch, no rewrite, no real `.igapp`/`.ilk` profile id, no native migration authorization |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
 
@@ -1115,10 +1126,9 @@ DOC-DEBT-46  S3-R32 durable audit unblock:
 DOC-DEBT-47  S3-R32 PROP-032 Phase 1:
              Classifier support landed with assumptions_proof and regression
              checks PASS. PROP-032 remains proposal, not experiment-pass.
-             TypeChecker Phase 2 landed in R33 and SemanticIR Phase 3 landed in
-             R34. Parser grammar, P28 unnamed-assumption parse-error fixture,
-             source-to-SemanticIR real syntax, and full experiment-pass remain
-             open.
+             TypeChecker Phase 2 landed in R33, SemanticIR Phase 3 landed in
+             R34, and parser/P28/source proof Phase 4 landed in R35. Full
+             experiment-pass governance decision remains open.
 DOC-DEBT-48  S3-R32 compiler profile governance:
              The shadow dependency-map item is answered by the closure index and
              backreference. Closed for numbering by S3-R33-C3-A: PROP-036 is
@@ -1132,21 +1142,20 @@ DOC-DEBT-49  S3-R34 durable audit closures:
              Blockers table so the cumulative B-B/B-D/B-E state is visible from
              the old track.
 DOC-DEBT-50  S3-R34 PROP-036 lifecycle:
-             PROP-036 is authored proposal-only. Do not open assembler, loader,
+             PROP-036 is accepted proposal-only by S3-R35-C3-A. Do not open assembler, loader,
              artifact-hash/golden migration, receipt-link, `.igapp`, `.ilk`,
-             runtime, or dispatch implementation until governance acceptance and
-             a separate Architect implementation card land.
+             runtime, or dispatch implementation until a separate Architect
+             implementation card lands.
 DOC-DEBT-51  S3-R34 progression scope:
-             Progression/service-liveness draft is scope-ready but not numbered.
-             It must receive formal PROP-037+ assignment before formal authoring
-             claims a number. No parser syntax, fragment class, TypeChecker,
-             SemanticIR, RuntimeMachine scheduler, durable queue, or production
-             execution is authorized.
+             Progression/service-liveness is assigned PROP-037 by S3-R35-C4-A,
+             numbering-only. Formal proposal authoring is next; no parser syntax,
+             fragment class, TypeChecker, SemanticIR, RuntimeMachine scheduler,
+             durable queue, or production execution is authorized.
 DOC-DEBT-52  S3-R34 R35 route:
              R35 C1-P closes B-D full regression matrix. Next round should
              prioritize B-E deployment/signing/HSM/KMS review as Architect
-             review only, plus PROP-036 acceptance, PROP-037+ number assignment,
-             and PROP-032 Phase 4.
+             review only, plus PROP-032 experiment-pass governance, PROP-036
+             proof/design follow-up if authorized, and PROP-037 authoring.
 DOC-DEBT-53  S3-R35 B-D closure:
              Post-implementation matrix PASSes 9/9 commands and 97/97 durable
              audit proof cases. This is readiness for B-E Architect deployment
@@ -1155,6 +1164,11 @@ DOC-DEBT-53  S3-R35 B-D closure:
              Ledger/Phase 2, BiHistory, stream/OLAP, production cache, and broad
              RuntimeMachine binding remain closed until a later explicit
              Architect decision.
+DOC-DEBT-54  S3-R35 proposal lifecycle labels:
+             Proposal index now uses lifecycle labels (`draft`,
+             `authored-pending-review`, `accepted`, `conditional-accepted`,
+             `implemented-proof`, `experiment-pass`, `deferred`). Track `done`
+             is card completion only and does not imply proposal acceptance.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -1188,15 +1202,17 @@ PROP-030A  TEMPORAL scope exclusion      proposal; runtime.temporal_scope_exclus
 PROP-031   Contract modifiers            experiment-pass; parser/classifier/typechecker/SemanticIR
                                          implementation + proof PASS; R29 §14 compatibility addendum;
                                          no Effect Surface/Profile/runtime enforcement
-PROP-032   Assumptions block             proposal; assumptions {} + uses assumptions NAME;
+PROP-032   Assumptions block             implemented-proof; assumptions {} + uses assumptions NAME;
                                          Phase 1 Classifier + Phase 2 TypeChecker + Phase 3
-                                         SemanticIR landed; parser/P28/full experiment-pass open
+                                         SemanticIR + Phase 4 parser/P28 source proof landed;
+                                         experiment-pass governance decision open
 PROP-033   via profile binding           queued; not authored
 PROP-034   output evidence syntax        queued; not authored
 PROP-035   profile declarations          queued; not authored
-PROP-036   compiler_profile_id manifest  authored proposal; pending governance acceptance;
+PROP-036   compiler_profile_id manifest  accepted proposal-only; implementation blocked;
                                          no implementation or migration auth
-PROP-037+  progression / managed recursion placeholder only; not assigned, not canon without proposal/proof
+PROP-037   progression/service liveness  assigned numbering-only; proposal not authored
+PROP-038+  managed local recursion       placeholder only; not assigned, not canon without proposal/proof
 ```
 
 → Close governance: `meta-proposals/META-EXPERT-009.1-stage2-close-decision-v0.md`

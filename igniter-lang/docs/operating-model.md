@@ -145,6 +145,19 @@ spec/current-status
   > historical motion/archive
 ```
 
+Track completion and proposal acceptance are different status namespaces:
+
+```text
+Track: done
+  = the assigned card delivered its artifact/handoff.
+
+Proposal: authored-pending-review / accepted / implemented-proof / experiment-pass
+  = the proposal lifecycle state recorded in docs/proposals/README.md.
+```
+
+A `done` track that authors a proposal does not accept that proposal and does not
+authorize implementation unless an explicit gate or Architect decision says so.
+
 ---
 
 ## Agent Handoff Format
