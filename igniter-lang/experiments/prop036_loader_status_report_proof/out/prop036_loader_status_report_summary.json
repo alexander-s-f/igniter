@@ -1,0 +1,46 @@
+{
+  "kind": "prop036_loader_status_report_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R36-C5-P",
+  "track": "prop036-loader-status-report-proof-v0",
+  "status": "PASS",
+  "matrix_ref": "igniter-lang/experiments/prop036_loader_status_report_proof/out/prop036_loader_status_report_matrix.json",
+  "statuses_covered": [
+    "absent_legacy",
+    "malformed",
+    "mismatch",
+    "missing_required",
+    "present_verified"
+  ],
+  "initial_policy": "legacy_optional",
+  "profile_required_rollout_authorized": false,
+  "real_manifest_mutation": false,
+  "production_loader_implementation": false,
+  "implementation_blockers": [
+    "Separate Architect authorization for exactly one implementation surface",
+    "Preserve present_verified != runtime readiness",
+    "Keep legacy_optional as initial policy unless a later Architect decision changes it",
+    "No profile_required rollout until migration evidence exists",
+    "No .igapp/.ilk mutation in proof-local design cards",
+    "Dedicated tests for absent_legacy, present_verified, mismatch, malformed, and missing_required",
+    "Artifact hash/golden migration proof before assembler field adoption",
+    "Stable manifest ordering before CompilationReceipt links"
+  ],
+  "checks": {
+    "status.absent_legacy": true,
+    "status.present_verified": true,
+    "status.mismatch": true,
+    "status.malformed": true,
+    "status.missing_required": true,
+    "policy.initial_legacy_optional": true,
+    "policy.no_profile_required_rollout": true,
+    "runtime.present_verified_not_ready": true,
+    "loader.absent_legacy_accepts_inspection": true,
+    "loader.mismatch_refuses": true,
+    "loader.malformed_refuses": true,
+    "loader.missing_required_refuses_future_only": true,
+    "scope.no_real_manifest_mutation": true,
+    "scope.no_production_loader": true,
+    "scope.non_authorizations_preserved": true
+  }
+}

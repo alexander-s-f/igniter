@@ -59,6 +59,7 @@ architecture. They are not production migration authorization.
 | `../gates/durable-audit-b-e-deployment-review-decision-v0.md` | approved-restricted-phase1-production-durable-audit-deployment-scope | Opens bounded audit append/read/rebuild deployment scope only; Ledger, Phase 2, BiHistory, stream/OLAP, cache, broad RuntimeMachine, concrete HSM/KMS onboarding, and general persistence remain closed |
 | `../gates/prop032-assumptions-experiment-pass-decision-v0.md` | experiment-pass | Promotes PROP-032 bounded compiler surface; PROP-033 evidence validation, runtime receipts, and production behavior remain excluded |
 | `stage3-round36-status-preflight-sync-v0.md` | done | Preflights R35 same-round decisions plus R36 C1/C2 before further implementation/proposal work; fixes stale R35 C2-S recommendations in living maps |
+| `mundane-stdlib-and-oof-signal-extraction-v0.md` | done | Extracts blind mundane specimen signals into stdlib/capability packs, syntax pressure, type vocabulary drift, OOF candidates, profile presets, and proposal routes; non-canonical, no implementation auth |
 
 ---
 

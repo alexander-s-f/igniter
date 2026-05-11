@@ -1,0 +1,210 @@
+{
+  "kind": "prop036_loader_status_report_matrix",
+  "format_version": "0.1.0",
+  "card": "S3-R36-C5-P",
+  "track": "prop036-loader-status-report-proof-v0",
+  "proposal_ref": "docs/proposals/PROP-036-compiler-profile-manifest-identity-v0.md",
+  "acceptance_decision_ref": "docs/gates/prop036-compiler-profile-id-acceptance-decision-v0.md",
+  "expected_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+  "initial_policy": "legacy_optional",
+  "profile_required_rollout_authorized": false,
+  "real_manifest_mutation": false,
+  "production_loader_implementation": false,
+  "cases": {
+    "legacy_absent": {
+      "kind": "prop036_loader_status_report",
+      "format_version": "0.1.0",
+      "policy": "legacy_optional",
+      "model_scope": "current_initial_policy",
+      "profile_required_rollout_authorized": false,
+      "manifest_ref": "synthetic/prop036/manifest",
+      "compiler_profile": {
+        "status": "absent_legacy",
+        "manifest_profile_id": null,
+        "expected_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "reason_code": "compiler_profile.absent_legacy",
+        "present_verified_implies_runtime_ready": false
+      },
+      "loader_decision": {
+        "decision": "accept_for_inspection",
+        "loadable_for_inspection": true,
+        "refuse_reason": null
+      },
+      "runtime_evaluation_readiness": {
+        "status": "not_reached",
+        "ready": false,
+        "reason_code": "runtime.readiness_not_evaluated",
+        "authority_source": "none"
+      },
+      "non_authorizations": [
+        ".igapp manifest mutation",
+        ".ilk format mutation",
+        "assembler implementation",
+        "production loader implementation",
+        "CompatibilityReport production change",
+        "artifact hash/golden migration",
+        "CompilationReceipt manifest link",
+        "compiler dispatch migration",
+        "RuntimeMachine binding",
+        "RuntimeMachine execution authority",
+        "profile_required rollout"
+      ]
+    },
+    "legacy_present_verified": {
+      "kind": "prop036_loader_status_report",
+      "format_version": "0.1.0",
+      "policy": "legacy_optional",
+      "model_scope": "current_initial_policy",
+      "profile_required_rollout_authorized": false,
+      "manifest_ref": "synthetic/prop036/manifest",
+      "compiler_profile": {
+        "status": "present_verified",
+        "manifest_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "expected_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "reason_code": "compiler_profile.present_verified",
+        "present_verified_implies_runtime_ready": false
+      },
+      "loader_decision": {
+        "decision": "accept_for_inspection",
+        "loadable_for_inspection": true,
+        "refuse_reason": null
+      },
+      "runtime_evaluation_readiness": {
+        "status": "blocked",
+        "ready": false,
+        "reason_code": "runtime.readiness_not_granted_by_compiler_profile",
+        "authority_source": "runtime_policy_required"
+      },
+      "non_authorizations": [
+        ".igapp manifest mutation",
+        ".ilk format mutation",
+        "assembler implementation",
+        "production loader implementation",
+        "CompatibilityReport production change",
+        "artifact hash/golden migration",
+        "CompilationReceipt manifest link",
+        "compiler dispatch migration",
+        "RuntimeMachine binding",
+        "RuntimeMachine execution authority",
+        "profile_required rollout"
+      ]
+    },
+    "legacy_mismatch": {
+      "kind": "prop036_loader_status_report",
+      "format_version": "0.1.0",
+      "policy": "legacy_optional",
+      "model_scope": "current_initial_policy",
+      "profile_required_rollout_authorized": false,
+      "manifest_ref": "synthetic/prop036/manifest",
+      "compiler_profile": {
+        "status": "mismatch",
+        "manifest_profile_id": "compiler_profile_unified/sha256:000000000000000000000000",
+        "expected_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "reason_code": "compiler_profile.mismatch",
+        "present_verified_implies_runtime_ready": false
+      },
+      "loader_decision": {
+        "decision": "refuse_profile_status",
+        "loadable_for_inspection": false,
+        "refuse_reason": "compiler_profile.mismatch"
+      },
+      "runtime_evaluation_readiness": {
+        "status": "not_reached",
+        "ready": false,
+        "reason_code": "runtime.readiness_not_evaluated",
+        "authority_source": "none"
+      },
+      "non_authorizations": [
+        ".igapp manifest mutation",
+        ".ilk format mutation",
+        "assembler implementation",
+        "production loader implementation",
+        "CompatibilityReport production change",
+        "artifact hash/golden migration",
+        "CompilationReceipt manifest link",
+        "compiler dispatch migration",
+        "RuntimeMachine binding",
+        "RuntimeMachine execution authority",
+        "profile_required rollout"
+      ]
+    },
+    "legacy_malformed": {
+      "kind": "prop036_loader_status_report",
+      "format_version": "0.1.0",
+      "policy": "legacy_optional",
+      "model_scope": "current_initial_policy",
+      "profile_required_rollout_authorized": false,
+      "manifest_ref": "synthetic/prop036/manifest",
+      "compiler_profile": {
+        "status": "malformed",
+        "manifest_profile_id": "not-a-profile-id",
+        "expected_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "reason_code": "compiler_profile.malformed",
+        "present_verified_implies_runtime_ready": false
+      },
+      "loader_decision": {
+        "decision": "refuse_profile_status",
+        "loadable_for_inspection": false,
+        "refuse_reason": "compiler_profile.malformed"
+      },
+      "runtime_evaluation_readiness": {
+        "status": "not_reached",
+        "ready": false,
+        "reason_code": "runtime.readiness_not_evaluated",
+        "authority_source": "none"
+      },
+      "non_authorizations": [
+        ".igapp manifest mutation",
+        ".ilk format mutation",
+        "assembler implementation",
+        "production loader implementation",
+        "CompatibilityReport production change",
+        "artifact hash/golden migration",
+        "CompilationReceipt manifest link",
+        "compiler dispatch migration",
+        "RuntimeMachine binding",
+        "RuntimeMachine execution authority",
+        "profile_required rollout"
+      ]
+    },
+    "future_missing_required": {
+      "kind": "prop036_loader_status_report",
+      "format_version": "0.1.0",
+      "policy": "profile_required",
+      "model_scope": "future_policy_model_only",
+      "profile_required_rollout_authorized": false,
+      "manifest_ref": "synthetic/prop036/manifest",
+      "compiler_profile": {
+        "status": "missing_required",
+        "manifest_profile_id": null,
+        "expected_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "reason_code": "compiler_profile.missing_required",
+        "present_verified_implies_runtime_ready": false
+      },
+      "loader_decision": {
+        "decision": "refuse_profile_status",
+        "loadable_for_inspection": false,
+        "refuse_reason": "compiler_profile.missing_required"
+      },
+      "runtime_evaluation_readiness": {
+        "status": "not_reached",
+        "ready": false,
+        "reason_code": "runtime.readiness_not_evaluated",
+        "authority_source": "none"
+      },
+      "non_authorizations": [
+        ".igapp manifest mutation",
+        ".ilk format mutation",
+        "assembler implementation",
+        "production loader implementation",
+        "CompatibilityReport production change",
+        "artifact hash/golden migration",
+        "CompilationReceipt manifest link",
+        "compiler dispatch migration",
+        "RuntimeMachine binding",
+        "RuntimeMachine execution authority",
+        "profile_required rollout"
+      ]
+    }
+  }
+}

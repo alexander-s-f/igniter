@@ -46,6 +46,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-031](PROP-031-contract-modifiers-v0.md) | experiment-pass | Contract modifiers: optional `pure/observed/effect/privileged/irreversible` prefix, implicit pure default, OOF-M1 only; parser/classifier/typechecker/SemanticIR proof PASS; no Effect Surface/Profile/authority/runtime enforcement |
 | [PROP-032](PROP-032-assumptions-block-v0.md) | experiment-pass | `assumptions {}` block + `uses assumptions NAME`; Phase 1/2/3/4 compiler proofs accepted by S3-R36-C2-A; PROP-033 evidence validation and runtime receipts remain excluded |
 | [PROP-036](PROP-036-compiler-profile-manifest-identity-v0.md) | accepted | `compiler_profile_id` manifest identity; accepted proposal-only by S3-R35-C3-A; separate implementation authorization required before code |
+| [PROP-037](PROP-037-external-progression-service-liveness-v0.md) | authored-pending-review | External progression and service liveness semantics; service loops as progression-backed liveness surfaces; capability/manifest metadata first; no parser/runtime/fragment-class authorization |
 
 ---
 
@@ -81,20 +82,19 @@ as proposal-only. It still authorizes no implementation, `.igapp` mutation,
 loader/assembler/runtime binding, dispatch migration, or runtime execution
 authority.
 
-**PROP-037 assignment (S3-R35-C4-A):** PROP-037 is assigned to external
-progression and service liveness semantics. This is numbering-only: the proposal
-is not authored or accepted yet, and no parser, TypeChecker, SemanticIR,
-RuntimeMachine scheduler, Ledger/TBackend, durable queue, production execution,
-ProgressionPack migration, or new fragment class is authorized. Managed local
-recursion / loop-class extension placeholders must use PROP-038+ or later until
-formally assigned.
+**PROP-037 lifecycle:** S3-R35-C4-A assigns PROP-037 to external progression and
+service liveness semantics; S3-R36-C4-P authors the proposal as proposal-only.
+It is not accepted yet, and no parser, TypeChecker, SemanticIR, RuntimeMachine
+scheduler, Ledger/TBackend, durable queue, production execution, ProgressionPack
+migration, or new fragment class is authorized. Managed local recursion /
+loop-class extension placeholders must use PROP-038+ or later until formally
+assigned.
 
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|
 | PROP-033 | `via profile binding` | PROP-031 | 3 | high |
 | PROP-034 | `output evidence syntax` | PROP-031, PROP-032 | 3 | high |
 | PROP-035 | profile declarations / authority resolution | PROP-031, PROP-033 | 3 | medium |
-| PROP-037 | external progression and service liveness semantics | PROP-023, Ch13 managed recursion, R34 progression scope draft | 3 | high |
 | PROP-038+ | managed local recursion / loop-class extensions placeholder | future routing decision; PROP-037 owns progression/service liveness | 4+ | unassigned |
 | TBD | Effect Surface | PROP-031 | 3 | medium |
 | TBD | Prior queued ideas need renumbering/requeue | — | 3+ | medium |
@@ -157,6 +157,6 @@ Stage 1 PROPs: see `accepted/` — frozen read-only.
 Stage 2 closed PROPs: in `proposals/` with lifecycle label `accepted`.
 New Stage 3 proposal IDs must consult the queued table above. PROP-033 through
 PROP-035 are reserved there; PROP-036 is accepted proposal-only for compiler
-profile manifest identity; PROP-037 is assigned to external progression and
-service liveness semantics; managed local recursion / loop-class extensions use
-PROP-038+ as placeholder only until formal assignment.
+profile manifest identity; PROP-037 is authored-pending-review for external
+progression and service liveness semantics; managed local recursion / loop-class
+extensions use PROP-038+ as placeholder only until formal assignment.
