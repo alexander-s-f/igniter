@@ -1,0 +1,27 @@
+{
+  "kind": "progression_pack_shadow_boundary_summary",
+  "format_version": "0.1.0",
+  "track": "progression-pack-shadow-boundary-v0",
+  "status": "PASS",
+  "model_path": "igniter-lang/experiments/progression_pack_shadow_boundary/out/progression_pack_shadow_boundary_model.json",
+  "checks": {
+    "input.external_progression_passed": true,
+    "verdict.progression_pack_not_loop_rename": true,
+    "boundary.not_core_temporal_stream_or_pipeline": true,
+    "pack.has_semantic_capability_ownership": true,
+    "pack.depends_on_core_escape_oof_fragment": true,
+    "pack.has_receipt_checkpoint_backpressure_cancellation": true,
+    "relationship.stream_temporal_pipeline_are_siblings": true,
+    "runtime.lifecycle_maps_to_pack": true,
+    "profile.shadow_no_dispatch_no_igapp_change": true,
+    "scope.no_syntax_semanticir_runtime_authority": true
+  },
+  "non_goals": [
+    "No parser syntax.",
+    "No typechecker or SemanticIR implementation.",
+    "No RuntimeMachine production integration.",
+    "No durable scheduler.",
+    "No .igapp/.ilk format change.",
+    "No CompilerKernel dispatch change."
+  ]
+}

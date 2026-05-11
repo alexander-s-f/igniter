@@ -1,0 +1,735 @@
+{
+  "kind": "progression_pack_shadow_boundary_model",
+  "format_version": "0.1.0",
+  "track": "progression-pack-shadow-boundary-v0",
+  "verdict": {
+    "fits_new_compiler_as": "ProgressionPack",
+    "capability_boundary": "external_event_progression_and_bounded_materialization",
+    "not_a_rename_of_loop": true,
+    "not_core_pack": true,
+    "not_temporal_pack": true,
+    "not_stream_pack": true,
+    "not_pipeline_pack": true
+  },
+  "relationship_to_existing_packs": {
+    "CoreLanguagePack": "required baseline for handler contracts and core expressions",
+    "EscapeBoundaryPack": "required because progression sources are external runtime boundaries",
+    "StreamPack": "sibling; stream handles data ingress/fold, progression handles event potential/materialization",
+    "TemporalPack": "sibling; temporal reads history, progression schedules/materializes future/external events",
+    "PipelinePack": "optional future integration for step orchestration, not ownership",
+    "EvidenceObservationPack": "optional future integration for receipt/audit observations"
+  },
+  "pack_descriptor": {
+    "name": "ProgressionPack",
+    "implementation_id": "progression.proof_runtime_model_shadow.v0",
+    "status": "proposed_shadow_only",
+    "requires_packs": [
+      "CoreLanguagePack",
+      "EscapeBoundaryPack",
+      "OOFRegistry",
+      "FragmentRegistry"
+    ],
+    "provides_capabilities": [
+      "external_progression",
+      "progression_source",
+      "bounded_materialization",
+      "progression_step_receipt",
+      "progression_checkpoint_resume",
+      "progression_backpressure",
+      "progression_cancellation"
+    ],
+    "parser_rules": [
+      "progression_decl_deferred",
+      "clock_every_source_deferred",
+      "work_queue_source_deferred",
+      "progression_handler_ref_deferred"
+    ],
+    "classifier_rules": [
+      "progression_source_classification_deferred",
+      "progression_external_boundary_classification_deferred",
+      "progression_handler_linking_deferred"
+    ],
+    "type_rules": [
+      "progression_event_payload_type_deferred",
+      "progression_handler_signature_deferred",
+      "progression_receipt_shape_deferred"
+    ],
+    "semanticir_handlers": [
+      "progression_source_node_deferred",
+      "progression_materialization_policy_node_deferred",
+      "progression_handler_ref_node_deferred"
+    ],
+    "assembler_hooks": [
+      "progression_sources_manifest_deferred",
+      "progression_requirements_deferred",
+      "progression_receipt_schema_deferred"
+    ],
+    "fragment_classes": [
+      "progression_candidate"
+    ],
+    "oof_codes": [
+      "OOF-PR1",
+      "OOF-PR2",
+      "OOF-PR3",
+      "OOF-PR4"
+    ],
+    "runtime_evidence_ref": "igniter-lang/experiments/external_progression_runtime_model/external_progression_runtime_model_summary.json",
+    "runtime_capabilities_proven": [
+      "lazy_infinite_progression_window",
+      "receipt_first_step_audit",
+      "deterministic_checkpoint_resume",
+      "structured_backpressure_refusal",
+      "structured_cancellation_receipt",
+      "shared_lifecycle_for_clock_and_queue_sources"
+    ]
+  },
+  "extended_shadow_profile": {
+    "kind": "compiler_profile_shadow_with_progression_pack",
+    "format_version": "0.1.0",
+    "dispatch_mode": "shadow_no_dispatch",
+    "base_profile_track": "compiler-pack-shadow-profile-proof-v0",
+    "igapp_manifest_changes": [],
+    "compiler_profile_id_in_igapp": "deferred_until_manifest_prop",
+    "packs": [
+      {
+        "name": "CoreLanguagePack",
+        "implementation_id": "core_language.proof_compiler_adapter.v0",
+        "status": "current_surface_shadow",
+        "requires_packs": [],
+        "provides_capabilities": [
+          "core_language",
+          "core_fragment",
+          "core_type_refs",
+          "core_semanticir"
+        ],
+        "parser_rules": [
+          "module_decl",
+          "type_decl",
+          "trait_decl",
+          "impl_decl",
+          "contract_shape_decl",
+          "contract_decl",
+          "input_decl",
+          "compute_decl",
+          "output_decl",
+          "literals",
+          "refs",
+          "field_access",
+          "core_calls",
+          "core_operators"
+        ],
+        "classifier_rules": [
+          "core_symbols",
+          "dependency_graph",
+          "unresolved_symbol",
+          "core_fragment_default"
+        ],
+        "type_rules": [
+          "primitive_type_ir",
+          "expression_inference",
+          "output_typecheck",
+          "typed_core_nodes"
+        ],
+        "semanticir_handlers": [
+          "contract_ir",
+          "compute_node",
+          "output_node",
+          "compilation_report"
+        ],
+        "assembler_hooks": [
+          "base_igapp_layout",
+          "manifest",
+          "semantic_ir_program",
+          "compilation_report",
+          "requirements",
+          "core_contract_file"
+        ],
+        "fragment_classes": [
+          "core"
+        ],
+        "oof_codes": [
+          "OOF-P0",
+          "OOF-P1",
+          "OOF-P2",
+          "OOF-TY0",
+          "OOF-DM3"
+        ]
+      },
+      {
+        "name": "OOFRegistry",
+        "implementation_id": "oof_registry.shadow_descriptor_registry.v0",
+        "status": "kernel_service_candidate",
+        "requires_packs": [],
+        "provides_capabilities": [
+          "oof_registry",
+          "oof_descriptor_lookup",
+          "oof_stage_ownership"
+        ],
+        "parser_rules": [],
+        "classifier_rules": [
+          "oof_descriptor_registration"
+        ],
+        "type_rules": [
+          "oof_alias_registration"
+        ],
+        "semanticir_handlers": [
+          "oof_report_diagnostics"
+        ],
+        "assembler_hooks": [
+          "oof_manifest_metadata_deferred"
+        ],
+        "fragment_classes": [
+          "oof"
+        ],
+        "oof_codes": []
+      },
+      {
+        "name": "FragmentRegistry",
+        "implementation_id": "fragment_registry.shadow_precedence_registry.v0",
+        "status": "kernel_service_candidate",
+        "requires_packs": [],
+        "provides_capabilities": [
+          "fragment_registry",
+          "fragment_precedence"
+        ],
+        "parser_rules": [],
+        "classifier_rules": [
+          "contract_fragment_precedence",
+          "node_value_fragment_split"
+        ],
+        "type_rules": [
+          "fragment_validation"
+        ],
+        "semanticir_handlers": [
+          "fragment_passthrough"
+        ],
+        "assembler_hooks": [
+          "fragment_summary",
+          "max_fragment_class"
+        ],
+        "fragment_classes": [
+          "core",
+          "escape",
+          "stream",
+          "temporal",
+          "epistemic",
+          "oof"
+        ],
+        "oof_codes": []
+      },
+      {
+        "name": "EscapeBoundaryPack",
+        "implementation_id": "escape_boundary.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "escape_boundary",
+          "read_surface",
+          "escape_fragment"
+        ],
+        "parser_rules": [
+          "escape_decl",
+          "read_decl",
+          "lifecycle",
+          "scoped_by",
+          "cardinality",
+          "schema_version",
+          "tenant_free"
+        ],
+        "classifier_rules": [
+          "escape_decl_classification",
+          "non_temporal_read_classification"
+        ],
+        "type_rules": [
+          "read_metadata_passthrough",
+          "escape_boundary_validation"
+        ],
+        "semanticir_handlers": [
+          "escape_boundaries"
+        ],
+        "assembler_hooks": [
+          "requirements_from_escape_boundaries",
+          "capability_effect_summary"
+        ],
+        "fragment_classes": [
+          "escape"
+        ],
+        "oof_codes": []
+      },
+      {
+        "name": "TemporalPack",
+        "implementation_id": "temporal.metadata_only_guarded.v0",
+        "status": "current_surface_shadow",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "EscapeBoundaryPack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "temporal",
+          "history_read",
+          "bihistory_read",
+          "temporal_access_node"
+        ],
+        "parser_rules": [
+          "History_type_ref",
+          "BiHistory_type_ref",
+          "coordinate_syntax_deferred"
+        ],
+        "classifier_rules": [
+          "temporal_read_detection",
+          "temporal_value_core_split",
+          "temporal_capability_selection"
+        ],
+        "type_rules": [
+          "history_at",
+          "bihistory_at",
+          "temporal_axis_validation",
+          "temporal_coordinate_refs"
+        ],
+        "semanticir_handlers": [
+          "temporal_input_node",
+          "temporal_access_node",
+          "temporal_escape_boundaries"
+        ],
+        "assembler_hooks": [
+          "temporal_contract_index",
+          "temporal_nodes",
+          "temporal_requirements",
+          "temporal_guard_metadata"
+        ],
+        "fragment_classes": [
+          "temporal"
+        ],
+        "oof_codes": [
+          "OOF-H1",
+          "OOF-H2",
+          "OOF-H3",
+          "OOF-H4",
+          "OOF-BT1",
+          "OOF-BT2",
+          "OOF-BT3",
+          "OOF-BT4",
+          "OOF-TM1",
+          "OOF-TM3",
+          "OOF-TM4",
+          "OOF-TM5",
+          "OOF-TM6"
+        ]
+      },
+      {
+        "name": "StreamPack",
+        "implementation_id": "stream.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "EscapeBoundaryPack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "stream",
+          "stream_input",
+          "stream_window",
+          "fold_stream"
+        ],
+        "parser_rules": [
+          "stream_decl",
+          "window_decl",
+          "fold_stream_decl",
+          "window_bounded",
+          "count_bounded"
+        ],
+        "classifier_rules": [
+          "stream_ingress",
+          "fold_stream_tracking",
+          "direct_stream_use",
+          "missing_window"
+        ],
+        "type_rules": [
+          "fold_stream_core_body",
+          "fold_stream_result_type"
+        ],
+        "semanticir_handlers": [
+          "stream_input_node",
+          "window_decl_node",
+          "fold_stream_node"
+        ],
+        "assembler_hooks": [
+          "stream_nodes",
+          "stream_requirements",
+          "stream_window_requirements"
+        ],
+        "fragment_classes": [
+          "stream"
+        ],
+        "oof_codes": [
+          "OOF-S1",
+          "OOF-S2",
+          "OOF-S3",
+          "OOF-S4",
+          "OOF-S5"
+        ]
+      },
+      {
+        "name": "OLAPPack",
+        "implementation_id": "olap.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "olap_point",
+          "olap_type_ref",
+          "olap_access"
+        ],
+        "parser_rules": [
+          "olap_point_decl",
+          "OLAPPoint_type_ref",
+          "dims_record",
+          "slice_record"
+        ],
+        "classifier_rules": [
+          "olap_symbol_registration"
+        ],
+        "type_rules": [
+          "olap_env",
+          "olap_declaration_validation",
+          "olap_slice_type",
+          "olap_rollup_type"
+        ],
+        "semanticir_handlers": [
+          "olap_point_decl",
+          "olap_access_node"
+        ],
+        "assembler_hooks": [
+          "olap_requirements_deferred"
+        ],
+        "fragment_classes": [],
+        "oof_codes": [
+          "OOF-O1",
+          "OOF-O2",
+          "OOF-O3",
+          "OOF-O4",
+          "OOF-O5"
+        ]
+      },
+      {
+        "name": "InvariantPack",
+        "implementation_id": "invariant.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "invariant",
+          "invariant_severity",
+          "invariant_coverage"
+        ],
+        "parser_rules": [
+          "invariant_decl",
+          "predicate",
+          "severity",
+          "label",
+          "message",
+          "overridable_with"
+        ],
+        "classifier_rules": [
+          "invariant_dependency_refs",
+          "invariant_author_fields",
+          "invariant_source_metadata"
+        ],
+        "type_rules": [
+          "invariant_predicate_bool",
+          "invariant_output_effect",
+          "invariant_output_propagation"
+        ],
+        "semanticir_handlers": [
+          "invariant_node",
+          "invariant_coverage"
+        ],
+        "assembler_hooks": [
+          "invariant_report_metadata_deferred"
+        ],
+        "fragment_classes": [],
+        "oof_codes": [
+          "OOF-IV1",
+          "OOF-IV2",
+          "OOF-IV3",
+          "OOF-I1",
+          "OOF-I2",
+          "OOF-I3",
+          "OOF-I4",
+          "OOF-I5"
+        ]
+      },
+      {
+        "name": "ContractModifiersPack",
+        "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "EscapeBoundaryPack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "contract_modifiers",
+          "modifier_fragment_widening"
+        ],
+        "parser_rules": [
+          "pure",
+          "observed",
+          "effect",
+          "privileged",
+          "irreversible"
+        ],
+        "classifier_rules": [
+          "modifier_passthrough",
+          "modifier_fragment_mapping",
+          "pure_escape_oof"
+        ],
+        "type_rules": [
+          "modifier_oof_propagation",
+          "modifier_typed_passthrough"
+        ],
+        "semanticir_handlers": [
+          "contract_ir_modifier"
+        ],
+        "assembler_hooks": [
+          "manifest_modifier_passthrough"
+        ],
+        "fragment_classes": [],
+        "oof_codes": [
+          "OOF-M1"
+        ]
+      },
+      {
+        "name": "AssumptionsPack",
+        "implementation_id": "assumptions.spec_shadow.v0",
+        "status": "proposed_shadow_only",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "ContractModifiersPack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "assumptions",
+          "epistemic_fragment",
+          "assumption_refs"
+        ],
+        "parser_rules": [
+          "assumptions_block",
+          "assumption_decl",
+          "uses_assumptions",
+          "output_evidence_refs_deferred"
+        ],
+        "classifier_rules": [
+          "assumption_registry",
+          "assumption_refs",
+          "uses_assumptions_epistemic",
+          "undeclared_assumption_oof"
+        ],
+        "type_rules": [
+          "assumption_strength_range",
+          "oof_a1_propagation"
+        ],
+        "semanticir_handlers": [
+          "assumption_registry",
+          "assumption_refs"
+        ],
+        "assembler_hooks": [
+          "assumption_receipt_metadata_deferred"
+        ],
+        "fragment_classes": [
+          "epistemic"
+        ],
+        "oof_codes": [
+          "OOF-A1"
+        ]
+      },
+      {
+        "name": "EvidenceObservationPack",
+        "implementation_id": "evidence_observation.current_monolith_adapter.v0",
+        "status": "current_surface_shadow",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "evidence_observation",
+          "confidence_label_checks"
+        ],
+        "parser_rules": [],
+        "classifier_rules": [
+          "confidence_as_bool_oof",
+          "evidence_linked_alert_gate"
+        ],
+        "type_rules": [
+          "evidence_alert_validation"
+        ],
+        "semanticir_handlers": [
+          "evidence_diagnostics"
+        ],
+        "assembler_hooks": [
+          "observation_metadata_deferred"
+        ],
+        "fragment_classes": [],
+        "oof_codes": [
+          "OOF-CE4",
+          "OOF-OS2",
+          "OOF-OS4"
+        ]
+      },
+      {
+        "name": "PipelinePack",
+        "implementation_id": "pipeline.current_parser_surface_shadow.v0",
+        "status": "current_surface_shadow",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "pipeline_surface"
+        ],
+        "parser_rules": [
+          "pipeline_decl",
+          "step_decl",
+          "scoped_by_gate",
+          "tenant_free_gate"
+        ],
+        "classifier_rules": [
+          "pipeline_symbol_registration_deferred"
+        ],
+        "type_rules": [
+          "pipeline_flow_typecheck_deferred"
+        ],
+        "semanticir_handlers": [
+          "pipeline_ir_deferred"
+        ],
+        "assembler_hooks": [
+          "pipeline_manifest_deferred"
+        ],
+        "fragment_classes": [],
+        "oof_codes": [
+          "OOF-PG1",
+          "OOF-PG2",
+          "OOF-PG3",
+          "OOF-PG5"
+        ]
+      },
+      {
+        "name": "ProgressionPack",
+        "implementation_id": "progression.proof_runtime_model_shadow.v0",
+        "status": "proposed_shadow_only",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "EscapeBoundaryPack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "external_progression",
+          "progression_source",
+          "bounded_materialization",
+          "progression_step_receipt",
+          "progression_checkpoint_resume",
+          "progression_backpressure",
+          "progression_cancellation"
+        ],
+        "parser_rules": [
+          "progression_decl_deferred",
+          "clock_every_source_deferred",
+          "work_queue_source_deferred",
+          "progression_handler_ref_deferred"
+        ],
+        "classifier_rules": [
+          "progression_source_classification_deferred",
+          "progression_external_boundary_classification_deferred",
+          "progression_handler_linking_deferred"
+        ],
+        "type_rules": [
+          "progression_event_payload_type_deferred",
+          "progression_handler_signature_deferred",
+          "progression_receipt_shape_deferred"
+        ],
+        "semanticir_handlers": [
+          "progression_source_node_deferred",
+          "progression_materialization_policy_node_deferred",
+          "progression_handler_ref_node_deferred"
+        ],
+        "assembler_hooks": [
+          "progression_sources_manifest_deferred",
+          "progression_requirements_deferred",
+          "progression_receipt_schema_deferred"
+        ],
+        "fragment_classes": [
+          "progression_candidate"
+        ],
+        "oof_codes": [
+          "OOF-PR1",
+          "OOF-PR2",
+          "OOF-PR3",
+          "OOF-PR4"
+        ],
+        "runtime_evidence_ref": "igniter-lang/experiments/external_progression_runtime_model/external_progression_runtime_model_summary.json",
+        "runtime_capabilities_proven": [
+          "lazy_infinite_progression_window",
+          "receipt_first_step_audit",
+          "deterministic_checkpoint_resume",
+          "structured_backpressure_refusal",
+          "structured_cancellation_receipt",
+          "shared_lifecycle_for_clock_and_queue_sources"
+        ]
+      }
+    ],
+    "pack_count": 13,
+    "profile_id": "compiler_profile_progression_shadow/sha256:4644d8c2f4971e35885a502f"
+  },
+  "compiler_surface_mapping": {
+    "parser": "future progression declarations only; no parser work now",
+    "classifier": "classify progression sources as external progression capability, not eager loops",
+    "typechecker": "event payload, handler signature, receipt/checkpoint shape",
+    "semanticir": "candidate progression_source/materialization/handler-ref nodes; not authorized here",
+    "assembler": "candidate progression_sources and requirements sections; .igapp format change blocked",
+    "diagnostics": "OOF-PR* candidates for invalid source, handler mismatch, unbounded materialization, illegal authority claim"
+  },
+  "runtime_contract_mapping": {
+    "source_to_runtime_lifecycle": "ProgressionSource -> EventMaterializer -> EventQueue -> StepExecutor -> ReceiptSink",
+    "event_kind": "progression_event",
+    "receipt_kind": "progression_step_receipt",
+    "materialization_kind": "progression_materialization",
+    "checkpoint_kind": "progression_checkpoint",
+    "lazy_not_eager": true,
+    "receipts_structured": true,
+    "backpressure_structured": true,
+    "cancellation_structured": true
+  },
+  "open_design_questions": [
+    "Is ProgressionPack service-contract-only, or can ordinary contracts declare progressions?",
+    "Does progression get a dedicated fragment class, or remain an escape/runtime capability with manifest metadata?",
+    "Should progression step receipts flow through CompilationReceipt, RuntimeMachine receipts, or a separate ProgressionReceiptSink?",
+    "Which source kinds are canonical first: clock.every, work_queue, or both?",
+    "Should checkpoint/replay be manifest metadata, runtime policy, or both?"
+  ],
+  "non_authorizations": [
+    "This does not authorize progression syntax.",
+    "This does not authorize SemanticIR progression nodes.",
+    "This does not authorize production RuntimeMachine materialization.",
+    "This does not authorize durable scheduler or Ledger integration.",
+    "This does not change compiler dispatch.",
+    "This does not change .igapp/.ilk format."
+  ]
+}

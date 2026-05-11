@@ -14,7 +14,7 @@ Date: 2026-05-10
 Provide one index for the full background compiler profile / pack architecture
 chain from the original shadow profile proof through descriptor schema,
 profile-source lowering target, manifest PROP draft candidate, and syntax
-pressure, ending at Architect routing for the manifest PROP packet.
+pressure, ending at the ProgressionPack shadow boundary.
 
 This is an index and proof guard. It does not authorize production pack
 migration, compiler dispatch rewrite, profile syntax, `.igapp`/`.ilk` changes, or
@@ -75,6 +75,7 @@ PASS compiler_profile_chain_closure_index
 | 24 | profile syntax grammar boundary | `profile_source_syntax_grammar_boundary` | `profile-source-syntax-grammar-boundary-v0` |
 | 25 | validator implementation plan | `compiler_profile_validator_implementation_plan` | `compiler-profile-validator-implementation-plan-v0` |
 | 26 | manifest PROP Architect routing | `compiler_profile_manifest_prop_architect_routing` | `compiler-profile-manifest-prop-architect-routing-v0` |
+| 27 | progression pack shadow boundary | `progression_pack_shadow_boundary` | `progression-pack-shadow-boundary-v0` |
 
 ---
 
@@ -141,6 +142,10 @@ canonicalize/fingerprint.
 without assigning a PROP number, mutating proposal queue, or unblocking
 implementation cards.
 
+[S] External progression maps cleanly to a proposed `ProgressionPack` in the
+future profile-assembled compiler, separate from StreamPack, TemporalPack, and
+PipelinePack.
+
 ---
 
 ## Guard Checks
@@ -159,7 +164,8 @@ chain.includes_descriptor_error_taxonomy
 chain.includes_profile_syntax_compiler_review
 chain.includes_profile_syntax_grammar_boundary
 chain.includes_validator_implementation_plan
-chain.ends_with_manifest_prop_architect_routing
+chain.includes_manifest_prop_architect_routing
+chain.ends_with_progression_pack_shadow_boundary
 chain.all_commands_exited_zero
 chain.all_summaries_pass
 chain.has_expected_phase_count
@@ -176,6 +182,7 @@ chain.has_profile_syntax_compiler_review_phase
 chain.has_profile_syntax_grammar_boundary_phase
 chain.has_validator_implementation_plan_phase
 chain.has_manifest_prop_architect_routing_phase
+chain.has_progression_pack_shadow_boundary_phase
 scope.no_runtime_authority_phase
 ```
 
@@ -214,6 +221,9 @@ signed production audit claim
 compiler-profile-manifest-prop-architect-decision-v0
   Architect assigns/requeues/defers the manifest PROP number.
 
+progression-semantics-proposal-boundary-v0
+  Decide whether ProgressionPack should move from shadow boundary to proposal.
+
 profile-source-syntax-grammar-boundary-review-v0
   Let Compiler/Grammar accept, narrow, reject, or defer the boundary.
 
@@ -222,7 +232,9 @@ compiler-profile-validator-proof-local-spike-v0
 ```
 
 My recommendation: route `compiler-profile-manifest-prop-architect-decision-v0`
-if production path alignment matters most, or route
+if production path alignment matters most, route
+`progression-semantics-proposal-boundary-v0` if external progression should
+enter language adoption, or route
 `profile-source-syntax-grammar-boundary-review-v0` to Compiler/Grammar if the
 goal is language design authority.
 
@@ -238,12 +250,12 @@ Track: compiler-profile-chain-closure-index-v0
 Status: done
 
 [D] Decisions:
-- Created one closure index from shadow profile through manifest PROP Architect routing readiness.
+- Created one closure index from shadow profile through ProgressionPack shadow boundary readiness.
 - The index is a proof guard and navigation map, not migration authorization.
 - Runtime authority remains out of scope across the chain.
 
 [S] Signals:
-- 26/26 indexed proofs PASS.
+- 27/27 indexed proofs PASS.
 - The chain covers shadow profile, pack boundary, kernel registry, ordering,
   manifest plan, slots, unified profile, authority, reports, receipts,
   self-assembly, bootstrap seed, descriptor schema, lowering target, and
@@ -251,7 +263,7 @@ Status: done
   numbering decision request readiness, descriptor diagnostic precedence, and
   profile syntax Compiler/Grammar review baseline, grammar boundary readiness,
   validator implementation plan readiness, and manifest PROP Architect routing
-  readiness.
+  readiness, and ProgressionPack shadow boundary readiness.
 
 [T] Tests:
 - ruby igniter-lang/experiments/compiler_profile_chain_closure_index/compiler_profile_chain_closure_index.rb -> PASS
@@ -263,6 +275,7 @@ Status: done
 [Next]
 - Continue from one of:
   compiler-profile-manifest-prop-architect-decision-v0
+  progression-semantics-proposal-boundary-v0
   profile-source-syntax-grammar-boundary-review-v0
   compiler-profile-validator-proof-local-spike-v0
 ```
