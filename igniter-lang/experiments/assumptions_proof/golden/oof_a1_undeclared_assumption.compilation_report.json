@@ -1,0 +1,26 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/oof-a1-undeclare",
+  "grammar_version": "igniter-parser-proof-v0",
+  "source_hash": "sha256:oof-a1-undeclared-assumption",
+  "source_path": "assumptions/oof_a1_undeclared_assumption.ig",
+  "pass_result": "oof",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "oof",
+    "emit": "skipped"
+  },
+  "diagnostics": [
+    {
+      "rule": "OOF-A1",
+      "severity": "error",
+      "message": "contract 'BadAssumptionUse' uses assumptions 'undeclared_heuristic' but no assumption named 'undeclared_heuristic' is declared in this module",
+      "node": "uses_assumptions:undeclared_heuristic",
+      "path": null,
+      "line": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

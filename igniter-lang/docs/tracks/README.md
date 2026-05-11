@@ -57,6 +57,7 @@ architecture. They are not production migration authorization.
 | Track | Status | Notes |
 |-------|--------|-------|
 | `prop036-placeholder-governance-sync-v0.md` | done | Closes P-44 governance drift: PROP-036 is `compiler_profile_id` numbering-only; managed recursion/service loop placeholders moved to PROP-037+ in active maps; no implementation or migration authorization |
+| `external-progression-prop-scope-draft-v0.md` | done | PROP scope draft for progression: runtime capability/manifest metadata first, no new fragment class; service loop lowers to progression obligations; OOF-PR* candidates; ready for PROP number, no implementation auth |
 
 ---
 

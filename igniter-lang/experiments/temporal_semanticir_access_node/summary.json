@@ -22,6 +22,7 @@
             "kind": "typed_contract",
             "contract_id": "Fixture.HistoryAxes.HistoryAxesTest",
             "name": "HistoryAxesTest",
+            "modifier": "pure",
             "status": "accepted",
             "fragment_class": "temporal",
             "symbols": [
@@ -295,8 +296,9 @@
         "contracts": [
           {
             "kind": "contract_ir",
-            "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+            "contract_ref": "contract/HistoryAxesTest/sha256:0ad9f385b1b6277ba2aff010",
             "contract_name": "HistoryAxesTest",
+            "modifier": "pure",
             "specialization_of": null,
             "type_args": {},
             "fragment_class": "temporal",
@@ -441,6 +443,7 @@
             "kind": "typed_contract",
             "contract_id": "Fixture.BiHistoryAxes.BiHistoryAxesTest",
             "name": "BiHistoryAxesTest",
+            "modifier": "pure",
             "status": "accepted",
             "fragment_class": "temporal",
             "symbols": [
@@ -754,8 +757,9 @@
         "contracts": [
           {
             "kind": "contract_ir",
-            "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+            "contract_ref": "contract/BiHistoryAxesTest/sha256:9a622a8545f42e129b0fbcb2",
             "contract_name": "BiHistoryAxesTest",
+            "modifier": "pure",
             "specialization_of": null,
             "type_args": {},
             "fragment_class": "temporal",

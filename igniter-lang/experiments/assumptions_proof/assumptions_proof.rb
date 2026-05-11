@@ -6,6 +6,7 @@ require "json"
 require "pathname"
 
 require_relative "../../lib/igniter_lang/classifier"
+require_relative "../../lib/igniter_lang/semanticir_emitter"
 require_relative "../../lib/igniter_lang/typechecker"
 
 module AssumptionsProof
@@ -61,11 +62,20 @@ module AssumptionsProof
   def build_outputs
     classifier = IgniterLang::Classifier.new(classifier_version: CLASSIFIER_VERSION)
     typechecker = IgniterLang::TypeChecker.new(typechecker_version: TYPECHECKER_VERSION)
+    emitter = IgniterLang::SemanticIREmitter.new
     CASES.each_with_object({}) do |(case_id, config), outputs|
       parsed = read_json(File.join(FIXTURE_DIR, "#{case_id}.parsed_ast.json"))
       classified = classifier.classify(parsed, sample_input: {})
       typed = typechecker.typecheck(classified)
-      outputs[case_id] = { parsed: parsed, classified: classified, typed: typed, config: config }
+      emitted = emitter.emit_typed(typed)
+      outputs[case_id] = {
+        parsed: parsed,
+        classified: classified,
+        typed: typed,
+        semantic_ir: emitted.fetch("semantic_ir"),
+        compilation_report: emitted.fetch("compilation_report"),
+        config: config
+      }
     end
   end
 
@@ -73,6 +83,13 @@ module AssumptionsProof
     outputs.each do |case_id, result|
       write_json(File.join(GOLDEN_DIR, "#{case_id}.classified.json"), result.fetch(:classified))
       write_json(File.join(GOLDEN_DIR, "#{case_id}.typed.json"), result.fetch(:typed))
+      semantic_ir_path = File.join(GOLDEN_DIR, "#{case_id}.semantic_ir.json")
+      if result.fetch(:semantic_ir)
+        write_json(semantic_ir_path, result.fetch(:semantic_ir))
+      else
+        FileUtils.rm_f(semantic_ir_path)
+      end
+      write_json(File.join(GOLDEN_DIR, "#{case_id}.compilation_report.json"), result.fetch(:compilation_report))
     end
   end
 
@@ -100,10 +117,19 @@ module AssumptionsProof
       "typechecker.oof_a1_in_type_errors" => typed_oof_a1?(outputs),
       "typechecker.valid_strengths_not_rejected" => valid_strengths_not_rejected?(outputs),
       "typechecker.invalid_strength_rejected" => invalid_strength_rejected?(outputs),
+      "semanticir.assumption_basic_emitted" => semanticir_emitted?(outputs, "assumption_basic"),
+      "semanticir.epistemic_only_emitted" => semanticir_emitted?(outputs, "epistemic_only_pure"),
+      "semanticir.registry_lowered" => semanticir_registry_lowered?(outputs),
+      "semanticir.refs_lowered" => semanticir_refs_lowered?(outputs),
+      "semanticir.uses_nodes_lowered" => semanticir_uses_nodes_lowered?(outputs),
+      "semanticir.oof_a1_report_only" => semanticir_report_only?(outputs, "oof_a1_undeclared_assumption", "OOF-A1"),
+      "semanticir.invalid_strength_report_only" => invalid_strength_report_only?(outputs),
       "prop033.evidence_list_not_validated" => evidence_list_not_validated?(outputs),
-      "semanticir.not_emitted" => outputs.values.all? { |result| result.fetch(:classified).fetch("semantic_ir_ref").nil? && result.fetch(:typed).fetch("semantic_ir_ref").nil? },
+      "semanticir.blocked_cases_not_emitted" => outputs.fetch("oof_a1_undeclared_assumption").fetch(:semantic_ir).nil?,
       "golden.classified_outputs" => Dir[File.join(GOLDEN_DIR, "*.classified.json")].length == CASES.length,
-      "golden.typed_outputs" => Dir[File.join(GOLDEN_DIR, "*.typed.json")].length == CASES.length
+      "golden.typed_outputs" => Dir[File.join(GOLDEN_DIR, "*.typed.json")].length == CASES.length,
+      "golden.semanticir_outputs" => Dir[File.join(GOLDEN_DIR, "*.semantic_ir.json")].length == 2,
+      "golden.compilation_report_outputs" => Dir[File.join(GOLDEN_DIR, "*.compilation_report.json")].length == CASES.length
     }
   end
 
@@ -114,6 +140,13 @@ module AssumptionsProof
       end,
       "check.golden_typed_equal" => outputs.all? do |case_id, result|
         golden_equal?(File.join(GOLDEN_DIR, "#{case_id}.typed.json"), result.fetch(:typed))
+      end,
+      "check.golden_semanticir_equal" => outputs.all? do |case_id, result|
+        path = File.join(GOLDEN_DIR, "#{case_id}.semantic_ir.json")
+        result.fetch(:semantic_ir) ? golden_equal?(path, result.fetch(:semantic_ir)) : !File.exist?(path)
+      end,
+      "check.golden_compilation_report_equal" => outputs.all? do |case_id, result|
+        golden_equal?(File.join(GOLDEN_DIR, "#{case_id}.compilation_report.json"), result.fetch(:compilation_report))
       end,
       "check.deterministic_generation" => deterministic_outputs?
     }
@@ -203,17 +236,91 @@ module AssumptionsProof
   end
 
   def invalid_strength_rejected?(outputs)
+    emitted = invalid_strength_emit(outputs)
+    contract = emitted.fetch("typed").fetch("contracts").fetch(0)
+    contract.fetch("status") == "blocked" &&
+      contract.fetch("type_errors").any? { |entry| entry.fetch("rule") == "TASSUMP-1" } &&
+      emitted.fetch("semantic_ir").nil?
+  end
+
+  def semanticir_emitted?(outputs, case_id)
+    semantic_ir = outputs.fetch(case_id).fetch(:semantic_ir)
+    report = outputs.fetch(case_id).fetch(:compilation_report)
+    semantic_ir&.fetch("kind") == "semantic_ir_program" &&
+      report.fetch("pass_result") == "ok" &&
+      report.fetch("semantic_ir_ref") == semantic_ir.fetch("program_id")
+  end
+
+  def semanticir_registry_lowered?(outputs)
+    %w[assumption_basic epistemic_only_pure].all? do |case_id|
+      semantic_ir = outputs.fetch(case_id).fetch(:semantic_ir)
+      expected = outputs.fetch(case_id).fetch(:typed).fetch("assumption_registry").map do |entry|
+        assumption_ir(entry)
+      end
+      semantic_ir.fetch("assumption_registry") == expected
+    end
+  end
+
+  def assumption_ir(entry)
+    {
+      "kind" => "assumption_ir",
+      "name" => entry.fetch("name"),
+      "fields" => entry.fetch("fields"),
+      "declared_in_module" => entry.fetch("declared_in_module")
+    }
+  end
+
+  def semanticir_refs_lowered?(outputs)
+    %w[assumption_basic epistemic_only_pure].all? do |case_id|
+      only_semantic_contract(outputs, case_id).fetch("assumption_refs") ==
+        outputs.fetch(case_id).fetch(:config).fetch(:expected_refs)
+    end
+  end
+
+  def semanticir_uses_nodes_lowered?(outputs)
+    %w[assumption_basic epistemic_only_pure].all? do |case_id|
+      name = outputs.fetch(case_id).fetch(:config).fetch(:expected_refs).fetch(0)
+      node = only_semantic_contract(outputs, case_id).fetch("nodes")
+        .find { |candidate| candidate.fetch("kind") == "assumption_ref_node" && candidate.fetch("name") == name }
+      node&.fetch("assumption_ref") == name &&
+        node.fetch("fragment") == "epistemic" &&
+        node.fetch("type") == { "name" => "Assumption", "params" => [] }
+    end
+  end
+
+  def semanticir_report_only?(outputs, case_id, rule)
+    result = outputs.fetch(case_id)
+    report = result.fetch(:compilation_report)
+    result.fetch(:semantic_ir).nil? &&
+      report.fetch("pass_result") == "oof" &&
+      report.fetch("semantic_ir_ref").nil? &&
+      report.fetch("diagnostics").any? { |entry| entry.fetch("rule") == rule }
+  end
+
+  def invalid_strength_report_only?(outputs)
+    emitted = invalid_strength_emit(outputs)
+    report = emitted.fetch("compilation_report")
+    emitted.fetch("semantic_ir").nil? &&
+      report.fetch("pass_result") == "oof" &&
+      report.fetch("semantic_ir_ref").nil? &&
+      report.fetch("diagnostics").any? { |entry| entry.fetch("rule") == "TASSUMP-1" }
+  end
+
+  def invalid_strength_emit(outputs)
     parsed = JSON.parse(JSON.generate(outputs.fetch("assumption_basic").fetch(:parsed)))
     parsed["source_hash"] = "sha256:assumption-basic-invalid-strength"
     parsed.fetch("assumptions").fetch(0).fetch("fields")["strength"] = 1.2
 
     classifier = IgniterLang::Classifier.new(classifier_version: CLASSIFIER_VERSION)
     typechecker = IgniterLang::TypeChecker.new(typechecker_version: TYPECHECKER_VERSION)
+    emitter = IgniterLang::SemanticIREmitter.new
     typed = typechecker.typecheck(classifier.classify(parsed, sample_input: {}))
-    contract = typed.fetch("contracts").fetch(0)
-    contract.fetch("status") == "blocked" &&
-      contract.fetch("type_errors").any? { |entry| entry.fetch("rule") == "TASSUMP-1" } &&
-      typed.fetch("semantic_ir_ref").nil?
+    emitted = emitter.emit_typed(typed)
+    {
+      "typed" => typed,
+      "semantic_ir" => emitted.fetch("semantic_ir"),
+      "compilation_report" => emitted.fetch("compilation_report")
+    }
   end
 
   def deterministic_outputs?
@@ -221,7 +328,9 @@ module AssumptionsProof
     second = build_outputs
     CASES.keys.all? do |case_id|
       render_json(first.fetch(case_id).fetch(:classified)) == render_json(second.fetch(case_id).fetch(:classified)) &&
-        render_json(first.fetch(case_id).fetch(:typed)) == render_json(second.fetch(case_id).fetch(:typed))
+        render_json(first.fetch(case_id).fetch(:typed)) == render_json(second.fetch(case_id).fetch(:typed)) &&
+        render_json(first.fetch(case_id).fetch(:semantic_ir)) == render_json(second.fetch(case_id).fetch(:semantic_ir)) &&
+        render_json(first.fetch(case_id).fetch(:compilation_report)) == render_json(second.fetch(case_id).fetch(:compilation_report))
     end
   end
 
@@ -231,6 +340,10 @@ module AssumptionsProof
 
   def typed_contract(result)
     result.fetch(:typed).fetch("contracts").fetch(0)
+  end
+
+  def only_semantic_contract(outputs, case_id)
+    outputs.fetch(case_id).fetch(:semantic_ir).fetch("contracts").fetch(0)
   end
 
   def read_json(path)

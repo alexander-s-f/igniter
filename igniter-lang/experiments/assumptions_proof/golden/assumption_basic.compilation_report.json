@@ -1,0 +1,17 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/assumption-basic",
+  "grammar_version": "igniter-parser-proof-v0",
+  "source_hash": "sha256:assumption-basic",
+  "source_path": "assumptions/assumption_basic.ig",
+  "pass_result": "ok",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "ok",
+    "emit": "ok"
+  },
+  "diagnostics": [],
+  "semantic_ir_ref": "semanticir/assumption-basic"
+}

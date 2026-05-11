@@ -1,7 +1,7 @@
 # Ch6: SemanticIR, CompilationReport, and .igapp Artifacts
 
-Source PROPs: PROP-019, PROP-019.1, PROP-022A, PROP-028
-Status: synced for Stage 3 TEMPORAL boundary (2026-05-08)
+Source PROPs: PROP-019, PROP-019.1, PROP-022A, PROP-028, PROP-032
+Status: synced for Stage 3 TEMPORAL boundary + PROP-032 assumptions Phase 3 (2026-05-11)
 Primary evidence:
 
 - `experiments/source_to_semanticir_fixture/` — Stage 1 SemanticIR golden PASS
@@ -9,6 +9,7 @@ Primary evidence:
 - `experiments/temporal_assembler_boundary/` — TEMPORAL `.igapp/` assembly PASS
 - `experiments/temporal_requirements_from_escape_boundaries/` — requirements derivation PASS
 - `experiments/temporal_runtime_load_guard/` — load guard PASS
+- `experiments/assumptions_proof/` — PROP-032 assumptions Classifier/TypeChecker/SemanticIR PASS
 
 ---
 
@@ -97,6 +98,55 @@ OOF > TEMPORAL > STREAM > ESCAPE > CORE
 
 `ESCAPE` remains the legacy non-core class for surfaces not yet refined into
 STREAM or TEMPORAL.
+
+### Assumption Provenance
+
+PROP-032 adds SemanticIR provenance metadata for already-typed assumptions.
+This is descriptive evidence-chain metadata, not runtime assumption injection.
+
+At program level, accepted typed programs that declare assumptions may carry:
+
+```json
+{
+  "assumption_registry": [
+    {
+      "kind": "assumption_ir",
+      "name": "homophily",
+      "fields": {
+        "kind": "heuristic",
+        "statement": "People with similar beliefs interact more often.",
+        "strength": 0.7,
+        "source": null
+      },
+      "declared_in_module": "Risk.Scoring"
+    }
+  ]
+}
+```
+
+At contract level, contracts that declare `uses assumptions NAME` carry:
+
+```json
+{
+  "assumption_refs": ["homophily"],
+  "nodes": [
+    {
+      "kind": "assumption_ref_node",
+      "name": "homophily",
+      "assumption_ref": "homophily",
+      "type": {
+        "name": "Assumption",
+        "params": []
+      },
+      "fragment": "epistemic"
+    }
+  ]
+}
+```
+
+OOF-A1 and TASSUMP-1 diagnostics remain outside `SemanticIRProgram`.
+Blocked typed programs produce a `CompilationReport` with diagnostics and
+`semantic_ir_ref: null`.
 
 ---
 

@@ -10,8 +10,9 @@
   "contracts": [
     {
       "kind": "contract_ir",
-      "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+      "contract_ref": "contract/HistoryAxesTest/sha256:0ad9f385b1b6277ba2aff010",
       "contract_name": "HistoryAxesTest",
+      "modifier": "pure",
       "specialization_of": null,
       "type_args": {},
       "fragment_class": "temporal",

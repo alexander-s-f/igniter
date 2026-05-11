@@ -1,0 +1,106 @@
+{
+  "kind": "semantic_ir_program",
+  "format_version": "0.1.0",
+  "program_id": "semanticir/assumption-basic",
+  "grammar_version": "igniter-parser-proof-v0",
+  "source_hash": "sha256:assumption-basic",
+  "source_path": "assumptions/assumption_basic.ig",
+  "module": "Risk.Scoring",
+  "compilation_report_ref": "compilation_report/assumption-basic",
+  "contracts": [
+    {
+      "kind": "contract_ir",
+      "contract_ref": "contract/ScoreInteraction/sha256:cf5d8f67c46fb778b1c2ca15",
+      "contract_name": "ScoreInteraction",
+      "modifier": "observed",
+      "specialization_of": null,
+      "type_args": {},
+      "fragment_class": "escape",
+      "inputs": [
+        {
+          "name": "a",
+          "type": {
+            "name": "Signal",
+            "params": []
+          },
+          "lifecycle": "local"
+        },
+        {
+          "name": "b",
+          "type": {
+            "name": "Signal",
+            "params": []
+          },
+          "lifecycle": "local"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "score",
+          "type": {
+            "name": "Decimal",
+            "params": []
+          },
+          "lifecycle": "session"
+        }
+      ],
+      "nodes": [
+        {
+          "kind": "assumption_ref_node",
+          "name": "homophily",
+          "assumption_ref": "homophily",
+          "type": {
+            "name": "Assumption",
+            "params": []
+          },
+          "fragment": "epistemic"
+        },
+        {
+          "kind": "compute",
+          "name": "score",
+          "expr": {
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "homophily",
+              "resolved_type": {
+                "name": "Assumption",
+                "params": []
+              }
+            },
+            "field": "strength",
+            "resolved_type": {
+              "name": "Decimal",
+              "params": []
+            }
+          },
+          "type": {
+            "name": "Decimal",
+            "params": []
+          },
+          "deps": [
+            "homophily"
+          ],
+          "fragment": "core"
+        }
+      ],
+      "escape_boundaries": [],
+      "assumption_refs": [
+        "homophily"
+      ]
+    }
+  ],
+  "assumption_registry": [
+    {
+      "kind": "assumption_ir",
+      "name": "homophily",
+      "fields": {
+        "kind": "heuristic",
+        "statement": "People with similar beliefs interact more often.",
+        "strength": 0.7,
+        "source": null
+      },
+      "declared_in_module": "Risk.Scoring"
+    }
+  ]
+}

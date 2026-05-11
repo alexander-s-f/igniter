@@ -1,0 +1,17 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/epistemic-only-p",
+  "grammar_version": "igniter-parser-proof-v0",
+  "source_hash": "sha256:epistemic-only-pure",
+  "source_path": "assumptions/epistemic_only_pure.ig",
+  "pass_result": "ok",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "ok",
+    "emit": "ok"
+  },
+  "diagnostics": [],
+  "semantic_ir_ref": "semanticir/epistemic-only-p"
+}

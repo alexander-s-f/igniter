@@ -84,6 +84,8 @@ module IgniterLang
         "compilation_report_ref" => report_id,
         "contracts" => typed_program.fetch("contracts").map { |contract| typed_contract_ir(contract) }
       }
+      assumptions = typed_assumption_registry(typed_program)
+      result["assumption_registry"] = assumptions unless assumptions.empty?
       result["olap_points"] = typed_program.fetch("olap_points") if typed_program.key?("olap_points")
       invariants = typed_program_invariants(result.fetch("contracts"))
       result["invariants"] = invariants unless invariants.empty?
@@ -148,6 +150,8 @@ module IgniterLang
         "nodes" => typed_nodes(contract),
         "escape_boundaries" => typed_escape_boundaries(contract)
       }
+      assumption_refs = contract.fetch("assumption_refs", [])
+      contract_ir["assumption_refs"] = assumption_refs unless assumption_refs.empty?
       contract_ir["contract_ref"] = contract_ref(contract_ir)
       contract_ir
     end
@@ -180,6 +184,8 @@ module IgniterLang
           window_decl_node(decl)
         when "fold_stream"
           fold_stream_node(decl, declarations)
+        when "uses_assumptions"
+          assumption_ref_node(decl)
         when "invariant"
           invariant_node(decl)
         when "read"
@@ -196,6 +202,28 @@ module IgniterLang
           }
         end
       end
+    end
+
+    def typed_assumption_registry(typed_program)
+      typed_program.fetch("assumption_registry", []).map do |entry|
+        {
+          "kind" => "assumption_ir",
+          "name" => entry.fetch("name"),
+          "fields" => entry.fetch("fields", {})
+        }.tap do |node|
+          node["declared_in_module"] = entry.fetch("declared_in_module") if entry.key?("declared_in_module")
+        end
+      end
+    end
+
+    def assumption_ref_node(decl)
+      {
+        "kind" => "assumption_ref_node",
+        "name" => decl.fetch("name"),
+        "assumption_ref" => decl.fetch("name"),
+        "type" => decl.fetch("type"),
+        "fragment" => decl.fetch("fragment_class", "epistemic")
+      }
     end
 
     def typed_program_invariants(contracts)
