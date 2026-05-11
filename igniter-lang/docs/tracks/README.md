@@ -59,7 +59,11 @@ architecture. They are not production migration authorization.
 | `../gates/durable-audit-b-e-deployment-review-decision-v0.md` | approved-restricted-phase1-production-durable-audit-deployment-scope | Opens bounded audit append/read/rebuild deployment scope only; Ledger, Phase 2, BiHistory, stream/OLAP, cache, broad RuntimeMachine, concrete HSM/KMS onboarding, and general persistence remain closed |
 | `../gates/prop032-assumptions-experiment-pass-decision-v0.md` | experiment-pass | Promotes PROP-032 bounded compiler surface; PROP-033 evidence validation, runtime receipts, and production behavior remain excluded |
 | `stage3-round36-status-preflight-sync-v0.md` | done | Preflights R35 same-round decisions plus R36 C1/C2 before further implementation/proposal work; fixes stale R35 C2-S recommendations in living maps |
+| `prop037-external-progression-proposal-authoring-v0.md` | authored-pending-review | Authors PROP-037 as proposal-only; no parser, TypeChecker, SemanticIR, RuntimeMachine, Ledger/TBackend, durable queue, production execution, ProgressionPack migration, or fragment-class authorization |
+| `prop036-loader-status-report-proof-v0.md` | done | Proof-local synthetic loader status report matrix PASS; `present_verified` remains separate from runtime readiness; real `.igapp`, loader, assembler, dispatch, runtime, and goldens remain closed |
 | `mundane-stdlib-and-oof-signal-extraction-v0.md` | done | Extracts blind mundane specimen signals into stdlib/capability packs, syntax pressure, type vocabulary drift, OOF candidates, profile presets, and proposal routes; non-canonical, no implementation auth |
+| `../discussions/r36-deployment-prop032-prop036-prop037-mundane-pressure-v0.md` | complete — PROCEED (non-blockers only) | Confirms no scope leaks; opens P-50 Ch2/Heat Map sync, P-51 deployment implementation card, and P-52 temporal audit specimen disposition |
+| `stage3-round36-status-curation-v0.md` | done | Final R36 map curation after C1-C6/X1; keeps B-E, PROP-032, PROP-036, PROP-037, and mundane pressure states exact |
 
 ---
 
@@ -628,10 +632,13 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| restricted durable-audit deployment follow-up | Implement/configure only the S3-R36-C1-A bounded audit append/read/rebuild deployment scope: storage identity, signer abstraction refusal behavior, startup rebuild, appender/reader roles, refusal-code export, rollback/disable, post-deployment smoke | Implementation Agent / Architect Supervisor | B-E restricted scope approved; concrete HSM/KMS and excluded surfaces still closed |
-| PROP-036 design/proof follow-up | Open only a C3-A-authorized design/proof card such as loader status report or artifact hash ordering; implementation remains blocked | Compiler/Grammar Expert / Architect Supervisor | proposal accepted by S3-R35-C3-A; implementation still closed |
-| PROP-037 authoring | Author formal external progression/service-liveness PROP using C4-A as numbering authority | Compiler/Grammar Expert / Architect Supervisor | number assigned by S3-R35-C4-A; proposal not authored |
-| PROP-032 Ch2/Heat Map sync | Apply S3-R36-C2-A follow-up docs: Ch2 source grammar and governance maps; keep PROP-033 evidence validation/runtime receipts excluded | Meta Expert / Compiler/Grammar Expert | experiment-pass landed; follow-up docs remain |
+| P-50 PROP-032 Ch2/Heat Map sync | Confirm/apply S3-R36-C2-A follow-up docs for Ch2 source grammar and governance maps; keep PROP-033 evidence validation/runtime receipts excluded | Meta Expert / Compiler/Grammar Expert | open per R36 X1 |
+| P-52 temporal audit specimen disposition | Decide/archive/map `experiments/pressure-specimens/temporal-audit-pressure-v0/` without making it canonical by accident | Meta Expert / Research Agent | open per R36 X1 |
+| P-51 restricted durable-audit deployment implementation | Implement/configure only the S3-R36-C1-A bounded audit append/read/rebuild deployment scope: storage identity, signer abstraction refusal behavior, startup rebuild, appender/reader roles, refusal-code export, rollback/disable, post-deployment smoke | Implementation Agent / Architect Supervisor | B-E restricted scope approved; concrete HSM/KMS and excluded surfaces still closed |
+| PROP-037 acceptance gate | Review authored external progression/service-liveness proposal: accept, amend, hold, or defer before any implementation planning | Architect / Meta Expert | authored-pending-review; no implementation auth |
+| Stage 3 language regression matrix | Run/reconcile temporal, stream, classifier, typechecker, SemanticIR, and assumptions surfaces together before downstream PROP-032 dependence | Compiler/Grammar Expert | recommended by R36 X1 |
+| PROP-036 artifact-hash ordering proof | Continue proof-local C3-A/C5-P-authorized design/proof work; preserve `present_verified != runtime readiness` and no real `.igapp` adoption | Compiler/Grammar Expert / Architect Supervisor | loader status proof PASS; implementation still blocked |
+| mundane OOF fixture planning | Plan OOF fixtures from blind mundane pressure without canonizing stdlib/effect/runtime behavior | Compiler/Grammar Expert / Research Agent | pressure-only, non-canonical |
 | OQ-P28-1 escape naming answer | Verify whether unnamed `escape` declaration is currently parse error; update Covenant P28 table | Compiler/Grammar Expert | still open; route before PROP-035 |
 | OOF-I1/I3/I5 closure | PROP-025 addendum + targeted fixtures for deferred invariant OOF anchors | Research Agent / Compiler/Grammar Expert | still deferred; route when invariant lane reopens |
 | `_volatile_fields` Time.now grep hook | Detect newly-added unannotated `Time.now` usage in experiment scripts | Implementation Agent / Research Agent | optional follow-up; not required for R28 close |
