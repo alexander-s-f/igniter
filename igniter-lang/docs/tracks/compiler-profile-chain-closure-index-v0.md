@@ -13,7 +13,8 @@ Date: 2026-05-10
 
 Provide one index for the full background compiler profile / pack architecture
 chain from the original shadow profile proof through descriptor schema,
-profile-source lowering target, and manifest PROP draft candidate.
+profile-source lowering target, manifest PROP draft candidate, and syntax
+pressure, ending at manifest PROP Architect numbering/routing readiness.
 
 This is an index and proof guard. It does not authorize production pack
 migration, compiler dispatch rewrite, profile syntax, `.igapp`/`.ilk` changes, or
@@ -65,6 +66,9 @@ PASS compiler_profile_chain_closure_index
 | 15 | descriptor schema | `compiler_profile_descriptor_schema` | `compiler-profile-descriptor-schema-v0` |
 | 16 | future syntax target | `profile_source_lowering_target` | `profile-source-lowering-target-v0` |
 | 17 | manifest PROP draft | `compiler_profile_manifest_prop_draft` | `compiler-profile-manifest-prop-draft-v0` |
+| 18 | syntax pressure | `profile_source_syntax_pressure` | `profile-source-syntax-pressure-v0` |
+| 19 | manifest PROP review ready | `compiler_profile_manifest_prop_review_ready` | `compiler-profile-manifest-prop-review-ready-v0` |
+| 20 | manifest PROP promotion | `compiler_profile_manifest_prop_promotion` | `compiler-profile-manifest-prop-promotion-v0` |
 
 ---
 
@@ -99,6 +103,15 @@ pack descriptors, while keeping the bootstrap seed explicit.
 boundary, CompatibilityReport field split, receipt storage policy, and migration
 order.
 
+[S] Profile source syntax pressure recommends descriptor-first input before
+parser work; block-style syntax remains pressure-only.
+
+[S] Manifest PROP review-ready packet preserves the authority firewall, required
+exactly-one slots, slot-order dispatch invariant, and bootstrap traceability.
+
+[S] Manifest PROP promotion packet is ready for Architect numbering/routing
+without claiming an official PROP number or mutating the proposal queue.
+
 ---
 
 ## Guard Checks
@@ -108,7 +121,10 @@ The closure runner verifies:
 ```text
 chain.starts_with_shadow_profile
 chain.includes_profile_source_lowering_target
-chain.ends_with_manifest_prop_draft
+chain.includes_manifest_prop_draft
+chain.includes_syntax_pressure
+chain.includes_manifest_prop_review_ready
+chain.ends_with_manifest_prop_promotion
 chain.all_commands_exited_zero
 chain.all_summaries_pass
 chain.has_expected_phase_count
@@ -116,6 +132,9 @@ chain.has_receipt_and_storage_phases
 chain.has_self_assembly_and_bootstrap_phases
 chain.has_descriptor_and_lowering_phases
 chain.has_manifest_prop_draft_phase
+chain.has_syntax_pressure_phase
+chain.has_manifest_review_ready_phase
+chain.has_manifest_promotion_phase
 scope.no_runtime_authority_phase
 ```
 
@@ -151,19 +170,19 @@ signed production audit claim
 [R] Three good next branches:
 
 ```text
-profile-source-syntax-pressure-v0
-  Compiler/Grammar-facing pressure doc for possible syntax and ambiguity.
-
-compiler-profile-manifest-prop-promotion-v0
-  Promote the draft candidate into a numbered PROP after Architect/Compiler-Expert routing.
+compiler-profile-prop-numbering-decision-v0
+  Route the promotion packet to Architect/Compiler-Expert for official numbering.
 
 compiler-profile-descriptor-error-taxonomy-sharpening-v0
   Tighten helper-only / duplicate-slot / dependency error precedence.
+
+profile-source-syntax-compiler-review-v0
+  Hand syntax pressure to Compiler/Grammar for accept/reject/narrowing.
 ```
 
-My recommendation: do `compiler-profile-manifest-prop-promotion-v0` first if the
-goal is production path alignment, or `profile-source-syntax-pressure-v0` first
-if the goal is self-assembly language design.
+My recommendation: do `compiler-profile-prop-numbering-decision-v0` first if the
+goal is production path alignment, or `profile-source-syntax-compiler-review-v0`
+first if the goal is self-assembly language design.
 
 ---
 
@@ -177,16 +196,17 @@ Track: compiler-profile-chain-closure-index-v0
 Status: done
 
 [D] Decisions:
-- Created one closure index from shadow profile through manifest PROP draft.
+- Created one closure index from shadow profile through manifest PROP promotion readiness.
 - The index is a proof guard and navigation map, not migration authorization.
 - Runtime authority remains out of scope across the chain.
 
 [S] Signals:
-- 17/17 indexed proofs PASS.
+- 20/20 indexed proofs PASS.
 - The chain covers shadow profile, pack boundary, kernel registry, ordering,
   manifest plan, slots, unified profile, authority, reports, receipts,
   self-assembly, bootstrap seed, descriptor schema, lowering target, and
-  manifest PROP draft.
+  manifest PROP draft, syntax pressure, review readiness, and promotion
+  readiness.
 
 [T] Tests:
 - ruby igniter-lang/experiments/compiler_profile_chain_closure_index/compiler_profile_chain_closure_index.rb -> PASS
@@ -197,6 +217,7 @@ Status: done
 
 [Next]
 - Continue from one of:
-  profile-source-syntax-pressure-v0
+  compiler-profile-prop-numbering-decision-v0
+  profile-source-syntax-compiler-review-v0
   compiler-profile-descriptor-error-taxonomy-sharpening-v0
 ```

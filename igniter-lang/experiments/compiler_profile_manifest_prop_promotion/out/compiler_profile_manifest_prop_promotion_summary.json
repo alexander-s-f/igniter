@@ -1,0 +1,29 @@
+{
+  "kind": "compiler_profile_manifest_prop_promotion_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-manifest-prop-promotion-v0",
+  "status": "PASS",
+  "promotion_packet_path": "igniter-lang/experiments/compiler_profile_manifest_prop_promotion/out/compiler_profile_manifest_prop_promotion_packet.json",
+  "checks": {
+    "input.review_ready_passed": true,
+    "queue.prop033_detected_as_occupied": true,
+    "promotion.no_official_number_claimed": true,
+    "promotion.no_prop_file_created": true,
+    "firewall.present_verified_not_runtime_ready": true,
+    "lanes.receipt_and_profile_no_runtime_authority": true,
+    "slots.required_exactly_one_preserved": true,
+    "slots.slot_order_drives_future_dispatch": true,
+    "bootstrap.seed_traceability_preserved": true,
+    "sections.include_manifest_and_receipt_policies": true,
+    "blocked_cards_remain_blocked": true,
+    "scope.no_proposal_index_mutation": true
+  },
+  "non_goals": [
+    "No official PROP number claimed.",
+    "No proposal file created.",
+    "No proposals index mutation.",
+    "No assembler or loader implementation.",
+    "No .igapp/.ilk format change.",
+    "No runtime execution authority."
+  ]
+}

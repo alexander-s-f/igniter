@@ -152,6 +152,30 @@ module CompilerProfileChainClosureIndex
       "command" => "igniter-lang/experiments/compiler_profile_manifest_prop_draft/compiler_profile_manifest_prop_draft.rb",
       "summary_path" => "igniter-lang/experiments/compiler_profile_manifest_prop_draft/out/compiler_profile_manifest_prop_draft_summary.json",
       "track_doc" => "igniter-lang/docs/tracks/compiler-profile-manifest-prop-draft-v0.md"
+    },
+    {
+      "id" => "profile_source_syntax_pressure",
+      "phase" => "syntax_pressure",
+      "claim" => "Profile source syntax remains pressure-only; descriptor-first is preferred before parser work.",
+      "command" => "igniter-lang/experiments/profile_source_syntax_pressure/profile_source_syntax_pressure.rb",
+      "summary_path" => "igniter-lang/experiments/profile_source_syntax_pressure/out/profile_source_syntax_pressure_summary.json",
+      "track_doc" => "igniter-lang/docs/tracks/profile-source-syntax-pressure-v0.md"
+    },
+    {
+      "id" => "compiler_profile_manifest_prop_review_ready",
+      "phase" => "manifest_prop_review_ready",
+      "claim" => "Manifest PROP draft is Architect-review-ready with authority firewall, slot invariants, and bootstrap traceability locked.",
+      "command" => "igniter-lang/experiments/compiler_profile_manifest_prop_review_ready/compiler_profile_manifest_prop_review_ready.rb",
+      "summary_path" => "igniter-lang/experiments/compiler_profile_manifest_prop_review_ready/out/compiler_profile_manifest_prop_review_ready_summary.json",
+      "track_doc" => "igniter-lang/docs/tracks/compiler-profile-manifest-prop-review-ready-v0.md"
+    },
+    {
+      "id" => "compiler_profile_manifest_prop_promotion",
+      "phase" => "manifest_prop_promotion",
+      "claim" => "Manifest PROP review packet is ready for Architect numbering/routing without claiming a number or mutating proposal index.",
+      "command" => "igniter-lang/experiments/compiler_profile_manifest_prop_promotion/compiler_profile_manifest_prop_promotion.rb",
+      "summary_path" => "igniter-lang/experiments/compiler_profile_manifest_prop_promotion/out/compiler_profile_manifest_prop_promotion_summary.json",
+      "track_doc" => "igniter-lang/docs/tracks/compiler-profile-manifest-prop-promotion-v0.md"
     }
   ].freeze
 
@@ -180,9 +204,9 @@ module CompilerProfileChainClosureIndex
         "No runtime execution authority."
       ],
       "recommended_next" => [
-        "profile-source-syntax-pressure-v0",
-        "compiler-profile-manifest-prop-promotion-v0",
-        "compiler-profile-descriptor-error-taxonomy-sharpening-v0"
+        "compiler-profile-prop-numbering-decision-v0",
+        "compiler-profile-descriptor-error-taxonomy-sharpening-v0",
+        "profile-source-syntax-compiler-review-v0"
       ]
     }
     write_json(SUMMARY_PATH, summary)
@@ -207,14 +231,20 @@ module CompilerProfileChainClosureIndex
     {
       "chain.starts_with_shadow_profile" => entries.first.fetch("id") == "compiler_pack_shadow_profile_proof",
       "chain.includes_profile_source_lowering_target" => entries.any? { |entry| entry.fetch("id") == "profile_source_lowering_target" },
-      "chain.ends_with_manifest_prop_draft" => entries.last.fetch("id") == "compiler_profile_manifest_prop_draft",
+      "chain.includes_manifest_prop_draft" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_manifest_prop_draft" },
+      "chain.includes_syntax_pressure" => entries.any? { |entry| entry.fetch("id") == "profile_source_syntax_pressure" },
+      "chain.includes_manifest_prop_review_ready" => entries.any? { |entry| entry.fetch("id") == "compiler_profile_manifest_prop_review_ready" },
+      "chain.ends_with_manifest_prop_promotion" => entries.last.fetch("id") == "compiler_profile_manifest_prop_promotion",
       "chain.all_commands_exited_zero" => entries.all? { |entry| entry.fetch("exit_status").zero? },
       "chain.all_summaries_pass" => entries.all? { |entry| entry.fetch("proof_status") == "PASS" },
-      "chain.has_expected_phase_count" => phases.length == 17,
+      "chain.has_expected_phase_count" => phases.length == 20,
       "chain.has_receipt_and_storage_phases" => phases.include?("build_receipt") && phases.include?("receipt_storage"),
       "chain.has_self_assembly_and_bootstrap_phases" => phases.include?("self_assembly") && phases.include?("bootstrap_seed"),
       "chain.has_descriptor_and_lowering_phases" => phases.include?("descriptor_schema") && phases.include?("future_syntax_target"),
       "chain.has_manifest_prop_draft_phase" => phases.include?("manifest_prop_draft"),
+      "chain.has_syntax_pressure_phase" => phases.include?("syntax_pressure"),
+      "chain.has_manifest_review_ready_phase" => phases.include?("manifest_prop_review_ready"),
+      "chain.has_manifest_promotion_phase" => phases.include?("manifest_prop_promotion"),
       "scope.no_runtime_authority_phase" => entries.none? { |entry| entry.fetch("phase").include?("runtime_authority") }
     }
   end

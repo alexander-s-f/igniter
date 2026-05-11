@@ -1,0 +1,207 @@
+{
+  "kind": "compiler_profile_manifest_prop_promotion_packet",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-manifest-prop-promotion-v0",
+  "status": "ready_for_architect_numbering",
+  "proposal_identity": {
+    "suggested_title": "compiler_profile_id manifest semantics",
+    "official_prop_number_claimed": false,
+    "official_prop_file_created": false,
+    "prop033_queue_occupied": true,
+    "safe_numbering_options": [
+      "Architect assigns next free PROP number after queued PROP-033..PROP-035, likely PROP-036 if queue is unchanged.",
+      "Architect requeues via-profile-binding and assigns this draft to PROP-033.",
+      "Compiler/Grammar Expert promotes as a non-numbered draft until proposal queue is reconciled."
+    ]
+  },
+  "promotion_inputs": {
+    "review_packet_ref": "igniter-lang/experiments/compiler_profile_manifest_prop_review_ready/out/compiler_profile_manifest_architect_review_packet.json",
+    "review_status": "architect_review_ready_candidate",
+    "proposals_index_ref": "igniter-lang/docs/proposals/README.md"
+  },
+  "proposed_prop_sections": {
+    "status": "draft_for_architect_review",
+    "problem": "Artifacts need to record which compiler profile was allowed to understand and assemble them.",
+    "field_shape": {
+      "name": "compiler_profile_id",
+      "type": "string",
+      "example": "ordered_rule_profile/sha256:674d7b6d7512186d5031555d",
+      "placement": "top_level_manifest_field",
+      "required_policy_initial": "legacy_optional",
+      "required_policy_future": "profile_required",
+      "authority": "compiler_understanding_only",
+      "runtime_execution_authority": false
+    },
+    "hash_and_signature_policy": {
+      "compiler_profile_id_participates_in_artifact_hash": true,
+      "add_before_artifact_hash": true,
+      "add_before_signing": true,
+      "post_signing_annotation_allowed": false,
+      "profile_body_inline_initially_allowed": false,
+      "expanded_profile_sidecar_future": true
+    },
+    "loader_policy": {
+      "legacy_optional": {
+        "absent": "accept_absent_legacy",
+        "match": "accept_profile_match",
+        "mismatch": "refuse_profile_mismatch",
+        "malformed": "refuse_malformed_profile_id"
+      },
+      "profile_required": {
+        "absent": "refuse_missing_compiler_profile_id",
+        "match": "accept_profile_match",
+        "mismatch": "refuse_profile_mismatch",
+        "malformed": "refuse_malformed_profile_id"
+      }
+    },
+    "compatibility_report_policy": {
+      "compiler_profile_status_values": [
+        "absent_legacy",
+        "present_verified",
+        "mismatch",
+        "malformed",
+        "missing_required"
+      ],
+      "runtime_evaluation_readiness_values": [
+        "ready",
+        "blocked",
+        "not_reached"
+      ],
+      "invariant": "compiler_profile_status.present_verified must not imply runtime_evaluation_readiness.ready",
+      "present_verified_implies_runtime_ready": false
+    },
+    "compilation_receipt_relationship": {
+      "receipt_explains_build": true,
+      "profile_identifies_compiler": true,
+      "receipt_runtime_execution_authority": false,
+      "profile_runtime_execution_authority": false,
+      "storage_policy_ref": "igniter-lang/experiments/compilation_receipt_authority_and_storage/out/compilation_receipt_storage_policy.json"
+    },
+    "slot_order_and_profile_identity": {
+      "canonical_slot_order": [
+        "core",
+        "oof_registry",
+        "fragment_registry",
+        "escape_boundary",
+        "contract_modifiers",
+        "temporal",
+        "stream",
+        "olap",
+        "invariant",
+        "assumptions",
+        "evidence_observation",
+        "pipeline"
+      ],
+      "future_dispatch_order_source": "CompilerProfileSpec.slot_order",
+      "surface_slot_order_authoritative": false,
+      "syntax_pressure_ref": "igniter-lang/experiments/profile_source_syntax_pressure/out/profile_source_syntax_pressure_summary.json",
+      "required_exactly_one_slots": [
+        "core",
+        "oof_registry",
+        "fragment_registry",
+        "escape_boundary"
+      ],
+      "implementation_id_changes_profile_id": true
+    },
+    "bootstrap_and_audit_traceability": {
+      "bootstrap_summary_ref": "igniter-lang/experiments/bootstrap_descriptor_kernel/out/bootstrap_descriptor_kernel_summary.json",
+      "explicit_seed_required": true,
+      "bootstrap_profile_id": "bootstrap_compiler_profile/sha256:98222cdd7ce1497c90462165",
+      "runtime_execution_authority": false
+    },
+    "migration_order": [
+      "Approve PROP.",
+      "Add report-only loader states.",
+      "Add assembler field under legacy_optional.",
+      "Regenerate hashes/goldens intentionally.",
+      "Link CompilationReceipt after manifest ordering is stable.",
+      "Consider profile_required only after migration evidence."
+    ],
+    "implementation_cards": [
+      "assembler-compiler-profile-id-field-v0",
+      "loader-compiler-profile-status-report-v0",
+      "artifact-hash-profile-id-golden-migration-v0",
+      "compilation-receipt-manifest-link-v0"
+    ]
+  },
+  "must_preserve_invariants": {
+    "authority_firewall": {
+      "compiler_profile_status_values": [
+        "absent_legacy",
+        "present_verified",
+        "mismatch",
+        "malformed",
+        "missing_required"
+      ],
+      "runtime_evaluation_readiness_values": [
+        "ready",
+        "blocked",
+        "not_reached"
+      ],
+      "invariant": "compiler_profile_status.present_verified must not imply runtime_evaluation_readiness.ready",
+      "present_verified_implies_runtime_ready": false
+    },
+    "receipt_profile_lane_split": {
+      "receipt_explains_build": true,
+      "profile_identifies_compiler": true,
+      "receipt_runtime_execution_authority": false,
+      "profile_runtime_execution_authority": false,
+      "storage_policy_ref": "igniter-lang/experiments/compilation_receipt_authority_and_storage/out/compilation_receipt_storage_policy.json"
+    },
+    "slot_invariants": {
+      "canonical_slot_order": [
+        "core",
+        "oof_registry",
+        "fragment_registry",
+        "escape_boundary",
+        "contract_modifiers",
+        "temporal",
+        "stream",
+        "olap",
+        "invariant",
+        "assumptions",
+        "evidence_observation",
+        "pipeline"
+      ],
+      "future_dispatch_order_source": "CompilerProfileSpec.slot_order",
+      "surface_slot_order_authoritative": false,
+      "syntax_pressure_ref": "igniter-lang/experiments/profile_source_syntax_pressure/out/profile_source_syntax_pressure_summary.json",
+      "required_exactly_one_slots": [
+        "core",
+        "oof_registry",
+        "fragment_registry",
+        "escape_boundary"
+      ],
+      "implementation_id_changes_profile_id": true
+    },
+    "bootstrap_traceability": {
+      "bootstrap_summary_ref": "igniter-lang/experiments/bootstrap_descriptor_kernel/out/bootstrap_descriptor_kernel_summary.json",
+      "explicit_seed_required": true,
+      "bootstrap_profile_id": "bootstrap_compiler_profile/sha256:98222cdd7ce1497c90462165",
+      "runtime_execution_authority": false
+    }
+  },
+  "promotion_decision_needed": [
+    "Assign official PROP number.",
+    "Choose compiler_profile_id profile id source: ordered-rule profile or unified compiler profile.",
+    "Approve legacy_optional rollout policy.",
+    "Approve artifact hash/signature ordering.",
+    "Choose expanded profile material storage surface.",
+    "Open implementation cards only after PROP approval."
+  ],
+  "blocked_until_decision": [
+    "assembler-compiler-profile-id-field-v0",
+    "loader-compiler-profile-status-report-v0",
+    "artifact-hash-profile-id-golden-migration-v0",
+    "compilation-receipt-manifest-link-v0"
+  ],
+  "non_authorizations": [
+    "No runtime execution authority.",
+    "No parser syntax authorization.",
+    "No assembler or loader implementation.",
+    "No .igapp/.ilk format mutation before PROP approval.",
+    "No production dispatch rewrite.",
+    "No official PROP number is claimed by this promotion packet.",
+    "No proposal queue mutation is performed by this promotion packet."
+  ]
+}

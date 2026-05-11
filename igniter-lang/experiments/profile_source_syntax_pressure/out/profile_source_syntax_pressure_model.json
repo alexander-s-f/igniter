@@ -1,0 +1,126 @@
+{
+  "kind": "profile_source_syntax_pressure_model",
+  "format_version": "0.1.0",
+  "track": "profile-source-syntax-pressure-v0",
+  "lowering_target_ref": "igniter-lang/experiments/profile_source_lowering_target/out/profile_source_lowering_model.json",
+  "syntax_authority": {
+    "parser_implementation_authorized": false,
+    "profile_source_syntax_authorized": false,
+    "compiler_grammar_review_required": true
+  },
+  "lowering_contract": {
+    "profile_header": "profile_descriptor.kind + profile_source",
+    "profile_name": "profile_source.kind and future source metadata",
+    "slot_declaration": "pack_descriptor.slot + pack_descriptor.name",
+    "implementation_clause": "pack_descriptor.implementation_id",
+    "owns_capabilities_clause": "pack_descriptor.provides_capabilities",
+    "requires_clause": "pack_descriptor.requires_slots",
+    "registry_block": "pack_descriptor.registries",
+    "profile_spec_reference": "profile_descriptor.profile_spec"
+  },
+  "slot_order_invariant": {
+    "surface_slot_order_is_authoritative": false,
+    "canonical_source": "CompilerProfileSpec.slot_order",
+    "descriptor_slot_order": "must_equal CompilerProfileSpec.slot_order",
+    "future_dispatch_order": "must_equal descriptor_slot_order",
+    "invariant": "surface slot order = parsed sugar only; descriptor slot order = canonical dispatch order"
+  },
+  "candidate_forms": {
+    "block_style": {
+      "status": "pressure_only",
+      "sample": [
+        "profile IgniterLang.Stage3SelfAssemblyProfile uses IgniterLangSelfAssemblyProfileSpec {",
+        "  slot core: CoreLanguagePack implementation core_language.self_assembly.v0",
+        "    owns core_language",
+        "    registry parser_rules: core.contract, core.input, core.output, core.compute",
+        "",
+        "  slot temporal: TemporalPack implementation temporal.metadata_only.self_assembly.v0",
+        "    owns temporal",
+        "    requires core, fragment_registry, escape_boundary",
+        "    registry semanticir_handlers: temporal.temporal_access_node",
+        "}"
+      ],
+      "strengths": [
+        "Readable for humans.",
+        "Maps directly to slot declarations and registry blocks.",
+        "Keeps implementation selection separate from implementation body."
+      ],
+      "risks": [
+        "New grammar surface.",
+        "Indent/block ambiguity must be decided.",
+        "Commas/newlines and registry entry parsing need formal rules."
+      ]
+    },
+    "descriptor_data_style": {
+      "status": "preferred_before_parser_work",
+      "sample_kind": "compiler_profile_descriptor",
+      "strengths": [
+        "Already matches descriptor schema.",
+        "Avoids source parser churn.",
+        "Canonicalization and digest rules are already modeled."
+      ],
+      "risks": [
+        "Less ergonomic for humans.",
+        "May need editor/tooling support.",
+        "Could drift from eventual human syntax if not kept as lowering target."
+      ]
+    },
+    "inline_pack_body_style": {
+      "status": "rejected",
+      "reason": "Profile source may select implementation ids, not define pack implementations inline."
+    }
+  },
+  "ambiguity_pressure": [
+    {
+      "id": "slot_header_vs_contract_header",
+      "risk": "profile slot declarations must not parse like contract declarations",
+      "route": "Compiler/Grammar"
+    },
+    {
+      "id": "implementation_id_token_shape",
+      "risk": "implementation ids contain dots and versions; lexer/token policy must be explicit",
+      "route": "Compiler/Grammar"
+    },
+    {
+      "id": "registry_entry_list_boundaries",
+      "risk": "comma/newline/block termination must be deterministic",
+      "route": "Compiler/Grammar"
+    },
+    {
+      "id": "profile_source_digest",
+      "risk": "digest policy must decide source text vs lowered AST",
+      "route": "Architect + Compiler/Grammar"
+    }
+  ],
+  "forbidden_constructs": {
+    "implementation_body": "lowering.implementation_body_out_of_scope",
+    "runtime_authority_claim": "lowering.runtime_authority_claim_rejected",
+    "full_language_parser_requirement": "lowering.parser_implementation_out_of_scope",
+    "pack_body": "syntax.pack_body_out_of_scope",
+    "implicit_capability_ownership": "syntax.implicit_capability_ownership_rejected",
+    "runtime_approval": "syntax.runtime_approval_rejected"
+  },
+  "decision_matrix": {
+    "allow_now": [
+      "descriptor_data_style as proof-local input",
+      "block_style as pressure specimen only"
+    ],
+    "reject_now": [
+      "inline pack implementation bodies",
+      "runtime authority or approval clauses",
+      "implicit capability ownership",
+      "parser implementation work"
+    ],
+    "requires_future_authorization": [
+      "profile source grammar",
+      "profile source diagnostics",
+      "profile source digest policy",
+      "profile syntax golden fixtures"
+    ]
+  },
+  "recommendation": {
+    "primary_path": "descriptor_first_json_or_data_surface",
+    "human_syntax_status": "pressure_only_compiler_grammar_review_required",
+    "reason": "Descriptor-first avoids parser churn while preserving future lowering target."
+  }
+}

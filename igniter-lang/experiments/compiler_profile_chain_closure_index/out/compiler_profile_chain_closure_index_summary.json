@@ -224,12 +224,54 @@
       "stdout_first_line": "PASS compiler_profile_manifest_prop_draft",
       "stderr": "",
       "check_count": 10
+    },
+    {
+      "id": "profile_source_syntax_pressure",
+      "phase": "syntax_pressure",
+      "claim": "Profile source syntax remains pressure-only; descriptor-first is preferred before parser work.",
+      "command": "igniter-lang/experiments/profile_source_syntax_pressure/profile_source_syntax_pressure.rb",
+      "summary_path": "igniter-lang/experiments/profile_source_syntax_pressure/out/profile_source_syntax_pressure_summary.json",
+      "track_doc": "igniter-lang/docs/tracks/profile-source-syntax-pressure-v0.md",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "stdout_first_line": "PASS profile_source_syntax_pressure",
+      "stderr": "",
+      "check_count": 11
+    },
+    {
+      "id": "compiler_profile_manifest_prop_review_ready",
+      "phase": "manifest_prop_review_ready",
+      "claim": "Manifest PROP draft is Architect-review-ready with authority firewall, slot invariants, and bootstrap traceability locked.",
+      "command": "igniter-lang/experiments/compiler_profile_manifest_prop_review_ready/compiler_profile_manifest_prop_review_ready.rb",
+      "summary_path": "igniter-lang/experiments/compiler_profile_manifest_prop_review_ready/out/compiler_profile_manifest_prop_review_ready_summary.json",
+      "track_doc": "igniter-lang/docs/tracks/compiler-profile-manifest-prop-review-ready-v0.md",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "stdout_first_line": "PASS compiler_profile_manifest_prop_review_ready",
+      "stderr": "",
+      "check_count": 12
+    },
+    {
+      "id": "compiler_profile_manifest_prop_promotion",
+      "phase": "manifest_prop_promotion",
+      "claim": "Manifest PROP review packet is ready for Architect numbering/routing without claiming a number or mutating proposal index.",
+      "command": "igniter-lang/experiments/compiler_profile_manifest_prop_promotion/compiler_profile_manifest_prop_promotion.rb",
+      "summary_path": "igniter-lang/experiments/compiler_profile_manifest_prop_promotion/out/compiler_profile_manifest_prop_promotion_summary.json",
+      "track_doc": "igniter-lang/docs/tracks/compiler-profile-manifest-prop-promotion-v0.md",
+      "exit_status": 0,
+      "proof_status": "PASS",
+      "stdout_first_line": "PASS compiler_profile_manifest_prop_promotion",
+      "stderr": "",
+      "check_count": 12
     }
   ],
   "checks": {
     "chain.starts_with_shadow_profile": true,
     "chain.includes_profile_source_lowering_target": true,
-    "chain.ends_with_manifest_prop_draft": true,
+    "chain.includes_manifest_prop_draft": true,
+    "chain.includes_syntax_pressure": true,
+    "chain.includes_manifest_prop_review_ready": true,
+    "chain.ends_with_manifest_prop_promotion": true,
     "chain.all_commands_exited_zero": true,
     "chain.all_summaries_pass": true,
     "chain.has_expected_phase_count": true,
@@ -237,6 +279,9 @@
     "chain.has_self_assembly_and_bootstrap_phases": true,
     "chain.has_descriptor_and_lowering_phases": true,
     "chain.has_manifest_prop_draft_phase": true,
+    "chain.has_syntax_pressure_phase": true,
+    "chain.has_manifest_review_ready_phase": true,
+    "chain.has_manifest_promotion_phase": true,
     "scope.no_runtime_authority_phase": true
   },
   "what_this_index_authorizes": [
@@ -251,8 +296,8 @@
     "No runtime execution authority."
   ],
   "recommended_next": [
-    "profile-source-syntax-pressure-v0",
-    "compiler-profile-manifest-prop-promotion-v0",
-    "compiler-profile-descriptor-error-taxonomy-sharpening-v0"
+    "compiler-profile-prop-numbering-decision-v0",
+    "compiler-profile-descriptor-error-taxonomy-sharpening-v0",
+    "profile-source-syntax-compiler-review-v0"
   ]
 }

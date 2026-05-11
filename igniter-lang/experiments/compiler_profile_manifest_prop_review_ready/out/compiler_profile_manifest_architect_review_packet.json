@@ -1,0 +1,126 @@
+{
+  "kind": "compiler_profile_manifest_architect_review_packet",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-manifest-prop-review-ready-v0",
+  "status": "architect_review_ready_candidate",
+  "promotion_note": {
+    "official_prop_number_claimed": false,
+    "reason": "PROP-033 is already queued for via profile binding; Architect/Compiler-Expert should assign or requeue."
+  },
+  "manifest_field": {
+    "name": "compiler_profile_id",
+    "type": "string",
+    "example": "ordered_rule_profile/sha256:674d7b6d7512186d5031555d",
+    "placement": "top_level_manifest_field",
+    "required_policy_initial": "legacy_optional",
+    "required_policy_future": "profile_required",
+    "authority": "compiler_understanding_only",
+    "runtime_execution_authority": false
+  },
+  "hash_and_signature_policy": {
+    "compiler_profile_id_participates_in_artifact_hash": true,
+    "add_before_artifact_hash": true,
+    "add_before_signing": true,
+    "post_signing_annotation_allowed": false,
+    "profile_body_inline_initially_allowed": false,
+    "expanded_profile_sidecar_future": true
+  },
+  "loader_policy": {
+    "legacy_optional": {
+      "absent": "accept_absent_legacy",
+      "match": "accept_profile_match",
+      "mismatch": "refuse_profile_mismatch",
+      "malformed": "refuse_malformed_profile_id"
+    },
+    "profile_required": {
+      "absent": "refuse_missing_compiler_profile_id",
+      "match": "accept_profile_match",
+      "mismatch": "refuse_profile_mismatch",
+      "malformed": "refuse_malformed_profile_id"
+    }
+  },
+  "compatibility_firewall": {
+    "compiler_profile_status_values": [
+      "absent_legacy",
+      "present_verified",
+      "mismatch",
+      "malformed",
+      "missing_required"
+    ],
+    "runtime_evaluation_readiness_values": [
+      "ready",
+      "blocked",
+      "not_reached"
+    ],
+    "invariant": "compiler_profile_status.present_verified must not imply runtime_evaluation_readiness.ready",
+    "present_verified_implies_runtime_ready": false
+  },
+  "receipt_lane": {
+    "receipt_explains_build": true,
+    "profile_identifies_compiler": true,
+    "receipt_runtime_execution_authority": false,
+    "profile_runtime_execution_authority": false,
+    "storage_policy_ref": "igniter-lang/experiments/compilation_receipt_authority_and_storage/out/compilation_receipt_storage_policy.json"
+  },
+  "slot_invariants": {
+    "canonical_slot_order": [
+      "core",
+      "oof_registry",
+      "fragment_registry",
+      "escape_boundary",
+      "contract_modifiers",
+      "temporal",
+      "stream",
+      "olap",
+      "invariant",
+      "assumptions",
+      "evidence_observation",
+      "pipeline"
+    ],
+    "future_dispatch_order_source": "CompilerProfileSpec.slot_order",
+    "surface_slot_order_authoritative": false,
+    "syntax_pressure_ref": "igniter-lang/experiments/profile_source_syntax_pressure/out/profile_source_syntax_pressure_summary.json",
+    "required_exactly_one_slots": [
+      "core",
+      "oof_registry",
+      "fragment_registry",
+      "escape_boundary"
+    ],
+    "implementation_id_changes_profile_id": true
+  },
+  "bootstrap_traceability": {
+    "bootstrap_summary_ref": "igniter-lang/experiments/bootstrap_descriptor_kernel/out/bootstrap_descriptor_kernel_summary.json",
+    "explicit_seed_required": true,
+    "bootstrap_profile_id": "bootstrap_compiler_profile/sha256:98222cdd7ce1497c90462165",
+    "runtime_execution_authority": false
+  },
+  "architect_review_questions": [
+    "Which official PROP number should carry compiler_profile_id manifest semantics?",
+    "Should compiler_profile_id use ordered_rule_profile id first or unified compiler_profile id first?",
+    "When does legacy_optional move to profile_required?",
+    "Should expanded profile material live in a sidecar, receipt bundle, .ilk, or all three?",
+    "Which implementation card owns artifact hash/golden migration?"
+  ],
+  "implementation_cards": [
+    "assembler-compiler-profile-id-field-v0",
+    "loader-compiler-profile-status-report-v0",
+    "artifact-hash-profile-id-golden-migration-v0",
+    "compilation-receipt-manifest-link-v0"
+  ],
+  "source_evidence": {
+    "manifest_boundary": "igniter-lang/experiments/compiler_profile_id_manifest_boundary/out/compiler_profile_id_manifest_boundary_summary.json",
+    "compatibility_report_fields": "igniter-lang/experiments/compiler_profile_compatibility_report_fields/out/compiler_profile_compatibility_report_fields_summary.json",
+    "receipt_storage_policy": "igniter-lang/experiments/compilation_receipt_authority_and_storage/out/compilation_receipt_authority_and_storage_summary.json",
+    "slots_model": "igniter-lang/experiments/compiler_profile_slots_model/out/compiler_profile_slots_model_summary.json",
+    "unified_profile": "igniter-lang/experiments/compiler_profile_spec_and_rule_unification/out/compiler_profile_spec_and_rule_unification_summary.json",
+    "bootstrap_descriptor_kernel": "igniter-lang/experiments/bootstrap_descriptor_kernel/out/bootstrap_descriptor_kernel_summary.json",
+    "syntax_pressure": "igniter-lang/experiments/profile_source_syntax_pressure/out/profile_source_syntax_pressure_summary.json"
+  },
+  "non_authorizations": [
+    "No runtime execution authority.",
+    "No parser syntax authorization.",
+    "No assembler or loader implementation.",
+    "No .igapp/.ilk format mutation before PROP approval.",
+    "No production dispatch rewrite."
+  ]
+}

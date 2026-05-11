@@ -35,8 +35,11 @@ architecture. They are not production migration authorization.
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `compiler-profile-chain-closure-index-v0.md` | done | Closure index PASS 17/17 from shadow profile through manifest PROP draft; guard only, no dispatch/.igapp/.ilk/runtime authority change |
+| `compiler-profile-chain-closure-index-v0.md` | done | Closure index PASS 20/20 from shadow profile through manifest PROP promotion readiness; guard only, no dispatch/.igapp/.ilk/runtime authority change |
 | `compiler-profile-manifest-prop-draft-v0.md` | done | PROP-ready draft candidate for top-level `compiler_profile_id`; legacy_optional/profile_required policies; hash/signature ordering; no official PROP number claimed |
+| `profile-source-syntax-pressure-v0.md` | done | Compiler/Grammar-facing syntax pressure; descriptor-data style preferred before parser work; block-style syntax pressure-only |
+| `compiler-profile-manifest-prop-review-ready-v0.md` | done | Architect-review-ready packet; locks authority firewall, receipt/profile lane split, required exactly-one slots, slot-order dispatch invariant, and bootstrap traceability |
+| `compiler-profile-manifest-prop-promotion-v0.md` | done | Promotion packet ready for Architect numbering/routing; detects PROP-033 queue occupation; creates no proposal file and mutates no proposal index |
 
 ---
 
