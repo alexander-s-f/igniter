@@ -1,0 +1,154 @@
+{
+  "kind": "durable_audit_append_reader_role_boundary_proof_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R34-C2-P",
+  "track": "durable-audit-append-reader-role-boundary-proof-v0",
+  "authorization_ref": "architect-supervisor://igniter-lang/gates/phase1-production-durable-audit/bounded-implementation-v0/2026-05-10",
+  "design_amendment": "durable-audit-hash-and-posture-design-amendment-v0 (S3-R32-C1-P)",
+  "proof_timestamp": "2026-05-11T12:00:00Z",
+  "status": "PASS",
+  "total_cases": 21,
+  "cases_pass": 21,
+  "cases_fail": 0,
+  "invariant_checks_pass": 6,
+  "invariant_checks_fail": 0,
+  "surfaces": {
+    "surface_1_appender_role": "PASS",
+    "surface_2_reader_role": "PASS",
+    "surface_3_rebuild_gate_p43": "PASS",
+    "surface_4_nil_unknown_roles": "PASS",
+    "surface_5_cross_role_isolation": "PASS",
+    "surface_6_excluded_surfaces": "PASS"
+  },
+  "cases": {
+    "role.appender_can_append_clean_rebuild": {
+      "pass": true,
+      "allowed": true,
+      "appended": true
+    },
+    "role.appender_traverse_refused": {
+      "pass": true,
+      "allowed": false,
+      "code": "audit.reader.unauthorized"
+    },
+    "role.appender_multi_append": {
+      "pass": true,
+      "record_count": 3,
+      "all_appended": true
+    },
+    "role.reader_can_traverse": {
+      "pass": true,
+      "allowed": true,
+      "record_count": 3
+    },
+    "role.reader_append_refused": {
+      "pass": true,
+      "allowed": false,
+      "code": "audit.writer.unauthorized"
+    },
+    "role.reader_can_verify_chain": {
+      "pass": true,
+      "allowed": true,
+      "verified": true,
+      "record_count": 3
+    },
+    "p43.appender_clean_rebuild_allowed": {
+      "pass": true,
+      "allowed": true,
+      "rebuild_status": "clean"
+    },
+    "p43.appender_failed_rebuild_refused": {
+      "pass": true,
+      "allowed": false,
+      "code": "audit.writer.rebuild_not_clean",
+      "rebuild_status": "failed"
+    },
+    "p43.appender_recovery_after_rebuild": {
+      "pass": true,
+      "before_allowed": false,
+      "before_code": "audit.writer.rebuild_not_clean",
+      "after_allowed": true,
+      "after_rebuild_status": "clean"
+    },
+    "p43.rebuild_not_clean_code_deterministic": {
+      "pass": true,
+      "codes": [
+        "audit.writer.rebuild_not_clean"
+      ]
+    },
+    "role.nil_role_append_refused": {
+      "pass": true,
+      "allowed": false,
+      "code": "audit.writer.unauthorized"
+    },
+    "role.nil_role_traverse_refused": {
+      "pass": true,
+      "allowed": false,
+      "code": "audit.reader.unauthorized"
+    },
+    "role.unknown_role_append_refused": {
+      "pass": true,
+      "allowed": false,
+      "code": "audit.writer.unauthorized"
+    },
+    "isolation.reader_append_code_deterministic": {
+      "pass": true,
+      "allowed": false,
+      "code": "audit.writer.unauthorized"
+    },
+    "isolation.appender_traverse_code_deterministic": {
+      "pass": true,
+      "allowed": false,
+      "code": "audit.reader.unauthorized"
+    },
+    "isolation.refused_appends_do_not_mutate_store": {
+      "pass": true,
+      "reader_record_count": 0,
+      "blocked_record_count": 0
+    },
+    "excluded.no_production_durable_audit_in_proof_local": {
+      "pass": true,
+      "count": 5
+    },
+    "excluded.no_ledger_access": {
+      "pass": true
+    },
+    "excluded.no_phase2_access": {
+      "pass": true
+    },
+    "excluded.no_hsm_kms": {
+      "pass": true
+    },
+    "excluded.gate3_authorized_not_widened": {
+      "pass": true
+    }
+  },
+  "invariant_checks": {
+    "invariant.all_refusals_have_deterministic_code": true,
+    "invariant.reader_append_always_writer_unauthorized": true,
+    "invariant.appender_traverse_always_reader_unauthorized": true,
+    "invariant.p43_rebuild_gate_code_is_rebuild_not_clean": true,
+    "invariant.no_ledger_access": true,
+    "invariant.no_phase2_or_hsm_kms": true
+  },
+  "p43_decision": {
+    "question": "Does production append gate on clean rebuild status?",
+    "answer": "[D1] YES. The RoleGatedStore refuses all appends when rebuild_status != \"clean\". Refusal code: audit.writer.rebuild_not_clean. The proof-local RestartRebuildEngine (C1-P) did not implement this gate; a production store MUST implement it before B-D/deployment authorization (P-43 closed by this card).",
+    "code": "audit.writer.rebuild_not_clean"
+  },
+  "non_authorization": {
+    "production_deployment": false,
+    "ledger_adapter": false,
+    "phase2": false,
+    "bihistory": false,
+    "stream_olap": false,
+    "production_cache": false,
+    "hsm_kms_onboarding": false,
+    "broad_runtimemachine_binding": false,
+    "gate3_authorized": false
+  },
+  "regression_checks": {
+    "regression.r31_bounded_impl_append_ok": true,
+    "regression.r33_restart_rebuild_clean_ok": true
+  }
+}
