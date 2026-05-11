@@ -56,8 +56,14 @@ architecture. They are not production migration authorization.
 
 | Track | Status | Notes |
 |-------|--------|-------|
+| `durable-audit-reader-traversal-proof-v0.md` | done | Closes B-B: proof-local AuditReader scans full chain before filters, re-derives compliance_posture, refuses mutating/authorizing operations; PASS 26/26 + 4/4 invariants; no lib/ or production deployment |
+| `durable-audit-append-reader-role-boundary-proof-v0.md` | done | Closes B-C and P-43: appender/reader role gate plus clean-rebuild append gate; PASS 21/21 + 6/6 invariants; Ledger/Phase2/HSM/KMS/deployment absent |
 | `prop036-placeholder-governance-sync-v0.md` | done | Closes P-44 governance drift: PROP-036 is `compiler_profile_id` numbering-only; managed recursion/service loop placeholders moved to PROP-037+ in active maps; no implementation or migration authorization |
-| `external-progression-prop-scope-draft-v0.md` | done | PROP scope draft for progression: runtime capability/manifest metadata first, no new fragment class; service loop lowers to progression obligations; OOF-PR* candidates; ready for PROP number, no implementation auth |
+| `prop032-assumptions-phase3-semanticir-v0.md` | done | Closes PROP-032 Phase 3: typed assumptions lower to SemanticIR/report outputs; OOF-A1/TASSUMP-1 stay report-only; parser grammar/P28/full experiment-pass still open |
+| `prop036-compiler-profile-id-manifest-proposal-v0.md` | proposal-authored / pending acceptance | Authors PROP-036 for unified `compiler_profile_id`; docs-only; acceptance + separate Architect implementation authorization required before assembler/loader/hash/golden/receipt work |
+| `external-progression-prop-scope-draft-v0.md` | scope draft / pending number | PROP scope draft for progression: runtime capability/manifest metadata first, no new fragment class; service loop lowers to progression obligations; OOF-PR* candidates; ready for PROP-037+ assignment, no implementation auth |
+| `../discussions/r34-audit-assumptions-profile-progression-pressure-v0.md` | complete — PROCEED (non-blockers only) | Confirms B-B/B-C/P-43/P-44 closed; notes C2-P same-round stale B-B table; routes B-D, P-45 PROP-036 acceptance, P-46 progression number, and PROP-032 Phase 4 |
+| `stage3-round34-status-curation-v0.md` | done | R34 status/index sync — this track |
 
 ---
 
@@ -65,8 +71,12 @@ architecture. They are not production migration authorization.
 
 | Track | Status | Notes |
 |-------|--------|-------|
+| `durable-audit-restart-rebuild-proof-v0.md` | done | Closes B-A: restart rebuild proof PASS 21/21; proof-local only, no deployment/signing/HSM/KMS |
+| `prop032-assumptions-phase2-typechecker-v0.md` | done | Closes PROP-032 Phase 2 TypeChecker; OOF-A1 propagation and typed assumptions checks landed; SemanticIR remained open until R34 |
 | `../gates/compiler-profile-manifest-prop-number-decision-v0.md` | approved-numbering-only | Assigns PROP-036 to `compiler_profile_id` manifest identity; no `.igapp`, loader, assembler, runtime, or migration authorization |
+| `compiler-profile-shadow-chain-dependency-index-v0.md` | done | R33 dependency index for compiler profile shadow chain; summary dependencies/regeneration order only; no migration or dispatch authorization |
 | `external-progression-semantics-decision-prep-v0.md` | done | Decision brief recommends formal PROP: progression as separate semantic primitive; service loop as surface over progression; stream/fold_stream distinct; no code/grammar/runtime auth |
+| `../discussions/r33-rebuild-prop032-profile-and-progression-pressure-v0.md` | complete — PROCEED (non-blockers only) | Confirms B-A and PROP-032 Phase 2 landed; routes P-43/P-44 plus B-B/B-C and PROP-032 Phase 3 to R34 |
 
 ---
 
@@ -593,82 +603,18 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 
 | Candidate | Purpose | Role | Status |
 |-----------|---------|------|--------|
-| B-A restart rebuild proof | Verify hash/chain first, derive compliance_posture, compare stored vs derived, refuse mismatch with `audit.record.compliance_posture_mismatch`; define cursor-stop vs full-scan abort | Implementation Agent / Research Agent | recommended for R33; now unblocked |
-| PROP-032 Phase 2 TypeChecker | Propagate OOF-A1 from classified `oof_log` to `type_errors`, passthrough `assumption_refs`, add strength range check; include SemanticIR if atomic golden regeneration is feasible | Compiler/Grammar Expert / Research Agent | recommended for R33; Phase 1 goldens landed |
-| compiler_profile_id PROP number decision | Assign formal PROP number before manifest feature enters acceptance gate or implementation planning | Architect Supervisor / Meta Expert | done in S3-R33-C3-A; PROP-036 numbering-only |
-| B-B traversal/reader proof | Prove audit traversal/reader behavior; reader must re-derive compliance_posture for every returned record | Implementation Agent / Research Agent | recommended after/with B-A |
-| B-C appender/reader role boundary | Prove appender vs reader role separation within bounded audit scope | Implementation Agent / Research Agent | may run with B-B |
-| B-D post-implementation matrix | Run full matrix including new audit proofs before any deployment review | Research Agent | required before follow-up Architect review |
-| audit hash/posture design amendment | Document C1-P canonical hash excluded fields and resolve compliance_posture stored-vs-derived model before restart rebuild/traversal proofs | Research Agent / Implementation Agent | done in S3-R32-C1-P; closes P-37/P-38 |
-| C1-P surface-numbering errata | Add note that C1-P prose says "surfaces 1-4" but delivered C1-A surfaces 1/2/3/8; blocker table remains correct | Meta Expert / Research Agent | done in S3-R32-C1-P |
-| META-EXPERT-013 Covenant authority note | Add C2-A authority rule: Covenant normative, META-EXPERT-013 operational/checklist only | Compiler/Grammar Expert / Meta Expert | done in S3-R32-C2-S; closes P-40 |
-| Covenant/Heat Map OQ-Filter sync | Add C2-A pointer to Covenant and update Heat Map Domain 8 row from open gov debt to closed decision | Meta Expert | done in S3-R32-C2-S; closes P-39 |
-| PROP-032 Phase 1 implementation | Implement assumptions Classifier boundary and Research Agent fixtures per C5-P gate template | Compiler/Grammar Expert / Research Agent | done in S3-R32-C3-P; TypeChecker/SemanticIR open |
-| compiler_profile_id manifest PROP | Draft explicit manifest/profile PROP before any `.igapp` implementation | Compiler/Grammar Expert / Architect Supervisor | draft/routing packet exists; PROP-036 assigned numbering-only; proposal/implementation still open |
-| bounded production durable audit implementation track | Implement only the C1-A authorized surfaces, then run excluded-surface regression and post-implementation matrix before any deployment decision | Implementation Agent / Research Agent | partially done in S3-R31-C1-P; B-A/B-B/B-C/B-D remain |
-| OQ-Filter-1 Architect decision | Decide PROP acceptance authority: Covenant Governance Filter vs META-EXPERT-013 §VI vs consolidated lifecycle doc | Architect Supervisor / Meta Expert | done in S3-R31-C2-A |
-| PROP-032 implementation gate | State explicit acceptance/authorization trigger before classifier work on `epistemic`, OOF-A1, and assumptions pipeline begins | Architect Supervisor / Compiler/Grammar Expert | done in S3-R31-C5-P; Phase 1 gate satisfied |
-| startup override design addendum | Amend R29 design with D1 all non-default expiry and D2/D3 new refusal codes from R30 proof | Research Agent / Meta Expert | done in S3-R31-C4-P |
-| Heat Map + CSM stale-credit sync | Update Heat Map rows for startup validator and V-3 golden; add CSM secondary observed+temporal anchor | Meta Expert | done in S3-R31-C3-S |
+| B-D post-implementation matrix | Run the full bounded durable-audit matrix after B-A/B-B/B-C/P-43 closures; include excluded-surface regression and prior Stage 3 proof chain | Research Agent / Implementation Agent | next R35 priority; required before B-E |
+| PROP-036 acceptance gate | Review authored `PROP-036-compiler-profile-manifest-identity-v0.md`; issue accept / conditional accept / hold / reject before any implementation card | Architect Supervisor / Meta Expert | open P-45; proposal authored, implementation blocked |
+| PROP-037+ formal assignment | Assign a formal number for the progression/service-liveness PROP before formal authoring claims `PROP-037` or later | Architect Supervisor / Meta Expert | open P-46; scope draft ready, number not assigned |
+| PROP-032 Phase 4 | Add parser grammar for `assumptions {}` / `uses assumptions NAME`, P28 unnamed-assumption parse-error fixture, and real source-to-SemanticIR fixture | Compiler/Grammar Expert / Research Agent | open; Phase 1/2/3 landed, experiment-pass not reached |
+| B-E production deployment review | Review production deployment/signing/HSM/KMS only after B-D PASS; keep Ledger/Phase2/BiHistory/stream/OLAP/cache closed unless separately authorized | Architect Supervisor | blocked on B-D |
 | OQ-P28-1 escape naming answer | Verify whether unnamed `escape` declaration is currently parse error; update Covenant P28 table | Compiler/Grammar Expert | still open; route before PROP-035 |
-| OOF-I1/I3/I5 closure | PROP-025 addendum + targeted fixtures for deferred invariant OOF anchors | Research Agent / Compiler/Grammar Expert | still recommended parallel R33 |
-| production durable audit implementation authorization decision | Architect review of R28-R29 evidence package; may authorize only a bounded implementation track if explicit decision says so | Architect Supervisor | done in S3-R30-C1-A; deployment still closed |
-| startup_time override proof-local validator | Implement C2-P matrix for policy_ref + signed policy validation; include fail-closed cases and accepted/rejected proof-local authority patterns | Research Agent / Implementation Agent | done in S3-R30-C2-P; 28/28 PASS |
-| V-3 temporal+observed golden | Add dedicated `observed + temporal body -> fragment_class: "temporal"` proof/golden to `contract_modifiers_proof` | Compiler/Grammar Expert | done in S3-R30-C3-P; 25/25 PASS |
-| P28 enforcement gap table | Document currently enforced vs governing-only no-unnamed-block surfaces | Compiler/Grammar Expert / Meta Expert | done in S3-R30-C5-P; OQ-P28-1 remains |
-| PROP Governance Filter reconciliation | Reconcile Covenant PROP Governance Filter with META-EXPERT-013 §VI as normative acceptance guidance | Meta Expert / Architect Supervisor | done in S3-R31-C2-A |
-| PROP-032 assumptions draft | Draft Gap-H assumptions block proposal and minimum fixture plan; resolve queue conflict with current `via profile` placeholder first | Meta Expert / Compiler/Grammar Expert | done in S3-R30-C6-P; proposal only |
-| startup_time override interface design | Specify whether the 24h freshness bound is constant/config/env/deployment manifest and how overrides are authorized | Research Agent / Bridge Agent | done in S3-R29-C2-P; design only |
-| PROP-031 compatibility addendum | Note that Stage 3 legacy fixtures with implicit-pure escape bodies required `observed` migration; Stage 1/2 compatibility remained PASS | Compiler/Grammar Expert | done in S3-R29-C3-P |
-| Covenant accountability postulates | Add Postulate 27, Postulate 28, and governance audit-trail filter from R28 cross-review | Meta Expert | done in S3-R29-C4-P |
-| canonical semantic model bootstrap | Create a compact verifiable entity index with pipeline entry, fragment class, golden anchor, PROP, and Covenant anchor | Meta Expert | done in S3-R29-C5-P |
-| Gap-H / PROP-032 queue resolution | Resolve numbering conflict between queued `via profile` and Agent-D assumptions agenda before authoring the next PROP | Meta Expert / Compiler/Grammar Expert | done in S3-R30-C6-P / confirmed S3-R31-C3-S |
-| durable audit design amendment | Record compliance_posture store-binding, signer no-op rejection, and startup-time staleness bound in `phase1-production-durable-audit-v0` | Research Agent / Bridge Agent | done in S3-R28-C1-P |
-| bounded audit validation proofs | Prove compliance_posture store-binding and signer no-op/stub rejection without implementing full durable audit | Research Agent / Implementation Agent | done in S3-R28-C1-P |
-| post-R27 full regression matrix rerun | Add `volatile_fields_lint` first; rerun prior matrix plus any new proof steps | Research Agent | done in S3-R28-C3-P; 29/29 PASS |
-| PROP-031 implementation | Implement parser/classifier/typechecker/SemanticIR changes; resolve OOF-M1 stage and `contract_name` expected shape before goldens | Compiler/Grammar Expert | done in S3-R28-C2/C4 |
+| OOF-I1/I3/I5 closure | PROP-025 addendum + targeted fixtures for deferred invariant OOF anchors | Research Agent / Compiler/Grammar Expert | still deferred; route when invariant lane reopens |
 | `_volatile_fields` Time.now grep hook | Detect newly-added unannotated `Time.now` usage in experiment scripts | Implementation Agent / Research Agent | optional follow-up; not required for R28 close |
-| implementation authorization review for `phase1-production-durable-audit-v0` | Architect review of C1-P design; add compliance_posture store-binding and signer-validation proof requirements before authorization | Architect Supervisor / Meta Expert / External Pressure Reviewer | R28 proof package ready; explicit Architect decision still required |
-| `_volatile_fields` lint script | Validate committed JSON artifacts never mark status/checks/verdict/boolean checks as volatile | Implementation Agent / Research Agent | done in S3-R27-C2-P |
-| full artifact stability survey | Run two-consecutive-run diff method across committed artifacts not verified in C3-P | Research Agent | done in S3-R27-C2-P |
-| post-R26 full regression matrix rerun | Re-run current matrix after R26 design/policy changes; include new proof steps if added | Research Agent | superseded and closed by S3-R28-C3-P final 29/29 matrix |
 | registry implementation planning | Draft generated index schema and proof plan under registry implementation authorization gate | Bridge Agent / Architect Supervisor | deferred; audit blockers first |
-| `phase1-production-durable-audit-v0` | Design only under S3-R25-C2-A: signing model recommendation, restart rebuild, format enforcement, retention/audit traversal, storage identity, audit reader, compliance language, error codes, blockers, proof plan | Research Agent / Bridge Agent | done in S3-R26-C1-P; ready for implementation auth review |
-| Architect registry ownership decision | Answer C3-P Q1-Q6: source of truth, freshness SLA, index generation owner, immutable anchor, external service receipt exposure, package authority prohibition | Architect Supervisor / Meta Expert / Bridge Agent | done in S3-R26-C2-A for design; implementation still closed |
-| deterministic artifact policy for regression harness | Decide how to handle nondeterministic proof outputs such as stage2 close JSON and tamper-evidence JSONL | Research Agent | done in S3-R26-C3-P |
-| production durable audit implementation authorization | Later Architect decision after design pressure review, registry ownership/decoupling, signing boundary, rebuild/version proof plan, and non-Ledger statement | Architect Supervisor | closed until later decision |
-| `phase1-production-durable-audit-v0` scope decision | Route production durable audit only with Architect scope: HSM/KMS signing, restart rebuild, version enforcement, retention/replay, off-process persistence, compliance language | Architect Supervisor | approved-for-design-only in S3-R25-C2-A |
-| post-R24 regression rerun expanding to 25 commands | Add R24 C2/C3 fixtures to the canonical matrix after same-round sequencing left C1 at 23 commands | Research Agent | done in S3-R25-C1-P |
-| production registry ownership options | Compare package-owned registry, gate document store, and external authority service before binding implementation | Bridge Agent | done in S3-R25-C3-P; decision still open |
-| `phase1-format-version-enforcement-v0` | Enforce tamper-evidence `format_version` before any production store integration | Implementation Agent / Research Agent | design scope approved; implementation not authorized |
-| `phase1-post-r23-regression-rerun-v0` | Consolidate post-R19 fixtures, including R20-R23, into one current rerun before any scope-widening track | Research Agent | done in S3-R24-C1-P |
-| production durable audit track | Add tamper evidence/hash chain, storage identity, retention, replay semantics, and compliance language; not implied by R23 JSONL shape | Research Agent / Bridge Agent | superseded by R24 recommendation for `phase1-production-durable-audit-v0` with Architect scope |
-| durable registry storage semantics | Turn registry v1 receipts shape into durable/queryable storage; decide active -> superseded direct transition | Bridge Agent + Research Agent | done in S3-R24-C2-P |
-| `phase1-observation-tamper-evidence-shape-v0` | Add proof-local tamper_evidence fields and content-integrity hash chain to observation persistence shape | Implementation Agent / Research Agent | done in S3-R24-C3-P |
 | production `git_commit` compliance amendment | Treat `workspace-current` as non-compliant outside proof-local mode; require CI/registry-supplied immutable ref | Bridge Agent / Research Agent | before production |
 | `gate3-production-signing-v1` | Production signer identity, key rotation, signature algorithm, verification policy, deployment trust store | Bridge Agent / Architect Supervisor | after registry v1 |
-| `phase1-durable-observation-persistence-shape-v0` | Define proof-local file-backed JSONL observation persistence shape with explicit non-production caveats | Research Agent | done in S3-R23-C1-P |
-| `gate3-authority-registry-v1-receipts-shape-v0` | Define proof-local registry v1 transition receipts for issuance, revocation, and supersession | Bridge Agent | done in S3-R23-C2-P |
-| `phase1-reason-code-legacy-aliases-deprecation-signal-v0` | Add LEGACY_ALIASES deprecation signal and prove lib/ emits canonical scope exclusion only | Implementation Agent | done in S3-R23-C3-P |
-| `phase1-addendum-content-address-ref-v0` | Replace mutable path-only `signed_addendum_ref` with commit/content-hash or registry-minted version reference | Meta Expert / Bridge Agent | done in S3-R22-C2-P |
-| `phase1-end-to-end-invocation-fixture-v0` | Compose registry check -> caller authorization -> Phase1 executor -> audit-ready envelope in one proof | Research Agent | done in S3-R22-C1-P |
-| `compatibility-report-persistence-audit-v0` | Define proof-local audit-ready envelope; explicit export, not persisted | Research Agent / Bridge Agent | done in S3-R21-C1-P |
-| `gate3-authority-registry-shape-v0` | Define proof-local registry shape and caller-side policy cases; no signing/keys/executor calls | Bridge Agent + Research Agent | done in S3-R21-C2-P |
-| post-signature full-chain rerun on next code touch | Rerun an equivalent full proof chain when a follow-up changes runtime code; S3-R20 signature was policy-only | Research Agent | conditional |
 | Phase 2 Ledger adapter addendum | Separate Architect decision for real Ledger adapter/package binding; not enabled by signed Phase 1 addendum | Architect Supervisor / Bridge Agent | closed until separate decision |
-| Architect signature review for `gate3-live-read-decision-addendum-v0.md` | Review addendum for explicit signed/status update; signing is the first possible live-read authorization event | Architect Supervisor | done in S3-R20-C1-A |
-| signing-record citation notes | Cite S3-R19-C1-P 15/15 PASS and attribute guard-order amendment to S3-R18-X1 PS-2 | Architect Supervisor | done in S3-R20-C1-A |
-| first post-signature fixture | Verify no behavior change accompanies signing and caller must reference signed document | Research Agent | done in S3-R20-C2-P |
-| `phase1-r18-cleanup-regression-rerun-v0` | Re-run the full proof chain after R18 C2/C3/C4 code changes; include observation backend_identity assertion | Research Agent | done |
-| `gate3-live-read-decision-addendum-v0` guard-order amendment | Amend draft order to `approval_token -> gate_state -> backend_identity -> scope -> cache_key -> executor_backend` | Architect Supervisor / Meta Expert | done |
-| `gate3-live-read-decision-addendum-v0` | Signed addendum for restricted Phase 1 live reads only; Phase 2/Ledger/BiHistory/stream/OLAP/cache/audit still excluded | Architect Supervisor | signed-approved-restricted-phase1-live-read |
-| proof-local authority/observation docstring amendments | Add source comments clarifying `GATE3_AUTHORITY_REF` is not cryptographic authorization and `observations` are in-memory, not audit receipts | Implementation Agent | done |
-| `runtime-temporal-scope-exclusion-reason-alias-v0` | Reconcile lib proof-local reason codes with canonical `runtime.temporal_scope_exclusion` before operators see codes | Compiler/Grammar Expert | done |
-| `phase1-backend-identity-guard-v0` | Add backend identity guard before any Phase 2 adapter binding can make `gate3_authorized: true` reach a real backend | Implementation Agent / Bridge Agent | done |
-| `phase1-lib-prep-regression-chain-rerun-v0` | Re-run S3-R7..R10 plus R13..R16 lib-prep fixtures against landed C1 | Research Agent | done |
-| `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0` | Re-evaluate Ch7/runtime docs now that C1 exists; document only stable implementation boundary, no new semantics | Compiler/Grammar Expert | done |
-| `runtime-temporal-executor-lib-prep-safety-pressure-v0` | Review lib-prep for live-read leakage, Ledger/BiHistory/cache expansion, and preservation of blocked-before-call guarantees | External Pressure Reviewer | done — proceed proof-local |
-| `runtime-temporal-executor-lib-prep-v0` | Prepare lib-bound Phase 1 History[T] valid_time path using composed CompatibilityReport, token-before-gate preflight, authority_ref exact match, scope/cache/observation guards | Implementation Agent | landed |
 | `gate3-authority-registry-v0` | Define trusted authority/revocation source for PROP-030 tokens before Phase 2; do not imply live Ledger binding | Bridge Agent + Research Agent | before Phase 2 |
 | `gate3-phase2-addendum-process-v0` | Define explicit Architect addendum route for real Ledger adapter/package binding after Phase 1 | Meta Expert / Bridge Agent | before Phase 2 |
 | `external-http-json-capability-pressure-v0` | Define minimum HTTP/JSON capability profile: request, response, error, redaction, replay, receipt, and refusal cases | Compiler/Grammar Expert + Bridge Agent | pressure backlog |
