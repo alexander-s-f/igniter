@@ -78,6 +78,7 @@ PROP-032 is authored (assumptions block). New Stage 3+ proposal IDs should start
 | PROP-033 | `via profile binding` | PROP-031 | 3 | high |
 | PROP-034 | `output evidence syntax` | PROP-031, PROP-032 | 3 | high |
 | PROP-035 | profile declarations / authority resolution | PROP-031, PROP-033 | 3 | medium |
+| PROP-036 | compiler profile manifest identity (`compiler_profile_id`) | Compiler Profile shadow proofs; Architect numbering decision S3-R33-C3-A | 3 | medium |
 | TBD | Effect Surface | PROP-031 | 3 | medium |
 | TBD | Prior queued ideas need renumbering/requeue | — | 3+ | medium |
 
