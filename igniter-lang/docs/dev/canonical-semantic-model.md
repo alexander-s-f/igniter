@@ -1,9 +1,9 @@
 # Canonical Semantic Model (CSM)
 
 Status: index (living document)
-Date: 2026-05-10
+Date: 2026-05-11
 Author: `[Igniter-Lang Meta Expert]`
-Source: S3-R29-C2-P (R28 meta-card) + S3-R29-C5-P (R29 bootstrap)
+Source: S3-R29-C2-P (R28 meta-card) + S3-R29-C5-P (R29 bootstrap) + S3-R34-C3-S (PROP-036 placeholder sync)
 
 > The CSM is a verifiable index, not a design document.
 > If an entity lacks a golden anchor, its status is at most `spec_candidate`.
@@ -110,10 +110,10 @@ The golden anchor covers FFI-level receipt descriptors only.
 
 | entity | status | pipeline_entry_point | classifier_fragment | golden_anchor | PROP | Covenant |
 |--------|--------|---------------------|---------------------|---------------|------|----------|
-| Loop class: `finite_by_collection` | spec_candidate | Parser (Stage 3 Language Lane) | — | — | PROP-036+ | P14, P28 |
-| Loop class: `finite_by_fuel` | spec_candidate | Parser (Stage 3 Language Lane) | — | — | PROP-036+ | P14 |
-| Loop class: `convergent_by_metric` | spec_candidate | Parser (Stage 3 Language Lane) | — | — | PROP-036+ | P14 |
-| Loop class: `alive_by_liveness` (service loop) | spec_candidate | Parser (Stage 3 Language Lane) | — | — | PROP-036+ | P14 |
+| Loop class: `finite_by_collection` | spec_candidate | Parser (Stage 3 Language Lane) | — | — | PROP-037+ placeholder | P14, P28 |
+| Loop class: `finite_by_fuel` | spec_candidate | Parser (Stage 3 Language Lane) | — | — | PROP-037+ placeholder | P14 |
+| Loop class: `convergent_by_metric` | spec_candidate | Parser (Stage 3 Language Lane) | — | — | PROP-037+ placeholder | P14 |
+| Loop class: `alive_by_liveness` (service loop) | spec_candidate | Parser (Stage 3 Language Lane) | — | — | PROP-037+ placeholder | P14 |
 
 ---
 
@@ -146,7 +146,7 @@ Entities without a golden anchor as of R29. All are at most `spec_candidate`.
 | `assumptions {}` block | Gap-H — PROP-032 authored (S3-R30-C6-P); no compiler implementation yet | PROP-032 |
 | `uses assumptions NAME` | Gap-H — PROP-032 authored; no classifier implementation yet | PROP-032 |
 | `form NAME -> T` | Gap-I — no parser keyword, no fragment class | TBD |
-| Loop class (all variants) | Stage 3 Language Lane — no parser, no classifier | PROP-036+ |
+| Loop class (all variants) | Stage 3 Language Lane — no parser, no classifier; PROP-036 is occupied by `compiler_profile_id` | PROP-037+ placeholder |
 | OOF-I1 | Stage 2 deferred invariant OOF | PROP-025 addendum |
 | OOF-I3 | Stage 2 deferred invariant OOF | PROP-025 addendum |
 | OOF-I5 | Stage 2 deferred invariant OOF | PROP-025 addendum |

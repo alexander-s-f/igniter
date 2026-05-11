@@ -2,11 +2,11 @@
 
 Status: living document
 Card: S3-R30-C4-P
-Last updated: S3-R32-C2-S (2026-05-10)
+Last updated: S3-R34-C3-S (2026-05-11)
 Agent: [Igniter-Lang Meta Expert]
 Role: meta-expert
 Track: semantic-governance-heat-map-v0
-Date: 2026-05-10
+Date: 2026-05-11
 Supersedes: nothing (new document)
 
 > Cross-layer drift index — where Covenant postulate meets Spec chapter, PROP,
@@ -122,14 +122,15 @@ Supersedes: nothing (new document)
 | entity | P | Spec | PROP | Parse | Class | TC | SIR | RT | Au | Debt |
 |--------|---|------|------|-------|-------|----|-----|----|----|------|
 | `form NAME -> TypeTarget` | P27, P28 | Gap-I | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem |
-| Loop class: `finite_by_collection` | P14, P28 | ch13 | PROP-036+ | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem |
-| Loop class: `finite_by_fuel` | P14 | ch13 | PROP-036+ | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem |
-| Loop class: `convergent_by_metric` | P14 | ch13 | PROP-036+ | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem |
-| Loop class: `alive_by_liveness` (service loop) | P14, P28 | ch13 | PROP-036+ | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem |
+| Loop class: `finite_by_collection` | P14, P28 | ch13 | PROP-037+ | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem |
+| Loop class: `finite_by_fuel` | P14 | ch13 | PROP-037+ | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem |
+| Loop class: `convergent_by_metric` | P14 | ch13 | PROP-037+ | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem |
+| Loop class: `alive_by_liveness` (service loop) | P14, P28 | ch13 | PROP-037+ | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem |
 
-Loop classes are the only domain where **no PROP has been numbered**. PROP-036+ is a
-placeholder only. The Managed Recursion Doctrine in the Covenant makes strong commitments
-(stoppable / observable / bounded) with zero compiler expression.
+Loop classes are still unnumbered future work. PROP-037+ is the next-safe placeholder
+only because PROP-036 is occupied by `compiler_profile_id` manifest identity. The Managed
+Recursion Doctrine in the Covenant makes strong commitments (stoppable / observable /
+bounded) with zero compiler expression.
 
 ---
 
@@ -179,6 +180,7 @@ gap analysis → PROP before a golden anchor can be created.
 | PROP Governance Filter (V-2) | Axiom 2, P27 | — (Covenant) | Covenant §PROP-Gov-Filter | gov |
 | P28 OOF enforcement gap table | P28 | — | TBD (assigned to Compiler/Grammar Expert) | gov |
 | META-EXPERT-013 §VI ↔ PROP Governance Filter reconciliation | Axiom 2, P27 | — | S3-R31-C2-A authority decision; Covenant normative, META-EXPERT-013 operational | none |
+| `compiler_profile_id` manifest identity | Axiom 2, P27 | — | PROP-036 assigned by S3-R33-C3-A; numbering-only, no implementation authorization | gov |
 | startup_time freshness override validator | P27, Axiom 2 | — (design track R29) | — (28/28 PASS S3-R31) | none |
 | V-3 (`observed + temporal → temporal`) dedicated golden | P3, P4 | ch9, ch10 | PROP-031, PROP-028 (25/25 PASS S3-R31) | none |
 
@@ -217,7 +219,8 @@ This is the single highest-leverage open gap in the language.
 The Covenant's Managed Recursion Doctrine (P14) commits the language to loop classes:
 stoppable / observable / bounded. No PROP has been numbered. `finite_by_collection`,
 `finite_by_fuel`, `convergent_by_metric`, and `alive_by_liveness` are all 🔴 across all
-stages with a placeholder PROP-036+ that does not yet exist as a file.
+stages with a placeholder PROP-037+ that does not yet exist as a file. PROP-036 is not
+available for this surface; it is assigned to `compiler_profile_id` manifest identity.
 
 ### GI-4 — P28 Enforcement Not Codified (MEDIUM)
 
@@ -233,6 +236,13 @@ upward coercion (`assumed → observed`, `simulated → executed`). No OOF code,
 guard, and no PROP exists for this. The `observed` modifier exists as a classifier fragment
 class but does not enforce epistemic transition validity.
 
+### GI-6 — PROP-036 / Loop Placeholder Collision — RESOLVED (S3-R34-C3-S)
+
+Resolved: S3-R33-C3-A assigns PROP-036 to `compiler_profile_id` manifest identity as a
+numbering-only decision. Managed Recursion / service loop placeholders move to
+PROP-037+ in active maps. This does not authorize `compiler_profile_id` implementation,
+`.igapp` loader/assembler changes, migration, or any loop semantics.
+
 ---
 
 ## Debt Summary
@@ -241,7 +251,7 @@ class but does not enforce epistemic transition validity.
 
 | debt_type | Entity count | Hotspot |
 |-----------|-------------|---------|
-| `gov` | 15 | Effect Surface (PROP-035) — blocks 7 postulates; highest single leverage |
+| `gov` | 16 | Effect Surface (PROP-035) — blocks 7 postulates; highest single leverage; `compiler_profile_id` PROP-036 remains numbering-only |
 | `sem/gov` | 5 | constraints (Gap-J), synthetic markers, epistemic coercion, unnamed-block OOF |
 | `sem` | 7 | form (Gap-I), loop classes ×4, evidence syntax (PROP-034), composition algebra (PROP-002) |
 | `impl/gov` | 5 | `observed`/`effect`/`privileged`/`irreversible` modifiers + receipt production shape |
@@ -259,7 +269,7 @@ class but does not enforce epistemic transition validity.
 | Form + Loop | 5 full | 0 | 0 | sem |
 | OOF Registry | 3 deferred + 3 new | 2 (OOF-M1) | 6 | impl / sem/gov |
 | Composition + Evidence | 4 full | 0 | 0 | sem / gov |
-| Governance Layer | 2 open | 0 | 1 | gov |
+| Governance Layer | 3 open | 0 | 1 | gov |
 
 ---
 
@@ -319,7 +329,7 @@ ordering being settled in the type system.
 
 ### R31-8 — Managed Recursion Doctrine: Gap Analysis Track (BACKLOG)
 
-Loop classes (PROP-036+) are entirely unspecified. Recommend a scoped research track to
+Loop classes (PROP-037+ placeholder) are entirely unspecified. Recommend a scoped research track to
 enumerate the five loop class variants, identify the compiler surface required (new
 fragment class? OOF? spec chapter?), and produce a gap analysis before any PROP is
 authored. No implementation authorization implied.

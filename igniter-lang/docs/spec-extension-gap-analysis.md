@@ -1,7 +1,7 @@
 # Spec Extension Gap Analysis
 
 Status: reference · S3-R28
-Date: 2026-05-10 (updated 2026-05-10)
+Date: 2026-05-10 (updated 2026-05-11 by S3-R34-C3-S governance sync)
 Author: `[Igniter-Lang Meta Expert]`
 Governance: META-EXPERT-013
 
@@ -58,7 +58,7 @@ effect contract ChargeCustomer(...) via audited_billing { ... }
 
 **Impl change:** parser + TypeChecker scope resolution + SemanticIR.
 **Backward compatible:** `via` is optional.
-**Proposal:** PROP-032 (not yet authored, gated on PROP-031).
+**Proposal:** PROP-033 (not yet authored, gated on PROP-031).
 **Spec:** ch11.
 
 ---
@@ -78,7 +78,7 @@ profile audited_billing {
 ```
 
 **Impl change:** new top-level declaration + new compiler pass.
-**Proposal:** PROP-034 (not yet authored, gated on PROP-031 + PROP-032).
+**Proposal:** PROP-035 (not yet authored, gated on PROP-031 + PROP-033).
 **Spec:** ch11.
 
 ---
@@ -99,7 +99,7 @@ effect contract ChargeCustomer(...)
 ```
 
 **Impl change:** parser (7 new clauses) + TypeChecker validation + SemanticIR.
-**Proposal:** PROP-035 (not yet authored, gated on PROP-031).
+**Proposal:** TBD — Effect Surface remains queued but unnumbered after S3-R33-C3-A.
 **Spec:** ch12.
 
 ---
@@ -114,7 +114,7 @@ output claims evidence [article, model_observation]
 
 **Impl change:** parser (optional clause) + SemanticIR (evidence_refs field).
 **Backward compatible:** clause is optional.
-**Proposal:** PROP-033 (not yet authored, gated on PROP-031).
+**Proposal:** PROP-034 (not yet authored, gated on PROP-031, PROP-032).
 **Spec:** ch10 §10.5 (field in contract_ir).
 
 ---
@@ -154,7 +154,10 @@ loop axis:    service | recursive                        (orthogonal)
 ```
 
 **Impl change:** new loop class, new runtime semantics, new executor obligations.
-**Proposal:** PROP-036+ (promoted to Stage 3 Language Lane candidate).
+**Proposal:** PROP-037+ placeholder only. PROP-036 is occupied by
+`compiler_profile_id` manifest identity (S3-R33-C3-A numbering-only decision).
+Managed recursion / service loops remain unassigned future work until a formal
+Architect/Compiler-Expert routing decision.
 **Spec:** ch13.
 **Open:** see CL-4 (now() vs tick binding inside loop body).
 
@@ -211,7 +214,8 @@ Three distinct representations:
 
 **Impl change:** new top-level grammar production + new compiler pass (AssumptionRegistry).
 **Backward compatible:** additive. Existing programs unaffected.
-**Proposal:** TBD (candidate PROP after PROP-033)
+**Proposal:** PROP-032 (authored; Phase 1 Classifier landed; TypeChecker/SemanticIR
+and full experiment-pass remain open)
 **Spec:** TBD (ch10 extension or new ch?)
 
 ---
@@ -531,17 +535,17 @@ valid and are not affected by the extension.
 | Priority | PROP | Gap | Stage | Status |
 |----------|------|-----|-------|--------|
 | 1 | PROP-031 | Gap-A (modifiers) | 3 Language Lane | ✅ DONE |
-| 2 | PROP-032 | Gap-B (via profile) | 3 Language Lane | pending |
-| 3 | PROP-033 | Gap-E (evidence) | 3 Language Lane | pending |
-| 4 | PROP-034 | Gap-C (profile system) | 3 new Lane | pending |
-| 5 | PROP-035 | Gap-D (effect surface) | 3 new Lane | pending |
-| 6 | TBD | Gap-H (assumptions block) | 3 Language Lane candidate | pending |
+| 2 | PROP-032 | Gap-H (assumptions block) | 3 Language Lane | proposal; Phase 1 Classifier landed |
+| 3 | PROP-033 | Gap-B (via profile) | 3 Language Lane | pending |
+| 4 | PROP-034 | Gap-E (evidence) | 3 Language Lane | pending |
+| 5 | PROP-035 | Gap-C (profile system / authority resolution) | 3 new Lane | pending |
+| 6 | TBD | Gap-D (effect surface) | 3 new Lane | queued, unnumbered |
 | 7 | TBD | Gap-J (constraints block) | 3 Language Lane candidate | pending |
 | 8 | TBD | Gap-I (form keyword) | 3 Language Lane candidate | pending |
 | 9 | TBD | Gap-O (workflow contract) | 3–4 — OPEN | open |
 | 10 | TBD | Gap-N (audit contract/pattern) | 3 — stdlib first | pending |
-| 11 | PROP-035 ext. | Gap-K (observes clause) | 3 | pending |
-| 12 | PROP-036+ | Gap-F (service loops) | 3 Language Lane candidate | pending |
+| 11 | TBD / Effect Surface extension | Gap-K (observes clause) | 3 | pending |
+| 12 | PROP-037+ placeholder | Gap-F (service loops) | 3 Language Lane candidate | placeholder only; no PROP assigned |
 | — | TBD | Gap-G (view, placement) | 4+ | future |
 
 ---

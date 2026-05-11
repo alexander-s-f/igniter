@@ -517,7 +517,7 @@ compensation path, and with a complete receipt trail. It does not fail silently.
 | 11 | ch10 (observed modifier) | PROP-031 | ✅ | `planned PROP` (PROP-035 required-field enforcement) |
 | 12 | ch10 (observed modifier) | PROP-031 | ✅ | `planned PROP` (PROP-035 receipt type enforcement) |
 | 13 | ch10 (observed modifier) | PROP-031 | ✅ | `enforced` (classifier fragment class) |
-| 14 | ch13 (Managed Recursion) | PROP-036+ | pending | `planned PROP` |
+| 14 | ch13 (Managed Recursion) | PROP-037+ | pending | `planned PROP` |
 | 15 | ch12 (failure taxonomy) | PROP-035 | pending | `planned PROP` |
 | 18 | ch10 (pure/irreversible separation) | PROP-031 | ✅ | `enforced` |
 | 21 | ch12 (Effect Surface, all fields) | PROP-035 | pending | `planned PROP` |
@@ -527,7 +527,7 @@ compensation path, and with a complete receipt trail. It does not fail silently.
 | 25 | Gap-J (constraints block) | TBD | open | `spec_candidate` |
 | 26 | Gap-N (audit contract/pattern) | TBD | open | `spec_candidate` |
 | 27 | Axiom 2 (Accountability) — all surfaces | — | Covenant governing | `doctrine-only` |
-| 28 | Governance: unnamed block rule | PROP-035 + PROP-036+ | partial | `partial` — see enforcement registry |
+| 28 | Governance: unnamed block rule | PROP-035 + PROP-037+ | partial | `partial` — see enforcement registry |
 
 ---
 
@@ -578,7 +578,7 @@ a formal status to every postulate and defines the rule for new additions.
 | P11 | Uncertainty is a required typed field, not silently dropped | `planned PROP` | PROP-035 — required-field enforcement on observation types; PROP-031 ✅ classifies modifier |
 | P12 | Simulated receipts are a different type from real receipts | `planned PROP` | PROP-031 ✅ classifies fragment; PROP-035 enforces type incompatibility at contract boundaries |
 | P13 | Real / model / human observations are distinct types | `enforced` | PROP-031 ✅ — classifier assigns fragment class; modifier system enforces distinction at classification |
-| P14 | Every repetition belongs to a loop class with a compiler-verified contract | `planned PROP` | PROP-036+ (Managed Recursion) |
+| P14 | Every repetition belongs to a loop class with a compiler-verified contract | `planned PROP` | PROP-037+ (Managed Recursion placeholder; PROP-036 is reserved for `compiler_profile_id`) |
 | P15 | Timeout is `UnknownExternalOutcome`, not `ObservedFailure` | `planned PROP` | PROP-035 — failure taxonomy with distinct types |
 | P16 | Non-idempotent operations under retry are a compile error | `planned PROP` | PROP-035 — idempotency key requirement on retry-enabled profiles |
 | P17 | Irreversible contracts name their compensation or declare `no_compensation` | `planned PROP` | PROP-035 — `compensation:` required field on irreversible contracts |
@@ -605,7 +605,7 @@ surfaces because some have no compiler implementation yet.
 |------------|-------------------|---------------------|-----------------|
 | `invariant` block | Must have a name; referenced in violation observation receipts | **`enforced`** — parser requires name; unnamed `invariant` is a parse error today | Already enforced; anchor: parser spec |
 | `escape` declaration | Must be named; referenced in `escape_boundaries` of receipts | **Unknown** — Compiler/Grammar Expert must verify (OQ-P28-1 below) | `planned PROP` — PROP-035 (Effect Surface) should formalize naming requirement |
-| Loop class declaration | Must be named; referenced in managed loop contract | **N/A** — loop classes not yet implemented | `planned PROP` — PROP-036+ (Managed Recursion); naming requirement must be explicit in PROP draft |
+| Loop class declaration | Must be named; referenced in managed loop contract | **N/A** — loop classes not yet implemented | `planned PROP` — PROP-037+ (Managed Recursion placeholder); naming requirement must be explicit in the eventual PROP draft |
 | `assumptions {}` block | Must be named; carried through `evidence []` chain | **N/A** — Gap-H not yet implemented | `planned PROP` — PROP-032 (Gap-H); `uses assumptions NAME` syntax enforces naming |
 | `constraints {}` block | Must be named; carried through `constraint_hash` | **N/A** — Gap-J not yet implemented | `spec_candidate` → `planned PROP` when Gap-J PROP is queued |
 
@@ -652,14 +652,14 @@ is a first-class PROP-035 acceptance criterion, not a later errata.
 Question for Compiler/Grammar Expert: should PROP-035 be the home for escape naming
 enforcement, or should a separate escape-naming-enforcement PROP be filed?
 
-**OQ-P28-3 — PROP-036+ loop class naming**
+**OQ-P28-3 — PROP-037+ loop class naming**
 
-When PROP-036+ (Managed Recursion) is drafted, the loop class naming requirement
-from P28 must be an explicit acceptance condition in the PROP. No unnamed loop
-class may carry a managed-loop contract.
+When the future PROP-037+ Managed Recursion proposal is drafted, the loop class
+naming requirement from P28 must be an explicit acceptance condition in the PROP.
+No unnamed loop class may carry a managed-loop contract.
 
 Question for Compiler/Grammar Expert: should the P28 requirement for loop class
-naming be stated in the PROP-036+ acceptance criteria or in a separate invariant
+naming be stated in the future PROP acceptance criteria or in a separate invariant
 section of ch13?
 
 **OQ-Enforcement-1 — enforcement status table maintenance ownership**

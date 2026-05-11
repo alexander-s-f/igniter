@@ -52,10 +52,19 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 34 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop036-placeholder-governance-sync-v0.md` | done | Closes P-44 governance drift: PROP-036 is `compiler_profile_id` numbering-only; managed recursion/service loop placeholders moved to PROP-037+ in active maps; no implementation or migration authorization |
+
+---
+
 ## Stage 3 Round 33 Evidence
 
 | Track | Status | Notes |
 |-------|--------|-------|
+| `../gates/compiler-profile-manifest-prop-number-decision-v0.md` | approved-numbering-only | Assigns PROP-036 to `compiler_profile_id` manifest identity; no `.igapp`, loader, assembler, runtime, or migration authorization |
 | `external-progression-semantics-decision-prep-v0.md` | done | Decision brief recommends formal PROP: progression as separate semantic primitive; service loop as surface over progression; stream/fold_stream distinct; no code/grammar/runtime auth |
 
 ---
@@ -585,7 +594,7 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 |-----------|---------|------|--------|
 | B-A restart rebuild proof | Verify hash/chain first, derive compliance_posture, compare stored vs derived, refuse mismatch with `audit.record.compliance_posture_mismatch`; define cursor-stop vs full-scan abort | Implementation Agent / Research Agent | recommended for R33; now unblocked |
 | PROP-032 Phase 2 TypeChecker | Propagate OOF-A1 from classified `oof_log` to `type_errors`, passthrough `assumption_refs`, add strength range check; include SemanticIR if atomic golden regeneration is feasible | Compiler/Grammar Expert / Research Agent | recommended for R33; Phase 1 goldens landed |
-| compiler_profile_id PROP number decision | Assign formal PROP number before manifest feature enters acceptance gate or implementation planning | Architect Supervisor / Meta Expert | recommended for R33; closes P-41 |
+| compiler_profile_id PROP number decision | Assign formal PROP number before manifest feature enters acceptance gate or implementation planning | Architect Supervisor / Meta Expert | done in S3-R33-C3-A; PROP-036 numbering-only |
 | B-B traversal/reader proof | Prove audit traversal/reader behavior; reader must re-derive compliance_posture for every returned record | Implementation Agent / Research Agent | recommended after/with B-A |
 | B-C appender/reader role boundary | Prove appender vs reader role separation within bounded audit scope | Implementation Agent / Research Agent | may run with B-B |
 | B-D post-implementation matrix | Run full matrix including new audit proofs before any deployment review | Research Agent | required before follow-up Architect review |
@@ -594,7 +603,7 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 | META-EXPERT-013 Covenant authority note | Add C2-A authority rule: Covenant normative, META-EXPERT-013 operational/checklist only | Compiler/Grammar Expert / Meta Expert | done in S3-R32-C2-S; closes P-40 |
 | Covenant/Heat Map OQ-Filter sync | Add C2-A pointer to Covenant and update Heat Map Domain 8 row from open gov debt to closed decision | Meta Expert | done in S3-R32-C2-S; closes P-39 |
 | PROP-032 Phase 1 implementation | Implement assumptions Classifier boundary and Research Agent fixtures per C5-P gate template | Compiler/Grammar Expert / Research Agent | done in S3-R32-C3-P; TypeChecker/SemanticIR open |
-| compiler_profile_id manifest PROP | Draft explicit manifest/profile PROP before any `.igapp` implementation | Compiler/Grammar Expert / Architect Supervisor | draft/routing packet exists; number decision still open |
+| compiler_profile_id manifest PROP | Draft explicit manifest/profile PROP before any `.igapp` implementation | Compiler/Grammar Expert / Architect Supervisor | draft/routing packet exists; PROP-036 assigned numbering-only; proposal/implementation still open |
 | bounded production durable audit implementation track | Implement only the C1-A authorized surfaces, then run excluded-surface regression and post-implementation matrix before any deployment decision | Implementation Agent / Research Agent | partially done in S3-R31-C1-P; B-A/B-B/B-C/B-D remain |
 | OQ-Filter-1 Architect decision | Decide PROP acceptance authority: Covenant Governance Filter vs META-EXPERT-013 §VI vs consolidated lifecycle doc | Architect Supervisor / Meta Expert | done in S3-R31-C2-A |
 | PROP-032 implementation gate | State explicit acceptance/authorization trigger before classifier work on `epistemic`, OOF-A1, and assumptions pipeline begins | Architect Supervisor / Compiler/Grammar Expert | done in S3-R31-C5-P; Phase 1 gate satisfied |

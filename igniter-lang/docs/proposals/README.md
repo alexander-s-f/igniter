@@ -73,12 +73,19 @@ PROP-032 is authored (assumptions block). New Stage 3+ proposal IDs should start
 **Queue renumbering (GI-1 resolution, S3-R30-C6-P):** PROP-032 was previously assigned to
 `via profile binding`. It is now PROP-032 = `assumptions {}` block. All downstream IDs shift +1.
 
+**PROP-036 assignment (S3-R33-C3-A, synced S3-R34-C3-S):** PROP-036 is assigned to
+`compiler_profile_id` manifest identity as a numbering-only compiler-profile slot. It is
+not managed recursion, service loops, or progression semantics, and it does not authorize
+implementation. Managed recursion / service loop placeholders must use PROP-037+ or later
+until formally assigned.
+
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|
 | PROP-033 | `via profile binding` | PROP-031 | 3 | high |
 | PROP-034 | `output evidence syntax` | PROP-031, PROP-032 | 3 | high |
 | PROP-035 | profile declarations / authority resolution | PROP-031, PROP-033 | 3 | medium |
 | PROP-036 | compiler profile manifest identity (`compiler_profile_id`) | Compiler Profile shadow proofs; Architect numbering decision S3-R33-C3-A | 3 | medium |
+| PROP-037+ | managed recursion / service loops placeholder | future routing decision; PROP-036 unavailable | 4+ | unassigned |
 | TBD | Effect Surface | PROP-031 | 3 | medium |
 | TBD | Prior queued ideas need renumbering/requeue | — | 3+ | medium |
 
@@ -121,4 +128,6 @@ closed                all authorized scope experiment-PASS; META-EXPERT decision
 
 Stage 1 PROPs: see `accepted/` — frozen read-only.
 Stage 2 closed PROPs: in `proposals/` with `Status: closed`.
-New Stage 3 proposals after PROP-032: start from PROP-033.
+New Stage 3 proposal IDs must consult the queued table above. PROP-033 through
+PROP-036 are reserved there; managed recursion / service loops use PROP-037+ as
+placeholder only until formal assignment.

@@ -2,13 +2,14 @@
 
 Status: proposed
 Stage: 4 (deferred)
-Source PROP: PROP-036+ (not yet authored)
+Source PROP: PROP-037+ placeholder (not yet authored)
 Governance: META-EXPERT-013
-Last updated: 2026-05-10
+Last updated: 2026-05-11
 
 > **Proposed — Stage 4 deferred.** This chapter describes the managed recursion
 > and service loop extension. It is not in scope for Stage 3.
-> Status advances when Stage 4 governance opens and PROP-036+ passes.
+> Status advances when Stage 4 governance opens and an assigned managed-recursion
+> PROP passes. PROP-036 is reserved for `compiler_profile_id` manifest identity.
 
 ---
 
