@@ -83,6 +83,74 @@ PASS compiler_profile_chain_closure_index
 
 ---
 
+## Dependency / Regeneration Index
+
+This section is maintained by
+`compiler-profile-shadow-chain-dependency-index-v0`. It makes the shadow chain
+safe to regenerate when an upstream descriptor or summary changes.
+
+Rule:
+
+```text
+If any direct input summary changes, rerun that proof and every downstream proof
+that reads its output, then rerun compiler_profile_chain_closure_index last.
+```
+
+Compact direct-input map:
+
+| # | Proof | Direct summary inputs | Regenerate when changed |
+|---:|---|---|---|
+| 1 | `compiler_pack_shadow_profile_proof` | none | compiler pass inventory / shadow descriptor assumptions |
+| 2 | `contract_modifiers_pack_native_boundary` | #1 | shadow profile summary or contract-modifier golden fixture set |
+| 3 | `compiler_kernel_pack_registry_spike` | #2 | ContractModifiersPack descriptor |
+| 4 | `compiler_kernel_ordered_rule_precedence` | none | ordered rule graph model |
+| 5 | `compiler_profile_id_manifest_boundary` | #4 | ordered rule profile id or sample `.igapp` manifest shape |
+| 6 | `compiler_profile_slots_model` | #1 | shadow pack list / slot vocabulary |
+| 7 | `compiler_profile_spec_and_rule_unification` | #6, #4 | slot model or ordered rule graph |
+| 8 | `compiler_profile_authority_boundary` | #7, #5 | unified profile id or manifest boundary policy |
+| 9 | `compiler_profile_compatibility_report_fields` | #8 | authority boundary decision table |
+| 10 | `compiler_profile_preflight_chain_index` | #1-#9 | any preflight proof summary |
+| 11 | `compiler_profile_auditable_build_receipt` | #10, #7, production compiler summary | preflight status, unified profile id, or compiler CLI output |
+| 12 | `compilation_receipt_authority_and_storage` | #11 | build receipt digest / storage policy |
+| 13 | `igniter_lang_self_assembly_profile_sketch` | #10, #12 | preflight chain or receipt storage policy |
+| 14 | `bootstrap_descriptor_kernel` | #13 | self-assembly profile sketch |
+| 15 | `compiler_profile_descriptor_schema` | #14 | bootstrap descriptor kernel / descriptor schema |
+| 16 | `profile_source_lowering_target` | #15 | descriptor schema |
+| 17 | `compiler_profile_manifest_prop_draft` | #5, #9, #12 | manifest boundary, report fields, or receipt storage |
+| 18 | `profile_source_syntax_pressure` | #16 | profile-source lowering target |
+| 19 | `compiler_profile_manifest_prop_review_ready` | #17, #6, #7, #9, #12, #14, #18 | manifest draft packet, slot/unified/report/receipt/bootstrap/syntax inputs |
+| 20 | `compiler_profile_manifest_prop_promotion` | #19 | review-ready packet |
+| 21 | `compiler_profile_prop_numbering_decision` | #20 | promotion packet or proposal queue observation |
+| 22 | `compiler_profile_descriptor_error_taxonomy_sharpening` | #15, #6, #4 | descriptor schema, slots, or ordered rules |
+| 23 | `profile_source_syntax_compiler_review` | #18, #22 | syntax pressure or diagnostic taxonomy |
+| 24 | `profile_source_syntax_grammar_boundary` | #23 | compiler review packet |
+| 25 | `compiler_profile_validator_implementation_plan` | #15, #22, #24 | schema, taxonomy, or grammar boundary |
+| 26 | `compiler_profile_manifest_prop_architect_routing` | #21, #20 | numbering packet or promotion packet |
+| 27 | `progression_pack_shadow_boundary` | external progression summary, #1 | progression runtime model or shadow profile summary |
+| 28 | `compiler_profile_r32_shadow_chain_backreference` | R32 discussion + this closure index | discussion route or closure index identity |
+
+High-impact upstream changes:
+
+| Upstream change | Must regenerate |
+|---|---|
+| Shadow profile summary (#1) | #2, #3, #6, then dependent rows through #28 as applicable, then closure index |
+| Ordered rule summary (#4) | #5, #7, #8, #9, #10-#12, #13, #17, #19-#22, #23-#26, then closure index |
+| Manifest boundary summary (#5) | #8, #9, #10-#12, #13, #17, #19-#21, #26, then closure index |
+| Slots model summary (#6) | #7, #8, #9, #10-#12, #13, #19-#22, #23-#26, then closure index |
+| Unified profile summary (#7) | #8, #9, #10-#13, #19-#21, #26, then closure index |
+| Authority boundary summary (#8) | #9, #10-#13, #17, #19-#21, #26, then closure index |
+| Compatibility report fields (#9) | #10-#13, #17, #19-#21, #26, then closure index |
+| Receipt storage summary (#12) | #13, #14, #15, #16, #17, #18, #19-#21, #26, then closure index |
+| Descriptor schema summary (#15) | #16, #18, #19-#26, then closure index |
+| Profile-source lowering (#16) | #18, #19-#21, #23-#26, then closure index |
+| Manifest draft / review / promotion (#17-#20) | Rerun the changed packet, then #19/#20/#21/#26 as applicable, then closure index |
+
+All rows above are shadow/pre-POC unless and until an explicit Architect /
+Compiler-Expert decision promotes the relevant PROP and opens implementation
+cards. This index does not authorize migration.
+
+---
+
 ## What The Chain Now Proves
 
 [S] The current monolithic compiler can be described as a deterministic shadow
