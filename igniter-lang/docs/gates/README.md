@@ -2,7 +2,7 @@
 
 Status: active
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-10
+Last updated: 2026-05-11
 
 ---
 
@@ -164,3 +164,4 @@ Authorized signed-addendum scope:
 | [phase1-production-durable-audit-implementation-authorization-decision-v0.md](phase1-production-durable-audit-implementation-authorization-decision-v0.md) | S3-R30-C1-A | approved-bounded-implementation | Authorizes bounded Phase 1 production durable audit implementation track only; production deployment, concrete HSM/KMS, Ledger, Phase 2, BiHistory, stream/OLAP, cache, and broad RuntimeMachine binding remain closed |
 | [prop-governance-authority-decision-v0.md](prop-governance-authority-decision-v0.md) | S3-R31-C2-A | approved-authority-hierarchy | Covenant PROP Governance Filter is normative; META-EXPERT-013 remains operational checklist and defers to the Covenant; PROP-032 implementation not authorized |
 | [compiler-profile-manifest-prop-number-decision-v0.md](compiler-profile-manifest-prop-number-decision-v0.md) | S3-R33-C3-A | approved-numbering-only | Assigns PROP-036 to compiler profile manifest identity; no `.igapp`, loader, assembler, compiler dispatch, runtime, or production implementation authorized |
+| [prop036-compiler-profile-id-acceptance-decision-v0.md](prop036-compiler-profile-id-acceptance-decision-v0.md) | S3-R35-C3-A | accepted-proposal-only | Accepts PROP-036 as the proposal for `compiler_profile_id` manifest identity; only design/proof follow-ups are authorized, implementation remains closed |
