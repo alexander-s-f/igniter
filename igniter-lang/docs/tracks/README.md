@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-11
+Last updated: 2026-05-12
 
 ---
 
@@ -57,7 +57,15 @@ architecture. They are not production migration authorization.
 | Track | Status | Notes |
 |-------|--------|-------|
 | `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0.md` | done | Closes P-50/P-52: Ch2 bounded PROP-032 source grammar synced, Heat Map assumptions rows show compiler experiment-pass, temporal audit pressure specimens marked non-canonical/non-evidence; PROP-033/runtime receipts still excluded |
+| `durable-audit-restricted-deployment-implementation-v0.md` | done | Closes P-51 proof-locally: 7 S3-R36-C1-A follow-up surfaces, 30/30 cases, 5/5 invariants, 9/9 regression PASS; operational rollout still requires Architect review |
+| `../gates/prop037-progression-acceptance-review-v0.md` | accepted-proposal-only | Accepts PROP-037 progression/service liveness proposal; descriptor/proof follow-ups only; parser/runtime/fragment-class and production execution remain closed |
+| `full-stage3-language-regression-matrix-v0.md` | done | Broad Stage 3 regression matrix PASS 19/19; safe for bounded PROP-032 downstream compiler-surface dependencies; PROP-033/runtime still excluded |
+| `prop036-artifact-hash-ordering-proof-v0.md` | done | Synthetic proof-local artifact-hash ordering PASS; `compiler_profile_id` must be covered before hash/sign; no real `.igapp`, loader, assembler, golden, dispatch, runtime, or production signing change |
 | `documentation-fate-inventory-stage1-stage2-v0.md` | done | Classifies first cleanup source set: Stage 1/2 hot tracks and old completed discussions; no movement/deletion; routes Line Up summaries and History Curator movement planning |
+| `documentation-movement-link-ledger-stage1-stage2-v0.md` | movement/link plan only | Plans no-move/no-delete link lifecycle for Stage 1/2 cleanup; first safe Line Up batch identified; movements require explicit approval |
+| `../lineups/README.md` | active compact-memory index | First Stage 1/2 Line Ups landed: Stage 1 close transition, Stage 2 close proof spine, Stage 2 proof surface spine, Stage 2 round-map/status curation |
+| `../discussions/r37-deployment-prop037-regression-profile-pressure-v0.md` | complete — PROCEED (non-blockers only) | Confirms P-50/P-51/P-52 closed without scope leaks; adds P-53 Architect review before operational rollout; mundane OOF and PROP-037 follow-up cards remain pending |
+| `stage3-round37-general-status-curation-v0.md` | done | General no-card status consolidation for R37 evidence; refreshes current maps and next route |
 
 ---
 
@@ -71,7 +79,7 @@ architecture. They are not production migration authorization.
 | `prop037-external-progression-proposal-authoring-v0.md` | authored-pending-review | Authors PROP-037 as proposal-only; no parser, TypeChecker, SemanticIR, RuntimeMachine, Ledger/TBackend, durable queue, production execution, ProgressionPack migration, or fragment-class authorization |
 | `prop036-loader-status-report-proof-v0.md` | done | Proof-local synthetic loader status report matrix PASS; `present_verified` remains separate from runtime readiness; real `.igapp`, loader, assembler, dispatch, runtime, and goldens remain closed |
 | `mundane-stdlib-and-oof-signal-extraction-v0.md` | done | Extracts blind mundane specimen signals into stdlib/capability packs, syntax pressure, type vocabulary drift, OOF candidates, profile presets, and proposal routes; non-canonical, no implementation auth |
-| `../discussions/r36-deployment-prop032-prop036-prop037-mundane-pressure-v0.md` | complete — PROCEED (non-blockers only) | Confirms no scope leaks; opens P-50 Ch2/Heat Map sync, P-51 deployment implementation card, and P-52 temporal audit specimen disposition |
+| `../discussions/r36-deployment-prop032-prop036-prop037-mundane-pressure-v0.md` | complete — PROCEED (non-blockers only) | Confirms no scope leaks; routed P-50/P-51/P-52, later closed in R37 with P-51 proof-local only |
 | `stage3-round36-status-curation-v0.md` | done | Final R36 map curation after C1-C6/X1; keeps B-E, PROP-032, PROP-036, PROP-037, and mundane pressure states exact |
 
 ---
@@ -643,11 +651,14 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 |-----------|---------|------|--------|
 | P-50 PROP-032 Ch2/Heat Map sync | Confirm/apply S3-R36-C2-A follow-up docs for Ch2 source grammar and governance maps; keep PROP-033 evidence validation/runtime receipts excluded | Meta Expert / Compiler/Grammar Expert | closed by `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0.md` |
 | P-52 temporal audit specimen disposition | Decide/archive/map `experiments/pressure-specimens/temporal-audit-pressure-v0/` without making it canonical by accident | Meta Expert / Research Agent | closed by `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0.md` |
-| P-51 restricted durable-audit deployment implementation | Implement/configure only the S3-R36-C1-A bounded audit append/read/rebuild deployment scope: storage identity, signer abstraction refusal behavior, startup rebuild, appender/reader roles, refusal-code export, rollback/disable, post-deployment smoke | Implementation Agent / Architect Supervisor | B-E restricted scope approved; concrete HSM/KMS and excluded surfaces still closed |
-| PROP-037 acceptance gate | Review authored external progression/service-liveness proposal: accept, amend, hold, or defer before any implementation planning | Architect / Meta Expert | authored-pending-review; no implementation auth |
-| Stage 3 language regression matrix | Run/reconcile temporal, stream, classifier, typechecker, SemanticIR, and assumptions surfaces together before downstream PROP-032 dependence | Compiler/Grammar Expert | recommended by R36 X1 |
-| PROP-036 artifact-hash ordering proof | Continue proof-local C3-A/C5-P-authorized design/proof work; preserve `present_verified != runtime readiness` and no real `.igapp` adoption | Compiler/Grammar Expert / Architect Supervisor | loader status proof PASS; implementation still blocked |
-| mundane OOF fixture planning | Plan OOF fixtures from blind mundane pressure without canonizing stdlib/effect/runtime behavior | Compiler/Grammar Expert / Research Agent | pressure-only, non-canonical |
+| P-53 Architect review | Review R37 C2-I 7 proof-local deployment follow-up outputs before any operational rollout authorization | Architect Supervisor | new from R37 X1; P-51 proof-local closed |
+| PROP-037 descriptor-shape proof | Proof-local descriptors for `clock.every`, `queue`, and `external_event`; validate closed `source_kind`, bounded materialization, cancellation/checkpoint/receipt policy, and step bounds | Compiler/Grammar Expert / Research Agent | authorized design/proof follow-up; no parser/runtime auth |
+| PROP-037 CompatibilityReport readiness proof | Show progression metadata can be present while runtime readiness stays false with stable refusal | Compiler/Grammar Expert / Research Agent | authorized design/proof follow-up; no scheduler/runtime auth |
+| PROP-037 OOF-PR diagnostic proof | Design/proof-local validation for OOF-PR1..OOF-PR9, including OOF-PR5 error default | Compiler/Grammar Expert | authorized design/proof follow-up |
+| PROP-037 profile descriptor specialization proof | Prove `external_event` specialization below closed top-level source kinds | Compiler/Grammar Expert / Bridge Agent | authorized design/proof follow-up; no production listener/queue |
+| PROP-036 assembler field design plan | Carry loader-status and hash-ordering invariants into a proof/design-only assembler field plan | Compiler/Grammar Expert / Architect Supervisor | implementation still blocked |
+| mundane OOF fixture planning | Plan OOF-MA1/MA2/MA3 fixtures from blind mundane pressure without canonizing stdlib/effect/runtime behavior | Compiler/Grammar Expert / Research Agent | pressure-only, non-canonical; NB from R37 X1 |
+| documentation cleanup next batch | Decide whether to follow LineUp-Stage1-Stage2-1 with index notes or movement packet; no `git mv`/deletion without approval | Archive/Form Expert / History Curator / Line Up Summarizer | first Line Ups landed; movement closed |
 | OQ-P28-1 escape naming answer | Verify whether unnamed `escape` declaration is currently parse error; update Covenant P28 table | Compiler/Grammar Expert | still open; route before PROP-035 |
 | OOF-I1/I3/I5 closure | PROP-025 addendum + targeted fixtures for deferred invariant OOF anchors | Research Agent / Compiler/Grammar Expert | still deferred; route when invariant lane reopens |
 | `_volatile_fields` Time.now grep hook | Detect newly-added unannotated `Time.now` usage in experiment scripts | Implementation Agent / Research Agent | optional follow-up; not required for R28 close |

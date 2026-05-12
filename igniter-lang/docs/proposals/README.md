@@ -84,11 +84,11 @@ authority.
 
 **PROP-037 lifecycle:** S3-R35-C4-A assigns PROP-037 to external progression and
 service liveness semantics; S3-R36-C4-P authors the proposal as proposal-only.
-It is not accepted yet, and no parser, TypeChecker, SemanticIR, RuntimeMachine
-scheduler, Ledger/TBackend, durable queue, production execution, ProgressionPack
-migration, or new fragment class is authorized. Managed local recursion /
-loop-class extension placeholders must use PROP-038+ or later until formally
-assigned.
+S3-R37-C3-A accepts it as proposal-only, and no parser, TypeChecker, SemanticIR,
+RuntimeMachine scheduler, Ledger/TBackend, durable queue, production execution,
+ProgressionPack migration, or new fragment class is authorized. Managed local
+recursion / loop-class extension placeholders must use PROP-038+ or later until
+formally assigned.
 
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|

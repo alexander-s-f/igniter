@@ -2,7 +2,7 @@
 
 Status: active current-context capsule
 Maintained by: `[Igniter-Lang Meta Expert]` in Status Curator mode
-Last updated: 2026-05-11
+Last updated: 2026-05-12
 
 ---
 
@@ -91,9 +91,26 @@ boundary.
 
 ---
 
-## Current R32 Patch
+## Current Patch Ledger
 
 ```text
+R37 current status:
+  P-50/P-52: closed by bounded PROP-032 Ch2/Heat Map sync and temporal audit
+    specimen disposition; PROP-033 validation/runtime receipts remain closed
+  P-51: restricted durable-audit deployment follow-ups closed proof-locally
+    (30/30 cases, 5/5 invariants, 9/9 regression PASS); operational rollout
+    requires P-53 Architect review
+  PROP-037: accepted proposal-only; descriptor/proof follow-ups allowed, no
+    parser/runtime/fragment-class/production execution authorization
+  PROP-036: loader status + artifact-hash ordering proofs PASS, synthetic only;
+    real .igapp/loader/assembler/golden/dispatch/runtime work remains blocked
+  Stage 3 language regression: PASS 19/19 for existing surfaces
+  Documentation cleanup: Stage 1/2 fate inventory, movement ledger, and first
+    Line Ups landed; no movement/deletion authorization
+```
+
+```text
+Historical R32 snapshot, kept for route archaeology only:
 Production durable audit implementation authorization:
   status: bounded implementation partially landed proof-locally / deployment closed
   latest: S3-R31-C1-P closes schema, signer, append-only store, excluded-surface
@@ -136,7 +153,7 @@ R32 additions:
   PROP-032: Phase 1 Classifier landed; TypeChecker/SemanticIR/full proof open
   compiler profile shadow chain: closure index/backreference answers dependency-map ask
 
-R33 likely route:
+Historical R33 route, superseded by later rounds:
   B-A restart rebuild proof with mismatch refusal, PROP-032 Phase 2 TypeChecker,
   compiler_profile_id PROP number decision, then B-B/B-C/B-D.
 ```
