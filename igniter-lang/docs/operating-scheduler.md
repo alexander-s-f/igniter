@@ -2,7 +2,7 @@
 
 Status: active scheduler/checklist
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-09
+Last updated: 2026-05-12
 
 ---
 
@@ -30,6 +30,7 @@ archaeology or stale memory.
 | Per stage open | Architect Supervisor + Meta Expert | stage fixed point | Refresh current context and role launch docs |
 | Per stage close | Meta Expert + History Curator | snapshot / compression | Freeze evidence, hoist values, archive or compress old docs |
 | Per role refresh | Architect Supervisor | onboarding card | Keep launch capsule current for fast new-agent initialization |
+| Documentation metabolism batch | Archive/Form + History Curator + Line Up Summarizer | fate/movement/summary | Classify source fate, plan movement/linking, write compact Line Ups |
 
 ---
 
@@ -148,6 +149,7 @@ handoff/onboarding-<role-id>-v0.md
 Each onboarding card should include:
 
 - Agent name and role id;
+- instance route check using `handoff/INSTANCE_ROUTING.md`;
 - required read order;
 - current entry state;
 - owned surfaces;
@@ -169,6 +171,17 @@ Onboarding cards are not canon. If an onboarding card disagrees with
 `agent-context.md`, `current-status.md`, or the role profile, the current maps
 win and the card should be refreshed.
 
+Agents should state one of these routes before doing work:
+
+```text
+INIT / UPDATE / IN_FLIGHT_REFRESH / STALE_REFRESH / DISCUSSION / STAGE_LOOP
+```
+
+Use `INIT` for a fresh chat, `UPDATE` for an existing agent receiving a new
+card, `STALE_REFRESH` when the previous card is older than the current round or
+same-role agents may have landed newer work, and `IN_FLIGHT_REFRESH` for a
+minimal mid-slice state check.
+
 ---
 
 ## Stage-Level Roles
@@ -179,6 +192,8 @@ Current stage-level candidates:
 
 - `[Igniter-Lang History Curator]`: archive compression and value preservation;
 - `[Igniter-Lang Applied Pressure Agent]`: longer real-system pressure cycles;
+- `[Igniter-Lang Line Up Summarizer]`: compact memory-card batches for bulky
+  docs after Archive/Form or History Curator assigns a source set;
 - future durable reviewers or benchmark agents if created.
 
 Stage-level roles still need bounded source sets and stage-close handoffs. They

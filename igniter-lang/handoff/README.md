@@ -2,7 +2,7 @@
 
 Status: active launch capsule index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-10
+Last updated: 2026-05-12
 
 ---
 
@@ -28,6 +28,7 @@ profile, the current maps win and the card should be refreshed.
 | Meta Expert | [onboarding-meta-expert-v0.md](onboarding-meta-expert-v0.md) |
 | Archive/Form Expert | [onboarding-archive-form-expert-v0.md](onboarding-archive-form-expert-v0.md) |
 | History Curator | [onboarding-history-curator-v0.md](onboarding-history-curator-v0.md) |
+| Line Up Summarizer | [onboarding-line-up-summarizer-v0.md](onboarding-line-up-summarizer-v0.md) |
 | External Pressure Reviewer | [onboarding-external-pressure-reviewer-v0.md](onboarding-external-pressure-reviewer-v0.md) |
 | Implementation Agent | [onboarding-implementation-agent-v0.md](onboarding-implementation-agent-v0.md) |
 
@@ -36,6 +37,20 @@ profile, the current maps win and the card should be refreshed.
 - [START_PROMPT.md](START_PROMPT.md)
 - [HANDOFF_TEMPLATE.md](HANDOFF_TEMPLATE.md)
 - [ONBOARDING_CARD_TEMPLATE.md](ONBOARDING_CARD_TEMPLATE.md)
+- [INSTANCE_ROUTING.md](INSTANCE_ROUTING.md)
+
+## Instance Routing
+
+Before reading broad context, each agent instance should choose a startup route
+from [INSTANCE_ROUTING.md](INSTANCE_ROUTING.md):
+
+```text
+INIT / UPDATE / IN_FLIGHT_REFRESH / STALE_REFRESH / DISCUSSION / STAGE_LOOP
+```
+
+This is especially important when several instances of the same role are active.
+The route statement tells the swarm whether the agent is fresh, updating,
+resuming stale work, or operating in a long-cycle stage packet.
 
 ## Refresh Rule
 

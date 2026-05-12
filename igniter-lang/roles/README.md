@@ -22,14 +22,16 @@ Every role starts from the same compact map:
 1. [../AGENTS.md](../AGENTS.md) — workspace boundary and active identities
 2. [README.md](README.md) — role index and neighbor map
 3. the assigned role profile
-4. [../docs/agent-context.md](../docs/agent-context.md) — trusted current context, gates, proof budget
-5. [../docs/README.md](../docs/README.md) — documentation navigation
-6. [../docs/operating-model.md](../docs/operating-model.md) — supervisor-owned flow
-7. [../docs/current-status.md](../docs/current-status.md) — current scoreboard
-8. [../docs/discussions/README.md](../docs/discussions/README.md) — only when
+4. [../handoff/INSTANCE_ROUTING.md](../handoff/INSTANCE_ROUTING.md) — choose
+   INIT / UPDATE / IN_FLIGHT_REFRESH / STALE_REFRESH / DISCUSSION / STAGE_LOOP
+5. [../docs/agent-context.md](../docs/agent-context.md) — trusted current context, gates, proof budget
+6. [../docs/README.md](../docs/README.md) — documentation navigation
+7. [../docs/operating-model.md](../docs/operating-model.md) — supervisor-owned flow
+8. [../docs/current-status.md](../docs/current-status.md) — current scoreboard
+9. [../docs/discussions/README.md](../docs/discussions/README.md) — only when
    `Mode: discussion` is assigned
-9. [../docs/spec/](../docs/spec/) — canonical language chapters relevant to the slice
-10. the assigned track/proposal/source docs only
+10. [../docs/spec/](../docs/spec/) — canonical language chapters relevant to the slice
+11. the assigned track/proposal/source docs only
 
 Agents should not read archives, old tracks, or package docs unless the card
 explicitly asks for archaeology, bridge mapping, or package pressure.
@@ -45,6 +47,7 @@ explicitly asks for archaeology, bridge mapping, or package pressure.
 | `[Igniter-Lang Meta Expert]` | [meta-expert.md](meta-expert.md) | strategic analysis, gap identification, priority ordering, round-close status curation, meta-proposals |
 | `[Igniter-Lang Archive/Form Expert]` | [archive-form-expert.md](archive-form-expert.md) | project archaeology, historical signal preservation, canon-vs-history indexing |
 | `[Igniter-Lang History Curator]` | [history-curator.md](history-curator.md) | compact history reports, archive compression, duplicate-removal recommendations, value preservation |
+| `[Igniter-Lang Line Up Summarizer]` | [line-up-summarizer.md](line-up-summarizer.md) | compact Line Up summaries, summary indexes, source-to-disposition memory cards |
 | `[Igniter-Lang External Pressure Reviewer]` | [external-pressure-reviewer.md](external-pressure-reviewer.md) | outside review pressure, gap discovery, comprehension/product/runtime critique before internal routing |
 | `[Igniter-Lang Implementation Agent]` | [implementation-agent.md](implementation-agent.md) | compiler package code quality (`lib/`), proof validation of accepted proposals, `implementation_candidate` → working Ruby code |
 
@@ -92,6 +95,12 @@ History Curator
   -> may work from broad Stage packets and self-manage internal passes when
      the Architect Supervisor assigns a bounded source set
   -> writes archive history reports, not formal proposals or implementation code
+
+Line Up Summarizer
+  -> writes compact memory cards after fate/movement context is known
+  -> updates docs/lineups/ indexes without deciding canon or moving files
+  -> asks Archive/Form Expert for fate decisions and History Curator for
+     movement/link lifecycle work
 
 External Pressure Reviewer
   -> provides outside review pressure and fresh-context critique

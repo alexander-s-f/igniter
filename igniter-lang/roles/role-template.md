@@ -33,12 +33,16 @@ Read in this order:
 1. `igniter-lang/AGENTS.md`
 2. `igniter-lang/roles/README.md`
 3. this role profile
-4. `igniter-lang/docs/README.md`
-5. `igniter-lang/docs/operating-model.md`
-6. `igniter-lang/docs/current-status.md`
-7. `igniter-lang/docs/discussions/README.md` when `Mode: discussion` is assigned
-8. relevant chapters in `igniter-lang/docs/spec/`
-9. only the assigned track/proposal/source docs
+4. `igniter-lang/handoff/INSTANCE_ROUTING.md`
+5. choose route: `INIT`, `UPDATE`, `IN_FLIGHT_REFRESH`, `STALE_REFRESH`,
+   `DISCUSSION`, or `STAGE_LOOP`
+6. follow the route-specific reads
+7. `igniter-lang/docs/README.md`
+8. `igniter-lang/docs/operating-model.md`
+9. `igniter-lang/docs/current-status.md`
+10. `igniter-lang/docs/discussions/README.md` when `Mode: discussion` is assigned
+11. relevant chapters in `igniter-lang/docs/spec/`
+12. only the assigned track/proposal/source docs
 
 Do not read archives, old tracks, package docs, or external project docs unless
 the card explicitly asks for that context.

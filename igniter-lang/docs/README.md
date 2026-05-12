@@ -16,6 +16,8 @@ Hoisted value index         → value-index.md  (durable ideas + links back to a
 Language reference             → language-spec.md
 Operating model                → operating-model.md
 Operating scheduler            → operating-scheduler.md
+Documentation metabolism       → dev/documentation-metabolism.md
+Line Up summaries              → lineups/README.md
 Agent orchestra pattern         → agent-orchestra-pattern.md
 Language spec (ch1–ch9 accepted, ch10–ch13 proposed) → spec/
 Language covenant              → language-covenant.md
@@ -131,6 +133,8 @@ ruby igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixt
 | [current-status.md](current-status.md) | Scoreboard (Stage 1 closed state) |
 | [operating-model.md](operating-model.md) | Supervisor-owned agent/documentation flow |
 | [operating-scheduler.md](operating-scheduler.md) | Recurring per-round/per-stage checklist and onboarding-card refresh cadence |
+| [dev/documentation-metabolism.md](dev/documentation-metabolism.md) | Fate/movement/summary pipeline for bulky docs: Archive/Form, History Curator, Line Up Summarizer |
+| [lineups/README.md](lineups/README.md) | Compact memory-card index for bulky documents and pressure/history sources |
 | [agent-orchestra-pattern.md](agent-orchestra-pattern.md) | Pattern for bringing agents into the shared work through role, context, card, lens, authority, and route |
 | [discussions/README.md](discussions/README.md) | Bounded debate format before proposal/track routing |
 | [reviews/README.md](reviews/README.md) | External and cross-agent review signals before proposal/track routing |

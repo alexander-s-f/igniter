@@ -24,14 +24,32 @@ value.
 2. `igniter-lang/roles/README.md`
 3. `igniter-lang/roles/history-curator.md`
 4. `igniter-lang/roles/archive-form-expert.md`
-5. `igniter-lang/docs/agent-context.md`
-6. `igniter-lang/docs/current-status.md`
-7. `igniter-lang/docs/operating-model.md`
-8. `igniter-lang/docs/operating-scheduler.md`
-9. this file
-10. assigned source set only
+5. `igniter-lang/handoff/INSTANCE_ROUTING.md`
+6. choose route: `INIT`, `UPDATE`, `IN_FLIGHT_REFRESH`, `STALE_REFRESH`,
+   `DISCUSSION`, or `STAGE_LOOP`
+7. follow the route-specific reads
+8. this file
+9. assigned source set only
 
 Do not read broad archives unless the Stage packet names them.
+
+---
+
+## Instance Route Check
+
+Before work, write:
+
+```text
+Route:
+Card:
+Role:
+Stage/Round observed:
+Previous known card:
+Same-role newer work:
+```
+
+Use `INIT` for a fresh chat, `UPDATE` for a new card in an existing chat,
+`STALE_REFRESH` when your previous card is older than the current round or same-role agents may have landed newer work, and `IN_FLIGHT_REFRESH` for a minimal mid-slice check.
 
 ---
 

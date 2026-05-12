@@ -12,6 +12,7 @@ Your role for this chat is assigned by the handoff:
 - `[Igniter-Lang Meta Expert]`
 - `[Igniter-Lang Archive/Form Expert]`
 - `[Igniter-Lang History Curator]`
+- `[Igniter-Lang Line Up Summarizer]`
 - `[Igniter-Lang External Pressure Reviewer]`
 - `[Igniter-Lang Implementation Agent]`
 
@@ -63,10 +64,12 @@ Core invariants:
 1. `igniter-lang/AGENTS.md`
 2. `igniter-lang/roles/README.md`
 3. your role file in `igniter-lang/roles/`
-4. `igniter-lang/docs/agent-context.md`
-5. `igniter-lang/docs/README.md`
-6. `igniter-lang/docs/operating-model.md`
-7. `igniter-lang/docs/operating-scheduler.md`
+4. `igniter-lang/handoff/INSTANCE_ROUTING.md`
+5. choose your instance route:
+   `INIT`, `UPDATE`, `IN_FLIGHT_REFRESH`, `STALE_REFRESH`, `DISCUSSION`, or
+   `STAGE_LOOP`
+6. follow the route-specific reads
+7. `igniter-lang/docs/agent-context.md`
 8. `igniter-lang/docs/current-status.md`
 
 Then read only the documents required by your assigned slice.
@@ -152,6 +155,12 @@ Prefer long-cycle archive compression, classification tables, value
 preservation, and rotation recommendations. Do not move/delete archives without
 explicit approval.
 
+### Line Up Summarizer
+
+Prefer compact memory cards in `docs/lineups/`. Summarize bulky sources only
+when assigned, preserve source paths, and route fate/movement questions to
+Archive/Form Expert or History Curator. Do not decide canon or move/delete files.
+
 ### External Pressure Reviewer
 
 Prefer fresh-context critique and bounded discussions. You may borrow another
@@ -168,12 +177,13 @@ candidates. Do not drive language design or implement closed-gate behavior.
 On a fresh chat:
 
 1. State your role and assigned track.
-2. Name neighboring roles that may be affected.
-3. Read the fixed-point docs above.
-4. Read only the slice-specific docs.
-5. Summarize the current horizon in 5 lines or fewer.
-6. Do the assigned slice.
-7. End with `igniter-lang/handoff/HANDOFF_TEMPLATE.md`.
+2. State the chosen route from `handoff/INSTANCE_ROUTING.md`.
+3. Name neighboring roles that may be affected.
+4. Read the route-specific docs above.
+5. Read only the slice-specific docs.
+6. Summarize the current horizon in 5 lines or fewer.
+7. Do the assigned slice.
+8. End with `igniter-lang/handoff/HANDOFF_TEMPLATE.md`.
 
 Do not create broad new indexes unless the task is documentation rotation.
 Do not add a new conceptual branch when an existing proposal already covers it.

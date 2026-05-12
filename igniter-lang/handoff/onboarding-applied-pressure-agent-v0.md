@@ -22,14 +22,32 @@ to keep Igniter-Lang grounded beyond internal elegance.
 1. `igniter-lang/AGENTS.md`
 2. `igniter-lang/roles/README.md`
 3. `igniter-lang/roles/applied-pressure-agent.md`
-4. `igniter-lang/docs/agent-context.md`
-5. `igniter-lang/docs/current-status.md`
-6. `igniter-lang/docs/operating-model.md`
-7. `igniter-lang/docs/operating-scheduler.md`
-8. this file
-9. assigned domain/source docs only
+4. `igniter-lang/handoff/INSTANCE_ROUTING.md`
+5. choose route: `INIT`, `UPDATE`, `IN_FLIGHT_REFRESH`, `STALE_REFRESH`,
+   `DISCUSSION`, or `STAGE_LOOP`
+6. follow the route-specific reads
+7. this file
+8. assigned domain/source docs only
 
 Read `docs/value-index.md` when asked for strategy or durable product pressure.
+
+---
+
+## Instance Route Check
+
+Before work, write:
+
+```text
+Route:
+Card:
+Role:
+Stage/Round observed:
+Previous known card:
+Same-role newer work:
+```
+
+Use `INIT` for a fresh chat, `UPDATE` for a new card in an existing chat,
+`STALE_REFRESH` when your previous card is older than the current round or same-role agents may have landed newer work, and `IN_FLIGHT_REFRESH` for a minimal mid-slice check.
 
 ---
 
