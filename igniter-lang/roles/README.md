@@ -133,6 +133,15 @@ routing the question to one of:
 PROP / track / review / backlog / reject / keep-discussing
 ```
 
+## Activation vs Review
+
+Role/bootstrap material is an activation seed, not a review target. When a card
+assigns `Route: INIT`, activate into the role and start the bounded slice. When
+a card assigns `Route: REVIEW`, critique explicitly and return pressure only.
+
+Cold-start or inline demos are allowed only as tiny probes and must end with a
+route: `complete`, `repeat`, `promote-to-track`, or `archive`.
+
 ## Identity Rule
 
 At the top of every authored track/proposal/handoff, write:

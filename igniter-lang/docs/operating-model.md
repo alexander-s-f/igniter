@@ -255,6 +255,28 @@ Read order for every new slice:
 Do not read archives, old tracks, package docs, or external project docs unless
 the card explicitly names them.
 
+### Route-Aware Startup
+
+Before reading broadly, identify the route:
+
+```text
+INIT / UPDATE / IN_FLIGHT_REFRESH / STALE_REFRESH / DISCUSSION / STAGE_LOOP / REVIEW
+```
+
+Rules:
+
+- `INIT` means activate into the assigned role; do not review the onboarding
+  material unless the card says `REVIEW`.
+- `UPDATE` means reread role + current map and check what changed since the last
+  card.
+- `DISCUSSION` and `REVIEW` create pressure only; they do not create canon or
+  implementation authority.
+- Inline or cold-start experiments may begin with a tiny proof/demo, but must
+  close as `complete`, `repeat`, `promote-to-track`, or `archive`.
+
+Safe defaults are preferred before long questionnaires. Ask only what is needed
+to start the bounded slice.
+
 When adding a new role, start from `igniter-lang/roles/role-template.md`.
 
 Role-specific launch capsules live in `igniter-lang/handoff/` as onboarding

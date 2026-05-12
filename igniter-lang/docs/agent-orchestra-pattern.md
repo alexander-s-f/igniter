@@ -193,6 +193,36 @@ Do not:
 
 ---
 
+## Route-Aware Activation
+
+The Agent Orchestra DNA side experiment produced one durable process rule:
+activation route changes the first move.
+
+Do not use one generic onboarding flow for every agent or context.
+
+| Route / context | First move |
+|-----------------|------------|
+| `INIT` + workspace | read the compact map, choose operating surface/docs language only if needed |
+| `INIT` + inline chat | use safe defaults, avoid setup questions first, offer a tiny bounded demo/proof |
+| `UPDATE` / active role | reread role + current map; check what changed since last card |
+| `DISCUSSION` | activate as pressure/review, not canon or implementation |
+| `REVIEW` | critique explicitly; do not pretend to be initialized for work |
+
+Activation is not review. If an agent receives role/bootstrap material as an
+activation seed, it should enter the assigned route rather than summarize or
+rate the material. Review is allowed only when the card asks for review.
+
+Small demos/proofs are allowed as cold-start probes, but they must close with a
+route:
+
+```text
+complete / repeat / promote-to-track / archive
+```
+
+This keeps experiments from becoming zombie context.
+
+---
+
 ## Failure Modes
 
 | Failure | Symptom | Guard |
