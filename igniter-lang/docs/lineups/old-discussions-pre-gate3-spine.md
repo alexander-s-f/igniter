@@ -15,8 +15,11 @@ Source:
 Prepared by: `[Igniter-Lang Line Up Summarizer]`
 Date: 2026-05-12
 Disposition input: `public_archive after summary`
-Current route: Line Up complete; History Curator can plan discussion-index
-redirects after Archive/Form verification.
+Current route: Line Up complete. History Curator may plan discussion-index
+redirects after Archive/Form verification, but should not execute redirects until
+the R13-R22 Gate 3 discussion Line Up lands and no-zombie checks pass.
+
+source remains authoritative for exact proof logs.
 
 ## One-Line Claim
 
@@ -28,8 +31,12 @@ was routed into concrete tracks, request edits, and Gate 3 prerequisites.
 
 These discussions explain why later Gate 3 and runtime safety work looks so
 strict, but they are not current authority. Future agents should read current
-status/spec/proposals first and use this Line Up as the memory handle. The
-source remains authoritative for exact proof logs.
+status/spec/proposals first and use this Line Up as the memory handle.
+
+Historical note: any early `History[T]` / `BiHistory[T]` discussion speculation
+in these sources is historical pressure only, not current authority. Use current
+gate records, current status, agent context, accepted proposals, and spec for
+the active `History[T]` / `BiHistory[T]` boundaries.
 
 ## Key Signals
 
@@ -39,7 +46,7 @@ source remains authoritative for exact proof logs.
 | Temporal `.igapp` boundary | Found assembler/runtime load gaps, contract index needs, and load/evaluate split questions; routed manifest index and runtime load guard tracks. |
 | Typed emission + loader | Supported the `emit_typed` switch while routing invariant shape, runtime guard, smoke, and spec-lag follow-ups. |
 | Runtime compatibility | Validated load/evaluate split and typed delta acceptance; routed full smoke, executor-boundary, and cache-key boundary work before Gate 3. |
-| Gate 3 prerequisites | Pressured approval token, runtime enforcement, report/runtime consistency, cache schema, and scope exclusions before opening request review. |
+| Gate 3 prerequisites | Pressured approval token, guarded approval-enforcement proof tracks, without granting runtime authority, report/runtime consistency, cache schema, and scope exclusions before opening request review. |
 | Gate 3 request safety | Held the first request for authority/audit-readiness edits, then verified the revision closed the HOLD blockers and routed smaller naming/observation follow-ups. |
 
 ## Canon / History / Research / Value
@@ -66,7 +73,9 @@ was moved, deleted, or redirected.
 - `igniter-lang/docs/tracks/runtime-smoke-post-switch-full-coverage-v0.md`
 - `igniter-lang/docs/tracks/runtime-compatibility-report-executor-boundary-v0.md`
 - `igniter-lang/docs/tracks/runtime-temporal-executor-gate3-request-revision-v0.md`
-- `igniter-lang/docs/meta-proposals/` gate decision records, when exact authority is needed.
+- `igniter-lang/docs/gates/`, `igniter-lang/docs/current-status.md`, and
+  `igniter-lang/docs/agent-context.md`, when exact Gate/runtime authority is
+  needed.
 
 ## Safe To Archive?
 
