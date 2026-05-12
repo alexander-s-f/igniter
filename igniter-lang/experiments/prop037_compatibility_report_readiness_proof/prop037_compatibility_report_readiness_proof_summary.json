@@ -1,0 +1,477 @@
+{
+  "card": "S3-R41-C1-P1",
+  "checks": {
+    "closed_source_kind_coverage": true,
+    "descriptor_metadata_present": true,
+    "no_durable_or_external_runtime_invocation": true,
+    "no_progression_fragment_class_or_runtime_binding": true,
+    "no_scheduler_or_materializer_invocation": true,
+    "runtime_readiness_false": true,
+    "runtime_refusal_code_stable": true,
+    "runtime_refusal_separate_from_compiler_oof": true,
+    "valid_descriptors_all_present": true,
+    "valid_descriptors_have_no_oof": true
+  },
+  "compatibility_reports": {
+    "clock_every_valid_descriptor": {
+      "artifact_ref": "proof-local/progression_descriptor/sha256:022ed85748cb2bf36d0a75423d2fbc3e02c039fbde5059606b5ae19bb8667956",
+      "compiler_oof": {
+        "diagnostics": [],
+        "pass_result": "ok"
+      },
+      "descriptor_profile": {
+        "descriptor_ref": "sha256:022ed85748cb2bf36d0a75423d2fbc3e02c039fbde5059606b5ae19bb8667956",
+        "descriptor_version": "prop037-progression-source-descriptor-v0",
+        "liveness": {
+          "cancellation": "required",
+          "checkpoint": {
+            "every": "30s",
+            "required": true,
+            "resume": "from_checkpoint"
+          },
+          "max_step_latency": "2s"
+        },
+        "materialization_policy": {
+          "backpressure": "block",
+          "max_batch_size": 1,
+          "max_in_flight": 1,
+          "mode": "bounded_schedule"
+        },
+        "payload_type": "Tick",
+        "progression_profile_status": "present",
+        "progression_ref": "progression/service/Heartbeat/clock_5s",
+        "receipt_policy": {
+          "mode": "per_step",
+          "required": true,
+          "sink_ref": "receipt_sink/progression/proof_local"
+        },
+        "required_caps": [
+          "progression_materialize",
+          "progression_step_execute",
+          "progression_step_receipt",
+          "progression_cancel",
+          "progression_checkpoint_resume"
+        ],
+        "source_kind": "clock.every",
+        "source_ref": "clock/every/5s"
+      },
+      "format_version": "0.1.0",
+      "kind": "compatibility_report",
+      "non_authorization": {
+        "assembler_igapp_changes": false,
+        "checkpoint_persistence": false,
+        "durable_checkpoint": false,
+        "durable_queue": false,
+        "ledger_tbackend_binding": false,
+        "parser_implementation": false,
+        "production_execution": false,
+        "progression_fragment_class": false,
+        "progression_materializer": false,
+        "receipt_sink_implementation": false,
+        "runtime_machine_scheduler": false,
+        "semanticir_implementation": false,
+        "typechecker_implementation": false
+      },
+      "progression_runtime_readiness": {
+        "guard_at": "runtime_readiness",
+        "ready": false,
+        "reason": "progression.runtime_execution_not_authorized",
+        "separate_from_compiler_oof": true
+      },
+      "proposal_ref": "PROP-037",
+      "report_id": "sha256:00816803f07c427f6472679c2041a8b7fed0a38cbc6985949708997fcd432c0b",
+      "report_mode": "report_only",
+      "runtime_invocation_attempts": {
+        "checkpoint_persistence_call_attempted": false,
+        "durable_checkpoint_call_attempted": false,
+        "durable_queue_call_attempted": false,
+        "ledger_call_attempted": false,
+        "production_cache_call_attempted": false,
+        "progression_materializer_call_attempted": false,
+        "progression_pack_dispatch_attempted": false,
+        "progression_receipt_sink_call_attempted": false,
+        "progression_scheduler_call_attempted": false,
+        "tbackend_call_attempted": false
+      }
+    },
+    "external_event_valid_descriptor": {
+      "artifact_ref": "proof-local/progression_descriptor/sha256:8291b49ce107da90d399e831786968bb8896ce96b779d5f9113207f11db03d32",
+      "compiler_oof": {
+        "diagnostics": [],
+        "pass_result": "ok"
+      },
+      "descriptor_profile": {
+        "descriptor_ref": "sha256:8291b49ce107da90d399e831786968bb8896ce96b779d5f9113207f11db03d32",
+        "descriptor_version": "prop037-progression-source-descriptor-v0",
+        "liveness": {
+          "cancellation": "required",
+          "checkpoint": {
+            "every": "1m",
+            "required": true,
+            "resume": "from_checkpoint"
+          },
+          "max_step_latency": "3s"
+        },
+        "materialization_policy": {
+          "backpressure": "block",
+          "max_batch_size": 4,
+          "max_in_flight": 8,
+          "mode": "bounded_demand"
+        },
+        "payload_type": "HttpRequest",
+        "progression_profile_status": "present",
+        "progression_ref": "progression/service/Ingress/external_event",
+        "receipt_policy": {
+          "mode": "per_step",
+          "required": true,
+          "sink_ref": "receipt_sink/progression/proof_local"
+        },
+        "required_caps": [
+          "progression_materialize",
+          "progression_step_execute",
+          "progression_step_receipt",
+          "progression_cancel",
+          "progression_checkpoint_resume"
+        ],
+        "source_kind": "external_event",
+        "source_ref": "proof_local/external_event/http_shape_only"
+      },
+      "format_version": "0.1.0",
+      "kind": "compatibility_report",
+      "non_authorization": {
+        "assembler_igapp_changes": false,
+        "checkpoint_persistence": false,
+        "durable_checkpoint": false,
+        "durable_queue": false,
+        "ledger_tbackend_binding": false,
+        "parser_implementation": false,
+        "production_execution": false,
+        "progression_fragment_class": false,
+        "progression_materializer": false,
+        "receipt_sink_implementation": false,
+        "runtime_machine_scheduler": false,
+        "semanticir_implementation": false,
+        "typechecker_implementation": false
+      },
+      "progression_runtime_readiness": {
+        "guard_at": "runtime_readiness",
+        "ready": false,
+        "reason": "progression.runtime_execution_not_authorized",
+        "separate_from_compiler_oof": true
+      },
+      "proposal_ref": "PROP-037",
+      "report_id": "sha256:ff0b946d82d5f4d010161a083e6f992990a4d5625e7d936115f338f4ccdc9862",
+      "report_mode": "report_only",
+      "runtime_invocation_attempts": {
+        "checkpoint_persistence_call_attempted": false,
+        "durable_checkpoint_call_attempted": false,
+        "durable_queue_call_attempted": false,
+        "ledger_call_attempted": false,
+        "production_cache_call_attempted": false,
+        "progression_materializer_call_attempted": false,
+        "progression_pack_dispatch_attempted": false,
+        "progression_receipt_sink_call_attempted": false,
+        "progression_scheduler_call_attempted": false,
+        "tbackend_call_attempted": false
+      }
+    },
+    "queue_valid_descriptor": {
+      "artifact_ref": "proof-local/progression_descriptor/sha256:88782493d6fcb1609db2869c5ca3eae8ea11553903f24bbd31c652aa42775961",
+      "compiler_oof": {
+        "diagnostics": [],
+        "pass_result": "ok"
+      },
+      "descriptor_profile": {
+        "descriptor_ref": "sha256:88782493d6fcb1609db2869c5ca3eae8ea11553903f24bbd31c652aa42775961",
+        "descriptor_version": "prop037-progression-source-descriptor-v0",
+        "liveness": {
+          "cancellation": "required",
+          "checkpoint": {
+            "every": "100_events",
+            "required": true,
+            "resume": "from_checkpoint"
+          },
+          "max_step_latency": "5s"
+        },
+        "materialization_policy": {
+          "backpressure": "suspend",
+          "max_batch_size": 10,
+          "max_in_flight": 20,
+          "mode": "bounded_queue"
+        },
+        "payload_type": "JobEnvelope",
+        "progression_profile_status": "present",
+        "progression_ref": "progression/service/JobWorker/queue",
+        "receipt_policy": {
+          "mode": "per_step",
+          "required": true,
+          "sink_ref": "receipt_sink/progression/proof_local"
+        },
+        "required_caps": [
+          "progression_materialize",
+          "progression_step_execute",
+          "progression_step_receipt",
+          "progression_cancel",
+          "progression_checkpoint_resume"
+        ],
+        "source_kind": "queue",
+        "source_ref": "queue/proof_local/work_items"
+      },
+      "format_version": "0.1.0",
+      "kind": "compatibility_report",
+      "non_authorization": {
+        "assembler_igapp_changes": false,
+        "checkpoint_persistence": false,
+        "durable_checkpoint": false,
+        "durable_queue": false,
+        "ledger_tbackend_binding": false,
+        "parser_implementation": false,
+        "production_execution": false,
+        "progression_fragment_class": false,
+        "progression_materializer": false,
+        "receipt_sink_implementation": false,
+        "runtime_machine_scheduler": false,
+        "semanticir_implementation": false,
+        "typechecker_implementation": false
+      },
+      "progression_runtime_readiness": {
+        "guard_at": "runtime_readiness",
+        "ready": false,
+        "reason": "progression.runtime_execution_not_authorized",
+        "separate_from_compiler_oof": true
+      },
+      "proposal_ref": "PROP-037",
+      "report_id": "sha256:34a8a2db9731499f2e6030e6c1bfd79abd71a9262dcaa8b1d7731aa574d4ff74",
+      "report_mode": "report_only",
+      "runtime_invocation_attempts": {
+        "checkpoint_persistence_call_attempted": false,
+        "durable_checkpoint_call_attempted": false,
+        "durable_queue_call_attempted": false,
+        "ledger_call_attempted": false,
+        "production_cache_call_attempted": false,
+        "progression_materializer_call_attempted": false,
+        "progression_pack_dispatch_attempted": false,
+        "progression_receipt_sink_call_attempted": false,
+        "progression_scheduler_call_attempted": false,
+        "tbackend_call_attempted": false
+      }
+    }
+  },
+  "format_version": "0.1.0",
+  "kind": "prop037_compatibility_report_readiness_proof",
+  "proposal": {
+    "id": "PROP-037",
+    "source": "igniter-lang/docs/proposals/PROP-037-external-progression-service-liveness-v0.md",
+    "status": "accepted-proposal-only"
+  },
+  "remaining_gaps_before_implementation": [
+    {
+      "gap": "service-loop/progression source syntax and parser implementation remain unauthorized",
+      "layer": "Parser"
+    },
+    {
+      "gap": "compiler-owned progression AST/typed descriptor boundary; OOF-PR6 and OOF-PR8 still need fragment context",
+      "layer": "Classifier/TypeChecker"
+    },
+    {
+      "gap": "progression node/artifact shape and golden fixture plan remain future work",
+      "layer": "SemanticIR"
+    },
+    {
+      "gap": "manifest schema authorization for progression_sources remains blocked",
+      "layer": "Assembler/.igapp"
+    },
+    {
+      "gap": "scheduler/materializer authority and proof-local implementation plan remain absent",
+      "layer": "RuntimeMachine"
+    },
+    {
+      "gap": "durable queue/checkpoint/receipt sink design and authorization remain absent",
+      "layer": "Durability"
+    },
+    {
+      "gap": "separate binding decision required; progression metadata does not imply it",
+      "layer": "Ledger/TBackend"
+    },
+    {
+      "gap": "explicit runtime/production gate required",
+      "layer": "Production execution"
+    },
+    {
+      "gap": "compiler profile/pack migration authorization remains absent",
+      "layer": "ProgressionPack"
+    }
+  ],
+  "runtime_readiness_refusal": "progression.runtime_execution_not_authorized",
+  "scope": {
+    "assembler_igapp_changes": false,
+    "durable_checkpoint": false,
+    "durable_queue": false,
+    "ledger_tbackend_binding": false,
+    "parser_implementation": false,
+    "production_execution": false,
+    "progression_fragment_class": false,
+    "progression_materializer": false,
+    "proof_local_compatibility_report_shape": true,
+    "receipt_sink_implementation": false,
+    "runtime_machine_scheduler": false,
+    "semanticir_implementation": false,
+    "typechecker_implementation": false
+  },
+  "status": "PASS",
+  "track": "prop037-compatibility-report-readiness-proof-v0",
+  "valid_descriptors": {
+    "clock_every_valid_descriptor": {
+      "descriptor_hash": "sha256:022ed85748cb2bf36d0a75423d2fbc3e02c039fbde5059606b5ae19bb8667956",
+      "descriptor_version": "prop037-progression-source-descriptor-v0",
+      "handler_ref": "contract/HandleHeartbeatTick",
+      "kind": "progression_source",
+      "liveness": {
+        "cancellation": "required",
+        "checkpoint": {
+          "every": "30s",
+          "required": true,
+          "resume": "from_checkpoint"
+        },
+        "max_step_latency": "2s"
+      },
+      "materialization_policy": {
+        "backpressure": "block",
+        "max_batch_size": 1,
+        "max_in_flight": 1,
+        "mode": "bounded_schedule"
+      },
+      "payload_type": "Tick",
+      "progression_ref": "progression/service/Heartbeat/clock_5s",
+      "receipt_policy": {
+        "mode": "per_step",
+        "required": true,
+        "sink_ref": "receipt_sink/progression/proof_local"
+      },
+      "required_caps": [
+        "progression_materialize",
+        "progression_step_execute",
+        "progression_step_receipt",
+        "progression_cancel",
+        "progression_checkpoint_resume"
+      ],
+      "runtime_authority": "not_authorized",
+      "runtime_binding": {
+        "durable_checkpoint": false,
+        "durable_queue": false,
+        "ledger": false,
+        "production_cache": false,
+        "production_execution": false,
+        "progression_pack_dispatch": false,
+        "receipt_sink_implementation": false,
+        "runtime_machine_scheduler": false,
+        "tbackend": false
+      },
+      "source_kind": "clock.every",
+      "source_ref": "clock/every/5s"
+    },
+    "external_event_valid_descriptor": {
+      "authority_ref": "profile/proof-local/external-event-readiness-refusal",
+      "descriptor_hash": "sha256:8291b49ce107da90d399e831786968bb8896ce96b779d5f9113207f11db03d32",
+      "descriptor_version": "prop037-progression-source-descriptor-v0",
+      "handler_ref": "contract/HandleExternalEventShape",
+      "kind": "progression_source",
+      "liveness": {
+        "cancellation": "required",
+        "checkpoint": {
+          "every": "1m",
+          "required": true,
+          "resume": "from_checkpoint"
+        },
+        "max_step_latency": "3s"
+      },
+      "materialization_policy": {
+        "backpressure": "block",
+        "max_batch_size": 4,
+        "max_in_flight": 8,
+        "mode": "bounded_demand"
+      },
+      "payload_type": "HttpRequest",
+      "progression_ref": "progression/service/Ingress/external_event",
+      "receipt_policy": {
+        "mode": "per_step",
+        "required": true,
+        "sink_ref": "receipt_sink/progression/proof_local"
+      },
+      "required_caps": [
+        "progression_materialize",
+        "progression_step_execute",
+        "progression_step_receipt",
+        "progression_cancel",
+        "progression_checkpoint_resume"
+      ],
+      "runtime_authority": "not_authorized",
+      "runtime_binding": {
+        "durable_checkpoint": false,
+        "durable_queue": false,
+        "ledger": false,
+        "production_cache": false,
+        "production_execution": false,
+        "progression_pack_dispatch": false,
+        "receipt_sink_implementation": false,
+        "runtime_machine_scheduler": false,
+        "tbackend": false
+      },
+      "source_kind": "external_event",
+      "source_ref": "proof_local/external_event/http_shape_only",
+      "specialization": {
+        "profile": "proof-local-http-shape-only",
+        "readiness": "descriptor_only_not_executable"
+      }
+    },
+    "queue_valid_descriptor": {
+      "descriptor_hash": "sha256:88782493d6fcb1609db2869c5ca3eae8ea11553903f24bbd31c652aa42775961",
+      "descriptor_version": "prop037-progression-source-descriptor-v0",
+      "handler_ref": "contract/ProcessQueuedJob",
+      "kind": "progression_source",
+      "liveness": {
+        "cancellation": "required",
+        "checkpoint": {
+          "every": "100_events",
+          "required": true,
+          "resume": "from_checkpoint"
+        },
+        "max_step_latency": "5s"
+      },
+      "materialization_policy": {
+        "backpressure": "suspend",
+        "max_batch_size": 10,
+        "max_in_flight": 20,
+        "mode": "bounded_queue"
+      },
+      "payload_type": "JobEnvelope",
+      "progression_ref": "progression/service/JobWorker/queue",
+      "receipt_policy": {
+        "mode": "per_step",
+        "required": true,
+        "sink_ref": "receipt_sink/progression/proof_local"
+      },
+      "required_caps": [
+        "progression_materialize",
+        "progression_step_execute",
+        "progression_step_receipt",
+        "progression_cancel",
+        "progression_checkpoint_resume"
+      ],
+      "runtime_authority": "not_authorized",
+      "runtime_binding": {
+        "durable_checkpoint": false,
+        "durable_queue": false,
+        "ledger": false,
+        "production_cache": false,
+        "production_execution": false,
+        "progression_pack_dispatch": false,
+        "receipt_sink_implementation": false,
+        "runtime_machine_scheduler": false,
+        "tbackend": false
+      },
+      "source_kind": "queue",
+      "source_ref": "queue/proof_local/work_items"
+    }
+  }
+}

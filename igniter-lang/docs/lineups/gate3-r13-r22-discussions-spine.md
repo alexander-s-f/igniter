@@ -31,7 +31,9 @@ keeping production durability/signing/Ledger surfaces closed.
 This chain is high-risk because the words "approved", "signed", "live read",
 and "audit-ready" can be misread as broad runtime authority. The useful memory
 handle is the separation between historical pressure, superseded routes,
-accepted decisions, current authority, and remaining blockers. In short: source remains authoritative for exact proof logs.
+accepted decisions, current authority, and remaining blockers.
+
+source remains authoritative for exact proof logs.
 
 ## Historical Pressure
 
@@ -86,9 +88,13 @@ Read current authority before these discussion docs:
 
 This Line Up is not canon. It points to routed pressure and source evidence.
 
-## Remaining Blockers
+## Historical R22 Remaining Blockers
 
-Still closed or open as of the R22 compressed state:
+Historical blocker snapshot only: still closed or open as of the R22 compressed
+state.
+
+For current durable-audit / rollout state, read
+`igniter-lang/docs/current-status.md` and `igniter-lang/docs/gates/README.md`.
 
 | Item | State |
 | --- | --- |
