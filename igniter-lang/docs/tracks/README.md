@@ -57,6 +57,7 @@ architecture. They are not production migration authorization.
 | Track | Status | Notes |
 |-------|--------|-------|
 | `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0.md` | done | Closes P-50/P-52: Ch2 bounded PROP-032 source grammar synced, Heat Map assumptions rows show compiler experiment-pass, temporal audit pressure specimens marked non-canonical/non-evidence; PROP-033/runtime receipts still excluded |
+| `documentation-fate-inventory-stage1-stage2-v0.md` | done | Classifies first cleanup source set: Stage 1/2 hot tracks and old completed discussions; no movement/deletion; routes Line Up summaries and History Curator movement planning |
 
 ---
 
