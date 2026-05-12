@@ -1,5 +1,18 @@
 module Igniter.DocumentContextizer
 
+# Architect disposition:
+#   active pressure specimen
+#   non-canonical
+#   not parser authority
+#   not runtime authority
+#   not production deployment authority
+# Routing:
+#   docs/tracks/contextizer-pressure-specimen-routing-v0.md
+#
+# Note:
+#   Any "production-ready" wording below is external pressure-agent language,
+#   not Igniter-Lang project authority.
+
 # =============================================================================
 # Igniter Document Contextizer ("Contextizer")
 # High-level agent for turning large documents into compact, actionable context
@@ -18,7 +31,8 @@ module Igniter.DocumentContextizer
 #   • Outputs structured context with evidence links (receipts)
 #
 # Version: 0.1.0 (Narrative Contracts v2)
-# Status:  production-ready
+# External claim: production-ready
+# Project status: active pressure specimen only
 # =============================================================================
 
 # =============================================================================
@@ -267,7 +281,7 @@ contract Contextizer {
 
 # =============================================================================
 # End of Igniter.DocumentContextizer
-# Place this file at:
+# External suggested package path, not authorized by this specimen:
 #   packages/igniter-document-contextizer/contracts/igniter-document-contextizer.ig
 #
 # Dependencies (already satisfied in current Igniter-Lang):
@@ -275,7 +289,7 @@ contract Contextizer {
 #   • LLMConnector escape capability (unified LLM API)
 #   • igniter-ledger (BiHistory[ContextSnapshot])
 #
-# Next recommended steps:
+# External suggested next steps, not authorized:
 #   1. Compile this file
 #   2. Register "contextizer" capability in LedgerMesh / AgentRuntime
 #   3. Create Ruby wrapper LegalAgent#contextizer or SwarmAgent#contextizer

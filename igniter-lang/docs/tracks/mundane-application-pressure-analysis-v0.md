@@ -64,6 +64,7 @@ accepted syntax.
 | `igniter-file-io-v1.ig` | File read/write/mmap/stream capability boundary |
 | `igniter-parser-combinators-v1.ig` | Generic parser combinators and forms |
 | `igniter-lexer-v1.ig` | Lexer built from parser combinators, spans, errors |
+| `igniter-document-contextizer.ig` | Document-to-compact-context agent/swarm pressure; routed separately in `contextizer-pressure-specimen-routing-v0.md` |
 
 ---
 
@@ -176,6 +177,18 @@ This analysis does not authorize:
 - generic syntax changes;
 - profile preset acceptance;
 - runtime execution or production behavior.
+
+---
+
+## Contextizer Addendum
+
+`igniter-document-contextizer.ig` was added after this analysis as a shadow
+external pressure specimen. Its active disposition is recorded in
+`contextizer-pressure-specimen-routing-v0.md`.
+
+Any internal wording in that specimen such as `production-ready`, package
+placement, Ledger/BiHistory backing, LLM connector usage, or compile/register
+next steps is treated as external-agent pressure only.
 
 ---
 

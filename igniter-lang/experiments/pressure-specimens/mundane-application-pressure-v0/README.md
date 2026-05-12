@@ -43,6 +43,8 @@ Each specimen in this track should look like "normal" code in a modern language 
 - `igniter-file-io-v1.ig` — file read/write/mmap/stream capability pressure
 - `igniter-parser-combinators-v1.ig` — generics/forms/higher-order parser pressure
 - `igniter-lexer-v1.ig` — lexer pressure built from parser combinators
+- `igniter-document-contextizer.ig` — document-to-compact-context agent/swarm pressure;
+  routed by `docs/tracks/contextizer-pressure-specimen-routing-v0.md`
 
 **Extraction route**
 
@@ -57,3 +59,18 @@ These files should be mined for:
 
 Do not treat syntax in these files as accepted canon without a follow-up
 proposal/spec track.
+
+**Contextizer note**
+
+`igniter-document-contextizer.ig` was added from external pressure and contains
+strong internal wording such as "production-ready". Inside this directory that
+wording is treated as an external claim, not project authority. The active
+project disposition is:
+
+```text
+active pressure specimen
+non-canonical
+not parser authority
+not runtime authority
+not production deployment authority
+```

@@ -56,6 +56,7 @@ architecture. They are not production migration authorization.
 
 | Track | Status | Notes |
 |-------|--------|-------|
+| `contextizer-pressure-specimen-routing-v0.md` | done | Routes `Igniter.DocumentContextizer` as active pressure specimen only; bridges to legacy `/Users/alex/dev/projects/contextizer` CLI signal; no package/runtime/Ledger/LLM/canon authority |
 | `ch11-profile-oof-namespace-sync-v0.md` | done | Closes P-54: Ch11 profile diagnostics renamed to `OOF-PROF1..3`; `OOF-PR*` reserved for PROP-037 progression diagnostics; no implementation |
 | `phase1-durable-audit-operational-rollout-readiness-plan-v0.md` | done | Design-only rollout readiness plan authorized by S3-R38-C1-A; covers storage identity, signer abstraction, startup/rebuild, appender/reader roles, refusal/observability export, disable/rollback, smoke, ownership, drills, and blockers; operational rollout remains closed |
 | `line-up-authority-hoist-risk-review-v0.md` | done | Reviews R38 Line Ups for authority-hoist risk; requires RQ-1/RQ-2 before R2-R12 discussion redirects or movement; no movement/deletion |
