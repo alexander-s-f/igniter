@@ -33,7 +33,10 @@ Default order:
 
 | Line Up | Source | Disposition | Status |
 | --- | --- | --- | --- |
-| _none yet_ | _pending first batch_ | _pending_ | _pending_ |
+| [Stage 1 Close Transition Evidence](stage1-close-transition-evidence.md) | Stage 1 close snapshot README + `stage1-close-candidate-proof-v0.md` | `public_archive` | active memory card |
+| [Stage 2 Close Proof Spine](stage2-close-proof-spine.md) | Stage 2 close snapshot README + `stage2-close-candidate-v0.md` | `active_reference` | active memory card |
+| [Stage 2 Proof Surface Spine](stage2-proof-surface-spine.md) | Stage 2 History/BiHistory, stream, OLAP, invariant, parser OOF, SemanticIR, and runtime hook proof tracks | `active_reference` | active memory card |
+| [Stage 2 Round Map And Status Curation](stage2-round-map-and-status-curation.md) | `stage2-round*-*.md` status/map tracks | `public_archive` | active memory card |
 
 ---
 
