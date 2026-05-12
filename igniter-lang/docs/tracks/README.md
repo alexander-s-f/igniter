@@ -52,6 +52,20 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 38 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../gates/durable-audit-restricted-deployment-proof-review-v0.md` | proof-local-closure-confirmed-next-rollout-design-only | Closes P-53 as confirmation review and boundary check; operational rollout remains closed; only design-only rollout readiness plan authorized |
+| `prop037-progression-descriptor-shape-proof-v0.md` | done | Descriptor shape proof PASS for `clock.every`, `queue`, and `external_event`; closed `source_kind` vocabulary preserved; runtime authority and PROGRESSION fragment class remain closed |
+| `prop037-oof-pr-diagnostic-design-v0.md` | done | Designs OOF-PR1..9 and separates descriptor validation, compiler OOF, and runtime readiness refusal; flags Ch11 OOF-PR namespace collision as P-54 before descriptor OOF proof |
+| `prop036-assembler-field-design-plan-v0.md` | done | Design-only plan for top-level `manifest.compiler_profile_id`, hash ordering, legacy_optional rollout, and split implementation surfaces; no `.igapp`, loader, assembler, golden, or runtime change |
+| `line-up-stage1-stage2-second-batch-v0.md` | done | Second Line Up batch: Stage 2 compiler package spine, Stage 2->3 typed switch spine, and old pre-Gate-3 discussions; no movement/deletion |
+| `../discussions/r38-durable-audit-prop037-prop036-docs-pressure-v0.md` | complete — PROCEED (non-blockers only) | Confirms no R38 scope leaks; adds P-54; flags external_event naming, pre-Gate-3 authority-hoist review, PROP-036 authorization-route visibility, and R13-R22 Line Up follow-ups |
+| `stage3-round38-status-curation-v0.md` | done | R38 status curation; refreshes current maps and R39 route from landed evidence |
+
+---
+
 ## Stage 3 Round 37 Evidence
 
 | Track | Status | Notes |
@@ -651,14 +665,16 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 |-----------|---------|------|--------|
 | P-50 PROP-032 Ch2/Heat Map sync | Confirm/apply S3-R36-C2-A follow-up docs for Ch2 source grammar and governance maps; keep PROP-033 evidence validation/runtime receipts excluded | Meta Expert / Compiler/Grammar Expert | closed by `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0.md` |
 | P-52 temporal audit specimen disposition | Decide/archive/map `experiments/pressure-specimens/temporal-audit-pressure-v0/` without making it canonical by accident | Meta Expert / Research Agent | closed by `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0.md` |
-| P-53 Architect review | Review R37 C2-I 7 proof-local deployment follow-up outputs before any operational rollout authorization | Architect Supervisor | new from R37 X1; P-51 proof-local closed |
-| PROP-037 descriptor-shape proof | Proof-local descriptors for `clock.every`, `queue`, and `external_event`; validate closed `source_kind`, bounded materialization, cancellation/checkpoint/receipt policy, and step bounds | Compiler/Grammar Expert / Research Agent | authorized design/proof follow-up; no parser/runtime auth |
+| phase1 durable-audit rollout readiness plan | Design-only operational rollout readiness package: non-Ledger storage identity criteria, signer abstraction contract, startup/rebuild sequence, roles, observability, rollback, smoke checklist, operator ownership, and blockers | Architect Supervisor / Implementation Agent / Meta Expert | authorized by S3-R38-C1-A; no operational rollout/code/deployment |
+| P-54 Ch11 OOF namespace sync | Rename or otherwise resolve Ch11 profile-system `OOF-PR*` collision before descriptor OOF proof emits PROP-037 OOF-PR codes | Compiler/Grammar Expert / Meta Expert | new from R38 X1; blocks `prop037-descriptor-oof-pr-proof-v0` |
+| PROP-037 descriptor OOF-PR proof | Proof-local descriptor validation for OOF-PR1..5, OOF-PR7, and OOF-PR9; readiness refusal remains separate from OOF | Research Agent / Compiler/Grammar Expert | wait for P-54; no parser/runtime auth |
 | PROP-037 CompatibilityReport readiness proof | Show progression metadata can be present while runtime readiness stays false with stable refusal | Compiler/Grammar Expert / Research Agent | authorized design/proof follow-up; no scheduler/runtime auth |
-| PROP-037 OOF-PR diagnostic proof | Design/proof-local validation for OOF-PR1..OOF-PR9, including OOF-PR5 error default | Compiler/Grammar Expert | authorized design/proof follow-up |
 | PROP-037 profile descriptor specialization proof | Prove `external_event` specialization below closed top-level source kinds | Compiler/Grammar Expert / Bridge Agent | authorized design/proof follow-up; no production listener/queue |
-| PROP-036 assembler field design plan | Carry loader-status and hash-ordering invariants into a proof/design-only assembler field plan | Compiler/Grammar Expert / Architect Supervisor | implementation still blocked |
+| PROP-036 authorization route | Name Architect/supervisor authorization path for future assembler field, golden migration, loader/report, and receipt-link surfaces before they age out | Meta Expert / Architect Supervisor | design plan landed; implementation still blocked |
+| PROP-036 proof-only fixture map | Name exact `.igapp`/golden fixtures that would churn before any code opens | Compiler/Grammar Expert | recommended by C4-P1; no mutation |
 | mundane OOF fixture planning | Plan OOF-MA1/MA2/MA3 fixtures from blind mundane pressure without canonizing stdlib/effect/runtime behavior | Compiler/Grammar Expert / Research Agent | pressure-only, non-canonical; NB from R37 X1 |
-| documentation cleanup next batch | Decide whether to follow LineUp-Stage1-Stage2-1 with index notes or movement packet; no `git mv`/deletion without approval | Archive/Form Expert / History Curator / Line Up Summarizer | first Line Ups landed; movement closed |
+| pre-Gate-3 Line Up authority-hoist review | Archive/Form verification that old R2-R12 discussion Line Up does not hoist stale candidate routes as current authority | Archive/Form Expert | NB from R38 X1 |
+| Gate 3 R13-R22 discussions Line Up | Summarize R13-R22 Gate 3 discussions linked to History-S7 with Archive/Form review | Line Up Summarizer / Archive/Form Expert | pending, higher authority-hoist risk |
 | OQ-P28-1 escape naming answer | Verify whether unnamed `escape` declaration is currently parse error; update Covenant P28 table | Compiler/Grammar Expert | still open; route before PROP-035 |
 | OOF-I1/I3/I5 closure | PROP-025 addendum + targeted fixtures for deferred invariant OOF anchors | Research Agent / Compiler/Grammar Expert | still deferred; route when invariant lane reopens |
 | `_volatile_fields` Time.now grep hook | Detect newly-added unannotated `Time.now` usage in experiment scripts | Implementation Agent / Research Agent | optional follow-up; not required for R28 close |
