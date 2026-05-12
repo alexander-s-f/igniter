@@ -40,6 +40,7 @@ Default order:
 | [Stage 2 Compiler Package Spine](stage2-compiler-package-spine.md) | Stage 2 compiler extraction, orchestrator, package boundary, gem skeleton, and gem-native proof tracks | `active_reference -> public_archive candidate` | active memory card |
 | [Stage 2 To Stage 3 Typed Switch Spine](stage2-to-stage3-typed-switch-spine.md) | Stale parity tracks, `orchestrator-emit-typed-switch-v0.md`, stale-header sweep, proposal lifecycle sync, and R6 spec sync tracks | `active_reference` / `public_archive` | active memory card |
 | [Old Pre-Gate-3 Discussions Spine](old-discussions-pre-gate3-spine.md) | R2-R12 temporal/typed/runtime/Gate 3 completed discussions | `public_archive after summary` | active memory card |
+| [Gate 3 R13-R22 Discussions Spine](gate3-r13-r22-discussions-spine.md) | Gate 3 R13-R22 pressure discussions plus History-S7 compression map | `public_archive candidate` | active memory card |
 
 ---
 
