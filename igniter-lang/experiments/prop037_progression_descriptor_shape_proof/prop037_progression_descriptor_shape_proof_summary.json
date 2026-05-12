@@ -1,0 +1,388 @@
+{
+  "card": "S3-R38-C2-P1",
+  "checks": {
+    "bounded_materialization_required": true,
+    "bounded_step_required": true,
+    "cancellation_policy_required": true,
+    "checkpoint_policy_required": true,
+    "closed_v0_source_kind_rejects_new_top_level": true,
+    "models_exact_required_source_kinds": true,
+    "no_progression_fragment_class": true,
+    "receipt_policy_required": true,
+    "runtime_authority_remains_closed": true,
+    "valid_descriptors_pass": true
+  },
+  "descriptor_contract": {
+    "allowed_backpressure": [
+      "block",
+      "drop",
+      "suspend"
+    ],
+    "allowed_materialization_modes": [
+      "bounded_demand",
+      "bounded_schedule",
+      "bounded_queue"
+    ],
+    "closed_source_kind_vocabulary": [
+      "clock.every",
+      "queue",
+      "external_event"
+    ],
+    "descriptor_version": "prop037-progression-source-descriptor-v0",
+    "forbidden": [
+      "new top-level source_kind without future accepted decision",
+      "unbounded eager materialization",
+      "PROGRESSION fragment class",
+      "runtime scheduler binding",
+      "Ledger/TBackend binding",
+      "durable queue/checkpoint binding",
+      "production execution claim"
+    ],
+    "required_caps": [
+      "progression_materialize",
+      "progression_step_execute",
+      "progression_step_receipt",
+      "progression_cancel",
+      "progression_checkpoint_resume"
+    ],
+    "required_fields": [
+      "kind",
+      "descriptor_version",
+      "progression_ref",
+      "source_kind",
+      "source_ref",
+      "payload_type",
+      "materialization_policy",
+      "handler_ref",
+      "receipt_policy",
+      "liveness"
+    ]
+  },
+  "descriptors": {
+    "clock_every_5s": {
+      "descriptor_hash": "sha256:8e2a8636f36c7b4c2f50e275351b0ff3208a18876a5e412e525add7909e4ab23",
+      "descriptor_version": "prop037-progression-source-descriptor-v0",
+      "handler_ref": "contract/HandleHeartbeatTick",
+      "kind": "progression_source",
+      "liveness": {
+        "cancellation": "required",
+        "checkpoint": {
+          "every": "30s",
+          "required": true,
+          "resume": "from_checkpoint"
+        },
+        "max_step_latency": "2s"
+      },
+      "materialization_policy": {
+        "backpressure": "block",
+        "max_batch_size": 1,
+        "max_in_flight": 1,
+        "mode": "bounded_schedule"
+      },
+      "payload_type": "Tick",
+      "progression_ref": "progression/service/Heartbeat/clock_5s",
+      "receipt_policy": {
+        "mode": "per_step",
+        "required": true,
+        "sink_ref": "receipt_sink/progression/proof_local"
+      },
+      "required_caps": [
+        "progression_materialize",
+        "progression_step_execute",
+        "progression_step_receipt",
+        "progression_cancel",
+        "progression_checkpoint_resume"
+      ],
+      "runtime_authority": "not_authorized",
+      "runtime_binding": {
+        "durable_checkpoint": false,
+        "durable_queue": false,
+        "ledger": false,
+        "production_execution": false,
+        "runtime_machine_scheduler": false,
+        "tbackend": false
+      },
+      "source_kind": "clock.every",
+      "source_ref": "clock/every/5s"
+    },
+    "external_event_http_request": {
+      "authority_ref": "profile/proof-local/http-listener-readiness-refusal",
+      "descriptor_hash": "sha256:e210d7aae225d63e3455d65d8d791d8f739d5e22ffc443d5239f423754f98903",
+      "descriptor_version": "prop037-progression-source-descriptor-v0",
+      "handler_ref": "contract/HandleHttpRequest",
+      "kind": "progression_source",
+      "liveness": {
+        "cancellation": "required",
+        "checkpoint": {
+          "every": "1m",
+          "required": true,
+          "resume": "from_checkpoint"
+        },
+        "max_step_latency": "3s"
+      },
+      "materialization_policy": {
+        "backpressure": "block",
+        "max_batch_size": 4,
+        "max_in_flight": 8,
+        "mode": "bounded_demand"
+      },
+      "payload_type": "HttpRequest",
+      "progression_ref": "progression/service/Ingress/external_event",
+      "receipt_policy": {
+        "mode": "per_step",
+        "required": true,
+        "sink_ref": "receipt_sink/progression/proof_local"
+      },
+      "required_caps": [
+        "progression_materialize",
+        "progression_step_execute",
+        "progression_step_receipt",
+        "progression_cancel",
+        "progression_checkpoint_resume"
+      ],
+      "runtime_authority": "not_authorized",
+      "runtime_binding": {
+        "durable_checkpoint": false,
+        "durable_queue": false,
+        "ledger": false,
+        "production_execution": false,
+        "runtime_machine_scheduler": false,
+        "tbackend": false
+      },
+      "source_kind": "external_event",
+      "source_ref": "http_listener/on_request",
+      "specialization": {
+        "profile": "proof-local-http-request",
+        "readiness": "descriptor_only_not_executable"
+      }
+    },
+    "queue_work_items": {
+      "descriptor_hash": "sha256:61f18f950e13d8cb3d570cd17f98148919591a971621e0935c9060c34df63067",
+      "descriptor_version": "prop037-progression-source-descriptor-v0",
+      "handler_ref": "contract/ProcessQueuedJob",
+      "kind": "progression_source",
+      "liveness": {
+        "cancellation": "required",
+        "checkpoint": {
+          "every": "100_events",
+          "required": true,
+          "resume": "from_checkpoint"
+        },
+        "max_step_latency": "5s"
+      },
+      "materialization_policy": {
+        "backpressure": "suspend",
+        "max_batch_size": 10,
+        "max_in_flight": 20,
+        "mode": "bounded_queue"
+      },
+      "payload_type": "JobEnvelope",
+      "progression_ref": "progression/service/JobWorker/queue",
+      "receipt_policy": {
+        "mode": "per_step",
+        "required": true,
+        "sink_ref": "receipt_sink/progression/proof_local"
+      },
+      "required_caps": [
+        "progression_materialize",
+        "progression_step_execute",
+        "progression_step_receipt",
+        "progression_cancel",
+        "progression_checkpoint_resume"
+      ],
+      "runtime_authority": "not_authorized",
+      "runtime_binding": {
+        "durable_checkpoint": false,
+        "durable_queue": false,
+        "ledger": false,
+        "production_execution": false,
+        "runtime_machine_scheduler": false,
+        "tbackend": false
+      },
+      "source_kind": "queue",
+      "source_ref": "queue/proof_local/work_items"
+    }
+  },
+  "format_version": "0.1.0",
+  "kind": "prop037_progression_descriptor_shape_proof",
+  "negative_results": {
+    "missing_bounded_step_policy": {
+      "descriptor_hash": "sha256:6ce4359acddef8c3bd3a849fa50d54e14368d2d20b0e46c85dbf1eea2c270344",
+      "errors": [
+        {
+          "code": "OOF-PR5",
+          "path": "liveness.max_step_latency",
+          "reason": "progression.max_step_latency_required",
+          "severity": "error"
+        }
+      ],
+      "valid": false
+    },
+    "missing_cancellation_policy": {
+      "descriptor_hash": "sha256:341f8d48d65f4ef199b77ad14f28cb905100fd96956bebfa2e881d6f61cac55c",
+      "errors": [
+        {
+          "code": "OOF-PR3",
+          "path": "liveness.cancellation",
+          "reason": "progression.cancellation_required",
+          "severity": "error"
+        }
+      ],
+      "valid": false
+    },
+    "missing_checkpoint_policy": {
+      "descriptor_hash": "sha256:6ab2ad497b98dd9336ed0d01f28be13bc85ba9b85f5942bca9226f10835887ee",
+      "errors": [
+        {
+          "code": "OOF-PR4",
+          "path": "liveness.checkpoint",
+          "reason": "progression.checkpoint_required",
+          "severity": "error"
+        }
+      ],
+      "valid": false
+    },
+    "missing_receipt_policy": {
+      "descriptor_hash": "sha256:70fbe7298096525a0e313027a06a8e7d22f67aecd59e3fe03dc7034331585bb3",
+      "errors": [
+        {
+          "code": "OOF-PR7",
+          "path": "receipt_policy",
+          "reason": "progression.receipt_policy_required",
+          "severity": "error"
+        }
+      ],
+      "valid": false
+    },
+    "new_progression_fragment_class": {
+      "descriptor_hash": "sha256:f8949ebd8adbd79e7655a2423ec1bc100b13d2ec3621057702fb360bb38192ef",
+      "errors": [
+        {
+          "code": "PROP-037-NONAUTH",
+          "path": "fragment_class",
+          "reason": "progression.fragment_class_not_authorized",
+          "severity": "error"
+        }
+      ],
+      "valid": false
+    },
+    "runtime_execution_claim": {
+      "descriptor_hash": "sha256:429be004a4c27aa8e53a0a97334a7b9e5aac49259fcfd22fd4b3ae2758f29f83",
+      "errors": [
+        {
+          "code": "PROP-037-NONAUTH",
+          "path": "runtime_authority",
+          "reason": "progression.runtime_execution_not_authorized",
+          "severity": "error"
+        },
+        {
+          "code": "PROP-037-NONAUTH",
+          "path": "runtime_machine_scheduler,production_execution",
+          "reason": "progression.runtime_binding_not_authorized",
+          "severity": "error"
+        }
+      ],
+      "valid": false
+    },
+    "unbounded_materialization": {
+      "descriptor_hash": "sha256:24cb14ed97a7d6fcee0aee62afb4d524007e5f0758546db3d7c4b4baad00aa5a",
+      "errors": [
+        {
+          "code": "OOF-PR2",
+          "path": "materialization_policy.mode",
+          "reason": "progression.materialization_mode_unbounded",
+          "severity": "error"
+        },
+        {
+          "code": "OOF-PR2",
+          "path": "materialization_policy.max_batch_size",
+          "reason": "progression.materialization_batch_unbounded",
+          "severity": "error"
+        }
+      ],
+      "valid": false
+    },
+    "unsupported_source_kind": {
+      "descriptor_hash": "sha256:f7171df6faa7949cf978c9bd0d8ef9f2f18cdaa1dd72046ef1c9e504fbf15a49",
+      "errors": [
+        {
+          "code": "OOF-PR9",
+          "path": "source_kind",
+          "reason": "progression.unsupported_source_kind",
+          "severity": "error"
+        }
+      ],
+      "valid": false
+    }
+  },
+  "positive_results": {
+    "clock_every_5s": {
+      "descriptor_hash": "sha256:8e2a8636f36c7b4c2f50e275351b0ff3208a18876a5e412e525add7909e4ab23",
+      "errors": [],
+      "valid": true
+    },
+    "external_event_http_request": {
+      "descriptor_hash": "sha256:e210d7aae225d63e3455d65d8d791d8f739d5e22ffc443d5239f423754f98903",
+      "errors": [],
+      "valid": true
+    },
+    "queue_work_items": {
+      "descriptor_hash": "sha256:61f18f950e13d8cb3d570cd17f98148919591a971621e0935c9060c34df63067",
+      "errors": [],
+      "valid": true
+    }
+  },
+  "proposal": {
+    "gate": "igniter-lang/docs/gates/prop037-progression-acceptance-review-v0.md",
+    "id": "PROP-037",
+    "source": "igniter-lang/docs/proposals/PROP-037-external-progression-service-liveness-v0.md",
+    "status": "accepted-proposal-only"
+  },
+  "remaining_gaps_before_implementation": [
+    {
+      "gap": "accepted service-loop/progression syntax proposal and parser implementation authorization",
+      "layer": "Parser"
+    },
+    {
+      "gap": "accepted OOF-PR ownership and typed descriptor proof plan",
+      "layer": "Classifier/TypeChecker"
+    },
+    {
+      "gap": "accepted node/artifact shape and golden fixture plan",
+      "layer": "SemanticIR"
+    },
+    {
+      "gap": "manifest schema authorization for progression_sources",
+      "layer": "Assembler/.igapp"
+    },
+    {
+      "gap": "scheduler/materializer gate and proof-local implementation plan",
+      "layer": "RuntimeMachine"
+    },
+    {
+      "gap": "durable queue/checkpoint/receipt sink design and authorization",
+      "layer": "Durability"
+    },
+    {
+      "gap": "separate binding decision; not implied by descriptor metadata",
+      "layer": "Ledger/TBackend"
+    },
+    {
+      "gap": "explicit runtime/production gate",
+      "layer": "Production execution"
+    }
+  ],
+  "scope": {
+    "durable_queues": false,
+    "ledger_binding": false,
+    "new_progression_fragment_class": false,
+    "parser_implementation": false,
+    "proof_local_descriptor_validation": true,
+    "runtime_scheduler": false,
+    "semanticir_implementation": false,
+    "tbackend_binding": false,
+    "typechecker_implementation": false
+  },
+  "status": "PASS",
+  "track": "prop037-progression-descriptor-shape-proof-v0"
+}
