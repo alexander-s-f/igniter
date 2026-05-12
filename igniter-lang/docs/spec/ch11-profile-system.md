@@ -4,7 +4,7 @@ Status: proposed
 Stage: 3 (Phase 2)
 Source PROP: PROP-034 (not yet authored)
 Governance: META-EXPERT-013
-Last updated: 2026-05-10
+Last updated: 2026-05-12
 
 > **Proposed.** This chapter describes the profile system extension.
 > Status advances to `accepted` when PROP-034 regression suite passes.
@@ -91,6 +91,9 @@ contract-decl ::= contract-modifier? "contract" ident type-params?
 
 ## § 11.4 Compiler Enforcement
 
+Profile-system diagnostics use the `OOF-PROF*` namespace. `OOF-PR*` is reserved
+for PROP-037 progression diagnostics.
+
 For each contract with a `via` clause, the compiler checks:
 
 1. **Obligations met**: if `evidence: required`, every `output` in the body must
@@ -98,13 +101,14 @@ For each contract with a `via` clause, the compiler checks:
    `input as_of: DateTime`.
 
 2. **Restrictions not exceeded**: if `allowed_effects` is set, no `escape`
-   declaration in the body may name a capability outside the list. Violation: OOF-PR1.
+   declaration in the body may name a capability outside the list. Violation:
+   OOF-PROF1.
 
 3. **Authority**: if `requires_authority` is set, the contract modifier must be
-   `privileged` or `irreversible`. Violation: OOF-PR2.
+   `privileged` or `irreversible`. Violation: OOF-PROF2.
 
 4. **Loop class**: if `loop: service` is declared, the contract modifier must be
-   absent or use the `service contract` form (Ch13). Violation: OOF-PR3.
+   absent or use the `service contract` form (Ch13). Violation: OOF-PROF3.
 
 ---
 
