@@ -123,7 +123,8 @@ Runtime           ⏳ open   six-surface post-switch smoke PASS;
                             B-E restricted deployment scope approved;
                             R37 proof-local deployment implementation closes P-51;
                             P-53 proof-local review closed in R38;
-                            operational rollout still closed, design-only readiness plan authorized;
+                            R39 design-only rollout readiness plan landed;
+                            operational implementation/rollout still closed;
                             concrete HSM/KMS and excluded runtime surfaces still closed
 Language          ⚙️ partial TEMPORAL through .igapp manifest index + load guard;
                             parser coordinate syntax and production runtime remain open
@@ -135,7 +136,7 @@ Language          ⚙️ partial TEMPORAL through .igapp manifest index + load g
                             R37 broad language regression matrix PASS 19/19;
                             PROP-037 accepted proposal-only;
                             PROP-037 descriptor shape proof PASS;
-                            OOF-PR diagnostic design done; Ch11 namespace collision P-54 open;
+                            OOF-PR diagnostic design done; P-54 Ch11 namespace sync closed;
                             PROP-033 evidence validation/runtime receipts still closed
 Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             invariant typed-shape delta accepted/discharged;
@@ -388,6 +389,12 @@ Round 38 landed:
   S3-R38-C4-P1: PROP-036 assembler field plan     🟡 design-only; top-level compiler_profile_id field plan; implementation blocked
   S3-R38-C5-P1: Line Up second batch              ✅ compiler package, typed switch, pre-Gate-3 discussion Line Ups; no moves/deletes
   S3-R38-X1-S: R38 pressure review                ✅ PROCEED non-blockers; P-54 + rollout readiness + docs follow-ups routed
+Round 39 landed:
+  S3-R39-C1-P1: Ch11 OOF namespace sync           ✅ P-54 closed; profile diagnostics OOF-PROF*, progression keeps OOF-PR*
+  S3-R39-C2-P1: rollout readiness plan            🟡 design-only; operational implementation/rollout still closed
+  S3-R39-C3-P1: Line Up authority-hoist review    ✅ review done; RQ-1/RQ-2 required before R2-R12 redirects/movement
+  S3-R39-C4-P1: Gate 3 R13-R22 Line Up            ✅ high-risk Line Up landed; Archive/Form verification still needed
+  S3-R39-X1-S: R39 pressure review                ✅ PROCEED non-blockers; P-55/P-56 routed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -397,7 +404,7 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   PROP-038+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
-                            operational rollout beyond R38 design-only readiness planning,
+                            operational implementation or rollout beyond R39 design-only readiness plan,
                             concrete HSM/KMS,
                             Gate 3 Phase 2 Ledger adapter, BiHistory, stream/OLAP,
                             production cache, broad RuntimeMachine binding,
@@ -963,6 +970,13 @@ S3-R38 result:      C1-A closes P-53 as confirmation review plus boundary check:
                       turns PROP-036 hash-ordering into an assembler field design plan only. C5-P1 lands second-batch Line Ups
                       without movement/deletion. X1 says PROCEED with non-blockers and routes P-54, rollout readiness planning,
                       PROP-037 descriptor OOF proof after P-54, and docs authority-hoist review.
+S3-R39 result:      C1-P1 closes P-54 by renaming Ch11 profile diagnostics to `OOF-PROF1..3` and reserving
+                      `OOF-PR*` for PROP-037 progression diagnostics. C2-P1 lands the design-only durable-audit rollout
+                      readiness plan; operational implementation and rollout remain closed. C3-P1 reviews Line Up
+                      authority-hoist risk and requires RQ-1/RQ-2 before R2-R12 discussion redirects or movement. C4-P1
+                      lands the Gate 3 R13-R22 discussions Line Up without movement/deletion; Archive/Form verification
+                      remains open as P-55. X1 says PROCEED with non-blockers and routes P-55, P-56, and
+                      `prop037-descriptor-oof-pr-proof-v0` now that namespace sync is closed.
 ```
 
 ### Spec Freshness
@@ -979,11 +993,12 @@ S3-R38 result:      C1-A closes P-53 as confirmation review plus boundary check:
 | Ch5 Compiler Pipeline | ✅ synced S3-R6 + R10 metadata | `spec-ch5-emit-typed-sync-v0`; `invariant-typed-shape-discharge-v0`; `invariant-source-metadata-preservation-v0` | Invariant source metadata preservation landed; Ch6 doc sync remains |
 | Ch6 SemanticIR / .igapp | ✅ synced through R36 PROP-032 experiment-pass | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop032-assumptions-phase4-parser-proof-v0`; `prop032-assumptions-experiment-pass-decision-v0` | PROP-032 experiment-pass landed; Ch2 bounded grammar sync applied in R37; PROP-033 evidence validation/runtime receipts excluded |
 | Ch7 Runtime | ✅ R38 proof-local deployment review closed / rollout still closed | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0`; `phase1-production-durable-audit-v0`; `phase1-production-registry-ownership-decision-v0`; `deterministic-regression-artifact-policy-v0`; `phase1-production-durable-audit-implementation-authorization-review-v0`; `production-durable-audit-blocker-amendment-and-validation-proofs-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `phase1-production-durable-audit-implementation-authorization-decision-v0`; `startup-time-freshness-override-validator-v0`; `phase1-production-durable-audit-bounded-implementation-v0`; `durable-audit-hash-and-posture-design-amendment-v0`; `durable-audit-restart-rebuild-proof-v0`; `durable-audit-reader-traversal-proof-v0`; `durable-audit-append-reader-role-boundary-proof-v0`; `durable-audit-post-implementation-regression-matrix-v0`; `durable-audit-b-e-deployment-review-decision-v0`; `durable-audit-restricted-deployment-proof-review-v0` | P-53 proof-local closure confirmed; only design-only rollout readiness planning authorized; Ledger/Phase2/BiHistory/stream/OLAP/cache/broad RuntimeMachine/concrete HSM-KMS remain closed |
+| Ch11 Profile System | ✅ R39 namespace sync | `docs/spec/ch11-profile-system.md`; `ch11-profile-oof-namespace-sync-v0`; `prop037-oof-pr-diagnostic-design-v0` | `OOF-PROF*` reserved for profile diagnostics; `OOF-PR*` reserved for progression diagnostics; no implementation |
 | Proposal index | ✅ R37 PROP-037 acceptance synced | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0`; `PROP-032-assumptions-block-v0`; `prop032-assumptions-implementation-gate-review-v0`; `prop032-assumptions-phase1-classifier-implementation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop036-placeholder-governance-sync-v0`; `prop036-compiler-profile-id-manifest-proposal-v0`; `progression-prop-number-assignment-decision-v0`; `proposal-lifecycle-status-labels-sync-v0`; `stage3-round36-status-preflight-sync-v0`; `prop037-external-progression-proposal-authoring-v0`; `prop037-progression-acceptance-review-v0` | PROP-036 accepted proposal-only; PROP-037 accepted proposal-only; PROP-038+ local recursion placeholder; PROP-032 experiment-pass |
 | Contract modifiers | ✅ implementation/proof + R30 V-3 golden | `PROP-031-contract-modifiers-v0`; `contract-modifiers-proof-fixture-plan-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `agent-d-cross-review-values-and-meta-cards-r28-v0`; `prop031-compatibility-addendum-r29-v0`; `observed-temporal-precedence-golden-r30-v0` | Parser/classifier/typechecker/SemanticIR support landed with proof PASS; §14 documents migration/OOF-M1/V-3; V-3 golden PASS 25/25; Effect Surface/Profile/authority/runtime enforcement still absent by design |
 | Compiler pack architecture | 🟡 accepted proposal / implementation blocked | `compiler-profile-architecture-direction-v0`; `compiler-pack-boundary-report-v0`; `compiler-pack-shadow-profile-proof-v0`; `contract-modifiers-pack-native-boundary-v0`; `compiler-kernel-pack-registry-spike-v0`; `compiler-kernel-ordered-rule-precedence-v0`; `compiler-profile-id-manifest-boundary-plan-v0`; `compiler-profile-chain-closure-index-v0`; `compiler-profile-r32-shadow-chain-backreference-v0`; `docs/gates/compiler-profile-manifest-prop-number-decision-v0.md`; `prop036-compiler-profile-id-manifest-proposal-v0`; `prop036-compiler-profile-id-acceptance-decision-v0`; `prop036-loader-status-report-proof-v0`; `prop036-artifact-hash-ordering-proof-v0`; `prop036-assembler-field-design-plan-v0` | PROP-036 accepted proposal-only; assembler field placement designed; no compiler dispatch, no rewrite, no real `.igapp`/`.ilk` profile id, no native migration authorization |
-| PROP-037 progression | 🟡 accepted proposal / proof-local descriptors | `prop037-progression-acceptance-review-v0`; `prop037-progression-descriptor-shape-proof-v0`; `prop037-oof-pr-diagnostic-design-v0` | Descriptor shape proof PASS; OOF-PR design done; Ch11 OOF namespace collision P-54 must resolve before descriptor OOF proof |
-| Documentation metabolism / Line Ups | ✅ R38 second cleanup packet | `documentation-fate-inventory-stage1-stage2-v0`; `documentation-movement-link-ledger-stage1-stage2-v0`; `line-up-stage1-stage2-second-batch-v0`; `docs/lineups/README.md` | Stage 1/2 fate inventory, movement ledger, first and second Line Ups landed; no movement/deletion yet; Archive/Form authority-hoist review recommended |
+| PROP-037 progression | 🟡 accepted proposal / proof-local descriptors | `prop037-progression-acceptance-review-v0`; `prop037-progression-descriptor-shape-proof-v0`; `prop037-oof-pr-diagnostic-design-v0`; `ch11-profile-oof-namespace-sync-v0` | Descriptor shape proof PASS; OOF-PR design done; P-54 namespace collision closed; descriptor OOF proof still not opened |
+| Documentation metabolism / Line Ups | ✅ R39 third cleanup packet | `documentation-fate-inventory-stage1-stage2-v0`; `documentation-movement-link-ledger-stage1-stage2-v0`; `line-up-stage1-stage2-second-batch-v0`; `line-up-authority-hoist-risk-review-v0`; `gate3-r13-r22-discussions-lineup-v0`; `docs/lineups/README.md` | First/second/Gate3 Line Ups landed; no movement/deletion yet; P-55/P-56 before redirects/movement |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
 
@@ -1283,10 +1298,18 @@ DOC-DEBT-59  S3-R38 status:
              P-53 is closed as proof-local confirmation, not operational rollout.
              Only a design-only rollout readiness plan is authorized next.
              PROP-037 descriptor shape proof PASS and OOF-PR diagnostic design
-             landed; P-54 Ch11 OOF-PR namespace collision blocks descriptor
-             OOF proof emission. PROP-036 assembler field plan is design-only.
+             landed; P-54 Ch11 OOF-PR namespace collision was open at R38 and
+             later closed by S3-R39-C1-P1. PROP-036 assembler field plan is design-only.
              Second-batch Line Ups landed without movement/deletion; pre-Gate-3
              authority-hoist review and R13-R22 Gate 3 Line Up remain follow-ups.
+DOC-DEBT-60  S3-R39 status:
+             P-54 is closed by Ch11 OOF namespace sync: profile diagnostics are
+             `OOF-PROF*`, progression diagnostics keep `OOF-PR*`. Durable-audit
+             rollout readiness plan is design-only; implementation and rollout
+             still require later Architect decisions. RQ-1/RQ-2 edits to
+             old-discussions-pre-gate3-spine are required before R2-R12 redirects
+             or movement (P-56). Gate 3 R13-R22 Line Up landed but requires
+             Archive/Form verification before movement/redirects (P-55).
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -1332,6 +1355,7 @@ PROP-036   compiler_profile_id manifest  accepted proposal-only; implementation 
                                          no implementation or migration auth
 PROP-037   progression/service liveness  accepted proposal-only;
                                          descriptor shape proof PASS; OOF-PR design done;
+                                         P-54 namespace sync closed; descriptor OOF proof not opened;
                                          no parser/runtime/fragment-class auth
 PROP-038+  managed local recursion       placeholder only; not assigned, not canon without proposal/proof
 ```
