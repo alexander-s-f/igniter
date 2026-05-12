@@ -5,11 +5,11 @@ profile political_primitives
   evidence: required
   trust: system
 
--- ====================== CORE TYPES ======================
+# ====================== CORE TYPES ======================
 type PoliticalActor {
   id: UUID
   name: String
-  ideology_vector: Vector[7]          -- 7-dimensional ideological spectrum
+  ideology_vector: Vector[7]          # 7-dimensional ideological spectrum
   influence: Decimal[2]
   epistemic_kind: :observed | :inferred | :simulated
   uncertainty: Decimal[2]
@@ -18,7 +18,7 @@ type PoliticalActor {
 type PolicyProposal {
   id: UUID
   title: String
-  overton_position: Decimal[2]        -- 0.0 = unacceptable → 1.0 = consensus
+  overton_position: Decimal[2]        # 0.0 = unacceptable → 1.0 = consensus
   expected_impact: Map[String, Decimal[2]]
 }
 
@@ -29,7 +29,7 @@ type DebateRound {
   rejected_claims: List[ClaimRef]
 }
 
--- ====================== ASSUMPTIONS & CONSTRAINTS (Postulate 22+25) ======================
+# ====================== ASSUMPTIONS & CONSTRAINTS (Postulate 22+25) ======================
 assumptions political_dynamics {
   assumption homophily {
     kind: :empirical
@@ -56,7 +56,7 @@ constraints political_simulation {
   }
 }
 
--- ====================== PURE CONTRACTS ======================
+# ====================== PURE CONTRACTS ======================
 pure contract SimulateActorInteraction
   input actor_a: PoliticalActor
   input actor_b: PoliticalActor

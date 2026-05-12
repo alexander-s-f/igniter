@@ -5,7 +5,7 @@ profile censorship_primitives
   evidence: required
   trust: system
 
--- ====================== CENSORSHIP MODEL ======================
+# ====================== CENSORSHIP MODEL ======================
 type CommunicationChannel {
   id: UUID
   kind: :tcp | :udp | :mesh | :satellite | :bluetooth | :physical_pigeon | :steganography | :quantum
@@ -22,7 +22,7 @@ type CensorshipEvent {
   detected_by: List[DetectionMethod]
   evidence_bundle: EvidenceBundle
   assumptions_used: AssumptionSet
-  synthetic_marker: Boolean                     -- Postulate 23
+  synthetic_marker: Boolean                     # Postulate 23
 }
 
 type MessagePacket {
@@ -33,7 +33,7 @@ type MessagePacket {
   final_status: :delivered | :blocked | :alternative_routed | :lost
 }
 
--- ====================== ASSUMPTIONS & CONSTRAINTS ======================
+# ====================== ASSUMPTIONS & CONSTRAINTS ======================
 assumptions censorship_dynamics {
   assumption state_actors_block_critical_topics {
     kind: :empirical
@@ -60,7 +60,7 @@ constraints censorship_resistance {
   }
 }
 
--- ====================== PURE CONTRACTS ======================
+# ====================== PURE CONTRACTS ======================
 pure contract DetectCensorship
   input packet: MessagePacket
   input channels: List[CommunicationChannel]

@@ -6,23 +6,23 @@ profile audited_financial_system
   trust: system
   effects: privileged
 
--- ====================== TEMPORAL CORE ======================
+# ====================== TEMPORAL CORE ======================
 type Transaction {
   id: UUID
-  valid_time: Timestamp          -- when the fact became true
-  transaction_time: Timestamp    -- when we recorded it
+  valid_time: Timestamp          # when the fact became true
+  transaction_time: Timestamp    # when we recorded it
   account: String
   amount: Decimal[4]
   description: String
-  correction_of: Optional[UUID]  -- link to the transaction being corrected
+  correction_of: Optional[UUID]  # link to the transaction being corrected
 }
 
--- BiHistory stores all versions automatically
+# BiHistory stores all versions automatically
 store FinancialHistory : BiHistory[Transaction]
 
--- ====================== TIME-TRAVEL OPERATIONS ======================
+# ====================== TIME-TRAVEL OPERATIONS ======================
 pure contract AsOf(account: String, date: Timestamp) -> List[Transaction]
-  -- view status on any date in the past
+  # view status on any date in the past
 
 pure contract WhatIfCorrection(original_tx: Transaction, corrected_amount: Decimal[4], reason: String)
   -> CorrectionReceipt
@@ -37,14 +37,14 @@ pure contract WhatIfCorrection(original_tx: Transaction, corrected_amount: Decim
     correction_of: original_tx.id
   }
 
-  -- We record the correction as a new version
+  # We record the correction as a new version
   let receipt = StoreTransaction(corrected)
 
-  -- PostAudit automatically compares "was / became"
+  # PostAudit automatically compares "was / became"
   return PostAuditCorrection(original_tx, corrected, receipt)
 }
 
--- ====================== AUDIT & TIME-TRAVEL SCENARIOS ======================
+# ====================== AUDIT & TIME-TRAVEL SCENARIOS ======================
 contract ReconstructAccountBalanceAsOf(account: String, as_of_date: Timestamp)
   -> BalanceReconstruction
 {
@@ -58,12 +58,12 @@ contract ReconstructAccountBalanceAsOf(account: String, as_of_date: Timestamp)
   }
 }
 
--- ====================== WHAT THIS PROVES ======================
+# ====================== WHAT THIS PROVES ======================
 
--- 1. Temporality is not a theory. Without bitemporality, it is impossible to correctly correct errors in financial systems.
--- 2. Time-travel (AsOf) allows you to instantly see the state at any date in the past.
--- 3. Each correction leaves a full auditable trace (correction_of + PostAudit).
--- 4. BiHistory + receipts solve the real business problem of compliance and audit.
--- 5. The user can ask, "What was the balance 3 months ago?" and get a precise answer.
+# 1. Temporality is not a theory. Without bitemporality, it is impossible to correctly correct errors in financial systems.
+# 2. Time-travel (AsOf) allows you to instantly see the state at any date in the past.
+# 3. Each correction leaves a full auditable trace (correction_of + PostAudit).
+# 4. BiHistory + receipts solve the real business problem of compliance and audit.
+# 5. The user can ask, "What was the balance 3 months ago?" and get a precise answer.
 
 end module

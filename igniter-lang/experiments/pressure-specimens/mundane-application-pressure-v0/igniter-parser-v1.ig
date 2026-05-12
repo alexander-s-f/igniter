@@ -1,8 +1,8 @@
 module IgniterParserV1
 
-include IgniterLexerV1              -- V7 (lexer)
-include IgniterParserCombinators    -- V6 (combinators)
-include IgniterStringLibrary        -- V4
+include IgniterLexerV1              # V7 (lexer)
+include IgniterParserCombinators    # V6 (combinators)
+include IgniterStringLibrary        # V4
 
 profile mundane_parser
   time: bitemporal
@@ -10,7 +10,7 @@ profile mundane_parser
   trust: system
   effects: minimal
 
--- ====================== AST (minimal prototype)======================
+# ====================== AST (minimal prototype)======================
 type AstNode {
   kind: :module | :include | :profile | :contract | :type | :invariant
   span: SourceSpan
@@ -46,15 +46,15 @@ type Parameter {
   span: SourceSpan
 }
 
--- ====================== PARSER HELPERS ======================
+# ====================== PARSER HELPERS ======================
 
 contract ParseIdentifier() -> String
-  => Identifier()   -- из V6
+  => Identifier()   # из V6
 
 contract ParseKeyword(kw: String) -> String
   => Keyword(kw)
 
--- ====================== RECURSIVE DESCENT PARSERS ======================
+# ====================== RECURSIVE DESCENT PARSERS ======================
 
 contract ParseModule() -> Module
 {
@@ -83,7 +83,7 @@ contract ParseProfile() -> Profile
 {
   ParseKeyword("profile")
   let name = ParseIdentifier()
-  -- TODO: properties parsing
+  # TODO: properties parsing
   return Profile { name: name, properties: Map.empty(), span: current_span() }
 }
 
@@ -133,7 +133,7 @@ contract ParseContractBodyItem() -> AstNode
 {
   Choice([
     ParseInvariant(),
-    -- TODO: add compute, output, evidence, etc.
+    # TODO: add compute, output, evidence, etc.
     ParseIdentifier().map(id => AstNode { kind: :unknown, value: id, ... })
   ])
 }
@@ -145,14 +145,14 @@ contract ParseInvariant() -> AstNode
   return AstNode { kind: :invariant, value: name, span: current_span() }
 }
 
--- ====================== MAIN ENTRY POINT ======================
+# ====================== MAIN ENTRY POINT ======================
 
 contract ParseIgniterSource(source: String, filename: String) -> Module
 {
-  let tokens = LexString(source, filename)   -- from IgniterLexerV1
-  -- In the future, there will be a token stream + recursive descent.
+  let tokens = LexString(source, filename)   # from IgniterLexerV1
+  # In the future, there will be a token stream + recursive descent.
 
-  -- For now, we'll use a simple parser with combinators + recursive descent
+  # For now, we'll use a simple parser with combinators + recursive descent
   let result = RunParser(ParseModule(), source, filename)
 
   match result.error {
@@ -168,18 +168,18 @@ contract ParseIgniterSource(source: String, filename: String) -> Module
 
 contract ParseIgniterFile(filename: String) -> Module
 {
-  let content = ReadTextFile(filename)       -- из IgniterFileIO V5
+  let content = ReadTextFile(filename)       # из IgniterFileIO V5
   return ParseIgniterSource(content, filename)
 }
 
--- ====================== WHAT THIS PROVES (V8) ======================
+# ====================== WHAT THIS PROVES (V8) ======================
 
--- 1. First working prototype of Igniter Lang Parser (recursive descent + combinators)
--- 2. Support for modules, includes, profiles, contracts (with modifiers), parameters, and invariants
--- 3. Full integration with Lexer V1, StringLibrary V4, and FileIO V5
--- 4. SourceSpan tracking and error highlighting are already working
--- 5. Easy to extend (add new constructs – just a new contract)
--- 6. Clear boundaries: lexer = tokens, parser = AST, I/O = ESCAPE
--- 7. Ready for further development (expressions, compute blocks, types, etc.)
+# 1. First working prototype of Igniter Lang Parser (recursive descent + combinators)
+# 2. Support for modules, includes, profiles, contracts (with modifiers), parameters, and invariants
+# 3. Full integration with Lexer V1, StringLibrary V4, and FileIO V5
+# 4. SourceSpan tracking and error highlighting are already working
+# 5. Easy to extend (add new constructs – just a new contract)
+# 6. Clear boundaries: lexer = tokens, parser = AST, I/O = ESCAPE
+# 7. Ready for further development (expressions, compute blocks, types, etc.)
 
 end module

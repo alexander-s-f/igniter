@@ -5,17 +5,17 @@ profile simulation_primitives
   evidence: required
   trust: system
 
--- ====================== FRAMEWORK CORE TYPES ======================
+# ====================== FRAMEWORK CORE TYPES ======================
 type SimulationModel {
   id: UUID
   name: String
-  state_type: TypeRef          -- the user defines his own state type
+  state_type: TypeRef          # the user defines his own state type
   epistemic_kind: :observed | :inferred | :simulated
 }
 
 type SimulationState {
   model: SimulationModel
-  data: Any                     -- typed via state_type
+  data: Any                     # typed via state_type
   timestamp: Timestamp
   version: Integer
 }
@@ -37,10 +37,10 @@ type SimulationFork {
   reason: String
   assumptions_used: AssumptionSet
   constraints_obeyed: ConstraintSet
-  rejected_alternatives: List[String]   -- Postulate 24
+  rejected_alternatives: List[String]   # Postulate 24
 }
 
--- ====================== ASSUMPTIONS & CONSTRAINTS ======================
+# ====================== ASSUMPTIONS & CONSTRAINTS ======================
 assumptions simulation_framework {
   assumption deterministic_by_default {
     kind: :empirical
@@ -62,7 +62,7 @@ constraints simulation_framework {
   }
 }
 
--- ====================== FRAMEWORK CONTRACTS (the user expands) ======================
+# ====================== FRAMEWORK CONTRACTS (the user expands) ======================
 pure contract DefineModel
   input model: SimulationModel
   output registered: Boolean evidence [model]
@@ -76,7 +76,7 @@ pure contract ComputeNextState
   input interaction: Interaction
   output next: SimulationState evidence [current, interaction]
 
--- ====================== TIME-TRAVEL & FORKING ======================
+# ====================== TIME-TRAVEL & FORKING ======================
 pure contract TimeTravelTo
   input simulation_id: UUID
   input target_version: Integer

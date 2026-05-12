@@ -10,21 +10,21 @@ profile mundane_parser
   trust: system
   effects: minimal
 
--- ====================== AST — EXPRESSIONS (V9) ======================
+# ====================== AST — EXPRESSIONS (V9) ======================
 type Expression {
   kind: :literal | :identifier | :binary | :unary | :call | :field_access | :list | :map
   span: SourceSpan
-  value: Optional[Any]                  -- for literals
+  value: Optional[Any]                  # for literals
   left: Optional[Expression]
   right: Optional[Expression]
   operator: Optional[String]
   callee: Optional[String]
   arguments: List[Expression]
   field: Optional[String]
-  items: List[Expression]               -- for list / map
+  items: List[Expression]               # for list / map
 }
 
--- ====================== OPERATOR PRECEDENCE TABLE ======================
+# ====================== OPERATOR PRECEDENCE TABLE ======================
 let OperatorPrecedence = [
   { op: "||",  prec: 1, assoc: :left },
   { op: "&&",  prec: 2, assoc: :left },
@@ -40,21 +40,21 @@ let OperatorPrecedence = [
   { op: "/",  prec: 6, assoc: :left },
 ]
 
--- ====================== EXPRESSION PARSERS ======================
+# ====================== EXPRESSION PARSERS ======================
 
 contract ParsePrimaryExpression() -> Expression
 {
   Choice([
-    -- literals
+    # literals
     NumberLiteral().map(n => Expression { kind: :literal, value: n, span: ... }),
     StringLiteral().map(s => Expression { kind: :literal, value: s, span: ... }),
     ParseKeyword("true").map(_ => Expression { kind: :literal, value: true, span: ... }),
     ParseKeyword("false").map(_ => Expression { kind: :literal, value: false, span: ... }),
 
-    -- identifier
+    # identifier
     ParseIdentifier().map(id => Expression { kind: :identifier, value: id, span: ... }),
 
-    -- parenthesized
+    # parenthesized
     Between(Char('('), ParseExpression(), Char(')'))
   ])
 }
@@ -63,7 +63,7 @@ contract ParseExpression(minPrec: Integer = 0) -> Expression
 {
   let left = ParsePrimaryExpression()
 
-  -- Pratt-style precedence climbing
+  # Pratt-style precedence climbing
   let loop = (left, currentPrec) => {
     let nextOp = PeekOperator()
     if nextOp.is_none() or nextOp.prec < currentPrec { return left }
@@ -115,7 +115,7 @@ contract ParseFieldAccess(base: Expression) -> Expression
   }
 }
 
--- ====================== TOP-LEVEL CONTRACTS ======================
+# ====================== TOP-LEVEL CONTRACTS ======================
 
 contract ParseContractBody() -> List[Expression]
 {
@@ -139,7 +139,7 @@ contract ParseComputeBlock() -> Expression
   return Expression { kind: :compute, value: name, left: expr, span: ... }
 }
 
--- ====================== MAIN ENTRY POINT ======================
+# ====================== MAIN ENTRY POINT ======================
 
 contract ParseIgniterSourceWithExpressions(source: String, filename: String) -> Module
 {
@@ -156,19 +156,19 @@ contract ParseIgniterSourceWithExpressions(source: String, filename: String) -> 
 
 contract ParseModuleWithExpressions() -> Module
 {
-  -- ... (module, include, profile — V8)
+  # ... (module, include, profile — V8)
   let contracts = Many(ParseContractWithBody())
-  -- ...
+  # ...
 }
 
--- ====================== WHAT THIS PROVES (V9) ======================
+# ====================== WHAT THIS PROVES (V9) ======================
 
--- 1. Full expression support in the Igniter Lang parser
--- 2. Correct operator precedence handling (Pratt-style)
--- 3. Support for contract calls, field access, literals, binary/unary ops
--- 4. Full integration with Lexer V1 + Parser Combinators V6
--- 5. SourceSpan tracking and beautiful error highlighting
--- 6. Readiness for compute, invariants, conditions, and any expressions in the language
--- 7. Foundation for further parser development (types, patterns, matches, etc.)
+# 1. Full expression support in the Igniter Lang parser
+# 2. Correct operator precedence handling (Pratt-style)
+# 3. Support for contract calls, field access, literals, binary/unary ops
+# 4. Full integration with Lexer V1 + Parser Combinators V6
+# 5. SourceSpan tracking and beautiful error highlighting
+# 6. Readiness for compute, invariants, conditions, and any expressions in the language
+# 7. Foundation for further parser development (types, patterns, matches, etc.)
 
 end module

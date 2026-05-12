@@ -5,7 +5,7 @@ profile web_primitives
   evidence: required
   trust: system
 
--- ====================== FRAMEWORK CORE TYPES ======================
+# ====================== FRAMEWORK CORE TYPES ======================
 type HttpRequest {
   method: :get | :post | :put | :delete | :patch
   path: String
@@ -24,7 +24,7 @@ type HttpResponse {
 
 type Route {
   method: :get | :post | :put | :delete | :patch
-  path_pattern: String          -- поддержка :id, * и т.д.
+  path_pattern: String          # поддержка :id, * и т.д.
   handler_contract: ContractRef
 }
 
@@ -35,7 +35,7 @@ type Middleware {
   handler: ContractRef
 }
 
--- ====================== ASSUMPTIONS & CONSTRAINTS ======================
+# ====================== ASSUMPTIONS & CONSTRAINTS ======================
 assumptions web_framework {
   assumption request_is_immutable {
     kind: :empirical
@@ -57,7 +57,7 @@ constraints web_framework {
   }
 }
 
--- ====================== FRAMEWORK CONTRACTS ======================
+# ====================== FRAMEWORK CONTRACTS ======================
 pure contract MatchRoute
   input request: HttpRequest
   input registered_routes: List[Route]

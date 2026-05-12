@@ -14,34 +14,34 @@ profile audited_web_framework
   loop: service_progression
   authority: explicit
 
--- ====================== SINATRA-LIKE DSL (forms) ======================
--- The user writes exactly this:
--- get "/users/:id" { ... }   ← через Form System (BlockMethodForm)
+# ====================== SINATRA-LIKE DSL (forms) ======================
+# The user writes exactly this:
+# get "/users/:id" { ... }   ← через Form System (BlockMethodForm)
 
--- ====================== EXTERNAL PROGRESSION — HTTP request loop ======================
+# ====================== EXTERNAL PROGRESSION — HTTP request loop ======================
 service contract SinatraLikeWebServer
   progression driven_by http_listener.on_request
   authority web_server_authority: AuthorityRef
 {
-  -- 1. Observe incoming request
+  # 1. Observe incoming request
   observed contract ReceiveHttpRequest
     input raw_request: RawHttpPacket
     output request: HttpRequest
     evidence [raw_request]
 
-  -- 2. Middleware chain
+  # 2. Middleware chain
   pure contract ApplyMiddleware
     input request: HttpRequest
     output processed: HttpRequest evidence [request]
 
-  -- 3. Route matching + handler execution
+  # 3. Route matching + handler execution
   pure contract ResolveAndExecute
     input request: HttpRequest
     uses assumptions web_framework
     uses constraints web_framework
     output response: HttpResponse evidence [request]
 
-  -- 4. Act — send response (privileged)
+  # 4. Act — send response (privileged)
   privileged contract SendHttpResponse
     input response: HttpResponse
     escape http_response
@@ -49,19 +49,19 @@ service contract SinatraLikeWebServer
     compensation LogFailedResponse
     authority web_server_authority
 
-  -- 5. Post-request audit (Postulate 26)
+  # 5. Post-request audit (Postulate 26)
   audit contract PostRequestAudit
     input receipt: HttpRequestReceipt
     input later_observation: Optional[HttpResponse]
     output audit_receipt: PostAuditReceipt
 }
 
--- ====================== PUBLIC SINATRA-LIKE API (for users) ======================
--- The user registers these contracts through forms.
+# ====================== PUBLIC SINATRA-LIKE API (for users) ======================
+# The user registers these contracts through forms.
 
 contract Get(path: String) {
   handler: Block
-  -- inside the block is pure Igniter code with evidence
+  # inside the block is pure Igniter code with evidence
 }
 
 contract Post(path: String) {
@@ -71,13 +71,13 @@ contract Post(path: String) {
 contract Put(path: String)   { handler: Block }
 contract Delete(path: String){ handler: Block }
 
--- ====================== INVARIANTS ======================
+# ====================== INVARIANTS ======================
 invariant every_request_has_receipt          { severity: critical }
 invariant no_silent_http_error               { severity: critical }
 invariant route_match_evidence               { severity: legal }
 invariant response_immutable                 { severity: critical }
 
--- ====================== RECEIPTS ======================
+# ====================== RECEIPTS ======================
 receipt HttpRequestReceipt {
   request: HttpRequest
   response: HttpResponse
@@ -96,15 +96,15 @@ receipt PostAuditReceipt {
   honesty_statement: String
 }
 
--- ====================== WHAT THIS PROVES ======================
+# ====================== WHAT THIS PROVES ======================
 
--- 1. Igniter Lang can be a full-fledged web framework developer
--- 2. Sinatra-like syntax via Form System (get "/path" { ... })
--- 3. Full request lifecycle with evidence, middleware, and routing
--- 4. External Progression as an HTTP request loop
--- 5. Full Covenant compliance (Postulates 22–28): assumptions, constraints, PostAudit, no silent errors
--- 6. Each request is an auditable artifact with receipt and PostAudit
--- 7. Multi-module architecture + include + .iform-ready
--- 8. The developer writes like Sinatra, but gets maximum integrity and observability
+# 1. Igniter Lang can be a full-fledged web framework developer
+# 2. Sinatra-like syntax via Form System (get "/path" { ... })
+# 3. Full request lifecycle with evidence, middleware, and routing
+# 4. External Progression as an HTTP request loop
+# 5. Full Covenant compliance (Postulates 22–28): assumptions, constraints, PostAudit, no silent errors
+# 6. Each request is an auditable artifact with receipt and PostAudit
+# 7. Multi-module architecture + include + .iform-ready
+# 8. The developer writes like Sinatra, but gets maximum integrity and observability
 
 end module

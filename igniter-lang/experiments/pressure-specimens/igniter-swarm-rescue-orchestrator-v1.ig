@@ -12,14 +12,14 @@ profile audited_rescue_mesh
   loop: service_progression
   authority: explicit
 
--- ====================== TYPES & ASSUMPTIONS ======================
+# ====================== TYPES & ASSUMPTIONS ======================
 
 type VictimSignature {
   id: UUID
   last_seen: Timestamp
-  thermal_signature: Vector[8]          -- 8-channel thermal vector
+  thermal_signature: Vector[8]          # 8-channel thermal vector
   movement_vector: Vector[3]
-  uncertainty_m: Decimal[2]             -- Postulate 11
+  uncertainty_m: Decimal[2]             # Postulate 11
   confidence: Decimal[2]
   epistemic_kind: :observed | :inferred
 }
@@ -29,7 +29,7 @@ type RescueDecision {
   assigned_drones: Set[DroneID]
   action: :hover | :drop_supplies | :evacuate | :mark_hazard
   priority: Decimal[2]
-  rejected_alternatives: List[RejectedOption]   -- Postulate 24
+  rejected_alternatives: List[RejectedOption]   # Postulate 24
   assumptions_used: AssumptionSet
   constraints_obeyed: ConstraintSet
 }
@@ -60,13 +60,13 @@ constraints rescue_operation {
   }
 }
 
--- ====================== PROGRESSION (new model) ======================
+# ====================== PROGRESSION (new model) ======================
 
 service contract SwarmRescueCoordinator
-  progression driven_by clock.every(800.milliseconds)   -- Postulate 3 + External Progression
+  progression driven_by clock.every(800.milliseconds)   # Postulate 3 + External Progression
   authority rescue_authority: AuthorityRef
 {
-  -- Step 1. Observe + Infer
+  # Step 1. Observe + Infer
   observed contract IngestSensorStream
     input raw: MeshPacket
     output signatures: List[VictimSignature]
@@ -77,7 +77,7 @@ service contract SwarmRescueCoordinator
     input current_map: GlobalMap
     output fused: List[VictimSignature] evidence [signatures, current_map]
 
-  -- Step 2. Decide (pure + constraints)
+  # Step 2. Decide (pure + constraints)
   pure contract MakeRescueDecision
     input candidates: List[VictimSignature]
     uses assumptions rescue_operation
@@ -85,22 +85,22 @@ service contract SwarmRescueCoordinator
     output decision: RescueDecision
     evidence [candidates, assumptions, constraints]
 
-  -- Step 3. Act (privileged + irreversible)
+  # Step 3. Act (privileged + irreversible)
   privileged contract ExecuteRescueAction
     input decision: RescueDecision
     escape drone_command
     output receipt: RescueActionReceipt
-    compensation RevertAction                  -- Postulate 17
+    compensation RevertAction                  # Postulate 17
     authority rescue_authority
 
-  -- Step 4. Audit (Postulate 26)
+  # Step 4. Audit (Postulate 26)
   audit contract PostRescueAudit
     input action_receipt: RescueActionReceipt
     input later_observation: VictimSignature
     output audit_receipt: PostAuditReceipt
 }
 
--- ====================== CORE CONTRACTS ======================
+# ====================== CORE CONTRACTS ======================
 
 contract RevertAction(receipt: RescueActionReceipt) -> CompensationReceipt
 
@@ -109,14 +109,14 @@ contract ShareMapFragment
   output shared: GlobalMapUpdate
   evidence [local_map]
 
--- ====================== SAFETY INVARIANTS (Postulate 27) ======================
+# ====================== SAFETY INVARIANTS (Postulate 27) ======================
 
 invariant no_victim_abandonment { severity: critical }
 invariant battery_safety_margin { severity: critical }
 invariant communication_redundancy { severity: legal }
-invariant decision_transparency { severity: critical }  -- rejected_alternatives must be non-empty
+invariant decision_transparency { severity: critical }  # rejected_alternatives must be non-empty
 
--- ====================== RECEIPTS (Proofs) ======================
+# ====================== RECEIPTS (Proofs) ======================
 
 receipt RescueActionReceipt {
   decision: RescueDecision
@@ -133,11 +133,11 @@ receipt PostAuditReceipt {
   closed_loop: Boolean
 }
 
--- ====================== WHAT THIS PROVES ======================
+# ====================== WHAT THIS PROVES ======================
 
--- 1. Full implementation of Covenant (all 28 postulates addressed)
--- 2. External Progression instead of "loop" — the runtime is now a declarative temporal engine
--- 3. Epistemic State Machine operates at contract boundaries
--- 4. Assumptions + Constraints + RejectedAlternatives — fair decision making under uncertainty
--- 5. PostAudit closes the Observe→Decide→Act→Audit loop
--- 6. .iform-compatible style
+# 1. Full implementation of Covenant (all 28 postulates addressed)
+# 2. External Progression instead of "loop" — the runtime is now a declarative temporal engine
+# 3. Epistemic State Machine operates at contract boundaries
+# 4. Assumptions + Constraints + RejectedAlternatives — fair decision making under uncertainty
+# 5. PostAudit closes the Observe→Decide→Act→Audit loop
+# 6. .iform-compatible style

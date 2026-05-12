@@ -1,5 +1,5 @@
 
--- 1. TaskCreate – creating a task
+# 1. TaskCreate – creating a task
 contract TaskCreate for project: Project, creator: User, data: TaskInput {
 
   given project_state: History[ProjectState] from "projects/{project.id}"
@@ -31,10 +31,10 @@ contract TaskCreate for project: Project, creator: User, data: TaskInput {
   emit task_created(task_id, initial_state)
 
   output task_id: String
-  output receipt: FactReceipt   -- Link to the immutable fact on the ledger
+  output receipt: FactReceipt   # Link to the immutable fact on the ledger
 }
 
--- 2. TaskUpdateStatus – status transition (the most common case)
+# 2. TaskUpdateStatus – status transition (the most common case)
 contract TaskUpdateStatus for task_id: String, new_status: String, actor: User, valid_time: DateTime {
 
   given task_history: BiHistory[TaskState] from "tasks/{task_id}"
@@ -67,7 +67,7 @@ contract TaskUpdateStatus for task_id: String, new_status: String, actor: User, 
   output receipt: FactReceipt
 }
 
--- 3. SprintPlan - sprint planning
+# 3. SprintPlan - sprint planning
 
 contract SprintPlan for sprint: SprintInput, project: Project {
 
@@ -97,7 +97,7 @@ contract SprintPlan for sprint: SprintInput, project: Project {
   output assigned_tasks: Integer
 }
 
--- 4. ProjectDashboardQuery — a purely read-only contract (for UI and AI)
+# 4. ProjectDashboardQuery — a purely read-only contract (for UI and AI)
 
 contract ProjectDashboard for project_id: String, as_of: DateTime {
 
@@ -116,9 +116,9 @@ contract ProjectDashboard for project_id: String, as_of: DateTime {
   output active_sprint: SprintState?
 }
 
--- TBackendAdapter:
--- Igniter::Ledger::ContractableReceiptSink.new(
---   store: Igniter::Ledger::LedgerStore.new,
---   observations_store: :project_observations,
---   events_store: :project_events
--- )
+# TBackendAdapter:
+# Igniter::Ledger::ContractableReceiptSink.new(
+#   store: Igniter::Ledger::LedgerStore.new,
+#   observations_store: :project_observations,
+#   events_store: :project_events
+# )

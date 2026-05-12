@@ -7,7 +7,7 @@ profile mundane_csv_import
   effects: minimal
 
 type CsvRow { raw: Map[String, String] }
-type ImportRecord { ... }   -- your domain type
+type ImportRecord { ... }   # your domain type
 
 pure contract ParseCsvFile(content: Bytes) -> List[CsvRow]
 
@@ -29,10 +29,10 @@ contract ImportCsv(content: Bytes)
   return BatchImport(records)
 }
 
--- ====================== WHAT THIS PROVES ======================
--- 1. CSV parsing, column mapping, and validation look like a regular script.
--- 2. Result/Option ergonomics work well.
--- 3. Only BatchImport is a true escape.
--- 4. Full receipt + evidence for import.
+# ====================== WHAT THIS PROVES ======================
+# 1. CSV parsing, column mapping, and validation look like a regular script.
+# 2. Result/Option ergonomics work well.
+# 3. Only BatchImport is a true escape.
+# 4. Full receipt + evidence for import.
 
 end module

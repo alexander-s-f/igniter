@@ -7,7 +7,7 @@ contract SimulateWhatIfScenario(base_date: Timestamp, changes: List[WhatIfChange
 {
   let original = SupplyChainHistory.query_as_of(base_date)
 
-  let forked = ForkSimulationAt(base_date)   -- time-travel forking
+  let forked = ForkSimulationAt(base_date)   # time-travel forking
     .apply_changes(changes)
 
   let outcome = RunSimulation(forked)

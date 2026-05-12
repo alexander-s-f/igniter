@@ -5,7 +5,7 @@ profile rescue_primitives
   evidence: required
   trust: system
 
--- ====================== SHARED TYPES ======================
+# ====================== SHARED TYPES ======================
 type VictimSignature {
   id: UUID
   last_seen: Timestamp
@@ -16,7 +16,7 @@ type VictimSignature {
   epistemic_kind: :observed | :inferred | :estimated
 }
 
-type GlobalMap { ... }          -- stub for Collaborative SLAM
+type GlobalMap { ... }          # stub for Collaborative SLAM
 type LocalMap  { ... }
 
 type RescueDecision {
@@ -24,12 +24,12 @@ type RescueDecision {
   assigned_drones: Set[DroneID]
   action: :hover | :drop_supplies | :evacuate | :mark_hazard
   priority: Decimal[2]
-  rejected_alternatives: List[RejectedOption]     -- Postulate 24
+  rejected_alternatives: List[RejectedOption]     # Postulate 24
   assumptions_used: AssumptionSet
   constraints_obeyed: ConstraintSet
 }
 
--- ====================== ASSUMPTIONS & CONSTRAINTS (Postulate 22 + 25) ======================
+# ====================== ASSUMPTIONS & CONSTRAINTS (Postulate 22 + 25) ======================
 assumptions rescue_operation {
   assumption battery_degradation { kind: :empirical; strength: 0.82; ... }
   assumption communication_blackout_probability { kind: :heuristic; strength: 0.65; ... }
@@ -40,7 +40,7 @@ constraints rescue_operation {
   constraint max_drones_per_victim { kind: :resource; priority: 1.0; ... }
 }
 
--- ====================== CORE PURE CONTRACTS ======================
+# ====================== CORE PURE CONTRACTS ======================
 pure contract FuseEKFAndSLAM
   input signatures: List[VictimSignature]
   input current_map: GlobalMap
@@ -51,6 +51,6 @@ pure contract ComputeFlockingForces
   input target: VictimSignature
   output forces: List[Vector[3]]
 
--- ====================== RECEIPT TYPES ======================
+# ====================== RECEIPT TYPES ======================
 receipt FusionReceipt { ... }
 receipt FlockingReceipt { ... }

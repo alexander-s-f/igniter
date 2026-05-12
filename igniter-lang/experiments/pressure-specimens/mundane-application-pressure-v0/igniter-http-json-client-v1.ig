@@ -28,7 +28,7 @@ type ApiError {
   retryable: Boolean
 }
 
--- CORE: preparation and processing (no escape)
+# CORE: preparation and processing (no escape)
 pure contract BuildRequest
   input url: String
   input method: :get | :post | :put | :delete
@@ -39,14 +39,14 @@ pure contract ParseJsonResponse<T>
   input raw: Bytes
   output data: T
 
--- ESCAPE: only here is real HTTP
+# ESCAPE: only here is real HTTP
 privileged contract ExecuteHttpCall
   input request: ApiRequest
   config retry: { attempts: 3, backoff_ms: 200, timeout_ms: 5000 }
   escape http_outbound
   output result: Result[ApiResponse[Any], ApiError]
 
--- Convenient high-level contract for the developer
+# Convenient high-level contract for the developer
 contract CallJsonApi<T>(url: String, method: :get | :post | :put | :delete, body: Optional[Any])
   -> result: Result[ApiResponse<T>, ApiError]
 {
@@ -62,11 +62,11 @@ contract CallJsonApi<T>(url: String, method: :get | :post | :put | :delete, body
   }
 }
 
--- ====================== WHAT THIS PROVES ======================
--- 1. The standard HTTP client looks clean and familiar.
--- 2. Retry/backoff/timeout are configurable, not hardcoded into every function.
--- 3. Clear boundary: BuildRequest + Parse = CORE, ExecuteHttpCall = ESCAPE.
--- 4. Typed Result + retryable errors are easy to handle.
--- 5. Idempotency key and receipts work automatically.
+# ====================== WHAT THIS PROVES ======================
+# 1. The standard HTTP client looks clean and familiar.
+# 2. Retry/backoff/timeout are configurable, not hardcoded into every function.
+# 3. Clear boundary: BuildRequest + Parse = CORE, ExecuteHttpCall = ESCAPE.
+# 4. Typed Result + retryable errors are easy to handle.
+# 5. Idempotency key and receipts work automatically.
 
 end module

@@ -5,11 +5,11 @@ profile censorship_primitives
   evidence: required
   trust: system
 
--- ====================== STEGANOGRAPHY — DETAILED MODEL ======================
+# ====================== STEGANOGRAPHY — DETAILED MODEL ======================
 type SteganographyCarrier {
   kind: :image_lsb | :audio_watermark | :dns_tunneling | :text_whitespace | :video_frame | :pdf_metadata | :tcp_header | :physical_pigeon_note
   capacity_bits_per_unit: Integer
-  detectability_risk: Decimal[2]          -- 0.0 = undetectable → 1.0 = easily detected
+  detectability_risk: Decimal[2]          # 0.0 = undetectable → 1.0 = easily detected
   current_status: :clean | :embedded | :detected | :compromised
   epistemic_kind: :observed | :inferred | :simulated
 }
@@ -19,8 +19,8 @@ type SteganographyEmbedding {
   carrier: SteganographyCarrier
   payload_hash: Hash
   method: :lsb | :spread_spectrum | :echo_hiding | :phase_shift | :custom
-  redundancy_level: Integer               -- how many copies of the payload
-  extraction_key: Optional[KeyRef]        -- for keyed steganography
+  redundancy_level: Integer               # how many copies of the payload
+  extraction_key: Optional[KeyRef]        # for keyed steganography
   evidence_of_embedding: EvidenceBundle
   assumptions_used: AssumptionSet
 }
@@ -34,19 +34,19 @@ type SteganographyExtractionAttempt {
   evidence_bundle: EvidenceBundle
 }
 
--- ====================== CENSORSHIP + STEGANOGRAPHY ======================
+# ====================== CENSORSHIP + STEGANOGRAPHY ======================
 type CommunicationChannel {
   id: UUID
   kind: :tcp | :udp | :mesh | :satellite | :bluetooth | :physical_pigeon | :steganography
-  steganography_carrier: Optional[SteganographyCarrier]   -- only for kind = :steganography
+  steganography_carrier: Optional[SteganographyCarrier]   # only for kind = :steganography
   reliability: Decimal[2]
   censorship_risk: Decimal[2]
   current_status: :open | :throttled | :blocked | :monitored | :injected
 }
 
-type CensorshipEvent { ... }   -- as in V2, but can now refer to Steganography Embedding
+type CensorshipEvent { ... }   # as in V2, but can now refer to Steganography Embedding
 
--- ====================== ASSUMPTIONS & CONSTRAINTS (Steganography-specific) ======================
+# ====================== ASSUMPTIONS & CONSTRAINTS (Steganography-specific) ======================
 assumptions steganography_dynamics {
   assumption modern_ml_can_detect_lsb {
     kind: :empirical
@@ -73,7 +73,7 @@ constraints steganography_resistance {
   }
 }
 
--- ====================== PURE CONTRACTS — Steganography core ======================
+# ====================== PURE CONTRACTS — Steganography core ======================
 pure contract EmbedViaSteganography
   input payload: MessagePacket
   input carrier: SteganographyCarrier

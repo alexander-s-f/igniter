@@ -5,8 +5,8 @@ profile audited_medical_record
   evidence: required
 
 type MedicalEvent {
-  valid_time: Timestamp          -- when the event happened in reality
-  transaction_time: Timestamp    -- when we recorded it in the system
+  valid_time: Timestamp          # when the event happened in reality
+  transaction_time: Timestamp    # when we recorded it in the system
   patient_id: UUID
   event_type: :diagnosis | :medication | :surgery | :lab_result
   details: Map[String, Any]
@@ -27,6 +27,6 @@ contract ViewPatientRecordAsOf(patient_id: UUID, as_of: Timestamp)
   }
 }
 
--- ====================== WHAT THIS PROVES ======================
--- Temporality is critically important in medicine: a doctor needs to see what they knew two months ago, not the current state.
--- Correcting a diagnosis doesn't erase the old one—it creates a new version with an audit trail.
+# ====================== WHAT THIS PROVES ======================
+# Temporality is critically important in medicine: a doctor needs to see what they knew two months ago, not the current state.
+# Correcting a diagnosis doesn't erase the old one—it creates a new version with an audit trail.

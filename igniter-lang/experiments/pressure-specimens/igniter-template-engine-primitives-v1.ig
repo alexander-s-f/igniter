@@ -5,11 +5,11 @@ profile template_primitives
   evidence: required
   trust: system
 
--- ====================== TEMPLATE CORE TYPES ======================
+# ====================== TEMPLATE CORE TYPES ======================
 type Template {
   id: UUID
-  name: String                     -- "users/index.html", "layouts/application.html"
-  source: String                   -- исходный шаблон (с формами)
+  name: String                     # "users/index.html", "layouts/application.html"
+  source: String                   # исходный шаблон (с формами)
   format: :html | :json | :xml | :markdown
   compiled_version: Integer
 }
@@ -18,7 +18,7 @@ type RenderContext {
   variables: Map[String, Any]
   layout: Optional[String]
   partials: Map[String, Template]
-  current_user: Optional[PoliticalActor]   -- пример контекста
+  current_user: Optional[PoliticalActor]   # пример контекста
 }
 
 type RenderedOutput {
@@ -29,7 +29,7 @@ type RenderedOutput {
   assumptions_used: AssumptionSet
 }
 
--- ====================== ASSUMPTIONS & CONSTRAINTS ======================
+# ====================== ASSUMPTIONS & CONSTRAINTS ======================
 assumptions template_engine {
   assumption auto_escaping_enabled {
     kind: :empirical
@@ -56,7 +56,7 @@ constraints template_engine {
   }
 }
 
--- ====================== TEMPLATE ENGINE CONTRACTS ======================
+# ====================== TEMPLATE ENGINE CONTRACTS ======================
 pure contract CompileTemplate
   input template: Template
   output compiled: Boolean evidence [template]

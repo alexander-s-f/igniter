@@ -1,8 +1,8 @@
 module IgniterLexerV1
 
-include IgniterParserCombinators   -- V6 (high-level combinators)
-include IgniterStringLibrary       -- V4 (Rune/Grapheme/SourceSpan)
-include IgniterFileIO              -- V5 (reading files)
+include IgniterParserCombinators   # V6 (high-level combinators)
+include IgniterStringLibrary       # V4 (Rune/Grapheme/SourceSpan)
+include IgniterFileIO              # V5 (reading files)
 
 profile mundane_lexer
   time: bitemporal
@@ -10,14 +10,14 @@ profile mundane_lexer
   trust: system
   effects: minimal
 
--- ====================== TOKEN TYPES ======================
+# ====================== TOKEN TYPES ======================
 type IgniterToken {
   kind: :keyword | :identifier | :number | :string | :symbol | :operator | :comment | :whitespace | :eof
   value: String
   span: SourceSpan
 }
 
--- ====================== LEXER COMBINATORS ======================
+# ====================== LEXER COMBINATORS ======================
 
 contract Keyword(kw: String) -> Parser[IgniterToken]
 {
@@ -57,8 +57,8 @@ contract StringLiteral() -> Parser[IgniterToken]
   return Between(
     Char('"'),
     Many(Choice([
-      Satisfy(c => c != '"' && c != '\\'),           -- regular symbol
-      Char('\\').then(Choice([                        -- escape
+      Satisfy(c => c != '"' && c != '\\'),           # regular symbol
+      Char('\\').then(Choice([                        # escape
         Char('n').map(_ => "\n"),
         Char('t').map(_ => "\t"),
         Char('"').map(_ => "\""),
@@ -86,16 +86,16 @@ contract Symbol() -> Parser[IgniterToken]
 contract Comment() -> Parser[IgniterToken]
 {
   return Choice([
-    -- one-line --
+    # one-line --
     StringLiteral("--").then( Many(Satisfy(c => c != '\n')) ).map(c => IgniterToken { kind: :comment, value: c.join(""), span: ... }),
 
-    -- multi-line /* */
+    # multi-line /* */
     StringLiteral("/*").then( Many(Satisfy(c => true)) ).then( StringLiteral("*/") )
       .map(c => IgniterToken { kind: :comment, value: c.join(""), span: ... })
   ])
 }
 
--- ====================== MAIN LEXER ======================
+# ====================== MAIN LEXER ======================
 contract IgniterLexer() -> Parser<List[IgniterToken]>
 {
   let whitespace = SkipMany(Satisfy(is_whitespace))
@@ -114,7 +114,7 @@ contract IgniterLexer() -> Parser<List[IgniterToken]>
   return ManySepBy(token, whitespace) <* Eof()
 }
 
--- ====================== CONVENIENT HIGH-LEVEL APIS ======================
+# ====================== CONVENIENT HIGH-LEVEL APIS ======================
 
 contract LexString(source: String, filename: Optional[String]) -> List[IgniterToken]
 {
@@ -132,18 +132,18 @@ contract LexString(source: String, filename: Optional[String]) -> List[IgniterTo
 
 contract LexFile(filename: String) -> List[IgniterToken]
 {
-  let content = ReadTextFile(filename)          -- from IgniterFileIO V5
+  let content = ReadTextFile(filename)          # from IgniterFileIO V5
   return LexString(content, filename)
 }
 
--- ====================== WHAT THIS PROVES (V7) ======================
+# ====================== WHAT THIS PROVES (V7) ======================
 
--- 1. The first full-fledged Lexer Igniter Lang prototype based on Parser Combinators
--- 2. Full Unicode support (Rune/Grapheme), SourceSpan tracking, error highlighting
--- 3. Clean, extensible design: easily add new tokens and keywords
--- 4. Integration with FileIO (LexFile) and StringLibrary
--- 5. All operations remain pure until the actual file is read
--- 6. Ready for further development into a full-fledged Parser Igniter Lang
--- 7. Mundane + Parser pressure successfully passed: Lexer looks modern and user-friendly
+# 1. The first full-fledged Lexer Igniter Lang prototype based on Parser Combinators
+# 2. Full Unicode support (Rune/Grapheme), SourceSpan tracking, error highlighting
+# 3. Clean, extensible design: easily add new tokens and keywords
+# 4. Integration with FileIO (LexFile) and StringLibrary
+# 5. All operations remain pure until the actual file is read
+# 6. Ready for further development into a full-fledged Parser Igniter Lang
+# 7. Mundane + Parser pressure successfully passed: Lexer looks modern and user-friendly
 
 end module

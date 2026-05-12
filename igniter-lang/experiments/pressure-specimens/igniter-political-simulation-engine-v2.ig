@@ -14,24 +14,24 @@ profile audited_political_mesh
   loop: service_progression
   authority: explicit
 
--- ====================== EXTERNAL PROGRESSION ======================
+# ====================== EXTERNAL PROGRESSION ======================
 service contract PoliticalSimulationOrchestrator
-  progression driven_by clock.every(1.political_cycle)   -- Election Day / News Cycle
+  progression driven_by clock.every(1.political_cycle)   # Election Day / News Cycle
   authority simulation_authority: AuthorityRef
 {
-  -- 1. Observe → Inferred (real data + OSINT)
+  # 1. Observe → Inferred (real data + OSINT)
   observed contract IngestPoliticalEvents
     input raw_events: List[MeshPacket]
     output actors: List[PoliticalActor]
     evidence [raw_events]
 
-  -- 2. Simulate interactions (pure)
+  # 2. Simulate interactions (pure)
   pure contract RunDailyInteractions
     input actors: List[PoliticalActor]
     uses assumptions political_dynamics
     output updated_actors: List[PoliticalActor] evidence [actors, assumptions]
 
-  -- 3. Decision under uncertainty + Overton detection
+  # 3. Decision under uncertainty + Overton detection
   pure contract SimulatePolicyDebate
     input actors: List[PoliticalActor]
     input proposals: List[PolicyProposal]
@@ -39,7 +39,7 @@ service contract PoliticalSimulationOrchestrator
     output debate: DebateRound
     evidence [actors, proposals, constraints]
 
-  -- 4. Act (privileged) — publication of a synthetic narrative
+  # 4. Act (privileged) — publication of a synthetic narrative
   privileged contract PublishSimulationOutcome
     input debate: DebateRound
     escape public_narrative
@@ -47,20 +47,20 @@ service contract PoliticalSimulationOrchestrator
     compensation RevertNarrativePublication
     authority simulation_authority
 
-  -- 5. PostAudit (Postulate 26) — comparison of forecast with reality
+  # 5. PostAudit (Postulate 26) — comparison of forecast with reality
   audit contract PostCycleAudit
     input simulation_receipt: SimulationOutcomeReceipt
     input real_world_outcome: PoliticalActor
     output audit_receipt: PostAuditReceipt
 }
 
--- ====================== INVARIANTS (Postulate 27 + 28) ======================
+# ====================== INVARIANTS (Postulate 27 + 28) ======================
 invariant no_synthetic_as_observed          { severity: critical }
 invariant every_claim_has_evidence          { severity: critical }
 invariant overton_shift_transparency        { severity: legal }
 invariant rejected_alternatives_visible     { severity: critical }
 
--- ====================== RECEIPTS ======================
+# ====================== RECEIPTS ======================
 receipt SimulationOutcomeReceipt {
   debate: DebateRound
   epistemic_transition: :simulated → :published
@@ -75,12 +75,12 @@ receipt PostAuditReceipt {
   honesty_statement: String
 }
 
--- ====================== WHAT THIS PROVES ======================
+# ====================== WHAT THIS PROVES ======================
 
--- 1. Political simulation as a high-level pressure specimen
--- 2. External progression instead of loops (political cycles = declarative temporal engine)
--- 3. Full application of Postulates 22–28 (assumptions, constraints, rejected alternatives, PostAudit)
--- 4. Epistemic state machine + prohibition of upward coercion (simulated → observed)
--- 5. Multi-module architecture + include
--- 6. Fair simulation of the Overton Window, homophily, debates, and fact-checking
--- 7. Forms that a political scientist can read without knowledge of Igniter
+# 1. Political simulation as a high-level pressure specimen
+# 2. External progression instead of loops (political cycles = declarative temporal engine)
+# 3. Full application of Postulates 22–28 (assumptions, constraints, rejected alternatives, PostAudit)
+# 4. Epistemic state machine + prohibition of upward coercion (simulated → observed)
+# 5. Multi-module architecture + include
+# 6. Fair simulation of the Overton Window, homophily, debates, and fact-checking
+# 7. Forms that a political scientist can read without knowledge of Igniter

@@ -129,7 +129,7 @@ contract RunSimulation for sim_id: String, actor_id: String, env_id: String, sce
   given env_state: History[SimulationEnv] from "simulations/{sim_id}/env/{env_id}"
 
   phase setup {
-    actor_instance := spawn_agent_instance(actor_id, actor_context.at(now))   -- new agent instance
+    actor_instance := spawn_agent_instance(actor_id, actor_context.at(now))   # new agent instance
     env_snapshot   := env_state.at(now)
   }
 
@@ -163,7 +163,7 @@ contract DetectCollisions for jurisdiction: String, as_of: DateTime {
   phase cross_check {
     active_laws     := laws.as_of(as_of)
     active_precedents := precedents.as_of(as_of)
-    collisions      := find_conflicts(active_laws, active_precedents)   -- invariant nodes
+    collisions      := find_conflicts(active_laws, active_precedents)   # invariant nodes
   }
 
   validate {
@@ -468,6 +468,6 @@ contract GenerateLegalBrief for query: LegalQuery, as_of: DateTime {
 
   output brief: LegalBrief
   output confidence: Float
-  output sources: Array[FactReceipt]   -- доказательная база
+  output sources: Array[FactReceipt]   # доказательная база
 }
 ```

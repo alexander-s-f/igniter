@@ -12,7 +12,7 @@ type InvoiceLine {
   description: String
   quantity: Decimal[2]
   unit_price: Money
-  tax_rate: Decimal[2]          -- 0.20 = 20%
+  tax_rate: Decimal[2]          # 0.20 = 20%
 }
 
 type Invoice {
@@ -23,7 +23,7 @@ type Invoice {
   idempotency_key: String
 }
 
--- CORE: pure mathematics (no escapes)
+# CORE: pure mathematics (no escapes)
 pure contract CalculateLineTotal(line: InvoiceLine) -> Money
 
 pure contract CalculateInvoice(lines: List[InvoiceLine]) -> Invoice
@@ -41,7 +41,7 @@ pure contract CalculateInvoice(lines: List[InvoiceLine]) -> Invoice
   }
 }
 
--- ESCAPE: only saving to the database
+# ESCAPE: only saving to the database
 privileged contract PersistInvoice(invoice: Invoice)
   escape db_write
   output receipt: InvoiceReceipt
@@ -49,14 +49,14 @@ privileged contract PersistInvoice(invoice: Invoice)
 contract CreateInvoice(lines: List[InvoiceLine])
   -> receipt: InvoiceReceipt
 {
-  let invoice = CalculateInvoice(lines)          -- pure CORE
-  return PersistInvoice(invoice)                 -- only here ESCAPE
+  let invoice = CalculateInvoice(lines)          # pure CORE
+  return PersistInvoice(invoice)                 # only here ESCAPE
 }
 
--- ====================== WHAT THIS PROVES ======================
--- 1. Decimal arithmetic, rounding, and taxes look natural
--- 2. No boilerplate: calculation = regular function
--- 3. Idempotency and receipt appear automatically when writing
--- 4. Clear separation of CORE math and ESCAPE writing
+# ====================== WHAT THIS PROVES ======================
+# 1. Decimal arithmetic, rounding, and taxes look natural
+# 2. No boilerplate: calculation = regular function
+# 3. Idempotency and receipt appear automatically when writing
+# 4. Clear separation of CORE math and ESCAPE writing
 
 end module
