@@ -25,6 +25,8 @@ are not part of the public documentation surface.
 - [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [MCP Adapter Package](./mcp-adapter-package-spec.md)
 - [Document Rotation](./document-rotation.md)
+- [Agent Orchestra DNA](./agent-orchestra-dna.md)
+- [Architect Supervisor Bootstrap](./architect-supervisor-bootstrap.md)
 
 ## Package And Layer Boundaries
 
