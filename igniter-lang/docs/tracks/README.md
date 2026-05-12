@@ -52,6 +52,20 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 41 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop037-compatibility-report-readiness-proof-v0.md` | done | Report-only CompatibilityReport readiness proof PASS for valid `clock.every`, `queue`, and `external_event` descriptors; readiness remains false with `progression.runtime_execution_not_authorized`; no scheduler/materializer/durable/runtime calls |
+| `gate3-r13-r22-lineup-historical-blockers-hardening-v0.md` | done | Applies optional R40 hardening: `Historical R22 Remaining Blockers` wording plus current-status/gates pointers; no authority change, movement, or deletion |
+| `gate3-discussion-index-no-zombie-plan-v0.md` | movement/link plan only | Plans additive discussion-index grouping and no-zombie checklist; no README rewrite, movement, deletion, or broad redirect collapse; opens P-57 for supervisor-approved follow-up |
+| `../gates/context-capture-pack-shadow-boundary-routing-decision-v0.md` | approved-design-research-only-shadow-boundary | Architect authorizes descriptor/profile/pack vocabulary research only for Context Capture Pack; no parser/package/runtime/LLM/Ledger/BiHistory/production/external utility mutation |
+| `context-capture-pack-shadow-boundary-v0.md` | done | Maps candidate context-capture pack/profile vocabulary as shadow research only; all names candidate labels; Contextizer CLI vocabulary external utility signal; ContextSnapshot/KeyPoint pressure-only |
+| `../discussions/r41-prop037-gate3-context-capture-pressure-v0.md` | complete — PROCEED (non-blockers only) | Adds P-57, flags `progression_sources` schema ownership, and warns context-capture `source_kind` values are not closed vocabulary |
+| `stage3-round41-status-curation-v0.md` | done | R41 status curation; refreshes current maps and R42 route from landed evidence |
+
+---
+
 ## Stage 3 Round 40 Evidence
 
 | Track | Status | Notes |
@@ -695,12 +709,15 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 | P-56 pre-Gate-3 Line Up edits | Apply RQ-1/RQ-2 to `old-discussions-pre-gate3-spine.md` before R2-R12 discussion-index redirects or movement | Line Up Summarizer / docs agent | closed by `pre-gate3-lineup-rq1-rq2-revision-v0.md`; no movement performed |
 | P-55 Gate 3 Line Up verification | Archive/Form verification of `gate3-r13-r22-discussions-spine.md` before movement or discussion-index redirects | Archive/Form Expert | closed by `gate3-r13-r22-lineup-authority-verification-v0.md`; redirects still need no-zombie checks |
 | PROP-037 descriptor OOF-PR proof | Proof-local descriptor validation for OOF-PR1..5, OOF-PR7, and OOF-PR9; readiness refusal remains separate from OOF | Research Agent / Compiler/Grammar Expert | closed by `prop037-descriptor-oof-pr-proof-v0.md`; OOF-PR6/8 remain deferred |
-| Gate 3 Line Up optional hardening | Rename remaining historical blocker wording and add current-status/gates pointer before primary redirect use | History Curator / Line Up Summarizer | optional R40 X1 recommendation; no movement/deletion |
+| Gate 3 Line Up optional hardening | Rename remaining historical blocker wording and add current-status/gates pointer before primary redirect use | History Curator / Line Up Summarizer | closed by `gate3-r13-r22-lineup-historical-blockers-hardening-v0.md`; no movement/deletion |
+| P-57 discussion-index additive grouping | Add group rows and authority notes to `docs/discussions/README.md` while preserving direct source rows | History Curator / Docs agent | new from R41 X1; requires supervisor approval, no movement/deletion |
 | durable-audit rollout implementation review | Architect review of design-only readiness plan before any operational implementation or rollout authorization | Architect Supervisor / Implementation Agent | readiness plan done; implementation/rollout still closed |
-| PROP-037 CompatibilityReport readiness proof | Show progression metadata can be present while runtime readiness stays false with stable refusal | Compiler/Grammar Expert / Research Agent | authorized design/proof follow-up; no scheduler/runtime auth |
+| PROP-037 CompatibilityReport readiness proof | Show progression metadata can be present while runtime readiness stays false with stable refusal | Compiler/Grammar Expert / Research Agent | closed by `prop037-compatibility-report-readiness-proof-v0.md`; report-only, no scheduler/runtime auth |
+| PROP-037 `progression_sources` schema contract | Decide manifest vs CompatibilityReport ownership for progression metadata while keeping runtime readiness closed | Compiler/Grammar Expert / Bridge Agent | next from R41 C1/X1; implementation-facing ambiguity |
 | PROP-037 OOF-PR6/8 AST boundary | Define/prove compiler-owned progression AST/typed fragment context before descriptor/typed mismatch diagnostics | Compiler/Grammar Expert / Research Agent | follow-up opened by R40 C1; no parser/runtime auth |
 | PROP-037 profile descriptor specialization proof | Prove `external_event` specialization below closed top-level source kinds | Compiler/Grammar Expert / Bridge Agent | authorized design/proof follow-up; no production listener/queue |
-| context-capture-pack-shadow-boundary-v0 | Explore a descriptor-only context capture pack boundary from Line Up / Contextizer pressure without canonizing the specimen | Architect Supervisor / Compiler-Profile Agent | route candidate only; requires Architect routing first |
+| context-capture-pack-shadow-boundary-v0 | Explore a descriptor-only context capture pack boundary from Line Up / Contextizer pressure without canonizing the specimen | Architect Supervisor / Compiler-Profile Agent | closed as design/research-only shadow boundary by R41 C4/C5; no implementation/canon |
+| context-capture-descriptor-proof-v0 | Validate capture source descriptors, policy refs, evidence links, and non-authorization flags without runtime/package authority | Research Agent / Compiler-Profile Agent | candidate next; keep source_kind values candidate-only until formal closure |
 | PROP-036 authorization route | Name Architect/supervisor authorization path for future assembler field, golden migration, loader/report, and receipt-link surfaces before they age out | Meta Expert / Architect Supervisor | design plan landed; implementation still blocked |
 | PROP-036 proof-only fixture map | Name exact `.igapp`/golden fixtures that would churn before any code opens | Compiler/Grammar Expert | recommended by C4-P1; no mutation |
 | rollout kind-name consistency check | In any future rollout implementation card, confirm `phase1_audit_storage` matches storage identity acceptance/refusal logic | Implementation Agent / Architect Supervisor | NB from R39 X1 |
