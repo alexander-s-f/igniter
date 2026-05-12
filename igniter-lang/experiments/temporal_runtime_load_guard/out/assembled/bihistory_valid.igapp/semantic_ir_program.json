@@ -3,7 +3,7 @@
   "contracts": [
     {
       "contract_name": "BiHistoryAxesTest",
-      "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+      "contract_ref": "contract/BiHistoryAxesTest/sha256:9a622a8545f42e129b0fbcb2",
       "escape_boundaries": [
         {
           "name": "bihistory_read",
@@ -43,6 +43,7 @@
         }
       ],
       "kind": "contract_ir",
+      "modifier": "pure",
       "nodes": [
         {
           "axis": "bitemporal",

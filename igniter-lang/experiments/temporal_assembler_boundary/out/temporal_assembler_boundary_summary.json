@@ -16,7 +16,7 @@
         "status": "assembled",
         "igapp_dir": "experiments/temporal_assembler_boundary/out/history_valid.igapp",
         "program_id": "semanticir/history-valid-te",
-        "artifact_hash": "sha256:a23d58b71650fc7e1fb5595fef11f888e89f85efb3691a88255dbed4b586b3c7",
+        "artifact_hash": "sha256:e3c7e3ddd252e3e306f09a36cdcaf3837dff74b9d597bdfdd03f1f75eeb7dca6",
         "semantic_ir_ref": "semanticir/history-valid-te",
         "compilation_report_ref": "compilation_report/history-valid-te",
         "contracts": [
@@ -36,14 +36,14 @@
       },
       "manifest_fragment_class": "temporal",
       "manifest": {
-        "artifact_hash": "sha256:a23d58b71650fc7e1fb5595fef11f888e89f85efb3691a88255dbed4b586b3c7",
+        "artifact_hash": "sha256:e3c7e3ddd252e3e306f09a36cdcaf3837dff74b9d597bdfdd03f1f75eeb7dca6",
         "assembler": "igapp-assembler-proof-stage1-v0",
         "compilation_report_ref": "compilation_report/history-valid-te",
         "compiled_at": "2026-05-06T00:00:00Z",
         "contract_index": {
           "HistoryAxesTest": {
             "contract_path": "contracts/history_axes_test.json",
-            "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+            "contract_ref": "contract/HistoryAxesTest/sha256:0ad9f385b1b6277ba2aff010",
             "fragment_class": "temporal",
             "temporal": {
               "axes": [
@@ -72,7 +72,7 @@
           }
         },
         "contract_refs": {
-          "HistoryAxesTest": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d"
+          "HistoryAxesTest": "contract/HistoryAxesTest/sha256:0ad9f385b1b6277ba2aff010"
         },
         "contracts": [
           "HistoryAxesTest"
@@ -111,7 +111,7 @@
       "compiled_program_valid": true,
       "compiled_program_validation_error": null,
       "contract": {
-        "artifact_hash": "sha256:a23d58b71650fc7e1fb5595fef11f888e89f85efb3691a88255dbed4b586b3c7",
+        "artifact_hash": "sha256:e3c7e3ddd252e3e306f09a36cdcaf3837dff74b9d597bdfdd03f1f75eeb7dca6",
         "compute_nodes": [],
         "contract_id": "HistoryAxesTest",
         "escape_set": [
@@ -150,7 +150,7 @@
             "type_tag": "Option[String]"
           }
         ],
-        "source_contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+        "source_contract_ref": "contract/HistoryAxesTest/sha256:0ad9f385b1b6277ba2aff010",
         "temporal_nodes": [
           {
             "axis": "valid_time",
@@ -296,7 +296,7 @@
         "status": "assembled",
         "igapp_dir": "experiments/temporal_assembler_boundary/out/bihistory_valid.igapp",
         "program_id": "semanticir/a97da15bba17da42",
-        "artifact_hash": "sha256:71c67ed4e7b0d2068ccbfb65978ace7861830d0cfb75dce41b9c13411540ea46",
+        "artifact_hash": "sha256:8ebb0d5aa1b88569ed8197e76fbb41ec24abea92b159a498c132d1e4c4971453",
         "semantic_ir_ref": "semanticir/a97da15bba17da42",
         "compilation_report_ref": "compilation_report/a97da15bba17da42",
         "contracts": [
@@ -316,14 +316,14 @@
       },
       "manifest_fragment_class": "temporal",
       "manifest": {
-        "artifact_hash": "sha256:71c67ed4e7b0d2068ccbfb65978ace7861830d0cfb75dce41b9c13411540ea46",
+        "artifact_hash": "sha256:8ebb0d5aa1b88569ed8197e76fbb41ec24abea92b159a498c132d1e4c4971453",
         "assembler": "igapp-assembler-proof-stage1-v0",
         "compilation_report_ref": "compilation_report/a97da15bba17da42",
         "compiled_at": "2026-05-06T00:00:00Z",
         "contract_index": {
           "BiHistoryAxesTest": {
             "contract_path": "contracts/bi_history_axes_test.json",
-            "contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+            "contract_ref": "contract/BiHistoryAxesTest/sha256:9a622a8545f42e129b0fbcb2",
             "fragment_class": "temporal",
             "temporal": {
               "axes": [
@@ -360,7 +360,7 @@
           }
         },
         "contract_refs": {
-          "BiHistoryAxesTest": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02"
+          "BiHistoryAxesTest": "contract/BiHistoryAxesTest/sha256:9a622a8545f42e129b0fbcb2"
         },
         "contracts": [
           "BiHistoryAxesTest"
@@ -399,7 +399,7 @@
       "compiled_program_valid": true,
       "compiled_program_validation_error": null,
       "contract": {
-        "artifact_hash": "sha256:71c67ed4e7b0d2068ccbfb65978ace7861830d0cfb75dce41b9c13411540ea46",
+        "artifact_hash": "sha256:8ebb0d5aa1b88569ed8197e76fbb41ec24abea92b159a498c132d1e4c4971453",
         "compute_nodes": [],
         "contract_id": "BiHistoryAxesTest",
         "escape_set": [
@@ -444,7 +444,7 @@
             "type_tag": "Option[String]"
           }
         ],
-        "source_contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+        "source_contract_ref": "contract/BiHistoryAxesTest/sha256:9a622a8545f42e129b0fbcb2",
         "temporal_nodes": [
           {
             "axis": "bitemporal",

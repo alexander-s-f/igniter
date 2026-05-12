@@ -3,7 +3,7 @@
   "contracts": [
     {
       "contract_name": "HistoryAxesTest",
-      "contract_ref": "contract/HistoryAxesTest/sha256:7e26cc28736928117931083d",
+      "contract_ref": "contract/HistoryAxesTest/sha256:0ad9f385b1b6277ba2aff010",
       "escape_boundaries": [
         {
           "name": "history_read",
@@ -35,6 +35,7 @@
         }
       ],
       "kind": "contract_ir",
+      "modifier": "pure",
       "nodes": [
         {
           "axis": "valid_time",

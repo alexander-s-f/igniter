@@ -1,0 +1,47 @@
+{
+  "kind": "prop036_artifact_hash_ordering_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R37-C5-P",
+  "track": "prop036-artifact-hash-ordering-proof-v0",
+  "status": "PASS",
+  "matrix_ref": "igniter-lang/experiments/prop036_artifact_hash_ordering_proof/out/prop036_artifact_hash_ordering_matrix.json",
+  "authority_refs": {
+    "c3a": "docs/gates/prop036-compiler-profile-id-acceptance-decision-v0.md",
+    "c5p": "docs/tracks/prop036-loader-status-report-proof-v0.md"
+  },
+  "implementation_blockers": [
+    "Cite PROP-036, S3-R35-C3-A acceptance, and S3-R36-C5-P loader proof authority",
+    "Receive separate Architect/supervisor authorization before any implementation",
+    "Name exactly one implementation surface for the card",
+    "Preserve compiler_profile.present_verified != runtime ready",
+    "Preserve legacy_optional unless a later Architect decision changes rollout",
+    "Do not roll out profile_required without migration evidence",
+    "Do not mutate real .igapp manifests or .ilk artifacts unless explicitly authorized",
+    "Do not implement real loader, assembler, CompatibilityReport, or artifact golden migration from this proof",
+    "Do not migrate compiler dispatch from this proof",
+    "Do not bind RuntimeMachine or grant runtime execution authority from this proof",
+    "Carry this hash-ordering proof into assembler field design before any artifact_hash migration",
+    "Keep proof-local fixture output separate from real goldens"
+  ],
+  "checks": {
+    "authority.cites_c3a": true,
+    "authority.cites_c5p": true,
+    "scope.synthetic_material_only": true,
+    "scope.no_real_igapp_mutation": true,
+    "scope.no_real_loader_implementation": true,
+    "scope.no_real_assembler_implementation": true,
+    "scope.no_compiler_dispatch_migration": true,
+    "scope.no_runtime_machine_binding": true,
+    "scope.no_production_behavior_change": true,
+    "scope.no_production_signing": true,
+    "ordering.profiled_before_hash_accepts": true,
+    "ordering.signature_payload_covers_profile_id": true,
+    "ordering.legacy_optional_hash_still_valid_for_legacy_material": true,
+    "negative.post_sign_annotation_refused": true,
+    "negative.post_sign_annotation_not_signature_covered": true,
+    "hash.profile_id_changes_artifact_hash": true,
+    "hash.profile_id_changes_signature_payload": true,
+    "negative.signature_profile_mismatch_refused": true,
+    "blockers.expanded_list_preserved": true
+  }
+}

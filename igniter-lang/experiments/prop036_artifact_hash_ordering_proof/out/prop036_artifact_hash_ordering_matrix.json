@@ -1,0 +1,102 @@
+{
+  "kind": "prop036_artifact_hash_ordering_matrix",
+  "format_version": "0.1.0",
+  "card": "S3-R37-C5-P",
+  "track": "prop036-artifact-hash-ordering-proof-v0",
+  "proposal_ref": "docs/proposals/PROP-036-compiler-profile-manifest-identity-v0.md",
+  "c3a_authority_ref": "docs/gates/prop036-compiler-profile-id-acceptance-decision-v0.md",
+  "c5p_authority_ref": "docs/tracks/prop036-loader-status-report-proof-v0.md",
+  "synthetic_material_only": true,
+  "real_igapp_mutation": false,
+  "real_loader_implementation": false,
+  "real_assembler_implementation": false,
+  "compiler_dispatch_migration": false,
+  "runtime_machine_binding": false,
+  "production_behavior_change": false,
+  "production_signing": false,
+  "cases": {
+    "profiled_before_hash_and_sign": {
+      "decision": "accept_profiled_hash_material",
+      "artifact_hash": "sha256:a84dd26f98495fd595bbdd0fc27613c69a258ef1d12f457c351939206b4e3057",
+      "signature_payload": {
+        "artifact_hash": "sha256:a84dd26f98495fd595bbdd0fc27613c69a258ef1d12f457c351939206b4e3057",
+        "compiler_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "signing_context": "synthetic-proof-local-prop036-signing-v0",
+        "synthetic_signature_only": true
+      },
+      "synthetic_signature": "synthetic-signature/sha256:88c0336e1d9391971b58165f5ba42f4d7d2e7305bc1a0cdadb563516d086ec36",
+      "validation": {
+        "signature_valid_for_payload": true,
+        "hash_matches_material": true,
+        "profile_matches_material": true,
+        "accepted_by_profile_aware_policy": true,
+        "signed_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "manifest_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "signed_hash": "sha256:a84dd26f98495fd595bbdd0fc27613c69a258ef1d12f457c351939206b4e3057",
+        "recomputed_hash": "sha256:a84dd26f98495fd595bbdd0fc27613c69a258ef1d12f457c351939206b4e3057"
+      }
+    },
+    "legacy_without_profile": {
+      "decision": "legacy_optional_hash_material",
+      "artifact_hash": "sha256:7da44a6224ee1b3ebd3e86e3dc4c6a790278c148d7e1af1eac4a88b162daab5f",
+      "signature_payload": {
+        "artifact_hash": "sha256:7da44a6224ee1b3ebd3e86e3dc4c6a790278c148d7e1af1eac4a88b162daab5f",
+        "compiler_profile_id": null,
+        "signing_context": "synthetic-proof-local-prop036-signing-v0",
+        "synthetic_signature_only": true
+      },
+      "synthetic_signature": "synthetic-signature/sha256:b0bb975c1a8859a8a941c8ec3559181b7810a76b4faf3d25e09e23f6be5fa70f",
+      "validation": {
+        "signature_valid_for_payload": true,
+        "hash_matches_material": true,
+        "profile_matches_material": true,
+        "accepted_by_profile_aware_policy": true,
+        "signed_profile_id": null,
+        "manifest_profile_id": null,
+        "signed_hash": "sha256:7da44a6224ee1b3ebd3e86e3dc4c6a790278c148d7e1af1eac4a88b162daab5f",
+        "recomputed_hash": "sha256:7da44a6224ee1b3ebd3e86e3dc4c6a790278c148d7e1af1eac4a88b162daab5f"
+      }
+    },
+    "post_sign_annotation_forbidden": {
+      "decision": "refuse_post_sign_profile_annotation",
+      "original_hash": "sha256:7da44a6224ee1b3ebd3e86e3dc4c6a790278c148d7e1af1eac4a88b162daab5f",
+      "recomputed_profiled_hash": "sha256:a84dd26f98495fd595bbdd0fc27613c69a258ef1d12f457c351939206b4e3057",
+      "signed_profile_id": null,
+      "manifest_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+      "validation": {
+        "signature_valid_for_payload": true,
+        "hash_matches_material": false,
+        "profile_matches_material": false,
+        "accepted_by_profile_aware_policy": false,
+        "signed_profile_id": null,
+        "manifest_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "signed_hash": "sha256:7da44a6224ee1b3ebd3e86e3dc4c6a790278c148d7e1af1eac4a88b162daab5f",
+        "recomputed_hash": "sha256:a84dd26f98495fd595bbdd0fc27613c69a258ef1d12f457c351939206b4e3057"
+      }
+    },
+    "profile_id_change_changes_hash": {
+      "decision": "require_rehash_and_resign",
+      "profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+      "profile_hash": "sha256:a84dd26f98495fd595bbdd0fc27613c69a258ef1d12f457c351939206b4e3057",
+      "other_profile_id": "compiler_profile_unified/sha256:000000000000000000000000",
+      "other_profile_hash": "sha256:0303dfe062899d6d25a2f95710c036347dcde31ad45335d0a3d3403250057095",
+      "hashes_differ": true,
+      "signatures_differ": true
+    },
+    "signature_profile_mismatch_refused": {
+      "decision": "refuse_signature_profile_mismatch",
+      "signed_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+      "manifest_profile_id": "compiler_profile_unified/sha256:000000000000000000000000",
+      "validation": {
+        "signature_valid_for_payload": true,
+        "hash_matches_material": false,
+        "profile_matches_material": false,
+        "accepted_by_profile_aware_policy": false,
+        "signed_profile_id": "compiler_profile_unified/sha256:2944e573270aa56fca51cea3",
+        "manifest_profile_id": "compiler_profile_unified/sha256:000000000000000000000000",
+        "signed_hash": "sha256:a84dd26f98495fd595bbdd0fc27613c69a258ef1d12f457c351939206b4e3057",
+        "recomputed_hash": "sha256:0303dfe062899d6d25a2f95710c036347dcde31ad45335d0a3d3403250057095"
+      }
+    }
+  }
+}

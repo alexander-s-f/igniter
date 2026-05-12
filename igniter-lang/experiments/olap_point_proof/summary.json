@@ -415,7 +415,7 @@
   "typechecker_boundary": {
     "kind": "olap_typechecker_semanticir_boundary",
     "negative_dimension_type_mismatch": {
-      "classified_program_id": "classifier_pass/olap_d646629f0191d1f1",
+      "classified_program_id": "classifier_pass/olap_759c655460c9b4a1",
       "contracts": [
         {
           "contract_id": "Fixture.OLAPPoint.RegionalDailyRevenuePoint",
@@ -746,7 +746,7 @@
           "source_ref": "synthetic_fulfilled_order_facts"
         }
       ],
-      "program_id": "typed_pass/6256aeded25d3dd9",
+      "program_id": "typed_pass/95750c90dfa54da9",
       "semantic_ir_ref": null,
       "source_hash": "sha256:8ae0d8de45a3602abd9a86b44241547c116bf422a7b9fff5b7bdec48bb4060f9",
       "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
@@ -762,7 +762,7 @@
       "typechecker_version": "typed-pass-executable-proof-v0"
     },
     "negative_empty_without_source": {
-      "classified_program_id": "classifier_pass/olap_d646629f0191d1f1",
+      "classified_program_id": "classifier_pass/olap_759c655460c9b4a1",
       "contracts": [
         {
           "contract_id": "Fixture.OLAPPoint.RegionalDailyRevenuePoint",
@@ -1093,7 +1093,7 @@
           "source_ref": null
         }
       ],
-      "program_id": "typed_pass/6256aeded25d3dd9",
+      "program_id": "typed_pass/95750c90dfa54da9",
       "semantic_ir_ref": null,
       "source_hash": "sha256:8ae0d8de45a3602abd9a86b44241547c116bf422a7b9fff5b7bdec48bb4060f9",
       "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
@@ -1109,7 +1109,7 @@
       "typechecker_version": "typed-pass-executable-proof-v0"
     },
     "negative_missing_dimension": {
-      "classified_program_id": "classifier_pass/olap_d646629f0191d1f1",
+      "classified_program_id": "classifier_pass/olap_759c655460c9b4a1",
       "contracts": [
         {
           "contract_id": "Fixture.OLAPPoint.RegionalDailyRevenuePoint",
@@ -1409,7 +1409,7 @@
           "source_ref": "synthetic_fulfilled_order_facts"
         }
       ],
-      "program_id": "typed_pass/6256aeded25d3dd9",
+      "program_id": "typed_pass/95750c90dfa54da9",
       "semantic_ir_ref": null,
       "source_hash": "sha256:8ae0d8de45a3602abd9a86b44241547c116bf422a7b9fff5b7bdec48bb4060f9",
       "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
@@ -1425,6 +1425,7 @@
       "typechecker_version": "typed-pass-executable-proof-v0"
     },
     "parsed": {
+      "assumptions": [],
       "contract_shapes": [],
       "contracts": [
         {
@@ -1551,7 +1552,7 @@
       "types": []
     },
     "positive_typed": {
-      "classified_program_id": "classifier_pass/olap_d646629f0191d1f1",
+      "classified_program_id": "classifier_pass/olap_759c655460c9b4a1",
       "contracts": [
         {
           "contract_id": "Fixture.OLAPPoint.RegionalDailyRevenuePoint",
@@ -1875,7 +1876,7 @@
           "source_ref": "synthetic_fulfilled_order_facts"
         }
       ],
-      "program_id": "typed_pass/6256aeded25d3dd9",
+      "program_id": "typed_pass/95750c90dfa54da9",
       "semantic_ir_ref": null,
       "source_hash": "sha256:8ae0d8de45a3602abd9a86b44241547c116bf422a7b9fff5b7bdec48bb4060f9",
       "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",
@@ -1884,7 +1885,7 @@
       "typechecker_version": "typed-pass-executable-proof-v0"
     },
     "rollup_warning": {
-      "classified_program_id": "classifier_pass/olap_d646629f0191d1f1",
+      "classified_program_id": "classifier_pass/olap_759c655460c9b4a1",
       "contracts": [
         {
           "contract_id": "Fixture.OLAPPoint.RegionalDailyRevenuePoint",
@@ -2135,7 +2136,7 @@
           "source_ref": "synthetic_fulfilled_order_facts"
         }
       ],
-      "program_id": "typed_pass/6256aeded25d3dd9",
+      "program_id": "typed_pass/95750c90dfa54da9",
       "semantic_ir_ref": null,
       "source_hash": "sha256:8ae0d8de45a3602abd9a86b44241547c116bf422a7b9fff5b7bdec48bb4060f9",
       "source_path": "igniter-lang/experiments/olap_point_proof/revenue_point.ig",

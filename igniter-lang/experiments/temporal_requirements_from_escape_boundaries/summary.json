@@ -221,7 +221,15 @@
           "min_consistency": "strong",
           "axes": [],
           "coordinate_refs": [],
-          "windows": [],
+          "windows": [
+            {
+              "ref": "integer_count_window",
+              "kind": "count",
+              "bounded": true,
+              "size": 3,
+              "on_close": "snapshot"
+            }
+          ],
           "slices": []
         },
         "lifecycle": {

@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:71c67ed4e7b0d2068ccbfb65978ace7861830d0cfb75dce41b9c13411540ea46",
+  "artifact_hash": "sha256:8ebb0d5aa1b88569ed8197e76fbb41ec24abea92b159a498c132d1e4c4971453",
   "compute_nodes": [],
   "contract_id": "BiHistoryAxesTest",
   "escape_set": [
@@ -44,7 +44,7 @@
       "type_tag": "Option[String]"
     }
   ],
-  "source_contract_ref": "contract/BiHistoryAxesTest/sha256:544f156d86b5a40f63e86e02",
+  "source_contract_ref": "contract/BiHistoryAxesTest/sha256:9a622a8545f42e129b0fbcb2",
   "temporal_nodes": [
     {
       "axis": "bitemporal",
