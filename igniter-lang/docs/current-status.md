@@ -137,6 +137,8 @@ Language          ⚙️ partial TEMPORAL through .igapp manifest index + load g
                             PROP-037 accepted proposal-only;
                             PROP-037 descriptor shape proof PASS;
                             OOF-PR diagnostic design done; P-54 Ch11 namespace sync closed;
+                            descriptor OOF-PR proof PASS for OOF-PR1/2/3/4/5/7/9;
+                            OOF-PR6/8 and CompatibilityReport readiness proof remain open;
                             PROP-033 evidence validation/runtime receipts still closed
 Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             invariant typed-shape delta accepted/discharged;
@@ -393,8 +395,14 @@ Round 39 landed:
   S3-R39-C1-P1: Ch11 OOF namespace sync           ✅ P-54 closed; profile diagnostics OOF-PROF*, progression keeps OOF-PR*
   S3-R39-C2-P1: rollout readiness plan            🟡 design-only; operational implementation/rollout still closed
   S3-R39-C3-P1: Line Up authority-hoist review    ✅ review done; RQ-1/RQ-2 required before R2-R12 redirects/movement
-  S3-R39-C4-P1: Gate 3 R13-R22 Line Up            ✅ high-risk Line Up landed; Archive/Form verification still needed
+  S3-R39-C4-P1: Gate 3 R13-R22 Line Up            ✅ high-risk Line Up landed; verification later closed in R40
   S3-R39-X1-S: R39 pressure review                ✅ PROCEED non-blockers; P-55/P-56 routed
+Round 40 landed:
+  S3-R40-C1-P1: PROP-037 descriptor OOF-PR proof   ✅ OOF-PR1/2/3/4/5/7/9 PASS; readiness refusal separate; runtime closed
+  S3-R40-C2-P1: Gate 3 Line Up verification        ✅ P-55 closed; safe as redirect target after no-zombie/movement checks
+  S3-R40-C3-P1: pre-Gate-3 Line Up revision        ✅ P-56 closed; RQ-1/RQ-2/RQ-3 applied; no movement/deletion
+  S3-R40-C4-P1: Contextizer bridge analysis        🟡 pressure/route only; no package/parser/runtime/LLM/Ledger/BiHistory auth
+  S3-R40-X1-S: R40 pressure review                 ✅ PROCEED non-blockers; R41 proof/hardening routes only
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -975,8 +983,19 @@ S3-R39 result:      C1-P1 closes P-54 by renaming Ch11 profile diagnostics to `O
                       readiness plan; operational implementation and rollout remain closed. C3-P1 reviews Line Up
                       authority-hoist risk and requires RQ-1/RQ-2 before R2-R12 discussion redirects or movement. C4-P1
                       lands the Gate 3 R13-R22 discussions Line Up without movement/deletion; Archive/Form verification
-                      remains open as P-55. X1 says PROCEED with non-blockers and routes P-55, P-56, and
+                      opened as P-55 and is later closed in R40. X1 says PROCEED with non-blockers and routes P-55, P-56, and
                       `prop037-descriptor-oof-pr-proof-v0` now that namespace sync is closed.
+S3-R40 result:      C1-P1 closes the descriptor OOF-PR proof for OOF-PR1/2/3/4/5/7/9. Valid progression descriptors
+                      now prove stable readiness refusal instead of compiler OOF, while OOF-PR6 and OOF-PR8 remain
+                      deferred until compiler-owned progression AST/typed fragment context exists. C2-P1 closes P-55:
+                      the Gate 3 R13-R22 Line Up is safe as an active memory card and future redirect target after
+                      normal History Curator movement/link and no-zombie checks. C3-P1 closes P-56 by applying RQ-1,
+                      RQ-2, and RQ-3 to the pre-Gate-3 Line Up, again without movement/deletion. C4-P1 maps Line Ups,
+                      the legacy Contextizer CLI, and `Igniter.DocumentContextizer` as a pressure-only bridge; it does
+                      not authorize a package, parser syntax, runtime behavior, LLM connector, Ledger/BiHistory, or
+                      production surface. X1 says PROCEED with non-blockers only and routes optional Gate 3 Line Up
+                      hardening, PROP-037 CompatibilityReport readiness proof, and Architect-gated context-capture
+                      shadow-boundary work.
 ```
 
 ### Spec Freshness
@@ -997,8 +1016,9 @@ S3-R39 result:      C1-P1 closes P-54 by renaming Ch11 profile diagnostics to `O
 | Proposal index | ✅ R37 PROP-037 acceptance synced | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0`; `PROP-032-assumptions-block-v0`; `prop032-assumptions-implementation-gate-review-v0`; `prop032-assumptions-phase1-classifier-implementation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop036-placeholder-governance-sync-v0`; `prop036-compiler-profile-id-manifest-proposal-v0`; `progression-prop-number-assignment-decision-v0`; `proposal-lifecycle-status-labels-sync-v0`; `stage3-round36-status-preflight-sync-v0`; `prop037-external-progression-proposal-authoring-v0`; `prop037-progression-acceptance-review-v0` | PROP-036 accepted proposal-only; PROP-037 accepted proposal-only; PROP-038+ local recursion placeholder; PROP-032 experiment-pass |
 | Contract modifiers | ✅ implementation/proof + R30 V-3 golden | `PROP-031-contract-modifiers-v0`; `contract-modifiers-proof-fixture-plan-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `agent-d-cross-review-values-and-meta-cards-r28-v0`; `prop031-compatibility-addendum-r29-v0`; `observed-temporal-precedence-golden-r30-v0` | Parser/classifier/typechecker/SemanticIR support landed with proof PASS; §14 documents migration/OOF-M1/V-3; V-3 golden PASS 25/25; Effect Surface/Profile/authority/runtime enforcement still absent by design |
 | Compiler pack architecture | 🟡 accepted proposal / implementation blocked | `compiler-profile-architecture-direction-v0`; `compiler-pack-boundary-report-v0`; `compiler-pack-shadow-profile-proof-v0`; `contract-modifiers-pack-native-boundary-v0`; `compiler-kernel-pack-registry-spike-v0`; `compiler-kernel-ordered-rule-precedence-v0`; `compiler-profile-id-manifest-boundary-plan-v0`; `compiler-profile-chain-closure-index-v0`; `compiler-profile-r32-shadow-chain-backreference-v0`; `docs/gates/compiler-profile-manifest-prop-number-decision-v0.md`; `prop036-compiler-profile-id-manifest-proposal-v0`; `prop036-compiler-profile-id-acceptance-decision-v0`; `prop036-loader-status-report-proof-v0`; `prop036-artifact-hash-ordering-proof-v0`; `prop036-assembler-field-design-plan-v0` | PROP-036 accepted proposal-only; assembler field placement designed; no compiler dispatch, no rewrite, no real `.igapp`/`.ilk` profile id, no native migration authorization |
-| PROP-037 progression | 🟡 accepted proposal / proof-local descriptors | `prop037-progression-acceptance-review-v0`; `prop037-progression-descriptor-shape-proof-v0`; `prop037-oof-pr-diagnostic-design-v0`; `ch11-profile-oof-namespace-sync-v0` | Descriptor shape proof PASS; OOF-PR design done; P-54 namespace collision closed; descriptor OOF proof still not opened |
-| Documentation metabolism / Line Ups | ✅ R39 third cleanup packet | `documentation-fate-inventory-stage1-stage2-v0`; `documentation-movement-link-ledger-stage1-stage2-v0`; `line-up-stage1-stage2-second-batch-v0`; `line-up-authority-hoist-risk-review-v0`; `gate3-r13-r22-discussions-lineup-v0`; `docs/lineups/README.md` | First/second/Gate3 Line Ups landed; no movement/deletion yet; P-55/P-56 before redirects/movement |
+| PROP-037 progression | 🟡 accepted proposal / proof-local descriptors | `prop037-progression-acceptance-review-v0`; `prop037-progression-descriptor-shape-proof-v0`; `prop037-oof-pr-diagnostic-design-v0`; `ch11-profile-oof-namespace-sync-v0`; `prop037-descriptor-oof-pr-proof-v0` | Descriptor shape proof PASS; OOF-PR design done; P-54 closed; descriptor OOF-PR proof PASS for OOF-PR1/2/3/4/5/7/9; OOF-PR6/8 and CompatibilityReport readiness proof remain open |
+| Documentation metabolism / Line Ups | ✅ R40 verification/revision packet | `documentation-fate-inventory-stage1-stage2-v0`; `documentation-movement-link-ledger-stage1-stage2-v0`; `line-up-stage1-stage2-second-batch-v0`; `line-up-authority-hoist-risk-review-v0`; `gate3-r13-r22-discussions-lineup-v0`; `gate3-r13-r22-lineup-authority-verification-v0`; `pre-gate3-lineup-rq1-rq2-revision-v0`; `docs/lineups/README.md` | First/second/Gate3 Line Ups landed; P-55/P-56 closed; no movement/deletion yet; redirects still require History Curator movement/link and no-zombie checks |
+| Contextizer pressure / Line Up bridge | 🟡 pressure-only route candidate | `contextizer-pressure-specimen-routing-v0`; `contextizer-lineup-bridge-analysis-v0` | Line Ups, legacy Contextizer CLI, and `Igniter.DocumentContextizer` compared; `context-capture-pack-shadow-boundary-v0` is a route candidate only, not package/parser/runtime/LLM/Ledger/BiHistory authorization |
 | Stale parity/cache tracks | ✅ marked S3-R6 | `parity-track-stale-header-sweep-v0` | Archive move optional later, no current blocker |
 | Entrypoint/section syntax | ✅ PROP drafted S3-R8 | `PROP-029-entrypoint-section-surface-v0`; `spec-entrypoint-sync-v0` | Proposal-only; parser/typechecker proof needed before canon |
 
@@ -1306,10 +1326,16 @@ DOC-DEBT-60  S3-R39 status:
              P-54 is closed by Ch11 OOF namespace sync: profile diagnostics are
              `OOF-PROF*`, progression diagnostics keep `OOF-PR*`. Durable-audit
              rollout readiness plan is design-only; implementation and rollout
-             still require later Architect decisions. RQ-1/RQ-2 edits to
-             old-discussions-pre-gate3-spine are required before R2-R12 redirects
-             or movement (P-56). Gate 3 R13-R22 Line Up landed but requires
-             Archive/Form verification before movement/redirects (P-55).
+             still require later Architect decisions. R39 opened P-55/P-56 for
+             Gate 3 Line Up verification and pre-Gate-3 RQ edits; both are later
+             closed in R40 without movement/deletion.
+DOC-DEBT-61  S3-R40 status:
+             P-55 and P-56 are closed by R40 verification/revision tracks, but
+             no movement, deletion, or discussion-index redirect was performed.
+             PROP-037 descriptor OOF-PR proof is closed for OOF-PR1/2/3/4/5/7/9;
+             OOF-PR6/8 and CompatibilityReport readiness consumption proof remain
+             follow-ups. Contextizer bridge evidence is pressure-only; route
+             `context-capture-pack-shadow-boundary-v0` only after Architect routing.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -1355,7 +1381,9 @@ PROP-036   compiler_profile_id manifest  accepted proposal-only; implementation 
                                          no implementation or migration auth
 PROP-037   progression/service liveness  accepted proposal-only;
                                          descriptor shape proof PASS; OOF-PR design done;
-                                         P-54 namespace sync closed; descriptor OOF proof not opened;
+                                         P-54 namespace sync closed; descriptor OOF-PR proof PASS
+                                         for OOF-PR1/2/3/4/5/7/9; OOF-PR6/8 and
+                                         CompatibilityReport readiness proof remain open;
                                          no parser/runtime/fragment-class auth
 PROP-038+  managed local recursion       placeholder only; not assigned, not canon without proposal/proof
 ```
