@@ -83,6 +83,18 @@ Disposition input:
 Keep summaries short. A Line Up is a memory handle, not a replacement for the
 source document when exact evidence is required.
 
+## Required QA Anchor
+
+Every Line Up must include this exact standalone line, without wrapping:
+
+```text
+source remains authoritative for exact proof logs.
+```
+
+Do not embed this sentence inside a longer paragraph. Several Line Up validation
+checks search for the literal line; wrapping it creates false negatives and
+unnecessary whitespace churn.
+
 ## Compression Rules
 
 - Preserve names, IDs, dates, card IDs, gate names, and proposal numbers.

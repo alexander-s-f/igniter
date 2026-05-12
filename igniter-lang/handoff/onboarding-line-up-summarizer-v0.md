@@ -84,6 +84,11 @@ Before claiming `done`:
 3. No summary promotes research/pressure into canon.
 4. Index rows point to summaries and source evidence.
 5. Risky public/private material is flagged.
+6. Every Line Up includes this exact standalone QA anchor, without wrapping:
+
+```text
+source remains authoritative for exact proof logs.
+```
 
 ---
 
