@@ -46,7 +46,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-031](PROP-031-contract-modifiers-v0.md) | experiment-pass | Contract modifiers: optional `pure/observed/effect/privileged/irreversible` prefix, implicit pure default, OOF-M1 only; parser/classifier/typechecker/SemanticIR proof PASS; no Effect Surface/Profile/authority/runtime enforcement |
 | [PROP-032](PROP-032-assumptions-block-v0.md) | experiment-pass | `assumptions {}` block + `uses assumptions NAME`; Phase 1/2/3/4 compiler proofs accepted by S3-R36-C2-A; PROP-033 evidence validation and runtime receipts remain excluded |
 | [PROP-036](PROP-036-compiler-profile-manifest-identity-v0.md) | accepted | `compiler_profile_id` manifest identity; accepted proposal-only by S3-R35-C3-A; separate implementation authorization required before code |
-| [PROP-037](PROP-037-external-progression-service-liveness-v0.md) | authored-pending-review | External progression and service liveness semantics; service loops as progression-backed liveness surfaces; capability/manifest metadata first; no parser/runtime/fragment-class authorization |
+| [PROP-037](PROP-037-external-progression-service-liveness-v0.md) | accepted | External progression and service liveness semantics; accepted proposal-only by S3-R37-C3-A; descriptor/proof follow-ups only, no parser/runtime/fragment-class authorization |
 
 ---
 
@@ -157,6 +157,6 @@ Stage 1 PROPs: see `accepted/` — frozen read-only.
 Stage 2 closed PROPs: in `proposals/` with lifecycle label `accepted`.
 New Stage 3 proposal IDs must consult the queued table above. PROP-033 through
 PROP-035 are reserved there; PROP-036 is accepted proposal-only for compiler
-profile manifest identity; PROP-037 is authored-pending-review for external
+profile manifest identity; PROP-037 is accepted proposal-only for external
 progression and service liveness semantics; managed local recursion / loop-class
 extensions use PROP-038+ as placeholder only until formal assignment.
