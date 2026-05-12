@@ -53,5 +53,6 @@
   "functions": [],
   "pipelines": [],
   "olap_points": [],
+  "assumptions": [],
   "parse_errors": []
 }

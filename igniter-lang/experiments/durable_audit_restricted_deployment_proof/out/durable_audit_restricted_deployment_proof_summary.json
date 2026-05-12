@@ -1,0 +1,292 @@
+{
+  "kind": "durable_audit_restricted_deployment_proof_summary",
+  "format_version": "1.0.0",
+  "card": "S3-R37-C2-I",
+  "track": "durable-audit-restricted-deployment-implementation-v0",
+  "authorization_ref": "architect-supervisor://igniter-lang/gates/phase1-production-durable-audit/restricted-deployment-scope/2026-05-11",
+  "b_e_decision_ref": "S3-R36-C1-A",
+  "proof_timestamp": "2026-05-12T10:00:00Z",
+  "status": "PASS",
+  "total_cases": 30,
+  "cases_pass": 30,
+  "cases_fail": 0,
+  "surfaces": {
+    "surface_1_storage_identity_config": "PASS",
+    "surface_2_signer_abstraction_config": "PASS",
+    "surface_3_startup_rebuild_verification": "PASS",
+    "surface_4_appender_reader_role_wiring": "PASS",
+    "surface_5_refusal_code_export": "PASS",
+    "surface_6_rollback_disable_procedure": "PASS",
+    "surface_7_post_deployment_smoke": "PASS"
+  },
+  "refusal_code_manifest": {
+    "kind": "phase1_audit_refusal_code_manifest",
+    "format_version": "1.0.0",
+    "authorization_ref": "architect-supervisor://igniter-lang/gates/phase1-production-durable-audit/restricted-deployment-scope/2026-05-11",
+    "b_e_decision_ref": "S3-R36-C1-A",
+    "required_codes": [
+      "audit.record.format_version_missing",
+      "audit.record.format_version_unrecognized",
+      "audit.record.kind_unrecognized",
+      "audit.chain.sequence_gap",
+      "audit.record.storage_identity_mismatch",
+      "audit.chain.previous_hash_mismatch",
+      "audit.chain.record_hash_mismatch",
+      "audit.record.compliance_posture_mismatch",
+      "audit.writer.unauthorized",
+      "audit.reader.unauthorized",
+      "audit.writer.rebuild_not_clean",
+      "audit.signer.configuration_invalid"
+    ],
+    "deployment_codes": [
+      "audit.deploy.storage_identity_missing",
+      "audit.deploy.storage_identity_kind_missing",
+      "audit.deploy.storage_identity_untrusted",
+      "audit.deploy.storage_identity_id_missing",
+      "audit.deploy.signer_config_missing",
+      "audit.deploy.signer_key_id_missing",
+      "audit.deploy.signer_key_id_blocked",
+      "audit.deploy.signer_verification_metadata_missing",
+      "audit.deploy.signer_public_key_source_missing",
+      "audit.deploy.signer_public_key_source_blocked",
+      "audit.surface.startup_not_verified",
+      "audit.surface.disabled"
+    ],
+    "all_codes": [
+      "audit.record.format_version_missing",
+      "audit.record.format_version_unrecognized",
+      "audit.record.kind_unrecognized",
+      "audit.chain.sequence_gap",
+      "audit.record.storage_identity_mismatch",
+      "audit.chain.previous_hash_mismatch",
+      "audit.chain.record_hash_mismatch",
+      "audit.record.compliance_posture_mismatch",
+      "audit.writer.unauthorized",
+      "audit.reader.unauthorized",
+      "audit.writer.rebuild_not_clean",
+      "audit.signer.configuration_invalid",
+      "audit.deploy.storage_identity_missing",
+      "audit.deploy.storage_identity_kind_missing",
+      "audit.deploy.storage_identity_untrusted",
+      "audit.deploy.storage_identity_id_missing",
+      "audit.deploy.signer_config_missing",
+      "audit.deploy.signer_key_id_missing",
+      "audit.deploy.signer_key_id_blocked",
+      "audit.deploy.signer_verification_metadata_missing",
+      "audit.deploy.signer_public_key_source_missing",
+      "audit.deploy.signer_public_key_source_blocked",
+      "audit.surface.startup_not_verified",
+      "audit.surface.disabled"
+    ],
+    "code_count": 24,
+    "production_durable_audit": false,
+    "gate3_authorized": false,
+    "ledger": false
+  },
+  "cases": {
+    "deploy.storage_identity.valid_config_accepted": {
+      "pass": true,
+      "valid": true,
+      "code": null
+    },
+    "deploy.storage_identity.ledger_refused": {
+      "pass": true,
+      "code": "audit.deploy.storage_identity_untrusted"
+    },
+    "deploy.storage_identity.ledger_binding_true_refused": {
+      "pass": true,
+      "code": "audit.deploy.storage_identity_untrusted"
+    },
+    "deploy.storage_identity.missing_storage_id_refused": {
+      "pass": true,
+      "code": "audit.deploy.storage_identity_id_missing"
+    },
+    "deploy.signer.valid_config_accepted": {
+      "pass": true,
+      "valid": true
+    },
+    "deploy.signer.nil_key_id_refused": {
+      "pass": true,
+      "code": "audit.deploy.signer_key_id_missing"
+    },
+    "deploy.signer.noop_key_id_refused": {
+      "pass": true,
+      "code": "audit.deploy.signer_key_id_blocked"
+    },
+    "deploy.signer.stub_key_id_refused": {
+      "pass": true,
+      "code": "audit.deploy.signer_key_id_blocked"
+    },
+    "deploy.signer.local_test_key_id_refused": {
+      "pass": true,
+      "code": "audit.deploy.signer_key_id_blocked"
+    },
+    "deploy.signer.stub_public_key_source_refused": {
+      "pass": true,
+      "code": "audit.deploy.signer_public_key_source_blocked"
+    },
+    "deploy.startup.append_blocked_before_verify": {
+      "pass": true,
+      "allowed": false,
+      "code": "audit.surface.startup_not_verified"
+    },
+    "deploy.startup.clean_rebuild_allows_append": {
+      "pass": true,
+      "startup_verified": true,
+      "rebuild_status": "clean",
+      "append_allowed": true
+    },
+    "deploy.startup.failed_rebuild_blocks_append": {
+      "pass": true,
+      "startup_verified": false,
+      "rebuild_status": "failed",
+      "append_code": "audit.surface.startup_not_verified"
+    },
+    "deploy.startup.startup_verified_in_status": {
+      "pass": true,
+      "before": false,
+      "after": true
+    },
+    "deploy.roles.appender_can_append": {
+      "pass": true,
+      "allowed": true
+    },
+    "deploy.roles.reader_can_traverse": {
+      "pass": true,
+      "allowed": true
+    },
+    "deploy.roles.appended_records_visible_to_reader": {
+      "pass": true,
+      "record_count": 2
+    },
+    "deploy.roles.config_declares_both_roles": {
+      "pass": true,
+      "roles": [
+        "phase1_audit_appender",
+        "phase1_audit_reader"
+      ]
+    },
+    "deploy.refusal_codes.all_required_codes_present": {
+      "pass": true,
+      "required_count": 12,
+      "all_present": true
+    },
+    "deploy.refusal_codes.all_codes_are_strings": {
+      "pass": true,
+      "code_count": 24
+    },
+    "deploy.refusal_codes.manifest_is_proof_local": {
+      "pass": true,
+      "production_durable_audit": false,
+      "gate3_authorized": false,
+      "ledger": false
+    },
+    "deploy.rollback.disable_blocks_append": {
+      "pass": true,
+      "disabled": true,
+      "code": "audit.surface.disabled"
+    },
+    "deploy.rollback.disable_blocks_traverse": {
+      "pass": true,
+      "disabled": true,
+      "code": "audit.surface.disabled"
+    },
+    "deploy.rollback.enable_after_disable_allows_append": {
+      "pass": true,
+      "disabled": false,
+      "allowed": true
+    },
+    "deploy.rollback.disable_captures_metadata": {
+      "pass": true,
+      "reason": "audit chain integrity failure detected",
+      "authorized_by": "security-ops-001"
+    },
+    "deploy.smoke.append_flow": {
+      "pass": true,
+      "record_count": 3
+    },
+    "deploy.smoke.reader_traversal": {
+      "pass": true,
+      "allowed": true,
+      "record_count": 2
+    },
+    "deploy.smoke.rebuild_after_appends": {
+      "pass": true,
+      "rebuild_status": "clean",
+      "verified_count": 2
+    },
+    "deploy.smoke.signer_refusal_at_config": {
+      "pass": true,
+      "valid": false,
+      "code": "audit.deploy.signer_key_id_blocked"
+    },
+    "deploy.smoke.end_to_end_flow": {
+      "pass": true,
+      "startup_verified": true,
+      "append1_allowed": true,
+      "traverse_allowed": true,
+      "rebuild_clean": true,
+      "disabled_refusal_code": "audit.surface.disabled",
+      "append2_allowed": true
+    }
+  },
+  "checks": {
+    "deploy.storage_identity.valid_config_accepted": true,
+    "deploy.storage_identity.ledger_refused": true,
+    "deploy.storage_identity.ledger_binding_true_refused": true,
+    "deploy.storage_identity.missing_storage_id_refused": true,
+    "deploy.signer.valid_config_accepted": true,
+    "deploy.signer.nil_key_id_refused": true,
+    "deploy.signer.noop_key_id_refused": true,
+    "deploy.signer.stub_key_id_refused": true,
+    "deploy.signer.local_test_key_id_refused": true,
+    "deploy.signer.stub_public_key_source_refused": true,
+    "deploy.startup.append_blocked_before_verify": true,
+    "deploy.startup.clean_rebuild_allows_append": true,
+    "deploy.startup.failed_rebuild_blocks_append": true,
+    "deploy.startup.startup_verified_in_status": true,
+    "deploy.roles.appender_can_append": true,
+    "deploy.roles.reader_can_traverse": true,
+    "deploy.roles.appended_records_visible_to_reader": true,
+    "deploy.roles.config_declares_both_roles": true,
+    "deploy.refusal_codes.all_required_codes_present": true,
+    "deploy.refusal_codes.all_codes_are_strings": true,
+    "deploy.refusal_codes.manifest_is_proof_local": true,
+    "deploy.rollback.disable_blocks_append": true,
+    "deploy.rollback.disable_blocks_traverse": true,
+    "deploy.rollback.enable_after_disable_allows_append": true,
+    "deploy.rollback.disable_captures_metadata": true,
+    "deploy.smoke.append_flow": true,
+    "deploy.smoke.reader_traversal": true,
+    "deploy.smoke.rebuild_after_appends": true,
+    "deploy.smoke.signer_refusal_at_config": true,
+    "deploy.smoke.end_to_end_flow": true,
+    "invariant.no_production_durable_audit": true,
+    "invariant.no_gate3_authorized": true,
+    "invariant.no_ledger": true,
+    "invariant.all_required_refusal_codes_present": true,
+    "invariant.manifest_is_proof_local": true
+  },
+  "invariants": {
+    "invariant.no_production_durable_audit": true,
+    "invariant.no_gate3_authorized": true,
+    "invariant.no_ledger": true,
+    "invariant.all_required_refusal_codes_present": true,
+    "invariant.manifest_is_proof_local": true
+  },
+  "non_authorization": {
+    "concrete_hsm_kms_onboarding": false,
+    "production_signing_execution": false,
+    "ledger_adapter": false,
+    "phase2": false,
+    "bihistory": false,
+    "stream_olap_executor": false,
+    "production_cache": false,
+    "broad_runtimemachine_binding": false,
+    "gate3_authorized_widened": false,
+    "production_deployment_beyond_bounded_scope": false
+  },
+  "_volatile_fields": [
+    "proof_timestamp"
+  ]
+}
