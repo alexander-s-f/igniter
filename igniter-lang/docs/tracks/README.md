@@ -52,6 +52,14 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 39 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `phase1-durable-audit-operational-rollout-readiness-plan-v0.md` | done | Design-only rollout readiness plan authorized by S3-R38-C1-A; covers storage identity, signer abstraction, startup/rebuild, appender/reader roles, refusal/observability export, disable/rollback, smoke, ownership, drills, and blockers; operational rollout remains closed |
+
+---
+
 ## Stage 3 Round 38 Evidence
 
 | Track | Status | Notes |
