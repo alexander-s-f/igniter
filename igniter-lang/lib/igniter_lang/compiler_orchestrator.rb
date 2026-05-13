@@ -28,7 +28,14 @@ module IgniterLang
       @assembler = assembler
     end
 
-    def compile(source_path:, out_path:, sample_input: nil, sample_input_resolver: nil, runtime_smoke: nil)
+    def compile(
+      source_path:,
+      out_path:,
+      sample_input: nil,
+      sample_input_resolver: nil,
+      runtime_smoke: nil,
+      compiler_profile_source: nil
+    )
       source_path = Pathname.new(source_path)
       out_path = Pathname.new(out_path)
       parsed = ParsedProgram.parse(File.read(source_path), source_path: source_path.to_s).to_h
@@ -46,11 +53,16 @@ module IgniterLang
 
       return refusal(report, source_path, out_path) unless report.fetch("pass_result") == "ok"
 
+      # PROP-036: compiler_profile_source is passed unchanged to the assembler.
+      # The orchestrator is a transport boundary only — it does not derive, load,
+      # discover, default, finalize, or validate profiles. Assembler validation
+      # remains authoritative. Nil preserves legacy_optional behavior.
       assembled = @assembler.assemble_artifacts(
         case_name: case_name_for(source_path, parsed),
         report: report,
         semantic_ir: semantic_ir,
-        target_dir: out_path
+        target_dir: out_path,
+        compiler_profile_source: compiler_profile_source
       )
       smoke = runtime_smoke&.call(out_path: out_path, sample_input: resolved_sample_input)
 

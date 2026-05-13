@@ -1,0 +1,149 @@
+{
+  "kind": "prop036_orchestrator_profile_source_pass_through_summary",
+  "format_version": "0.1.0",
+  "track": "prop036-orchestrator-profile-source-pass-through-v0",
+  "card": "S3-R43-C1-I",
+  "status": "PASS",
+  "pass_count": 11,
+  "fail_count": 0,
+  "proof_cases": 8,
+  "invariants": 3,
+  "checks": [
+    {
+      "check": "O1.legacy_compile_omits_field",
+      "result": "PASS",
+      "detail": "status=ok manifest.compiler_profile_id absent ✓"
+    },
+    {
+      "check": "O2.profiled_compile_emits_field",
+      "result": "PASS",
+      "detail": "status=ok manifest.compiler_profile_id=compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7"
+    },
+    {
+      "check": "O3.profiled_hash_differs_from_legacy",
+      "result": "PASS",
+      "detail": "legacy=sha256:0a39c880326db... profiled=sha256:4acb231d4c1e8..."
+    },
+    {
+      "check": "O4.invalid_source_returns_assembler_refused",
+      "result": "PASS"
+    },
+    {
+      "check": "O5.refusal_includes_profile_source_reason",
+      "result": "PASS",
+      "detail": "compiler_profile_source.* found in refusal ✓"
+    },
+    {
+      "check": "O6.no_loader_status_values",
+      "result": "PASS",
+      "detail": "no loader status values in manifest ✓"
+    },
+    {
+      "check": "O7.no_runtime_authority",
+      "result": "PASS",
+      "detail": "no runtime authority keys in manifest ✓"
+    },
+    {
+      "check": "O8.no_golden_mutation",
+      "result": "PASS",
+      "detail": "no golden files mutated ✓"
+    },
+    {
+      "check": "INV1.artifact_hash_format_valid",
+      "result": "PASS",
+      "detail": "all artifact_hashes have sha256:<64-hex> format ✓"
+    },
+    {
+      "check": "INV2.backward_compatible_nil_default",
+      "result": "PASS",
+      "detail": "compile has compiler_profile_source: keyword param ✓"
+    },
+    {
+      "check": "INV3.orchestrator_is_transport_only",
+      "result": "PASS",
+      "detail": "orchestrator has no profile derivation methods ✓"
+    }
+  ],
+  "canonical_source": {
+    "kind": "compiler_profile_id_source",
+    "format_version": "0.1.0",
+    "status": "finalized",
+    "profile_namespace": "compiler_profile_unified",
+    "compiler_profile_id": "compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7",
+    "descriptor_digest": "compiler_profile_descriptor/sha256:0a2b4b79dda5d9657e6642b3",
+    "finalization_payload_digest": "sha256:a3829357ff3d34d23a82f5b7fbe22018fa66ef88efa5dd9bd04ab10f4fe4d8d4",
+    "profile_kind": "Stage3ProofCompilerProfileSpec",
+    "slot_order": [
+      "core",
+      "oof_registry",
+      "fragment_registry",
+      "escape_boundary",
+      "contract_modifiers",
+      "temporal",
+      "stream",
+      "olap",
+      "invariant",
+      "assumptions",
+      "evidence_observation",
+      "pipeline"
+    ],
+    "slot_assignments": {
+      "core": {
+        "implementation_id": "core_language.proof_compiler_adapter.v0",
+        "pack_name": "CoreLanguagePack"
+      },
+      "oof_registry": {
+        "implementation_id": "oof_registry.shadow_descriptor_registry.v0",
+        "pack_name": "OOFRegistry"
+      },
+      "fragment_registry": {
+        "implementation_id": "fragment_registry.shadow_precedence_registry.v0",
+        "pack_name": "FragmentRegistry"
+      },
+      "escape_boundary": {
+        "implementation_id": "escape_boundary.current_monolith_adapter.v0",
+        "pack_name": "EscapeBoundaryPack"
+      },
+      "contract_modifiers": {
+        "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+        "pack_name": "ContractModifiersPack"
+      },
+      "temporal": {
+        "implementation_id": "temporal.metadata_only_guarded.v0",
+        "pack_name": "TemporalPack"
+      },
+      "stream": {
+        "implementation_id": "stream.current_monolith_adapter.v0",
+        "pack_name": "StreamPack"
+      },
+      "olap": {
+        "implementation_id": "olap.current_monolith_adapter.v0",
+        "pack_name": "OLAPPack"
+      },
+      "invariant": {
+        "implementation_id": "invariant.current_monolith_adapter.v0",
+        "pack_name": "InvariantPack"
+      },
+      "assumptions": {
+        "implementation_id": "assumptions.spec_shadow.v0",
+        "pack_name": "AssumptionsPack"
+      },
+      "evidence_observation": {
+        "implementation_id": "evidence_observation.current_monolith_adapter.v0",
+        "pack_name": "EvidenceObservationPack"
+      },
+      "pipeline": {
+        "implementation_id": "pipeline.current_parser_surface_shadow.v0",
+        "pack_name": "PipelinePack"
+      }
+    },
+    "dispatch_migration_authorized": false,
+    "runtime_authority_granted": false
+  },
+  "non_goals": [
+    "No profile derivation, discovery, loading, or caching in orchestrator.",
+    "No existing .igapp golden migration.",
+    "No loader/report/CompatibilityReport implementation.",
+    "No RuntimeMachine, compiler dispatch, or production changes."
+  ]
+}
