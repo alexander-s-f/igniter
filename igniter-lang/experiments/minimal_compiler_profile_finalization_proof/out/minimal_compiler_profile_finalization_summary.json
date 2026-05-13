@@ -1,0 +1,224 @@
+{
+  "kind": "minimal_compiler_profile_finalization_proof_summary",
+  "format_version": "0.1.0",
+  "track": "minimal-compiler-profile-finalization-proof-v0",
+  "card": "S3-R42-C7-I",
+  "status": "PASS",
+  "pass_count": 22,
+  "fail_count": 0,
+  "proof_cases": 16,
+  "invariants": 6,
+  "checks": [
+    {
+      "check": "F1.valid_descriptor_produces_source",
+      "result": "PASS",
+      "detail": "id=compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7"
+    },
+    {
+      "check": "F2.permuted_hash_keys_same_id",
+      "result": "PASS",
+      "detail": "same id=compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7"
+    },
+    {
+      "check": "F3.implementation_identity_change_changes_id",
+      "result": "PASS",
+      "detail": "original=compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7 altered=compiler_profile_unified/sha256:0163d9e1f4a347282f021158"
+    },
+    {
+      "check": "F4.payload_does_not_contain_profile_id",
+      "result": "PASS",
+      "detail": "payload_keys=[\"profile_namespace\", \"format_version\", \"descriptor_digest\", \"profile_kind\", \"slot_order\", \"slot_assignments\"]"
+    },
+    {
+      "check": "F5.payload_id_inclusion_refused",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.payload_id_inclusion_forbidden"
+    },
+    {
+      "check": "F6.missing_source_refused",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.missing"
+    },
+    {
+      "check": "F7.malformed_descriptor_refused",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.malformed"
+    },
+    {
+      "check": "F8.wrong_kind_refused",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.wrong_kind"
+    },
+    {
+      "check": "F9.slot_order_mismatch_in_finalization",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.slot_order_mismatch"
+    },
+    {
+      "check": "V1.unfinalized_status_refused",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.unfinalized"
+    },
+    {
+      "check": "V2.unsupported_namespace_refused",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.unsupported_namespace"
+    },
+    {
+      "check": "V3.malformed_id_refused",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.malformed_id"
+    },
+    {
+      "check": "V4.digest_mismatch_refused",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.id_digest_mismatch"
+    },
+    {
+      "check": "V5.slot_order_mismatch_in_validation",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.slot_order_mismatch"
+    },
+    {
+      "check": "V6.runtime_authority_refused",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.runtime_authority_forbidden"
+    },
+    {
+      "check": "V7.dispatch_migration_refused",
+      "result": "PASS",
+      "reason_code": "compiler_profile_source.dispatch_migration_forbidden"
+    },
+    {
+      "check": "INV1.profile_id_not_in_finalization_payload",
+      "result": "PASS",
+      "detail": "payload_keys=profile_namespace, format_version, descriptor_digest, profile_kind, slot_order, slot_assignments"
+    },
+    {
+      "check": "INV2.status_is_finalized",
+      "result": "PASS",
+      "detail": "status=finalized"
+    },
+    {
+      "check": "INV3.no_runtime_authority",
+      "result": "PASS",
+      "detail": "runtime_authority_granted=false"
+    },
+    {
+      "check": "INV4.no_dispatch_migration",
+      "result": "PASS",
+      "detail": "dispatch_migration_authorized=false"
+    },
+    {
+      "check": "INV5.id_format_valid",
+      "result": "PASS",
+      "detail": "id=compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7"
+    },
+    {
+      "check": "INV6.produced_source_passes_validation",
+      "result": "PASS",
+      "detail": "validate_source! => true"
+    }
+  ],
+  "finalized_source_example": {
+    "kind": "compiler_profile_id_source",
+    "format_version": "0.1.0",
+    "status": "finalized",
+    "profile_namespace": "compiler_profile_unified",
+    "compiler_profile_id": "compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7",
+    "descriptor_digest": "compiler_profile_descriptor/sha256:0a2b4b79dda5d9657e6642b3",
+    "finalization_payload_digest": "sha256:a3829357ff3d34d23a82f5b7fbe22018fa66ef88efa5dd9bd04ab10f4fe4d8d4",
+    "profile_kind": "Stage3ProofCompilerProfileSpec",
+    "slot_order": [
+      "core",
+      "oof_registry",
+      "fragment_registry",
+      "escape_boundary",
+      "contract_modifiers",
+      "temporal",
+      "stream",
+      "olap",
+      "invariant",
+      "assumptions",
+      "evidence_observation",
+      "pipeline"
+    ],
+    "slot_assignments": {
+      "core": {
+        "implementation_id": "core_language.proof_compiler_adapter.v0",
+        "pack_name": "CoreLanguagePack"
+      },
+      "oof_registry": {
+        "implementation_id": "oof_registry.shadow_descriptor_registry.v0",
+        "pack_name": "OOFRegistry"
+      },
+      "fragment_registry": {
+        "implementation_id": "fragment_registry.shadow_precedence_registry.v0",
+        "pack_name": "FragmentRegistry"
+      },
+      "escape_boundary": {
+        "implementation_id": "escape_boundary.current_monolith_adapter.v0",
+        "pack_name": "EscapeBoundaryPack"
+      },
+      "contract_modifiers": {
+        "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+        "pack_name": "ContractModifiersPack"
+      },
+      "temporal": {
+        "implementation_id": "temporal.metadata_only_guarded.v0",
+        "pack_name": "TemporalPack"
+      },
+      "stream": {
+        "implementation_id": "stream.current_monolith_adapter.v0",
+        "pack_name": "StreamPack"
+      },
+      "olap": {
+        "implementation_id": "olap.current_monolith_adapter.v0",
+        "pack_name": "OLAPPack"
+      },
+      "invariant": {
+        "implementation_id": "invariant.current_monolith_adapter.v0",
+        "pack_name": "InvariantPack"
+      },
+      "assumptions": {
+        "implementation_id": "assumptions.spec_shadow.v0",
+        "pack_name": "AssumptionsPack"
+      },
+      "evidence_observation": {
+        "implementation_id": "evidence_observation.current_monolith_adapter.v0",
+        "pack_name": "EvidenceObservationPack"
+      },
+      "pipeline": {
+        "implementation_id": "pipeline.current_parser_surface_shadow.v0",
+        "pack_name": "PipelinePack"
+      }
+    },
+    "dispatch_migration_authorized": false,
+    "runtime_authority_granted": false
+  },
+  "derived_id_rule": {
+    "input": "canonical finalization payload (JSON.generate(normalize(payload)))",
+    "payload_keys": [
+      "profile_namespace",
+      "format_version",
+      "descriptor_digest",
+      "profile_kind",
+      "slot_order",
+      "slot_assignments"
+    ],
+    "payload_excludes": [
+      "compiler_profile_id"
+    ],
+    "digest": "SHA256(canonical_json(payload))",
+    "id_format": "compiler_profile_unified/sha256:<digest[0,24]>",
+    "hex_chars": ">= 24 lowercase"
+  },
+  "non_goals": [
+    "No assembler implementation.",
+    "No .igapp manifest mutation.",
+    "No golden migration.",
+    "No loader/report/CompatibilityReport changes.",
+    "No compiler dispatch migration.",
+    "No RuntimeMachine, Ledger, TBackend, BiHistory, stream/OLAP, cache, or production changes."
+  ]
+}
