@@ -1,0 +1,50 @@
+{
+  "artifact_hash": "sha256:2cad11a6ae91266a2cc6e0333a9cc8725faced441d74abb208e4d10ea4e84967",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/e9664d5446df4e46",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "compiler_profile_id": "compiler_profile_unified/sha256:0163d9e1f4a347282f021158",
+  "contract_index": {
+    "Add": {
+      "contract_path": "contracts/add.json",
+      "contract_ref": "contract/Add/sha256:a295317f00612299f676cd02",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "Add": "contract/Add/sha256:a295317f00612299f676cd02"
+  },
+  "contracts": [
+    "Add"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/e9664d5446df4e46",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+  "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+  "source_path": "experiments/source_to_semanticir_fixture/add.ig",
+  "warnings": []
+}

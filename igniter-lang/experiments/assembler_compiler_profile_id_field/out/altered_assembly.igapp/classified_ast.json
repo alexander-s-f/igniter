@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/e9664d5446df4e46",
+  "contracts": [
+    "Add"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "Add"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/e9664d5446df4e46",
+  "semantic_ir_ref": "semanticir/e9664d5446df4e46",
+  "source_hash": "sha256:e9664d5446df4e46dcc5093e26d2ae004b6601fd9fb110f5c3dc94070347f1fc",
+  "source_path": "experiments/source_to_semanticir_fixture/add.ig"
+}

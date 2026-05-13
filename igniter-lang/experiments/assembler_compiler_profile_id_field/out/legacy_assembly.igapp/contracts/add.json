@@ -1,0 +1,69 @@
+{
+  "artifact_hash": "sha256:9bee1fc0969af1175b2d0f288692fb6c241b61db4a1965f898739b8b1e257291",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:a",
+        "input:b"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "a"
+          },
+          {
+            "kind": "ref",
+            "name": "b"
+          }
+        ],
+        "operator": "stdlib.integer.add"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "sum",
+      "node_id": "node_sum",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "Add",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "a",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "b",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "Add",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "sum",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/Add/sha256:a295317f00612299f676cd02",
+  "type_signature": {
+    "inputs": {
+      "a": "Integer",
+      "b": "Integer"
+    },
+    "outputs": {
+      "sum": "Integer"
+    }
+  }
+}

@@ -13,6 +13,16 @@ module IgniterLang
     DEFAULT_GOLDEN_DIR = ROOT / "experiments/source_to_semanticir_fixture/golden"
     DEFAULT_OUT_DIR = ROOT / "experiments/igapp_assembler_proof/out"
 
+    # PROP-036: compiler_profile_id source contract constants.
+    # Used by validate_compiler_profile_source! only.
+    PROFILE_SOURCE_KIND       = "compiler_profile_id_source"
+    PROFILE_SOURCE_NAMESPACE  = "compiler_profile_unified"
+    PROFILE_SOURCE_ID_PATTERN = /\Acompiler_profile_unified\/sha256:[0-9a-f]{24,}\z/
+    PROFILE_SOURCE_SLOT_ORDER = %w[
+      core oof_registry fragment_registry escape_boundary contract_modifiers
+      temporal stream olap invariant assumptions evidence_observation pipeline
+    ].freeze
+
     module Canonical
       module_function
 
@@ -49,7 +59,7 @@ module IgniterLang
       @out_dir = Pathname.new(out_dir)
     end
 
-    def assemble_case(case_name)
+    def assemble_case(case_name, compiler_profile_source: nil)
       report = read_json(@golden_dir / "#{case_name}.compilation_report.json")
       refuse!(case_name, "pass_result=#{report.fetch("pass_result")}") unless report.fetch("pass_result") == "ok"
       refuse!(case_name, "semantic_ir_ref missing") unless report.fetch("semantic_ir_ref").is_a?(String)
@@ -58,18 +68,18 @@ module IgniterLang
       validate_refs!(case_name, report, semantic_ir)
       validate_semantic_ir!(case_name, semantic_ir)
 
-      artifact = build_artifact(case_name, report, semantic_ir)
+      artifact = build_artifact(case_name, report, semantic_ir, compiler_profile_source: compiler_profile_source)
       write_artifact(case_name, artifact)
       artifact_summary(case_name, artifact)
     end
 
-    def assemble_artifacts(case_name:, report:, semantic_ir:, target_dir:)
+    def assemble_artifacts(case_name:, report:, semantic_ir:, target_dir:, compiler_profile_source: nil)
       refuse!(case_name, "pass_result=#{report.fetch("pass_result")}") unless report.fetch("pass_result") == "ok"
       refuse!(case_name, "semantic_ir_ref missing") unless report.fetch("semantic_ir_ref").is_a?(String)
       validate_refs!(case_name, report, semantic_ir)
       validate_semantic_ir!(case_name, semantic_ir)
 
-      artifact = build_artifact(case_name, report, semantic_ir)
+      artifact = build_artifact(case_name, report, semantic_ir, compiler_profile_source: compiler_profile_source)
       target = Pathname.new(target_dir)
       write_artifact_to(target, artifact)
       artifact_summary_for_target(case_name, artifact, target)
@@ -100,6 +110,67 @@ module IgniterLang
       raise AssemblyRefused, "#{case_name}: #{reason}"
     end
 
+    # PROP-036: validate a compiler_profile_id_source object before assembler use.
+    # Raises AssemblyRefused with compiler_profile_source.* reason text on any
+    # invalid input. Must not emit loader/report status values.
+    def validate_compiler_profile_source!(case_name, source)
+      unless source.is_a?(Hash)
+        refuse!(case_name, "compiler_profile_source.malformed: source must be a Hash")
+      end
+
+      kind = source["kind"]
+      unless kind == PROFILE_SOURCE_KIND
+        refuse!(case_name, "compiler_profile_source.wrong_kind: #{kind.inspect}")
+      end
+
+      status = source["status"]
+      unless status == "finalized"
+        refuse!(case_name, "compiler_profile_source.unfinalized: status=#{status.inspect}")
+      end
+
+      namespace = source["profile_namespace"]
+      unless namespace == PROFILE_SOURCE_NAMESPACE
+        refuse!(case_name, "compiler_profile_source.unsupported_namespace: #{namespace.inspect}")
+      end
+
+      cid = source["compiler_profile_id"]
+      unless cid.is_a?(String) && cid.match?(PROFILE_SOURCE_ID_PATTERN)
+        refuse!(case_name, "compiler_profile_source.malformed_id: #{cid.inspect}")
+      end
+
+      slot_order = source["slot_order"]
+      unless slot_order == PROFILE_SOURCE_SLOT_ORDER
+        refuse!(case_name, "compiler_profile_source.slot_order_mismatch")
+      end
+
+      # Reconstruct finalization payload and verify digest + id consistency.
+      payload = {
+        "profile_namespace"  => source["profile_namespace"],
+        "format_version"     => source["format_version"],
+        "descriptor_digest"  => source["descriptor_digest"],
+        "profile_kind"       => source["profile_kind"],
+        "slot_order"         => source["slot_order"],
+        "slot_assignments"   => source.fetch("slot_assignments", {})
+      }
+      payload_hex            = Digest::SHA256.hexdigest(JSON.generate(Canonical.normalize(payload)))
+      expected_payload_digest = "sha256:#{payload_hex}"
+      expected_profile_id    = "#{PROFILE_SOURCE_NAMESPACE}/sha256:#{payload_hex[0, 24]}"
+
+      unless source["finalization_payload_digest"] == expected_payload_digest
+        refuse!(case_name, "compiler_profile_source.id_digest_mismatch: finalization_payload_digest")
+      end
+      unless cid == expected_profile_id
+        refuse!(case_name, "compiler_profile_source.id_digest_mismatch: compiler_profile_id")
+      end
+
+      if source["runtime_authority_granted"] == true
+        refuse!(case_name, "compiler_profile_source.runtime_authority_forbidden")
+      end
+      if source["dispatch_migration_authorized"] == true
+        refuse!(case_name, "compiler_profile_source.dispatch_migration_forbidden")
+      end
+    end
+
     def validate_refs!(case_name, report, semantic_ir)
       refuse!(case_name, "SemanticIR kind=#{semantic_ir.fetch("kind", nil)}") unless semantic_ir.fetch("kind") == "semantic_ir_program"
       refuse!(case_name, "semantic_ir_ref mismatch") unless report.fetch("semantic_ir_ref") == semantic_ir.fetch("program_id")
@@ -118,7 +189,14 @@ module IgniterLang
       refuse!(case_name, "unresolved stdlib.numeric operator in SemanticIR")
     end
 
-    def build_artifact(case_name, report, semantic_ir)
+    def build_artifact(case_name, report, semantic_ir, compiler_profile_source: nil)
+      # PROP-036: validate source object and extract id before building hash material.
+      # validate_compiler_profile_source! raises AssemblyRefused on any invalid input.
+      compiler_profile_id = if compiler_profile_source
+        validate_compiler_profile_source!(case_name, compiler_profile_source)
+        compiler_profile_source.fetch("compiler_profile_id")
+      end
+
       contracts = semantic_ir.fetch("contracts").map { |contract| contract_file(contract) }
       contract_ids = contracts.map { |contract| contract.fetch("contract_id") }.sort
       fragment_classes = contracts.map { |contract| contract.fetch("fragment_class") }.uniq
@@ -137,6 +215,10 @@ module IgniterLang
         "classified_ast" => classified_ast,
         "compatibility_metadata" => compatibility_metadata
       }
+      # PROP-036: inject compiler_profile_id into hash material BEFORE artifact_hash
+      # is computed. Adding it after Canonical.hash is called is forbidden.
+      artifact_material["compiler_profile_id"] = compiler_profile_id if compiler_profile_id
+
       artifact_hash = Canonical.hash(artifact_material)
       contracts = contracts.map { |contract| contract.merge("artifact_hash" => artifact_hash) }
       fragment_summary = fragment_summary_for(contracts)
@@ -168,6 +250,8 @@ module IgniterLang
         "warnings" => [],
         "diagnostics" => report.fetch("diagnostics")
       }
+      # PROP-036: top-level manifest field; only present when a valid source is supplied.
+      manifest["compiler_profile_id"] = compiler_profile_id if compiler_profile_id
 
       {
         "case" => case_name,
