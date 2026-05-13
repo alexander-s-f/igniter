@@ -2,7 +2,7 @@
 
 Status: active
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-12
+Last updated: 2026-05-13
 
 ---
 
@@ -171,3 +171,4 @@ Authorized signed-addendum scope:
 | [prop037-progression-acceptance-review-v0.md](prop037-progression-acceptance-review-v0.md) | S3-R37-C3-A | accepted-proposal-only | Accepts PROP-037 progression/service liveness proposal; descriptor/proof follow-ups only, implementation and production execution remain closed |
 | [durable-audit-restricted-deployment-proof-review-v0.md](durable-audit-restricted-deployment-proof-review-v0.md) | S3-R38-C1-A | proof-local-closure-confirmed-next-rollout-design-only | Confirms R37 restricted deployment proof package satisfies B-E follow-ups in proof-local form; authorizes only design-only rollout readiness planning; operational rollout and excluded surfaces remain closed |
 | [context-capture-pack-shadow-boundary-routing-decision-v0.md](context-capture-pack-shadow-boundary-routing-decision-v0.md) | S3-R41-C4-A | approved-design-research-only-shadow-boundary | Authorizes `context-capture-pack-shadow-boundary-v0` as descriptor/profile/pack vocabulary research only; no parser, package, runtime, LLM, Ledger/BiHistory, production, or external Contextizer mutation |
+| [prop036-assembler-field-implementation-authorization-review-v0.md](prop036-assembler-field-implementation-authorization-review-v0.md) | S3-R42-C3-A | hold-redirect | Holds PROP-036 assembler field implementation until authoritative `compiler_profile_id` source contract is defined; no assembler, `.igapp`, loader, CompatibilityReport, dispatch, runtime, or production implementation authorized |
