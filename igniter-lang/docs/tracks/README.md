@@ -56,7 +56,12 @@ architecture. They are not production migration authorization.
 
 | Track | Status | Notes |
 |-------|--------|-------|
+| `prop036-cli-b1-standalone-source-artifact-closure-v0.md` | done | Defines B1 closure as artifact + docs: proof-owned standalone `compiler_profile_source.stage3_proof.json`, named generation command, validation, forbidden-token scan, and non-authorizations |
 | `prop036-cli-b3-refusal-shape-and-b6-scan-scope-v0.md` | done | Resolves B3 with hybrid refusal shape: CLI profile-source path/JSON preflight is stderr-only/no artifacts; compiler/orchestrator refusals keep compiler_result + compilation_report; maps exact B3 -> B6 scan surface; no CLI implementation authorization |
+| `prop036-cli-b7-b8-docs-completion-bar-v0.md` | done | Defines B7/B8 completion bars: public `docs/ruby-api.md` or approved API path, docs README link, transport-only wording, and source-level visibility landed or explicitly deferred |
+| `../gates/prop036-cli-blocker-closure-criteria-decision-v0.md` | approved-closure-criteria-implementation-held | Governing closure-criteria supplement for B1/B3/B6/B7/B8; CLI implementation/path loading remains held |
+| `../discussions/prop036-cli-blocker-closure-criteria-pressure-v0.md` | proceed-with-notes | No blockers; non-blockers route B6 scanner self-test, B8-C deferral authority, and B1 validation-chain specificity |
+| `stage3-round46-status-curation-v0.md` | done | R46 status curation; closes cards dispatch layer and updates current maps |
 
 ---
 
@@ -779,9 +784,11 @@ compiler_orchestrator.rb  (R10/S3-R5/S3-R43) — compiler pass orchestration; pr
 | PROP-037 profile descriptor specialization proof | Prove `external_event` specialization below closed top-level source kinds | Compiler/Grammar Expert / Bridge Agent | authorized design/proof follow-up; no production listener/queue |
 | context-capture-pack-shadow-boundary-v0 | Explore a descriptor-only context capture pack boundary from Line Up / Contextizer pressure without canonizing the specimen | Architect Supervisor / Compiler-Profile Agent | closed as design/research-only shadow boundary by R41 C4/C5; no implementation/canon |
 | context-capture-descriptor-proof-v0 | Validate capture source descriptors, policy refs, evidence links, and non-authorization flags without runtime/package authority | Research Agent / Compiler-Profile Agent | candidate next; keep source_kind values candidate-only until formal closure |
-| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, and Ruby facade exposure landed | Meta Expert / Compiler/Grammar Expert | current through R45; no broad migration |
+| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, and Ruby facade exposure landed | Meta Expert / Compiler/Grammar Expert | current through R46; no broad migration |
 | PROP-036 CLI exposure design/tracking | Decide CLI input shape, refusal wording, nil/no-flag legacy proof, negative scan coverage, and pressure review before any CLI implementation | Architect Supervisor / Compiler/Grammar Expert | closed as design route by R45 C3-A; implementation held behind `PROP036-CLI-B1..B9` |
-| PROP-036 CLI blocker closure criteria | Tighten B1 standalone artifact closure, B3 refusal output shape, B3->B6 scan surface, and B7/B8 docs completion bars | Architect Supervisor / Research Agent / Docs agent | recommended R46; no CLI implementation |
+| PROP-036 CLI blocker closure criteria | Tighten B1 standalone artifact closure, B3 refusal output shape, B3->B6 scan surface, and B7/B8 docs completion bars | Architect Supervisor / Research Agent / Docs agent | closed by R46 C4-A; no CLI implementation |
+| PROP-036 B7/B8 Ruby API docs | Land caller-facing `docs/ruby-api.md` or approved API path with source-shape and transport-only wording; link from docs README; record source-level visibility landed or deferred | Compiler/Grammar Expert / Docs agent | recommended R47; no CLI implementation |
+| PROP-036 closure criteria minor addendum | Add B6 scanner self-test, B8-C deferral authority, and B1 validation-chain specificity to governing criteria before implementation authorization | Architect Supervisor / External Pressure Reviewer | optional before CLI implementation auth |
 | PROP-036 golden migration | Name exact `.igapp` fixtures and expected hash churn before migrating any existing goldens | Compiler/Grammar Expert / Research Agent | still blocked; no existing golden migration |
 | PROP-036 loader/report status | Implement/report `absent_legacy`, `present_verified`, `mismatch`, `malformed`, `missing_required` separately from assembler/orchestrator | Bridge Agent / Compiler/Grammar Expert | still blocked behind separate authorization |
 | PROP-036 CompatibilityReport section | Design/prove compiler-profile section without runtime readiness or Gate 3 authority | Bridge Agent / Research Agent | still blocked behind separate authorization |
