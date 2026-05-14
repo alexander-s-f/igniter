@@ -1,0 +1,168 @@
+{
+  "kind": "prop036_ruby_facade_profile_source_exposure_summary",
+  "format_version": "0.1.0",
+  "track": "prop036-ruby-facade-profile-source-exposure-v0",
+  "card": "S3-R44-C3-I",
+  "status": "PASS",
+  "pass_count": 7,
+  "fail_count": 0,
+  "checks": [
+    {
+      "check": "F1.facade_signature_has_optional_keyword",
+      "result": "PASS",
+      "detail": "optional keyword present"
+    },
+    {
+      "check": "F2.nil_source_preserves_legacy_manifest",
+      "result": "PASS",
+      "detail": "status=ok and compiler_profile_id absent"
+    },
+    {
+      "check": "F3.valid_source_emits_profile_id",
+      "result": "PASS",
+      "detail": "status=ok and compiler_profile_id emitted"
+    },
+    {
+      "check": "F4.invalid_source_refuses_before_artifact_output",
+      "result": "PASS",
+      "detail": "status=\"assembler_refused\""
+    },
+    {
+      "check": "F5.invalid_source_uses_existing_refusal_path",
+      "result": "PASS",
+      "detail": "assembler_refused via compiler_profile_source.unfinalized"
+    },
+    {
+      "check": "F6.facade_forwards_source_object_unchanged",
+      "result": "PASS",
+      "detail": "facade forwarded exact object and existing keywords"
+    },
+    {
+      "check": "F7.existing_cli_compile_remains_legacy",
+      "result": "PASS",
+      "detail": "CLI compile succeeded without profile field"
+    }
+  ],
+  "canonical_source": {
+    "kind": "compiler_profile_id_source",
+    "format_version": "0.1.0",
+    "status": "finalized",
+    "profile_namespace": "compiler_profile_unified",
+    "compiler_profile_id": "compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7",
+    "descriptor_digest": "compiler_profile_descriptor/sha256:0a2b4b79dda5d9657e6642b3",
+    "finalization_payload_digest": "sha256:a3829357ff3d34d23a82f5b7fbe22018fa66ef88efa5dd9bd04ab10f4fe4d8d4",
+    "profile_kind": "Stage3ProofCompilerProfileSpec",
+    "slot_order": [
+      "core",
+      "oof_registry",
+      "fragment_registry",
+      "escape_boundary",
+      "contract_modifiers",
+      "temporal",
+      "stream",
+      "olap",
+      "invariant",
+      "assumptions",
+      "evidence_observation",
+      "pipeline"
+    ],
+    "slot_assignments": {
+      "core": {
+        "implementation_id": "core_language.proof_compiler_adapter.v0",
+        "pack_name": "CoreLanguagePack"
+      },
+      "oof_registry": {
+        "implementation_id": "oof_registry.shadow_descriptor_registry.v0",
+        "pack_name": "OOFRegistry"
+      },
+      "fragment_registry": {
+        "implementation_id": "fragment_registry.shadow_precedence_registry.v0",
+        "pack_name": "FragmentRegistry"
+      },
+      "escape_boundary": {
+        "implementation_id": "escape_boundary.current_monolith_adapter.v0",
+        "pack_name": "EscapeBoundaryPack"
+      },
+      "contract_modifiers": {
+        "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+        "pack_name": "ContractModifiersPack"
+      },
+      "temporal": {
+        "implementation_id": "temporal.metadata_only_guarded.v0",
+        "pack_name": "TemporalPack"
+      },
+      "stream": {
+        "implementation_id": "stream.current_monolith_adapter.v0",
+        "pack_name": "StreamPack"
+      },
+      "olap": {
+        "implementation_id": "olap.current_monolith_adapter.v0",
+        "pack_name": "OLAPPack"
+      },
+      "invariant": {
+        "implementation_id": "invariant.current_monolith_adapter.v0",
+        "pack_name": "InvariantPack"
+      },
+      "assumptions": {
+        "implementation_id": "assumptions.spec_shadow.v0",
+        "pack_name": "AssumptionsPack"
+      },
+      "evidence_observation": {
+        "implementation_id": "evidence_observation.current_monolith_adapter.v0",
+        "pack_name": "EvidenceObservationPack"
+      },
+      "pipeline": {
+        "implementation_id": "pipeline.current_parser_surface_shadow.v0",
+        "pack_name": "PipelinePack"
+      }
+    },
+    "dispatch_migration_authorized": false,
+    "runtime_authority_granted": false
+  },
+  "negative_vocabulary_scan": {
+    "scanned_json_files": [
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/cli_facade.igapp/classified_ast.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/cli_facade.igapp/compatibility_metadata.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/cli_facade.igapp/compilation_report.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/cli_facade.igapp/contracts/add.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/cli_facade.igapp/diagnostics.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/cli_facade.igapp/manifest.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/cli_facade.igapp/projections.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/cli_facade.igapp/requirements.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/cli_facade.igapp/semantic_ir_program.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/legacy_facade.igapp/classified_ast.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/legacy_facade.igapp/compatibility_metadata.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/legacy_facade.igapp/compilation_report.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/legacy_facade.igapp/contracts/add.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/legacy_facade.igapp/diagnostics.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/legacy_facade.igapp/manifest.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/legacy_facade.igapp/projections.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/legacy_facade.igapp/requirements.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/legacy_facade.igapp/semantic_ir_program.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/profiled_facade.igapp/classified_ast.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/profiled_facade.igapp/compatibility_metadata.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/profiled_facade.igapp/compilation_report.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/profiled_facade.igapp/contracts/add.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/profiled_facade.igapp/diagnostics.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/profiled_facade.igapp/manifest.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/profiled_facade.igapp/projections.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/profiled_facade.igapp/requirements.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/profiled_facade.igapp/semantic_ir_program.json",
+      "experiments/prop036_ruby_facade_profile_source_exposure/out/refused_facade.compilation_report.json",
+      "summary"
+    ],
+    "exact_token_hits": 0
+  },
+  "non_authorizations": {
+    "cli_profile_flags": false,
+    "path_source_loading": false,
+    "inline_json_parsing": false,
+    "profile_finalization_in_facade": false,
+    "profile_discovery_or_defaulting": false,
+    "compatibility_report_profile_section": false,
+    "runtime_machine_binding": false,
+    "dispatch_migration": false,
+    "ledger_tbackend": false,
+    "production_behavior": false
+  }
+}

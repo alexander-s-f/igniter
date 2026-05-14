@@ -2,7 +2,7 @@
 
 Status: active
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-13
+Last updated: 2026-05-14
 
 ---
 
@@ -175,3 +175,4 @@ Authorized signed-addendum scope:
 | [prop036-source-contract-implementation-authorization-review-v0.md](prop036-source-contract-implementation-authorization-review-v0.md) | S3-R42-C6-A | approved-bounded-proof-implementation | Authorizes only `minimal-compiler-profile-finalization-proof-v0` under experiments; assembler manifest emission, loader/report status, dispatch migration, runtime binding, and production behavior remain closed |
 | [prop036-assembler-field-implementation-reconsideration-v0.md](prop036-assembler-field-implementation-reconsideration-v0.md) | S3-R42-C8-A | approved-bounded-assembler-implementation | Authorizes only `assembler-compiler-profile-id-field-v0` in `lib/igniter_lang/assembler.rb`; `CompilerOrchestrator`, loader/report, CompatibilityReport, runtime, dispatch, production behavior, and existing golden migration remain closed |
 | [prop036-orchestrator-wiring-authorization-review-v0.md](prop036-orchestrator-wiring-authorization-review-v0.md) | S3-R42-C10-A | approved-bounded-orchestrator-transport | Authorizes only optional `compiler_profile_source: nil` pass-through in `CompilerOrchestrator#compile`; no profile finalization, discovery, loader/report, runtime, dispatch, production behavior, or golden migration |
+| [prop036-cli-api-exposure-authorization-review-v0.md](prop036-cli-api-exposure-authorization-review-v0.md) | S3-R44-C2-A | approved-bounded-ruby-facade-exposure | Authorizes only optional `compiler_profile_source: nil` pass-through in `IgniterLang.compile`; CLI flags/path loading, profile finalization/discovery/defaulting, loader/report, runtime, dispatch, Ledger/TBackend, and production behavior remain closed |
