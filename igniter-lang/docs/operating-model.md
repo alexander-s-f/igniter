@@ -112,6 +112,7 @@ Expert converts it into a card.
 | `docs/current-status.md` | Meta Expert + Supervisor | Compact state map, not a narrative log |
 | `docs/operating-model.md` | Supervisor | Process contract and handoff rules |
 | `docs/agent-motion.md` | Supervisor | Historical protocol; agents do not update by default |
+| `docs/cards/` | Supervisor | Planned dispatch layer: stage/round card files, lineup, ordering, receipts |
 | `docs/tracks/*.md` | Assigned agent | Slice evidence, proof notes, handoff |
 | `docs/inbox/` | Supervisor | Temporary intake only; every item must have a disposition |
 | `docs/proposals/*.md` | Assigned agent | Formal proposal or accepted design candidate |
