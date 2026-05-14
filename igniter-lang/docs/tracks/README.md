@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-12
+Last updated: 2026-05-14
 
 ---
 
@@ -49,6 +49,19 @@ architecture. They are not production migration authorization.
 | `compiler-profile-validator-implementation-plan-v0.md` | done | No-code validator plan: descriptor shape -> slots -> pack semantics -> registry ordering -> canonicalize/fingerprint; no lib file created |
 | `compiler-profile-manifest-prop-architect-routing-v0.md` | done | Architect routing packet for `compiler_profile_id` manifest PROP; no PROP number assigned, no proposal queue mutation, implementation cards stay blocked |
 | `progression-pack-shadow-boundary-v0.md` | done | Maps external progression runtime model to proposed `ProgressionPack`; sibling to Stream/Temporal/Pipeline, no syntax/SemanticIR/runtime auth |
+
+---
+
+## Stage 3 Round 44 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop036-post-orchestrator-negative-artifact-scan-v0.md` | done | Refreshes PROP-036 proof outputs and scans 49 JSON artifacts/refusal reports; 0 exact forbidden loader-status/runtime-readiness token hits |
+| `../gates/prop036-cli-api-exposure-authorization-review-v0.md` | approved-bounded-ruby-facade-exposure | Authorizes only `IgniterLang.compile(..., compiler_profile_source:)` transport of a caller-supplied finalized source; CLI/path loading/finalization/defaulting and all wider surfaces remain closed |
+| `prop036-ruby-facade-profile-source-exposure-v0.md` | done | Adds optional Ruby facade keyword and forwards unchanged; proof PASS 7/7; exact forbidden-token scan over 29 JSON/refusal artifacts has 0 hits |
+| `prop036-post-cli-api-exposure-regression-chain-v0.md` | done | Post-exposure regression PASS; nil/default legacy preserved across facade, CLI, orchestrator, production CLI; 88 JSON files scanned with 0 exact forbidden hits |
+| `../discussions/prop036-cli-api-profile-source-pressure-v0.md` | proceed-with-notes | No blockers; non-blockers are caller-facing source-shape docs, explicit transport-only contract wording, and CLI blocker tracking |
+| `stage3-round44-status-curation-v0.md` | done | R44 status curation; closes cards dispatch layer and updates current maps |
 
 ---
 
@@ -709,7 +722,7 @@ architecture. They are not production migration authorization.
 ## igniter-lang/lib — Current State (14 files)
 
 ```text
-igniter_lang.rb           (R11/R13) — package facade; exposes VERSION + compile
+igniter_lang.rb           (R11/R13/S3-R44) — package facade; exposes VERSION + compile; bounded PROP-036 compiler_profile_source facade transport
 igniter_lang/version.rb   (R13) — prerelease package version
 igniter_lang/cli.rb       (R13) — thin package CLI for igc compile
 diagnostics.rb            (R3)
@@ -746,12 +759,12 @@ compiler_orchestrator.rb  (R10/S3-R5/S3-R43) — compiler pass orchestration; pr
 | PROP-037 profile descriptor specialization proof | Prove `external_event` specialization below closed top-level source kinds | Compiler/Grammar Expert / Bridge Agent | authorized design/proof follow-up; no production listener/queue |
 | context-capture-pack-shadow-boundary-v0 | Explore a descriptor-only context capture pack boundary from Line Up / Contextizer pressure without canonizing the specimen | Architect Supervisor / Compiler-Profile Agent | closed as design/research-only shadow boundary by R41 C4/C5; no implementation/canon |
 | context-capture-descriptor-proof-v0 | Validate capture source descriptors, policy refs, evidence links, and non-authorization flags without runtime/package authority | Research Agent / Compiler-Profile Agent | candidate next; keep source_kind values candidate-only until formal closure |
-| PROP-036 assembler/source/orchestrator chain | Keep current bounded implementation state visible: source finalization proof, assembler field, and orchestrator transport landed | Meta Expert / Compiler/Grammar Expert | current through R43; no broad migration |
-| PROP-036 CLI/API exposure | Decide how callers supply finalized `compiler_profile_source` to public CLI/API without finalization/discovery/defaulting in orchestrator | Architect Supervisor / Implementation Agent | next bounded decision candidate |
+| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, and Ruby facade exposure landed | Meta Expert / Compiler/Grammar Expert | current through R44; no broad migration |
+| PROP-036 CLI exposure design/tracking | Decide CLI input shape, refusal wording, nil/no-flag legacy proof, negative scan coverage, and pressure review before any CLI implementation | Architect Supervisor / Compiler/Grammar Expert | next bounded decision candidate; CLI implementation still closed |
 | PROP-036 golden migration | Name exact `.igapp` fixtures and expected hash churn before migrating any existing goldens | Compiler/Grammar Expert / Research Agent | still blocked; no existing golden migration |
 | PROP-036 loader/report status | Implement/report `absent_legacy`, `present_verified`, `mismatch`, `malformed`, `missing_required` separately from assembler/orchestrator | Bridge Agent / Compiler/Grammar Expert | still blocked behind separate authorization |
 | PROP-036 CompatibilityReport section | Design/prove compiler-profile section without runtime readiness or Gate 3 authority | Bridge Agent / Research Agent | still blocked behind separate authorization |
-| PROP-036 post-orchestrator negative scan | Before public CLI/API exposure, prove all written JSON/refusal artifacts avoid loader-status/runtime-readiness leakage | Research Agent / External Pressure Reviewer | note from R43 C3 pressure |
+| PROP-036 caller-facing facade docs | Document the accepted finalized source shape for `IgniterLang.compile` without adding finalization/discovery/defaulting behavior | Compiler/Grammar Expert / Docs agent | non-blocker from R44 X1 |
 | rollout kind-name consistency check | In any future rollout implementation card, confirm `phase1_audit_storage` matches storage identity acceptance/refusal logic | Implementation Agent / Architect Supervisor | NB from R39 X1 |
 | mundane OOF fixture planning | Plan OOF-MA1/MA2/MA3 fixtures from blind mundane pressure without canonizing stdlib/effect/runtime behavior | Compiler/Grammar Expert / Research Agent | pressure-only, non-canonical; NB from R37 X1 |
 | OQ-P28-1 escape naming answer | Verify whether unnamed `escape` declaration is currently parse error; update Covenant P28 table | Compiler/Grammar Expert | still open; route before PROP-035 |
