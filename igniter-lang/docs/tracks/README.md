@@ -52,6 +52,14 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 46 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop036-cli-b3-refusal-shape-and-b6-scan-scope-v0.md` | done | Resolves B3 with hybrid refusal shape: CLI profile-source path/JSON preflight is stderr-only/no artifacts; compiler/orchestrator refusals keep compiler_result + compilation_report; maps exact B3 -> B6 scan surface; no CLI implementation authorization |
+
+---
+
 ## Stage 3 Round 45 Evidence
 
 | Track | Status | Notes |
