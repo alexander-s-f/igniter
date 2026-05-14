@@ -52,6 +52,19 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Shadow Agent Orchestra Research
+
+These tracks are shadow orchestration research. They are not Igniter-Lang syntax,
+not PROP promotion, and not parser/tooling authorization.
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `portable-context-mnemonics-grammar-options-v0.md` | done | Sketches three mnemonic grammar variants; recommends Variant 1 Minimal Readable for first pressure testing; Variant 3 held due canonization risk |
+| `portable-context-mnemonics-reconstruction-proof-v0.md` | done | Tests MN-A/MN-B/MN-C reconstruction; balanced MN-B scores best as default external validation seed; preserves evidence/closure/auth invariant |
+| `portable-context-mnemonics-shadow-round-synthesis-v0.md` | done | Synthesizes C1/C2/C3 into a two-model external validation packet; recommends continuing as Agent Orchestra DNA candidate while keeping all PROP/spec/parser/tooling bridges closed |
+
+---
+
 ## Stage 3 Round 48 Evidence
 
 | Track | Status | Notes |
