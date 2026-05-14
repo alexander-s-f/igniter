@@ -89,6 +89,57 @@ the Round Receipt and the track/discussion/gate files.
 
 ---
 
+## Drift Self-Healing Protocol
+
+Use this protocol when chat, cards, tracks, gates, discussions, or status maps
+drift apart.
+
+Trigger examples:
+
+- a supervisor posts cards in chat but the round file is missing;
+- an agent completes a track that is not present in the round file;
+- `S<n>.md` omits an open or closed round;
+- a gate/discussion/track exists but the owning round receipt does not cite it;
+- a card depends on an artifact whose path or status changed in a parallel
+  slice.
+
+Rules:
+
+1. Prefer repair over blame. Create the smallest map/card/index fix that restores
+   dispatch truth.
+2. Do not change the original scope, authority, or implementation permission
+   while repairing drift.
+3. If reconstructing from chat, mark the round/card text as reconstructed only
+   when exact card text is unavailable.
+4. If exact card text is available from chat or user handoff, copy it into the
+   round file unchanged.
+5. Record actual outcomes only in receipts, tracks, gates, discussions, and
+   status maps.
+6. Status Curator must check at round close:
+   - round file exists;
+   - stage index links the round;
+   - every delivered track/gate/discussion is cited by the round receipt;
+   - dependency order matches the dispatch pattern;
+   - implementation authority did not widen during repair.
+
+Allowed self-healing edits:
+
+- missing round file creation;
+- stage card index update;
+- round receipt/index link repair;
+- status-map link correction;
+- explicit note that a track-level claim was superseded by a gate decision.
+
+Not allowed during self-healing:
+
+- authorizing implementation;
+- changing gate decisions;
+- changing completed card scope;
+- silently deleting historical evidence;
+- rewriting tracks to fit the map.
+
+---
+
 ## Current Stage
 
 - [Stage 3](S3/S3.md)
