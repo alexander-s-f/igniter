@@ -52,6 +52,16 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 48 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop036-cli-b1-standalone-artifact-proof-v0.md` | done | Emits proof-owned standalone `compiler_profile_source.stage3_proof.json`, validates through `finalization_and_assembler_source_contract`, records required fields, exact forbidden hits 0; proof PASS 27/27 and assembler regression PASS 19/19; recommends B1 closed |
+| `../discussions/prop036-cli-b1-standalone-artifact-pressure-v0.md` | proceed | Independently verifies all B1 artifact criteria; no loader-status vocabulary, CLI path-loading, runtime authority, or wider implementation implication; NB: formal Architect gate acceptance still pending |
+| `stage3-round48-status-curation-v0.md` | done | R48 status curation; closes cards dispatch layer, records B1 as partial in living maps, and keeps CLI implementation held |
+
+---
+
 ## Stage 3 Round 47 Evidence
 
 | Track | Status | Notes |
@@ -796,12 +806,13 @@ compiler_orchestrator.rb  (R10/S3-R5/S3-R43) — compiler pass orchestration; pr
 | PROP-037 profile descriptor specialization proof | Prove `external_event` specialization below closed top-level source kinds | Compiler/Grammar Expert / Bridge Agent | authorized design/proof follow-up; no production listener/queue |
 | context-capture-pack-shadow-boundary-v0 | Explore a descriptor-only context capture pack boundary from Line Up / Contextizer pressure without canonizing the specimen | Architect Supervisor / Compiler-Profile Agent | closed as design/research-only shadow boundary by R41 C4/C5; no implementation/canon |
 | context-capture-descriptor-proof-v0 | Validate capture source descriptors, policy refs, evidence links, and non-authorization flags without runtime/package authority | Research Agent / Compiler-Profile Agent | candidate next; keep source_kind values candidate-only until formal closure |
-| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, and Ruby facade exposure landed | Meta Expert / Compiler/Grammar Expert | current through R47; no broad migration |
+| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, Ruby facade exposure, and B1 artifact evidence | Meta Expert / Compiler/Grammar Expert | current through R48; no broad migration |
 | PROP-036 CLI exposure design/tracking | Decide CLI input shape, refusal wording, nil/no-flag legacy proof, negative scan coverage, and pressure review before any CLI implementation | Architect Supervisor / Compiler/Grammar Expert | closed as design route by R45 C3-A; implementation held behind `PROP036-CLI-B1..B9` |
 | PROP-036 CLI blocker closure criteria | Tighten B1 standalone artifact closure, B3 refusal output shape, B3->B6 scan surface, and B7/B8 docs completion bars | Architect Supervisor / Research Agent / Docs agent | closed by R46 C4-A; no CLI implementation |
 | PROP-036 B7/B8 Ruby API docs | Land caller-facing `docs/ruby-api.md` or approved API path with source-shape and transport-only wording; link from docs README; record source-level visibility landed or deferred | Compiler/Grammar Expert / Docs agent | closed by R47 C3-A; source-comment visibility Architect-deferred for this phase |
 | PROP-036 closure criteria minor addendum | Add B6 scanner self-test, B8-C deferral authority, and B1 validation-chain specificity to governing criteria before implementation authorization | Architect Supervisor / External Pressure Reviewer | closed by R47 C3-A; implementation still held |
-| PROP-036 B1 standalone artifact proof | Emit and validate `compiler_profile_source.stage3_proof.json` through the compiler-profile-source validation chain and scan exact forbidden tokens | Research Agent / Compiler/Grammar Expert | recommended R48; no CLI implementation |
+| PROP-036 B1 standalone artifact proof | Emit and validate `compiler_profile_source.stage3_proof.json` through the compiler-profile-source validation chain and scan exact forbidden tokens | Research Agent / Compiler/Grammar Expert | evidence satisfied by R48 C1/C2; formal Architect gate closure pending; no CLI implementation |
+| PROP-036 B1 formal closure gate | Explicitly accept or hold the R48 B1 artifact evidence before any implementation authorization cites B1 as closed | Architect Supervisor | recommended R49; may be standalone addendum or bundled into implementation-authorization gate |
 | PROP-036 golden migration | Name exact `.igapp` fixtures and expected hash churn before migrating any existing goldens | Compiler/Grammar Expert / Research Agent | still blocked; no existing golden migration |
 | PROP-036 loader/report status | Implement/report `absent_legacy`, `present_verified`, `mismatch`, `malformed`, `missing_required` separately from assembler/orchestrator | Bridge Agent / Compiler/Grammar Expert | still blocked behind separate authorization |
 | PROP-036 CompatibilityReport section | Design/prove compiler-profile section without runtime readiness or Gate 3 authority | Bridge Agent / Research Agent | still blocked behind separate authorization |
