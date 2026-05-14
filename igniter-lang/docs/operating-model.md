@@ -57,6 +57,12 @@ shared composition.
 
 The supervisor owns input/output motion. Agents own their slice artifacts.
 
+`[Architect Supervisor / Codex]` is defined as a super-role in
+`roles/architect-supervisor.md`. Other roles may recommend supervisor actions,
+but they do not inherit gate authority, implementation authorization, protected
+surface decisions, or drift self-healing authority unless explicitly initialized
+as the Architect Supervisor.
+
 External review can enter the system as a pressure loop:
 
 ```text

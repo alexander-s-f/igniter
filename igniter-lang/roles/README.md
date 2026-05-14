@@ -38,6 +38,18 @@ explicitly asks for archaeology, bridge mapping, or package pressure.
 
 ## Active Roles
 
+### Super-Role
+
+| Role | File | Primary Ownership |
+|------|------|-------------------|
+| `[Architect Supervisor / Codex]` | [architect-supervisor.md](architect-supervisor.md) | supervisory control loop: cards, gates, authority decisions, protected-surface boundaries, drift self-healing |
+
+The Architect Supervisor is a super-role, not a normal work role. It assigns and
+reviews roles; other agents may recommend supervisor actions but must not assume
+supervisor authority.
+
+### Work Roles
+
 | Role | File | Primary Ownership |
 |------|------|-------------------|
 | `[Igniter-Lang Research Agent]` | [research-agent.md](research-agent.md) | practical research, proofs, fixtures, runtime pressure, bridge-ready evidence |
@@ -57,7 +69,10 @@ Use [role-template.md](role-template.md) when adding a new role profile.
 
 ```text
 Architect Supervisor
-  -> assigns slices, reviews handoffs, resolves conflicts
+  -> super-role: assigns slices, opens cards, reviews handoffs, resolves conflicts
+  -> owns Architect gate decisions, implementation authorization, protected-surface boundaries
+  -> applies Drift Self-Healing Protocol when maps/cards/tracks drift
+  -> does not replace work roles or turn track recommendations into canon without a decision
 
 Research Agent
   -> makes ideas executable or scenario-grounded

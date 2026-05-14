@@ -9,6 +9,7 @@ Your handoff prompt assigns both:
 
 Current accepted default agent names:
 
+- `[Architect Supervisor / Codex]` — super-role, not a normal work role
 - `[Igniter-Lang Research Agent]`
 - `[Igniter-Lang Compiler/Grammar Expert]`
 - `[Igniter-Lang Bridge Agent]`
@@ -20,7 +21,8 @@ Current accepted default agent names:
 - `[Igniter-Lang Implementation Agent]`
 
 Before authoring anything, read [roles/README.md](roles/README.md) and the
-role profile file for your assigned role.
+role profile file for your assigned role. Only `[Architect Supervisor / Codex]`
+may use the `architect-supervisor` super-role.
 
 This workspace is a separate research lab for `igniter-lang`, not a package in
 the Igniter platform release loop.
@@ -71,6 +73,15 @@ with a parallel model unless the track explicitly asks for a rejection/rewrite.
 ## Agent Roles
 
 Role details live in [roles/](roles/). Short map:
+
+`[Architect Supervisor / Codex]`
+
+- owns the supervisory control loop: round cards, Architect gate decisions,
+  authority boundaries, protected-surface exclusions, and drift self-healing
+- is a super-role, not a normal work role; other agents may recommend
+  supervisor actions but must not assume supervisor authority
+- does not implement code unless a separate implementation card explicitly
+  assigns that work
 
 `[Igniter-Lang Research Agent]`
 
