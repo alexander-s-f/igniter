@@ -52,6 +52,18 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 45 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop036-cli-exposure-input-shape-options-v0.md` | done | Design-only comparison; immediate hold; future first CLI shape should be explicit `--compiler-profile-source PATH.json`; inline JSON, named lookup, discovery/defaulting rejected |
+| `prop036-facade-source-contract-hardening-v0.md` | done | Dev-contract wording for finalized `compiler_profile_id_source` and transport-only Ruby facade; guide/API docs still pending |
+| `../gates/prop036-cli-exposure-design-and-blocker-tracking-decision-v0.md` | approved-design-route-implementation-held | Approves future CLI design route only; implementation held behind `PROP036-CLI-B1..B9`; no CLI code/path loading or wider behavior authorized |
+| `../discussions/prop036-cli-exposure-design-pressure-v0.md` | proceed-with-notes | No blockers for design; B1 closure criterion, B3 refusal shape/B6 scan surface, and B7/B8 completion bars need tightening before implementation authorization |
+| `stage3-round45-status-curation-v0.md` | done | R45 status curation; closes cards dispatch layer and updates current maps |
+
+---
+
 ## Stage 3 Round 44 Evidence
 
 | Track | Status | Notes |
@@ -759,12 +771,13 @@ compiler_orchestrator.rb  (R10/S3-R5/S3-R43) — compiler pass orchestration; pr
 | PROP-037 profile descriptor specialization proof | Prove `external_event` specialization below closed top-level source kinds | Compiler/Grammar Expert / Bridge Agent | authorized design/proof follow-up; no production listener/queue |
 | context-capture-pack-shadow-boundary-v0 | Explore a descriptor-only context capture pack boundary from Line Up / Contextizer pressure without canonizing the specimen | Architect Supervisor / Compiler-Profile Agent | closed as design/research-only shadow boundary by R41 C4/C5; no implementation/canon |
 | context-capture-descriptor-proof-v0 | Validate capture source descriptors, policy refs, evidence links, and non-authorization flags without runtime/package authority | Research Agent / Compiler-Profile Agent | candidate next; keep source_kind values candidate-only until formal closure |
-| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, and Ruby facade exposure landed | Meta Expert / Compiler/Grammar Expert | current through R44; no broad migration |
-| PROP-036 CLI exposure design/tracking | Decide CLI input shape, refusal wording, nil/no-flag legacy proof, negative scan coverage, and pressure review before any CLI implementation | Architect Supervisor / Compiler/Grammar Expert | next bounded decision candidate; CLI implementation still closed |
+| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, and Ruby facade exposure landed | Meta Expert / Compiler/Grammar Expert | current through R45; no broad migration |
+| PROP-036 CLI exposure design/tracking | Decide CLI input shape, refusal wording, nil/no-flag legacy proof, negative scan coverage, and pressure review before any CLI implementation | Architect Supervisor / Compiler/Grammar Expert | closed as design route by R45 C3-A; implementation held behind `PROP036-CLI-B1..B9` |
+| PROP-036 CLI blocker closure criteria | Tighten B1 standalone artifact closure, B3 refusal output shape, B3->B6 scan surface, and B7/B8 docs completion bars | Architect Supervisor / Research Agent / Docs agent | recommended R46; no CLI implementation |
 | PROP-036 golden migration | Name exact `.igapp` fixtures and expected hash churn before migrating any existing goldens | Compiler/Grammar Expert / Research Agent | still blocked; no existing golden migration |
 | PROP-036 loader/report status | Implement/report `absent_legacy`, `present_verified`, `mismatch`, `malformed`, `missing_required` separately from assembler/orchestrator | Bridge Agent / Compiler/Grammar Expert | still blocked behind separate authorization |
 | PROP-036 CompatibilityReport section | Design/prove compiler-profile section without runtime readiness or Gate 3 authority | Bridge Agent / Research Agent | still blocked behind separate authorization |
-| PROP-036 caller-facing facade docs | Document the accepted finalized source shape for `IgniterLang.compile` without adding finalization/discovery/defaulting behavior | Compiler/Grammar Expert / Docs agent | non-blocker from R44 X1 |
+| PROP-036 caller-facing facade docs | Document the accepted finalized source shape for `IgniterLang.compile` without adding finalization/discovery/defaulting behavior | Compiler/Grammar Expert / Docs agent | dev-contract wording landed in R45 C2; guide/API docs still pending |
 | rollout kind-name consistency check | In any future rollout implementation card, confirm `phase1_audit_storage` matches storage identity acceptance/refusal logic | Implementation Agent / Architect Supervisor | NB from R39 X1 |
 | mundane OOF fixture planning | Plan OOF-MA1/MA2/MA3 fixtures from blind mundane pressure without canonizing stdlib/effect/runtime behavior | Compiler/Grammar Expert / Research Agent | pressure-only, non-canonical; NB from R37 X1 |
 | OQ-P28-1 escape naming answer | Verify whether unnamed `escape` declaration is currently parse error; update Covenant P28 table | Compiler/Grammar Expert | still open; route before PROP-035 |

@@ -154,7 +154,8 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             bounded assembler compiler_profile_id field landed;
                             bounded orchestrator compiler_profile_source pass-through landed;
                             bounded Ruby facade compiler_profile_source exposure landed;
-                            CLI flags/path loading, golden migration, loader/report,
+                            future CLI design route approved as held: --compiler-profile-source PATH.json;
+                            CLI implementation/path loading, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime remain blocked
 ─────────────────────────────────────────────────────────────────
 STAGE 3 CLOSED:   NO
@@ -432,6 +433,11 @@ Round 44 landed:
   S3-R44-C3-I: Ruby facade profile-source exposure      ✅ `IgniterLang.compile(... compiler_profile_source:)`; 7/7 PASS
   S3-R44-C4-P2: post-exposure regression chain          ✅ PASS; 88 JSON files, 0 exact forbidden hits; nil/default legacy
   S3-R44-C5-X: facade exposure pressure review          ✅ proceed-with-notes; no blockers; CLI design tracking recommended
+Round 45 landed:
+  S3-R45-C1-P1: CLI input-shape options                 ✅ design-only; explicit path option preferred; implementation held
+  S3-R45-C2-P1: facade source contract hardening        ✅ dev-contract wording for finalized source + transport-only facade
+  S3-R45-C3-A: CLI design/blocker decision              ✅ approved-design-route-implementation-held; B1..B9 tracked
+  S3-R45-C4-X: CLI design pressure review               ✅ proceed-with-notes; B1/B3/B7/B8 closure criteria routed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -1071,6 +1077,18 @@ S3-R44 result:      C1-P1 closes the post-orchestrator negative artifact scan: r
                       blocker tracking item remain non-blocking follow-ups. CLI flags, path loading, inline JSON parsing,
                       loader/report, CompatibilityReport, goldens, receipts, `.ilk`, signing, dispatch, runtime, and
                       production behavior remain closed.
+S3-R45 result:      C1-P1 compares future CLI input shapes and recommends holding implementation now; if CLI exposure
+                      later opens, the preferred first shape is explicit `--compiler-profile-source PATH.json`, not inline
+                      JSON, named lookup, discovery, env/config, sidecar, or defaulting. C2-P1 hardens the dev-contract
+                      wording for a finalized `compiler_profile_id_source` and makes the Ruby facade transport-only:
+                      it forwards unchanged and owns no validation/refusal semantics. C3-A approves only the future
+                      design route `igc compile SOURCE --out OUT.igapp --compiler-profile-source PATH.json` and keeps
+                      implementation held behind `PROP036-CLI-B1..B9`; no CLI code, path loading, loader/report,
+                      CompatibilityReport, runtime, dispatch, Ledger/TBackend, or production behavior is authorized.
+                      C4-X says proceed-with-notes: the design is discovery-free and authority-clean, but B1 needs a
+                      concrete standalone artifact closure criterion, B3 must decide CompilationReport JSON vs stderr-only
+                      refusal shape and feed B6 scan scope, and B7/B8 must distinguish dev-contract wording from
+                      guide/API docs completion.
 ```
 
 ### Spec Freshness
@@ -1088,9 +1106,9 @@ S3-R44 result:      C1-P1 closes the post-orchestrator negative artifact scan: r
 | Ch6 SemanticIR / .igapp | ✅ synced through R36 PROP-032 experiment-pass | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop032-assumptions-phase4-parser-proof-v0`; `prop032-assumptions-experiment-pass-decision-v0` | PROP-032 experiment-pass landed; Ch2 bounded grammar sync applied in R37; PROP-033 evidence validation/runtime receipts excluded |
 | Ch7 Runtime | ✅ R38 proof-local deployment review closed / rollout still closed | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0`; `phase1-production-durable-audit-v0`; `phase1-production-registry-ownership-decision-v0`; `deterministic-regression-artifact-policy-v0`; `phase1-production-durable-audit-implementation-authorization-review-v0`; `production-durable-audit-blocker-amendment-and-validation-proofs-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `phase1-production-durable-audit-implementation-authorization-decision-v0`; `startup-time-freshness-override-validator-v0`; `phase1-production-durable-audit-bounded-implementation-v0`; `durable-audit-hash-and-posture-design-amendment-v0`; `durable-audit-restart-rebuild-proof-v0`; `durable-audit-reader-traversal-proof-v0`; `durable-audit-append-reader-role-boundary-proof-v0`; `durable-audit-post-implementation-regression-matrix-v0`; `durable-audit-b-e-deployment-review-decision-v0`; `durable-audit-restricted-deployment-proof-review-v0` | P-53 proof-local closure confirmed; only design-only rollout readiness planning authorized; Ledger/Phase2/BiHistory/stream/OLAP/cache/broad RuntimeMachine/concrete HSM-KMS remain closed |
 | Ch11 Profile System | ✅ R39 namespace sync | `docs/spec/ch11-profile-system.md`; `ch11-profile-oof-namespace-sync-v0`; `prop037-oof-pr-diagnostic-design-v0` | `OOF-PROF*` reserved for profile diagnostics; `OOF-PR*` reserved for progression diagnostics; no implementation |
-| Proposal index | ✅ R44 PROP-036 partial implementation synced | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0`; `PROP-032-assumptions-block-v0`; `prop032-assumptions-implementation-gate-review-v0`; `prop032-assumptions-phase1-classifier-implementation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop036-placeholder-governance-sync-v0`; `prop036-compiler-profile-id-manifest-proposal-v0`; `progression-prop-number-assignment-decision-v0`; `proposal-lifecycle-status-labels-sync-v0`; `stage3-round36-status-preflight-sync-v0`; `prop037-external-progression-proposal-authoring-v0`; `prop037-progression-acceptance-review-v0`; `assembler-compiler-profile-id-field-v0`; `prop036-orchestrator-profile-source-pass-through-v0`; `prop036-ruby-facade-profile-source-exposure-v0` | PROP-036 accepted + bounded implementation partial; Ruby facade exposure landed; PROP-037 accepted proposal-only; PROP-038+ local recursion placeholder; PROP-032 experiment-pass |
+| Proposal index | ✅ R45 PROP-036 design route synced | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0`; `PROP-032-assumptions-block-v0`; `prop032-assumptions-implementation-gate-review-v0`; `prop032-assumptions-phase1-classifier-implementation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop036-placeholder-governance-sync-v0`; `prop036-compiler-profile-id-manifest-proposal-v0`; `progression-prop-number-assignment-decision-v0`; `proposal-lifecycle-status-labels-sync-v0`; `stage3-round36-status-preflight-sync-v0`; `prop037-external-progression-proposal-authoring-v0`; `prop037-progression-acceptance-review-v0`; `assembler-compiler-profile-id-field-v0`; `prop036-orchestrator-profile-source-pass-through-v0`; `prop036-ruby-facade-profile-source-exposure-v0`; `prop036-cli-exposure-design-and-blocker-tracking-decision-v0` | PROP-036 accepted + bounded implementation partial; Ruby facade exposure landed; future CLI design route approved but implementation held; PROP-037 accepted proposal-only; PROP-038+ local recursion placeholder; PROP-032 experiment-pass |
 | Contract modifiers | ✅ implementation/proof + R30 V-3 golden | `PROP-031-contract-modifiers-v0`; `contract-modifiers-proof-fixture-plan-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `agent-d-cross-review-values-and-meta-cards-r28-v0`; `prop031-compatibility-addendum-r29-v0`; `observed-temporal-precedence-golden-r30-v0` | Parser/classifier/typechecker/SemanticIR support landed with proof PASS; §14 documents migration/OOF-M1/V-3; V-3 golden PASS 25/25; Effect Surface/Profile/authority/runtime enforcement still absent by design |
-| Compiler pack architecture / PROP-036 | 🟡 bounded implementation partial | `compiler-profile-architecture-direction-v0`; `compiler-pack-boundary-report-v0`; `compiler-pack-shadow-profile-proof-v0`; `contract-modifiers-pack-native-boundary-v0`; `compiler-kernel-pack-registry-spike-v0`; `compiler-kernel-ordered-rule-precedence-v0`; `compiler-profile-id-manifest-boundary-plan-v0`; `compiler-profile-chain-closure-index-v0`; `compiler-profile-r32-shadow-chain-backreference-v0`; `docs/gates/compiler-profile-manifest-prop-number-decision-v0.md`; `prop036-compiler-profile-id-manifest-proposal-v0`; `prop036-compiler-profile-id-acceptance-decision-v0`; `prop036-loader-status-report-proof-v0`; `prop036-artifact-hash-ordering-proof-v0`; `prop036-assembler-field-design-plan-v0`; `prop036-compiler-profile-id-source-contract-v0`; `minimal-compiler-profile-finalization-proof-v0`; `assembler-compiler-profile-id-field-v0`; `prop036-orchestrator-profile-source-pass-through-v0`; `docs/gates/prop036-cli-api-exposure-authorization-review-v0.md`; `prop036-ruby-facade-profile-source-exposure-v0`; `prop036-post-cli-api-exposure-regression-chain-v0` | PROP-036 accepted; bounded assembler field, orchestrator transport, and Ruby facade exposure landed. Still closed: CLI flags/path loading/inline JSON parsing, golden migration, loader/report statuses, CompatibilityReport section, receipt/.ilk/signing, dispatch migration, runtime binding, production behavior |
+| Compiler pack architecture / PROP-036 | 🟡 bounded implementation partial + held CLI design | `compiler-profile-architecture-direction-v0`; `compiler-pack-boundary-report-v0`; `compiler-pack-shadow-profile-proof-v0`; `contract-modifiers-pack-native-boundary-v0`; `compiler-kernel-pack-registry-spike-v0`; `compiler-kernel-ordered-rule-precedence-v0`; `compiler-profile-id-manifest-boundary-plan-v0`; `compiler-profile-chain-closure-index-v0`; `compiler-profile-r32-shadow-chain-backreference-v0`; `docs/gates/compiler-profile-manifest-prop-number-decision-v0.md`; `prop036-compiler-profile-id-manifest-proposal-v0`; `prop036-compiler-profile-id-acceptance-decision-v0`; `prop036-loader-status-report-proof-v0`; `prop036-artifact-hash-ordering-proof-v0`; `prop036-assembler-field-design-plan-v0`; `prop036-compiler-profile-id-source-contract-v0`; `minimal-compiler-profile-finalization-proof-v0`; `assembler-compiler-profile-id-field-v0`; `prop036-orchestrator-profile-source-pass-through-v0`; `docs/gates/prop036-cli-api-exposure-authorization-review-v0.md`; `prop036-ruby-facade-profile-source-exposure-v0`; `prop036-post-cli-api-exposure-regression-chain-v0`; `prop036-cli-exposure-input-shape-options-v0`; `prop036-facade-source-contract-hardening-v0`; `docs/gates/prop036-cli-exposure-design-and-blocker-tracking-decision-v0.md`; `docs/discussions/prop036-cli-exposure-design-pressure-v0.md` | PROP-036 accepted; bounded assembler field, orchestrator transport, and Ruby facade exposure landed. Future CLI design route is approved but implementation held behind B1..B9; B1/B3/B7/B8 closure criteria need tightening. Still closed: CLI implementation/path loading, golden migration, loader/report statuses, CompatibilityReport section, receipt/.ilk/signing, dispatch migration, runtime binding, production behavior |
 | PROP-037 progression | 🟡 accepted proposal / proof-local descriptors | `prop037-progression-acceptance-review-v0`; `prop037-progression-descriptor-shape-proof-v0`; `prop037-oof-pr-diagnostic-design-v0`; `ch11-profile-oof-namespace-sync-v0`; `prop037-descriptor-oof-pr-proof-v0`; `prop037-compatibility-report-readiness-proof-v0` | Descriptor shape proof PASS; OOF-PR design done; P-54 closed; descriptor OOF-PR proof PASS for OOF-PR1/2/3/4/5/7/9; CompatibilityReport readiness proof PASS report-only; `progression_sources` ownership and OOF-PR6/8 remain open |
 | Documentation metabolism / Line Ups | ✅ R41 hardening/no-zombie plan | `documentation-fate-inventory-stage1-stage2-v0`; `documentation-movement-link-ledger-stage1-stage2-v0`; `line-up-stage1-stage2-second-batch-v0`; `line-up-authority-hoist-risk-review-v0`; `gate3-r13-r22-discussions-lineup-v0`; `gate3-r13-r22-lineup-authority-verification-v0`; `pre-gate3-lineup-rq1-rq2-revision-v0`; `gate3-r13-r22-lineup-historical-blockers-hardening-v0`; `gate3-discussion-index-no-zombie-plan-v0`; `docs/lineups/README.md` | First/second/Gate3 Line Ups landed; P-55/P-56 closed; historical blocker hardening done; no movement/deletion/README rewrite yet; P-57 additive grouping card requires supervisor approval |
 | Contextizer pressure / Context Capture shadow | 🟡 design/research-only shadow boundary | `contextizer-pressure-specimen-routing-v0`; `contextizer-lineup-bridge-analysis-v0`; `docs/gates/context-capture-pack-shadow-boundary-routing-decision-v0.md`; `context-capture-pack-shadow-boundary-v0` | Architect authorized descriptor/profile/pack vocabulary research only; candidate labels and source_kind sketch are not canon; no package/parser/runtime/LLM/Ledger/BiHistory/production or external utility mutation |
@@ -1442,6 +1460,16 @@ DOC-DEBT-64  S3-R44 PROP-036 Ruby facade exposure:
              CompatibilityReport, golden migration, receipts, `.ilk`, signing,
              dispatch, runtime, Gate 3 widening, Ledger/TBackend, BiHistory,
              stream/OLAP, production cache, and production deployment remain closed.
+DOC-DEBT-65  S3-R45 PROP-036 CLI design route:
+             Future CLI shape is approved only as design:
+             `--compiler-profile-source PATH.json` pointing at a standalone finalized
+             `compiler_profile_id_source` JSON object. Implementation remains held
+             behind `PROP036-CLI-B1..B9`. Before any implementation authorization,
+             tighten B1 standalone artifact closure form, B3 path/parse refusal
+             shape, B3->B6 scan-surface dependency, and B7/B8 completion bars for
+             guide/API docs versus dev-contract wording. No CLI code/path loading,
+             loader/report, CompatibilityReport, dispatch, runtime, Ledger/TBackend,
+             or production behavior is authorized.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -1485,10 +1513,12 @@ PROP-036   compiler_profile_id manifest  accepted; bounded implementation partia
                                          source contract + finalization proof PASS;
                                          assembler manifest field landed; orchestrator
                                          pass-through landed; Ruby facade transport landed;
-                                         CLI flags/path loading/inline JSON parsing,
-                                         loader/report, CompatibilityReport, golden migration,
-                                         receipt/.ilk/signing, dispatch, runtime, production
-                                         remain blocked
+                                         future CLI path design approved-held behind
+                                         PROP036-CLI-B1..B9; CLI implementation,
+                                         path loading, inline JSON parsing, loader/report,
+                                         CompatibilityReport, golden migration,
+                                         receipt/.ilk/signing, dispatch, runtime,
+                                         production remain blocked
 PROP-037   progression/service liveness  accepted proposal-only;
                                          descriptor shape proof PASS; OOF-PR design done;
                                          P-54 namespace sync closed; descriptor OOF-PR proof PASS
