@@ -4,10 +4,11 @@
   "track": "minimal-compiler-profile-finalization-proof-v0",
   "card": "S3-R42-C7-I",
   "status": "PASS",
-  "pass_count": 22,
+  "pass_count": 27,
   "fail_count": 0,
   "proof_cases": 16,
   "invariants": 6,
+  "standalone_artifact_checks": 5,
   "checks": [
     {
       "check": "F1.valid_descriptor_produces_source",
@@ -118,6 +119,31 @@
       "check": "INV6.produced_source_passes_validation",
       "result": "PASS",
       "detail": "validate_source! => true"
+    },
+    {
+      "check": "B1.standalone_artifact_exists",
+      "result": "PASS",
+      "detail": "path=igniter-lang/experiments/minimal_compiler_profile_finalization_proof/out/compiler_profile_source.stage3_proof.json"
+    },
+    {
+      "check": "B1.standalone_artifact_is_source_object",
+      "result": "PASS",
+      "detail": "kind=compiler_profile_id_source"
+    },
+    {
+      "check": "B1.standalone_artifact_matches_finalized_source",
+      "result": "PASS",
+      "detail": "matches canonical finalized source"
+    },
+    {
+      "check": "B1.standalone_artifact_validates_via_source_contract",
+      "result": "PASS",
+      "detail": "validation_path=finalization_and_assembler_source_contract"
+    },
+    {
+      "check": "B1.standalone_artifact_exact_forbidden_token_scan",
+      "result": "PASS",
+      "detail": "exact_forbidden_token_hits=0"
     }
   ],
   "finalized_source_example": {
@@ -196,6 +222,11 @@
     "dispatch_migration_authorized": false,
     "runtime_authority_granted": false
   },
+  "standalone_artifact_path": "igniter-lang/experiments/minimal_compiler_profile_finalization_proof/out/compiler_profile_source.stage3_proof.json",
+  "standalone_artifact_exists": true,
+  "standalone_artifact_valid": true,
+  "standalone_artifact_validation_path": "finalization_and_assembler_source_contract",
+  "standalone_artifact_exact_forbidden_token_hits": 0,
   "derived_id_rule": {
     "input": "canonical finalization payload (JSON.generate(normalize(payload)))",
     "payload_keys": [

@@ -33,12 +33,25 @@ module MinimalCompilerProfileFinalizationProof
   ROOT     = Pathname.new(File.expand_path("../../..", __dir__))
   OUT_DIR  = ROOT / "igniter-lang/experiments/minimal_compiler_profile_finalization_proof/out"
   SUMMARY_PATH = OUT_DIR / "minimal_compiler_profile_finalization_summary.json"
+  STANDALONE_ARTIFACT_PATH = OUT_DIR / "compiler_profile_source.stage3_proof.json"
 
   FORMAT_VERSION   = "0.1.0"
   PROFILE_NAMESPACE = "compiler_profile_unified"
   STAGE3_SPEC_NAME  = "Stage3ProofCompilerProfileSpec"
   DESCRIPTOR_KIND   = "compiler_profile_descriptor"
   SOURCE_KIND       = "compiler_profile_id_source"
+  FORBIDDEN_EXACT_JSON_TOKENS = %w[
+    absent_legacy
+    present_verified
+    mismatch
+    malformed
+    missing_required
+    runtime_ready
+    evaluation_ready
+    gate3_authorized
+    runtime_authority
+    production_ready
+  ].freeze
 
   # Canonical slot order for Stage3ProofCompilerProfileSpec (C4-P1, confirmed from
   # compiler_profile_spec_and_rule_unification experiment).
@@ -140,6 +153,23 @@ module MinimalCompilerProfileFinalizationProof
 
   def sha256_hex(data)
     Digest::SHA256.hexdigest(data)
+  end
+
+  def scan_forbidden_exact_tokens(value, path = [], hits = [])
+    case value
+    when Hash
+      value.each do |key, nested|
+        hits << { "kind" => "key", "path" => (path + [key]).join("."), "value" => key } \
+          if FORBIDDEN_EXACT_JSON_TOKENS.include?(key)
+        scan_forbidden_exact_tokens(nested, path + [key], hits)
+      end
+    when Array
+      value.each_with_index { |nested, index| scan_forbidden_exact_tokens(nested, path + [index], hits) }
+    else
+      hits << { "kind" => "value", "path" => path.join("."), "value" => value } \
+        if FORBIDDEN_EXACT_JSON_TOKENS.include?(value)
+    end
+    hits
   end
 
   # -------------------------------------------------------------------------
@@ -624,6 +654,59 @@ module MinimalCompilerProfileFinalizationProof
   end
 
   # -------------------------------------------------------------------------
+  # Standalone artifact closure checks for PROP036-CLI-B1
+  # -------------------------------------------------------------------------
+
+  def write_standalone_artifact(source)
+    File.write(STANDALONE_ARTIFACT_PATH, JSON.pretty_generate(source) + "\n")
+  end
+
+  def read_standalone_artifact
+    JSON.parse(File.read(STANDALONE_ARTIFACT_PATH))
+  end
+
+  def check_standalone_artifact(expected_source)
+    checks = []
+
+    checks << assert_pass("B1.standalone_artifact_exists") do
+      raise "missing #{STANDALONE_ARTIFACT_PATH}" unless File.file?(STANDALONE_ARTIFACT_PATH)
+
+      "path=#{STANDALONE_ARTIFACT_PATH.relative_path_from(ROOT)}"
+    end
+
+    artifact = read_standalone_artifact
+
+    checks << assert_pass("B1.standalone_artifact_is_source_object") do
+      raise "artifact is #{artifact.class}, expected Hash" unless artifact.is_a?(Hash)
+      raise "artifact is summary wrapper" if artifact.key?("finalized_source_example")
+      raise "kind=#{artifact["kind"].inspect}" unless artifact["kind"] == SOURCE_KIND
+
+      "kind=#{artifact["kind"]}"
+    end
+
+    checks << assert_pass("B1.standalone_artifact_matches_finalized_source") do
+      raise "artifact differs from finalized source" unless artifact == expected_source
+
+      "matches canonical finalized source"
+    end
+
+    checks << assert_pass("B1.standalone_artifact_validates_via_source_contract") do
+      validate_source!(artifact)
+
+      "validation_path=finalization_and_assembler_source_contract"
+    end
+
+    checks << assert_pass("B1.standalone_artifact_exact_forbidden_token_scan") do
+      hits = scan_forbidden_exact_tokens(artifact)
+      raise "forbidden exact token hits=#{hits.inspect}" unless hits.empty?
+
+      "exact_forbidden_token_hits=0"
+    end
+
+    checks
+  end
+
+  # -------------------------------------------------------------------------
   # Runner
   # -------------------------------------------------------------------------
 
@@ -632,10 +715,12 @@ module MinimalCompilerProfileFinalizationProof
 
     # Produce canonical source for invariant checks and summary output
     canonical_source = finalize_descriptor(PROOF_DESCRIPTOR)
+    write_standalone_artifact(canonical_source)
 
-    proof_results     = run_proof_cases
-    invariant_results = check_invariants(canonical_source)
-    all_results       = proof_results + invariant_results
+    proof_results      = run_proof_cases
+    invariant_results  = check_invariants(canonical_source)
+    standalone_results = check_standalone_artifact(canonical_source)
+    all_results        = proof_results + invariant_results + standalone_results
 
     pass_count  = all_results.count { |r| r["result"] == "PASS" }
     fail_count  = all_results.count { |r| r["result"] != "PASS" }
@@ -651,8 +736,14 @@ module MinimalCompilerProfileFinalizationProof
       "fail_count"     => fail_count,
       "proof_cases"    => proof_results.size,
       "invariants"     => invariant_results.size,
+      "standalone_artifact_checks" => standalone_results.size,
       "checks"         => all_results,
       "finalized_source_example" => canonical_source,
+      "standalone_artifact_path" => STANDALONE_ARTIFACT_PATH.relative_path_from(ROOT).to_s,
+      "standalone_artifact_exists" => File.file?(STANDALONE_ARTIFACT_PATH),
+      "standalone_artifact_valid" => standalone_results.all? { |result| result["result"] == "PASS" },
+      "standalone_artifact_validation_path" => "finalization_and_assembler_source_contract",
+      "standalone_artifact_exact_forbidden_token_hits" => scan_forbidden_exact_tokens(read_standalone_artifact).size,
       "derived_id_rule" => {
         "input"    => "canonical finalization payload (JSON.generate(normalize(payload)))",
         "payload_keys" => %w[profile_namespace format_version descriptor_digest
