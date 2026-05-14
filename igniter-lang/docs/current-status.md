@@ -147,11 +147,14 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             parsed emitter retained as Stage 1 legacy/comparison;
                             Profile-Baseline-Pack target direction recorded;
                             shadow compiler-pack proofs are pre-POC/no-dispatch only;
-                            compiler_profile_id accepted as PROP-036 proposal-only;
+                            compiler_profile_id accepted as PROP-036 with bounded partial implementation;
                             loader status report proof PASS is proof-local only;
                             artifact-hash ordering proof PASS is proof-local only;
-                            assembler field design plan done, implementation still blocked;
-                            implementation authorization still blocked
+                            source contract + minimal finalization proof PASS;
+                            bounded assembler compiler_profile_id field landed;
+                            bounded orchestrator compiler_profile_source pass-through landed;
+                            CLI/API exposure, golden migration, loader/report,
+                            CompatibilityReport, receipts, signing, dispatch, runtime remain blocked
 ─────────────────────────────────────────────────────────────────
 STAGE 3 CLOSED:   NO
 Round 1 landed:
@@ -411,11 +414,22 @@ Round 41 landed:
   S3-R41-C4-A: context-capture shadow routing      ✅ design/research-only authorized; implementation/canon closed
   S3-R41-C5-P2: context-capture shadow boundary    🟡 descriptor/profile/pack vocabulary research only
   S3-R41-X1-S: R41 pressure review                 ✅ PROCEED non-blockers; schema contract + P-57 routed
+Round 42 landed:
+  S3-R42-C1/C2-P1: PROP-036 assembler surveys      ✅ assembler impact + implementation contract; implementation initially gated
+  S3-R42-C3-A: assembler implementation review     ⏸ hold-redirect until authoritative source contract/proof
+  S3-R42-C4/C5-P1: source contract + code survey   ✅ finalized source object chosen; code surfaces mapped
+  S3-R42-C6-A/C7-I: source finalization proof      ✅ proof-local implementation authorized and PASS 22/22
+  S3-R42-C8-A/C9-I: assembler field implementation ✅ bounded assembler-only field landed; 19/19 PASS; no golden migration
+  S3-R42-C10-A: orchestrator transport auth        ✅ bounded pass-through authorized only; no finalization/discovery/defaulting
+Round 43 landed:
+  S3-R43-C1-I: orchestrator profile-source pass-through ✅ implemented; 11/11 PASS; compiler_orchestrator.rb only
+  S3-R43-C2-P1: post-orchestrator regression chain      ✅ PASS syntax + C1 proof + assembler proof + CLI/API smoke + nil check
+  S3-R43-C3-P1: orchestrator pressure review            ✅ proceed-with-notes; no blockers; future scans routed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
                   queued slots include PROP-033 via profile, PROP-034 evidence,
-                  PROP-035 profile declarations, PROP-036 compiler_profile_id accepted proposal,
+                  PROP-035 profile declarations, PROP-036 compiler_profile_id accepted + bounded partial implementation,
                   PROP-037 progression/service liveness accepted proposal-only,
                   PROP-038+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
@@ -1016,6 +1030,26 @@ S3-R41 result:      C1-P1 closes the PROP-037 CompatibilityReport readiness proo
                       boundary with candidate labels only. X1 says PROCEED with non-blockers and routes the
                       `progression_sources` manifest/CompatibilityReport schema contract, P-57, and a future
                       context-capture descriptor proof.
+S3-R42 result:      PROP-036 moved from design/proof planning into bounded partial implementation. C1/C2 map the
+                      assembler impact and implementation contract; C3-A holds assembler implementation until an
+                      authoritative `compiler_profile_id` source exists. C4/C5 define the source contract and code
+                      surface: the authority source is a finalized `compiler_profile_id_source`, not a raw string or
+                      proof constant. C6-A authorizes only the proof-local finalization implementation; C7-I lands it
+                      with 22/22 PASS. C8-A then authorizes only the assembler field slice; C9-I lands
+                      `manifest.compiler_profile_id` in `lib/igniter_lang/assembler.rb` with 19/19 PASS and no existing
+                      golden migration. C10-A authorizes only orchestrator transport wiring for a caller-supplied
+                      finalized source object.
+S3-R43 result:      C1-I implements the bounded `CompilerOrchestrator#compile` pass-through: optional
+                      `compiler_profile_source: nil` is forwarded unchanged to `Assembler#assemble_artifacts`, nil keeps
+                      `legacy_optional`, and invalid source refuses through the existing `assembler_refused` path. C1
+                      changes only `lib/igniter_lang/compiler_orchestrator.rb` and proves 11/11 PASS. C2-P1 reruns the
+                      post-orchestrator chain: orchestrator syntax PASS, C1 proof PASS, `igapp_assembler_proof` PASS,
+                      `production_compiler_cli_proof` PASS, and legacy nil manifest omits `compiler_profile_id`. C3-P1
+                      pressure verdict is proceed-with-notes: no blocker for pass-through, but future public CLI/API
+                      exposure should broaden negative scans across all written JSON/refusal artifacts. Remaining
+                      blockers before widening: CLI/API caller exposure, exact golden migration list/hash churn,
+                      loader/report statuses, CompatibilityReport compiler-profile section, receipt/.ilk/signing,
+                      dispatch migration, runtime binding, and production behavior.
 ```
 
 ### Spec Freshness
@@ -1033,9 +1067,9 @@ S3-R41 result:      C1-P1 closes the PROP-037 CompatibilityReport readiness proo
 | Ch6 SemanticIR / .igapp | ✅ synced through R36 PROP-032 experiment-pass | `spec-ch6-semanticir-temporal-sync-v0`; `stream-replay-metadata-emission-v0`; `invariant-source-metadata-preservation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop032-assumptions-phase4-parser-proof-v0`; `prop032-assumptions-experiment-pass-decision-v0` | PROP-032 experiment-pass landed; Ch2 bounded grammar sync applied in R37; PROP-033 evidence validation/runtime receipts excluded |
 | Ch7 Runtime | ✅ R38 proof-local deployment review closed / rollout still closed | `spec-ch7-runtime-temporal-cache-sync-v0`; `executor-approval-token-report-proof-v0`; `guarded-runtime-executor-approval-enforcement-v0`; `compatibility-report-package-descriptor-consumption-v0`; `docs/gates/gate3-decision-record-v0.md`; `PROP-030A-temporal-scope-exclusion-errata-v0.md`; `spec-ch7-gate3-approval-sync-v0`; `runtime-temporal-executor-composition-integration-v0`; `executor-approval-authority-ref-proof-v0`; `phase1-prelive-regression-chain-v0`; `runtime-temporal-executor-lib-prep-v0`; `runtime-temporal-executor-lib-boundary-spec-sync-rerun-v0`; `gate3-first-post-signature-fixture-v0`; `compatibility-report-persistence-audit-v0`; `gate3-authority-registry-shape-v0`; `phase1-end-to-end-invocation-fixture-v0`; `phase1-addendum-content-address-ref-v0`; `phase1-durable-observation-persistence-shape-v0`; `gate3-authority-registry-v1-receipts-shape-v0`; `phase1-reason-code-legacy-aliases-deprecation-signal-v0`; `phase1-post-r23-regression-rerun-v0`; `phase1-durable-registry-storage-semantics-v0`; `phase1-observation-tamper-evidence-shape-v0`; `phase1-post-r24-regression-rerun-v0`; `phase1-production-durable-audit-scope-decision-v0`; `production-registry-ownership-options-v0`; `phase1-production-durable-audit-v0`; `phase1-production-registry-ownership-decision-v0`; `deterministic-regression-artifact-policy-v0`; `phase1-production-durable-audit-implementation-authorization-review-v0`; `production-durable-audit-blocker-amendment-and-validation-proofs-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `phase1-production-durable-audit-implementation-authorization-decision-v0`; `startup-time-freshness-override-validator-v0`; `phase1-production-durable-audit-bounded-implementation-v0`; `durable-audit-hash-and-posture-design-amendment-v0`; `durable-audit-restart-rebuild-proof-v0`; `durable-audit-reader-traversal-proof-v0`; `durable-audit-append-reader-role-boundary-proof-v0`; `durable-audit-post-implementation-regression-matrix-v0`; `durable-audit-b-e-deployment-review-decision-v0`; `durable-audit-restricted-deployment-proof-review-v0` | P-53 proof-local closure confirmed; only design-only rollout readiness planning authorized; Ledger/Phase2/BiHistory/stream/OLAP/cache/broad RuntimeMachine/concrete HSM-KMS remain closed |
 | Ch11 Profile System | ✅ R39 namespace sync | `docs/spec/ch11-profile-system.md`; `ch11-profile-oof-namespace-sync-v0`; `prop037-oof-pr-diagnostic-design-v0` | `OOF-PROF*` reserved for profile diagnostics; `OOF-PR*` reserved for progression diagnostics; no implementation |
-| Proposal index | ✅ R37 PROP-037 acceptance synced | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0`; `PROP-032-assumptions-block-v0`; `prop032-assumptions-implementation-gate-review-v0`; `prop032-assumptions-phase1-classifier-implementation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop036-placeholder-governance-sync-v0`; `prop036-compiler-profile-id-manifest-proposal-v0`; `progression-prop-number-assignment-decision-v0`; `proposal-lifecycle-status-labels-sync-v0`; `stage3-round36-status-preflight-sync-v0`; `prop037-external-progression-proposal-authoring-v0`; `prop037-progression-acceptance-review-v0` | PROP-036 accepted proposal-only; PROP-037 accepted proposal-only; PROP-038+ local recursion placeholder; PROP-032 experiment-pass |
+| Proposal index | ✅ R43 PROP-036 partial implementation synced | `proposal-lifecycle-index-sync-v0`; `PROP-029-entrypoint-section-surface-v0`; `PROP-030-executor-approval-token-contract-v0`; `PROP-032-assumptions-block-v0`; `prop032-assumptions-implementation-gate-review-v0`; `prop032-assumptions-phase1-classifier-implementation-v0`; `prop032-assumptions-phase3-semanticir-v0`; `prop036-placeholder-governance-sync-v0`; `prop036-compiler-profile-id-manifest-proposal-v0`; `progression-prop-number-assignment-decision-v0`; `proposal-lifecycle-status-labels-sync-v0`; `stage3-round36-status-preflight-sync-v0`; `prop037-external-progression-proposal-authoring-v0`; `prop037-progression-acceptance-review-v0`; `assembler-compiler-profile-id-field-v0`; `prop036-orchestrator-profile-source-pass-through-v0` | PROP-036 accepted + bounded implementation partial; PROP-037 accepted proposal-only; PROP-038+ local recursion placeholder; PROP-032 experiment-pass |
 | Contract modifiers | ✅ implementation/proof + R30 V-3 golden | `PROP-031-contract-modifiers-v0`; `contract-modifiers-proof-fixture-plan-v0`; `post-r27-regression-matrix-with-volatile-lint-v0`; `agent-d-cross-review-values-and-meta-cards-r28-v0`; `prop031-compatibility-addendum-r29-v0`; `observed-temporal-precedence-golden-r30-v0` | Parser/classifier/typechecker/SemanticIR support landed with proof PASS; §14 documents migration/OOF-M1/V-3; V-3 golden PASS 25/25; Effect Surface/Profile/authority/runtime enforcement still absent by design |
-| Compiler pack architecture | 🟡 accepted proposal / implementation blocked | `compiler-profile-architecture-direction-v0`; `compiler-pack-boundary-report-v0`; `compiler-pack-shadow-profile-proof-v0`; `contract-modifiers-pack-native-boundary-v0`; `compiler-kernel-pack-registry-spike-v0`; `compiler-kernel-ordered-rule-precedence-v0`; `compiler-profile-id-manifest-boundary-plan-v0`; `compiler-profile-chain-closure-index-v0`; `compiler-profile-r32-shadow-chain-backreference-v0`; `docs/gates/compiler-profile-manifest-prop-number-decision-v0.md`; `prop036-compiler-profile-id-manifest-proposal-v0`; `prop036-compiler-profile-id-acceptance-decision-v0`; `prop036-loader-status-report-proof-v0`; `prop036-artifact-hash-ordering-proof-v0`; `prop036-assembler-field-design-plan-v0` | PROP-036 accepted proposal-only; assembler field placement designed; no compiler dispatch, no rewrite, no real `.igapp`/`.ilk` profile id, no native migration authorization |
+| Compiler pack architecture / PROP-036 | 🟡 bounded implementation partial | `compiler-profile-architecture-direction-v0`; `compiler-pack-boundary-report-v0`; `compiler-pack-shadow-profile-proof-v0`; `contract-modifiers-pack-native-boundary-v0`; `compiler-kernel-pack-registry-spike-v0`; `compiler-kernel-ordered-rule-precedence-v0`; `compiler-profile-id-manifest-boundary-plan-v0`; `compiler-profile-chain-closure-index-v0`; `compiler-profile-r32-shadow-chain-backreference-v0`; `docs/gates/compiler-profile-manifest-prop-number-decision-v0.md`; `prop036-compiler-profile-id-manifest-proposal-v0`; `prop036-compiler-profile-id-acceptance-decision-v0`; `prop036-loader-status-report-proof-v0`; `prop036-artifact-hash-ordering-proof-v0`; `prop036-assembler-field-design-plan-v0`; `prop036-compiler-profile-id-source-contract-v0`; `minimal-compiler-profile-finalization-proof-v0`; `assembler-compiler-profile-id-field-v0`; `prop036-orchestrator-profile-source-pass-through-v0` | PROP-036 accepted; bounded assembler field and orchestrator transport landed. Still closed: CLI/API exposure, golden migration, loader/report statuses, CompatibilityReport section, receipt/.ilk/signing, dispatch migration, runtime binding, production behavior |
 | PROP-037 progression | 🟡 accepted proposal / proof-local descriptors | `prop037-progression-acceptance-review-v0`; `prop037-progression-descriptor-shape-proof-v0`; `prop037-oof-pr-diagnostic-design-v0`; `ch11-profile-oof-namespace-sync-v0`; `prop037-descriptor-oof-pr-proof-v0`; `prop037-compatibility-report-readiness-proof-v0` | Descriptor shape proof PASS; OOF-PR design done; P-54 closed; descriptor OOF-PR proof PASS for OOF-PR1/2/3/4/5/7/9; CompatibilityReport readiness proof PASS report-only; `progression_sources` ownership and OOF-PR6/8 remain open |
 | Documentation metabolism / Line Ups | ✅ R41 hardening/no-zombie plan | `documentation-fate-inventory-stage1-stage2-v0`; `documentation-movement-link-ledger-stage1-stage2-v0`; `line-up-stage1-stage2-second-batch-v0`; `line-up-authority-hoist-risk-review-v0`; `gate3-r13-r22-discussions-lineup-v0`; `gate3-r13-r22-lineup-authority-verification-v0`; `pre-gate3-lineup-rq1-rq2-revision-v0`; `gate3-r13-r22-lineup-historical-blockers-hardening-v0`; `gate3-discussion-index-no-zombie-plan-v0`; `docs/lineups/README.md` | First/second/Gate3 Line Ups landed; P-55/P-56 closed; historical blocker hardening done; no movement/deletion/README rewrite yet; P-57 additive grouping card requires supervisor approval |
 | Contextizer pressure / Context Capture shadow | 🟡 design/research-only shadow boundary | `contextizer-pressure-specimen-routing-v0`; `contextizer-lineup-bridge-analysis-v0`; `docs/gates/context-capture-pack-shadow-boundary-routing-decision-v0.md`; `context-capture-pack-shadow-boundary-v0` | Architect authorized descriptor/profile/pack vocabulary research only; candidate labels and source_kind sketch are not canon; no package/parser/runtime/LLM/Ledger/BiHistory/production or external utility mutation |
@@ -1367,6 +1401,17 @@ DOC-DEBT-62  S3-R41 status:
              authorized only as design/research shadow vocabulary; candidate labels,
              source_kind sketch, ContextSnapshot/KeyPoint, LLM, Ledger/BiHistory, and
              production behavior remain non-canonical/closed.
+DOC-DEBT-63  S3-R42/R43 PROP-036 status:
+             Bounded PROP-036 implementation is partial, not broad migration.
+             Source finalization proof PASS 22/22, assembler field implementation
+             PASS 19/19, and orchestrator pass-through PASS 11/11 are landed.
+             Legacy nil behavior remains `legacy_optional`; no default profile is
+             injected. Still blocked before public/wider exposure: CLI/API caller
+             surface, exact golden migration list/hash churn, loader/report status
+             values, CompatibilityReport compiler-profile section, CompilationReceipt
+             links, `.ilk`, signing, compiler dispatch migration, runtime binding,
+             Gate 3 widening, Ledger/TBackend, BiHistory, stream/OLAP, production
+             cache, and production deployment.
 ```
 
 ### Stage 2 Deferred Gaps → Stage 3 Lanes
@@ -1406,10 +1451,12 @@ PROP-032   Assumptions block             experiment-pass; assumptions {} + uses 
 PROP-033   via profile binding           queued; not authored
 PROP-034   output evidence syntax        queued; not authored
 PROP-035   profile declarations          queued; not authored
-PROP-036   compiler_profile_id manifest  accepted proposal-only; implementation blocked;
-                                         loader status + artifact-hash ordering proof-local PASS;
-                                         assembler field design-only plan landed;
-                                         no implementation or migration auth
+PROP-036   compiler_profile_id manifest  accepted; bounded implementation partial:
+                                         source contract + finalization proof PASS;
+                                         assembler manifest field landed; orchestrator
+                                         pass-through landed; loader/report, CompatibilityReport,
+                                         golden migration, receipt/.ilk/signing, dispatch,
+                                         runtime, production remain blocked
 PROP-037   progression/service liveness  accepted proposal-only;
                                          descriptor shape proof PASS; OOF-PR design done;
                                          P-54 namespace sync closed; descriptor OOF-PR proof PASS

@@ -52,6 +52,34 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 43 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop036-orchestrator-profile-source-pass-through-v0.md` | done | Implements bounded `CompilerOrchestrator#compile(compiler_profile_source: nil)` pass-through to assembler; 11/11 PASS; no finalization/discovery/defaulting/loader/report/runtime behavior |
+| `prop036-post-orchestrator-regression-chain-v0.md` | done | Regression chain PASS: orchestrator syntax, C1 proof, `igapp_assembler_proof`, `production_compiler_cli_proof`, and legacy nil manifest check; no code changes |
+| `../discussions/r43-orchestrator-profile-source-pressure-v0.md` | proceed-with-notes | No blockers for current pass-through; future CLI/API exposure should broaden negative scans across all written JSON/refusal artifacts |
+| `stage3-round43-status-curation-v0.md` | done | R43 status curation; refreshes PROP-036 maps and R44 route from C1/C2/C3 evidence |
+
+---
+
+## Stage 3 Round 42 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop036-assembler-impact-survey-v0.md` | done | Maps assembler impact for top-level `manifest.compiler_profile_id`; recommends assembler-only path; no code/manifest/golden change |
+| `prop036-assembler-implementation-contract-v0.md` | done | Defines assembler-only implementation contract, `legacy_optional`, hash-before-sign ordering, refusal conditions, and blockers before implementation |
+| `../gates/prop036-assembler-field-implementation-authorization-review-v0.md` | hold-redirect | Holds assembler field implementation until authoritative `compiler_profile_id` source contract/proof exists |
+| `prop036-compiler-profile-id-source-contract-v0.md` | done | Chooses frozen descriptor -> minimal finalization -> finalized `compiler_profile_id_source` as authority source; raw id/proof constant rejected |
+| `prop036-source-contract-code-surface-survey-v0.md` | done | Maps source-contract code surfaces and risks; blocks assembler implementation until finalization proof passes |
+| `../gates/prop036-source-contract-implementation-authorization-review-v0.md` | approved-bounded-proof-implementation | Authorizes only proof-local minimal CompilerProfile finalization under `experiments/` |
+| `minimal-compiler-profile-finalization-proof-v0.md` | done | Proof-local finalization PASS 22/22; emits finalized `compiler_profile_id_source`; no assembler/manifest/golden/loader/runtime change |
+| `../gates/prop036-assembler-field-implementation-reconsideration-v0.md` | approved-bounded-assembler-implementation | Authorizes only `lib/igniter_lang/assembler.rb` field implementation; orchestrator/golden/loader/report/runtime remain closed |
+| `assembler-compiler-profile-id-field-v0.md` | done | Bounded assembler `manifest.compiler_profile_id` implementation PASS 19/19; legacy nil unchanged; no golden migration |
+| `../gates/prop036-orchestrator-wiring-authorization-review-v0.md` | approved-bounded-orchestrator-transport | Authorizes only optional caller-supplied `compiler_profile_source:` pass-through in `CompilerOrchestrator#compile` |
+
+---
+
 ## Stage 3 Round 41 Evidence
 
 | Track | Status | Notes |
@@ -694,8 +722,8 @@ runtime_smoke.rb          (R12) — reusable proof-backed RuntimeSmoke callback
 classifier.rb             (R6/R7/S3-R2/R3) — ParsedProgram→ClassifiedProgram; stream/temporal metadata
 typechecker.rb            (R7/R8/R10/S3-R2/R3) — TypedProgram boundary; stream/OLAP/invariant/TEMPORAL
 semanticir_emitter.rb     (R8/R9/R10/R11/S3-R3) — SemanticIR emitter; typed temporal lowering
-assembler.rb              (R9/S3-R4/R5) — .igapp/ assembler; temporal nodes + manifest contract_index
-compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; production path uses emit_typed
+assembler.rb              (R9/S3-R4/R5/S3-R42) — .igapp/ assembler; temporal nodes + manifest contract_index + bounded PROP-036 compiler_profile_id field
+compiler_orchestrator.rb  (R10/S3-R5/S3-R43) — compiler pass orchestration; production path uses emit_typed; bounded PROP-036 compiler_profile_source pass-through
 ```
 
 ---
@@ -718,8 +746,12 @@ compiler_orchestrator.rb  (R10/S3-R5) — compiler pass orchestration; productio
 | PROP-037 profile descriptor specialization proof | Prove `external_event` specialization below closed top-level source kinds | Compiler/Grammar Expert / Bridge Agent | authorized design/proof follow-up; no production listener/queue |
 | context-capture-pack-shadow-boundary-v0 | Explore a descriptor-only context capture pack boundary from Line Up / Contextizer pressure without canonizing the specimen | Architect Supervisor / Compiler-Profile Agent | closed as design/research-only shadow boundary by R41 C4/C5; no implementation/canon |
 | context-capture-descriptor-proof-v0 | Validate capture source descriptors, policy refs, evidence links, and non-authorization flags without runtime/package authority | Research Agent / Compiler-Profile Agent | candidate next; keep source_kind values candidate-only until formal closure |
-| PROP-036 authorization route | Name Architect/supervisor authorization path for future assembler field, golden migration, loader/report, and receipt-link surfaces before they age out | Meta Expert / Architect Supervisor | design plan landed; implementation still blocked |
-| PROP-036 proof-only fixture map | Name exact `.igapp`/golden fixtures that would churn before any code opens | Compiler/Grammar Expert | recommended by C4-P1; no mutation |
+| PROP-036 assembler/source/orchestrator chain | Keep current bounded implementation state visible: source finalization proof, assembler field, and orchestrator transport landed | Meta Expert / Compiler/Grammar Expert | current through R43; no broad migration |
+| PROP-036 CLI/API exposure | Decide how callers supply finalized `compiler_profile_source` to public CLI/API without finalization/discovery/defaulting in orchestrator | Architect Supervisor / Implementation Agent | next bounded decision candidate |
+| PROP-036 golden migration | Name exact `.igapp` fixtures and expected hash churn before migrating any existing goldens | Compiler/Grammar Expert / Research Agent | still blocked; no existing golden migration |
+| PROP-036 loader/report status | Implement/report `absent_legacy`, `present_verified`, `mismatch`, `malformed`, `missing_required` separately from assembler/orchestrator | Bridge Agent / Compiler/Grammar Expert | still blocked behind separate authorization |
+| PROP-036 CompatibilityReport section | Design/prove compiler-profile section without runtime readiness or Gate 3 authority | Bridge Agent / Research Agent | still blocked behind separate authorization |
+| PROP-036 post-orchestrator negative scan | Before public CLI/API exposure, prove all written JSON/refusal artifacts avoid loader-status/runtime-readiness leakage | Research Agent / External Pressure Reviewer | note from R43 C3 pressure |
 | rollout kind-name consistency check | In any future rollout implementation card, confirm `phase1_audit_storage` matches storage identity acceptance/refusal logic | Implementation Agent / Architect Supervisor | NB from R39 X1 |
 | mundane OOF fixture planning | Plan OOF-MA1/MA2/MA3 fixtures from blind mundane pressure without canonizing stdlib/effect/runtime behavior | Compiler/Grammar Expert / Research Agent | pressure-only, non-canonical; NB from R37 X1 |
 | OQ-P28-1 escape naming answer | Verify whether unnamed `escape` declaration is currently parse error; update Covenant P28 table | Compiler/Grammar Expert | still open; route before PROP-035 |
