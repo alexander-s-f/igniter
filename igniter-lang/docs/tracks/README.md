@@ -52,6 +52,14 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 47 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop036-cli-closure-criteria-precision-addendum-prep-v0.md` | done | Prepares minor Architect addendum wording for R46 pressure notes: B6 scanner self-test, B8-C Architect-owned deferral authority, and B1 validation-chain specificity; no gate edit or CLI implementation authorization |
+
+---
+
 ## Stage 3 Round 46 Evidence
 
 | Track | Status | Notes |

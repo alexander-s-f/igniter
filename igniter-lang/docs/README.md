@@ -14,6 +14,7 @@ Last updated: 2026-05-09
 Agent current context       → agent-context.md  (read this first for current horizon + proof budget)
 Hoisted value index         → value-index.md  (durable ideas + links back to archaeology)
 Language reference             → language-spec.md
+Ruby API facade                → ruby-api.md
 Operating model                → operating-model.md
 Operating scheduler            → operating-scheduler.md
 Documentation metabolism       → dev/documentation-metabolism.md
