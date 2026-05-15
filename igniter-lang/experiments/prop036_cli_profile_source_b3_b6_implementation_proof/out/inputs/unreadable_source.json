@@ -1,0 +1,76 @@
+{
+  "kind": "compiler_profile_id_source",
+  "format_version": "0.1.0",
+  "status": "finalized",
+  "profile_namespace": "compiler_profile_unified",
+  "compiler_profile_id": "compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7",
+  "descriptor_digest": "compiler_profile_descriptor/sha256:0a2b4b79dda5d9657e6642b3",
+  "finalization_payload_digest": "sha256:a3829357ff3d34d23a82f5b7fbe22018fa66ef88efa5dd9bd04ab10f4fe4d8d4",
+  "profile_kind": "Stage3ProofCompilerProfileSpec",
+  "slot_order": [
+    "core",
+    "oof_registry",
+    "fragment_registry",
+    "escape_boundary",
+    "contract_modifiers",
+    "temporal",
+    "stream",
+    "olap",
+    "invariant",
+    "assumptions",
+    "evidence_observation",
+    "pipeline"
+  ],
+  "slot_assignments": {
+    "core": {
+      "implementation_id": "core_language.proof_compiler_adapter.v0",
+      "pack_name": "CoreLanguagePack"
+    },
+    "oof_registry": {
+      "implementation_id": "oof_registry.shadow_descriptor_registry.v0",
+      "pack_name": "OOFRegistry"
+    },
+    "fragment_registry": {
+      "implementation_id": "fragment_registry.shadow_precedence_registry.v0",
+      "pack_name": "FragmentRegistry"
+    },
+    "escape_boundary": {
+      "implementation_id": "escape_boundary.current_monolith_adapter.v0",
+      "pack_name": "EscapeBoundaryPack"
+    },
+    "contract_modifiers": {
+      "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+      "pack_name": "ContractModifiersPack"
+    },
+    "temporal": {
+      "implementation_id": "temporal.metadata_only_guarded.v0",
+      "pack_name": "TemporalPack"
+    },
+    "stream": {
+      "implementation_id": "stream.current_monolith_adapter.v0",
+      "pack_name": "StreamPack"
+    },
+    "olap": {
+      "implementation_id": "olap.current_monolith_adapter.v0",
+      "pack_name": "OLAPPack"
+    },
+    "invariant": {
+      "implementation_id": "invariant.current_monolith_adapter.v0",
+      "pack_name": "InvariantPack"
+    },
+    "assumptions": {
+      "implementation_id": "assumptions.spec_shadow.v0",
+      "pack_name": "AssumptionsPack"
+    },
+    "evidence_observation": {
+      "implementation_id": "evidence_observation.current_monolith_adapter.v0",
+      "pack_name": "EvidenceObservationPack"
+    },
+    "pipeline": {
+      "implementation_id": "pipeline.current_parser_surface_shadow.v0",
+      "pack_name": "PipelinePack"
+    }
+  },
+  "dispatch_migration_authorized": false,
+  "runtime_authority_granted": false
+}
