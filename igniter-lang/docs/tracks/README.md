@@ -66,6 +66,16 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 51 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../gates/prop036-cli-remaining-blockers-formal-closure-decision-v0.md` | approved-remaining-cli-blockers-formally-closed | Formally closes `PROP036-CLI-B3/B4/B5/B6/B9`; full `PROP036-CLI-B1..B9` blocker package closed; no production/readiness or surface widening authorized |
+| `../discussions/prop036-cli-remaining-blockers-closure-pressure-v0.md` | proceed | All five scope checks pass; B2 citation gap resolved; no implementation or production readiness implied; NB-1 is orientation-only |
+| `stage3-round51-status-curation-v0.md` | done | R51 status curation; records full blocker package closure and routes R52 production/release readiness gate |
+
+---
+
 ## Stage 3 Round 50 Evidence
 
 | Track | Status | Notes |
@@ -73,7 +83,7 @@ not PROP promotion, and not parser/tooling authorization.
 | `../gates/prop036-cli-b3-b6-implementation-authorization-review-v0.md` | approved-bounded-cli-implementation-proof | Authorizes only bounded `--compiler-profile-source PATH.json` transport/proof in `IgniterLang::CLI`; explicitly does not close B3/B4/B5/B6/B9 |
 | `prop036-cli-profile-source-b3-b6-implementation-proof-v0.md` | done | Implements bounded CLI transport and proof-local matrix; 12/12 cases PASS, 4/4 command matrix PASS, forbidden exact-token hits 0, B6 scanner self-tests true |
 | `../discussions/prop036-cli-profile-source-implementation-pressure-v0.md` | proceed | All nine scope checks pass; B3/B4/B5/B6 evidence complete and ready for formal closure review; B9 satisfied by this pressure review; no blockers |
-| `stage3-round50-status-curation-v0.md` | done | R50 status curation; records evidence complete / formal closure pending for B3/B4/B5/B6/B9 and preserves non-authorizations |
+| `stage3-round50-status-curation-v0.md` | done | R50 status curation; records evidence complete before R51 closure for B3/B4/B5/B6/B9; R51 later closes the package |
 
 ---
 
@@ -81,7 +91,7 @@ not PROP promotion, and not parser/tooling authorization.
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `../gates/prop036-cli-b1-formal-closure-decision-v0.md` | approved-b1-formally-closed-implementation-held | Formally closes `PROP036-CLI-B1` from R48 artifact/proof and pressure evidence; B3/B4/B5/B6/B9 remain open; CLI implementation/path loading remains held |
+| `../gates/prop036-cli-b1-formal-closure-decision-v0.md` | approved-b1-formally-closed-implementation-held | Formally closes `PROP036-CLI-B1` from R48 artifact/proof and pressure evidence; B3/B4/B5/B6/B9 later close in R51; CLI implementation/path loading remains held |
 | `../discussions/prop036-cli-b1-formal-closure-pressure-v0.md` | proceed | All five scope checks pass; closure uses gate authority, does not imply implementation readiness, names remaining blockers, and does not overstate R48 evidence; NB: B2 gate-path citation debt only |
 | `stage3-round49-status-curation-v0.md` | done | R49 status curation; closes cards dispatch layer, records B1 formally closed by S3-R49-C1-A, and keeps CLI implementation held |
 
@@ -841,15 +851,16 @@ compiler_orchestrator.rb  (R10/S3-R5/S3-R43) — compiler pass orchestration; pr
 | PROP-037 profile descriptor specialization proof | Prove `external_event` specialization below closed top-level source kinds | Compiler/Grammar Expert / Bridge Agent | authorized design/proof follow-up; no production listener/queue |
 | context-capture-pack-shadow-boundary-v0 | Explore a descriptor-only context capture pack boundary from Line Up / Contextizer pressure without canonizing the specimen | Architect Supervisor / Compiler-Profile Agent | closed as design/research-only shadow boundary by R41 C4/C5; no implementation/canon |
 | context-capture-descriptor-proof-v0 | Validate capture source descriptors, policy refs, evidence links, and non-authorization flags without runtime/package authority | Research Agent / Compiler-Profile Agent | candidate next; keep source_kind values candidate-only until formal closure |
-| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, Ruby facade exposure, B1 formal closure, and bounded CLI transport proof | Meta Expert / Compiler/Grammar Expert | current through R50; no broad migration |
+| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, Ruby facade exposure, B1 formal closure, bounded CLI transport proof, and full CLI blocker package closure | Meta Expert / Compiler/Grammar Expert | current through R51; no broad migration |
 | PROP-036 CLI exposure design/tracking | Decide CLI input shape, refusal wording, nil/no-flag legacy proof, negative scan coverage, and pressure review before any CLI implementation | Architect Supervisor / Compiler/Grammar Expert | closed as design route by R45 C3-A; implementation held behind `PROP036-CLI-B1..B9` |
 | PROP-036 CLI blocker closure criteria | Tighten B1 standalone artifact closure, B3 refusal output shape, B3->B6 scan surface, and B7/B8 docs completion bars | Architect Supervisor / Research Agent / Docs agent | closed by R46 C4-A; no CLI implementation |
 | PROP-036 B7/B8 Ruby API docs | Land caller-facing `docs/ruby-api.md` or approved API path with source-shape and transport-only wording; link from docs README; record source-level visibility landed or deferred | Compiler/Grammar Expert / Docs agent | closed by R47 C3-A; source-comment visibility Architect-deferred for this phase |
 | PROP-036 closure criteria minor addendum | Add B6 scanner self-test, B8-C deferral authority, and B1 validation-chain specificity to governing criteria before implementation authorization | Architect Supervisor / External Pressure Reviewer | closed by R47 C3-A; implementation still held |
 | PROP-036 B1 standalone artifact proof | Emit and validate `compiler_profile_source.stage3_proof.json` through the compiler-profile-source validation chain and scan exact forbidden tokens | Research Agent / Compiler/Grammar Expert | evidence satisfied by R48 C1/C2; formally closed by R49 C1-A; no CLI implementation |
 | PROP-036 B1 formal closure gate | Explicitly accept or hold the R48 B1 artifact evidence before any implementation authorization cites B1 as closed | Architect Supervisor | closed by R49 C1-A; implementation still held |
-| PROP-036 CLI B3/B4/B5/B6 package | Authorize and prove the remaining CLI implementation-facing package, with B6 adversarial scanner self-test as a named sub-deliverable | Architect Supervisor / Implementation Agent / Research Agent | evidence complete in R50; formal closure pending Architect gate |
-| PROP-036 CLI B3/B4/B5/B6/B9 closure gate | Formally close or hold the remaining CLI blockers by citing the R50 C2-I proof and C3-X pressure verdict | Architect Supervisor | recommended R51; do not infer closure before gate |
+| PROP-036 CLI B3/B4/B5/B6 package | Authorize and prove the remaining CLI implementation-facing package, with B6 adversarial scanner self-test as a named sub-deliverable | Architect Supervisor / Implementation Agent / Research Agent | evidence complete in R50; formally closed by R51 C1-A/C2-X |
+| PROP-036 CLI B3/B4/B5/B6/B9 closure gate | Formally close or hold the remaining CLI blockers by citing the R50 C2-I proof and C3-X pressure verdict | Architect Supervisor | closed by R51 C1-A; full `PROP036-CLI-B1..B9` blocker package closed |
+| PROP-036 CLI production/release readiness gate | Decide whether the already-bounded `--compiler-profile-source PATH.json` CLI transport can be promoted as-is or must hold for additional review; explicitly keep closed or reopen non-authorized surfaces by name | Architect Supervisor / External Pressure Reviewer | recommended R52; blocker closure is not production authorization |
 | PROP-036 golden migration | Name exact `.igapp` fixtures and expected hash churn before migrating any existing goldens | Compiler/Grammar Expert / Research Agent | still blocked; no existing golden migration |
 | PROP-036 loader/report status | Implement/report `absent_legacy`, `present_verified`, `mismatch`, `malformed`, `missing_required` separately from assembler/orchestrator | Bridge Agent / Compiler/Grammar Expert | still blocked behind separate authorization |
 | PROP-036 CompatibilityReport section | Design/prove compiler-profile section without runtime readiness or Gate 3 authority | Bridge Agent / Research Agent | still blocked behind separate authorization |
