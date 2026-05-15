@@ -62,6 +62,7 @@ not PROP promotion, and not parser/tooling authorization.
 | `portable-context-mnemonics-grammar-options-v0.md` | done | Sketches three mnemonic grammar variants; recommends Variant 1 Minimal Readable for first pressure testing; Variant 3 held due canonization risk |
 | `portable-context-mnemonics-reconstruction-proof-v0.md` | done | Tests MN-A/MN-B/MN-C reconstruction; balanced MN-B scores best as default external validation seed; preserves evidence/closure/auth invariant |
 | `portable-context-mnemonics-shadow-round-synthesis-v0.md` | done | Synthesizes C1/C2/C3 into a two-model external validation packet; recommends continuing as Agent Orchestra DNA candidate while keeping all PROP/spec/parser/tooling bridges closed |
+| `portable-context-mnemonics-blind-test-context-packet-v0.md` | done | Records informal blind-test results; finds register header improves reconstruction but `CLOSED+gate` remains ambiguous; proposes Context Packet v0 with mini-grammar, dictionary id, domain-qualified atoms, invariants, and expansion refs |
 
 ---
 
