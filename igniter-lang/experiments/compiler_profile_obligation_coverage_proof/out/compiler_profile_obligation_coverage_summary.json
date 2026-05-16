@@ -1,0 +1,647 @@
+{
+  "kind": "compiler_profile_obligation_coverage_proof_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-obligation-coverage-proof-v0",
+  "status": "PASS",
+  "profile_source_path": "igniter-lang/experiments/minimal_compiler_profile_finalization_proof/out/compiler_profile_source.stage3_proof.json",
+  "report_statuses": {
+    "covered.full_finalized_source": "covered",
+    "missing_slot.temporal_removed": "missing_slot",
+    "profile_not_supplied.core_add": "profile_not_supplied",
+    "unsupported_surface.synthetic_unknown_node": "unsupported_surface"
+  },
+  "surface_to_required_slots": {
+    "core": [
+      "core",
+      "oof_registry",
+      "fragment_registry",
+      "pipeline"
+    ],
+    "escape_boundary": [
+      "escape_boundary",
+      "fragment_registry",
+      "oof_registry"
+    ],
+    "contract_modifiers": [
+      "contract_modifiers",
+      "oof_registry",
+      "fragment_registry",
+      "escape_boundary"
+    ],
+    "temporal": [
+      "temporal",
+      "fragment_registry",
+      "escape_boundary",
+      "oof_registry",
+      "pipeline"
+    ],
+    "stream": [
+      "stream",
+      "fragment_registry",
+      "escape_boundary",
+      "oof_registry"
+    ],
+    "olap": [
+      "olap",
+      "fragment_registry",
+      "oof_registry"
+    ],
+    "invariant": [
+      "invariant",
+      "oof_registry",
+      "evidence_observation"
+    ],
+    "assumptions": [
+      "assumptions",
+      "fragment_registry",
+      "oof_registry",
+      "evidence_observation",
+      "pipeline"
+    ],
+    "progression_descriptor": [
+      "pipeline",
+      "stream",
+      "evidence_observation",
+      "oof_registry"
+    ]
+  },
+  "reports": [
+    {
+      "kind": "compiler_profile_obligation_report",
+      "format_version": "0.1.0",
+      "case": "covered.full_finalized_source",
+      "status": "covered",
+      "profile_ref": "compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7",
+      "profile_authority": {
+        "compiler_understanding_only": true,
+        "runtime_authority_granted": false,
+        "dispatch_migration_authorized": false
+      },
+      "artifacts": [
+        {
+          "artifact_id": "core_add_compute",
+          "artifact_path": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/core_add_compute.igapp/semantic_ir_program.json",
+          "note": "CORE Add SemanticIR",
+          "detected_surfaces": [
+            "contract_modifiers",
+            "core"
+          ],
+          "unsupported_surfaces": [],
+          "required_slots": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "fragment_registry",
+            "oof_registry",
+            "pipeline"
+          ],
+          "missing_slots": [],
+          "coverage_status": "covered"
+        },
+        {
+          "artifact_id": "contract_modifier_observed",
+          "artifact_path": "igniter-lang/experiments/contract_modifiers_proof/golden/observed_contract_basic.semantic_ir.json",
+          "note": "PROP-031 observed contract modifier SemanticIR",
+          "detected_surfaces": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary"
+          ],
+          "unsupported_surfaces": [],
+          "required_slots": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "fragment_registry",
+            "oof_registry",
+            "pipeline"
+          ],
+          "missing_slots": [],
+          "coverage_status": "covered"
+        },
+        {
+          "artifact_id": "history_single_axis",
+          "artifact_path": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/history_single_axis.igapp/semantic_ir_program.json",
+          "note": "PROP-028 History[T] temporal access SemanticIR",
+          "detected_surfaces": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "temporal"
+          ],
+          "unsupported_surfaces": [],
+          "required_slots": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "fragment_registry",
+            "oof_registry",
+            "pipeline",
+            "temporal"
+          ],
+          "missing_slots": [],
+          "coverage_status": "covered"
+        },
+        {
+          "artifact_id": "stream_fold",
+          "artifact_path": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/stream_fold.igapp/semantic_ir_program.json",
+          "note": "Stage 2 stream/fold_stream SemanticIR",
+          "detected_surfaces": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "stream"
+          ],
+          "unsupported_surfaces": [],
+          "required_slots": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "fragment_registry",
+            "oof_registry",
+            "pipeline",
+            "stream"
+          ],
+          "missing_slots": [],
+          "coverage_status": "covered"
+        },
+        {
+          "artifact_id": "olap_point",
+          "artifact_path": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/olap_point.igapp/semantic_ir_program.json",
+          "note": "Stage 2 OLAPPoint SemanticIR",
+          "detected_surfaces": [
+            "contract_modifiers",
+            "core",
+            "olap"
+          ],
+          "unsupported_surfaces": [],
+          "required_slots": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "fragment_registry",
+            "olap",
+            "oof_registry",
+            "pipeline"
+          ],
+          "missing_slots": [],
+          "coverage_status": "covered"
+        },
+        {
+          "artifact_id": "invariant_severity",
+          "artifact_path": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/invariant_severity.igapp/semantic_ir_program.json",
+          "note": "Stage 2 invariant severity SemanticIR",
+          "detected_surfaces": [
+            "contract_modifiers",
+            "core",
+            "invariant"
+          ],
+          "unsupported_surfaces": [],
+          "required_slots": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "evidence_observation",
+            "fragment_registry",
+            "invariant",
+            "oof_registry",
+            "pipeline"
+          ],
+          "missing_slots": [],
+          "coverage_status": "covered"
+        },
+        {
+          "artifact_id": "assumption_basic",
+          "artifact_path": "igniter-lang/experiments/assumptions_proof/golden/assumption_basic.semantic_ir.json",
+          "note": "PROP-032 assumptions SemanticIR",
+          "detected_surfaces": [
+            "assumptions",
+            "contract_modifiers",
+            "core",
+            "escape_boundary"
+          ],
+          "unsupported_surfaces": [],
+          "required_slots": [
+            "assumptions",
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "evidence_observation",
+            "fragment_registry",
+            "oof_registry",
+            "pipeline"
+          ],
+          "missing_slots": [],
+          "coverage_status": "covered"
+        },
+        {
+          "artifact_id": "progression_descriptor_shape",
+          "artifact_path": "igniter-lang/experiments/prop037_progression_descriptor_shape_proof/prop037_progression_descriptor_shape_proof_summary.json",
+          "note": "PROP-037 progression descriptor proof summary; v0 maps to pipeline slot",
+          "detected_surfaces": [
+            "progression_descriptor"
+          ],
+          "unsupported_surfaces": [],
+          "required_slots": [
+            "evidence_observation",
+            "oof_registry",
+            "pipeline",
+            "stream"
+          ],
+          "missing_slots": [],
+          "coverage_status": "covered"
+        }
+      ],
+      "output_only": {
+        "gates_igapp_emission": false,
+        "changes_cli_exit_status": false,
+        "changes_assembler_output": false,
+        "touches_loader_report": false,
+        "touches_compatibility_report": false,
+        "touches_dispatch": false,
+        "touches_runtime_machine": false,
+        "touches_production_behavior": false
+      }
+    },
+    {
+      "kind": "compiler_profile_obligation_report",
+      "format_version": "0.1.0",
+      "case": "missing_slot.temporal_removed",
+      "status": "missing_slot",
+      "profile_ref": "compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7",
+      "profile_authority": {
+        "compiler_understanding_only": true,
+        "runtime_authority_granted": false,
+        "dispatch_migration_authorized": false
+      },
+      "artifacts": [
+        {
+          "artifact_id": "history_single_axis",
+          "artifact_path": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/history_single_axis.igapp/semantic_ir_program.json",
+          "note": "PROP-028 History[T] temporal access SemanticIR",
+          "detected_surfaces": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "temporal"
+          ],
+          "unsupported_surfaces": [],
+          "required_slots": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "fragment_registry",
+            "oof_registry",
+            "pipeline",
+            "temporal"
+          ],
+          "missing_slots": [
+            "temporal"
+          ],
+          "coverage_status": "missing_slot"
+        }
+      ],
+      "output_only": {
+        "gates_igapp_emission": false,
+        "changes_cli_exit_status": false,
+        "changes_assembler_output": false,
+        "touches_loader_report": false,
+        "touches_compatibility_report": false,
+        "touches_dispatch": false,
+        "touches_runtime_machine": false,
+        "touches_production_behavior": false
+      }
+    },
+    {
+      "kind": "compiler_profile_obligation_report",
+      "format_version": "0.1.0",
+      "case": "profile_not_supplied.core_add",
+      "status": "profile_not_supplied",
+      "profile_ref": null,
+      "profile_authority": {
+        "compiler_understanding_only": true,
+        "runtime_authority_granted": false,
+        "dispatch_migration_authorized": false
+      },
+      "artifacts": [
+        {
+          "artifact_id": "core_add_compute",
+          "artifact_path": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/core_add_compute.igapp/semantic_ir_program.json",
+          "note": "CORE Add SemanticIR",
+          "detected_surfaces": [
+            "contract_modifiers",
+            "core"
+          ],
+          "unsupported_surfaces": [],
+          "required_slots": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "fragment_registry",
+            "oof_registry",
+            "pipeline"
+          ],
+          "missing_slots": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "fragment_registry",
+            "oof_registry",
+            "pipeline"
+          ],
+          "coverage_status": "profile_not_supplied"
+        }
+      ],
+      "output_only": {
+        "gates_igapp_emission": false,
+        "changes_cli_exit_status": false,
+        "changes_assembler_output": false,
+        "touches_loader_report": false,
+        "touches_compatibility_report": false,
+        "touches_dispatch": false,
+        "touches_runtime_machine": false,
+        "touches_production_behavior": false
+      }
+    },
+    {
+      "kind": "compiler_profile_obligation_report",
+      "format_version": "0.1.0",
+      "case": "unsupported_surface.synthetic_unknown_node",
+      "status": "unsupported_surface",
+      "profile_ref": "compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7",
+      "profile_authority": {
+        "compiler_understanding_only": true,
+        "runtime_authority_granted": false,
+        "dispatch_migration_authorized": false
+      },
+      "artifacts": [
+        {
+          "artifact_id": "synthetic_unknown_node",
+          "artifact_path": "synthetic://future_surface_node",
+          "note": "Synthetic guard for an unknown future SemanticIR node kind; not a new language surface",
+          "detected_surfaces": [
+            "contract_modifiers",
+            "core"
+          ],
+          "unsupported_surfaces": [
+            "unsupported_node_kind:future_surface_node"
+          ],
+          "required_slots": [
+            "contract_modifiers",
+            "core",
+            "escape_boundary",
+            "fragment_registry",
+            "oof_registry",
+            "pipeline"
+          ],
+          "missing_slots": [],
+          "coverage_status": "unsupported_surface"
+        }
+      ],
+      "output_only": {
+        "gates_igapp_emission": false,
+        "changes_cli_exit_status": false,
+        "changes_assembler_output": false,
+        "touches_loader_report": false,
+        "touches_compatibility_report": false,
+        "touches_dispatch": false,
+        "touches_runtime_machine": false,
+        "touches_production_behavior": false
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "covered.case_status",
+      "pass": true
+    },
+    {
+      "name": "covered.includes_core",
+      "pass": true
+    },
+    {
+      "name": "covered.includes_contract_modifiers",
+      "pass": true
+    },
+    {
+      "name": "covered.includes_temporal",
+      "pass": true
+    },
+    {
+      "name": "covered.includes_stream",
+      "pass": true
+    },
+    {
+      "name": "covered.includes_olap",
+      "pass": true
+    },
+    {
+      "name": "covered.includes_invariant",
+      "pass": true
+    },
+    {
+      "name": "covered.includes_assumptions",
+      "pass": true
+    },
+    {
+      "name": "covered.includes_progression_descriptor",
+      "pass": true
+    },
+    {
+      "name": "missing_slot.case_status",
+      "pass": true
+    },
+    {
+      "name": "missing_slot.names_temporal",
+      "pass": true
+    },
+    {
+      "name": "profile_not_supplied.case_status",
+      "pass": true
+    },
+    {
+      "name": "unsupported_surface.case_status",
+      "pass": true
+    },
+    {
+      "name": "unsupported_surface.names_node_kind",
+      "pass": true
+    },
+    {
+      "name": "output_only.no_runtime_authority",
+      "pass": true
+    },
+    {
+      "name": "output_only.no_dispatch_migration",
+      "pass": true
+    },
+    {
+      "name": "output_only.flags_all_false",
+      "pass": true
+    },
+    {
+      "name": "output_only.selected_artifact_digests_unchanged",
+      "pass": true
+    }
+  ],
+  "evidence_table": [
+    {
+      "fixture_or_artifact": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/core_add_compute.igapp/semantic_ir_program.json",
+      "detected_surfaces": [
+        "contract_modifiers",
+        "core"
+      ],
+      "required_slots": [
+        "contract_modifiers",
+        "core",
+        "escape_boundary",
+        "fragment_registry",
+        "oof_registry",
+        "pipeline"
+      ],
+      "coverage_status": "covered"
+    },
+    {
+      "fixture_or_artifact": "igniter-lang/experiments/contract_modifiers_proof/golden/observed_contract_basic.semantic_ir.json",
+      "detected_surfaces": [
+        "contract_modifiers",
+        "core",
+        "escape_boundary"
+      ],
+      "required_slots": [
+        "contract_modifiers",
+        "core",
+        "escape_boundary",
+        "fragment_registry",
+        "oof_registry",
+        "pipeline"
+      ],
+      "coverage_status": "covered"
+    },
+    {
+      "fixture_or_artifact": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/history_single_axis.igapp/semantic_ir_program.json",
+      "detected_surfaces": [
+        "contract_modifiers",
+        "core",
+        "escape_boundary",
+        "temporal"
+      ],
+      "required_slots": [
+        "contract_modifiers",
+        "core",
+        "escape_boundary",
+        "fragment_registry",
+        "oof_registry",
+        "pipeline",
+        "temporal"
+      ],
+      "coverage_status": "covered"
+    },
+    {
+      "fixture_or_artifact": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/stream_fold.igapp/semantic_ir_program.json",
+      "detected_surfaces": [
+        "contract_modifiers",
+        "core",
+        "escape_boundary",
+        "stream"
+      ],
+      "required_slots": [
+        "contract_modifiers",
+        "core",
+        "escape_boundary",
+        "fragment_registry",
+        "oof_registry",
+        "pipeline",
+        "stream"
+      ],
+      "coverage_status": "covered"
+    },
+    {
+      "fixture_or_artifact": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/olap_point.igapp/semantic_ir_program.json",
+      "detected_surfaces": [
+        "contract_modifiers",
+        "core",
+        "olap"
+      ],
+      "required_slots": [
+        "contract_modifiers",
+        "core",
+        "escape_boundary",
+        "fragment_registry",
+        "olap",
+        "oof_registry",
+        "pipeline"
+      ],
+      "coverage_status": "covered"
+    },
+    {
+      "fixture_or_artifact": "igniter-lang/experiments/runtime_smoke_post_switch_full_coverage/out/invariant_severity.igapp/semantic_ir_program.json",
+      "detected_surfaces": [
+        "contract_modifiers",
+        "core",
+        "invariant"
+      ],
+      "required_slots": [
+        "contract_modifiers",
+        "core",
+        "escape_boundary",
+        "evidence_observation",
+        "fragment_registry",
+        "invariant",
+        "oof_registry",
+        "pipeline"
+      ],
+      "coverage_status": "covered"
+    },
+    {
+      "fixture_or_artifact": "igniter-lang/experiments/assumptions_proof/golden/assumption_basic.semantic_ir.json",
+      "detected_surfaces": [
+        "assumptions",
+        "contract_modifiers",
+        "core",
+        "escape_boundary"
+      ],
+      "required_slots": [
+        "assumptions",
+        "contract_modifiers",
+        "core",
+        "escape_boundary",
+        "evidence_observation",
+        "fragment_registry",
+        "oof_registry",
+        "pipeline"
+      ],
+      "coverage_status": "covered"
+    },
+    {
+      "fixture_or_artifact": "igniter-lang/experiments/prop037_progression_descriptor_shape_proof/prop037_progression_descriptor_shape_proof_summary.json",
+      "detected_surfaces": [
+        "progression_descriptor"
+      ],
+      "required_slots": [
+        "evidence_observation",
+        "oof_registry",
+        "pipeline",
+        "stream"
+      ],
+      "coverage_status": "covered"
+    }
+  ],
+  "remaining_blockers_before_implementation_authorization": [
+    "pressure review of report shape and status vocabulary",
+    "formal owner decision for whether obligation coverage belongs before compile, after emit, or before assembly",
+    "stable diagnostic namespace for compiler_profile_obligation.* distinct from compiler_profile_source.* and loader/report statuses",
+    "decision on whether progression remains under pipeline or gets a future explicit progression slot",
+    "separate Architect implementation authorization with exact write scope"
+  ],
+  "non_authorizations_preserved": {
+    "gates_igapp_emission": false,
+    "changes_cli_exit_status": false,
+    "changes_assembler_output": false,
+    "loader_report_implementation": false,
+    "compatibility_report_section": false,
+    "compiler_dispatch_migration": false,
+    "runtime_machine_behavior": false,
+    "production_behavior": false
+  }
+}
