@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-15
+Last updated: 2026-05-16
 
 ---
 
@@ -66,11 +66,21 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 53 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop036-cli-release-readiness-docs-sync-v0.md` | done | Updates `docs/ruby-api.md` with exact bounded CLI surface, finalized source input shape, legacy/no-flag behavior, refusal shapes, transport-only semantics, no discovery/defaulting/finalization, and excluded surfaces |
+| `../discussions/prop036-cli-release-readiness-docs-pressure-v0.md` | proceed | R52 docs condition satisfied; all eight items verified; prohibited-surface closure confirmed; NB-1 docs-navigation link recommended later |
+| `stage3-round53-status-curation-v0.md` | done | R53 status curation; records bounded CLI transport fully release-ready in exact R52 package scope and preserves production/runtime closure |
+
+---
+
 ## Stage 3 Round 52 Evidence
 
 | Track | Status | Notes |
 |-------|--------|-------|
-| `../gates/prop036-cli-release-readiness-decision-v0.md` | conditional-release-readiness-doc-sync-required | Conditionally approves package-surface release-readiness for exact bounded `--compiler-profile-source PATH.json` transport; docs sync required before readiness is complete; no production/runtime/Gate 3 authority |
+| `../gates/prop036-cli-release-readiness-decision-v0.md` | conditional-release-readiness-doc-sync-required | Conditionally approves package-surface release-readiness for exact bounded `--compiler-profile-source PATH.json` transport; docs sync condition later satisfied in R53; no production/runtime/Gate 3 authority |
 | `../discussions/prop036-cli-release-readiness-pressure-v0.md` | proceed | All six scope checks pass; conditional gate is correctly structured; NB-1 is terminology orientation only; R53 docs sync recommended |
 | `stage3-round52-status-curation-v0.md` | done | R52 status curation; records conditional release-readiness state and routes docs-only R53 condition sync |
 
@@ -861,8 +871,8 @@ compiler_orchestrator.rb  (R10/S3-R5/S3-R43) — compiler pass orchestration; pr
 | PROP-037 profile descriptor specialization proof | Prove `external_event` specialization below closed top-level source kinds | Compiler/Grammar Expert / Bridge Agent | authorized design/proof follow-up; no production listener/queue |
 | context-capture-pack-shadow-boundary-v0 | Explore a descriptor-only context capture pack boundary from Line Up / Contextizer pressure without canonizing the specimen | Architect Supervisor / Compiler-Profile Agent | closed as design/research-only shadow boundary by R41 C4/C5; no implementation/canon |
 | context-capture-descriptor-proof-v0 | Validate capture source descriptors, policy refs, evidence links, and non-authorization flags without runtime/package authority | Research Agent / Compiler-Profile Agent | candidate next; keep source_kind values candidate-only until formal closure |
-| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, Ruby facade exposure, B1 formal closure, bounded CLI transport proof, full CLI blocker package closure, and conditional release-readiness | Meta Expert / Compiler/Grammar Expert | current through R52; no broad migration |
-| PROP-036 CLI exposure design/tracking | Decide CLI input shape, refusal wording, nil/no-flag legacy proof, negative scan coverage, and pressure review before any CLI implementation | Architect Supervisor / Compiler/Grammar Expert | design route closed by R45 C3-A; blocker package later closed by R51; release-readiness conditional in R52 |
+| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, Ruby facade exposure, B1 formal closure, bounded CLI transport proof, full CLI blocker package closure, and release-readiness completion | Meta Expert / Compiler/Grammar Expert | current through R53; no broad migration |
+| PROP-036 CLI exposure design/tracking | Decide CLI input shape, refusal wording, nil/no-flag legacy proof, negative scan coverage, and pressure review before any CLI implementation | Architect Supervisor / Compiler/Grammar Expert | design route closed by R45 C3-A; blocker package closed by R51; release-readiness condition satisfied by R53 |
 | PROP-036 CLI blocker closure criteria | Tighten B1 standalone artifact closure, B3 refusal output shape, B3->B6 scan surface, and B7/B8 docs completion bars | Architect Supervisor / Research Agent / Docs agent | closed by R46 C4-A; no CLI implementation |
 | PROP-036 B7/B8 Ruby API docs | Land caller-facing `docs/ruby-api.md` or approved API path with source-shape and transport-only wording; link from docs README; record source-level visibility landed or deferred | Compiler/Grammar Expert / Docs agent | closed by R47 C3-A; source-comment visibility Architect-deferred for this phase |
 | PROP-036 closure criteria minor addendum | Add B6 scanner self-test, B8-C deferral authority, and B1 validation-chain specificity to governing criteria before implementation authorization | Architect Supervisor / External Pressure Reviewer | closed by R47 C3-A; implementation still held |
@@ -870,8 +880,9 @@ compiler_orchestrator.rb  (R10/S3-R5/S3-R43) — compiler pass orchestration; pr
 | PROP-036 B1 formal closure gate | Explicitly accept or hold the R48 B1 artifact evidence before any implementation authorization cites B1 as closed | Architect Supervisor | closed by R49 C1-A; implementation still held |
 | PROP-036 CLI B3/B4/B5/B6 package | Authorize and prove the remaining CLI implementation-facing package, with B6 adversarial scanner self-test as a named sub-deliverable | Architect Supervisor / Implementation Agent / Research Agent | evidence complete in R50; formally closed by R51 C1-A/C2-X |
 | PROP-036 CLI B3/B4/B5/B6/B9 closure gate | Formally close or hold the remaining CLI blockers by citing the R50 C2-I proof and C3-X pressure verdict | Architect Supervisor | closed by R51 C1-A; full `PROP036-CLI-B1..B9` blocker package closed |
-| PROP-036 CLI production/release readiness gate | Decide whether the already-bounded `--compiler-profile-source PATH.json` CLI transport can be promoted as-is or must hold for additional review; explicitly keep closed or reopen non-authorized surfaces by name | Architect Supervisor / External Pressure Reviewer | conditional release-readiness approved by R52 C1-A/C2-X; docs sync required before complete |
-| PROP-036 CLI caller-facing docs sync | Update `docs/ruby-api.md` or a linked CLI doc with exact bounded CLI flag shape, finalized-source input shape, no-flag legacy behavior, preflight/semantic refusals, transport-only semantics, no discovery/defaulting/finalization, and excluded surfaces | Docs Agent / Compiler/Grammar Expert / Status Curator | recommended R53; docs-only by default, no implementation authorization |
+| PROP-036 CLI production/release readiness gate | Decide whether the already-bounded `--compiler-profile-source PATH.json` CLI transport can be promoted as-is or must hold for additional review; explicitly keep closed or reopen non-authorized surfaces by name | Architect Supervisor / External Pressure Reviewer | package-surface release-readiness complete in exact R52 scope after R53; production/runtime authority still closed |
+| PROP-036 CLI caller-facing docs sync | Update `docs/ruby-api.md` or a linked CLI doc with exact bounded CLI flag shape, finalized-source input shape, no-flag legacy behavior, preflight/semantic refusals, transport-only semantics, no discovery/defaulting/finalization, and excluded surfaces | Docs Agent / Compiler/Grammar Expert / Status Curator | closed by R53 C1/C2; optional future README navigation link only |
+| PROP-036 CLI production-promotion / release-engineering | Exercise the bounded CLI transport outside proof context or promote toward production/package release if needed, without widening runtime authority | Architect Supervisor / Release Agent / External Pressure Reviewer | candidate R54 only if requested; requires separate authorization |
 | PROP-036 golden migration | Name exact `.igapp` fixtures and expected hash churn before migrating any existing goldens | Compiler/Grammar Expert / Research Agent | still blocked; no existing golden migration |
 | PROP-036 loader/report status | Implement/report `absent_legacy`, `present_verified`, `mismatch`, `malformed`, `missing_required` separately from assembler/orchestrator | Bridge Agent / Compiler/Grammar Expert | still blocked behind separate authorization |
 | PROP-036 CompatibilityReport section | Design/prove compiler-profile section without runtime readiness or Gate 3 authority | Bridge Agent / Research Agent | still blocked behind separate authorization |
