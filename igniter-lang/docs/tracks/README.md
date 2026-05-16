@@ -66,6 +66,17 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 60 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `compiler-profile-contract-validator-coverage-proof-v0.md` | done | Extends proof-local contract experiment; 12 validator cases and 22 checks PASS; five R59 validator blockers covered; positional lookup debt and optional fragment-owner coverage closed |
+| `../discussions/compiler-profile-contract-validator-coverage-pressure-v0.md` | proceed | All required validator paths are machine-asserted; R58 shape and namespace separation preserved; `stage` remains PROP-scope; no implementation/runtime/production authority implied |
+| `../gates/compiler-profile-contract-validator-coverage-decision-v0.md` | accepted-prop-authoring-next | Accepts validator coverage, lifts R59 authoring hold, assigns PROP-038 to `compiler_profile_contract`, and authorizes only PROP authoring next; implementation and production/runtime authority remain closed |
+| `stage3-round60-status-curation-v0.md` | done | R60 status curation; records accepted validator coverage, PROP-038 authoring-only route, and preserved implementation/runtime closures |
+
+---
+
 ## Stage 3 Round 59 Evidence
 
 | Track | Status | Notes |
