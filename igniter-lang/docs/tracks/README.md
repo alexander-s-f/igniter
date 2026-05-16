@@ -66,6 +66,17 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 56 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `compiler-profile-obligation-coverage-proof-v0.md` | done | Proof-local `CompilerProfileObligationReport`; command PASS, syntax OK, 18 checks PASS; selected current artifacts unchanged; statuses are `covered`, `missing_slot`, `unsupported_surface`, `profile_not_supplied` |
+| `../discussions/compiler-profile-obligation-coverage-proof-pressure-v0.md` | proceed | All 7 scope checks pass; output-only machine-asserted; `missing_slot` is report-not-gate; slot map gate-aligned; NB-1/NB-2 are future vocabulary/shape notes |
+| `../gates/compiler-profile-obligation-coverage-proof-decision-v0.md` | accepted-proof-design-next | Accepts the obligation coverage proof and authorizes only `compiler-profile-contract-boundary-v0` as the next design-only track; no implementation |
+| `stage3-round56-status-curation-v0.md` | done | R56 status curation; records accepted proof, design-only R57 route, and preserves implementation/runtime closure |
+
+---
+
 ## Stage 3 Round 55 Evidence
 
 | Track | Status | Notes |
@@ -907,8 +918,8 @@ compiler_orchestrator.rb  (R10/S3-R5/S3-R43) — compiler pass orchestration; pr
 | PROP-036 CLI caller-facing docs sync | Update `docs/ruby-api.md` or a linked CLI doc with exact bounded CLI flag shape, finalized-source input shape, no-flag legacy behavior, preflight/semantic refusals, transport-only semantics, no discovery/defaulting/finalization, and excluded surfaces | Docs Agent / Compiler/Grammar Expert / Status Curator | closed by R53 C1/C2; README navigation link closed by R54 C2/C3 |
 | PROP-036 CLI release-confidence smoke/navigation | Confirm bounded CLI behavior from caller perspective and make CLI docs discoverable from docs index without widening scope | Research Agent / Archive/Form Expert / External Pressure Reviewer | closed by R54; smoke 5/5 PASS and docs navigation polished |
 | PROP-036 CLI production-promotion / release-engineering | Exercise the bounded CLI transport outside proof context or promote toward production/package release if needed, without widening runtime authority | Architect Supervisor / Release Agent / External Pressure Reviewer | optional future only if Architect requests installed gem / bundled executable confidence; separate authorization required |
-| compiler-profile-obligation-coverage-proof-v0 | Prove report-only mapping from fixture language surfaces to required compiler profile slots and finalized `compiler_profile_id_source` coverage statuses | Research Agent | authorized as next R56 proof-local/report-only track by `compiler-profile-next-axis-decision-v0.md`; must not gate `.igapp`, CLI, assembler, loader/report, CompatibilityReport, dispatch, or runtime |
-| compiler-profile-contract-boundary-v0 | Design the later `compiler_profile_contract` boundary after obligation coverage proof clarifies coverage semantics | Compiler/Grammar Expert / Architect Supervisor | future design-only candidate after R56 proof; use new PROP/design packet if promoted, not PROP-036 errata |
+| compiler-profile-obligation-coverage-proof-v0 | Prove report-only mapping from fixture language surfaces to required compiler profile slots and finalized `compiler_profile_id_source` coverage statuses | Research Agent | closed by R56 C1/C2/C3; accepted as proof-local/report-only/output-only; implementation still held |
+| compiler-profile-contract-boundary-v0 | Design the later `compiler_profile_contract` boundary after obligation coverage proof clarifies coverage semantics | Compiler/Grammar Expert / Architect Supervisor | authorized as R57 design-only next track by `compiler-profile-obligation-coverage-proof-decision-v0.md`; use new PROP/design packet if promoted, not implementation |
 | PROP-036 golden migration | Name exact `.igapp` fixtures and expected hash churn before migrating any existing goldens | Compiler/Grammar Expert / Research Agent | still blocked; no existing golden migration |
 | PROP-036 loader/report status | Implement/report `absent_legacy`, `present_verified`, `mismatch`, `malformed`, `missing_required` separately from assembler/orchestrator | Bridge Agent / Compiler/Grammar Expert | still blocked behind separate authorization |
 | PROP-036 CompatibilityReport section | Design/prove compiler-profile section without runtime readiness or Gate 3 authority | Bridge Agent / Research Agent | still blocked behind separate authorization |
