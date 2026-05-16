@@ -2,7 +2,7 @@
 
 Status: active
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-15
+Last updated: 2026-05-16
 
 ---
 
@@ -186,3 +186,4 @@ Authorized signed-addendum scope:
 | [compiler-profile-next-axis-decision-v0.md](compiler-profile-next-axis-decision-v0.md) | S3-R55-C4-A | approved-proof-only-obligation-coverage-first | Authorizes only `compiler-profile-obligation-coverage-proof-v0` as the next proof-local/report-only compiler profile axis; implementation, compile refusal, CLI widening, loader/report, CompatibilityReport, dispatch, runtime, and production authority remain closed |
 | [compiler-profile-obligation-coverage-proof-decision-v0.md](compiler-profile-obligation-coverage-proof-decision-v0.md) | S3-R56-C3-A | accepted-proof-design-next | Accepts the obligation coverage proof as successful proof-local/report-only/output-only evidence and authorizes only `compiler-profile-contract-boundary-v0` as the next design-only track; implementation and production/runtime authority remain closed |
 | [compiler-profile-contract-boundary-decision-v0.md](compiler-profile-contract-boundary-decision-v0.md) | S3-R57-C4-A | accepted-design-proof-next | Accepts the compiler-profile contract boundary design and authorizes only proof-local `compiler-profile-contract-proof-v0`; implementation, loader/report, CompatibilityReport, dispatch, runtime, CLI, and production authority remain closed |
+| [compiler-profile-contract-proof-decision-v0.md](compiler-profile-contract-proof-decision-v0.md) | S3-R58-C3-A | accepted-proof-formal-pressure-next | Accepts the canonical `compiler_profile_contract` proof as proof-local/behavioral/report-only/non-authorizing; opens only `compiler-profile-contract-schema-and-rule-ownership-pressure-v0` before PROP authoring; implementation and production/runtime authority remain closed |

@@ -66,6 +66,17 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 58 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `compiler-profile-contract-proof-v0.md` | done | Proof-local canonical `compiler_profile_contract` experiment PASS; six cases and 16 machine-asserted checks cover object shape, diagnostics, source projection, future `profile_not_supplied`, execution order, and disclaimer |
+| `../discussions/compiler-profile-contract-proof-pressure-v0.md` | proceed | All 7 scope checks pass; proof is behavioral; diagnostic namespaces and loader/source/obligation separation are machine-asserted; NB-1/NB-2 routed before PROP authoring |
+| `../gates/compiler-profile-contract-proof-decision-v0.md` | accepted-proof-formal-pressure-next | Accepts proof as proof-local/behavioral/report-only/non-authorizing; opens only `compiler-profile-contract-schema-and-rule-ownership-pressure-v0`; PROP authoring and implementation remain held |
+| `stage3-round58-status-curation-v0.md` | done | R58 status curation; records proof acceptance, pre-PROP formal pressure route, and preserved implementation/runtime closures |
+
+---
+
 ## Stage 3 Round 57 Evidence
 
 | Track | Status | Notes |
