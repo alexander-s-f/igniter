@@ -1,13 +1,19 @@
 # Igniter-Lang Ruby API
 
 Status: caller-facing API guide
-Last updated: 2026-05-14
+Last updated: 2026-05-16
 
 This page documents the current public Ruby facade for the proof compiler.
 
-The Ruby facade is not the CLI. CLI profile-source flags, path loading, inline
-JSON parsing, profile discovery, and profile defaulting remain closed unless a
-later gate authorizes them.
+R52 adds one bounded caller-facing CLI exception for transporting an
+already-finalized compiler profile source from a JSON file:
+
+```text
+igc compile SOURCE --out OUT.igapp --compiler-profile-source PATH.json
+```
+
+All other CLI profile-source input shapes, inline JSON parsing, profile
+discovery, profile defaulting, and profile finalization remain closed.
 
 ---
 
@@ -109,9 +115,9 @@ path.
 
 ---
 
-## Invalid Caller Assumptions
+## Ruby Facade Invalid Caller Assumptions
 
-Do not pass:
+For the Ruby facade, do not pass:
 
 - a file path;
 - a raw JSON string;
@@ -122,6 +128,118 @@ Do not pass:
 
 Invalid non-nil sources are refused by the existing compiler-profile-source
 validation path before profiled artifact output.
+
+---
+
+## CLI Compiler Profile Source Transport
+
+The only authorized CLI compiler-profile-source shape is:
+
+```text
+igc compile SOURCE --out OUT.igapp --compiler-profile-source PATH.json
+```
+
+`PATH.json` must point to an already-finalized
+`compiler_profile_id_source` JSON object. The CLI does not build, finalize,
+normalize, discover, infer, or default this object.
+
+The CLI owns only transport preflight:
+
+- path exists;
+- path is a regular file;
+- file is readable;
+- file contains valid JSON;
+- the top-level JSON value is an object.
+
+When preflight succeeds, the CLI parses the JSON object and passes it unchanged
+as `compiler_profile_source:` to `IgniterLang.compile`. Semantic validation of
+the source object remains owned by the existing compiler/orchestrator/assembler
+compiler-profile-source path.
+
+### No-Flag Legacy Behavior
+
+This command preserves legacy behavior:
+
+```text
+igc compile SOURCE --out OUT.igapp
+```
+
+No profile source is loaded, discovered, defaulted, or inferred. For valid
+source, the CLI emits `.igapp` output and the manifest omits
+`compiler_profile_id`.
+
+### Valid Bounded Profile Source
+
+With a valid finalized source object:
+
+```text
+igc compile SOURCE --out OUT.igapp --compiler-profile-source PATH.json
+```
+
+the CLI emits `.igapp` output for valid source, stdout remains compiler-result
+JSON, stderr is empty, and the assembled manifest contains the
+`compiler_profile_id` from the source object.
+
+### CLI Preflight Refusals
+
+CLI preflight refusals happen before `IgniterLang.compile` runs.
+
+Preflight refusal shape:
+
+- exit is non-zero;
+- stdout is empty;
+- stderr contains one stable line;
+- `OUT.compilation_report.json` is absent;
+- `OUT.igapp` is absent;
+- no profile-source report JSON is emitted.
+
+Preflight refusal cases include missing path token, path not found, non-file
+path, unreadable path, invalid JSON, top-level non-object JSON, and unsupported
+extra arguments.
+
+As accepted by the R52 readiness decision, the edge case:
+
+```text
+--compiler-profile-source --some-flag
+```
+
+treats `--some-flag` as the path token and may refuse as path-not-found. This is
+standard Unix argument behavior and does not widen authority.
+
+### Semantic Profile-Source Refusals
+
+If `PATH.json` passes CLI preflight but the object is semantically invalid, the
+existing compiler/orchestrator/assembler path refuses it.
+
+Semantic refusal shape:
+
+- exit is non-zero;
+- stdout is compiler-result JSON;
+- `OUT.compilation_report.json` exists;
+- `OUT.igapp` is absent;
+- refusal reasons use qualified `compiler_profile_source.*` vocabulary.
+
+Known semantic refusal families include:
+
+- `compiler_profile_source.wrong_kind`
+- `compiler_profile_source.unfinalized`
+- `compiler_profile_source.runtime_authority_forbidden`
+
+These are source-validation terms, not loader-status or runtime-readiness
+vocabulary.
+
+### Still Rejected CLI Shapes
+
+The bounded CLI transport does not authorize:
+
+- `--compiler-profile-source-json JSON`;
+- `--compiler-profile-source-name NAME`;
+- `--compiler-profile default`;
+- inline JSON;
+- raw `compiler_profile_id` strings;
+- named/generated profile lookup;
+- environment/config/sidecar discovery;
+- profile source discovery/defaulting/finalization in CLI.
 
 ---
 
@@ -147,10 +265,11 @@ the facade/API review requirement.
 
 `compiler_profile_source` and `compiler_profile_id` do not grant or implement:
 
-- CLI profile source flags;
-- path loading;
+- CLI profile-source shapes beyond
+  `igc compile SOURCE --out OUT.igapp --compiler-profile-source PATH.json`;
+- path loading outside the bounded R52 CLI transport;
 - inline JSON parsing;
-- profile discovery, defaulting, or finalization in the facade;
+- profile discovery, defaulting, or finalization in the CLI or facade;
 - loader/report status;
 - CompatibilityReport compiler-profile section;
 - `.igapp` golden migration;
