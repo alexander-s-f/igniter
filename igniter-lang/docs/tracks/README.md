@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 55 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `language-profile-compiler-obligation-map-v0.md` | done | Maps active/accepted language surfaces to compiler profile slots; identifies report-only obligation coverage as the missing middle before loader/report, CompatibilityReport, dispatch, or golden migration |
+| `compiler-profile-contract-formalization-options-v0.md` | done | Compares descriptor-only, slot, ordered-rule, pack-registry, and hybrid compiler profile contract options; recommends proof/design route before any implementation |
+| `../discussions/compiler-profile-contract-pressure-v0.md` | proceed-with-notes | Thesis is evidence-backed; authority lanes remain clean; sequencing and PROP-037 progression-slot question routed to C4-A |
+| `../gates/compiler-profile-next-axis-decision-v0.md` | approved-proof-only-obligation-coverage-first | Authorizes only `compiler-profile-obligation-coverage-proof-v0` as proof-local/report-only next axis; implementation and production/runtime authority remain closed |
+| `stage3-round55-status-curation-v0.md` | done | R55 status curation; records obligation coverage first and preserves PROP-036 CLI release-confidence versus compiler/profile next-axis separation |
+
+---
+
 ## Stage 3 Round 54 Evidence
 
 | Track | Status | Notes |
@@ -882,7 +894,7 @@ compiler_orchestrator.rb  (R10/S3-R5/S3-R43) — compiler pass orchestration; pr
 | PROP-037 profile descriptor specialization proof | Prove `external_event` specialization below closed top-level source kinds | Compiler/Grammar Expert / Bridge Agent | authorized design/proof follow-up; no production listener/queue |
 | context-capture-pack-shadow-boundary-v0 | Explore a descriptor-only context capture pack boundary from Line Up / Contextizer pressure without canonizing the specimen | Architect Supervisor / Compiler-Profile Agent | closed as design/research-only shadow boundary by R41 C4/C5; no implementation/canon |
 | context-capture-descriptor-proof-v0 | Validate capture source descriptors, policy refs, evidence links, and non-authorization flags without runtime/package authority | Research Agent / Compiler-Profile Agent | candidate next; keep source_kind values candidate-only until formal closure |
-| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, Ruby facade exposure, B1 formal closure, bounded CLI transport proof, full CLI blocker package closure, release-readiness completion, and release-confidence smoke | Meta Expert / Compiler/Grammar Expert | current through R54; no broad migration |
+| PROP-036 assembler/source/orchestrator/facade chain | Keep current bounded implementation state visible: source finalization proof, assembler field, orchestrator transport, Ruby facade exposure, B1 formal closure, bounded CLI transport proof, full CLI blocker package closure, release-readiness completion, and release-confidence smoke | Meta Expert / Compiler/Grammar Expert | current through R55; no broad migration; R55 moves next pressure to proof-only obligation coverage, not more CLI work |
 | PROP-036 CLI exposure design/tracking | Decide CLI input shape, refusal wording, nil/no-flag legacy proof, negative scan coverage, and pressure review before any CLI implementation | Architect Supervisor / Compiler/Grammar Expert | design route closed by R45 C3-A; blocker package closed by R51; release-readiness condition satisfied by R53 |
 | PROP-036 CLI blocker closure criteria | Tighten B1 standalone artifact closure, B3 refusal output shape, B3->B6 scan surface, and B7/B8 docs completion bars | Architect Supervisor / Research Agent / Docs agent | closed by R46 C4-A; no CLI implementation |
 | PROP-036 B7/B8 Ruby API docs | Land caller-facing `docs/ruby-api.md` or approved API path with source-shape and transport-only wording; link from docs README; record source-level visibility landed or deferred | Compiler/Grammar Expert / Docs agent | closed by R47 C3-A; source-comment visibility Architect-deferred for this phase |
@@ -894,7 +906,9 @@ compiler_orchestrator.rb  (R10/S3-R5/S3-R43) — compiler pass orchestration; pr
 | PROP-036 CLI production/release readiness gate | Decide whether the already-bounded `--compiler-profile-source PATH.json` CLI transport can be promoted as-is or must hold for additional review; explicitly keep closed or reopen non-authorized surfaces by name | Architect Supervisor / External Pressure Reviewer | package-surface release-readiness complete in exact R52 scope after R53; production/runtime authority still closed |
 | PROP-036 CLI caller-facing docs sync | Update `docs/ruby-api.md` or a linked CLI doc with exact bounded CLI flag shape, finalized-source input shape, no-flag legacy behavior, preflight/semantic refusals, transport-only semantics, no discovery/defaulting/finalization, and excluded surfaces | Docs Agent / Compiler/Grammar Expert / Status Curator | closed by R53 C1/C2; README navigation link closed by R54 C2/C3 |
 | PROP-036 CLI release-confidence smoke/navigation | Confirm bounded CLI behavior from caller perspective and make CLI docs discoverable from docs index without widening scope | Research Agent / Archive/Form Expert / External Pressure Reviewer | closed by R54; smoke 5/5 PASS and docs navigation polished |
-| PROP-036 CLI production-promotion / release-engineering | Exercise the bounded CLI transport outside proof context or promote toward production/package release if needed, without widening runtime authority | Architect Supervisor / Release Agent / External Pressure Reviewer | optional R55 only if Architect requests installed gem / bundled executable confidence; separate authorization required |
+| PROP-036 CLI production-promotion / release-engineering | Exercise the bounded CLI transport outside proof context or promote toward production/package release if needed, without widening runtime authority | Architect Supervisor / Release Agent / External Pressure Reviewer | optional future only if Architect requests installed gem / bundled executable confidence; separate authorization required |
+| compiler-profile-obligation-coverage-proof-v0 | Prove report-only mapping from fixture language surfaces to required compiler profile slots and finalized `compiler_profile_id_source` coverage statuses | Research Agent | authorized as next R56 proof-local/report-only track by `compiler-profile-next-axis-decision-v0.md`; must not gate `.igapp`, CLI, assembler, loader/report, CompatibilityReport, dispatch, or runtime |
+| compiler-profile-contract-boundary-v0 | Design the later `compiler_profile_contract` boundary after obligation coverage proof clarifies coverage semantics | Compiler/Grammar Expert / Architect Supervisor | future design-only candidate after R56 proof; use new PROP/design packet if promoted, not PROP-036 errata |
 | PROP-036 golden migration | Name exact `.igapp` fixtures and expected hash churn before migrating any existing goldens | Compiler/Grammar Expert / Research Agent | still blocked; no existing golden migration |
 | PROP-036 loader/report status | Implement/report `absent_legacy`, `present_verified`, `mismatch`, `malformed`, `missing_required` separately from assembler/orchestrator | Bridge Agent / Compiler/Grammar Expert | still blocked behind separate authorization |
 | PROP-036 CompatibilityReport section | Design/prove compiler-profile section without runtime readiness or Gate 3 authority | Bridge Agent / Research Agent | still blocked behind separate authorization |
