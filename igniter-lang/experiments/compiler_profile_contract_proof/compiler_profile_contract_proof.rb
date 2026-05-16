@@ -8,6 +8,7 @@ require "set"
 ROOT = File.expand_path("../../..", __dir__)
 OUT_DIR = File.join(__dir__, "out")
 SUMMARY_PATH = File.join(OUT_DIR, "compiler_profile_contract_proof_summary.json")
+TRACK = "compiler-profile-contract-validator-coverage-proof-v0"
 
 PROFILE_SOURCE_PATH = File.join(
   ROOT,
@@ -285,6 +286,24 @@ def assert(name, condition, checks)
   checks << { "name" => name, "pass" => !!condition }
 end
 
+def case_by_name(cases, name)
+  cases.find { |entry| entry.fetch("name") == name } || raise("missing case #{name}")
+end
+
+def codes_for(cases, name)
+  case_by_name(cases, name).fetch("diagnostic_codes")
+end
+
+def profile_not_supplied_required_slots(obligation_summary)
+  report = Array(obligation_summary["reports"]).find do |entry|
+    entry["case"] == "profile_not_supplied.core_add" || entry["status"] == "profile_not_supplied"
+  end
+  return [] unless report
+
+  artifacts = Array(report["artifacts"])
+  artifacts.flat_map { |artifact| Array(artifact["required_slots"]) }.uniq.sort
+end
+
 FileUtils.mkdir_p(OUT_DIR)
 
 profile_source = read_json(PROFILE_SOURCE_PATH)
@@ -302,8 +321,30 @@ duplicate_strict_key_contract["strict_registries"]["oof_descriptors"] << {
   "rule_ref" => "assumptions.accidental_duplicate_oof_m1.v0"
 }
 
+duplicate_fragment_owner_contract = deep_copy(valid_contract)
+duplicate_fragment_owner_contract["strict_registries"]["fragment_class_owners"] << {
+  "key" => "temporal",
+  "owner_slot" => "stream",
+  "rule_ref" => "fragment_registry.accidental_duplicate_temporal.v0"
+}
+
 rule_cycle_contract = deep_copy(valid_contract)
 rule_cycle_contract["ordered_rule_graph"]["rules"][0]["after"] = ["emit.modifier_field"]
+
+missing_rule_reference_contract = deep_copy(valid_contract)
+missing_rule_reference_contract["ordered_rule_graph"]["rules"][3]["before"] = ["emit.nonexistent_rule"]
+
+wrong_kind_contract = deep_copy(valid_contract)
+wrong_kind_contract["kind"] = "compiler_profile_source"
+
+unsupported_format_version_contract = deep_copy(valid_contract)
+unsupported_format_version_contract["format_version"] = "9.9.9"
+
+descriptor_digest_invalid_contract = deep_copy(valid_contract)
+descriptor_digest_invalid_contract["descriptor_digest"] = "sha256:not-a-compiler-profile-descriptor"
+
+finalization_payload_digest_invalid_contract = deep_copy(valid_contract)
+finalization_payload_digest_invalid_contract["finalization_payload_digest"] = "sha256:not64hex"
 
 runtime_authority_contract = deep_copy(valid_contract)
 runtime_authority_contract["non_authority"]["runtime_authority_granted"] = true
@@ -315,18 +356,46 @@ cases = [
   case_result("valid_contract", valid_contract),
   case_result("missing_required_slot", missing_required_slot_contract),
   case_result("duplicate_strict_key", duplicate_strict_key_contract),
+  case_result("duplicate_fragment_class_owner", duplicate_fragment_owner_contract),
   case_result("rule_cycle", rule_cycle_contract),
+  case_result("missing_rule_reference", missing_rule_reference_contract),
+  case_result("wrong_kind", wrong_kind_contract),
+  case_result("unsupported_format_version", unsupported_format_version_contract),
+  case_result("descriptor_digest_invalid", descriptor_digest_invalid_contract),
+  case_result("finalization_payload_digest_invalid", finalization_payload_digest_invalid_contract),
   case_result("runtime_authority_forbidden", runtime_authority_contract),
   case_result("dispatch_migration_forbidden", dispatch_migration_contract)
 ]
 
 all_contract_diagnostics = cases.flat_map { |entry| entry.fetch("diagnostic_codes") }
+expected_case_diagnostics = {
+  "valid_contract" => nil,
+  "missing_required_slot" => "compiler_profile_contract.missing_required_slot",
+  "duplicate_strict_key" => "compiler_profile_contract.duplicate_strict_key",
+  "duplicate_fragment_class_owner" => "compiler_profile_contract.duplicate_strict_key",
+  "rule_cycle" => "compiler_profile_contract.rule_cycle",
+  "missing_rule_reference" => "compiler_profile_contract.missing_rule_reference",
+  "wrong_kind" => "compiler_profile_contract.wrong_kind",
+  "unsupported_format_version" => "compiler_profile_contract.unsupported_format_version",
+  "descriptor_digest_invalid" => "compiler_profile_contract.descriptor_digest_invalid",
+  "finalization_payload_digest_invalid" => "compiler_profile_contract.finalization_payload_digest_invalid",
+  "runtime_authority_forbidden" => "compiler_profile_contract.runtime_authority_forbidden",
+  "dispatch_migration_forbidden" => "compiler_profile_contract.dispatch_migration_forbidden"
+}
+validator_case_matrix = cases.map do |entry|
+  expected = expected_case_diagnostics.fetch(entry.fetch("name"))
+  pass = expected.nil? ? entry.fetch("valid") : entry.fetch("diagnostic_codes").include?(expected)
+  {
+    "case" => entry.fetch("name"),
+    "expected" => expected || "valid",
+    "actual" => entry.fetch("valid") ? "valid" : entry.fetch("diagnostic_codes"),
+    "pass" => pass
+  }
+end
 future_profile_not_supplied = {
   "case" => "future_profile_not_supplied_design",
   "status" => "profile_not_supplied",
-  "required_slots" => obligation_summary.dig("reports", 2, "artifacts", 0, "required_slots") ||
-    obligation_summary.dig("evidence_table", 0, "required_slots") ||
-    [],
+  "required_slots" => profile_not_supplied_required_slots(obligation_summary),
   "missing_slots" => []
 }
 
@@ -340,13 +409,19 @@ execution_order = [
 ]
 
 checks = []
-assert("valid_contract.accepted", cases[0].fetch("valid"), checks)
+assert("valid_contract.accepted", case_by_name(cases, "valid_contract").fetch("valid"), checks)
 assert("source_projection.matches_profile_source", source_projection(valid_contract) == profile_source, checks)
-assert("missing_required_slot.diagnostic", cases[1].fetch("diagnostic_codes").include?("compiler_profile_contract.missing_required_slot"), checks)
-assert("duplicate_strict_key.diagnostic", cases[2].fetch("diagnostic_codes").include?("compiler_profile_contract.duplicate_strict_key"), checks)
-assert("rule_cycle.diagnostic", cases[3].fetch("diagnostic_codes").include?("compiler_profile_contract.rule_cycle"), checks)
-assert("runtime_authority.diagnostic", cases[4].fetch("diagnostic_codes").include?("compiler_profile_contract.runtime_authority_forbidden"), checks)
-assert("dispatch_migration.diagnostic", cases[5].fetch("diagnostic_codes").include?("compiler_profile_contract.dispatch_migration_forbidden"), checks)
+assert("missing_required_slot.diagnostic", codes_for(cases, "missing_required_slot").include?("compiler_profile_contract.missing_required_slot"), checks)
+assert("duplicate_strict_key.diagnostic", codes_for(cases, "duplicate_strict_key").include?("compiler_profile_contract.duplicate_strict_key"), checks)
+assert("duplicate_fragment_class_owner.diagnostic", codes_for(cases, "duplicate_fragment_class_owner").include?("compiler_profile_contract.duplicate_strict_key"), checks)
+assert("rule_cycle.diagnostic", codes_for(cases, "rule_cycle").include?("compiler_profile_contract.rule_cycle"), checks)
+assert("missing_rule_reference.diagnostic", codes_for(cases, "missing_rule_reference").include?("compiler_profile_contract.missing_rule_reference"), checks)
+assert("wrong_kind.diagnostic", codes_for(cases, "wrong_kind").include?("compiler_profile_contract.wrong_kind"), checks)
+assert("unsupported_format_version.diagnostic", codes_for(cases, "unsupported_format_version").include?("compiler_profile_contract.unsupported_format_version"), checks)
+assert("descriptor_digest_invalid.diagnostic", codes_for(cases, "descriptor_digest_invalid").include?("compiler_profile_contract.descriptor_digest_invalid"), checks)
+assert("finalization_payload_digest_invalid.diagnostic", codes_for(cases, "finalization_payload_digest_invalid").include?("compiler_profile_contract.finalization_payload_digest_invalid"), checks)
+assert("runtime_authority.diagnostic", codes_for(cases, "runtime_authority_forbidden").include?("compiler_profile_contract.runtime_authority_forbidden"), checks)
+assert("dispatch_migration.diagnostic", codes_for(cases, "dispatch_migration_forbidden").include?("compiler_profile_contract.dispatch_migration_forbidden"), checks)
 assert("separation.obligation_missing_slot_present", obligation_summary.dig("report_statuses", "missing_slot.temporal_removed") == "missing_slot", checks)
 assert("separation.contract_missing_required_slot_distinct", !all_contract_diagnostics.include?("compiler_profile_obligation.missing_slot"), checks)
 assert("separation.loader_terms_absent", (all_contract_diagnostics & LOADER_REPORT_TERMS).empty?, checks)
@@ -360,11 +435,13 @@ assert("disclaimer.present", DISCLAIMER.include?("not current implementation"), 
 summary = {
   "kind" => "compiler_profile_contract_proof_summary",
   "format_version" => "0.1.0",
-  "track" => "compiler-profile-contract-proof-v0",
+  "track" => TRACK,
+  "extends_track" => "compiler-profile-contract-proof-v0",
   "status" => checks.all? { |check| check.fetch("pass") } ? "PASS" : "FAIL",
   "canonical_contract" => valid_contract,
   "source_projection_matches_profile_source" => source_projection(valid_contract) == profile_source,
   "cases" => cases,
+  "validator_case_matrix" => validator_case_matrix,
   "diagnostic_separation" => {
     "contract_missing_required_slot" => "compiler_profile_contract.missing_required_slot",
     "obligation_missing_slot_status" => "compiler_profile_obligation.missing_slot",
@@ -391,14 +468,18 @@ summary = {
     "production_behavior" => false
   },
   "checks" => checks,
-  "remaining_blockers_before_prop_or_implementation" => [
-    "pressure review of canonical contract shape and diagnostic namespace",
-    "decision whether to promote this shape through a new PROP",
-    "stable contract digest/finalization relationship beyond proof-local projection",
-    "formal slot and ordered-rule schema ownership by Compiler/Grammar Expert",
-    "decision on PROP-037 progression slot before progression implementation",
+  "remaining_blockers_before_prop_authoring" => [
+    "Architect decision to lift the R59 hold and explicitly authorize PROP authoring",
+    "PROP text must decide whether ordered_rule_graph.stage is normative validated vocabulary or informational metadata",
+    "PROP text must define stable descriptor_digest and finalization_payload_digest semantics beyond proof-local projection",
+    "PROP text must preserve that slot assignment means declared compiler-understanding ownership, not handler execution or dispatch authority",
+    "PROP text must preserve progression metadata under pipeline for v0 unless a separate decision authorizes a progression slot"
+  ],
+  "remaining_blockers_before_implementation_authorization" => [
     "separate Architect implementation authorization with exact write scope",
-    "golden/artifact mutation policy if contract validation becomes persisted"
+    "golden/artifact mutation policy if contract validation becomes persisted",
+    "production diagnostic/reporting integration plan if validator output stops being proof-local",
+    "compiler/orchestrator insertion point must be authorized separately from this proof"
   ]
 }
 

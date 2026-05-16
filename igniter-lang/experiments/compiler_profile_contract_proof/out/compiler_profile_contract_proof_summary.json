@@ -1,7 +1,8 @@
 {
   "kind": "compiler_profile_contract_proof_summary",
   "format_version": "0.1.0",
-  "track": "compiler-profile-contract-proof-v0",
+  "track": "compiler-profile-contract-validator-coverage-proof-v0",
+  "extends_track": "compiler-profile-contract-proof-v0",
   "status": "PASS",
   "canonical_contract": {
     "kind": "compiler_profile_contract",
@@ -264,6 +265,20 @@
       ]
     },
     {
+      "name": "duplicate_fragment_class_owner",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.duplicate_strict_key",
+          "message": "strict registry fragment_class_owners has duplicate key \"temporal\"",
+          "path": "strict_registries.fragment_class_owners.temporal"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.duplicate_strict_key"
+      ]
+    },
+    {
       "name": "rule_cycle",
       "valid": false,
       "diagnostics": [
@@ -275,6 +290,76 @@
       ],
       "diagnostic_codes": [
         "compiler_profile_contract.rule_cycle"
+      ]
+    },
+    {
+      "name": "missing_rule_reference",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.missing_rule_reference",
+          "message": "ordered rule emit.modifier_field references missing rule \"emit.nonexistent_rule\"",
+          "path": "ordered_rule_graph.rules.emit.modifier_field"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.missing_rule_reference"
+      ]
+    },
+    {
+      "name": "wrong_kind",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.wrong_kind",
+          "message": "expected compiler_profile_contract",
+          "path": "kind"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.wrong_kind"
+      ]
+    },
+    {
+      "name": "unsupported_format_version",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.unsupported_format_version",
+          "message": "expected format_version 0.1.0",
+          "path": "format_version"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.unsupported_format_version"
+      ]
+    },
+    {
+      "name": "descriptor_digest_invalid",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.descriptor_digest_invalid",
+          "message": "descriptor_digest must be compiler_profile_descriptor/sha256:<hex>",
+          "path": "descriptor_digest"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.descriptor_digest_invalid"
+      ]
+    },
+    {
+      "name": "finalization_payload_digest_invalid",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.finalization_payload_digest_invalid",
+          "message": "finalization_payload_digest must be sha256:<64 hex>",
+          "path": "finalization_payload_digest"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.finalization_payload_digest_invalid"
       ]
     },
     {
@@ -304,6 +389,104 @@
       "diagnostic_codes": [
         "compiler_profile_contract.dispatch_migration_forbidden"
       ]
+    }
+  ],
+  "validator_case_matrix": [
+    {
+      "case": "valid_contract",
+      "expected": "valid",
+      "actual": "valid",
+      "pass": true
+    },
+    {
+      "case": "missing_required_slot",
+      "expected": "compiler_profile_contract.missing_required_slot",
+      "actual": [
+        "compiler_profile_contract.missing_required_slot",
+        "compiler_profile_contract.unknown_owner_slot",
+        "compiler_profile_contract.unknown_rule_owner_slot"
+      ],
+      "pass": true
+    },
+    {
+      "case": "duplicate_strict_key",
+      "expected": "compiler_profile_contract.duplicate_strict_key",
+      "actual": [
+        "compiler_profile_contract.duplicate_strict_key"
+      ],
+      "pass": true
+    },
+    {
+      "case": "duplicate_fragment_class_owner",
+      "expected": "compiler_profile_contract.duplicate_strict_key",
+      "actual": [
+        "compiler_profile_contract.duplicate_strict_key"
+      ],
+      "pass": true
+    },
+    {
+      "case": "rule_cycle",
+      "expected": "compiler_profile_contract.rule_cycle",
+      "actual": [
+        "compiler_profile_contract.rule_cycle"
+      ],
+      "pass": true
+    },
+    {
+      "case": "missing_rule_reference",
+      "expected": "compiler_profile_contract.missing_rule_reference",
+      "actual": [
+        "compiler_profile_contract.missing_rule_reference"
+      ],
+      "pass": true
+    },
+    {
+      "case": "wrong_kind",
+      "expected": "compiler_profile_contract.wrong_kind",
+      "actual": [
+        "compiler_profile_contract.wrong_kind"
+      ],
+      "pass": true
+    },
+    {
+      "case": "unsupported_format_version",
+      "expected": "compiler_profile_contract.unsupported_format_version",
+      "actual": [
+        "compiler_profile_contract.unsupported_format_version"
+      ],
+      "pass": true
+    },
+    {
+      "case": "descriptor_digest_invalid",
+      "expected": "compiler_profile_contract.descriptor_digest_invalid",
+      "actual": [
+        "compiler_profile_contract.descriptor_digest_invalid"
+      ],
+      "pass": true
+    },
+    {
+      "case": "finalization_payload_digest_invalid",
+      "expected": "compiler_profile_contract.finalization_payload_digest_invalid",
+      "actual": [
+        "compiler_profile_contract.finalization_payload_digest_invalid"
+      ],
+      "pass": true
+    },
+    {
+      "case": "runtime_authority_forbidden",
+      "expected": "compiler_profile_contract.runtime_authority_forbidden",
+      "actual": [
+        "compiler_profile_contract.runtime_authority_forbidden"
+      ],
+      "pass": true
+    },
+    {
+      "case": "dispatch_migration_forbidden",
+      "expected": "compiler_profile_contract.dispatch_migration_forbidden",
+      "actual": [
+        "compiler_profile_contract.dispatch_migration_forbidden"
+      ],
+      "pass": true
     }
   ],
   "diagnostic_separation": {
@@ -368,7 +551,31 @@
       "pass": true
     },
     {
+      "name": "duplicate_fragment_class_owner.diagnostic",
+      "pass": true
+    },
+    {
       "name": "rule_cycle.diagnostic",
+      "pass": true
+    },
+    {
+      "name": "missing_rule_reference.diagnostic",
+      "pass": true
+    },
+    {
+      "name": "wrong_kind.diagnostic",
+      "pass": true
+    },
+    {
+      "name": "unsupported_format_version.diagnostic",
+      "pass": true
+    },
+    {
+      "name": "descriptor_digest_invalid.diagnostic",
+      "pass": true
+    },
+    {
+      "name": "finalization_payload_digest_invalid.diagnostic",
       "pass": true
     },
     {
@@ -416,13 +623,17 @@
       "pass": true
     }
   ],
-  "remaining_blockers_before_prop_or_implementation": [
-    "pressure review of canonical contract shape and diagnostic namespace",
-    "decision whether to promote this shape through a new PROP",
-    "stable contract digest/finalization relationship beyond proof-local projection",
-    "formal slot and ordered-rule schema ownership by Compiler/Grammar Expert",
-    "decision on PROP-037 progression slot before progression implementation",
+  "remaining_blockers_before_prop_authoring": [
+    "Architect decision to lift the R59 hold and explicitly authorize PROP authoring",
+    "PROP text must decide whether ordered_rule_graph.stage is normative validated vocabulary or informational metadata",
+    "PROP text must define stable descriptor_digest and finalization_payload_digest semantics beyond proof-local projection",
+    "PROP text must preserve that slot assignment means declared compiler-understanding ownership, not handler execution or dispatch authority",
+    "PROP text must preserve progression metadata under pipeline for v0 unless a separate decision authorizes a progression slot"
+  ],
+  "remaining_blockers_before_implementation_authorization": [
     "separate Architect implementation authorization with exact write scope",
-    "golden/artifact mutation policy if contract validation becomes persisted"
+    "golden/artifact mutation policy if contract validation becomes persisted",
+    "production diagnostic/reporting integration plan if validator output stops being proof-local",
+    "compiler/orchestrator insertion point must be authorized separately from this proof"
   ]
 }
