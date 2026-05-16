@@ -1,0 +1,428 @@
+{
+  "kind": "compiler_profile_contract_proof_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-profile-contract-proof-v0",
+  "status": "PASS",
+  "canonical_contract": {
+    "kind": "compiler_profile_contract",
+    "format_version": "0.1.0",
+    "profile_namespace": "compiler_profile_unified",
+    "profile_kind": "Stage3ProofCompilerProfileSpec",
+    "compiler_profile_id": "compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7",
+    "descriptor_digest": "compiler_profile_descriptor/sha256:0a2b4b79dda5d9657e6642b3",
+    "finalization_payload_digest": "sha256:a3829357ff3d34d23a82f5b7fbe22018fa66ef88efa5dd9bd04ab10f4fe4d8d4",
+    "required_slot_schema": {
+      "required_slots": [
+        "core",
+        "oof_registry",
+        "fragment_registry",
+        "escape_boundary"
+      ],
+      "optional_slots": [
+        "contract_modifiers",
+        "temporal",
+        "stream",
+        "olap",
+        "invariant",
+        "assumptions",
+        "evidence_observation",
+        "pipeline"
+      ],
+      "all_slots": [
+        "core",
+        "oof_registry",
+        "fragment_registry",
+        "escape_boundary",
+        "contract_modifiers",
+        "temporal",
+        "stream",
+        "olap",
+        "invariant",
+        "assumptions",
+        "evidence_observation",
+        "pipeline"
+      ],
+      "cardinality": {
+        "core": "exactly_one",
+        "oof_registry": "exactly_one",
+        "fragment_registry": "exactly_one",
+        "escape_boundary": "exactly_one"
+      }
+    },
+    "slot_order": [
+      "core",
+      "oof_registry",
+      "fragment_registry",
+      "escape_boundary",
+      "contract_modifiers",
+      "temporal",
+      "stream",
+      "olap",
+      "invariant",
+      "assumptions",
+      "evidence_observation",
+      "pipeline"
+    ],
+    "slot_assignments": {
+      "core": {
+        "implementation_id": "core_language.proof_compiler_adapter.v0",
+        "pack_name": "CoreLanguagePack"
+      },
+      "oof_registry": {
+        "implementation_id": "oof_registry.shadow_descriptor_registry.v0",
+        "pack_name": "OOFRegistry"
+      },
+      "fragment_registry": {
+        "implementation_id": "fragment_registry.shadow_precedence_registry.v0",
+        "pack_name": "FragmentRegistry"
+      },
+      "escape_boundary": {
+        "implementation_id": "escape_boundary.current_monolith_adapter.v0",
+        "pack_name": "EscapeBoundaryPack"
+      },
+      "contract_modifiers": {
+        "implementation_id": "contract_modifiers.current_monolith_adapter.v0",
+        "pack_name": "ContractModifiersPack"
+      },
+      "temporal": {
+        "implementation_id": "temporal.metadata_only_guarded.v0",
+        "pack_name": "TemporalPack"
+      },
+      "stream": {
+        "implementation_id": "stream.current_monolith_adapter.v0",
+        "pack_name": "StreamPack"
+      },
+      "olap": {
+        "implementation_id": "olap.current_monolith_adapter.v0",
+        "pack_name": "OLAPPack"
+      },
+      "invariant": {
+        "implementation_id": "invariant.current_monolith_adapter.v0",
+        "pack_name": "InvariantPack"
+      },
+      "assumptions": {
+        "implementation_id": "assumptions.spec_shadow.v0",
+        "pack_name": "AssumptionsPack"
+      },
+      "evidence_observation": {
+        "implementation_id": "evidence_observation.current_monolith_adapter.v0",
+        "pack_name": "EvidenceObservationPack"
+      },
+      "pipeline": {
+        "implementation_id": "pipeline.current_parser_surface_shadow.v0",
+        "pack_name": "PipelinePack"
+      }
+    },
+    "strict_registries": {
+      "oof_descriptors": [
+        {
+          "key": "OOF-P1",
+          "owner_slot": "oof_registry",
+          "rule_ref": "oof_registry.unresolved_symbol.v0"
+        },
+        {
+          "key": "OOF-M1",
+          "owner_slot": "contract_modifiers",
+          "rule_ref": "contract_modifiers.oof_m1_pure_escape.v0"
+        },
+        {
+          "key": "OOF-A1",
+          "owner_slot": "assumptions",
+          "rule_ref": "assumptions.oof_a1_undeclared.v0"
+        },
+        {
+          "key": "OOF-PR1",
+          "owner_slot": "pipeline",
+          "rule_ref": "pipeline.progression.oof_pr1_descriptor_required.v0"
+        }
+      ],
+      "fragment_class_owners": [
+        {
+          "key": "core",
+          "owner_slot": "core",
+          "rule_ref": "fragment_registry.core.v0"
+        },
+        {
+          "key": "escape",
+          "owner_slot": "escape_boundary",
+          "rule_ref": "fragment_registry.escape.v0"
+        },
+        {
+          "key": "temporal",
+          "owner_slot": "temporal",
+          "rule_ref": "fragment_registry.temporal.v0"
+        },
+        {
+          "key": "stream",
+          "owner_slot": "stream",
+          "rule_ref": "fragment_registry.stream.v0"
+        },
+        {
+          "key": "epistemic",
+          "owner_slot": "assumptions",
+          "rule_ref": "fragment_registry.epistemic.v0"
+        }
+      ]
+    },
+    "ordered_rule_graph": {
+      "rules": [
+        {
+          "rule_id": "parse.contract_modifiers",
+          "stage": "parse",
+          "owner_slot": "contract_modifiers",
+          "before": [
+            "classify.contract_modifiers"
+          ],
+          "after": []
+        },
+        {
+          "rule_id": "classify.contract_modifiers",
+          "stage": "classify",
+          "owner_slot": "contract_modifiers",
+          "before": [
+            "typecheck.oof_propagation"
+          ],
+          "after": [
+            "parse.contract_modifiers"
+          ]
+        },
+        {
+          "rule_id": "typecheck.oof_propagation",
+          "stage": "typecheck",
+          "owner_slot": "oof_registry",
+          "before": [
+            "emit.modifier_field"
+          ],
+          "after": [
+            "classify.contract_modifiers"
+          ]
+        },
+        {
+          "rule_id": "emit.modifier_field",
+          "stage": "emit",
+          "owner_slot": "contract_modifiers",
+          "before": [],
+          "after": [
+            "typecheck.oof_propagation"
+          ]
+        }
+      ]
+    },
+    "non_authority": {
+      "runtime_authority_granted": false,
+      "dispatch_migration_authorized": false,
+      "compiler_understanding_only": true
+    },
+    "contract_digest": "compiler_profile_contract/sha256:949ae3fa7335293424fd90ce"
+  },
+  "source_projection_matches_profile_source": true,
+  "cases": [
+    {
+      "name": "valid_contract",
+      "valid": true,
+      "diagnostics": [],
+      "diagnostic_codes": []
+    },
+    {
+      "name": "missing_required_slot",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.missing_required_slot",
+          "message": "required slot \"oof_registry\" is missing from slot_order or slot_assignments",
+          "path": "slot_assignments.oof_registry"
+        },
+        {
+          "code": "compiler_profile_contract.unknown_owner_slot",
+          "message": "owner slot \"oof_registry\" is not in slot_order",
+          "path": "strict_registries.oof_descriptors.OOF-P1.owner_slot"
+        },
+        {
+          "code": "compiler_profile_contract.unknown_rule_owner_slot",
+          "message": "ordered rule owner slot \"oof_registry\" is not in slot_order",
+          "path": "ordered_rule_graph.rules.typecheck.oof_propagation.owner_slot"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.missing_required_slot",
+        "compiler_profile_contract.unknown_owner_slot",
+        "compiler_profile_contract.unknown_rule_owner_slot"
+      ]
+    },
+    {
+      "name": "duplicate_strict_key",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.duplicate_strict_key",
+          "message": "strict registry oof_descriptors has duplicate key \"OOF-M1\"",
+          "path": "strict_registries.oof_descriptors.OOF-M1"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.duplicate_strict_key"
+      ]
+    },
+    {
+      "name": "rule_cycle",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.rule_cycle",
+          "message": "ordered rule graph contains cycle: parse.contract_modifiers -> classify.contract_modifiers -> typecheck.oof_propagation -> emit.modifier_field -> parse.contract_modifiers",
+          "path": "ordered_rule_graph.rules"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.rule_cycle"
+      ]
+    },
+    {
+      "name": "runtime_authority_forbidden",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.runtime_authority_forbidden",
+          "message": "compiler profile contract cannot grant runtime authority",
+          "path": "non_authority.runtime_authority_granted"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.runtime_authority_forbidden"
+      ]
+    },
+    {
+      "name": "dispatch_migration_forbidden",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.dispatch_migration_forbidden",
+          "message": "compiler profile contract cannot authorize dispatch migration",
+          "path": "non_authority.dispatch_migration_authorized"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.dispatch_migration_forbidden"
+      ]
+    }
+  ],
+  "diagnostic_separation": {
+    "contract_missing_required_slot": "compiler_profile_contract.missing_required_slot",
+    "obligation_missing_slot_status": "compiler_profile_obligation.missing_slot",
+    "distinct": true,
+    "loader_report_terms_absent_as_contract_diagnostics": true,
+    "compiler_profile_source_terms_absent_as_contract_diagnostics": true
+  },
+  "future_profile_not_supplied_design": {
+    "case": "future_profile_not_supplied_design",
+    "status": "profile_not_supplied",
+    "required_slots": [
+      "contract_modifiers",
+      "core",
+      "escape_boundary",
+      "fragment_registry",
+      "oof_registry",
+      "pipeline"
+    ],
+    "missing_slots": []
+  },
+  "execution_order": [
+    "compiler_profile_contract_validated",
+    "finalizes_to_compiler_profile_id_source",
+    "source_transported_and_validated_by_compiler_profile_source",
+    "semantic_ir_emitted",
+    "semanticir_profile_obligation_checkpoint",
+    "manifest_report_interpretation_later"
+  ],
+  "disclaimer": "SemanticIR profile-obligation checkpoint is a proposed future design position, not current implementation.",
+  "non_authorizations_preserved": {
+    "live_compiler_dispatch": false,
+    "igapp_artifacts": false,
+    "goldens": false,
+    "cli_api": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "runtime_machine": false,
+    "gate3": false,
+    "ledger_tbackend": false,
+    "bihistory": false,
+    "stream_olap_production": false,
+    "cache": false,
+    "production_behavior": false
+  },
+  "checks": [
+    {
+      "name": "valid_contract.accepted",
+      "pass": true
+    },
+    {
+      "name": "source_projection.matches_profile_source",
+      "pass": true
+    },
+    {
+      "name": "missing_required_slot.diagnostic",
+      "pass": true
+    },
+    {
+      "name": "duplicate_strict_key.diagnostic",
+      "pass": true
+    },
+    {
+      "name": "rule_cycle.diagnostic",
+      "pass": true
+    },
+    {
+      "name": "runtime_authority.diagnostic",
+      "pass": true
+    },
+    {
+      "name": "dispatch_migration.diagnostic",
+      "pass": true
+    },
+    {
+      "name": "separation.obligation_missing_slot_present",
+      "pass": true
+    },
+    {
+      "name": "separation.contract_missing_required_slot_distinct",
+      "pass": true
+    },
+    {
+      "name": "separation.loader_terms_absent",
+      "pass": true
+    },
+    {
+      "name": "separation.source_terms_absent",
+      "pass": true
+    },
+    {
+      "name": "future_profile_not_supplied.required_slots_populated",
+      "pass": true
+    },
+    {
+      "name": "future_profile_not_supplied.missing_slots_empty",
+      "pass": true
+    },
+    {
+      "name": "ordering.contract_before_source",
+      "pass": true
+    },
+    {
+      "name": "ordering.obligation_after_semanticir",
+      "pass": true
+    },
+    {
+      "name": "disclaimer.present",
+      "pass": true
+    }
+  ],
+  "remaining_blockers_before_prop_or_implementation": [
+    "pressure review of canonical contract shape and diagnostic namespace",
+    "decision whether to promote this shape through a new PROP",
+    "stable contract digest/finalization relationship beyond proof-local projection",
+    "formal slot and ordered-rule schema ownership by Compiler/Grammar Expert",
+    "decision on PROP-037 progression slot before progression implementation",
+    "separate Architect implementation authorization with exact write scope",
+    "golden/artifact mutation policy if contract validation becomes persisted"
+  ]
+}
