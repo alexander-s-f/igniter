@@ -4,7 +4,7 @@ Stage 1 status: **CLOSED** (2026-05-06) — [META-EXPERT-007](meta-proposals/MET
 Stage 2 status: **CLOSED** (2026-05-07) — [META-EXPERT-009.1](meta-proposals/META-EXPERT-009.1-stage2-close-decision-v0.md)
 Stage 3 status: **OPEN** (2026-05-08) — [META-EXPERT-011](meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md)
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-09
+Last updated: 2026-05-16
 
 ---
 
@@ -15,6 +15,10 @@ Agent current context       → agent-context.md  (read this first for current h
 Hoisted value index         → value-index.md  (durable ideas + links back to archaeology)
 Language reference             → language-spec.md
 Ruby API facade                → ruby-api.md
+Bounded CLI profile-source transport
+  → ruby-api.md#cli-compiler-profile-source-transport
+    only `igc compile SOURCE --out OUT.igapp --compiler-profile-source PATH.json`;
+    no production/runtime authority
 Operating model                → operating-model.md
 Operating scheduler            → operating-scheduler.md
 Documentation metabolism       → dev/documentation-metabolism.md
