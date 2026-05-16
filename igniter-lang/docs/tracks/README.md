@@ -66,6 +66,17 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 59 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `compiler-profile-contract-schema-and-rule-ownership-pressure-v0.md` | done | Compiler/Grammar ownership record accepted for slot schema/order/assignments, strict registries, one-owner semantics, ordered-rule graph, rule cycles/references, diagnostics, and future `profile_not_supplied`; PROP authoring held |
+| `../discussions/compiler-profile-contract-schema-ownership-pressure-v0.md` | proceed | All 7 scope checks pass; C1 avoids implementation authorization; five validator paths remain required before PROP authoring; stage field status and optional fragment-owner duplicate coverage are non-blocking notes |
+| `../gates/compiler-profile-contract-prop-authoring-decision-v0.md` | hold-validator-coverage-proof-next | Accepts R59 formal ownership record; holds new PROP authoring; authorizes only proof-local `compiler-profile-contract-validator-coverage-proof-v0`; implementation and production/runtime authority remain closed |
+| `stage3-round59-status-curation-v0.md` | done | R59 status curation; records accepted formal pressure, held PROP authoring, R60 validator coverage proof route, and preserved authority closures |
+
+---
+
 ## Stage 3 Round 58 Evidence
 
 | Track | Status | Notes |
