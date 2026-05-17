@@ -66,6 +66,17 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 61 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop038-compiler-profile-contract-authoring-v0.md` | done | Authored PROP-038 for `compiler_profile_contract`; indexed proposal, moved managed local recursion / loop-class placeholder to PROP-039+, set ordered-rule `stage` as informational metadata, and kept progression under `pipeline` |
+| `../discussions/prop038-compiler-profile-contract-pressure-v0.md` | proceed | All 10 scope checks pass; 17 required sections present; 14 acceptance criteria met; two non-blocking digest follow-ups preserved; no implementation/runtime/production authority implied |
+| `../gates/prop038-compiler-profile-contract-acceptance-decision-v0.md` | accepted-proposal-only-implementation-held | Accepts PROP-038 as proposal-only, keeps implementation held, and opens only implementation scope survey / authorization prep for R62 |
+| `stage3-round61-status-curation-v0.md` | done | R61 status curation; records PROP authoring complete, PROP accepted proposal-only, implementation held, and production/runtime authority closed |
+
+---
+
 ## Stage 3 Round 60 Evidence
 
 | Track | Status | Notes |
