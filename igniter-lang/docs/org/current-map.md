@@ -185,9 +185,10 @@ Recommended follow-up order:
 
 ```text
 1. operational-contract memory pilot for one role instance       done: Line Up Summarizer pilot
-2. docs/code/experiment orientation index refinement             next
-3. stage-level docs metabolism schedule review                   later
-4. Line Up / History Curator / Archive/Form handoff boundary map later
+2. operational-contract memory pilot for second role instance    done: History Curator pilot
+3. docs/code/experiment orientation index refinement             next
+4. stage-level docs metabolism schedule review                   later
+5. Line Up / History Curator / Archive/Form handoff boundary map later
 ```
 
 Recommendation: continue, but stay narrow until the main lane asks for a
@@ -205,4 +206,21 @@ Line Up QA drift candidates:
   docs/lineups/stage2-to-stage3-typed-switch-spine.md
 
 No fix applied by org sidecar. Route to Line Up Summarizer cleanup if needed.
+
+history-curator memory pilot:
+  useful for preserving bounded source-set discipline, no-move/no-delete
+  default, classification taxonomy, and movement/link preconditions.
+
+operational memory adoption:
+  two non-authority role pilots are now complete, but standardization still
+  needs stale-memory behavior and a later standardization approval.
+
+architect handoff:
+  docs/org/reports/operational-memory-pilot-proposal-to-architect-v0.md
+  proposes a bounded two-role pilot for Line Up Summarizer and History Curator.
+
+architect decision:
+  docs/org/reports/operational-memory-pilot-architect-approval-v0.md
+  approves bounded pilot delegation to Org Architect Supervisor. Standardization
+  across all roles remains unapproved.
 ```
