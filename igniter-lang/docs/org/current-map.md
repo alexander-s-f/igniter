@@ -244,6 +244,12 @@ prop038 contract digest policy map:
   authority effects. Orientation only; digest authority remains closed unless
   later opened by Architect decision.
 
+prop038 contract digest shape proof boundary:
+  docs/org/indexes/prop038-contract-digest-shape-proof-boundary-map-v0.md
+  captures R69 proof-local shape-policy boundaries: allowed proof outputs,
+  forbidden live-code surfaces, shape-only vs recompute-match distinction,
+  report-only/refusal boundaries, and candidate diagnostics. Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization

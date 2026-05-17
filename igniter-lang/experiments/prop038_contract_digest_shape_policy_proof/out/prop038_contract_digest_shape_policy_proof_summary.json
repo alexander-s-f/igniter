@@ -1,0 +1,338 @@
+{
+  "kind": "prop038_contract_digest_shape_policy_proof_summary",
+  "format_version": "0.1.0",
+  "track": "prop038-contract-digest-shape-policy-proof-v0",
+  "authority_ref": "igniter-lang/docs/gates/prop038-contract-digest-validation-policy-decision-v0.md",
+  "status": "PASS",
+  "cases": [
+    {
+      "name": "valid_short_contract_digest",
+      "expected": "valid",
+      "actual": "valid",
+      "pass": true,
+      "result": {
+        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "format_version": "0.1.0",
+        "valid": true,
+        "diagnostics": [],
+        "diagnostic_codes": [],
+        "digest_reference_policy": "prop038_24_plus",
+        "shape_only": true,
+        "recompute_match_implemented": false,
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "valid_full_contract_digest",
+      "expected": "valid",
+      "actual": "valid",
+      "pass": true,
+      "result": {
+        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "format_version": "0.1.0",
+        "valid": true,
+        "diagnostics": [],
+        "diagnostic_codes": [],
+        "digest_reference_policy": "prop038_24_plus",
+        "shape_only": true,
+        "recompute_match_implemented": false,
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "missing_contract_digest",
+      "expected": "compiler_profile_contract.contract_digest_invalid",
+      "actual": [
+        "compiler_profile_contract.contract_digest_invalid"
+      ],
+      "pass": true,
+      "result": {
+        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_invalid",
+            "message": "contract_digest must be compiler_profile_contract/sha256:<24+ lowercase hex>",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_invalid"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "shape_only": true,
+        "recompute_match_implemented": false,
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "contract_digest_wrong_namespace",
+      "expected": "compiler_profile_contract.contract_digest_invalid",
+      "actual": [
+        "compiler_profile_contract.contract_digest_invalid"
+      ],
+      "pass": true,
+      "result": {
+        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_invalid",
+            "message": "contract_digest must be compiler_profile_contract/sha256:<24+ lowercase hex>",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_invalid"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "shape_only": true,
+        "recompute_match_implemented": false,
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "contract_digest_too_short",
+      "expected": "compiler_profile_contract.contract_digest_invalid",
+      "actual": [
+        "compiler_profile_contract.contract_digest_invalid"
+      ],
+      "pass": true,
+      "result": {
+        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_invalid",
+            "message": "contract_digest must be compiler_profile_contract/sha256:<24+ lowercase hex>",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_invalid"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "shape_only": true,
+        "recompute_match_implemented": false,
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "contract_digest_non_hex",
+      "expected": "compiler_profile_contract.contract_digest_invalid",
+      "actual": [
+        "compiler_profile_contract.contract_digest_invalid"
+      ],
+      "pass": true,
+      "result": {
+        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_invalid",
+            "message": "contract_digest must be compiler_profile_contract/sha256:<24+ lowercase hex>",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_invalid"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "shape_only": true,
+        "recompute_match_implemented": false,
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "contract_digest_uppercase_hex",
+      "expected": "compiler_profile_contract.contract_digest_invalid",
+      "actual": [
+        "compiler_profile_contract.contract_digest_invalid"
+      ],
+      "pass": true,
+      "result": {
+        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_invalid",
+            "message": "contract_digest must be compiler_profile_contract/sha256:<24+ lowercase hex>",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_invalid"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "shape_only": true,
+        "recompute_match_implemented": false,
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "unsupported_digest_policy",
+      "expected": "compiler_profile_contract.contract_digest_policy_unsupported",
+      "actual": [
+        "compiler_profile_contract.contract_digest_policy_unsupported"
+      ],
+      "pass": true,
+      "result": {
+        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_policy_unsupported",
+            "message": "unsupported contract_digest policy \"prop038_full_sha256\"",
+            "path": "digest_reference_policy"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_policy_unsupported"
+        ],
+        "digest_reference_policy": "prop038_full_sha256",
+        "shape_only": true,
+        "recompute_match_implemented": false,
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "shape_policy.cases_all_pass",
+      "pass": true
+    },
+    {
+      "name": "shape_policy.valid_short_accepts_24_plus",
+      "pass": true
+    },
+    {
+      "name": "shape_policy.valid_full_accepts_64",
+      "pass": true
+    },
+    {
+      "name": "shape_policy.invalid_uses_contract_digest_invalid",
+      "pass": true
+    },
+    {
+      "name": "shape_policy.unsupported_policy_uses_policy_unsupported",
+      "pass": true
+    },
+    {
+      "name": "regression.validator_summary_pass",
+      "pass": true
+    },
+    {
+      "name": "regression.validator_matrix_13_cases",
+      "pass": true
+    },
+    {
+      "name": "regression.report_only_integration_pass",
+      "pass": true
+    },
+    {
+      "name": "regression.public_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "regression.live_validator_compile_refusal_false",
+      "pass": true
+    },
+    {
+      "name": "regression.live_validator_no_contract_digest_diagnostics",
+      "pass": true
+    },
+    {
+      "name": "regression.integration_compile_refusal_false",
+      "pass": true
+    },
+    {
+      "name": "regression.no_igapp_mutation_from_proof",
+      "pass": true
+    },
+    {
+      "name": "regression.no_refusal_report_creation_from_proof",
+      "pass": true
+    },
+    {
+      "name": "non_authorization.live_validator_changed_false",
+      "pass": true
+    },
+    {
+      "name": "non_authorization.compiler_integration_changed_false",
+      "pass": true
+    },
+    {
+      "name": "non_authorization.recompute_match_not_implemented",
+      "pass": true
+    },
+    {
+      "name": "non_authorization.compile_refusal_not_authorized",
+      "pass": true
+    },
+    {
+      "name": "non_authorization.implementation_not_authorized",
+      "pass": true
+    }
+  ],
+  "failed_checks": [],
+  "live_validator_changed": false,
+  "compiler_integration_changed": false,
+  "recompute_match_implemented": false,
+  "compile_refusal_authorized": false,
+  "implementation_authorized": false,
+  "regression_sources": {
+    "validator_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_contract_proof/out/compiler_profile_contract_proof_summary.json",
+    "validator_summary_status": "PASS",
+    "validator_case_matrix_count": 13,
+    "report_only_integration_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_report_only_compiler_integration/out/prop038_report_only_compiler_integration_summary.json",
+    "report_only_integration_status": "PASS",
+    "public_result_unchanged": {
+      "valid_contract": true,
+      "invalid_contract": true,
+      "nil_provider": true,
+      "exception_provider": true
+    }
+  },
+  "live_validator_sample": {
+    "kind": "compiler_profile_contract_validation_result",
+    "valid": true,
+    "digest_reference_policy": "prop038_24_plus",
+    "compile_refusal_authorized": false,
+    "contract_digest_diagnostics_present": false
+  },
+  "non_authorizations_preserved": {
+    "live_validator_implementation": false,
+    "recompute_match_proof_implementation": false,
+    "compile_refusal": false,
+    "public_api_cli_widening": false,
+    "compiler_result_changes": false,
+    "persisted_success_reports_or_sidecars": false,
+    "parser_typechecker_semanticir_assembler_igapp": false,
+    "loader_report_or_compatibility_report": false,
+    "diagnostics_centralization": false,
+    "runtime_gate3_ledger_tbackend_bihistory_stream_olap_cache_production": false
+  },
+  "recommendation_for_c3_a": "accept"
+}
