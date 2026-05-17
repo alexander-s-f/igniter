@@ -66,6 +66,17 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 63 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop038-proof-local-missing-after-implementation-v0.md` | done | Proof-local implementation only; adds `missing_after_rule_reference`; summary PASS with 13 cases and 23 checks; diagnostics remain in proof script |
+| `../discussions/prop038-proof-local-missing-after-pressure-v0.md` | proceed | All 7 scope checks pass; no blockers or non-blocking notes; R60 missing-`after` NB is machine-closed; report-only integration and compile refusal remain held |
+| `../gates/prop038-proof-local-missing-after-acceptance-decision-v0.md` | accepted-proof-local-closure | Accepts the proof-local implementation, closes R62 Option A for the named gap, and opens only design-only library validator extraction planning for R64 |
+| `stage3-round63-status-curation-v0.md` | done | R63 status curation; records proof-local closure, held compiler/library integration, held report/refusal behavior, and org-sidecar pilot as optional/non-authority |
+
+---
+
 ## Stage 3 Round 62 Evidence
 
 | Track | Status | Notes |
