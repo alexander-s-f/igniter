@@ -1,0 +1,194 @@
+# Org Sidecar Current Map
+
+Status: active
+Owner: [Org Architect Supervisor]
+Initialized: 2026-05-17
+Source card: `S3-R62-C0-O`
+Scope: documentation/orchestration sidecar only
+
+---
+
+## Current Position
+
+The Org Architect Supervisor is a sidecar lane. It supports the main
+Architect Supervisor by keeping process memory compact, path-indexed, and
+separate from active compiler/profile/runtime authority.
+
+Current main-lane anchor:
+
+```text
+Stage 3 open.
+R61 accepted PROP-038 as proposal-only.
+R62 is open for PROP-038 implementation scope survey and authorization prep.
+C0-O runs in parallel as an org sidecar and must not take over C1-C4.
+```
+
+Protected surfaces remain closed unless the main Architect Supervisor issues a
+separate authority decision:
+
+```text
+implementation, parser, TypeChecker, SemanticIR, assembler/.igapp changes,
+CLI/API widening, profile discovery/defaulting/finalization, loader/report,
+CompatibilityReport, receipts, signing, dispatch migration, RuntimeMachine,
+Gate 3 widening, Ledger/TBackend, BiHistory, stream/OLAP, cache, production.
+```
+
+---
+
+## Trusted Inputs
+
+Initial read set:
+
+```text
+igniter-lang/AGENTS.md
+igniter-lang/roles/architect-supervisor.md
+igniter-lang/roles/history-curator.md
+igniter-lang/roles/archive-form-expert.md
+igniter-lang/roles/line-up-summarizer.md
+igniter-lang/docs/cards/README.md
+igniter-lang/docs/cards/S3/S3.md
+igniter-lang/docs/current-status.md
+igniter-lang/docs/agent-context.md
+```
+
+Current sidecar files:
+
+```text
+igniter-lang/docs/org/README.md
+igniter-lang/docs/org/current-map.md
+igniter-lang/docs/org/reports/
+igniter-lang/docs/org/memory-contracts/
+igniter-lang/docs/org/indexes/
+```
+
+---
+
+## Implementation Code Orientation
+
+Igniter-Lang compiler package:
+
+```text
+igniter-lang/lib/igniter_lang/parser.rb
+igniter-lang/lib/igniter_lang/classifier.rb
+igniter-lang/lib/igniter_lang/typechecker.rb
+igniter-lang/lib/igniter_lang/semanticir_emitter.rb
+igniter-lang/lib/igniter_lang/assembler.rb
+igniter-lang/lib/igniter_lang/compiler_orchestrator.rb
+igniter-lang/lib/igniter_lang/compiler_result.rb
+igniter-lang/lib/igniter_lang/compilation_report.rb
+igniter-lang/lib/igniter_lang/cli.rb
+igniter-lang/lib/igniter_lang/temporal_executor.rb
+igniter-lang/lib/igniter_lang/temporal_access_runtime.rb
+```
+
+Adjacent platform packages visible to org mapping, not sidecar write targets:
+
+```text
+packages/igniter-contracts/
+packages/igniter-extensions/
+packages/igniter-ledger/
+packages/igniter-mcp-adapter/
+packages/igniter-agents/
+packages/igniter-ai/
+packages/igniter-application/
+```
+
+Rule: the org sidecar may map these for orientation only. It must not edit
+platform package code or open bridge work without explicit approval.
+
+---
+
+## Experiment Orientation
+
+Observed experiment families:
+
+```text
+compiler_profile_*        PROP-036/038 profile identity and contract proofs
+prop036_*                 bounded compiler profile source and CLI proof chain
+prop037_*                 progression descriptor/readiness proof chain
+temporal_*                temporal fragment, assembler, runtime, executor proofs
+runtime_*                 smoke, compatibility, cache, report enforcement proofs
+phase1_*                 Gate 3 Phase 1 live-read/audit/registry shapes
+production_durable_*      bounded durable audit proof and deployment prep
+contract_modifiers_*      PROP-031 modifiers proofs
+assumptions_proof/        PROP-032 assumptions proof chain
+pressure-specimens/       language pressure fixtures and external specimens
+stage1_close_candidate/   Stage 1 close evidence
+stage2_close_candidate/   Stage 2 close evidence
+```
+
+Proof/golden output patterns:
+
+```text
+*/out/*_summary.json
+*/summary.json
+*/golden/*.json
+*/out/*.igapp/
+*/out/*compilation_report.json
+```
+
+Org rule: do not rerun broad proof chains by default. Point agents to the named
+summary/golden path from the active card or current-status map.
+
+---
+
+## Documentation Orientation
+
+Observed 2026-05-17 docs density:
+
+```text
+docs/tracks/        400+ files, evidence layer
+docs/discussions/   60+ files, pressure/review layer
+docs/gates/         30+ files, authority decision layer
+docs/proposals/     PROP documents and accepted archive
+docs/cards/S3/      dispatch layer from R44 onward
+docs/lineups/       compact summary layer
+docs/archive/       cold history and snapshots
+docs/dev/           governance, semantic maps, compiler direction
+roles/              role profile authority
+```
+
+Layer rule:
+
+```text
+cards      -> what was planned
+tracks     -> what was done/proved/discovered
+gates      -> what is authorized or held
+discussions-> pressure, not canon
+lineups    -> compact memory handles
+archive    -> cold history, read only when assigned
+org        -> process/memory maps, not authority
+```
+
+---
+
+## Return Report Rules
+
+Return to the main Architect Supervisor only with:
+
+```text
+[Authority Risk]       active gate/proposal/status drift
+[Context Risk]         agents forced into broad rereads or stale maps
+[Process Insight]      reusable orchestration pattern worth adopting
+[Decision Needed]      work requiring main Architect approval
+[Stage Report]         compact periodic status of org-sidecar findings
+```
+
+Do not return every observation. Keep the sidecar quiet unless the finding can
+change a main-lane decision or improve future agent throughput.
+
+---
+
+## Next Org Slices
+
+Recommended follow-up order:
+
+```text
+1. operational-contract memory pilot for one role instance
+2. docs/code/experiment orientation index refinement
+3. stage-level docs metabolism schedule review
+4. Line Up / History Curator / Archive/Form handoff boundary map
+```
+
+Recommendation: continue, but stay narrow until the main lane asks for a
+specific process or documentation decision.

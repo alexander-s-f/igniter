@@ -1,6 +1,6 @@
 # Igniter-Lang Org Sidecar
 
-Status: initialized
+Status: active sidecar
 Owner: [Org Architect Supervisor]
 Initialized by: [Architect Supervisor / Codex]
 Date: 2026-05-17
@@ -55,3 +55,60 @@ docs/org/
 
 The first Org Architect Supervisor slice should create only the minimal missing
 files needed for `S3-R62-C0-O`.
+
+---
+
+## Operating Rule
+
+This surface is **memory and process support**, not authority.
+
+Default flow:
+
+```text
+observe -> compact -> map -> recommend -> return only high-signal deltas
+```
+
+Return to the main Architect Supervisor only when a finding affects:
+
+- active compiler/profile/runtime cards;
+- authority drift or protected-surface risk;
+- documentation bloat that blocks agents from using the current map;
+- role/onboarding process health;
+- a decision that needs explicit main-branch approval.
+
+Everything else should stay here as compact org memory.
+
+---
+
+## Files
+
+```text
+README.md
+  This operating contract.
+
+current-map.md
+  Compact path-indexed map of org/process, code, experiment, and docs surfaces.
+
+reports/
+  Compact stage-level reports and sidecar findings.
+
+memory-contracts/
+  Draft schemas for operational-contract memory.
+
+indexes/
+  Optional small indexes that help future org slices avoid broad rereads.
+```
+
+---
+
+## Relationship To Other Roles
+
+- Architect Supervisor: owns authority, cards, gates, implementation decisions.
+- History Curator: owns archive/history compression and movement recommendations.
+- Archive/Form Expert: owns archaeology and canon-vs-history classification.
+- Line Up Summarizer: owns compact per-document memory cards.
+- Org Architect Supervisor: owns process memory, role operating memory, and
+  cross-role documentation/orchestration hygiene.
+
+The Org Architect Supervisor may recommend work for these roles, but must not
+silently perform their authority-bearing tasks.
