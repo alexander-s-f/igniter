@@ -227,4 +227,8 @@ architect decision:
 pilot result:
   docs/org/reports/operational-contract-memory-two-role-pilot-result-v0.md
   two role-instance checks completed; verdict iterate / keep optional.
+
+pilot dispatch:
+  docs/org/indexes/operational-memory-live-pilot-cards-s3-r63-v0.md
+  defines ORG-R63 = [C1-P1, C2-P1] -> C3-S for live role-shaped memory checks.
 ```
