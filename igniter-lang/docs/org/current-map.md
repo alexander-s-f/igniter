@@ -223,4 +223,8 @@ architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
   across all roles remains unapproved.
+
+pilot result:
+  docs/org/reports/operational-contract-memory-two-role-pilot-result-v0.md
+  two role-instance checks completed; verdict iterate / keep optional.
 ```

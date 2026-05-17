@@ -1,8 +1,8 @@
 {
   "kind": "compiler_profile_contract_proof_summary",
   "format_version": "0.1.0",
-  "track": "compiler-profile-contract-validator-coverage-proof-v0",
-  "extends_track": "compiler-profile-contract-proof-v0",
+  "track": "prop038-proof-local-missing-after-implementation-v0",
+  "extends_track": "compiler-profile-contract-validator-coverage-proof-v0",
   "status": "PASS",
   "canonical_contract": {
     "kind": "compiler_profile_contract",
@@ -307,6 +307,20 @@
       ]
     },
     {
+      "name": "missing_after_rule_reference",
+      "valid": false,
+      "diagnostics": [
+        {
+          "code": "compiler_profile_contract.missing_rule_reference",
+          "message": "ordered rule parse.contract_modifiers references missing rule \"parse.nonexistent_rule\"",
+          "path": "ordered_rule_graph.rules.parse.contract_modifiers"
+        }
+      ],
+      "diagnostic_codes": [
+        "compiler_profile_contract.missing_rule_reference"
+      ]
+    },
+    {
       "name": "wrong_kind",
       "valid": false,
       "diagnostics": [
@@ -441,6 +455,14 @@
       "pass": true
     },
     {
+      "case": "missing_after_rule_reference",
+      "expected": "compiler_profile_contract.missing_rule_reference",
+      "actual": [
+        "compiler_profile_contract.missing_rule_reference"
+      ],
+      "pass": true
+    },
+    {
       "case": "wrong_kind",
       "expected": "compiler_profile_contract.wrong_kind",
       "actual": [
@@ -563,6 +585,10 @@
       "pass": true
     },
     {
+      "name": "missing_after_rule_reference.diagnostic",
+      "pass": true
+    },
+    {
       "name": "wrong_kind.diagnostic",
       "pass": true
     },
@@ -623,17 +649,17 @@
       "pass": true
     }
   ],
-  "remaining_blockers_before_prop_authoring": [
-    "Architect decision to lift the R59 hold and explicitly authorize PROP authoring",
-    "PROP text must decide whether ordered_rule_graph.stage is normative validated vocabulary or informational metadata",
-    "PROP text must define stable descriptor_digest and finalization_payload_digest semantics beyond proof-local projection",
-    "PROP text must preserve that slot assignment means declared compiler-understanding ownership, not handler execution or dispatch authority",
-    "PROP text must preserve progression metadata under pipeline for v0 unless a separate decision authorizes a progression slot"
+  "remaining_blockers_before_library_validator_design": [
+    "descriptor_digest input material and canonicalization remain unresolved outside this proof-local projection",
+    "short-vs-full digest policy remains unresolved for persisted or durable outputs",
+    "diagnostic helper placement must be decided before moving diagnostics out of this proof script",
+    "library validator ownership must be authorized separately from this proof-local experiment"
   ],
-  "remaining_blockers_before_implementation_authorization": [
-    "separate Architect implementation authorization with exact write scope",
-    "golden/artifact mutation policy if contract validation becomes persisted",
-    "production diagnostic/reporting integration plan if validator output stops being proof-local",
-    "compiler/orchestrator insertion point must be authorized separately from this proof"
+  "remaining_blockers_before_compiler_integration": [
+    "contract input ownership without public API or CLI widening",
+    "report/output location if validation stops being proof-local",
+    "orchestrator insertion point after contract input ownership is resolved",
+    "fixture/golden policy for any persisted artifact or report mutation",
+    "dedicated gate for report-only compiler integration or compile refusal"
   ]
 }

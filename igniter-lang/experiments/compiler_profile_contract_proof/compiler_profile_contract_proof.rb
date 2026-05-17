@@ -8,7 +8,7 @@ require "set"
 ROOT = File.expand_path("../../..", __dir__)
 OUT_DIR = File.join(__dir__, "out")
 SUMMARY_PATH = File.join(OUT_DIR, "compiler_profile_contract_proof_summary.json")
-TRACK = "compiler-profile-contract-validator-coverage-proof-v0"
+TRACK = "prop038-proof-local-missing-after-implementation-v0"
 
 PROFILE_SOURCE_PATH = File.join(
   ROOT,
@@ -334,6 +334,9 @@ rule_cycle_contract["ordered_rule_graph"]["rules"][0]["after"] = ["emit.modifier
 missing_rule_reference_contract = deep_copy(valid_contract)
 missing_rule_reference_contract["ordered_rule_graph"]["rules"][3]["before"] = ["emit.nonexistent_rule"]
 
+missing_after_rule_reference_contract = deep_copy(valid_contract)
+missing_after_rule_reference_contract["ordered_rule_graph"]["rules"][0]["after"] = ["parse.nonexistent_rule"]
+
 wrong_kind_contract = deep_copy(valid_contract)
 wrong_kind_contract["kind"] = "compiler_profile_source"
 
@@ -359,6 +362,7 @@ cases = [
   case_result("duplicate_fragment_class_owner", duplicate_fragment_owner_contract),
   case_result("rule_cycle", rule_cycle_contract),
   case_result("missing_rule_reference", missing_rule_reference_contract),
+  case_result("missing_after_rule_reference", missing_after_rule_reference_contract),
   case_result("wrong_kind", wrong_kind_contract),
   case_result("unsupported_format_version", unsupported_format_version_contract),
   case_result("descriptor_digest_invalid", descriptor_digest_invalid_contract),
@@ -375,6 +379,7 @@ expected_case_diagnostics = {
   "duplicate_fragment_class_owner" => "compiler_profile_contract.duplicate_strict_key",
   "rule_cycle" => "compiler_profile_contract.rule_cycle",
   "missing_rule_reference" => "compiler_profile_contract.missing_rule_reference",
+  "missing_after_rule_reference" => "compiler_profile_contract.missing_rule_reference",
   "wrong_kind" => "compiler_profile_contract.wrong_kind",
   "unsupported_format_version" => "compiler_profile_contract.unsupported_format_version",
   "descriptor_digest_invalid" => "compiler_profile_contract.descriptor_digest_invalid",
@@ -416,6 +421,7 @@ assert("duplicate_strict_key.diagnostic", codes_for(cases, "duplicate_strict_key
 assert("duplicate_fragment_class_owner.diagnostic", codes_for(cases, "duplicate_fragment_class_owner").include?("compiler_profile_contract.duplicate_strict_key"), checks)
 assert("rule_cycle.diagnostic", codes_for(cases, "rule_cycle").include?("compiler_profile_contract.rule_cycle"), checks)
 assert("missing_rule_reference.diagnostic", codes_for(cases, "missing_rule_reference").include?("compiler_profile_contract.missing_rule_reference"), checks)
+assert("missing_after_rule_reference.diagnostic", codes_for(cases, "missing_after_rule_reference").include?("compiler_profile_contract.missing_rule_reference"), checks)
 assert("wrong_kind.diagnostic", codes_for(cases, "wrong_kind").include?("compiler_profile_contract.wrong_kind"), checks)
 assert("unsupported_format_version.diagnostic", codes_for(cases, "unsupported_format_version").include?("compiler_profile_contract.unsupported_format_version"), checks)
 assert("descriptor_digest_invalid.diagnostic", codes_for(cases, "descriptor_digest_invalid").include?("compiler_profile_contract.descriptor_digest_invalid"), checks)
@@ -436,7 +442,7 @@ summary = {
   "kind" => "compiler_profile_contract_proof_summary",
   "format_version" => "0.1.0",
   "track" => TRACK,
-  "extends_track" => "compiler-profile-contract-proof-v0",
+  "extends_track" => "compiler-profile-contract-validator-coverage-proof-v0",
   "status" => checks.all? { |check| check.fetch("pass") } ? "PASS" : "FAIL",
   "canonical_contract" => valid_contract,
   "source_projection_matches_profile_source" => source_projection(valid_contract) == profile_source,
@@ -468,18 +474,18 @@ summary = {
     "production_behavior" => false
   },
   "checks" => checks,
-  "remaining_blockers_before_prop_authoring" => [
-    "Architect decision to lift the R59 hold and explicitly authorize PROP authoring",
-    "PROP text must decide whether ordered_rule_graph.stage is normative validated vocabulary or informational metadata",
-    "PROP text must define stable descriptor_digest and finalization_payload_digest semantics beyond proof-local projection",
-    "PROP text must preserve that slot assignment means declared compiler-understanding ownership, not handler execution or dispatch authority",
-    "PROP text must preserve progression metadata under pipeline for v0 unless a separate decision authorizes a progression slot"
+  "remaining_blockers_before_library_validator_design" => [
+    "descriptor_digest input material and canonicalization remain unresolved outside this proof-local projection",
+    "short-vs-full digest policy remains unresolved for persisted or durable outputs",
+    "diagnostic helper placement must be decided before moving diagnostics out of this proof script",
+    "library validator ownership must be authorized separately from this proof-local experiment"
   ],
-  "remaining_blockers_before_implementation_authorization" => [
-    "separate Architect implementation authorization with exact write scope",
-    "golden/artifact mutation policy if contract validation becomes persisted",
-    "production diagnostic/reporting integration plan if validator output stops being proof-local",
-    "compiler/orchestrator insertion point must be authorized separately from this proof"
+  "remaining_blockers_before_compiler_integration" => [
+    "contract input ownership without public API or CLI widening",
+    "report/output location if validation stops being proof-local",
+    "orchestrator insertion point after contract input ownership is resolved",
+    "fixture/golden policy for any persisted artifact or report mutation",
+    "dedicated gate for report-only compiler integration or compile refusal"
   ]
 }
 

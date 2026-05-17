@@ -98,6 +98,9 @@ refresh_policy:
     - "stage boundary"
     - "documentation-metabolism changes"
     - "role profile changes"
+    - "authority conflict"
+    - "current-status or active card conflict"
+    - "long pause"
   expires_after: "source-set close or stage boundary"
 evidence_refs:
   - "igniter-lang/roles/history-curator.md"
@@ -122,6 +125,7 @@ History Curator memory should emphasize:
 - classification before rotation;
 - Line Up before redirect;
 - explicit Architect approval before actual movement.
+- stale refresh on authority/current-status/card conflict or long pause.
 
 This is a strong candidate for role-instance memory because the role often runs
 long Stage-level cycles where stale context and broad rereads are likely.
