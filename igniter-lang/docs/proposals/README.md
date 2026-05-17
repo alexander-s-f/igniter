@@ -47,7 +47,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-032](PROP-032-assumptions-block-v0.md) | experiment-pass | `assumptions {}` block + `uses assumptions NAME`; Phase 1/2/3/4 compiler proofs accepted by S3-R36-C2-A; PROP-033 evidence validation and runtime receipts remain excluded |
 | [PROP-036](PROP-036-compiler-profile-manifest-identity-v0.md) | accepted | `compiler_profile_id` manifest identity; accepted proposal-only by S3-R35-C3-A; separate implementation authorization required before code |
 | [PROP-037](PROP-037-external-progression-service-liveness-v0.md) | accepted | External progression and service liveness semantics; accepted proposal-only by S3-R37-C3-A; descriptor/proof follow-ups only, no parser/runtime/fragment-class authorization |
-| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A; report-only compiler integration design accepted by S3-R66-C3-A with only next bounded Candidate A implementation authorized |
+| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A; bounded report-only internal annotation accepted/closed by S3-R67-C3-A |
 
 ---
 
@@ -107,8 +107,13 @@ accepts the report-only compiler integration design and authorizes only next
 bounded Candidate A implementation: internal provider on `CompilerOrchestrator`
 plus in-memory `CompilationReport` field, report-only and never refusal. Public
 API/CLI widening, persisted success reports, sidecars, `.igapp`, loader/report,
-CompatibilityReport, runtime, and production remain closed. Managed local
-recursion / loop-class extensions move to PROP-039+ or later.
+CompatibilityReport, runtime, and production remain closed. S3-R67-C3-A accepts
+and closes that bounded Candidate A implementation with 5 cases / 20 checks PASS.
+Public API/CLI widening, `CompilerResult` changes, persisted success reports,
+sidecars, `.igapp` mutation beyond proof-local output generation, loader/report,
+CompatibilityReport, runtime, Gate 3, compile refusal, and production remain
+closed. Managed local recursion / loop-class extensions move to PROP-039+ or
+later.
 
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|
@@ -181,6 +186,6 @@ profile manifest identity; PROP-037 is accepted proposal-only for external
 progression and service liveness semantics; PROP-038 is accepted proposal-only
 for `compiler_profile_contract` with first proof-local experiment implementation
 accepted/closed, bounded internal library validator extraction accepted/closed,
-and report-only compiler integration design accepted with only the next bounded
-Candidate A implementation authorized; managed local recursion / loop-class
-extensions use PROP-039+ as placeholder only until formal assignment.
+and bounded report-only internal annotation accepted/closed; managed local
+recursion / loop-class extensions use PROP-039+ as placeholder only until formal
+assignment.

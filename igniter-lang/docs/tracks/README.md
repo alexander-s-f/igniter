@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 67 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-report-only-leakage-watch-v0.md` | active orientation note | C0-O org-sidecar leakage watch; distinguishes internal annotation from public output, refusal, persisted reports, loader/report, CompatibilityReport, and production surfaces; orientation only |
+| `prop038-report-only-compiler-integration-implementation-v0.md` | done | Implements Candidate A: constructor-only `compiler_profile_contract_provider` on `CompilerOrchestrator` plus in-memory `CompilationReport` field; proof PASS with 5 cases and 20 checks |
+| `../discussions/prop038-report-only-compiler-integration-implementation-pressure-v0.md` | proceed | All 9 scope checks pass; no blockers or non-blocking notes; unchanged public result/refusal behavior, no persisted success report, no sidecar, no `.igapp` manifest mutation |
+| `../gates/prop038-report-only-compiler-integration-acceptance-decision-v0.md` | accepted-report-only-closure | Accepts bounded Candidate A and closes the R66 implementation authorization; future persisted reports, sidecars, contract-digest validation, report surfacing, public API/CLI, or compile refusal require a new design/pressure/Architect chain |
+| `stage3-round67-status-curation-v0.md` | done | R67 status curation; records internal annotation closure, proof result, leakage watch, and preserved closed surfaces |
+
+---
+
 ## Stage 3 Round 66 Evidence
 
 | Track | Status | Notes |
@@ -73,8 +85,8 @@ not PROP promotion, and not parser/tooling authorization.
 | `../org/indexes/prop038-report-integration-boundary-map-v0.md` | active orientation map | C0-O org-sidecar boundary map; records current accepted validator surface, report-only touchpoint risks, forbidden transitions, digest/canonicalization risks, and safe future design checklist; orientation only |
 | `prop038-report-only-compiler-integration-design-v0.md` | done | Design-only Candidate A: internal `compiler_profile_contract_provider` on `CompilerOrchestrator`, in-memory `CompilationReport` annotation, report-only and never refusal; options B-D/G held, E/F rejected |
 | `../discussions/prop038-report-only-compiler-integration-design-pressure-v0.md` | proceed | All 8 scope checks pass; no blockers; NB-1 provider callable/exception policy and NB-2 `compiler_integrated=false` semantics routed into C3-A |
-| `../gates/prop038-report-only-compiler-integration-design-decision-v0.md` | accepted-authorized-bounded-report-only-implementation | Accepts the design and authorizes only next Candidate A implementation; public API/CLI, persisted reports, `.igapp`, loader/report, CompatibilityReport, compile refusal, runtime, and production remain closed |
-| `stage3-round66-status-curation-v0.md` | done | R66 status curation; records design acceptance, bounded next implementation authorization, org-sidecar boundary map, and preserved closed surfaces |
+| `../gates/prop038-report-only-compiler-integration-design-decision-v0.md` | accepted-authorized-bounded-report-only-implementation | Accepts the design and authorizes only next Candidate A implementation; R67 later accepts/closes that implementation |
+| `stage3-round66-status-curation-v0.md` | done | R66 status curation; records design acceptance, bounded next implementation authorization, org-sidecar boundary map, and then-preserved closed surfaces |
 
 ---
 
