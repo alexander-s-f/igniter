@@ -237,6 +237,13 @@ prop038 report-only leakage watch:
   persisted/golden mutation, provider exception semantics, and the
   `compiler_integrated=false` interpretation. Orientation only.
 
+prop038 contract digest policy map:
+  docs/org/indexes/prop038-contract-digest-policy-map-v0.md
+  separates descriptor digest, finalization payload digest, contract digest,
+  shape validation, recomputation, mismatch validation, canonicalization, and
+  authority effects. Orientation only; digest authority remains closed unless
+  later opened by Architect decision.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
