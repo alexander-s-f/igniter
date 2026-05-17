@@ -231,4 +231,9 @@ pilot result:
 pilot dispatch:
   docs/org/indexes/operational-memory-live-pilot-cards-s3-r63-v0.md
   defines ORG-R63 = [C1-P1, C2-P1] -> C3-S for live role-shaped memory checks.
+
+compiler blueprint:
+  docs/org/indexes/compiler-code-and-experiment-map-v0.md
+  maps production compiler code, profile proof families, runtime/audit proof
+  families, proof outputs, and authority/evidence boundaries.
 ```
