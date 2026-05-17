@@ -219,6 +219,12 @@ architect handoff:
   docs/org/reports/operational-memory-pilot-proposal-to-architect-v0.md
   proposes a bounded two-role pilot for Line Up Summarizer and History Curator.
 
+prop038 implementation watch map:
+  docs/org/indexes/prop038-implementation-surface-watch-map-v0.md
+  captures the bounded validator extraction surface, prohibited compiler/report/
+  runtime/public surfaces, proof parity obligations, and diagnostic/digest
+  deferrals. Orientation only; authority remains in the R64 gate decision.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization

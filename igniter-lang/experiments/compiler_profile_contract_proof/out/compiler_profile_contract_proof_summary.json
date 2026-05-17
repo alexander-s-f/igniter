@@ -1,8 +1,8 @@
 {
   "kind": "compiler_profile_contract_proof_summary",
   "format_version": "0.1.0",
-  "track": "prop038-proof-local-missing-after-implementation-v0",
-  "extends_track": "compiler-profile-contract-validator-coverage-proof-v0",
+  "track": "prop038-library-validator-extraction-implementation-v0",
+  "extends_track": "prop038-proof-local-missing-after-implementation-v0",
   "status": "PASS",
   "canonical_contract": {
     "kind": "compiler_profile_contract",
@@ -216,6 +216,13 @@
     },
     "contract_digest": "compiler_profile_contract/sha256:949ae3fa7335293424fd90ce"
   },
+  "validator_result_shape": {
+    "kind": "compiler_profile_contract_validation_result",
+    "format_version": "0.1.0",
+    "digest_reference_policy": "prop038_24_plus",
+    "compiler_integrated": false,
+    "compile_refusal_authorized": false
+  },
   "source_projection_matches_profile_source": true,
   "cases": [
     {
@@ -232,22 +239,10 @@
           "code": "compiler_profile_contract.missing_required_slot",
           "message": "required slot \"oof_registry\" is missing from slot_order or slot_assignments",
           "path": "slot_assignments.oof_registry"
-        },
-        {
-          "code": "compiler_profile_contract.unknown_owner_slot",
-          "message": "owner slot \"oof_registry\" is not in slot_order",
-          "path": "strict_registries.oof_descriptors.OOF-P1.owner_slot"
-        },
-        {
-          "code": "compiler_profile_contract.unknown_rule_owner_slot",
-          "message": "ordered rule owner slot \"oof_registry\" is not in slot_order",
-          "path": "ordered_rule_graph.rules.typecheck.oof_propagation.owner_slot"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.missing_required_slot",
-        "compiler_profile_contract.unknown_owner_slot",
-        "compiler_profile_contract.unknown_rule_owner_slot"
+        "compiler_profile_contract.missing_required_slot"
       ]
     },
     {
@@ -416,9 +411,7 @@
       "case": "missing_required_slot",
       "expected": "compiler_profile_contract.missing_required_slot",
       "actual": [
-        "compiler_profile_contract.missing_required_slot",
-        "compiler_profile_contract.unknown_owner_slot",
-        "compiler_profile_contract.unknown_rule_owner_slot"
+        "compiler_profile_contract.missing_required_slot"
       ],
       "pass": true
     },
@@ -542,6 +535,8 @@
   "disclaimer": "SemanticIR profile-obligation checkpoint is a proposed future design position, not current implementation.",
   "non_authorizations_preserved": {
     "live_compiler_dispatch": false,
+    "compiler_integrated": false,
+    "compile_refusal_authorized": false,
     "igapp_artifacts": false,
     "goldens": false,
     "cli_api": false,
@@ -558,6 +553,22 @@
   "checks": [
     {
       "name": "valid_contract.accepted",
+      "pass": true
+    },
+    {
+      "name": "validator_result.kind",
+      "pass": true
+    },
+    {
+      "name": "validator_result.digest_reference_policy",
+      "pass": true
+    },
+    {
+      "name": "validator_result.compiler_integrated_false",
+      "pass": true
+    },
+    {
+      "name": "validator_result.compile_refusal_authorized_false",
       "pass": true
     },
     {
@@ -649,17 +660,13 @@
       "pass": true
     }
   ],
-  "remaining_blockers_before_library_validator_design": [
-    "descriptor_digest input material and canonicalization remain unresolved outside this proof-local projection",
-    "short-vs-full digest policy remains unresolved for persisted or durable outputs",
-    "diagnostic helper placement must be decided before moving diagnostics out of this proof script",
-    "library validator ownership must be authorized separately from this proof-local experiment"
-  ],
   "remaining_blockers_before_compiler_integration": [
     "contract input ownership without public API or CLI widening",
     "report/output location if validation stops being proof-local",
     "orchestrator insertion point after contract input ownership is resolved",
     "fixture/golden policy for any persisted artifact or report mutation",
+    "descriptor_digest input material and canonicalization for integrated or persisted behavior",
+    "contract_digest format and mismatch diagnostics if the contract digest becomes enforced",
     "dedicated gate for report-only compiler integration or compile refusal"
   ]
 }

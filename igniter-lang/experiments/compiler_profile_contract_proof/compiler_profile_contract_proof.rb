@@ -3,12 +3,15 @@
 require "digest"
 require "fileutils"
 require "json"
-require "set"
+
+require_relative "../../lib/igniter_lang/compiler_profile_contract_validator"
 
 ROOT = File.expand_path("../../..", __dir__)
 OUT_DIR = File.join(__dir__, "out")
 SUMMARY_PATH = File.join(OUT_DIR, "compiler_profile_contract_proof_summary.json")
-TRACK = "prop038-proof-local-missing-after-implementation-v0"
+TRACK = "prop038-library-validator-extraction-implementation-v0"
+EXTENDS_TRACK = "prop038-proof-local-missing-after-implementation-v0"
+VALIDATOR = IgniterLang::CompilerProfileContractValidator
 
 PROFILE_SOURCE_PATH = File.join(
   ROOT,
@@ -18,12 +21,6 @@ OBLIGATION_SUMMARY_PATH = File.join(
   ROOT,
   "igniter-lang/experiments/compiler_profile_obligation_coverage_proof/out/compiler_profile_obligation_coverage_summary.json"
 )
-
-REQUIRED_SLOTS = %w[core oof_registry fragment_registry escape_boundary].freeze
-OPTIONAL_SLOTS = %w[
-  contract_modifiers temporal stream olap invariant assumptions evidence_observation pipeline
-].freeze
-ALL_SLOTS = (REQUIRED_SLOTS + OPTIONAL_SLOTS).freeze
 
 LOADER_REPORT_TERMS = %w[absent_legacy present_verified mismatch malformed missing_required].freeze
 
@@ -111,10 +108,10 @@ def build_contract(profile_source)
     "descriptor_digest" => profile_source.fetch("descriptor_digest"),
     "finalization_payload_digest" => profile_source.fetch("finalization_payload_digest"),
     "required_slot_schema" => {
-      "required_slots" => REQUIRED_SLOTS,
-      "optional_slots" => OPTIONAL_SLOTS,
-      "all_slots" => ALL_SLOTS,
-      "cardinality" => REQUIRED_SLOTS.to_h { |slot| [slot, "exactly_one"] }
+      "required_slots" => VALIDATOR::REQUIRED_SLOTS,
+      "optional_slots" => VALIDATOR::OPTIONAL_SLOTS,
+      "all_slots" => VALIDATOR::ALL_SLOTS,
+      "cardinality" => VALIDATOR::REQUIRED_SLOTS.to_h { |slot| [slot, "exactly_one"] }
     },
     "slot_order" => profile_source.fetch("slot_order"),
     "slot_assignments" => slot_assignments,
@@ -137,124 +134,6 @@ def build_contract(profile_source)
   )
 end
 
-def diagnostic(code, message, path = nil)
-  {
-    "code" => "compiler_profile_contract.#{code}",
-    "message" => message,
-    "path" => path
-  }
-end
-
-def find_rule_cycle(rules)
-  ids = rules.map { |rule| rule.fetch("rule_id") }
-  edges = Hash.new { |hash, key| hash[key] = [] }
-  rules.each do |rule|
-    rule.fetch("before", []).each { |target| edges[rule.fetch("rule_id")] << target }
-    rule.fetch("after", []).each { |source| edges[source] << rule.fetch("rule_id") }
-  end
-
-  visiting = Set.new
-  visited = Set.new
-  stack = []
-
-  visit = lambda do |id|
-    return nil if visited.include?(id)
-    if visiting.include?(id)
-      cycle_start = stack.index(id) || 0
-      return stack[cycle_start..] + [id]
-    end
-
-    visiting << id
-    stack << id
-    edges[id].each do |target|
-      next unless ids.include?(target)
-
-      cycle = visit.call(target)
-      return cycle if cycle
-    end
-    stack.pop
-    visiting.delete(id)
-    visited << id
-    nil
-  end
-
-  ids.each do |id|
-    cycle = visit.call(id)
-    return cycle if cycle
-  end
-  nil
-end
-
-def validate_contract(contract)
-  diagnostics = []
-  unless contract["kind"] == "compiler_profile_contract"
-    diagnostics << diagnostic("wrong_kind", "expected compiler_profile_contract", "kind")
-  end
-  unless contract["format_version"] == "0.1.0"
-    diagnostics << diagnostic("unsupported_format_version", "expected format_version 0.1.0", "format_version")
-  end
-  unless contract["descriptor_digest"].to_s.match?(/\Acompiler_profile_descriptor\/sha256:[0-9a-f]{24,}\z/)
-    diagnostics << diagnostic("descriptor_digest_invalid", "descriptor_digest must be compiler_profile_descriptor/sha256:<hex>", "descriptor_digest")
-  end
-  unless contract["finalization_payload_digest"].to_s.match?(/\Asha256:[0-9a-f]{64}\z/)
-    diagnostics << diagnostic("finalization_payload_digest_invalid", "finalization_payload_digest must be sha256:<64 hex>", "finalization_payload_digest")
-  end
-
-  required_slots = Array(contract.dig("required_slot_schema", "required_slots"))
-  slot_order = Array(contract["slot_order"])
-  slot_assignments = contract["slot_assignments"] || {}
-  required_slots.each do |slot|
-    unless slot_order.include?(slot) && slot_assignments.key?(slot)
-      diagnostics << diagnostic("missing_required_slot", "required slot #{slot.inspect} is missing from slot_order or slot_assignments", "slot_assignments.#{slot}")
-    end
-  end
-
-  strict_registries = contract["strict_registries"] || {}
-  strict_registries.each do |registry_name, entries|
-    seen = {}
-    Array(entries).each do |entry|
-      key = entry["key"]
-      owner = entry["owner_slot"]
-      if seen.key?(key)
-        diagnostics << diagnostic("duplicate_strict_key", "strict registry #{registry_name} has duplicate key #{key.inspect}", "strict_registries.#{registry_name}.#{key}")
-      end
-      seen[key] = true
-      unless slot_order.include?(owner)
-        diagnostics << diagnostic("unknown_owner_slot", "owner slot #{owner.inspect} is not in slot_order", "strict_registries.#{registry_name}.#{key}.owner_slot")
-      end
-    end
-  end
-
-  rules = Array(contract.dig("ordered_rule_graph", "rules"))
-  rule_ids = rules.map { |rule| rule["rule_id"] }
-  rules.each do |rule|
-    owner = rule["owner_slot"]
-    unless slot_order.include?(owner)
-      diagnostics << diagnostic("unknown_rule_owner_slot", "ordered rule owner slot #{owner.inspect} is not in slot_order", "ordered_rule_graph.rules.#{rule["rule_id"]}.owner_slot")
-    end
-    (Array(rule["before"]) + Array(rule["after"])).each do |ref|
-      unless rule_ids.include?(ref)
-        diagnostics << diagnostic("missing_rule_reference", "ordered rule #{rule["rule_id"]} references missing rule #{ref.inspect}", "ordered_rule_graph.rules.#{rule["rule_id"]}")
-      end
-    end
-  end
-  cycle = find_rule_cycle(rules)
-  diagnostics << diagnostic("rule_cycle", "ordered rule graph contains cycle: #{cycle.join(" -> ")}", "ordered_rule_graph.rules") if cycle
-
-  non_authority = contract["non_authority"] || {}
-  if non_authority["runtime_authority_granted"]
-    diagnostics << diagnostic("runtime_authority_forbidden", "compiler profile contract cannot grant runtime authority", "non_authority.runtime_authority_granted")
-  end
-  if non_authority["dispatch_migration_authorized"]
-    diagnostics << diagnostic("dispatch_migration_forbidden", "compiler profile contract cannot authorize dispatch migration", "non_authority.dispatch_migration_authorized")
-  end
-
-  {
-    "valid" => diagnostics.empty?,
-    "diagnostics" => diagnostics
-  }
-end
-
 def source_projection(contract)
   {
     "kind" => "compiler_profile_id_source",
@@ -273,12 +152,12 @@ def source_projection(contract)
 end
 
 def case_result(name, contract)
-  validation = validate_contract(contract)
+  validation = VALIDATOR.validate(contract)
   {
     "name" => name,
     "valid" => validation.fetch("valid"),
     "diagnostics" => validation.fetch("diagnostics"),
-    "diagnostic_codes" => validation.fetch("diagnostics").map { |diag| diag.fetch("code") }
+    "diagnostic_codes" => validation.fetch("diagnostic_codes")
   }
 end
 
@@ -370,6 +249,7 @@ cases = [
   case_result("runtime_authority_forbidden", runtime_authority_contract),
   case_result("dispatch_migration_forbidden", dispatch_migration_contract)
 ]
+validator_result = VALIDATOR.validate(valid_contract)
 
 all_contract_diagnostics = cases.flat_map { |entry| entry.fetch("diagnostic_codes") }
 expected_case_diagnostics = {
@@ -415,6 +295,10 @@ execution_order = [
 
 checks = []
 assert("valid_contract.accepted", case_by_name(cases, "valid_contract").fetch("valid"), checks)
+assert("validator_result.kind", validator_result.fetch("kind") == "compiler_profile_contract_validation_result", checks)
+assert("validator_result.digest_reference_policy", validator_result.fetch("digest_reference_policy") == "prop038_24_plus", checks)
+assert("validator_result.compiler_integrated_false", validator_result.fetch("compiler_integrated") == false, checks)
+assert("validator_result.compile_refusal_authorized_false", validator_result.fetch("compile_refusal_authorized") == false, checks)
 assert("source_projection.matches_profile_source", source_projection(valid_contract) == profile_source, checks)
 assert("missing_required_slot.diagnostic", codes_for(cases, "missing_required_slot").include?("compiler_profile_contract.missing_required_slot"), checks)
 assert("duplicate_strict_key.diagnostic", codes_for(cases, "duplicate_strict_key").include?("compiler_profile_contract.duplicate_strict_key"), checks)
@@ -442,9 +326,16 @@ summary = {
   "kind" => "compiler_profile_contract_proof_summary",
   "format_version" => "0.1.0",
   "track" => TRACK,
-  "extends_track" => "compiler-profile-contract-validator-coverage-proof-v0",
+  "extends_track" => EXTENDS_TRACK,
   "status" => checks.all? { |check| check.fetch("pass") } ? "PASS" : "FAIL",
   "canonical_contract" => valid_contract,
+  "validator_result_shape" => {
+    "kind" => validator_result.fetch("kind"),
+    "format_version" => validator_result.fetch("format_version"),
+    "digest_reference_policy" => validator_result.fetch("digest_reference_policy"),
+    "compiler_integrated" => validator_result.fetch("compiler_integrated"),
+    "compile_refusal_authorized" => validator_result.fetch("compile_refusal_authorized")
+  },
   "source_projection_matches_profile_source" => source_projection(valid_contract) == profile_source,
   "cases" => cases,
   "validator_case_matrix" => validator_case_matrix,
@@ -460,6 +351,8 @@ summary = {
   "disclaimer" => DISCLAIMER,
   "non_authorizations_preserved" => {
     "live_compiler_dispatch" => false,
+    "compiler_integrated" => validator_result.fetch("compiler_integrated"),
+    "compile_refusal_authorized" => validator_result.fetch("compile_refusal_authorized"),
     "igapp_artifacts" => false,
     "goldens" => false,
     "cli_api" => false,
@@ -474,17 +367,13 @@ summary = {
     "production_behavior" => false
   },
   "checks" => checks,
-  "remaining_blockers_before_library_validator_design" => [
-    "descriptor_digest input material and canonicalization remain unresolved outside this proof-local projection",
-    "short-vs-full digest policy remains unresolved for persisted or durable outputs",
-    "diagnostic helper placement must be decided before moving diagnostics out of this proof script",
-    "library validator ownership must be authorized separately from this proof-local experiment"
-  ],
   "remaining_blockers_before_compiler_integration" => [
     "contract input ownership without public API or CLI widening",
     "report/output location if validation stops being proof-local",
     "orchestrator insertion point after contract input ownership is resolved",
     "fixture/golden policy for any persisted artifact or report mutation",
+    "descriptor_digest input material and canonicalization for integrated or persisted behavior",
+    "contract_digest format and mismatch diagnostics if the contract digest becomes enforced",
     "dedicated gate for report-only compiler integration or compile refusal"
   ]
 }
