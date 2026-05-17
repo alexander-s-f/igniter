@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-16
+Last updated: 2026-05-17
 
 ---
 
@@ -63,6 +63,17 @@ not PROP promotion, and not parser/tooling authorization.
 | `portable-context-mnemonics-reconstruction-proof-v0.md` | done | Tests MN-A/MN-B/MN-C reconstruction; balanced MN-B scores best as default external validation seed; preserves evidence/closure/auth invariant |
 | `portable-context-mnemonics-shadow-round-synthesis-v0.md` | done | Synthesizes C1/C2/C3 into a two-model external validation packet; recommends continuing as Agent Orchestra DNA candidate while keeping all PROP/spec/parser/tooling bridges closed |
 | `portable-context-mnemonics-blind-test-context-packet-v0.md` | done | Records informal blind-test results; finds register header improves reconstruction but `CLOSED+gate` remains ambiguous; proposes Context Packet v0 with mini-grammar, dictionary id, domain-qualified atoms, invariants, and expansion refs |
+
+---
+
+## Stage 3 Round 62 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop038-compiler-profile-contract-implementation-scope-survey-v0.md` | done | Survey-only; maps 10 write-surface options, recommends proof-local Option A first, holds report-only integration and compile-refusal behavior |
+| `../discussions/prop038-implementation-scope-pressure-v0.md` | proceed | All 8 scope checks pass; no blockers; missing-`after` coverage belongs in the first proof-local card; forbidden runtime/production/report/refusal surfaces remain closed |
+| `../gates/prop038-compiler-profile-contract-implementation-authorization-decision-v0.md` | authorized-proof-local-only | Authorizes only the next proof-local implementation under `experiments/compiler_profile_contract_proof/`; descriptor digest input material remains deferred for integrated/persisted behavior |
+| `stage3-round62-status-curation-v0.md` | done | R62 status curation; records scope survey complete, proof-local-only authorization, org sidecar non-authority boundary, and preserved runtime/production closures |
 
 ---
 

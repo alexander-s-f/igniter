@@ -2,7 +2,7 @@
 
 Status: active
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-16
+Last updated: 2026-05-17
 
 ---
 
@@ -190,3 +190,4 @@ Authorized signed-addendum scope:
 | [compiler-profile-contract-prop-authoring-decision-v0.md](compiler-profile-contract-prop-authoring-decision-v0.md) | S3-R59-C3-A | hold-validator-coverage-proof-next | Accepts the formal ownership record, holds new PROP authoring, and authorizes only proof-local `compiler-profile-contract-validator-coverage-proof-v0`; implementation and production/runtime authority remain closed |
 | [compiler-profile-contract-validator-coverage-decision-v0.md](compiler-profile-contract-validator-coverage-decision-v0.md) | S3-R60-C3-A | accepted-prop-authoring-next | Accepts validator coverage, lifts the R59 authoring hold, assigns PROP-038 to `compiler_profile_contract`, and authorizes only PROP authoring next; implementation and production/runtime authority remain closed |
 | [prop038-compiler-profile-contract-acceptance-decision-v0.md](prop038-compiler-profile-contract-acceptance-decision-v0.md) | S3-R61-C3-A | accepted-proposal-only-implementation-held | Accepts PROP-038 as proposal-only, keeps implementation held, and authorizes only an implementation scope survey / authorization prep track for R62; production/runtime authority remains closed |
+| [prop038-compiler-profile-contract-implementation-authorization-decision-v0.md](prop038-compiler-profile-contract-implementation-authorization-decision-v0.md) | S3-R62-C3-A | authorized-proof-local-only | Authorizes only the first proof-local PROP-038 implementation under `experiments/compiler_profile_contract_proof/` for missing-`after` coverage; report-only integration, compile refusal, runtime, and production remain closed |
