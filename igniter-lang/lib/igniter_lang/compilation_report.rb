@@ -65,6 +65,14 @@ module IgniterLang
       )
     end
 
+    def with_compiler_profile_contract_validation(report:, validation:)
+      return report unless validation
+
+      report.merge(
+        "compiler_profile_contract_validation" => validation.merge("report_only" => true)
+      )
+    end
+
     def diagnostic_category_for(report)
       stages = report.fetch("stages", {})
       return "typechecker_oof" if stages.fetch("typecheck", nil) == "oof"

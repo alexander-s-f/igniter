@@ -231,6 +231,12 @@ prop038 report integration boundary map:
   and any future report-only compiler integration. Orientation only; report
   integration, compile refusal, and public API/CLI widening remain unauthorized.
 
+prop038 report-only leakage watch:
+  docs/org/indexes/prop038-report-only-leakage-watch-v0.md
+  captures R67-specific checks for public-output leakage, refusal creep,
+  persisted/golden mutation, provider exception semantics, and the
+  `compiler_integrated=false` interpretation. Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization

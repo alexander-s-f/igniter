@@ -1,0 +1,177 @@
+{
+  "kind": "prop038_report_only_compiler_integration_summary",
+  "format_version": "0.1.0",
+  "track": "prop038-report-only-compiler-integration-implementation-v0",
+  "status": "PASS",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+  "cases": [
+    {
+      "name": "baseline_no_provider",
+      "status": "ok",
+      "has_contract_validation": false,
+      "refusal_report_written": false
+    },
+    {
+      "name": "valid_contract",
+      "status": "ok",
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": true,
+        "diagnostics": [],
+        "diagnostic_codes": [],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true
+      }
+    },
+    {
+      "name": "invalid_contract",
+      "status": "ok",
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.wrong_kind",
+            "message": "expected compiler_profile_contract",
+            "path": "kind"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.wrong_kind"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true
+      },
+      "refusal_report_written": false
+    },
+    {
+      "name": "nil_provider",
+      "status": "ok",
+      "has_contract_validation": false
+    },
+    {
+      "name": "exception_provider",
+      "status": "ok",
+      "has_contract_validation": false,
+      "refusal_report_written": false
+    }
+  ],
+  "public_result_unchanged": {
+    "valid_contract": true,
+    "invalid_contract": true,
+    "nil_provider": true,
+    "exception_provider": true
+  },
+  "igapp_manifest_unchanged": {
+    "valid_contract": true,
+    "invalid_contract": true,
+    "nil_provider": true,
+    "exception_provider": true
+  },
+  "non_authorizations_preserved": {
+    "compile_refusal": false,
+    "public_api_cli_widening": false,
+    "persisted_success_report": false,
+    "sidecar": false,
+    "igapp_manifest_mutation": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "diagnostics_centralization": false,
+    "compiler_result_change": false,
+    "runtime_machine": false,
+    "gate3": false,
+    "ledger_tbackend": false,
+    "bihistory": false,
+    "stream_olap": false,
+    "cache": false,
+    "production_behavior": false
+  },
+  "checks": [
+    {
+      "name": "valid_contract.attaches_validation_true",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.attaches_validation_false",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.compile_status_ok",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.public_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.igapp_manifest_unchanged",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.no_refusal_report_written",
+      "pass": true
+    },
+    {
+      "name": "nil_provider.legacy_no_validation_field",
+      "pass": true
+    },
+    {
+      "name": "exception_provider.legacy_no_validation_field",
+      "pass": true
+    },
+    {
+      "name": "valid_contract.report_only_true",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.report_only_true",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.pass_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.stages_unchanged",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.diagnostics_unchanged",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.assembler_executed",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.compiler_integrated_false",
+      "pass": true
+    },
+    {
+      "name": "invalid_contract.compile_refusal_authorized_false",
+      "pass": true
+    },
+    {
+      "name": "valid_contract.public_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "provider_nil.status_ok",
+      "pass": true
+    },
+    {
+      "name": "provider_exception.status_ok",
+      "pass": true
+    },
+    {
+      "name": "provider_exception.no_refusal_report_written",
+      "pass": true
+    }
+  ]
+}

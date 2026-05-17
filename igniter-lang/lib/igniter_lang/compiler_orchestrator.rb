@@ -7,6 +7,7 @@ require "pathname"
 require_relative "assembler"
 require_relative "classifier"
 require_relative "compilation_report"
+require_relative "compiler_profile_contract_validator"
 require_relative "compiler_result"
 require_relative "parser"
 require_relative "semanticir_emitter"
@@ -20,12 +21,14 @@ module IgniterLang
       classifier: Classifier.new,
       typechecker: TypeChecker.new,
       emitter: SemanticIREmitter.new,
-      assembler: Assembler.new
+      assembler: Assembler.new,
+      compiler_profile_contract_provider: nil
     )
       @classifier = classifier
       @typechecker = typechecker
       @emitter = emitter
       @assembler = assembler
+      @compiler_profile_contract_provider = compiler_profile_contract_provider
     end
 
     def compile(
@@ -50,6 +53,20 @@ module IgniterLang
         parsed: parsed
       )
       semantic_ir = compilation.fetch("semantic_ir")
+      report_for_assembly = report
+
+      if report.fetch("pass_result") == "ok"
+        validation = compiler_profile_contract_validation(
+          source_path: source_path,
+          out_path: out_path,
+          parsed_program: parsed,
+          compiler_profile_source: compiler_profile_source
+        )
+        report = CompilationReport.with_compiler_profile_contract_validation(
+          report: report,
+          validation: validation
+        )
+      end
 
       return refusal(report, source_path, out_path) unless report.fetch("pass_result") == "ok"
 
@@ -59,7 +76,7 @@ module IgniterLang
       # remains authoritative. Nil preserves legacy_optional behavior.
       assembled = @assembler.assemble_artifacts(
         case_name: case_name_for(source_path, parsed),
-        report: report,
+        report: report_for_assembly,
         semantic_ir: semantic_ir,
         target_dir: out_path,
         compiler_profile_source: compiler_profile_source
@@ -152,6 +169,22 @@ module IgniterLang
     def write_json(path, value)
       FileUtils.mkdir_p(Pathname.new(path).dirname)
       File.write(path, "#{JSON.pretty_generate(value)}\n")
+    end
+
+    def compiler_profile_contract_validation(source_path:, out_path:, parsed_program:, compiler_profile_source:)
+      return nil unless @compiler_profile_contract_provider.respond_to?(:call)
+
+      contract = @compiler_profile_contract_provider.call(
+        source_path: source_path,
+        out_path: out_path,
+        parsed_program: parsed_program,
+        compiler_profile_source: compiler_profile_source
+      )
+      return nil unless contract.is_a?(Hash)
+
+      CompilerProfileContractValidator.validate(contract)
+    rescue
+      nil
     end
 
     def resolve_sample_input(parsed, sample_input_resolver)
