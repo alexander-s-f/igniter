@@ -68,6 +68,7 @@ R<n> = [[C1-P1, C2-P1], C3-S]
 - `-A`: Architect authority decision; no code is authorized unless this says so
 - `-I`: implementation/code-writing slice
 - `-X`: external pressure/review slice
+- `-O`: organization/orchestration sidecar; not on the compiler critical path
 - `-QA`: verification slice
 
 ---
