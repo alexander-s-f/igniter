@@ -47,7 +47,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-032](PROP-032-assumptions-block-v0.md) | experiment-pass | `assumptions {}` block + `uses assumptions NAME`; Phase 1/2/3/4 compiler proofs accepted by S3-R36-C2-A; PROP-033 evidence validation and runtime receipts remain excluded |
 | [PROP-036](PROP-036-compiler-profile-manifest-identity-v0.md) | accepted | `compiler_profile_id` manifest identity; accepted proposal-only by S3-R35-C3-A; separate implementation authorization required before code |
 | [PROP-037](PROP-037-external-progression-service-liveness-v0.md) | accepted | External progression and service liveness semantics; accepted proposal-only by S3-R37-C3-A; descriptor/proof follow-ups only, no parser/runtime/fragment-class authorization |
-| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction authorized next by S3-R64-C3-A |
+| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A |
 
 ---
 
@@ -98,12 +98,13 @@ with implementation held. S3-R62-C3-A authorizes only the first proof-local
 implementation under `experiments/compiler_profile_contract_proof/` for
 missing-`after` coverage, and S3-R63-C3-A accepts/closes that proof-local gap.
 S3-R64-C3-A accepts the Option B library validator extraction design and
-authorizes only the next bounded internal proof-parity implementation card. It
-does not authorize production compiler integration, report-only behavior,
-compile refusal, `.igapp` mutation, loader/report behavior, CompatibilityReport
-behavior, dispatch migration, dynamic pack loading, runtime execution, or
-production behavior. Managed local recursion / loop-class extensions move to
-PROP-039+ or later.
+authorizes only the next bounded internal proof-parity implementation card.
+S3-R65-C3-A accepts and closes that internal validator extraction. It does not
+authorize production compiler integration, report-only behavior, compile
+refusal, `.igapp` mutation, loader/report behavior, CompatibilityReport behavior,
+dispatch migration, dynamic pack loading, runtime execution, or production
+behavior. Managed local recursion / loop-class extensions move to PROP-039+ or
+later.
 
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|
@@ -175,6 +176,6 @@ PROP-035 are reserved there; PROP-036 is accepted proposal-only for compiler
 profile manifest identity; PROP-037 is accepted proposal-only for external
 progression and service liveness semantics; PROP-038 is accepted proposal-only
 for `compiler_profile_contract` with first proof-local experiment implementation
-accepted/closed and bounded internal library validator extraction authorized
-next; managed local recursion / loop-class extensions use PROP-039+ as
-placeholder only until formal assignment.
+accepted/closed and bounded internal library validator extraction accepted/closed;
+managed local recursion / loop-class extensions use PROP-039+ as placeholder only
+until formal assignment.

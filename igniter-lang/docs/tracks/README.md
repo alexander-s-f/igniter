@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 65 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-implementation-surface-watch-map-v0.md` | active orientation map | C0-O org-sidecar watch map; records authorized C1-I surfaces, prohibited compiler/report/runtime/public surfaces, proof parity obligations, digest/diagnostic deferrals, and handoff risks; orientation only |
+| `prop038-library-validator-extraction-implementation-v0.md` | done | Creates internal `IgniterLang::CompilerProfileContractValidator`; proof script calls validator; summary PASS with 13 cases, 13 validator matrix rows, and 27 checks |
+| `../discussions/prop038-library-validator-extraction-implementation-pressure-v0.md` | proceed | All 9 scope checks pass; no blockers or notes; write scope stayed authorized, no facade require, 10 diagnostic codes only, `contract_digest` still deferred, all 15 non-authorization flags false |
+| `../gates/prop038-library-validator-extraction-acceptance-decision-v0.md` | accepted-extraction-closure | Accepts bounded internal extraction and closes R64 implementation authorization; report-only integration, compile refusal, CLI/API, runtime, and production remain closed |
+| `stage3-round65-status-curation-v0.md` | done | R65 status curation; records internal validator extraction closure, proof parity, org-sidecar watch map, and preserved closed surfaces |
+
+---
+
 ## Stage 3 Round 64 Evidence
 
 | Track | Status | Notes |
