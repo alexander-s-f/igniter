@@ -225,6 +225,12 @@ prop038 implementation watch map:
   runtime/public surfaces, proof parity obligations, and diagnostic/digest
   deferrals. Orientation only; authority remains in the R64 gate decision.
 
+prop038 report integration boundary map:
+  docs/org/indexes/prop038-report-integration-boundary-map-v0.md
+  captures the dangerous boundary between accepted internal validation results
+  and any future report-only compiler integration. Orientation only; report
+  integration, compile refusal, and public API/CLI widening remain unauthorized.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
