@@ -184,11 +184,25 @@ change a main-lane decision or improve future agent throughput.
 Recommended follow-up order:
 
 ```text
-1. operational-contract memory pilot for one role instance
-2. docs/code/experiment orientation index refinement
-3. stage-level docs metabolism schedule review
-4. Line Up / History Curator / Archive/Form handoff boundary map
+1. operational-contract memory pilot for one role instance       done: Line Up Summarizer pilot
+2. docs/code/experiment orientation index refinement             next
+3. stage-level docs metabolism schedule review                   later
+4. Line Up / History Curator / Archive/Form handoff boundary map later
 ```
 
 Recommendation: continue, but stay narrow until the main lane asks for a
 specific process or documentation decision.
+
+Latest local sidecar signals:
+
+```text
+line-up-summarizer memory pilot:
+  useful for preserving QA anchor, movement boundary, and return-report rules
+  without changing role authority.
+
+Line Up QA drift candidates:
+  docs/lineups/stage2-compiler-package-spine.md
+  docs/lineups/stage2-to-stage3-typed-switch-spine.md
+
+No fix applied by org sidecar. Route to Line Up Summarizer cleanup if needed.
+```
