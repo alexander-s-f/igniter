@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 66 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-report-integration-boundary-map-v0.md` | active orientation map | C0-O org-sidecar boundary map; records current accepted validator surface, report-only touchpoint risks, forbidden transitions, digest/canonicalization risks, and safe future design checklist; orientation only |
+| `prop038-report-only-compiler-integration-design-v0.md` | done | Design-only Candidate A: internal `compiler_profile_contract_provider` on `CompilerOrchestrator`, in-memory `CompilationReport` annotation, report-only and never refusal; options B-D/G held, E/F rejected |
+| `../discussions/prop038-report-only-compiler-integration-design-pressure-v0.md` | proceed | All 8 scope checks pass; no blockers; NB-1 provider callable/exception policy and NB-2 `compiler_integrated=false` semantics routed into C3-A |
+| `../gates/prop038-report-only-compiler-integration-design-decision-v0.md` | accepted-authorized-bounded-report-only-implementation | Accepts the design and authorizes only next Candidate A implementation; public API/CLI, persisted reports, `.igapp`, loader/report, CompatibilityReport, compile refusal, runtime, and production remain closed |
+| `stage3-round66-status-curation-v0.md` | done | R66 status curation; records design acceptance, bounded next implementation authorization, org-sidecar boundary map, and preserved closed surfaces |
+
+---
+
 ## Stage 3 Round 65 Evidence
 
 | Track | Status | Notes |
@@ -74,7 +86,7 @@ not PROP promotion, and not parser/tooling authorization.
 | `prop038-library-validator-extraction-implementation-v0.md` | done | Creates internal `IgniterLang::CompilerProfileContractValidator`; proof script calls validator; summary PASS with 13 cases, 13 validator matrix rows, and 27 checks |
 | `../discussions/prop038-library-validator-extraction-implementation-pressure-v0.md` | proceed | All 9 scope checks pass; no blockers or notes; write scope stayed authorized, no facade require, 10 diagnostic codes only, `contract_digest` still deferred, all 15 non-authorization flags false |
 | `../gates/prop038-library-validator-extraction-acceptance-decision-v0.md` | accepted-extraction-closure | Accepts bounded internal extraction and closes R64 implementation authorization; report-only integration, compile refusal, CLI/API, runtime, and production remain closed |
-| `stage3-round65-status-curation-v0.md` | done | R65 status curation; records internal validator extraction closure, proof parity, org-sidecar watch map, and preserved closed surfaces |
+| `stage3-round65-status-curation-v0.md` | done | R65 status curation; records internal validator extraction closure, proof parity, org-sidecar watch map, and then-preserved closed surfaces; R66 later accepts the report-only design |
 
 ---
 
