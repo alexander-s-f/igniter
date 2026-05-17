@@ -66,6 +66,19 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 64 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/compiler-code-and-experiment-map-v0.md` | active orientation map | C0-O org-sidecar blueprint; path-indexes production compiler spine, proof families, authority/evidence layers, and protected surfaces; orientation only, not authority |
+| `../org/reports/compiler-blueprint-orientation-v0.md` | done | C0-O compact report; recommends a future PROP-038 implementation-surface watch map before broader archaeology |
+| `prop038-library-validator-extraction-design-v0.md` | done | Option B design: internal `CompilerProfileContractValidator.validate(contract, digest_reference_policy: :prop038_24_plus)`, local diagnostics, caller-supplied Hash input, proof-parity only, non-integrated and non-refusal |
+| `../discussions/prop038-library-validator-extraction-design-pressure-v0.md` | proceed | All 9 scope checks pass; no blockers; NB-1 records intentional deferral of `contract_digest` format/mismatch validation |
+| `../gates/prop038-library-validator-extraction-design-decision-v0.md` | accepted-authorized-bounded-option-b-implementation | Accepts the design and authorizes only the next bounded internal proof-parity implementation card; compiler integration, report/refusal, CLI/API, runtime, and production remain closed |
+| `stage3-round64-status-curation-v0.md` | done | R64 status curation; records design acceptance, bounded internal implementation authorization, org-sidecar blueprint, and preserved closed surfaces |
+
+---
+
 ## Stage 3 Round 63 Evidence
 
 | Track | Status | Notes |
