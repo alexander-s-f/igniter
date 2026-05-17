@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 69 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-contract-digest-shape-proof-boundary-map-v0.md` | active orientation map | C0-O org-sidecar boundary map; separates proof-local shape evidence from live validator implementation, recompute-match integrity proof, compile refusal, public/report surfacing, and production authority; orientation only |
+| `prop038-contract-digest-shape-policy-proof-v0.md` | done | Proof-local model for `contract_digest` shape policy under `prop038_24_plus`; 8 cases / 19 checks PASS; existing validator matrix and R67 report-only integration remain PASS |
+| `../discussions/prop038-contract-digest-shape-policy-proof-pressure-v0.md` | proceed | All 8 scope checks pass; no blockers or notes; confirms exact 2 diagnostic candidates, no recompute/integrity proof, no live validator/compiler change, and no refusal/public/runtime authority |
+| `../gates/prop038-contract-digest-shape-policy-proof-decision-v0.md` | accepted-proof-local-shape-policy-closure | Accepts proof-local shape-policy closure and authorizes only proof-local `prop038-contract-digest-recompute-match-proof-v0`; live validator/compiler implementation, compile refusal, public API/CLI, loader/report, CompatibilityReport, runtime, and production remain closed |
+| `stage3-round69-status-curation-v0.md` | done | R69 status curation; records shape-policy proof acceptance, diagnostic candidate status, recompute-match next route, and preserved closed surfaces |
+
+---
+
 ## Stage 3 Round 68 Evidence
 
 | Track | Status | Notes |
