@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 68 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-contract-digest-policy-map-v0.md` | active orientation map | C0-O org-sidecar map; separates descriptor digest, finalization payload digest, `contract_digest`, canonicalization, validation level, and authority effects; orientation only |
+| `prop038-contract-digest-validation-policy-design-v0.md` | done | Designs hybrid policy: current validator remains `prop038_24_plus` report-only with no `contract_digest` check; future shape-only proof precedes recompute-match proof |
+| `../discussions/prop038-contract-digest-validation-policy-pressure-v0.md` | proceed | All 7 scope checks pass; no blockers or notes; confirms descriptor/contract separation, explicit canonicalization material, report-only invariant, and no hidden implementation authority |
+| `../gates/prop038-contract-digest-validation-policy-decision-v0.md` | accepted-authorized-proof-local-shape-policy | Accepts hybrid policy design and authorizes only proof-local `prop038-contract-digest-shape-policy-proof-v0`; implementation, compile refusal, public API/CLI, persisted reports, loader/report, CompatibilityReport, runtime, and production remain closed |
+| `stage3-round68-status-curation-v0.md` | done | R68 status curation; records digest-policy acceptance, proof-local next route, existing no-check behavior, and preserved closed surfaces |
+
+---
+
 ## Stage 3 Round 67 Evidence
 
 | Track | Status | Notes |
