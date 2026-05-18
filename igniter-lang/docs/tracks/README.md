@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 71 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-contract-digest-report-only-integration-boundary-map-v0.md` | active orientation map | C0-O org-sidecar boundary map; separates proof-local report-only digest integration from live validator implementation, compiler authority, compile refusal, persisted reports, public surfacing, and production behavior; orientation only |
+| `prop038-contract-digest-report-only-integration-proof-v0.md` | done | Proof-local report-only integration model; 12 cases / 21 checks PASS; all four digest diagnostics stay nested under `compiler_profile_contract_validation.diagnostics`; R70/R69/R67 and validator regressions remain PASS |
+| `../discussions/prop038-contract-digest-report-only-integration-proof-pressure-v0.md` | proceed | All 9 scope checks pass; no blockers or notes; R70 NB-1 closed by restored `non_authorizations_preserved`; no live implementation/refusal/public/runtime authority |
+| `../gates/prop038-contract-digest-report-only-integration-proof-decision-v0.md` | accepted-proof-local-report-only-integration-closure | Accepts proof-local report-only integration closure; three-phase digest chain complete for design purposes; authorizes only `prop038-contract-digest-errata-authoring-v0`; live validator/compiler implementation and compile refusal remain closed |
+| `stage3-round71-status-curation-v0.md` | done | R71 status curation; records report-only integration proof acceptance, three-phase chain closure, R70 NB-1 closure, next errata/design route, and preserved closed surfaces |
+
+---
+
 ## Stage 3 Round 70 Evidence
 
 | Track | Status | Notes |
