@@ -66,6 +66,19 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 73 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-contract-digest-live-design-boundary-map-v0.md` | active orientation map | C0-O org-sidecar boundary map; distinguishes design-only live validator planning from implementation, compiler integration, compile refusal, public/report surfacing, and production authority; orientation only |
+| `prop038-contract-digest-live-implementation-design-v0.md` | done | Designs one bounded internal validator slice for all four `contract_digest_*` diagnostics; keeps validator API/result shape unchanged; requires private canonicalization helpers and report-only/no-refusal invariants |
+| `prop038-contract-digest-live-implementation-surface-survey-v0.md` | done | Read-only implementation surface survey; confirms minimal validator-only surface, canonicalization risk, proof updates, and untouched public/compiler/runtime surfaces |
+| `../discussions/prop038-contract-digest-live-implementation-design-pressure-v0.md` | proceed-with-notes | All 9 scope checks pass; no blockers; NB-1 helper naming is non-authority, NB-2 proof directories need explicit write scope; no public/compiler/orchestrator/refusal/runtime authority implied |
+| `../gates/prop038-contract-digest-live-implementation-design-decision-v0.md` | accepted-design-authorized-one-slice-validator-implementation | Accepts design and authorizes only one bounded internal validator implementation card: `prop038-contract-digest-live-validator-implementation-v0`; compiler/orchestrator integration, compile refusal, public API/CLI, loader/report, CompatibilityReport, runtime, and production remain closed |
+| `stage3-round73-status-curation-v0.md` | done | R73 status curation; records accepted design, narrow implementation authorization, closed pressure notes, next R74 implementation route, and preserved excluded surfaces |
+
+---
+
 ## Stage 3 Round 72 Evidence
 
 | Track | Status | Notes |
