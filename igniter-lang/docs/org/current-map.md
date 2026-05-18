@@ -271,6 +271,13 @@ prop038 contract digest errata canon-sync boundary:
   report-only text limits, still-closed surfaces, and C1/C2 review hazards.
   Orientation only.
 
+prop038 contract digest live design boundary:
+  docs/org/indexes/prop038-contract-digest-live-design-boundary-map-v0.md
+  captures R73 boundaries for design-only live validator planning: allowed
+  validator design questions, still-closed implementation/compiler/refusal/
+  public/production surfaces, report-only invariants, and C3 pressure hazards.
+  Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
