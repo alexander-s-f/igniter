@@ -285,6 +285,13 @@ prop038 contract digest live validator implementation boundary:
   compiler/refusal/public/persisted/production surfaces, and C2-X pressure
   hazards. Orientation only.
 
+prop038 contract digest refusal preconditions boundary:
+  docs/org/indexes/prop038-contract-digest-refusal-preconditions-boundary-map-v0.md
+  captures R75 boundaries for compile-refusal precondition design: current
+  live-validator state, report-only/no-refusal invariants, contract-object
+  invalidity vs compiler refusal, forbidden surfaces, and C2-X pressure hazards.
+  Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
