@@ -47,7 +47,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-032](PROP-032-assumptions-block-v0.md) | experiment-pass | `assumptions {}` block + `uses assumptions NAME`; Phase 1/2/3/4 compiler proofs accepted by S3-R36-C2-A; PROP-033 evidence validation and runtime receipts remain excluded |
 | [PROP-036](PROP-036-compiler-profile-manifest-identity-v0.md) | accepted | `compiler_profile_id` manifest identity; accepted proposal-only by S3-R35-C3-A; separate implementation authorization required before code |
 | [PROP-037](PROP-037-external-progression-service-liveness-v0.md) | accepted | External progression and service liveness semantics; accepted proposal-only by S3-R37-C3-A; descriptor/proof follow-ups only, no parser/runtime/fragment-class authorization |
-| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A; bounded report-only internal annotation accepted/closed by S3-R67-C3-A; hybrid `contract_digest` policy design accepted by S3-R68-C3-A; proof-local shape-policy proof accepted by S3-R69-C3-A with only recompute-match proof authorized next |
+| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A; bounded report-only internal annotation accepted/closed by S3-R67-C3-A; hybrid `contract_digest` policy design accepted by S3-R68-C3-A; shape-policy proof accepted by S3-R69-C3-A; recompute-match proof accepted by S3-R70-C3-A with only report-only integration proof authorized next |
 
 ---
 
@@ -128,6 +128,13 @@ for future design/proof work only, not live implementation. Only the proof-local
 validator/compiler implementation, compile refusal, public surfaces,
 loader/report, CompatibilityReport, runtime, Gate 3 widening, and production
 remain closed.
+S3-R70-C3-A accepts the proof-local recompute-match proof with 14 cases / 15
+checks PASS. Canonicalization material is stable enough for future design/proof,
+and the full four-code `contract_digest_*` candidate set is proof-covered across
+R69/R70. Only the proof-local
+`prop038-contract-digest-report-only-integration-proof-v0` route opens next.
+PROP-038 errata and live validator/compiler implementation remain held until
+that integration proof is accepted and a separate Architect decision opens them.
 Managed local recursion / loop-class extensions move to PROP-039+ or later.
 
 | ID | Title | Depends On | Stage | Priority |
@@ -203,5 +210,6 @@ for `compiler_profile_contract` with first proof-local experiment implementation
 accepted/closed, bounded internal library validator extraction accepted/closed,
 bounded report-only internal annotation accepted/closed, and hybrid
 `contract_digest` policy design accepted; proof-local shape-policy proof accepted
-with only recompute-match proof authorized next; managed local recursion /
-loop-class extensions use PROP-039+ as placeholder only until formal assignment.
+and recompute-match proof accepted with only report-only integration proof
+authorized next; managed local recursion / loop-class extensions use PROP-039+
+as placeholder only until formal assignment.

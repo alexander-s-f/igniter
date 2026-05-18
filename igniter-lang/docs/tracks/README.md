@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 70 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-contract-digest-recompute-proof-boundary-map-v0.md` | active orientation map | C0-O org-sidecar boundary map; separates proof-local canonicalization/recompute evidence from live validator implementation, digest authority, compile refusal, public/report surfacing, and production behavior; orientation only |
+| `prop038-contract-digest-recompute-match-proof-v0.md` | done | Proof-local recompute-match/canonicalization model; 14 cases / 15 checks PASS; shape-policy proof, validator matrix, and R67 report-only integration remain PASS |
+| `../discussions/prop038-contract-digest-recompute-match-proof-pressure-v0.md` | proceed-with-note | All 10 scope checks pass; no blockers; NB-1 requires future summaries to restore `non_authorizations_preserved` for hold-inventory traceability |
+| `../gates/prop038-contract-digest-recompute-match-proof-decision-v0.md` | accepted-proof-local-recompute-match-closure | Accepts proof-local recompute-match closure and authorizes only proof-local `prop038-contract-digest-report-only-integration-proof-v0`; live validator/compiler implementation, compile refusal, public API/CLI, loader/report, CompatibilityReport, runtime, and production remain closed |
+| `stage3-round70-status-curation-v0.md` | done | R70 status curation; records recompute-match proof acceptance, four-code digest vocabulary proof coverage, NB-1, next report-only integration proof route, and preserved closed surfaces |
+
+---
+
 ## Stage 3 Round 69 Evidence
 
 | Track | Status | Notes |
