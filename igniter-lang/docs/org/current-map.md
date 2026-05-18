@@ -250,6 +250,13 @@ prop038 contract digest shape proof boundary:
   forbidden live-code surfaces, shape-only vs recompute-match distinction,
   report-only/refusal boundaries, and candidate diagnostics. Orientation only.
 
+prop038 contract digest recompute proof boundary:
+  docs/org/indexes/prop038-contract-digest-recompute-proof-boundary-map-v0.md
+  captures R70 proof-local canonicalization/recompute boundaries: candidate
+  input material, excluded fields, forbidden ambient inputs, order-sensitive vs
+  order-insensitive material, mismatch diagnostics, and non-authority surfaces.
+  Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization

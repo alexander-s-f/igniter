@@ -1,0 +1,358 @@
+{
+  "kind": "prop038_contract_digest_recompute_match_proof_summary",
+  "format_version": "0.1.0",
+  "track": "prop038-contract-digest-recompute-match-proof-v0",
+  "authority_ref": "igniter-lang/docs/gates/prop038-contract-digest-shape-policy-proof-decision-v0.md",
+  "status": "PASS",
+  "cases": [
+    {
+      "name": "recompute_full_match",
+      "expected": "valid",
+      "pass": true,
+      "result": {
+        "valid": true,
+        "diagnostics": [],
+        "diagnostic_codes": [],
+        "computed_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+        "declared_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+        "canonicalizer_available": true,
+        "canonical_input_excludes": [
+          "contract_digest",
+          "validation result fields",
+          "report_only",
+          "compiler_integrated",
+          "compile_refusal_authorized",
+          "provider metadata",
+          "source_path",
+          "out_path",
+          "parsed_program",
+          "compiler_profile_source"
+        ],
+        "recompute_match_live_implemented": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "recompute_prefix_match",
+      "expected": "valid",
+      "pass": true,
+      "result": {
+        "valid": true,
+        "diagnostics": [],
+        "diagnostic_codes": [],
+        "computed_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+        "declared_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c",
+        "canonicalizer_available": true,
+        "canonical_input_excludes": [
+          "contract_digest",
+          "validation result fields",
+          "report_only",
+          "compiler_integrated",
+          "compile_refusal_authorized",
+          "provider metadata",
+          "source_path",
+          "out_path",
+          "parsed_program",
+          "compiler_profile_source"
+        ],
+        "recompute_match_live_implemented": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "recompute_full_mismatch",
+      "expected": "compiler_profile_contract.contract_digest_mismatch",
+      "pass": true,
+      "result": {
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_mismatch",
+            "message": "declared contract_digest does not match recomputed canonical contract digest",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_mismatch"
+        ],
+        "computed_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+        "declared_digest": "compiler_profile_contract/sha256:aece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+        "canonicalizer_available": true,
+        "canonical_input_excludes": [
+          "contract_digest",
+          "validation result fields",
+          "report_only",
+          "compiler_integrated",
+          "compile_refusal_authorized",
+          "provider metadata",
+          "source_path",
+          "out_path",
+          "parsed_program",
+          "compiler_profile_source"
+        ],
+        "recompute_match_live_implemented": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "recompute_prefix_mismatch",
+      "expected": "compiler_profile_contract.contract_digest_mismatch",
+      "pass": true,
+      "result": {
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_mismatch",
+            "message": "declared contract_digest does not match recomputed canonical contract digest",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_mismatch"
+        ],
+        "computed_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+        "declared_digest": "compiler_profile_contract/sha256:aece9bff19d32bbeba559c9c",
+        "canonicalizer_available": true,
+        "canonical_input_excludes": [
+          "contract_digest",
+          "validation result fields",
+          "report_only",
+          "compiler_integrated",
+          "compile_refusal_authorized",
+          "provider metadata",
+          "source_path",
+          "out_path",
+          "parsed_program",
+          "compiler_profile_source"
+        ],
+        "recompute_match_live_implemented": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "recompute_unavailable",
+      "expected": "compiler_profile_contract.contract_digest_recompute_unavailable",
+      "pass": true,
+      "result": {
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_recompute_unavailable",
+            "message": "contract digest recompute requested but canonicalization is unavailable",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_recompute_unavailable"
+        ],
+        "computed_digest": null,
+        "declared_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+        "canonicalizer_available": false,
+        "canonical_input_excludes": [
+          "contract_digest",
+          "validation result fields",
+          "report_only",
+          "compiler_integrated",
+          "compile_refusal_authorized",
+          "provider metadata",
+          "source_path",
+          "out_path",
+          "parsed_program",
+          "compiler_profile_source"
+        ],
+        "recompute_match_live_implemented": false,
+        "compile_refusal_authorized": false,
+        "implementation_authorized": false
+      }
+    },
+    {
+      "name": "canonical_excludes_contract_digest",
+      "expected": "same canonical digest despite changed contract_digest",
+      "pass": true,
+      "digest_a": "0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+      "digest_b": "0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1"
+    },
+    {
+      "name": "canonical_includes_descriptor_digest_string",
+      "expected": "descriptor_digest string changes canonical digest",
+      "pass": true,
+      "base_digest": "0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+      "descriptor_changed_digest": "7c09bdeef06888cc5cae722ec255d40ba56b2e98373265e6ba3a0c12dc91fa39"
+    },
+    {
+      "name": "canonical_does_not_recompute_descriptor_material",
+      "expected": "descriptor material is not required or fetched",
+      "pass": true,
+      "descriptor_material_accessed": false,
+      "descriptor_digest_included_as_string": true
+    },
+    {
+      "name": "canonical_slot_order_order_sensitive",
+      "expected": "slot_order order changes canonical digest",
+      "pass": true,
+      "base_digest": "0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+      "slot_order_changed_digest": "d929485cb9ea6f332bfeb36ccfdc8a2541fc8dc7e59bcaf08876819e4213d2fa"
+    },
+    {
+      "name": "canonical_object_key_order_insensitive",
+      "expected": "top-level object key order does not change canonical digest",
+      "pass": true,
+      "base_digest": "0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+      "object_key_reordered_digest": "0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1"
+    },
+    {
+      "name": "canonical_strict_registry_order_insensitive",
+      "expected": "registry and registry-entry order do not change canonical digest",
+      "pass": true,
+      "base_digest": "0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+      "registry_reordered_digest": "0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1"
+    },
+    {
+      "name": "canonical_rule_list_order_insensitive",
+      "expected": "ordered_rule_graph.rules list order does not change canonical digest",
+      "pass": true,
+      "base_digest": "0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
+      "rule_list_reordered_digest": "0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1"
+    },
+    {
+      "name": "canonical_rule_edge_set_order_insensitive",
+      "expected": "before/after edge arrays are treated as sorted unique sets",
+      "pass": true,
+      "edge_set_a_digest": "b03dcc6ed649de7ff34494998db6c2408b229e838598757658e9fdb2afa33d84",
+      "edge_set_b_digest": "b03dcc6ed649de7ff34494998db6c2408b229e838598757658e9fdb2afa33d84"
+    },
+    {
+      "name": "canonical_rule_reference_still_validated",
+      "expected": "compiler_profile_contract.missing_rule_reference",
+      "pass": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.missing_rule_reference",
+            "message": "ordered rule parse.contract_modifiers references missing rule \"missing.rule.target\"",
+            "path": "ordered_rule_graph.rules.parse.contract_modifiers"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.missing_rule_reference"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false
+      },
+      "canonical_digest_still_computable": true
+    }
+  ],
+  "checks": [
+    {
+      "name": "cases_all_pass",
+      "pass": true
+    },
+    {
+      "name": "shape_policy_proof_status_pass",
+      "pass": true
+    },
+    {
+      "name": "validator_summary_pass",
+      "pass": true
+    },
+    {
+      "name": "validator_matrix_13_cases",
+      "pass": true
+    },
+    {
+      "name": "report_only_integration_pass",
+      "pass": true
+    },
+    {
+      "name": "public_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "proof_compile_refusal_false",
+      "pass": true
+    },
+    {
+      "name": "live_validator_compile_refusal_false",
+      "pass": true
+    },
+    {
+      "name": "integration_compile_refusal_false",
+      "pass": true
+    },
+    {
+      "name": "no_igapp_mutation_from_proof",
+      "pass": true
+    },
+    {
+      "name": "no_refusal_report_creation_from_proof",
+      "pass": true
+    },
+    {
+      "name": "live_validator_changed_false",
+      "pass": true
+    },
+    {
+      "name": "compiler_integration_changed_false",
+      "pass": true
+    },
+    {
+      "name": "recompute_match_live_not_implemented",
+      "pass": true
+    },
+    {
+      "name": "implementation_not_authorized",
+      "pass": true
+    }
+  ],
+  "failed_checks": [],
+  "shape_policy_proof_status": "PASS",
+  "live_validator_changed": false,
+  "compiler_integration_changed": false,
+  "recompute_match_live_implemented": false,
+  "compile_refusal_authorized": false,
+  "implementation_authorized": false,
+  "canonicalization": {
+    "input": "contract object excluding contract_digest",
+    "included_fields": [
+      "kind",
+      "format_version",
+      "profile_namespace",
+      "profile_kind",
+      "compiler_profile_id",
+      "descriptor_digest",
+      "finalization_payload_digest",
+      "required_slot_schema",
+      "slot_order",
+      "slot_assignments",
+      "strict_registries",
+      "ordered_rule_graph",
+      "non_authority"
+    ],
+    "excluded_fields": [
+      "contract_digest",
+      "validation result fields",
+      "report_only",
+      "compiler_integrated",
+      "compile_refusal_authorized",
+      "provider metadata",
+      "source/out paths",
+      "parsed program",
+      "compiler profile source transport"
+    ],
+    "base_canonical_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1"
+  },
+  "regression_sources": {
+    "shape_policy_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_contract_digest_shape_policy_proof/out/prop038_contract_digest_shape_policy_proof_summary.json",
+    "validator_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_contract_proof/out/compiler_profile_contract_proof_summary.json",
+    "report_only_integration_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_report_only_compiler_integration/out/prop038_report_only_compiler_integration_summary.json"
+  },
+  "recommendation_for_c3_a": "accept"
+}
