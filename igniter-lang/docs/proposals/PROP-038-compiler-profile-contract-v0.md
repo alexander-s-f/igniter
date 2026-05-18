@@ -12,6 +12,7 @@ Source tracks:
 - `docs/tracks/compiler-profile-contract-proof-v0.md`
 - `docs/tracks/compiler-profile-contract-schema-and-rule-ownership-pressure-v0.md`
 - `docs/tracks/compiler-profile-contract-validator-coverage-proof-v0.md`
+- `docs/tracks/prop038-contract-digest-validation-policy-design-v0.md`
 
 ---
 
@@ -445,6 +446,89 @@ The digest is computed over canonicalized contract material excluding
 Digest validity proves content-addressed identity. It does not prove runtime
 readiness, loader acceptance, signature validity, or execution authorization.
 
+### §9.5 Contract Digest Validation Policy Errata
+
+R69-R71 accept a proof-local `contract_digest` chain for design purposes:
+
+```text
+R69 shape policy proof
+R70 recompute/canonicalization proof
+R71 report-only integration proof
+```
+
+The accepted v0 policy is:
+
+```text
+shape policy + recompute policy are design/proof vocabulary
+live validator implementation remains held
+compile refusal remains closed
+```
+
+The accepted reference shape remains:
+
+```text
+compiler_profile_contract/sha256:<24+ lowercase hex>
+```
+
+Full 64-character SHA-256 references are valid under this shape. Short
+references are prefix references under `prop038_24_plus`.
+
+### §9.6 Contract Digest Canonicalization Material
+
+If recomputation is enabled by a later implementation decision, canonical
+material is:
+
+```text
+contract object excluding contract_digest
+```
+
+Accepted included fields:
+
+```text
+kind
+format_version
+profile_namespace
+profile_kind
+compiler_profile_id
+descriptor_digest
+finalization_payload_digest
+required_slot_schema
+slot_order
+slot_assignments
+strict_registries
+ordered_rule_graph
+non_authority
+```
+
+Accepted excluded fields:
+
+```text
+contract_digest
+validation result fields
+report_only
+compiler_integrated
+compile_refusal_authorized
+provider metadata
+source_path / out_path
+parsed_program
+compiler_profile_source
+```
+
+Accepted canonicalization rules:
+
+- object keys sort recursively;
+- `slot_order` remains order-sensitive;
+- strict registry names and entries are order-insensitive;
+- ordered-rule list order is order-insensitive;
+- `before` and `after` edge arrays are treated as sorted unique sets;
+- `descriptor_digest` is included as a string field value;
+- descriptor material is not fetched or recomputed.
+
+`descriptor_digest` and `contract_digest` remain separate identities.
+`descriptor_digest` identifies descriptor material. `contract_digest` identifies
+the contract object and includes the `descriptor_digest` string value as part of
+canonical contract material.
+
 ---
 
 ## §10. Diagnostic Vocabulary And Refusal Rules
@@ -463,6 +547,10 @@ V0 diagnostic vocabulary:
 | `compiler_profile_contract.unsupported_format_version` | `format_version` is not supported by this contract version. |
 | `compiler_profile_contract.descriptor_digest_invalid` | `descriptor_digest` does not match v0 descriptor digest reference format. |
 | `compiler_profile_contract.finalization_payload_digest_invalid` | `finalization_payload_digest` is not a full SHA-256 payload digest. |
+| `compiler_profile_contract.contract_digest_invalid` | `contract_digest` is missing or does not match accepted reference shape. |
+| `compiler_profile_contract.contract_digest_policy_unsupported` | Selected contract digest policy is not supported. |
+| `compiler_profile_contract.contract_digest_mismatch` | Declared `contract_digest` does not match recomputed canonical contract digest. |
+| `compiler_profile_contract.contract_digest_recompute_unavailable` | Recompute was requested but canonicalization/recompute support is unavailable. |
 | `compiler_profile_contract.missing_required_slot` | A required slot is absent from `slot_order` or `slot_assignments`. |
 | `compiler_profile_contract.unknown_owner_slot` | A strict registry entry references an owner slot absent from `slot_order`. |
 | `compiler_profile_contract.unknown_rule_owner_slot` | An ordered rule references an owner slot absent from `slot_order`. |
@@ -491,6 +579,46 @@ owned by the profile contract.
 PROP-038 does not mint new OOF codes. It defines how a compiler profile contract
 claims ownership of OOF codes that already exist or are introduced by later
 accepted proposals.
+
+### §10.2 Contract Digest Diagnostic Placement
+
+The four `contract_digest_*` diagnostics are accepted as design/proof vocabulary
+only. They are not live validator implementation authority.
+
+If implemented later, digest diagnostics belong under:
+
+```text
+report["compiler_profile_contract_validation"]["diagnostics"]
+```
+
+They must not be appended to top-level:
+
+```text
+report["diagnostics"]
+```
+
+They must not be centralized in:
+
+```text
+IgniterLang::Diagnostics
+```
+
+without a separate Architect decision.
+
+### §10.3 Contract Digest Report-Only Invariants
+
+`contract_digest` diagnostics do not change:
+
+- compile status;
+- `pass_result`;
+- stages;
+- public result;
+- assembler execution;
+- `.igapp` manifest;
+- refusal-report behavior.
+
+Compile refusal remains closed. Any future refusal behavior requires a separate
+explicit gate after live implementation and report-only behavior are accepted.
 
 ---
 
@@ -612,6 +740,14 @@ Accepted evidence:
 - `docs/tracks/compiler-profile-contract-validator-coverage-proof-v0.md`
 - `docs/discussions/compiler-profile-contract-validator-coverage-pressure-v0.md`
 - `docs/gates/compiler-profile-contract-validator-coverage-decision-v0.md`
+- `docs/tracks/prop038-contract-digest-validation-policy-design-v0.md`
+- `docs/gates/prop038-contract-digest-validation-policy-decision-v0.md`
+- `docs/gates/prop038-contract-digest-shape-policy-proof-decision-v0.md`
+- `docs/gates/prop038-contract-digest-recompute-match-proof-decision-v0.md`
+- `docs/gates/prop038-contract-digest-report-only-integration-proof-decision-v0.md`
+- `experiments/prop038_contract_digest_shape_policy_proof/out/prop038_contract_digest_shape_policy_proof_summary.json`
+- `experiments/prop038_contract_digest_recompute_match_proof/out/prop038_contract_digest_recompute_match_proof_summary.json`
+- `experiments/prop038_contract_digest_report_only_integration_proof/out/prop038_contract_digest_report_only_integration_proof_summary.json`
 - `experiments/compiler_profile_contract_proof/out/compiler_profile_contract_proof_summary.json`
 
 R60 proof evidence shows:
@@ -623,6 +759,20 @@ R60 proof evidence shows:
 - namespace separation remains intact;
 - positional `required_slots` proof debt is closed;
 - R58 object shape is preserved.
+
+R69-R71 digest proof evidence shows:
+
+- R69 shape policy proof: 8 cases PASS;
+- R70 recompute/canonicalization proof: 14 cases PASS;
+- R71 report-only integration proof: 12 cases PASS;
+- all four `contract_digest_*` diagnostics are proof-covered;
+- canonical material is the contract object excluding `contract_digest`;
+- digest diagnostics remain nested under
+  `compiler_profile_contract_validation.diagnostics`;
+- top-level diagnostics, `pass_result`, stages, compile status, public result,
+  assembler execution, `.igapp` manifest, and refusal-report behavior remain
+  unchanged;
+- live validator/compiler implementation remains held.
 
 This proof evidence supports proposal authoring. It does not prove
 implementation readiness.

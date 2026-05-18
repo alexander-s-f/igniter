@@ -264,6 +264,13 @@ prop038 contract digest report-only integration boundary:
   invariants, public/persisted leakage checks, and required
   `non_authorizations_preserved` traceability. Orientation only.
 
+prop038 contract digest errata canon-sync boundary:
+  docs/org/indexes/prop038-contract-digest-errata-canon-sync-boundary-map-v0.md
+  captures R72 boundaries for PROP-038 errata/design authoring: accepted proof
+  chain for design purposes, exact digest vocabulary, canonicalization and
+  report-only text limits, still-closed surfaces, and C1/C2 review hazards.
+  Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
