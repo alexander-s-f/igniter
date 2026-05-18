@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 72 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-contract-digest-errata-canon-sync-boundary-map-v0.md` | active orientation map | C0-O org-sidecar canon-sync boundary map; distinguishes PROP-038 errata/design authoring from implementation, compile refusal, public/report surfacing, and production authority; orientation only |
+| `prop038-contract-digest-errata-authoring-v0.md` | done | Updates PROP-038 with accepted `contract_digest` design/errata text; records four diagnostic codes, nested placement, report-only invariants, canonicalization material, and R69/R70/R71 proof-chain references; documentation-only |
+| `../discussions/prop038-contract-digest-errata-pressure-v0.md` | proceed | All 9 scope checks pass; no blockers or notes; confirms §10 four-code vocabulary, §9.6 R70 canonicalization match, §10.2 placement, closed compile refusal, held live implementation, and documentation-only authoring |
+| `../gates/prop038-contract-digest-errata-acceptance-decision-v0.md` | accepted-errata-design-closure | Accepts PROP-038 `contract_digest` errata/design closure; vocabulary canon as design vocabulary; authorizes only `prop038-contract-digest-live-implementation-design-v0` next; no implementation/refusal/public/runtime authority |
+| `stage3-round72-status-curation-v0.md` | done | R72 status curation; records errata/design acceptance, canon design vocabulary, next design-only planning route, and preserved closed surfaces |
+
+---
+
 ## Stage 3 Round 71 Evidence
 
 | Track | Status | Notes |
