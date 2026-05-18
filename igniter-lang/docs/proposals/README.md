@@ -47,7 +47,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-032](PROP-032-assumptions-block-v0.md) | experiment-pass | `assumptions {}` block + `uses assumptions NAME`; Phase 1/2/3/4 compiler proofs accepted by S3-R36-C2-A; PROP-033 evidence validation and runtime receipts remain excluded |
 | [PROP-036](PROP-036-compiler-profile-manifest-identity-v0.md) | accepted | `compiler_profile_id` manifest identity; accepted proposal-only by S3-R35-C3-A; separate implementation authorization required before code |
 | [PROP-037](PROP-037-external-progression-service-liveness-v0.md) | accepted | External progression and service liveness semantics; accepted proposal-only by S3-R37-C3-A; descriptor/proof follow-ups only, no parser/runtime/fragment-class authorization |
-| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A; bounded report-only internal annotation accepted/closed by S3-R67-C3-A; hybrid `contract_digest` policy design accepted by S3-R68-C3-A; shape-policy proof accepted by S3-R69-C3-A; recompute-match proof accepted by S3-R70-C3-A; report-only integration proof accepted by S3-R71-C3-A; errata/design text accepted by S3-R72-C3-A; live validator implementation design accepted by S3-R73-C4-A with one bounded internal validator implementation card authorized next |
+| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A; bounded report-only internal annotation accepted/closed by S3-R67-C3-A; hybrid `contract_digest` policy design accepted by S3-R68-C3-A; shape-policy proof accepted by S3-R69-C3-A; recompute-match proof accepted by S3-R70-C3-A; report-only integration proof accepted by S3-R71-C3-A; errata/design text accepted by S3-R72-C3-A; live validator implementation design accepted by S3-R73-C4-A; bounded live validator implementation accepted by S3-R74-C3-A with only compile-refusal preconditions design authorized next |
 
 ---
 
@@ -143,9 +143,12 @@ four-code vocabulary is now canon as PROP-038 design vocabulary. Only the
 `prop038-contract-digest-live-implementation-design-v0` route opens next, and it
 is design-only planning. S3-R73-C4-A accepts the design and authorizes only one
 bounded internal validator implementation card next:
-`prop038-contract-digest-live-validator-implementation-v0`. Compiler/orchestrator
-integration, compile refusal, public surfaces, loader/report,
-CompatibilityReport, runtime, Gate 3 widening, and production remain closed.
+`prop038-contract-digest-live-validator-implementation-v0`. S3-R74-C3-A accepts
+that bounded implementation only inside `IgniterLang::CompilerProfileContractValidator`.
+Only `prop038-contract-digest-compile-refusal-preconditions-design-v0` opens
+next. Compiler/orchestrator integration, compile refusal, public surfaces,
+loader/report, CompatibilityReport, runtime, Gate 3 widening, and production
+remain closed.
 Managed local recursion / loop-class extensions move to PROP-039+ or later.
 
 | ID | Title | Depends On | Stage | Priority |
@@ -223,6 +226,6 @@ bounded report-only internal annotation accepted/closed, and hybrid
 `contract_digest` policy design accepted; proof-local shape-policy proof accepted
 and recompute-match proof accepted; report-only integration proof accepted with
 PROP-038 errata/design text accepted; live validator implementation design
-accepted; and one bounded internal validator implementation card authorized next.
-Managed local recursion / loop-class extensions use PROP-039+ as placeholder
-only until formal assignment.
+accepted; bounded live validator implementation accepted; and only
+compile-refusal preconditions design authorized next. Managed local recursion /
+loop-class extensions use PROP-039+ as placeholder only until formal assignment.
