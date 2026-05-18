@@ -1,8 +1,8 @@
 {
   "kind": "compiler_profile_contract_proof_summary",
   "format_version": "0.1.0",
-  "track": "prop038-library-validator-extraction-implementation-v0",
-  "extends_track": "prop038-proof-local-missing-after-implementation-v0",
+  "track": "prop038-contract-digest-live-validator-implementation-v0",
+  "extends_track": "prop038-library-validator-extraction-implementation-v0",
   "status": "PASS",
   "canonical_contract": {
     "kind": "compiler_profile_contract",
@@ -214,7 +214,7 @@
       "dispatch_migration_authorized": false,
       "compiler_understanding_only": true
     },
-    "contract_digest": "compiler_profile_contract/sha256:949ae3fa7335293424fd90ce"
+    "contract_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c"
   },
   "validator_result_shape": {
     "kind": "compiler_profile_contract_validation_result",
@@ -223,13 +223,28 @@
     "compiler_integrated": false,
     "compile_refusal_authorized": false
   },
+  "validator_result_keys": [
+    "compile_refusal_authorized",
+    "compiler_integrated",
+    "diagnostic_codes",
+    "diagnostics",
+    "digest_reference_policy",
+    "format_version",
+    "kind",
+    "valid"
+  ],
+  "contract_mutation_guard": {
+    "valid_contract_unchanged": true,
+    "case_contracts_unchanged": true
+  },
   "source_projection_matches_profile_source": true,
   "cases": [
     {
       "name": "valid_contract",
       "valid": true,
       "diagnostics": [],
-      "diagnostic_codes": []
+      "diagnostic_codes": [],
+      "contract_mutated": false
     },
     {
       "name": "missing_required_slot",
@@ -239,11 +254,18 @@
           "code": "compiler_profile_contract.missing_required_slot",
           "message": "required slot \"oof_registry\" is missing from slot_order or slot_assignments",
           "path": "slot_assignments.oof_registry"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.missing_required_slot"
-      ]
+        "compiler_profile_contract.missing_required_slot",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     },
     {
       "name": "duplicate_strict_key",
@@ -253,11 +275,18 @@
           "code": "compiler_profile_contract.duplicate_strict_key",
           "message": "strict registry oof_descriptors has duplicate key \"OOF-M1\"",
           "path": "strict_registries.oof_descriptors.OOF-M1"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.duplicate_strict_key"
-      ]
+        "compiler_profile_contract.duplicate_strict_key",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     },
     {
       "name": "duplicate_fragment_class_owner",
@@ -267,11 +296,18 @@
           "code": "compiler_profile_contract.duplicate_strict_key",
           "message": "strict registry fragment_class_owners has duplicate key \"temporal\"",
           "path": "strict_registries.fragment_class_owners.temporal"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.duplicate_strict_key"
-      ]
+        "compiler_profile_contract.duplicate_strict_key",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     },
     {
       "name": "rule_cycle",
@@ -281,11 +317,18 @@
           "code": "compiler_profile_contract.rule_cycle",
           "message": "ordered rule graph contains cycle: parse.contract_modifiers -> classify.contract_modifiers -> typecheck.oof_propagation -> emit.modifier_field -> parse.contract_modifiers",
           "path": "ordered_rule_graph.rules"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.rule_cycle"
-      ]
+        "compiler_profile_contract.rule_cycle",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     },
     {
       "name": "missing_rule_reference",
@@ -295,11 +338,18 @@
           "code": "compiler_profile_contract.missing_rule_reference",
           "message": "ordered rule emit.modifier_field references missing rule \"emit.nonexistent_rule\"",
           "path": "ordered_rule_graph.rules.emit.modifier_field"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.missing_rule_reference"
-      ]
+        "compiler_profile_contract.missing_rule_reference",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     },
     {
       "name": "missing_after_rule_reference",
@@ -309,11 +359,18 @@
           "code": "compiler_profile_contract.missing_rule_reference",
           "message": "ordered rule parse.contract_modifiers references missing rule \"parse.nonexistent_rule\"",
           "path": "ordered_rule_graph.rules.parse.contract_modifiers"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.missing_rule_reference"
-      ]
+        "compiler_profile_contract.missing_rule_reference",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     },
     {
       "name": "wrong_kind",
@@ -323,11 +380,18 @@
           "code": "compiler_profile_contract.wrong_kind",
           "message": "expected compiler_profile_contract",
           "path": "kind"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.wrong_kind"
-      ]
+        "compiler_profile_contract.wrong_kind",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     },
     {
       "name": "unsupported_format_version",
@@ -337,11 +401,18 @@
           "code": "compiler_profile_contract.unsupported_format_version",
           "message": "expected format_version 0.1.0",
           "path": "format_version"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.unsupported_format_version"
-      ]
+        "compiler_profile_contract.unsupported_format_version",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     },
     {
       "name": "descriptor_digest_invalid",
@@ -351,11 +422,18 @@
           "code": "compiler_profile_contract.descriptor_digest_invalid",
           "message": "descriptor_digest must be compiler_profile_descriptor/sha256:<hex>",
           "path": "descriptor_digest"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.descriptor_digest_invalid"
-      ]
+        "compiler_profile_contract.descriptor_digest_invalid",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     },
     {
       "name": "finalization_payload_digest_invalid",
@@ -365,11 +443,18 @@
           "code": "compiler_profile_contract.finalization_payload_digest_invalid",
           "message": "finalization_payload_digest must be sha256:<64 hex>",
           "path": "finalization_payload_digest"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.finalization_payload_digest_invalid"
-      ]
+        "compiler_profile_contract.finalization_payload_digest_invalid",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     },
     {
       "name": "runtime_authority_forbidden",
@@ -379,11 +464,18 @@
           "code": "compiler_profile_contract.runtime_authority_forbidden",
           "message": "compiler profile contract cannot grant runtime authority",
           "path": "non_authority.runtime_authority_granted"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.runtime_authority_forbidden"
-      ]
+        "compiler_profile_contract.runtime_authority_forbidden",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     },
     {
       "name": "dispatch_migration_forbidden",
@@ -393,11 +485,18 @@
           "code": "compiler_profile_contract.dispatch_migration_forbidden",
           "message": "compiler profile contract cannot authorize dispatch migration",
           "path": "non_authority.dispatch_migration_authorized"
+        },
+        {
+          "code": "compiler_profile_contract.contract_digest_mismatch",
+          "message": "declared contract_digest does not match recomputed canonical contract digest",
+          "path": "contract_digest"
         }
       ],
       "diagnostic_codes": [
-        "compiler_profile_contract.dispatch_migration_forbidden"
-      ]
+        "compiler_profile_contract.dispatch_migration_forbidden",
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "contract_mutated": false
     }
   ],
   "validator_case_matrix": [
@@ -411,7 +510,8 @@
       "case": "missing_required_slot",
       "expected": "compiler_profile_contract.missing_required_slot",
       "actual": [
-        "compiler_profile_contract.missing_required_slot"
+        "compiler_profile_contract.missing_required_slot",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     },
@@ -419,7 +519,8 @@
       "case": "duplicate_strict_key",
       "expected": "compiler_profile_contract.duplicate_strict_key",
       "actual": [
-        "compiler_profile_contract.duplicate_strict_key"
+        "compiler_profile_contract.duplicate_strict_key",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     },
@@ -427,7 +528,8 @@
       "case": "duplicate_fragment_class_owner",
       "expected": "compiler_profile_contract.duplicate_strict_key",
       "actual": [
-        "compiler_profile_contract.duplicate_strict_key"
+        "compiler_profile_contract.duplicate_strict_key",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     },
@@ -435,7 +537,8 @@
       "case": "rule_cycle",
       "expected": "compiler_profile_contract.rule_cycle",
       "actual": [
-        "compiler_profile_contract.rule_cycle"
+        "compiler_profile_contract.rule_cycle",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     },
@@ -443,7 +546,8 @@
       "case": "missing_rule_reference",
       "expected": "compiler_profile_contract.missing_rule_reference",
       "actual": [
-        "compiler_profile_contract.missing_rule_reference"
+        "compiler_profile_contract.missing_rule_reference",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     },
@@ -451,7 +555,8 @@
       "case": "missing_after_rule_reference",
       "expected": "compiler_profile_contract.missing_rule_reference",
       "actual": [
-        "compiler_profile_contract.missing_rule_reference"
+        "compiler_profile_contract.missing_rule_reference",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     },
@@ -459,7 +564,8 @@
       "case": "wrong_kind",
       "expected": "compiler_profile_contract.wrong_kind",
       "actual": [
-        "compiler_profile_contract.wrong_kind"
+        "compiler_profile_contract.wrong_kind",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     },
@@ -467,7 +573,8 @@
       "case": "unsupported_format_version",
       "expected": "compiler_profile_contract.unsupported_format_version",
       "actual": [
-        "compiler_profile_contract.unsupported_format_version"
+        "compiler_profile_contract.unsupported_format_version",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     },
@@ -475,7 +582,8 @@
       "case": "descriptor_digest_invalid",
       "expected": "compiler_profile_contract.descriptor_digest_invalid",
       "actual": [
-        "compiler_profile_contract.descriptor_digest_invalid"
+        "compiler_profile_contract.descriptor_digest_invalid",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     },
@@ -483,7 +591,8 @@
       "case": "finalization_payload_digest_invalid",
       "expected": "compiler_profile_contract.finalization_payload_digest_invalid",
       "actual": [
-        "compiler_profile_contract.finalization_payload_digest_invalid"
+        "compiler_profile_contract.finalization_payload_digest_invalid",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     },
@@ -491,7 +600,8 @@
       "case": "runtime_authority_forbidden",
       "expected": "compiler_profile_contract.runtime_authority_forbidden",
       "actual": [
-        "compiler_profile_contract.runtime_authority_forbidden"
+        "compiler_profile_contract.runtime_authority_forbidden",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     },
@@ -499,7 +609,8 @@
       "case": "dispatch_migration_forbidden",
       "expected": "compiler_profile_contract.dispatch_migration_forbidden",
       "actual": [
-        "compiler_profile_contract.dispatch_migration_forbidden"
+        "compiler_profile_contract.dispatch_migration_forbidden",
+        "compiler_profile_contract.contract_digest_mismatch"
       ],
       "pass": true
     }
@@ -569,6 +680,18 @@
     },
     {
       "name": "validator_result.compile_refusal_authorized_false",
+      "pass": true
+    },
+    {
+      "name": "validator_result.no_new_top_level_fields",
+      "pass": true
+    },
+    {
+      "name": "validator_result.no_contract_mutation",
+      "pass": true
+    },
+    {
+      "name": "validator_cases.no_contract_mutation",
       "pass": true
     },
     {

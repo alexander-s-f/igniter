@@ -278,6 +278,13 @@ prop038 contract digest live design boundary:
   public/production surfaces, report-only invariants, and C3 pressure hazards.
   Orientation only.
 
+prop038 contract digest live validator implementation boundary:
+  docs/org/indexes/prop038-contract-digest-live-validator-implementation-boundary-map-v0.md
+  captures R74 boundaries for the authorized validator-only implementation:
+  exact C1-I write scope, allowed validator behavior, proof matrix, closed
+  compiler/refusal/public/persisted/production surfaces, and C2-X pressure
+  hazards. Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization

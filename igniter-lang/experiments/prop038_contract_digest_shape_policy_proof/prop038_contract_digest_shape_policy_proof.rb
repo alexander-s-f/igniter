@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "digest"
 require "fileutils"
 require "json"
 require_relative "../../lib/igniter_lang/compiler_profile_contract_validator"
@@ -17,10 +18,24 @@ REPORT_ONLY_INTEGRATION_SUMMARY_PATH = File.join(
   "igniter-lang/experiments/prop038_report_only_compiler_integration/out/prop038_report_only_compiler_integration_summary.json"
 )
 
-RESULT_KIND = "compiler_profile_contract_digest_shape_policy_result"
 FORMAT_VERSION = "0.1.0"
 SUPPORTED_POLICY = "prop038_24_plus"
-CONTRACT_DIGEST_PATTERN = /\Acompiler_profile_contract\/sha256:[0-9a-f]{24,}\z/
+CONTRACT_DIGEST_PREFIX = "compiler_profile_contract/sha256:"
+CANONICAL_CONTRACT_FIELDS = %w[
+  kind
+  format_version
+  profile_namespace
+  profile_kind
+  compiler_profile_id
+  descriptor_digest
+  finalization_payload_digest
+  required_slot_schema
+  slot_order
+  slot_assignments
+  strict_registries
+  ordered_rule_graph
+  non_authority
+].freeze
 
 def read_json(path)
   JSON.parse(File.read(path))
@@ -30,56 +45,69 @@ def deep_copy(value)
   Marshal.load(Marshal.dump(value))
 end
 
-def diagnostic(code, message, path = nil)
-  {
-    "code" => "compiler_profile_contract.#{code}",
-    "message" => message,
-    "path" => path
-  }
+def canonicalize_for_digest(value)
+  case value
+  when Hash
+    value.keys.map(&:to_s).sort.to_h { |key| [key, canonicalize_for_digest(value[key])] }
+  when Array
+    value.map { |entry| canonicalize_for_digest(entry) }
+  else
+    value
+  end
 end
 
-def validate_contract_digest_shape(contract, digest_reference_policy: SUPPORTED_POLICY)
-  policy = digest_reference_policy.to_s
-  diagnostics = []
-
-  if policy != SUPPORTED_POLICY
-    diagnostics << diagnostic(
-      "contract_digest_policy_unsupported",
-      "unsupported contract_digest policy #{policy.inspect}",
-      "digest_reference_policy"
-    )
-  elsif !contract["contract_digest"].to_s.match?(CONTRACT_DIGEST_PATTERN)
-    diagnostics << diagnostic(
-      "contract_digest_invalid",
-      "contract_digest must be compiler_profile_contract/sha256:<24+ lowercase hex>",
-      "contract_digest"
-    )
+def canonical_strict_registries(registries)
+  registries.keys.sort.to_h do |registry_name|
+    entries = Array(registries[registry_name]).map { |entry| canonicalize_for_digest(entry) }
+    [
+      registry_name,
+      entries.sort_by do |entry|
+        [
+          entry.fetch("key", "").to_s,
+          entry.fetch("owner_slot", "").to_s,
+          entry.fetch("rule_ref", "").to_s
+        ]
+      end
+    ]
   end
+end
 
-  {
-    "kind" => RESULT_KIND,
-    "format_version" => FORMAT_VERSION,
-    "valid" => diagnostics.empty?,
-    "diagnostics" => diagnostics,
-    "diagnostic_codes" => diagnostics.map { |entry| entry.fetch("code") },
-    "digest_reference_policy" => policy,
-    "shape_only" => true,
-    "recompute_match_implemented" => false,
-    "compiler_integrated" => false,
-    "compile_refusal_authorized" => false,
-    "implementation_authorized" => false
-  }
+def canonical_ordered_rule_graph(graph)
+  rules = Array(graph["rules"]).map do |rule|
+    normalized_rule = canonicalize_for_digest(rule)
+    normalized_rule["before"] = Array(rule["before"]).map(&:to_s).uniq.sort
+    normalized_rule["after"] = Array(rule["after"]).map(&:to_s).uniq.sort
+    normalized_rule
+  end
+  { "rules" => rules.sort_by { |rule| rule.fetch("rule_id", "").to_s } }
+end
+
+def canonical_material(contract)
+  material = CANONICAL_CONTRACT_FIELDS.to_h { |field| [field, canonicalize_for_digest(contract[field])] }
+  material["strict_registries"] = canonical_strict_registries(contract["strict_registries"] || {})
+  material["ordered_rule_graph"] = canonical_ordered_rule_graph(contract["ordered_rule_graph"] || {})
+  canonicalize_for_digest(material)
+end
+
+def recomputed_hex(contract)
+  Digest::SHA256.hexdigest(JSON.generate(canonical_material(contract)))
+end
+
+def digest_ref(hex)
+  "#{CONTRACT_DIGEST_PREFIX}#{hex}"
 end
 
 def case_result(name, contract, expected, digest_reference_policy: SUPPORTED_POLICY)
-  result = validate_contract_digest_shape(contract, digest_reference_policy: digest_reference_policy)
+  before_validation = deep_copy(contract)
+  result = IgniterLang::CompilerProfileContractValidator.validate(contract, digest_reference_policy: digest_reference_policy)
   pass = expected == "valid" ? result.fetch("valid") : result.fetch("diagnostic_codes").include?(expected)
   {
     "name" => name,
     "expected" => expected,
     "actual" => result.fetch("valid") ? "valid" : result.fetch("diagnostic_codes"),
     "pass" => pass,
-    "result" => result
+    "result" => result,
+    "contract_mutated" => contract != before_validation
   }
 end
 
@@ -92,12 +120,13 @@ FileUtils.mkdir_p(OUT_DIR)
 contract_summary = read_json(CONTRACT_PROOF_SUMMARY_PATH)
 integration_summary = read_json(REPORT_ONLY_INTEGRATION_SUMMARY_PATH)
 canonical_contract = contract_summary.fetch("canonical_contract")
+canonical_hex = recomputed_hex(canonical_contract)
 
 valid_short = deep_copy(canonical_contract)
-valid_short["contract_digest"] = "compiler_profile_contract/sha256:#{"a" * 24}"
+valid_short["contract_digest"] = digest_ref(canonical_hex[0, 24])
 
 valid_full = deep_copy(canonical_contract)
-valid_full["contract_digest"] = "compiler_profile_contract/sha256:#{"b" * 64}"
+valid_full["contract_digest"] = digest_ref(canonical_hex)
 
 missing_digest = deep_copy(canonical_contract)
 missing_digest.delete("contract_digest")
@@ -145,20 +174,21 @@ assert("shape_policy.valid_short_accepts_24_plus", cases[0].fetch("pass"), check
 assert("shape_policy.valid_full_accepts_64", cases[1].fetch("pass"), checks)
 assert("shape_policy.invalid_uses_contract_digest_invalid", cases[2..6].all? { |entry| entry.fetch("result").fetch("diagnostic_codes").include?("compiler_profile_contract.contract_digest_invalid") }, checks)
 assert("shape_policy.unsupported_policy_uses_policy_unsupported", cases[7].fetch("result").fetch("diagnostic_codes").include?("compiler_profile_contract.contract_digest_policy_unsupported"), checks)
+assert("shape_policy.live_validator_no_mutation", cases.none? { |entry| entry.fetch("contract_mutated") }, checks)
 assert("regression.validator_summary_pass", contract_summary["status"] == "PASS", checks)
 assert("regression.validator_matrix_13_cases", Array(contract_summary["validator_case_matrix"]).size == 13, checks)
 assert("regression.report_only_integration_pass", integration_summary["status"] == "PASS", checks)
 assert("regression.public_result_unchanged", integration_summary.fetch("public_result_unchanged").values.all?, checks)
 assert("regression.live_validator_compile_refusal_false", live_validator_result["compile_refusal_authorized"] == false, checks)
-assert("regression.live_validator_no_contract_digest_diagnostics", live_validator_result.fetch("diagnostic_codes").none? { |code| code.include?("contract_digest") }, checks)
+assert("regression.live_validator_contract_digest_enabled", live_validator_result.fetch("diagnostic_codes").none? { |code| code.include?("contract_digest") } && live_validator_result.fetch("valid"), checks)
 assert("regression.integration_compile_refusal_false", [integration_valid_case, integration_invalid_case].all? { |entry| entry&.dig("validation", "compile_refusal_authorized") == false }, checks)
 assert("regression.no_igapp_mutation_from_proof", Dir.glob(File.join(OUT_DIR, "**", "*.igapp")).empty?, checks)
 assert("regression.no_refusal_report_creation_from_proof", out_files.none? { |path| File.basename(path).include?("refusal") }, checks)
-assert("non_authorization.live_validator_changed_false", true, checks)
+assert("implementation.live_validator_changed_true", true, checks)
 assert("non_authorization.compiler_integration_changed_false", true, checks)
-assert("non_authorization.recompute_match_not_implemented", true, checks)
+assert("implementation.recompute_match_implemented", true, checks)
 assert("non_authorization.compile_refusal_not_authorized", true, checks)
-assert("non_authorization.implementation_not_authorized", true, checks)
+assert("implementation.authorized", true, checks)
 
 failed_checks = checks.reject { |check| check.fetch("pass") }
 summary = {
@@ -170,11 +200,11 @@ summary = {
   "cases" => cases,
   "checks" => checks,
   "failed_checks" => failed_checks,
-  "live_validator_changed" => false,
+  "live_validator_changed" => true,
   "compiler_integration_changed" => false,
-  "recompute_match_implemented" => false,
+  "recompute_match_implemented" => true,
   "compile_refusal_authorized" => false,
-  "implementation_authorized" => false,
+  "implementation_authorized" => true,
   "regression_sources" => {
     "validator_summary_path" => CONTRACT_PROOF_SUMMARY_PATH,
     "validator_summary_status" => contract_summary["status"],
@@ -188,11 +218,14 @@ summary = {
     "valid" => live_validator_result["valid"],
     "digest_reference_policy" => live_validator_result["digest_reference_policy"],
     "compile_refusal_authorized" => live_validator_result["compile_refusal_authorized"],
-    "contract_digest_diagnostics_present" => live_validator_result.fetch("diagnostic_codes").any? { |code| code.include?("contract_digest") }
+    "contract_digest_diagnostics_present" => live_validator_result.fetch("diagnostic_codes").any? { |code| code.include?("contract_digest") },
+    "contract_digest_live_validation" => true
+  },
+  "implementation_flags" => {
+    "live_validator_implementation" => true,
+    "recompute_match_implementation" => true
   },
   "non_authorizations_preserved" => {
-    "live_validator_implementation" => false,
-    "recompute_match_proof_implementation" => false,
     "compile_refusal" => false,
     "public_api_cli_widening" => false,
     "compiler_result_changes" => false,

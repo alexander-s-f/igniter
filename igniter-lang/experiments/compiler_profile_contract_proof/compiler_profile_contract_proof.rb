@@ -9,8 +9,8 @@ require_relative "../../lib/igniter_lang/compiler_profile_contract_validator"
 ROOT = File.expand_path("../../..", __dir__)
 OUT_DIR = File.join(__dir__, "out")
 SUMMARY_PATH = File.join(OUT_DIR, "compiler_profile_contract_proof_summary.json")
-TRACK = "prop038-library-validator-extraction-implementation-v0"
-EXTENDS_TRACK = "prop038-proof-local-missing-after-implementation-v0"
+TRACK = "prop038-contract-digest-live-validator-implementation-v0"
+EXTENDS_TRACK = "prop038-library-validator-extraction-implementation-v0"
 VALIDATOR = IgniterLang::CompilerProfileContractValidator
 
 PROFILE_SOURCE_PATH = File.join(
@@ -23,6 +23,31 @@ OBLIGATION_SUMMARY_PATH = File.join(
 )
 
 LOADER_REPORT_TERMS = %w[absent_legacy present_verified mismatch malformed missing_required].freeze
+CANONICAL_CONTRACT_FIELDS = %w[
+  kind
+  format_version
+  profile_namespace
+  profile_kind
+  compiler_profile_id
+  descriptor_digest
+  finalization_payload_digest
+  required_slot_schema
+  slot_order
+  slot_assignments
+  strict_registries
+  ordered_rule_graph
+  non_authority
+].freeze
+EXPECTED_VALIDATOR_RESULT_KEYS = %w[
+  compile_refusal_authorized
+  compiler_integrated
+  diagnostic_codes
+  diagnostics
+  digest_reference_policy
+  format_version
+  kind
+  valid
+].freeze
 
 DISCLAIMER = "SemanticIR profile-obligation checkpoint is a proposed future design position, not current implementation."
 
@@ -34,23 +59,54 @@ def deep_copy(value)
   Marshal.load(Marshal.dump(value))
 end
 
-def stable_json(value)
-  JSON.generate(normalize(value))
-end
-
-def normalize(value)
+def canonicalize_for_digest(value)
   case value
   when Hash
-    value.keys.sort.to_h { |key| [key, normalize(value[key])] }
+    value.keys.map(&:to_s).sort.to_h { |key| [key, canonicalize_for_digest(value[key])] }
   when Array
-    value.map { |entry| normalize(entry) }
+    value.map { |entry| canonicalize_for_digest(entry) }
   else
     value
   end
 end
 
-def sha256_ref(prefix, value)
-  "#{prefix}/sha256:#{Digest::SHA256.hexdigest(stable_json(value))[0, 24]}"
+def canonical_strict_registries(registries)
+  registries.keys.sort.to_h do |registry_name|
+    entries = Array(registries[registry_name]).map { |entry| canonicalize_for_digest(entry) }
+    [
+      registry_name,
+      entries.sort_by do |entry|
+        [
+          entry.fetch("key", "").to_s,
+          entry.fetch("owner_slot", "").to_s,
+          entry.fetch("rule_ref", "").to_s
+        ]
+      end
+    ]
+  end
+end
+
+def canonical_ordered_rule_graph(graph)
+  rules = Array(graph["rules"]).map do |rule|
+    normalized_rule = canonicalize_for_digest(rule)
+    normalized_rule["before"] = Array(rule["before"]).map(&:to_s).uniq.sort
+    normalized_rule["after"] = Array(rule["after"]).map(&:to_s).uniq.sort
+    normalized_rule
+  end
+  { "rules" => rules.sort_by { |rule| rule.fetch("rule_id", "").to_s } }
+end
+
+def canonical_contract_material(contract)
+  material = CANONICAL_CONTRACT_FIELDS.to_h do |field|
+    [field, canonicalize_for_digest(contract[field])]
+  end
+  material["strict_registries"] = canonical_strict_registries(contract["strict_registries"] || {})
+  material["ordered_rule_graph"] = canonical_ordered_rule_graph(contract["ordered_rule_graph"] || {})
+  canonicalize_for_digest(material)
+end
+
+def contract_digest_ref(contract)
+  "compiler_profile_contract/sha256:#{Digest::SHA256.hexdigest(JSON.generate(canonical_contract_material(contract)))[0, 24]}"
 end
 
 def build_contract(profile_source)
@@ -130,7 +186,7 @@ def build_contract(profile_source)
   }
 
   contract_without_digest.merge(
-    "contract_digest" => sha256_ref("compiler_profile_contract", contract_without_digest)
+    "contract_digest" => contract_digest_ref(contract_without_digest)
   )
 end
 
@@ -152,12 +208,14 @@ def source_projection(contract)
 end
 
 def case_result(name, contract)
+  before_validation = deep_copy(contract)
   validation = VALIDATOR.validate(contract)
   {
     "name" => name,
     "valid" => validation.fetch("valid"),
     "diagnostics" => validation.fetch("diagnostics"),
-    "diagnostic_codes" => validation.fetch("diagnostic_codes")
+    "diagnostic_codes" => validation.fetch("diagnostic_codes"),
+    "contract_mutated" => contract != before_validation
   }
 end
 
@@ -250,6 +308,9 @@ cases = [
   case_result("dispatch_migration_forbidden", dispatch_migration_contract)
 ]
 validator_result = VALIDATOR.validate(valid_contract)
+before_mutation_guard = deep_copy(valid_contract)
+mutation_guard_result = VALIDATOR.validate(valid_contract)
+mutation_guard_unchanged = valid_contract == before_mutation_guard
 
 all_contract_diagnostics = cases.flat_map { |entry| entry.fetch("diagnostic_codes") }
 expected_case_diagnostics = {
@@ -299,6 +360,9 @@ assert("validator_result.kind", validator_result.fetch("kind") == "compiler_prof
 assert("validator_result.digest_reference_policy", validator_result.fetch("digest_reference_policy") == "prop038_24_plus", checks)
 assert("validator_result.compiler_integrated_false", validator_result.fetch("compiler_integrated") == false, checks)
 assert("validator_result.compile_refusal_authorized_false", validator_result.fetch("compile_refusal_authorized") == false, checks)
+assert("validator_result.no_new_top_level_fields", validator_result.keys.sort == EXPECTED_VALIDATOR_RESULT_KEYS, checks)
+assert("validator_result.no_contract_mutation", mutation_guard_unchanged && mutation_guard_result.fetch("valid"), checks)
+assert("validator_cases.no_contract_mutation", cases.none? { |entry| entry.fetch("contract_mutated") }, checks)
 assert("source_projection.matches_profile_source", source_projection(valid_contract) == profile_source, checks)
 assert("missing_required_slot.diagnostic", codes_for(cases, "missing_required_slot").include?("compiler_profile_contract.missing_required_slot"), checks)
 assert("duplicate_strict_key.diagnostic", codes_for(cases, "duplicate_strict_key").include?("compiler_profile_contract.duplicate_strict_key"), checks)
@@ -335,6 +399,11 @@ summary = {
     "digest_reference_policy" => validator_result.fetch("digest_reference_policy"),
     "compiler_integrated" => validator_result.fetch("compiler_integrated"),
     "compile_refusal_authorized" => validator_result.fetch("compile_refusal_authorized")
+  },
+  "validator_result_keys" => validator_result.keys.sort,
+  "contract_mutation_guard" => {
+    "valid_contract_unchanged" => mutation_guard_unchanged,
+    "case_contracts_unchanged" => cases.none? { |entry| entry.fetch("contract_mutated") }
   },
   "source_projection_matches_profile_source" => source_projection(valid_contract) == profile_source,
   "cases" => cases,

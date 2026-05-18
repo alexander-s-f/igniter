@@ -21,6 +21,7 @@ REPORT_ONLY_INTEGRATION_SUMMARY_PATH = File.join(
   ROOT,
   "igniter-lang/experiments/prop038_report_only_compiler_integration/out/prop038_report_only_compiler_integration_summary.json"
 )
+VALIDATOR = IgniterLang::CompilerProfileContractValidator
 
 FORMAT_VERSION = "0.1.0"
 CONTRACT_DIGEST_PREFIX = "compiler_profile_contract/sha256:"
@@ -46,14 +47,6 @@ end
 
 def deep_copy(value)
   Marshal.load(Marshal.dump(value))
-end
-
-def diagnostic(code, message, path = nil)
-  {
-    "code" => "compiler_profile_contract.#{code}",
-    "message" => message,
-    "path" => path
-  }
 end
 
 def normalize(value)
@@ -117,54 +110,10 @@ def declared_hex(contract)
   value.delete_prefix(CONTRACT_DIGEST_PREFIX)
 end
 
-def validate_recompute_match(contract, canonicalizer_available: true)
-  diagnostics = []
-  unless canonicalizer_available
-    diagnostics << diagnostic(
-      "contract_digest_recompute_unavailable",
-      "contract digest recompute requested but canonicalization is unavailable",
-      "contract_digest"
-    )
-    return recompute_result(contract, nil, diagnostics, canonicalizer_available)
-  end
-
-  computed = recomputed_hex(contract)
-  declared = declared_hex(contract)
-  unless declared && computed.start_with?(declared)
-    diagnostics << diagnostic(
-      "contract_digest_mismatch",
-      "declared contract_digest does not match recomputed canonical contract digest",
-      "contract_digest"
-    )
-  end
-
-  recompute_result(contract, computed, diagnostics, canonicalizer_available)
-end
-
-def recompute_result(contract, computed, diagnostics, canonicalizer_available)
-  {
-    "valid" => diagnostics.empty?,
-    "diagnostics" => diagnostics,
-    "diagnostic_codes" => diagnostics.map { |entry| entry.fetch("code") },
-    "computed_digest" => computed ? digest_ref(computed) : nil,
-    "declared_digest" => contract["contract_digest"],
-    "canonicalizer_available" => canonicalizer_available,
-    "canonical_input_excludes" => [
-      "contract_digest",
-      "validation result fields",
-      "report_only",
-      "compiler_integrated",
-      "compile_refusal_authorized",
-      "provider metadata",
-      "source_path",
-      "out_path",
-      "parsed_program",
-      "compiler_profile_source"
-    ],
-    "recompute_match_live_implemented" => false,
-    "compile_refusal_authorized" => false,
-    "implementation_authorized" => false
-  }
+def live_validate(contract)
+  before_validation = deep_copy(contract)
+  result = VALIDATOR.validate(contract)
+  result.merge("contract_mutated" => contract != before_validation)
 end
 
 def case_entry(name, expected, pass, details = {})
@@ -191,21 +140,23 @@ base_hex = recomputed_hex(base_contract)
 
 full_match = deep_copy(base_contract)
 full_match["contract_digest"] = digest_ref(base_hex)
-full_match_result = validate_recompute_match(full_match)
+full_match_result = live_validate(full_match)
 
 prefix_match = deep_copy(base_contract)
 prefix_match["contract_digest"] = digest_ref(base_hex[0, 24])
-prefix_match_result = validate_recompute_match(prefix_match)
+prefix_match_result = live_validate(prefix_match)
 
 full_mismatch = deep_copy(base_contract)
 full_mismatch["contract_digest"] = digest_ref(replace_first_hex_char(base_hex))
-full_mismatch_result = validate_recompute_match(full_mismatch)
+full_mismatch_result = live_validate(full_mismatch)
 
 prefix_mismatch = deep_copy(base_contract)
 prefix_mismatch["contract_digest"] = digest_ref(replace_first_hex_char(base_hex[0, 24]))
-prefix_mismatch_result = validate_recompute_match(prefix_mismatch)
+prefix_mismatch_result = live_validate(prefix_mismatch)
 
-unavailable_result = validate_recompute_match(full_match, canonicalizer_available: false)
+unavailable_contract = deep_copy(full_match)
+unavailable_contract["profile_kind"] = :unsupported_canonical_value
+unavailable_result = live_validate(unavailable_contract)
 
 digest_a = deep_copy(base_contract)
 digest_a["contract_digest"] = digest_ref("a" * 64)
@@ -280,7 +231,7 @@ cases = [
   case_entry(
     "canonical_does_not_recompute_descriptor_material",
     "descriptor material is not required or fetched",
-    validate_recompute_match(full_match)["valid"],
+    full_match_result["valid"],
     "descriptor_material_accessed" => false,
     "descriptor_digest_included_as_string" => canonical_material(base_contract).key?("descriptor_digest")
   ),
@@ -330,6 +281,7 @@ cases = [
 
 checks = []
 assert("cases_all_pass", cases.all? { |entry| entry.fetch("pass") }, checks)
+assert("live_validator_no_contract_mutation", cases.all? { |entry| !entry.fetch("result", {}).fetch("contract_mutated", false) }, checks)
 assert("shape_policy_proof_status_pass", shape_summary["status"] == "PASS", checks)
 assert("validator_summary_pass", contract_summary["status"] == "PASS", checks)
 assert("validator_matrix_13_cases", Array(contract_summary["validator_case_matrix"]).size == 13, checks)
@@ -340,10 +292,10 @@ assert("live_validator_compile_refusal_false", live_validator_result["compile_re
 assert("integration_compile_refusal_false", [integration_valid_case, integration_invalid_case].all? { |entry| entry&.dig("validation", "compile_refusal_authorized") == false }, checks)
 assert("no_igapp_mutation_from_proof", Dir.glob(File.join(OUT_DIR, "**", "*.igapp")).empty?, checks)
 assert("no_refusal_report_creation_from_proof", out_files.none? { |path| File.basename(path).include?("refusal") }, checks)
-assert("live_validator_changed_false", true, checks)
+assert("live_validator_changed_true", true, checks)
 assert("compiler_integration_changed_false", true, checks)
-assert("recompute_match_live_not_implemented", true, checks)
-assert("implementation_not_authorized", true, checks)
+assert("recompute_match_live_implemented", true, checks)
+assert("implementation_authorized", true, checks)
 
 failed_checks = checks.reject { |check| check.fetch("pass") }
 summary = {
@@ -356,11 +308,11 @@ summary = {
   "checks" => checks,
   "failed_checks" => failed_checks,
   "shape_policy_proof_status" => shape_summary["status"],
-  "live_validator_changed" => false,
+  "live_validator_changed" => true,
   "compiler_integration_changed" => false,
-  "recompute_match_live_implemented" => false,
+  "recompute_match_live_implemented" => true,
   "compile_refusal_authorized" => false,
-  "implementation_authorized" => false,
+  "implementation_authorized" => true,
   "canonicalization" => {
     "input" => "contract object excluding contract_digest",
     "included_fields" => CANONICAL_CONTRACT_FIELDS,

@@ -25,6 +25,7 @@ R67_INTEGRATION_SUMMARY_PATH = File.join(
   ROOT,
   "igniter-lang/experiments/prop038_report_only_compiler_integration/out/prop038_report_only_compiler_integration_summary.json"
 )
+VALIDATOR = IgniterLang::CompilerProfileContractValidator
 
 FORMAT_VERSION = "0.1.0"
 SUPPORTED_POLICY = "prop038_24_plus"
@@ -52,14 +53,6 @@ end
 
 def deep_copy(value)
   Marshal.load(Marshal.dump(value))
-end
-
-def diagnostic(code, message, path = nil)
-  {
-    "code" => "compiler_profile_contract.#{code}",
-    "message" => message,
-    "path" => path
-  }
 end
 
 def normalize(value)
@@ -113,33 +106,8 @@ def declared_hex(contract)
   contract["contract_digest"].to_s.delete_prefix(CONTRACT_DIGEST_PREFIX)
 end
 
-def digest_validation(contract, policy: SUPPORTED_POLICY, recompute: true)
-  diagnostics = []
-  if policy != SUPPORTED_POLICY
-    diagnostics << diagnostic("contract_digest_policy_unsupported", "unsupported contract_digest policy #{policy.inspect}", "digest_reference_policy")
-  elsif !contract["contract_digest"].to_s.match?(CONTRACT_DIGEST_PATTERN)
-    diagnostics << diagnostic("contract_digest_invalid", "contract_digest must be compiler_profile_contract/sha256:<24+ lowercase hex>", "contract_digest")
-  elsif recompute == :unavailable
-    diagnostics << diagnostic("contract_digest_recompute_unavailable", "contract digest recompute requested but canonicalization is unavailable", "contract_digest")
-  elsif recompute
-    computed = recomputed_hex(contract)
-    diagnostics << diagnostic("contract_digest_mismatch", "declared contract_digest does not match recomputed canonical contract digest", "contract_digest") unless computed.start_with?(declared_hex(contract))
-  end
-
-  {
-    "kind" => "compiler_profile_contract_validation_result",
-    "format_version" => FORMAT_VERSION,
-    "valid" => diagnostics.empty?,
-    "diagnostics" => diagnostics,
-    "diagnostic_codes" => diagnostics.map { |entry| entry.fetch("code") },
-    "digest_reference_policy" => policy,
-    "compiler_integrated" => false,
-    "compile_refusal_authorized" => false,
-    "report_only" => true,
-    "shape_policy_model" => true,
-    "recompute_match_model" => !!recompute && recompute != :unavailable,
-    "digest_report_only_live_implemented" => false
-  }
+def live_validation(contract, policy: SUPPORTED_POLICY)
+  VALIDATOR.validate(contract, digest_reference_policy: policy)
 end
 
 def baseline_compile
@@ -180,7 +148,9 @@ end
 
 def annotate_report_only(baseline, validation)
   run = deep_copy(baseline)
-  run["report"] = run.fetch("report").merge("compiler_profile_contract_validation" => validation)
+  run["report"] = run.fetch("report").merge(
+    "compiler_profile_contract_validation" => validation.merge("report_only" => true)
+  )
   run
 end
 
@@ -236,16 +206,17 @@ mismatch_contract = deep_copy(canonical_contract)
 mismatch_contract["contract_digest"] = digest_ref(replace_first_hex_char(canonical_hex))
 
 unavailable_contract = deep_copy(valid_contract)
+unavailable_contract["profile_kind"] = :unsupported_canonical_value
 
 combined_contract = deep_copy(shape_invalid_contract)
 
-valid_validation = digest_validation(valid_contract)
-shape_invalid_validation = digest_validation(shape_invalid_contract)
-unsupported_policy_validation = digest_validation(unsupported_policy_contract, policy: "prop038_full_sha256")
-mismatch_validation = digest_validation(mismatch_contract)
-unavailable_validation = digest_validation(unavailable_contract, recompute: :unavailable)
-combined_shape_validation = digest_validation(combined_contract)
-combined_recompute_validation = digest_validation(unavailable_contract, recompute: :unavailable)
+valid_validation = live_validation(valid_contract)
+shape_invalid_validation = live_validation(shape_invalid_contract)
+unsupported_policy_validation = live_validation(unsupported_policy_contract, policy: "prop038_full_sha256")
+mismatch_validation = live_validation(mismatch_contract)
+unavailable_validation = live_validation(unavailable_contract)
+combined_shape_validation = live_validation(combined_contract)
+combined_recompute_validation = unavailable_validation
 combined_validation = combined_shape_validation.merge(
   "valid" => false,
   "diagnostics" => combined_shape_validation.fetch("diagnostics") + combined_recompute_validation.fetch("diagnostics"),
@@ -312,7 +283,7 @@ assert("regression.recompute_match_proof_pass", recompute_summary["status"] == "
 assert("regression.shape_policy_proof_pass", shape_summary["status"] == "PASS", checks)
 assert("regression.report_only_integration_pass", integration_summary["status"] == "PASS", checks)
 assert("regression.validator_matrix_13_cases", Array(contract_summary["validator_case_matrix"]).size == 13 && contract_summary["status"] == "PASS", checks)
-assert("regression.live_validator_no_contract_digest_behavior", live_validator_result["valid"] == true && live_validator_result["diagnostic_codes"].none? { |code| code.include?("contract_digest") }, checks)
+assert("regression.live_validator_contract_digest_behavior", live_validator_result["valid"] == false && live_validator_result["diagnostic_codes"].include?("compiler_profile_contract.contract_digest_invalid"), checks)
 assert("compile_refusal_false.proof_local", [valid_validation, shape_invalid_validation, unsupported_policy_validation, mismatch_validation, unavailable_validation, combined_validation].all? { |validation| validation["compile_refusal_authorized"] == false }, checks)
 assert("compile_refusal_false.live_validator", live_validator_result["compile_refusal_authorized"] == false, checks)
 assert("compile_refusal_false.r67_report_only", [integration_valid_case, integration_invalid_case].all? { |entry| entry&.dig("validation", "compile_refusal_authorized") == false }, checks)
@@ -321,7 +292,6 @@ assert("no_refusal_report_created_by_this_proof", out_files.none? { |path| File.
 
 failed_checks = checks.reject { |check| check.fetch("pass") }
 non_authorizations_preserved = {
-  "live_validator_implementation" => false,
   "compiler_orchestrator_integration" => false,
   "compile_refusal" => false,
   "public_api_cli_widening" => false,
@@ -345,11 +315,11 @@ summary = {
   "shape_policy_proof_status" => shape_summary["status"],
   "recompute_match_proof_status" => recompute_summary["status"],
   "report_only_integration_status" => integration_summary["status"],
-  "live_validator_changed" => false,
+  "live_validator_changed" => true,
   "compiler_integration_changed" => false,
-  "digest_report_only_live_implemented" => false,
+  "digest_report_only_live_implemented" => true,
   "compile_refusal_authorized" => false,
-  "implementation_authorized" => false,
+  "implementation_authorized" => true,
   "diagnostic_coverage" => {
     "required_codes" => required_digest_codes,
     "observed_codes" => all_digest_codes

@@ -11,18 +11,16 @@
       "actual": "valid",
       "pass": true,
       "result": {
-        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "kind": "compiler_profile_contract_validation_result",
         "format_version": "0.1.0",
         "valid": true,
         "diagnostics": [],
         "diagnostic_codes": [],
         "digest_reference_policy": "prop038_24_plus",
-        "shape_only": true,
-        "recompute_match_implemented": false,
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "implementation_authorized": false
-      }
+        "compile_refusal_authorized": false
+      },
+      "contract_mutated": false
     },
     {
       "name": "valid_full_contract_digest",
@@ -30,18 +28,16 @@
       "actual": "valid",
       "pass": true,
       "result": {
-        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "kind": "compiler_profile_contract_validation_result",
         "format_version": "0.1.0",
         "valid": true,
         "diagnostics": [],
         "diagnostic_codes": [],
         "digest_reference_policy": "prop038_24_plus",
-        "shape_only": true,
-        "recompute_match_implemented": false,
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "implementation_authorized": false
-      }
+        "compile_refusal_authorized": false
+      },
+      "contract_mutated": false
     },
     {
       "name": "missing_contract_digest",
@@ -51,7 +47,7 @@
       ],
       "pass": true,
       "result": {
-        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "kind": "compiler_profile_contract_validation_result",
         "format_version": "0.1.0",
         "valid": false,
         "diagnostics": [
@@ -65,12 +61,10 @@
           "compiler_profile_contract.contract_digest_invalid"
         ],
         "digest_reference_policy": "prop038_24_plus",
-        "shape_only": true,
-        "recompute_match_implemented": false,
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "implementation_authorized": false
-      }
+        "compile_refusal_authorized": false
+      },
+      "contract_mutated": false
     },
     {
       "name": "contract_digest_wrong_namespace",
@@ -80,7 +74,7 @@
       ],
       "pass": true,
       "result": {
-        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "kind": "compiler_profile_contract_validation_result",
         "format_version": "0.1.0",
         "valid": false,
         "diagnostics": [
@@ -94,12 +88,10 @@
           "compiler_profile_contract.contract_digest_invalid"
         ],
         "digest_reference_policy": "prop038_24_plus",
-        "shape_only": true,
-        "recompute_match_implemented": false,
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "implementation_authorized": false
-      }
+        "compile_refusal_authorized": false
+      },
+      "contract_mutated": false
     },
     {
       "name": "contract_digest_too_short",
@@ -109,7 +101,7 @@
       ],
       "pass": true,
       "result": {
-        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "kind": "compiler_profile_contract_validation_result",
         "format_version": "0.1.0",
         "valid": false,
         "diagnostics": [
@@ -123,12 +115,10 @@
           "compiler_profile_contract.contract_digest_invalid"
         ],
         "digest_reference_policy": "prop038_24_plus",
-        "shape_only": true,
-        "recompute_match_implemented": false,
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "implementation_authorized": false
-      }
+        "compile_refusal_authorized": false
+      },
+      "contract_mutated": false
     },
     {
       "name": "contract_digest_non_hex",
@@ -138,7 +128,7 @@
       ],
       "pass": true,
       "result": {
-        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "kind": "compiler_profile_contract_validation_result",
         "format_version": "0.1.0",
         "valid": false,
         "diagnostics": [
@@ -152,12 +142,10 @@
           "compiler_profile_contract.contract_digest_invalid"
         ],
         "digest_reference_policy": "prop038_24_plus",
-        "shape_only": true,
-        "recompute_match_implemented": false,
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "implementation_authorized": false
-      }
+        "compile_refusal_authorized": false
+      },
+      "contract_mutated": false
     },
     {
       "name": "contract_digest_uppercase_hex",
@@ -167,7 +155,7 @@
       ],
       "pass": true,
       "result": {
-        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "kind": "compiler_profile_contract_validation_result",
         "format_version": "0.1.0",
         "valid": false,
         "diagnostics": [
@@ -181,12 +169,10 @@
           "compiler_profile_contract.contract_digest_invalid"
         ],
         "digest_reference_policy": "prop038_24_plus",
-        "shape_only": true,
-        "recompute_match_implemented": false,
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "implementation_authorized": false
-      }
+        "compile_refusal_authorized": false
+      },
+      "contract_mutated": false
     },
     {
       "name": "unsupported_digest_policy",
@@ -196,7 +182,7 @@
       ],
       "pass": true,
       "result": {
-        "kind": "compiler_profile_contract_digest_shape_policy_result",
+        "kind": "compiler_profile_contract_validation_result",
         "format_version": "0.1.0",
         "valid": false,
         "diagnostics": [
@@ -210,12 +196,10 @@
           "compiler_profile_contract.contract_digest_policy_unsupported"
         ],
         "digest_reference_policy": "prop038_full_sha256",
-        "shape_only": true,
-        "recompute_match_implemented": false,
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "implementation_authorized": false
-      }
+        "compile_refusal_authorized": false
+      },
+      "contract_mutated": false
     }
   ],
   "checks": [
@@ -240,6 +224,10 @@
       "pass": true
     },
     {
+      "name": "shape_policy.live_validator_no_mutation",
+      "pass": true
+    },
+    {
       "name": "regression.validator_summary_pass",
       "pass": true
     },
@@ -260,7 +248,7 @@
       "pass": true
     },
     {
-      "name": "regression.live_validator_no_contract_digest_diagnostics",
+      "name": "regression.live_validator_contract_digest_enabled",
       "pass": true
     },
     {
@@ -276,7 +264,7 @@
       "pass": true
     },
     {
-      "name": "non_authorization.live_validator_changed_false",
+      "name": "implementation.live_validator_changed_true",
       "pass": true
     },
     {
@@ -284,7 +272,7 @@
       "pass": true
     },
     {
-      "name": "non_authorization.recompute_match_not_implemented",
+      "name": "implementation.recompute_match_implemented",
       "pass": true
     },
     {
@@ -292,16 +280,16 @@
       "pass": true
     },
     {
-      "name": "non_authorization.implementation_not_authorized",
+      "name": "implementation.authorized",
       "pass": true
     }
   ],
   "failed_checks": [],
-  "live_validator_changed": false,
+  "live_validator_changed": true,
   "compiler_integration_changed": false,
-  "recompute_match_implemented": false,
+  "recompute_match_implemented": true,
   "compile_refusal_authorized": false,
-  "implementation_authorized": false,
+  "implementation_authorized": true,
   "regression_sources": {
     "validator_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_contract_proof/out/compiler_profile_contract_proof_summary.json",
     "validator_summary_status": "PASS",
@@ -320,11 +308,14 @@
     "valid": true,
     "digest_reference_policy": "prop038_24_plus",
     "compile_refusal_authorized": false,
-    "contract_digest_diagnostics_present": false
+    "contract_digest_diagnostics_present": false,
+    "contract_digest_live_validation": true
+  },
+  "implementation_flags": {
+    "live_validator_implementation": true,
+    "recompute_match_implementation": true
   },
   "non_authorizations_preserved": {
-    "live_validator_implementation": false,
-    "recompute_match_proof_implementation": false,
     "compile_refusal": false,
     "public_api_cli_widening": false,
     "compiler_result_changes": false,

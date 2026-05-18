@@ -17,11 +17,7 @@
         "diagnostic_codes": [],
         "digest_reference_policy": "prop038_24_plus",
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "report_only": true,
-        "shape_policy_model": true,
-        "recompute_match_model": true,
-        "digest_report_only_live_implemented": false
+        "compile_refusal_authorized": false
       }
     },
     {
@@ -44,11 +40,7 @@
         ],
         "digest_reference_policy": "prop038_24_plus",
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "report_only": true,
-        "shape_policy_model": true,
-        "recompute_match_model": true,
-        "digest_report_only_live_implemented": false
+        "compile_refusal_authorized": false
       }
     },
     {
@@ -71,11 +63,7 @@
         ],
         "digest_reference_policy": "prop038_full_sha256",
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "report_only": true,
-        "shape_policy_model": true,
-        "recompute_match_model": true,
-        "digest_report_only_live_implemented": false
+        "compile_refusal_authorized": false
       }
     },
     {
@@ -98,11 +86,7 @@
         ],
         "digest_reference_policy": "prop038_24_plus",
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "report_only": true,
-        "shape_policy_model": true,
-        "recompute_match_model": true,
-        "digest_report_only_live_implemented": false
+        "compile_refusal_authorized": false
       }
     },
     {
@@ -125,11 +109,7 @@
         ],
         "digest_reference_policy": "prop038_24_plus",
         "compiler_integrated": false,
-        "compile_refusal_authorized": false,
-        "report_only": true,
-        "shape_policy_model": true,
-        "recompute_match_model": false,
-        "digest_report_only_live_implemented": false
+        "compile_refusal_authorized": false
       }
     },
     {
@@ -171,10 +151,7 @@
           "digest_reference_policy": "prop038_24_plus",
           "compiler_integrated": false,
           "compile_refusal_authorized": false,
-          "report_only": true,
-          "shape_policy_model": true,
-          "recompute_match_model": true,
-          "digest_report_only_live_implemented": false
+          "report_only": true
         }
       }
     },
@@ -271,7 +248,7 @@
       "pass": true
     },
     {
-      "name": "regression.live_validator_no_contract_digest_behavior",
+      "name": "regression.live_validator_contract_digest_behavior",
       "pass": true
     },
     {
@@ -299,11 +276,11 @@
   "shape_policy_proof_status": "PASS",
   "recompute_match_proof_status": "PASS",
   "report_only_integration_status": "PASS",
-  "live_validator_changed": false,
+  "live_validator_changed": true,
   "compiler_integration_changed": false,
-  "digest_report_only_live_implemented": false,
+  "digest_report_only_live_implemented": true,
   "compile_refusal_authorized": false,
-  "implementation_authorized": false,
+  "implementation_authorized": true,
   "diagnostic_coverage": {
     "required_codes": [
       "compiler_profile_contract.contract_digest_invalid",
@@ -336,7 +313,6 @@
     "validator_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_contract_proof/out/compiler_profile_contract_proof_summary.json"
   },
   "non_authorizations_preserved": {
-    "live_validator_implementation": false,
     "compiler_orchestrator_integration": false,
     "compile_refusal": false,
     "public_api_cli_widening": false,

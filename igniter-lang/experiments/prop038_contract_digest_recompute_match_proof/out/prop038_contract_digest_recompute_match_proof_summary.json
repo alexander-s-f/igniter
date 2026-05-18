@@ -10,27 +10,15 @@
       "expected": "valid",
       "pass": true,
       "result": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
         "valid": true,
         "diagnostics": [],
         "diagnostic_codes": [],
-        "computed_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
-        "declared_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
-        "canonicalizer_available": true,
-        "canonical_input_excludes": [
-          "contract_digest",
-          "validation result fields",
-          "report_only",
-          "compiler_integrated",
-          "compile_refusal_authorized",
-          "provider metadata",
-          "source_path",
-          "out_path",
-          "parsed_program",
-          "compiler_profile_source"
-        ],
-        "recompute_match_live_implemented": false,
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
         "compile_refusal_authorized": false,
-        "implementation_authorized": false
+        "contract_mutated": false
       }
     },
     {
@@ -38,27 +26,15 @@
       "expected": "valid",
       "pass": true,
       "result": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
         "valid": true,
         "diagnostics": [],
         "diagnostic_codes": [],
-        "computed_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
-        "declared_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c",
-        "canonicalizer_available": true,
-        "canonical_input_excludes": [
-          "contract_digest",
-          "validation result fields",
-          "report_only",
-          "compiler_integrated",
-          "compile_refusal_authorized",
-          "provider metadata",
-          "source_path",
-          "out_path",
-          "parsed_program",
-          "compiler_profile_source"
-        ],
-        "recompute_match_live_implemented": false,
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
         "compile_refusal_authorized": false,
-        "implementation_authorized": false
+        "contract_mutated": false
       }
     },
     {
@@ -66,6 +42,8 @@
       "expected": "compiler_profile_contract.contract_digest_mismatch",
       "pass": true,
       "result": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
         "valid": false,
         "diagnostics": [
           {
@@ -77,24 +55,10 @@
         "diagnostic_codes": [
           "compiler_profile_contract.contract_digest_mismatch"
         ],
-        "computed_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
-        "declared_digest": "compiler_profile_contract/sha256:aece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
-        "canonicalizer_available": true,
-        "canonical_input_excludes": [
-          "contract_digest",
-          "validation result fields",
-          "report_only",
-          "compiler_integrated",
-          "compile_refusal_authorized",
-          "provider metadata",
-          "source_path",
-          "out_path",
-          "parsed_program",
-          "compiler_profile_source"
-        ],
-        "recompute_match_live_implemented": false,
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
         "compile_refusal_authorized": false,
-        "implementation_authorized": false
+        "contract_mutated": false
       }
     },
     {
@@ -102,6 +66,8 @@
       "expected": "compiler_profile_contract.contract_digest_mismatch",
       "pass": true,
       "result": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
         "valid": false,
         "diagnostics": [
           {
@@ -113,24 +79,10 @@
         "diagnostic_codes": [
           "compiler_profile_contract.contract_digest_mismatch"
         ],
-        "computed_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
-        "declared_digest": "compiler_profile_contract/sha256:aece9bff19d32bbeba559c9c",
-        "canonicalizer_available": true,
-        "canonical_input_excludes": [
-          "contract_digest",
-          "validation result fields",
-          "report_only",
-          "compiler_integrated",
-          "compile_refusal_authorized",
-          "provider metadata",
-          "source_path",
-          "out_path",
-          "parsed_program",
-          "compiler_profile_source"
-        ],
-        "recompute_match_live_implemented": false,
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
         "compile_refusal_authorized": false,
-        "implementation_authorized": false
+        "contract_mutated": false
       }
     },
     {
@@ -138,6 +90,8 @@
       "expected": "compiler_profile_contract.contract_digest_recompute_unavailable",
       "pass": true,
       "result": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
         "valid": false,
         "diagnostics": [
           {
@@ -149,24 +103,10 @@
         "diagnostic_codes": [
           "compiler_profile_contract.contract_digest_recompute_unavailable"
         ],
-        "computed_digest": null,
-        "declared_digest": "compiler_profile_contract/sha256:0ece9bff19d32bbeba559c9c2491037ae4740792700774f617d88a00668773c1",
-        "canonicalizer_available": false,
-        "canonical_input_excludes": [
-          "contract_digest",
-          "validation result fields",
-          "report_only",
-          "compiler_integrated",
-          "compile_refusal_authorized",
-          "provider metadata",
-          "source_path",
-          "out_path",
-          "parsed_program",
-          "compiler_profile_source"
-        ],
-        "recompute_match_live_implemented": false,
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
         "compile_refusal_authorized": false,
-        "implementation_authorized": false
+        "contract_mutated": false
       }
     },
     {
@@ -238,10 +178,16 @@
             "code": "compiler_profile_contract.missing_rule_reference",
             "message": "ordered rule parse.contract_modifiers references missing rule \"missing.rule.target\"",
             "path": "ordered_rule_graph.rules.parse.contract_modifiers"
+          },
+          {
+            "code": "compiler_profile_contract.contract_digest_mismatch",
+            "message": "declared contract_digest does not match recomputed canonical contract digest",
+            "path": "contract_digest"
           }
         ],
         "diagnostic_codes": [
-          "compiler_profile_contract.missing_rule_reference"
+          "compiler_profile_contract.missing_rule_reference",
+          "compiler_profile_contract.contract_digest_mismatch"
         ],
         "digest_reference_policy": "prop038_24_plus",
         "compiler_integrated": false,
@@ -253,6 +199,10 @@
   "checks": [
     {
       "name": "cases_all_pass",
+      "pass": true
+    },
+    {
+      "name": "live_validator_no_contract_mutation",
       "pass": true
     },
     {
@@ -296,7 +246,7 @@
       "pass": true
     },
     {
-      "name": "live_validator_changed_false",
+      "name": "live_validator_changed_true",
       "pass": true
     },
     {
@@ -304,21 +254,21 @@
       "pass": true
     },
     {
-      "name": "recompute_match_live_not_implemented",
+      "name": "recompute_match_live_implemented",
       "pass": true
     },
     {
-      "name": "implementation_not_authorized",
+      "name": "implementation_authorized",
       "pass": true
     }
   ],
   "failed_checks": [],
   "shape_policy_proof_status": "PASS",
-  "live_validator_changed": false,
+  "live_validator_changed": true,
   "compiler_integration_changed": false,
-  "recompute_match_live_implemented": false,
+  "recompute_match_live_implemented": true,
   "compile_refusal_authorized": false,
-  "implementation_authorized": false,
+  "implementation_authorized": true,
   "canonicalization": {
     "input": "contract object excluding contract_digest",
     "included_fields": [
