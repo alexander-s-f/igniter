@@ -1,0 +1,351 @@
+{
+  "kind": "prop038_contract_digest_report_only_integration_proof_summary",
+  "format_version": "0.1.0",
+  "track": "prop038-contract-digest-report-only-integration-proof-v0",
+  "authority_ref": "igniter-lang/docs/gates/prop038-contract-digest-recompute-match-proof-decision-v0.md",
+  "status": "PASS",
+  "cases": [
+    {
+      "name": "valid_digest_report_only_valid_true",
+      "expected": "valid=true nested report-only validation",
+      "pass": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": true,
+        "diagnostics": [],
+        "diagnostic_codes": [],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true,
+        "shape_policy_model": true,
+        "recompute_match_model": true,
+        "digest_report_only_live_implemented": false
+      }
+    },
+    {
+      "name": "shape_invalid_report_only_valid_false",
+      "expected": "contract_digest_invalid nested",
+      "pass": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_invalid",
+            "message": "contract_digest must be compiler_profile_contract/sha256:<24+ lowercase hex>",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_invalid"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true,
+        "shape_policy_model": true,
+        "recompute_match_model": true,
+        "digest_report_only_live_implemented": false
+      }
+    },
+    {
+      "name": "unsupported_policy_report_only_valid_false",
+      "expected": "contract_digest_policy_unsupported nested",
+      "pass": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_policy_unsupported",
+            "message": "unsupported contract_digest policy \"prop038_full_sha256\"",
+            "path": "digest_reference_policy"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_policy_unsupported"
+        ],
+        "digest_reference_policy": "prop038_full_sha256",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true,
+        "shape_policy_model": true,
+        "recompute_match_model": true,
+        "digest_report_only_live_implemented": false
+      }
+    },
+    {
+      "name": "recompute_mismatch_report_only_valid_false",
+      "expected": "contract_digest_mismatch nested",
+      "pass": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_mismatch",
+            "message": "declared contract_digest does not match recomputed canonical contract digest",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_mismatch"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true,
+        "shape_policy_model": true,
+        "recompute_match_model": true,
+        "digest_report_only_live_implemented": false
+      }
+    },
+    {
+      "name": "recompute_unavailable_report_only_valid_false",
+      "expected": "contract_digest_recompute_unavailable nested",
+      "pass": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_recompute_unavailable",
+            "message": "contract digest recompute requested but canonicalization is unavailable",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_recompute_unavailable"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true,
+        "shape_policy_model": true,
+        "recompute_match_model": false,
+        "digest_report_only_live_implemented": false
+      }
+    },
+    {
+      "name": "combined_shape_and_recompute_diagnostics_stay_nested",
+      "expected": "digest diagnostics live only under compiler_profile_contract_validation.diagnostics",
+      "pass": true,
+      "report": {
+        "kind": "compilation_report",
+        "format_version": "0.1.0",
+        "pass_result": "ok",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok"
+        },
+        "diagnostics": [],
+        "semantic_ir_ref": "semantic_ir/add",
+        "compiler_profile_contract_validation": {
+          "kind": "compiler_profile_contract_validation_result",
+          "format_version": "0.1.0",
+          "valid": false,
+          "diagnostics": [
+            {
+              "code": "compiler_profile_contract.contract_digest_invalid",
+              "message": "contract_digest must be compiler_profile_contract/sha256:<24+ lowercase hex>",
+              "path": "contract_digest"
+            },
+            {
+              "code": "compiler_profile_contract.contract_digest_recompute_unavailable",
+              "message": "contract digest recompute requested but canonicalization is unavailable",
+              "path": "contract_digest"
+            }
+          ],
+          "diagnostic_codes": [
+            "compiler_profile_contract.contract_digest_invalid",
+            "compiler_profile_contract.contract_digest_recompute_unavailable"
+          ],
+          "digest_reference_policy": "prop038_24_plus",
+          "compiler_integrated": false,
+          "compile_refusal_authorized": false,
+          "report_only": true,
+          "shape_policy_model": true,
+          "recompute_match_model": true,
+          "digest_report_only_live_implemented": false
+        }
+      }
+    },
+    {
+      "name": "mismatch_compile_status_ok",
+      "expected": "status remains ok",
+      "pass": true
+    },
+    {
+      "name": "mismatch_public_result_unchanged",
+      "expected": "public result unchanged",
+      "pass": true
+    },
+    {
+      "name": "mismatch_igapp_manifest_unchanged",
+      "expected": "manifest unchanged",
+      "pass": true
+    },
+    {
+      "name": "mismatch_no_refusal_report_written",
+      "expected": "no refusal report",
+      "pass": true
+    },
+    {
+      "name": "provider_nil_preserves_legacy_behavior",
+      "expected": "no validation report and baseline outcome",
+      "pass": true
+    },
+    {
+      "name": "provider_exception_preserves_legacy_behavior",
+      "expected": "no validation report and baseline outcome",
+      "pass": true
+    }
+  ],
+  "checks": [
+    {
+      "name": "cases_all_pass",
+      "pass": true
+    },
+    {
+      "name": "diagnostic_coverage.all_four_codes",
+      "pass": true
+    },
+    {
+      "name": "nested_diagnostics.only",
+      "pass": true
+    },
+    {
+      "name": "top_level_diagnostics_unchanged",
+      "pass": true
+    },
+    {
+      "name": "pass_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "stages_unchanged",
+      "pass": true
+    },
+    {
+      "name": "compile_status_ok",
+      "pass": true
+    },
+    {
+      "name": "public_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "assembler_execution_unchanged",
+      "pass": true
+    },
+    {
+      "name": "igapp_manifest_unchanged",
+      "pass": true
+    },
+    {
+      "name": "no_refusal_report_written",
+      "pass": true
+    },
+    {
+      "name": "regression.recompute_match_proof_pass",
+      "pass": true
+    },
+    {
+      "name": "regression.shape_policy_proof_pass",
+      "pass": true
+    },
+    {
+      "name": "regression.report_only_integration_pass",
+      "pass": true
+    },
+    {
+      "name": "regression.validator_matrix_13_cases",
+      "pass": true
+    },
+    {
+      "name": "regression.live_validator_no_contract_digest_behavior",
+      "pass": true
+    },
+    {
+      "name": "compile_refusal_false.proof_local",
+      "pass": true
+    },
+    {
+      "name": "compile_refusal_false.live_validator",
+      "pass": true
+    },
+    {
+      "name": "compile_refusal_false.r67_report_only",
+      "pass": true
+    },
+    {
+      "name": "no_igapp_mutation_from_this_proof",
+      "pass": true
+    },
+    {
+      "name": "no_refusal_report_created_by_this_proof",
+      "pass": true
+    }
+  ],
+  "failed_checks": [],
+  "shape_policy_proof_status": "PASS",
+  "recompute_match_proof_status": "PASS",
+  "report_only_integration_status": "PASS",
+  "live_validator_changed": false,
+  "compiler_integration_changed": false,
+  "digest_report_only_live_implemented": false,
+  "compile_refusal_authorized": false,
+  "implementation_authorized": false,
+  "diagnostic_coverage": {
+    "required_codes": [
+      "compiler_profile_contract.contract_digest_invalid",
+      "compiler_profile_contract.contract_digest_mismatch",
+      "compiler_profile_contract.contract_digest_policy_unsupported",
+      "compiler_profile_contract.contract_digest_recompute_unavailable"
+    ],
+    "observed_codes": [
+      "compiler_profile_contract.contract_digest_invalid",
+      "compiler_profile_contract.contract_digest_mismatch",
+      "compiler_profile_contract.contract_digest_policy_unsupported",
+      "compiler_profile_contract.contract_digest_recompute_unavailable"
+    ]
+  },
+  "report_only_invariants": {
+    "diagnostics_nested_under": "compiler_profile_contract_validation.diagnostics",
+    "top_level_report_diagnostics_unchanged": true,
+    "pass_result_unchanged": true,
+    "stages_unchanged": true,
+    "compile_status_ok_when_source_compiles": true,
+    "public_result_unchanged": true,
+    "assembler_execution_unchanged": true,
+    "igapp_manifest_unchanged": true,
+    "refusal_report_written": false
+  },
+  "regression_sources": {
+    "recompute_match_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_contract_digest_recompute_match_proof/out/prop038_contract_digest_recompute_match_proof_summary.json",
+    "shape_policy_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_contract_digest_shape_policy_proof/out/prop038_contract_digest_shape_policy_proof_summary.json",
+    "report_only_integration_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_report_only_compiler_integration/out/prop038_report_only_compiler_integration_summary.json",
+    "validator_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_contract_proof/out/compiler_profile_contract_proof_summary.json"
+  },
+  "non_authorizations_preserved": {
+    "live_validator_implementation": false,
+    "compiler_orchestrator_integration": false,
+    "compile_refusal": false,
+    "public_api_cli_widening": false,
+    "compiler_result_changes": false,
+    "persisted_success_reports_or_sidecars": false,
+    "parser_typechecker_semanticir_assembler_igapp": false,
+    "loader_report_or_compatibility_report": false,
+    "diagnostics_centralization": false,
+    "runtime_gate3_ledger_tbackend_bihistory_stream_olap_cache_production": false
+  },
+  "recommendation_for_c3_a": "accept"
+}

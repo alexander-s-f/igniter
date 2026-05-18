@@ -257,6 +257,13 @@ prop038 contract digest recompute proof boundary:
   order-insensitive material, mismatch diagnostics, and non-authority surfaces.
   Orientation only.
 
+prop038 contract digest report-only integration boundary:
+  docs/org/indexes/prop038-contract-digest-report-only-integration-boundary-map-v0.md
+  captures R71 proof-local report-only boundaries for the full
+  `contract_digest_*` candidate vocabulary, including compiler outcome
+  invariants, public/persisted leakage checks, and required
+  `non_authorizations_preserved` traceability. Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
