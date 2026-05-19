@@ -47,6 +47,25 @@ module IgniterLang
       }
     end
 
+    def strict_terminal(format_version:, status:, report:, source_path:, diagnostics:)
+      {
+        "kind" => "compiler_result",
+        "format_version" => format_version,
+        "status" => status,
+        "program_id" => report.fetch("semantic_ir_ref", nil),
+        "source_path" => source_path.to_s,
+        "source_hash" => report.fetch("source_hash", nil),
+        "grammar_version" => report.fetch("grammar_version", nil),
+        "stages" => stages(report, assemble: "skipped"),
+        "igapp_path" => nil,
+        "contracts" => [],
+        "compilation_report_path" => nil,
+        "diagnostics" => diagnostics,
+        "warnings" => Diagnostics.warnings(report.fetch("diagnostics", [])),
+        "report" => report
+      }
+    end
+
     def public_result(result)
       result.reject { |key, _value| key == "report" }
     end

@@ -16,19 +16,30 @@ require_relative "typechecker"
 module IgniterLang
   class CompilerOrchestrator
     FORMAT_VERSION = SemanticIREmitter::FORMAT_VERSION
+    STRICT_REQUIREMENT_KIND = "compiler_profile_contract_strict_requirement"
+    STRICT_REQUIREMENT_MODE = "strict_contract_digest"
+    CONTRACT_DIGEST_MISMATCH_CODE =
+      "compiler_profile_contract.contract_digest_mismatch"
+    CONTRACT_DIGEST_REFUSAL_CODE =
+      "compiler_profile_contract_refusal.contract_digest_mismatch"
+    STRICT_REQUIREMENT_MALFORMED_CODE =
+      "compiler_profile_contract_refusal.strict_requirement_malformed"
+    STRICT_REQUIREMENT_SOURCES = ["proof_local_gate", "internal_test_seam"].freeze
 
     def initialize(
       classifier: Classifier.new,
       typechecker: TypeChecker.new,
       emitter: SemanticIREmitter.new,
       assembler: Assembler.new,
-      compiler_profile_contract_provider: nil
+      compiler_profile_contract_provider: nil,
+      compiler_profile_contract_strict_requirement: nil
     )
       @classifier = classifier
       @typechecker = typechecker
       @emitter = emitter
       @assembler = assembler
       @compiler_profile_contract_provider = compiler_profile_contract_provider
+      @compiler_profile_contract_strict_requirement = compiler_profile_contract_strict_requirement
     end
 
     def compile(
@@ -69,6 +80,12 @@ module IgniterLang
       end
 
       return refusal(report, source_path, out_path) unless report.fetch("pass_result") == "ok"
+
+      strict_terminal = compiler_profile_contract_strict_terminal(
+        report: report,
+        source_path: source_path
+      )
+      return strict_terminal if strict_terminal
 
       # PROP-036: compiler_profile_source is passed unchanged to the assembler.
       # The orchestrator is a transport boundary only — it does not derive, load,
@@ -185,6 +202,125 @@ module IgniterLang
       CompilerProfileContractValidator.validate(contract)
     rescue
       nil
+    end
+
+    def compiler_profile_contract_strict_terminal(report:, source_path:)
+      return nil if @compiler_profile_contract_strict_requirement.nil?
+
+      requirement = validate_compiler_profile_contract_strict_requirement(
+        @compiler_profile_contract_strict_requirement
+      )
+      unless requirement.fetch("valid")
+        diagnostic = strict_requirement_malformed_diagnostic(
+          requirement.fetch("reason")
+        )
+        return strict_configuration_error(
+          report: report,
+          source_path: source_path,
+          diagnostic: diagnostic
+        )
+      end
+
+      validation = report.fetch("compiler_profile_contract_validation", nil)
+      return nil unless validation.is_a?(Hash)
+
+      diagnostic_codes = Array(validation["diagnostic_codes"])
+      return nil unless diagnostic_codes.include?(CONTRACT_DIGEST_MISMATCH_CODE)
+
+      strict_refusal(
+        report: report,
+        source_path: source_path,
+        diagnostic: contract_digest_mismatch_refusal_diagnostic
+      )
+    end
+
+    def validate_compiler_profile_contract_strict_requirement(requirement)
+      unless requirement.is_a?(Hash)
+        return invalid_strict_requirement(
+          "expected compiler_profile_contract_strict_requirement hash"
+        )
+      end
+
+      unless requirement["kind"] == STRICT_REQUIREMENT_KIND
+        return invalid_strict_requirement(
+          "expected compiler_profile_contract_strict_requirement kind"
+        )
+      end
+      unless requirement["mode"] == STRICT_REQUIREMENT_MODE
+        return invalid_strict_requirement("unsupported strict requirement mode")
+      end
+
+      source = requirement["source"]
+      unless STRICT_REQUIREMENT_SOURCES.include?(source)
+        return invalid_strict_requirement("unsupported strict validation source")
+      end
+
+      candidates = Array(requirement["refusal_candidates"])
+      unless candidates.include?(CONTRACT_DIGEST_MISMATCH_CODE)
+        return invalid_strict_requirement("missing contract_digest_mismatch refusal candidate")
+      end
+
+      unless requirement["recompute_unavailable_policy"] == "fail_open_report_only"
+        return invalid_strict_requirement("unsupported recompute_unavailable_policy")
+      end
+
+      unless requirement["compile_refusal_authorized"] == false
+        return invalid_strict_requirement("compile_refusal_authorized marker must remain false")
+      end
+
+      { "valid" => true }
+    end
+
+    def invalid_strict_requirement(reason)
+      { "valid" => false, "reason" => reason }
+    end
+
+    def strict_refusal(report:, source_path:, diagnostic:)
+      {
+        "status" => "refused",
+        "result" => CompilerResult.strict_terminal(
+          format_version: FORMAT_VERSION,
+          status: "refused",
+          report: report,
+          source_path: source_path,
+          diagnostics: [diagnostic]
+        ),
+        "compilation_report" => report
+      }
+    end
+
+    def strict_configuration_error(report:, source_path:, diagnostic:)
+      {
+        "status" => "configuration_error",
+        "result" => CompilerResult.strict_terminal(
+          format_version: FORMAT_VERSION,
+          status: "configuration_error",
+          report: report,
+          source_path: source_path,
+          diagnostics: [diagnostic]
+        ),
+        "compilation_report" => report
+      }
+    end
+
+    def contract_digest_mismatch_refusal_diagnostic
+      {
+        "code" => CONTRACT_DIGEST_REFUSAL_CODE,
+        "message" => "Strict compiler profile contract validation refused compilation " \
+                     "because contract_digest does not match canonical contract material.",
+        "path" => "compiler_profile_contract_validation.contract_digest",
+        "evidence_code" => CONTRACT_DIGEST_MISMATCH_CODE
+      }
+    end
+
+    def strict_requirement_malformed_diagnostic(_reason)
+      {
+        "code" => STRICT_REQUIREMENT_MALFORMED_CODE,
+        "message" => "Malformed strict compiler profile contract requirement produced " \
+                     "configuration_error before assembly.",
+        "path" => "compiler_profile_contract_strict_requirement",
+        "evidence_code" => nil
+      }
     end
 
     def resolve_sample_input(parsed, sample_input_resolver)

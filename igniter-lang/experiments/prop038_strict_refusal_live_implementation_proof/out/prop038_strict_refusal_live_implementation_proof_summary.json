@@ -1,0 +1,2011 @@
+{
+  "kind": "prop038_strict_refusal_live_implementation_proof_summary",
+  "format_version": "0.1.0",
+  "track": "prop038-strict-refusal-live-implementation-v0",
+  "status": "PASS",
+  "pass": true,
+  "cases": [
+    {
+      "name": "baseline_no_provider",
+      "status": "ok",
+      "report_pass_result": "ok",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok"
+      },
+      "report_diagnostics": [],
+      "report_has_validation": false,
+      "validation": null,
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "igapp_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/baseline_no_provider.igapp",
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "compilation_report_ref",
+        "semantic_ir_ref",
+        "contracts",
+        "diagnostics",
+        "warnings",
+        "runtime_smoke"
+      ],
+      "public_diagnostic_codes": [],
+      "raw_validator_public": false,
+      "report_path_key_present": false,
+      "report_path_written": false,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/baseline_no_provider.compilation_report.json",
+      "igapp_written": true,
+      "manifest_written": true,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "no_strict_source_mismatch_report_only",
+      "status": "ok",
+      "report_pass_result": "ok",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok"
+      },
+      "report_diagnostics": [],
+      "report_has_validation": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_mismatch",
+            "message": "declared contract_digest does not match recomputed canonical contract digest",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_mismatch"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true
+      },
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "igapp_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/no_strict_source_mismatch_report_only.igapp",
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "compilation_report_ref",
+        "semantic_ir_ref",
+        "contracts",
+        "diagnostics",
+        "warnings",
+        "runtime_smoke"
+      ],
+      "public_diagnostic_codes": [],
+      "raw_validator_public": false,
+      "report_path_key_present": false,
+      "report_path_written": false,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/no_strict_source_mismatch_report_only.compilation_report.json",
+      "igapp_written": true,
+      "manifest_written": true,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "nil_strict_source_mismatch_report_only",
+      "status": "ok",
+      "report_pass_result": "ok",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok"
+      },
+      "report_diagnostics": [],
+      "report_has_validation": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_mismatch",
+            "message": "declared contract_digest does not match recomputed canonical contract digest",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_mismatch"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true
+      },
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "igapp_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/nil_strict_source_mismatch_report_only.igapp",
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "compilation_report_ref",
+        "semantic_ir_ref",
+        "contracts",
+        "diagnostics",
+        "warnings",
+        "runtime_smoke"
+      ],
+      "public_diagnostic_codes": [],
+      "raw_validator_public": false,
+      "report_path_key_present": false,
+      "report_path_written": false,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/nil_strict_source_mismatch_report_only.compilation_report.json",
+      "igapp_written": true,
+      "manifest_written": true,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "strict_valid_contract_allows",
+      "status": "ok",
+      "report_pass_result": "ok",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok"
+      },
+      "report_diagnostics": [],
+      "report_has_validation": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": true,
+        "diagnostics": [],
+        "diagnostic_codes": [],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true
+      },
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "igapp_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/strict_valid_contract_allows.igapp",
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "compilation_report_ref",
+        "semantic_ir_ref",
+        "contracts",
+        "diagnostics",
+        "warnings",
+        "runtime_smoke"
+      ],
+      "public_diagnostic_codes": [],
+      "raw_validator_public": false,
+      "report_path_key_present": false,
+      "report_path_written": false,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/strict_valid_contract_allows.compilation_report.json",
+      "igapp_written": true,
+      "manifest_written": true,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "strict_digest_mismatch_refused",
+      "status": "refused",
+      "report_pass_result": "ok",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok"
+      },
+      "report_diagnostics": [],
+      "report_has_validation": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": false,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract.contract_digest_mismatch",
+            "message": "declared contract_digest does not match recomputed canonical contract digest",
+            "path": "contract_digest"
+          }
+        ],
+        "diagnostic_codes": [
+          "compiler_profile_contract.contract_digest_mismatch"
+        ],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true
+      },
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "refused",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": null,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract_refusal.contract_digest_mismatch",
+            "message": "Strict compiler profile contract validation refused compilation because contract_digest does not match canonical contract material.",
+            "path": "compiler_profile_contract_validation.contract_digest",
+            "evidence_code": "compiler_profile_contract.contract_digest_mismatch"
+          }
+        ],
+        "warnings": []
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "refused",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "skipped"
+        },
+        "contracts": [],
+        "compilation_report_path": null,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract_refusal.contract_digest_mismatch",
+            "message": "Strict compiler profile contract validation refused compilation because contract_digest does not match canonical contract material.",
+            "path": "compiler_profile_contract_validation.contract_digest",
+            "evidence_code": "compiler_profile_contract.contract_digest_mismatch"
+          }
+        ],
+        "warnings": []
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "contracts",
+        "compilation_report_path",
+        "diagnostics",
+        "warnings"
+      ],
+      "public_diagnostic_codes": [
+        "compiler_profile_contract_refusal.contract_digest_mismatch"
+      ],
+      "raw_validator_public": false,
+      "report_path_key_present": false,
+      "report_path_written": false,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/strict_digest_mismatch_refused.compilation_report.json",
+      "igapp_written": false,
+      "manifest_written": false,
+      "assembler_calls": 0,
+      "refusal_called": false
+    },
+    {
+      "name": "strict_malformed_configuration_error",
+      "status": "configuration_error",
+      "report_pass_result": "ok",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok"
+      },
+      "report_diagnostics": [],
+      "report_has_validation": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": true,
+        "diagnostics": [],
+        "diagnostic_codes": [],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true
+      },
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "configuration_error",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": null,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract_refusal.strict_requirement_malformed",
+            "message": "Malformed strict compiler profile contract requirement produced configuration_error before assembly.",
+            "path": "compiler_profile_contract_strict_requirement",
+            "evidence_code": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "configuration_error",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "skipped"
+        },
+        "contracts": [],
+        "compilation_report_path": null,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract_refusal.strict_requirement_malformed",
+            "message": "Malformed strict compiler profile contract requirement produced configuration_error before assembly.",
+            "path": "compiler_profile_contract_strict_requirement",
+            "evidence_code": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "contracts",
+        "compilation_report_path",
+        "diagnostics",
+        "warnings"
+      ],
+      "public_diagnostic_codes": [
+        "compiler_profile_contract_refusal.strict_requirement_malformed"
+      ],
+      "raw_validator_public": false,
+      "report_path_key_present": false,
+      "report_path_written": false,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/strict_malformed_configuration_error.compilation_report.json",
+      "igapp_written": false,
+      "manifest_written": false,
+      "assembler_calls": 0,
+      "refusal_called": false
+    },
+    {
+      "name": "strict_provider_nil_legacy",
+      "status": "ok",
+      "report_pass_result": "ok",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok"
+      },
+      "report_diagnostics": [],
+      "report_has_validation": false,
+      "validation": null,
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "igapp_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/strict_provider_nil_legacy.igapp",
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "compilation_report_ref",
+        "semantic_ir_ref",
+        "contracts",
+        "diagnostics",
+        "warnings",
+        "runtime_smoke"
+      ],
+      "public_diagnostic_codes": [],
+      "raw_validator_public": false,
+      "report_path_key_present": false,
+      "report_path_written": false,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/strict_provider_nil_legacy.compilation_report.json",
+      "igapp_written": true,
+      "manifest_written": true,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "strict_provider_non_hash_legacy",
+      "status": "ok",
+      "report_pass_result": "ok",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok"
+      },
+      "report_diagnostics": [],
+      "report_has_validation": false,
+      "validation": null,
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "igapp_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/strict_provider_non_hash_legacy.igapp",
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "compilation_report_ref",
+        "semantic_ir_ref",
+        "contracts",
+        "diagnostics",
+        "warnings",
+        "runtime_smoke"
+      ],
+      "public_diagnostic_codes": [],
+      "raw_validator_public": false,
+      "report_path_key_present": false,
+      "report_path_written": false,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/strict_provider_non_hash_legacy.compilation_report.json",
+      "igapp_written": true,
+      "manifest_written": true,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "strict_provider_exception_legacy",
+      "status": "ok",
+      "report_pass_result": "ok",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok"
+      },
+      "report_diagnostics": [],
+      "report_has_validation": false,
+      "validation": null,
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "igapp_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/strict_provider_exception_legacy.igapp",
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "ok",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "ok"
+        },
+        "compilation_report_ref": "compilation_report/fe9a2479eb3f4d5d",
+        "semantic_ir_ref": "semanticir/fe9a2479eb3f4d5d",
+        "contracts": [
+          "Add"
+        ],
+        "diagnostics": [],
+        "warnings": [],
+        "runtime_smoke": null
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "compilation_report_ref",
+        "semantic_ir_ref",
+        "contracts",
+        "diagnostics",
+        "warnings",
+        "runtime_smoke"
+      ],
+      "public_diagnostic_codes": [],
+      "raw_validator_public": false,
+      "report_path_key_present": false,
+      "report_path_written": false,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/strict_provider_exception_legacy.compilation_report.json",
+      "igapp_written": true,
+      "manifest_written": true,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "parse_error_baseline",
+      "status": "error",
+      "report_pass_result": "error",
+      "report_stages": {
+        "parse": "unknown",
+        "classify": "unknown",
+        "typecheck": "unknown",
+        "emit": "unknown"
+      },
+      "report_diagnostics": [
+        {
+          "rule": "compiler_error",
+          "severity": "error",
+          "message": "IgniterLang::ParseError: Expected colon, got ident(Integer)",
+          "category": "emitter_error",
+          "contract": null,
+          "node": null,
+          "path": null,
+          "span": null
+        }
+      ],
+      "report_has_validation": false,
+      "validation": null,
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "error",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/parser_oof_hardening_decision/invalid_syntax.ig",
+        "source_hash": null,
+        "grammar_version": "unknown",
+        "stages": {
+          "parse": "unknown",
+          "classify": "unknown",
+          "typecheck": "unknown",
+          "emit": "unknown",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/parse_error_baseline.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "compiler_error",
+            "severity": "error",
+            "message": "IgniterLang::ParseError: Expected colon, got ident(Integer)",
+            "category": "emitter_error",
+            "contract": null,
+            "node": null,
+            "path": null,
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "error",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/parser_oof_hardening_decision/invalid_syntax.ig",
+        "source_hash": null,
+        "grammar_version": "unknown",
+        "stages": {
+          "parse": "unknown",
+          "classify": "unknown",
+          "typecheck": "unknown",
+          "emit": "unknown",
+          "assemble": "skipped"
+        },
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/parse_error_baseline.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "compiler_error",
+            "severity": "error",
+            "message": "IgniterLang::ParseError: Expected colon, got ident(Integer)",
+            "category": "emitter_error",
+            "contract": null,
+            "node": null,
+            "path": null,
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "contracts",
+        "compilation_report_path",
+        "diagnostics",
+        "warnings"
+      ],
+      "public_diagnostic_codes": [
+        null
+      ],
+      "raw_validator_public": false,
+      "report_path_key_present": true,
+      "report_path_written": true,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/parse_error_baseline.compilation_report.json",
+      "igapp_written": false,
+      "manifest_written": false,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "parse_error_with_strict_requirement",
+      "status": "error",
+      "report_pass_result": "error",
+      "report_stages": {
+        "parse": "unknown",
+        "classify": "unknown",
+        "typecheck": "unknown",
+        "emit": "unknown"
+      },
+      "report_diagnostics": [
+        {
+          "rule": "compiler_error",
+          "severity": "error",
+          "message": "IgniterLang::ParseError: Expected colon, got ident(Integer)",
+          "category": "emitter_error",
+          "contract": null,
+          "node": null,
+          "path": null,
+          "span": null
+        }
+      ],
+      "report_has_validation": false,
+      "validation": null,
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "error",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/parser_oof_hardening_decision/invalid_syntax.ig",
+        "source_hash": null,
+        "grammar_version": "unknown",
+        "stages": {
+          "parse": "unknown",
+          "classify": "unknown",
+          "typecheck": "unknown",
+          "emit": "unknown",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/parse_error_with_strict_requirement.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "compiler_error",
+            "severity": "error",
+            "message": "IgniterLang::ParseError: Expected colon, got ident(Integer)",
+            "category": "emitter_error",
+            "contract": null,
+            "node": null,
+            "path": null,
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "error",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/parser_oof_hardening_decision/invalid_syntax.ig",
+        "source_hash": null,
+        "grammar_version": "unknown",
+        "stages": {
+          "parse": "unknown",
+          "classify": "unknown",
+          "typecheck": "unknown",
+          "emit": "unknown",
+          "assemble": "skipped"
+        },
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/parse_error_with_strict_requirement.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "compiler_error",
+            "severity": "error",
+            "message": "IgniterLang::ParseError: Expected colon, got ident(Integer)",
+            "category": "emitter_error",
+            "contract": null,
+            "node": null,
+            "path": null,
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "contracts",
+        "compilation_report_path",
+        "diagnostics",
+        "warnings"
+      ],
+      "public_diagnostic_codes": [
+        null
+      ],
+      "raw_validator_public": false,
+      "report_path_key_present": true,
+      "report_path_written": true,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/parse_error_with_strict_requirement.compilation_report.json",
+      "igapp_written": false,
+      "manifest_written": false,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "oof_baseline",
+      "status": "oof",
+      "report_pass_result": "oof",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "oof",
+        "emit": "skipped"
+      },
+      "report_diagnostics": [
+        {
+          "rule": "OOF-P1",
+          "severity": "error",
+          "message": "Unresolved symbol: missing_b",
+          "node": "sum",
+          "path": "contract:BadUnresolvedSymbol/node:sum",
+          "category": "typechecker_oof",
+          "contract": "BadUnresolvedSymbol",
+          "span": null
+        }
+      ],
+      "report_has_validation": false,
+      "validation": null,
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "oof",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+        "source_hash": "sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "oof",
+          "emit": "skipped",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/oof_baseline.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "OOF-P1",
+            "severity": "error",
+            "message": "Unresolved symbol: missing_b",
+            "node": "sum",
+            "path": "contract:BadUnresolvedSymbol/node:sum",
+            "category": "typechecker_oof",
+            "contract": "BadUnresolvedSymbol",
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "oof",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+        "source_hash": "sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "oof",
+          "emit": "skipped",
+          "assemble": "skipped"
+        },
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/oof_baseline.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "OOF-P1",
+            "severity": "error",
+            "message": "Unresolved symbol: missing_b",
+            "node": "sum",
+            "path": "contract:BadUnresolvedSymbol/node:sum",
+            "category": "typechecker_oof",
+            "contract": "BadUnresolvedSymbol",
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "contracts",
+        "compilation_report_path",
+        "diagnostics",
+        "warnings"
+      ],
+      "public_diagnostic_codes": [
+        null
+      ],
+      "raw_validator_public": false,
+      "report_path_key_present": true,
+      "report_path_written": true,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/oof_baseline.compilation_report.json",
+      "igapp_written": false,
+      "manifest_written": false,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "oof_with_strict_requirement",
+      "status": "oof",
+      "report_pass_result": "oof",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "oof",
+        "emit": "skipped"
+      },
+      "report_diagnostics": [
+        {
+          "rule": "OOF-P1",
+          "severity": "error",
+          "message": "Unresolved symbol: missing_b",
+          "node": "sum",
+          "path": "contract:BadUnresolvedSymbol/node:sum",
+          "category": "typechecker_oof",
+          "contract": "BadUnresolvedSymbol",
+          "span": null
+        }
+      ],
+      "report_has_validation": false,
+      "validation": null,
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "oof",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+        "source_hash": "sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "oof",
+          "emit": "skipped",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/oof_with_strict_requirement.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "OOF-P1",
+            "severity": "error",
+            "message": "Unresolved symbol: missing_b",
+            "node": "sum",
+            "path": "contract:BadUnresolvedSymbol/node:sum",
+            "category": "typechecker_oof",
+            "contract": "BadUnresolvedSymbol",
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "oof",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/source_to_semanticir_fixture/negative_unresolved_symbol.ig",
+        "source_hash": "sha256:35eaa55abcef5f118a5e42f288deee9ac7fadcf90be2bda9007cb978b547a85d",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "oof",
+          "emit": "skipped",
+          "assemble": "skipped"
+        },
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/oof_with_strict_requirement.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "OOF-P1",
+            "severity": "error",
+            "message": "Unresolved symbol: missing_b",
+            "node": "sum",
+            "path": "contract:BadUnresolvedSymbol/node:sum",
+            "category": "typechecker_oof",
+            "contract": "BadUnresolvedSymbol",
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "contracts",
+        "compilation_report_path",
+        "diagnostics",
+        "warnings"
+      ],
+      "public_diagnostic_codes": [
+        null
+      ],
+      "raw_validator_public": false,
+      "report_path_key_present": true,
+      "report_path_written": true,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/oof_with_strict_requirement.compilation_report.json",
+      "igapp_written": false,
+      "manifest_written": false,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "assembler_refused_preserved",
+      "status": "assembler_refused",
+      "report_pass_result": "error",
+      "report_stages": {
+        "parse": "unknown",
+        "classify": "unknown",
+        "typecheck": "unknown",
+        "emit": "unknown"
+      },
+      "report_diagnostics": [
+        {
+          "rule": "ASSEMBLER-REFUSAL",
+          "severity": "error",
+          "message": "synthetic assembler refusal",
+          "category": "assembler_refusal",
+          "contract": null,
+          "node": null,
+          "path": null,
+          "span": null
+        }
+      ],
+      "report_has_validation": false,
+      "validation": null,
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "assembler_refused",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": null,
+        "grammar_version": "unknown",
+        "stages": {
+          "parse": "unknown",
+          "classify": "unknown",
+          "typecheck": "unknown",
+          "emit": "unknown",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/assembler_refused_preserved.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "ASSEMBLER-REFUSAL",
+            "severity": "error",
+            "message": "synthetic assembler refusal",
+            "category": "assembler_refusal",
+            "contract": null,
+            "node": null,
+            "path": null,
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "assembler_refused",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": null,
+        "grammar_version": "unknown",
+        "stages": {
+          "parse": "unknown",
+          "classify": "unknown",
+          "typecheck": "unknown",
+          "emit": "unknown",
+          "assemble": "skipped"
+        },
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/assembler_refused_preserved.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "ASSEMBLER-REFUSAL",
+            "severity": "error",
+            "message": "synthetic assembler refusal",
+            "category": "assembler_refusal",
+            "contract": null,
+            "node": null,
+            "path": null,
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "contracts",
+        "compilation_report_path",
+        "diagnostics",
+        "warnings"
+      ],
+      "public_diagnostic_codes": [
+        null
+      ],
+      "raw_validator_public": false,
+      "report_path_key_present": true,
+      "report_path_written": true,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/assembler_refused_preserved.compilation_report.json",
+      "igapp_written": false,
+      "manifest_written": false,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "runtime_smoke_failed_preserved",
+      "status": "runtime_smoke_failed",
+      "report_pass_result": "error",
+      "report_stages": {
+        "parse": "ok",
+        "classify": "ok",
+        "typecheck": "ok",
+        "emit": "ok"
+      },
+      "report_diagnostics": [
+        {
+          "rule": "OOF-RUNTIME-SMOKE",
+          "severity": "error",
+          "message": "RuntimeMachine load/evaluate smoke failed",
+          "details": {
+            "trusted": false,
+            "reason": "synthetic runtime smoke failure"
+          },
+          "category": "runtime_smoke_failure",
+          "contract": null,
+          "node": null,
+          "path": null,
+          "span": null
+        }
+      ],
+      "report_has_validation": true,
+      "validation": {
+        "kind": "compiler_profile_contract_validation_result",
+        "format_version": "0.1.0",
+        "valid": true,
+        "diagnostics": [],
+        "diagnostic_codes": [],
+        "digest_reference_policy": "prop038_24_plus",
+        "compiler_integrated": false,
+        "compile_refusal_authorized": false,
+        "report_only": true
+      },
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "runtime_smoke_failed",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/runtime_smoke_failed_preserved.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "OOF-RUNTIME-SMOKE",
+            "severity": "error",
+            "message": "RuntimeMachine load/evaluate smoke failed",
+            "details": {
+              "trusted": false,
+              "reason": "synthetic runtime smoke failure"
+            },
+            "category": "runtime_smoke_failure",
+            "contract": null,
+            "node": null,
+            "path": null,
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "runtime_smoke_failed",
+        "program_id": "semanticir/fe9a2479eb3f4d5d",
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": "sha256:fe9a2479eb3f4d5d5b99e5263f691f0d4d2efb38f69ce0e082be71eca97773e1",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "skipped"
+        },
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/runtime_smoke_failed_preserved.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "OOF-RUNTIME-SMOKE",
+            "severity": "error",
+            "message": "RuntimeMachine load/evaluate smoke failed",
+            "details": {
+              "trusted": false,
+              "reason": "synthetic runtime smoke failure"
+            },
+            "category": "runtime_smoke_failure",
+            "contract": null,
+            "node": null,
+            "path": null,
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "contracts",
+        "compilation_report_path",
+        "diagnostics",
+        "warnings"
+      ],
+      "public_diagnostic_codes": [
+        null
+      ],
+      "raw_validator_public": false,
+      "report_path_key_present": true,
+      "report_path_written": true,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/runtime_smoke_failed_preserved.compilation_report.json",
+      "igapp_written": true,
+      "manifest_written": true,
+      "assembler_calls": null,
+      "refusal_called": null
+    },
+    {
+      "name": "internal_error_preserved",
+      "status": "error",
+      "report_pass_result": "error",
+      "report_stages": {
+        "parse": "unknown",
+        "classify": "unknown",
+        "typecheck": "unknown",
+        "emit": "unknown"
+      },
+      "report_diagnostics": [
+        {
+          "rule": "compiler_error",
+          "severity": "error",
+          "message": "RuntimeError: synthetic classifier failure: Hash",
+          "category": "emitter_error",
+          "contract": null,
+          "node": null,
+          "path": null,
+          "span": null
+        }
+      ],
+      "report_has_validation": false,
+      "validation": null,
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "error",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": null,
+        "grammar_version": "unknown",
+        "stages": {
+          "parse": "unknown",
+          "classify": "unknown",
+          "typecheck": "unknown",
+          "emit": "unknown",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/internal_error_preserved.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "compiler_error",
+            "severity": "error",
+            "message": "RuntimeError: synthetic classifier failure: Hash",
+            "category": "emitter_error",
+            "contract": null,
+            "node": null,
+            "path": null,
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_result_comparable": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "error",
+        "program_id": null,
+        "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/add.ig",
+        "source_hash": null,
+        "grammar_version": "unknown",
+        "stages": {
+          "parse": "unknown",
+          "classify": "unknown",
+          "typecheck": "unknown",
+          "emit": "unknown",
+          "assemble": "skipped"
+        },
+        "contracts": [],
+        "compilation_report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/internal_error_preserved.compilation_report.json",
+        "diagnostics": [
+          {
+            "rule": "compiler_error",
+            "severity": "error",
+            "message": "RuntimeError: synthetic classifier failure: Hash",
+            "category": "emitter_error",
+            "contract": null,
+            "node": null,
+            "path": null,
+            "span": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "contracts",
+        "compilation_report_path",
+        "diagnostics",
+        "warnings"
+      ],
+      "public_diagnostic_codes": [
+        null
+      ],
+      "raw_validator_public": false,
+      "report_path_key_present": true,
+      "report_path_written": true,
+      "report_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/out/work/internal_error_preserved.compilation_report.json",
+      "igapp_written": false,
+      "manifest_written": false,
+      "assembler_calls": null,
+      "refusal_called": null
+    }
+  ],
+  "checks": [
+    {
+      "name": "no_strict_source.report_only_status_ok",
+      "pass": true
+    },
+    {
+      "name": "no_strict_source.validation_invalid_nested",
+      "pass": true
+    },
+    {
+      "name": "no_strict_source.public_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "nil_strict_source.public_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "nil_strict_source.no_refusal_report",
+      "pass": true
+    },
+    {
+      "name": "strict_valid.status_ok",
+      "pass": true
+    },
+    {
+      "name": "strict_valid.validation_true",
+      "pass": true
+    },
+    {
+      "name": "strict_valid.public_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "strict_valid.assembly_executed",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.status_refused",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.public_key_allowlist_exact",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.public_wrapper_only",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.raw_validator_not_public",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.nested_raw_validator_present",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.validator_not_authority_marker_preserved",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.report_only_marker_preserved",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.report_pass_result_ok",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.report_diagnostics_unchanged",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.compilation_report_path_null",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.igapp_path_null",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.no_sidecar_report",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.assembler_not_called",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.refusal_not_called",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.status",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.public_key_allowlist_exact",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.keyset_same_as_refused",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.public_wrapper_only",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.report_pass_result_ok",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.no_sidecar_report",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.assembler_not_called",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.refusal_not_called",
+      "pass": true
+    },
+    {
+      "name": "provider_nil.no_field_no_refusal",
+      "pass": true
+    },
+    {
+      "name": "provider_non_hash.no_field_no_refusal",
+      "pass": true
+    },
+    {
+      "name": "provider_exception.no_field_no_refusal",
+      "pass": true
+    },
+    {
+      "name": "parse_path.status_preserved",
+      "pass": true
+    },
+    {
+      "name": "parse_path.stages_preserved",
+      "pass": true
+    },
+    {
+      "name": "parse_path.refusal_report_preserved",
+      "pass": true
+    },
+    {
+      "name": "oof_path.status_preserved",
+      "pass": true
+    },
+    {
+      "name": "oof_path.validation_not_attached",
+      "pass": true
+    },
+    {
+      "name": "oof_path.refusal_report_preserved",
+      "pass": true
+    },
+    {
+      "name": "assembler_refused.status_preserved",
+      "pass": true
+    },
+    {
+      "name": "assembler_refused.refusal_report_preserved",
+      "pass": true
+    },
+    {
+      "name": "runtime_smoke.status_preserved",
+      "pass": true
+    },
+    {
+      "name": "runtime_smoke.refusal_report_preserved",
+      "pass": true
+    },
+    {
+      "name": "internal_error.status_preserved",
+      "pass": true
+    },
+    {
+      "name": "internal_error.refusal_report_preserved",
+      "pass": true
+    }
+  ],
+  "failed_checks": [],
+  "public_key_allowlist": [
+    "kind",
+    "format_version",
+    "status",
+    "program_id",
+    "source_path",
+    "source_hash",
+    "grammar_version",
+    "stages",
+    "igapp_path",
+    "contracts",
+    "compilation_report_path",
+    "diagnostics",
+    "warnings"
+  ],
+  "public_terminal_keysets": {
+    "refused": [
+      "kind",
+      "format_version",
+      "status",
+      "program_id",
+      "source_path",
+      "source_hash",
+      "grammar_version",
+      "stages",
+      "igapp_path",
+      "contracts",
+      "compilation_report_path",
+      "diagnostics",
+      "warnings"
+    ],
+    "configuration_error": [
+      "kind",
+      "format_version",
+      "status",
+      "program_id",
+      "source_path",
+      "source_hash",
+      "grammar_version",
+      "stages",
+      "igapp_path",
+      "contracts",
+      "compilation_report_path",
+      "diagnostics",
+      "warnings"
+    ]
+  },
+  "non_persisting_evidence": {
+    "strict_refused": {
+      "report_path_key_present": false,
+      "report_path_written": false,
+      "igapp_written": false,
+      "manifest_written": false
+    },
+    "configuration_error": {
+      "report_path_key_present": false,
+      "report_path_written": false,
+      "igapp_written": false,
+      "manifest_written": false
+    }
+  },
+  "command_matrix": [
+    {
+      "command": "ruby -c igniter-lang/lib/igniter_lang/compiler_orchestrator.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby -c igniter-lang/lib/igniter_lang/compiler_result.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby -c igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/prop038_strict_refusal_live_implementation_proof.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/prop038_strict_refusal_live_implementation_proof/prop038_strict_refusal_live_implementation_proof.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/compiler_profile_contract_proof/compiler_profile_contract_proof.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/prop038_contract_digest_shape_policy_proof/prop038_contract_digest_shape_policy_proof.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/prop038_contract_digest_recompute_match_proof/prop038_contract_digest_recompute_match_proof.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/prop038_contract_digest_report_only_integration_proof/prop038_contract_digest_report_only_integration_proof.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/prop038_report_only_compiler_integration/prop038_report_only_compiler_integration.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/prop038_strict_mode_refusal_trigger_proof/prop038_strict_mode_refusal_trigger_proof.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/prop038_strict_refusal_result_shape_proof/prop038_strict_refusal_result_shape_proof.rb",
+      "result": "PASS"
+    }
+  ],
+  "recommendation_for_c3_a": "ready for pressure review"
+}
