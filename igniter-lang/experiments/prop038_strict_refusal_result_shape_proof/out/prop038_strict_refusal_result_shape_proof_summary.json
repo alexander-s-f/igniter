@@ -1,0 +1,497 @@
+{
+  "kind": "prop038_strict_refusal_result_shape_proof_summary",
+  "format_version": "0.1.0",
+  "track": "prop038-strict-refusal-result-shape-proof-local-v0",
+  "status": "PASS",
+  "pass": true,
+  "cases": [
+    {
+      "name": "strict_refusal_contract_digest_mismatch",
+      "description": "Accepted proof-local target shape for strict digest mismatch refusal.",
+      "internal_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "refused",
+        "program_id": "semanticir/prop038-strict-refusal-shape",
+        "source_path": "igniter-lang/source/prop038_strict_refusal_shape_synthetic.ig",
+        "source_hash": "sha256:0380380380380380380380380380380380380380380380380380380380380380",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": null,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract_refusal.contract_digest_mismatch",
+            "message": "Strict compiler profile contract validation refused compilation because contract_digest does not match canonical contract material.",
+            "path": "compiler_profile_contract_validation.contract_digest",
+            "evidence_code": "compiler_profile_contract.contract_digest_mismatch"
+          }
+        ],
+        "warnings": [],
+        "report": {
+          "kind": "compilation_report",
+          "format_version": "0.1.0",
+          "program_id": "compilation_report/prop038-strict-refusal-shape",
+          "grammar_version": "0.1.0",
+          "source_hash": "sha256:0380380380380380380380380380380380380380380380380380380380380380",
+          "source_path": "igniter-lang/source/prop038_strict_refusal_shape_synthetic.ig",
+          "pass_result": "ok",
+          "stages": {
+            "parse": "ok",
+            "classify": "ok",
+            "typecheck": "ok",
+            "emit": "ok"
+          },
+          "diagnostics": [],
+          "semantic_ir_ref": "semanticir/prop038-strict-refusal-shape",
+          "compiler_profile_contract_validation": {
+            "kind": "compiler_profile_contract_validation_result",
+            "format_version": "0.1.0",
+            "valid": false,
+            "diagnostics": [
+              {
+                "code": "compiler_profile_contract.contract_digest_mismatch",
+                "message": "declared contract_digest does not match recomputed canonical contract digest",
+                "path": "contract_digest"
+              }
+            ],
+            "diagnostic_codes": [
+              "compiler_profile_contract.contract_digest_mismatch"
+            ],
+            "digest_reference_policy": "prop038_24_plus",
+            "compiler_integrated": false,
+            "compile_refusal_authorized": false,
+            "report_only": true
+          }
+        }
+      },
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "refused",
+        "program_id": "semanticir/prop038-strict-refusal-shape",
+        "source_path": "igniter-lang/source/prop038_strict_refusal_shape_synthetic.ig",
+        "source_hash": "sha256:0380380380380380380380380380380380380380380380380380380380380380",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": null,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract_refusal.contract_digest_mismatch",
+            "message": "Strict compiler profile contract validation refused compilation because contract_digest does not match canonical contract material.",
+            "path": "compiler_profile_contract_validation.contract_digest",
+            "evidence_code": "compiler_profile_contract.contract_digest_mismatch"
+          }
+        ],
+        "warnings": []
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "contracts",
+        "compilation_report_path",
+        "diagnostics",
+        "warnings"
+      ],
+      "public_diagnostic_codes": [
+        "compiler_profile_contract_refusal.contract_digest_mismatch"
+      ],
+      "nested_diagnostic_codes": [
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "top_level_report_diagnostics": [],
+      "produced_paths": []
+    },
+    {
+      "name": "malformed_strict_requirement_configuration_error",
+      "description": "Accepted proof-local target shape for malformed strict requirement.",
+      "internal_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "configuration_error",
+        "program_id": "semanticir/prop038-strict-refusal-shape",
+        "source_path": "igniter-lang/source/prop038_strict_refusal_shape_synthetic.ig",
+        "source_hash": "sha256:0380380380380380380380380380380380380380380380380380380380380380",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": null,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract_refusal.strict_requirement_malformed",
+            "message": "Malformed strict compiler profile contract requirement produced configuration_error before assembly.",
+            "path": "compiler_profile_contract_strict_requirement",
+            "evidence_code": null
+          }
+        ],
+        "warnings": [],
+        "report": {
+          "kind": "compilation_report",
+          "format_version": "0.1.0",
+          "program_id": "compilation_report/prop038-strict-refusal-shape",
+          "grammar_version": "0.1.0",
+          "source_hash": "sha256:0380380380380380380380380380380380380380380380380380380380380380",
+          "source_path": "igniter-lang/source/prop038_strict_refusal_shape_synthetic.ig",
+          "pass_result": "ok",
+          "stages": {
+            "parse": "ok",
+            "classify": "ok",
+            "typecheck": "ok",
+            "emit": "ok"
+          },
+          "diagnostics": [],
+          "semantic_ir_ref": "semanticir/prop038-strict-refusal-shape",
+          "compiler_profile_contract_validation": {
+            "kind": "compiler_profile_contract_validation_result",
+            "format_version": "0.1.0",
+            "valid": true,
+            "diagnostics": [],
+            "diagnostic_codes": [],
+            "digest_reference_policy": "prop038_24_plus",
+            "compiler_integrated": false,
+            "compile_refusal_authorized": false,
+            "report_only": true
+          }
+        }
+      },
+      "public_result": {
+        "kind": "compiler_result",
+        "format_version": "0.1.0",
+        "status": "configuration_error",
+        "program_id": "semanticir/prop038-strict-refusal-shape",
+        "source_path": "igniter-lang/source/prop038_strict_refusal_shape_synthetic.ig",
+        "source_hash": "sha256:0380380380380380380380380380380380380380380380380380380380380380",
+        "grammar_version": "0.1.0",
+        "stages": {
+          "parse": "ok",
+          "classify": "ok",
+          "typecheck": "ok",
+          "emit": "ok",
+          "assemble": "skipped"
+        },
+        "igapp_path": null,
+        "contracts": [],
+        "compilation_report_path": null,
+        "diagnostics": [
+          {
+            "code": "compiler_profile_contract_refusal.strict_requirement_malformed",
+            "message": "Malformed strict compiler profile contract requirement produced configuration_error before assembly.",
+            "path": "compiler_profile_contract_strict_requirement",
+            "evidence_code": null
+          }
+        ],
+        "warnings": []
+      },
+      "public_keys": [
+        "kind",
+        "format_version",
+        "status",
+        "program_id",
+        "source_path",
+        "source_hash",
+        "grammar_version",
+        "stages",
+        "igapp_path",
+        "contracts",
+        "compilation_report_path",
+        "diagnostics",
+        "warnings"
+      ],
+      "public_diagnostic_codes": [
+        "compiler_profile_contract_refusal.strict_requirement_malformed"
+      ],
+      "nested_diagnostic_codes": [],
+      "top_level_report_diagnostics": [],
+      "produced_paths": []
+    },
+    {
+      "name": "legacy_report_only_anchors_referenced",
+      "description": "Existing report-only proof anchors remain referenced and not contradicted.",
+      "anchor_statuses": {
+        "compiler_profile_contract_proof": "PASS",
+        "prop038_shape_policy": "PASS",
+        "prop038_recompute_match": "PASS",
+        "prop038_digest_report_only": "PASS",
+        "prop038_report_only_compiler_integration": "PASS",
+        "prop038_strict_mode_trigger": "PASS"
+      },
+      "public_result_unchanged_anchor": true,
+      "nested_diagnostics_anchor": true,
+      "no_refusal_report_anchor": true,
+      "wrapper_proof_local_anchor": true
+    }
+  ],
+  "check_count": 44,
+  "checks": [
+    {
+      "name": "strict_refusal.status_refused",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.public_key_allowlist_exact",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.forbidden_public_keys_absent",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.compilation_report_path_present_null",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.igapp_path_null",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.contracts_empty",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.assemble_skipped",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.report_pass_result_ok",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.program_id_semantic_ir_ref",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.public_wrapper_only",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.raw_validator_not_public",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.nested_raw_validator_present",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.top_level_report_diagnostics_unchanged",
+      "pass": true
+    },
+    {
+      "name": "strict_refusal.no_produced_paths",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.status",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.public_key_allowlist_exact",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.reason_distinct",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.not_digest_mismatch",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.compilation_report_path_present_null",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.igapp_path_null",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.assemble_skipped",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.report_pass_result_ok",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.no_produced_paths",
+      "pass": true
+    },
+    {
+      "name": "configuration_error.top_level_report_diagnostics_unchanged",
+      "pass": true
+    },
+    {
+      "name": "diagnostics.public_codes_exact",
+      "pass": true
+    },
+    {
+      "name": "diagnostics.no_raw_validator_public",
+      "pass": true
+    },
+    {
+      "name": "diagnostics.nested_isolated",
+      "pass": true
+    },
+    {
+      "name": "nonpersisting.no_sidecar_paths_modeled",
+      "pass": true
+    },
+    {
+      "name": "nonpersisting.no_igapp_paths_modeled",
+      "pass": true
+    },
+    {
+      "name": "anchors.all_status_pass",
+      "pass": true
+    },
+    {
+      "name": "anchors.public_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "anchors.nested_diagnostics_only",
+      "pass": true
+    },
+    {
+      "name": "anchors.no_refusal_report_written",
+      "pass": true
+    },
+    {
+      "name": "anchors.wrapper_proof_local_only",
+      "pass": true
+    },
+    {
+      "name": "closed_surface.live_compiler_orchestrator_changed",
+      "pass": true
+    },
+    {
+      "name": "closed_surface.live_compile_refusal_enabled",
+      "pass": true
+    },
+    {
+      "name": "closed_surface.compiler_result_code_changed",
+      "pass": true
+    },
+    {
+      "name": "closed_surface.public_api_cli_widened",
+      "pass": true
+    },
+    {
+      "name": "closed_surface.persisted_report_or_sidecar_written",
+      "pass": true
+    },
+    {
+      "name": "closed_surface.parser_typechecker_semanticir_changed",
+      "pass": true
+    },
+    {
+      "name": "closed_surface.assembler_or_igapp_changed",
+      "pass": true
+    },
+    {
+      "name": "closed_surface.loader_report_or_compatibility_report_changed",
+      "pass": true
+    },
+    {
+      "name": "closed_surface.diagnostics_centralization_changed",
+      "pass": true
+    },
+    {
+      "name": "closed_surface.runtime_or_production_behavior_changed",
+      "pass": true
+    }
+  ],
+  "failed_checks": [],
+  "command_matrix": [
+    {
+      "command": "ruby -c igniter-lang/experiments/prop038_strict_refusal_result_shape_proof/prop038_strict_refusal_result_shape_proof.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/prop038_strict_refusal_result_shape_proof/prop038_strict_refusal_result_shape_proof.rb",
+      "result": "PASS"
+    }
+  ],
+  "exact_public_keys": [
+    "kind",
+    "format_version",
+    "status",
+    "program_id",
+    "source_path",
+    "source_hash",
+    "grammar_version",
+    "stages",
+    "igapp_path",
+    "contracts",
+    "compilation_report_path",
+    "diagnostics",
+    "warnings"
+  ],
+  "exact_diagnostic_codes": {
+    "public_wrapper_codes": [
+      "compiler_profile_contract_refusal.contract_digest_mismatch",
+      "compiler_profile_contract_refusal.strict_requirement_malformed"
+    ],
+    "nested_validator_codes": [
+      "compiler_profile_contract.contract_digest_mismatch"
+    ],
+    "forbidden_public_raw_validator_codes": [
+      "compiler_profile_contract.contract_digest_mismatch"
+    ]
+  },
+  "closed_surface_assertions": {
+    "live_compiler_orchestrator_changed": false,
+    "live_compile_refusal_enabled": false,
+    "compiler_result_code_changed": false,
+    "public_api_cli_widened": false,
+    "persisted_report_or_sidecar_written": false,
+    "parser_typechecker_semanticir_changed": false,
+    "assembler_or_igapp_changed": false,
+    "loader_report_or_compatibility_report_changed": false,
+    "diagnostics_centralization_changed": false,
+    "runtime_or_production_behavior_changed": false
+  },
+  "non_authorizations_preserved": {
+    "live_compiler_orchestrator_changed": false,
+    "live_compile_refusal_enabled": false,
+    "compiler_result_code_changed": false,
+    "public_api_cli_widened": false,
+    "persisted_report_or_sidecar_written": false,
+    "parser_typechecker_semanticir_changed": false,
+    "assembler_or_igapp_changed": false,
+    "loader_report_or_compatibility_report_changed": false,
+    "diagnostics_centralization_changed": false,
+    "runtime_or_production_behavior_changed": false,
+    "gate3_or_tbackend_behavior_changed": false,
+    "bihistory_stream_olap_cache_behavior_changed": false
+  },
+  "recommendation_for_c3_a": "accept proof-local closure"
+}

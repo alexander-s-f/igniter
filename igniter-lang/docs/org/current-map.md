@@ -329,6 +329,14 @@ prop038 strict refusal result shape orientation:
   forbidden implementation/public/persisted/runtime surfaces, and C3-X pressure
   hazards. Orientation only.
 
+prop038 strict refusal result shape proof orientation:
+  docs/org/indexes/prop038-strict-refusal-result-shape-proof-orientation-map-v0.md
+  captures R81 boundaries for proof-local result-shape modeling: what R80
+  authorized and did not authorize, expected proof-local assertions, public
+  key-set and nested diagnostics hazards, malformed `configuration_error`
+  target-shape requirements, forbidden live/public/persisted/runtime surfaces,
+  and C2-X pressure hazards. Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
