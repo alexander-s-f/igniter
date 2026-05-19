@@ -321,6 +321,14 @@ prop038 internal strict source status orientation:
   report questions, forbidden implementation/public/persisted/runtime surfaces,
   and C3-X pressure hazards. Orientation only.
 
+prop038 strict refusal result shape orientation:
+  docs/org/indexes/prop038-strict-refusal-result-shape-orientation-map-v0.md
+  captures R80 boundaries for strict-refusal result-shape and non-persisting
+  path design: what R79 authorized and did not authorize, malformed strict
+  requirement policy options, public result and nested diagnostics hazards,
+  forbidden implementation/public/persisted/runtime surfaces, and C3-X pressure
+  hazards. Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
