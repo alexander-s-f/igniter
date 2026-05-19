@@ -292,6 +292,13 @@ prop038 contract digest refusal preconditions boundary:
   invalidity vs compiler refusal, forbidden surfaces, and C2-X pressure hazards.
   Orientation only.
 
+prop038 contract digest strict-mode refusal trigger boundary:
+  docs/org/indexes/prop038-contract-digest-strict-mode-refusal-trigger-boundary-map-v0.md
+  captures R76 boundaries for strict-mode/refusal trigger design: strict mode as
+  design vocabulary only, report-only/no-refusal invariants, candidate trigger
+  source categories, forbidden surfaces, and C3-X pressure hazards.
+  Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
