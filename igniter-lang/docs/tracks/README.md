@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-18
+Last updated: 2026-05-19
 
 ---
 
@@ -66,6 +66,19 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 76 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-contract-digest-strict-mode-refusal-trigger-boundary-map-v0.md` | active orientation map | C0-O org-sidecar boundary map; separates strict-mode/refusal trigger design from enabling refusal, compiler/orchestrator behavior changes, public surfaces, persisted artifacts, and production authority; orientation only |
+| `prop038-contract-digest-strict-mode-refusal-trigger-design-v0.md` | done | Design-only strict-mode/refusal trigger semantics; recommends gate-controlled proof-local strict source, wrapper vocabulary, fail-open recompute policy, and proof-local matrix without enabling refusal |
+| `prop038-strict-mode-current-compiler-surface-survey-v0.md` | done | Read-only survey of current compiler/report/CLI surface; maps provider entry point, no-field/no-refusal paths, public result boundary, and "must not infer strict mode" list |
+| `../discussions/prop038-strict-mode-refusal-trigger-design-pressure-v0.md` | proceed | All 9 scope checks pass; no blockers; two non-blocking notes resolved by C4-A; confirms `would_refuse` proof vocabulary, gate-controlled source, fail-open recompute, and preserved legacy paths |
+| `../gates/prop038-strict-mode-refusal-trigger-design-decision-v0.md` | accepted-design-authorized-proof-local-experiment | Accepts design and authorizes only `prop038-strict-mode-refusal-trigger-proof-local-v0` next; live refusal/compiler behavior, public API/CLI, `CompilerResult`, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, and production remain closed |
+| `stage3-round76-status-curation-v0.md` | done | R76 status curation; records accepted design, proof-local-only next route, candidate statuses, preserved closed surfaces, and R77 recommendation |
+
+---
+
 ## Stage 3 Round 75 Evidence
 
 | Track | Status | Notes |
@@ -73,8 +86,8 @@ not PROP promotion, and not parser/tooling authorization.
 | `../org/indexes/prop038-contract-digest-refusal-preconditions-boundary-map-v0.md` | active orientation map | C0-O org-sidecar refusal-boundary map; separates precondition design from enabling refusal, compiler integration, public surfacing, persisted artifacts, and production authority; orientation only |
 | `prop038-contract-digest-compile-refusal-preconditions-design-v0.md` | done | Design-only refusal precondition map; keeps report-only behavior live, compile refusal closed, and names future candidate/blocker matrix without enabling behavior |
 | `../discussions/prop038-contract-digest-compile-refusal-preconditions-pressure-v0.md` | proceed | All 8 scope checks pass; no blockers or notes; confirms five vocabulary layers, nil/non-Hash/provider-error legacy behavior, proof requirements, and forbidden surfaces |
-| `../gates/prop038-contract-digest-compile-refusal-preconditions-decision-v0.md` | accepted-preconditions-design-refusal-held | Accepts preconditions design; no `contract_digest_*` diagnostic is authorized as compile-refusal behavior; authorizes only `prop038-contract-digest-strict-mode-refusal-trigger-design-v0` next |
-| `stage3-round75-status-curation-v0.md` | done | R75 status curation; records accepted preconditions design, closed refusal boundary, candidate statuses, blockers, and R76 strict-mode/refusal trigger design route |
+| `../gates/prop038-contract-digest-compile-refusal-preconditions-decision-v0.md` | accepted-preconditions-design-refusal-held | Accepts preconditions design; no `contract_digest_*` diagnostic is authorized as compile-refusal behavior; its authorized strict-mode/refusal trigger design route was resolved in R76 |
+| `stage3-round75-status-curation-v0.md` | done | R75 status curation; records accepted preconditions design, closed refusal boundary, candidate statuses, blockers, and the R76 strict-mode/refusal trigger design route later accepted by C4-A |
 
 ---
 
