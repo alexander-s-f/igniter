@@ -299,6 +299,13 @@ prop038 contract digest strict-mode refusal trigger boundary:
   source categories, forbidden surfaces, and C3-X pressure hazards.
   Orientation only.
 
+prop038 strict-mode refusal trigger proof-local boundary:
+  docs/org/indexes/prop038-strict-mode-refusal-trigger-proof-local-boundary-map-v0.md
+  captures R77 boundaries for proof-local `would_refuse` modeling: accepted
+  proof-local source/vocabulary, experiment-only write scope, what
+  `would_refuse` may and may not mean, closed live/public/persisted/runtime
+  surfaces, and C2-X pressure hazards. Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
