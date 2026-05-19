@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 81 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-strict-refusal-result-shape-proof-orientation-map-v0.md` | active orientation map | C0-O org-sidecar map; separates proof-local result-shape modeling from live compiler behavior, `CompilerResult`, public API/CLI widening, persisted reports, and `.igapp` artifacts; orientation only |
+| `prop038-strict-refusal-result-shape-proof-local-v0.md` | done | Proof-local strict-refusal result-shape experiment; PASS with 3 cases / 44 checks / 0 failed; exact 13-key public allowlist, `compilation_report_path: null`, nested diagnostics isolation, wrapper diagnostics, no sidecars, and no `.igapp` target artifacts proven |
+| `../discussions/prop038-strict-refusal-result-shape-proof-pressure-v0.md` | proceed | All 11 scope checks pass; no blockers; commands re-run PASS; confirms zero `lib/` or `bin/` changes and carries one non-blocking note about future `report.pass_result` and `configuration_error` public-surface policy |
+| `../gates/prop038-strict-refusal-result-shape-proof-acceptance-decision-v0.md` | accepted-proof-local-closure-implementation-held | Accepts R81 proof-local closure and authorizes only `prop038-strict-refusal-live-implementation-scope-review-v0` next; no live implementation, live refusal, `CompilerResult`, public API/CLI, persisted reports/sidecars, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, or production behavior opens |
+| `stage3-round81-status-curation-v0.md` | done | R81 status curation; records accepted proof-local closure, implementation-held state, preserved closed surfaces, remaining live blockers, and R82 design/review recommendation |
+
+---
+
 ## Stage 3 Round 80 Evidence
 
 | Track | Status | Notes |
@@ -74,8 +86,8 @@ not PROP promotion, and not parser/tooling authorization.
 | `strict-refusal-result-shape-and-nonpersisting-path-design-v0.md` | done | Design-only strict-refusal result-shape and non-persisting path design; names future `refused` vocabulary, public key allowlist, nested diagnostics isolation, `configuration_error` malformed policy, no-sidecar/no-assembler path, and blockers before implementation |
 | `prop038-public-result-and-diagnostics-proof-surface-survey-v0.md` | done | Read-only public result/diagnostics/refusal report/proof-surface survey; maps deny-one `public_result`, nested diagnostics isolation, current sidecar writes, observed CLI key sets, and reusable proof anchors |
 | `../discussions/prop038-strict-refusal-result-shape-pressure-v0.md` | proceed | All 11 scope checks pass; no blockers; NB-1 assigns strict-refusal public key-set ownership to future strict-refusal proof; NB-2 accepts null-present `compilation_report_path` convention via C4-A |
-| `../gates/prop038-strict-refusal-result-shape-decision-v0.md` | accepted-design-proof-local-next-implementation-held | Accepts strict-refusal result-shape/non-persisting path design and authorizes only `prop038-strict-refusal-result-shape-proof-local-v0` next; implementation, live compile refusal, public API/CLI, `CompilerResult`, persisted reports/sidecars, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, and production remain closed |
-| `stage3-round80-status-curation-v0.md` | done | R80 status curation; records accepted design, proof-local next route, implementation-held state, preserved closed surfaces, and R81 recommendation |
+| `../gates/prop038-strict-refusal-result-shape-decision-v0.md` | accepted-design-proof-local-next-implementation-held | Accepted strict-refusal result-shape/non-persisting path design and authorized only `prop038-strict-refusal-result-shape-proof-local-v0`; that proof-local route was accepted in R81; implementation, live compile refusal, public API/CLI, `CompilerResult`, persisted reports/sidecars, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, and production remain closed |
+| `stage3-round80-status-curation-v0.md` | done | R80 status curation; records accepted design, proof-local next route, implementation-held state, preserved closed surfaces, and the R81 proof-local route later accepted by C3-A |
 
 ---
 
