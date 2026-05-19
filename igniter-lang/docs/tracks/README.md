@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 75 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-contract-digest-refusal-preconditions-boundary-map-v0.md` | active orientation map | C0-O org-sidecar refusal-boundary map; separates precondition design from enabling refusal, compiler integration, public surfacing, persisted artifacts, and production authority; orientation only |
+| `prop038-contract-digest-compile-refusal-preconditions-design-v0.md` | done | Design-only refusal precondition map; keeps report-only behavior live, compile refusal closed, and names future candidate/blocker matrix without enabling behavior |
+| `../discussions/prop038-contract-digest-compile-refusal-preconditions-pressure-v0.md` | proceed | All 8 scope checks pass; no blockers or notes; confirms five vocabulary layers, nil/non-Hash/provider-error legacy behavior, proof requirements, and forbidden surfaces |
+| `../gates/prop038-contract-digest-compile-refusal-preconditions-decision-v0.md` | accepted-preconditions-design-refusal-held | Accepts preconditions design; no `contract_digest_*` diagnostic is authorized as compile-refusal behavior; authorizes only `prop038-contract-digest-strict-mode-refusal-trigger-design-v0` next |
+| `stage3-round75-status-curation-v0.md` | done | R75 status curation; records accepted preconditions design, closed refusal boundary, candidate statuses, blockers, and R76 strict-mode/refusal trigger design route |
+
+---
+
 ## Stage 3 Round 74 Evidence
 
 | Track | Status | Notes |
@@ -73,8 +85,8 @@ not PROP promotion, and not parser/tooling authorization.
 | `../org/indexes/prop038-contract-digest-live-validator-implementation-boundary-map-v0.md` | active orientation map | C0-O org-sidecar implementation-boundary map; distinguishes validator-only implementation from compiler/orchestrator integration, compile refusal, public/report surfacing, persisted artifacts, and production authority; orientation only |
 | `prop038-contract-digest-live-validator-implementation-v0.md` | done | Implements all four accepted `contract_digest_*` diagnostics inside `IgniterLang::CompilerProfileContractValidator`; validator API/result shape unchanged; proof summaries PASS 13/30, 8/20, 14/16, 12/21 |
 | `../discussions/prop038-contract-digest-live-validator-implementation-pressure-v0.md` | proceed | All 9 scope checks pass; no blockers or notes; changed files inside authorized scope; canonicalization, mutation safety, result shape, report-only/no-refusal, non-stdlib require and untouched surface checks pass |
-| `../gates/prop038-contract-digest-live-validator-implementation-acceptance-decision-v0.md` | accepted-live-validator-implementation-closure | Accepts bounded live validator implementation only inside `IgniterLang::CompilerProfileContractValidator`; compile refusal remains closed; authorizes only `prop038-contract-digest-compile-refusal-preconditions-design-v0` next |
-| `stage3-round74-status-curation-v0.md` | done | R74 status curation; records implementation acceptance, proof matrix, preserved closed surfaces, and R75 refusal-preconditions design route |
+| `../gates/prop038-contract-digest-live-validator-implementation-acceptance-decision-v0.md` | accepted-live-validator-implementation-closure | Accepts bounded live validator implementation only inside `IgniterLang::CompilerProfileContractValidator`; compile refusal remains closed; its only authorized preconditions-design route was resolved in R75 |
+| `stage3-round74-status-curation-v0.md` | done | R74 status curation; records implementation acceptance, proof matrix, preserved closed surfaces, and the R75 refusal-preconditions design route later accepted by C3-A |
 
 ---
 
