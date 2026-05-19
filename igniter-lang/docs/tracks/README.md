@@ -66,6 +66,19 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 82 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-strict-refusal-live-scope-orientation-map-v0.md` | active orientation map | C0-O org-sidecar map; separates implementation-scope design/review from implementation authorization; orientation only |
+| `prop038-strict-refusal-live-implementation-scope-review-v0.md` | done | Design/review-only live implementation scope review; names candidate future write scope, authority requirements, `report.pass_result` policy, `configuration_error` public surface, non-persisting boundary, proof matrix, and blockers before implementation |
+| `prop038-live-implementation-touchpoint-survey-v0.md` | done | Read-only live touchpoint survey; maps current orchestrator/result/report/assembler/CLI/facade touchpoints, coupling risks, regression anchors, and must-not-change surfaces |
+| `../discussions/prop038-live-implementation-scope-pressure-v0.md` | proceed | All 11 scope checks pass; no blockers; NB-1 authority source and NB-2 public API/facade passthrough resolved by C4-A |
+| `../gates/prop038-strict-refusal-live-implementation-scope-decision-v0.md` | accepted-scope-review-implementation-held | Accepts live implementation scope review and authorizes only `prop038-strict-refusal-live-implementation-authorization-review-v0` next; implementation, live refusal, public API/CLI, persisted reports/sidecars, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, and production remain closed |
+| `stage3-round82-status-curation-v0.md` | done | R82 status curation; records accepted scope review, implementation-held state, preserved closed surfaces, remaining blockers, and R83 authorization-review recommendation |
+
+---
+
 ## Stage 3 Round 81 Evidence
 
 | Track | Status | Notes |
@@ -73,8 +86,8 @@ not PROP promotion, and not parser/tooling authorization.
 | `../org/indexes/prop038-strict-refusal-result-shape-proof-orientation-map-v0.md` | active orientation map | C0-O org-sidecar map; separates proof-local result-shape modeling from live compiler behavior, `CompilerResult`, public API/CLI widening, persisted reports, and `.igapp` artifacts; orientation only |
 | `prop038-strict-refusal-result-shape-proof-local-v0.md` | done | Proof-local strict-refusal result-shape experiment; PASS with 3 cases / 44 checks / 0 failed; exact 13-key public allowlist, `compilation_report_path: null`, nested diagnostics isolation, wrapper diagnostics, no sidecars, and no `.igapp` target artifacts proven |
 | `../discussions/prop038-strict-refusal-result-shape-proof-pressure-v0.md` | proceed | All 11 scope checks pass; no blockers; commands re-run PASS; confirms zero `lib/` or `bin/` changes and carries one non-blocking note about future `report.pass_result` and `configuration_error` public-surface policy |
-| `../gates/prop038-strict-refusal-result-shape-proof-acceptance-decision-v0.md` | accepted-proof-local-closure-implementation-held | Accepts R81 proof-local closure and authorizes only `prop038-strict-refusal-live-implementation-scope-review-v0` next; no live implementation, live refusal, `CompilerResult`, public API/CLI, persisted reports/sidecars, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, or production behavior opens |
-| `stage3-round81-status-curation-v0.md` | done | R81 status curation; records accepted proof-local closure, implementation-held state, preserved closed surfaces, remaining live blockers, and R82 design/review recommendation |
+| `../gates/prop038-strict-refusal-result-shape-proof-acceptance-decision-v0.md` | accepted-proof-local-closure-implementation-held | Accepted R81 proof-local closure and authorized only `prop038-strict-refusal-live-implementation-scope-review-v0`; that scope review was accepted in R82; no live implementation, live refusal, `CompilerResult`, public API/CLI, persisted reports/sidecars, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, or production behavior opens |
+| `stage3-round81-status-curation-v0.md` | done | R81 status curation; records accepted proof-local closure, implementation-held state, preserved closed surfaces, remaining live blockers, and the R82 scope-review route later accepted by C4-A |
 
 ---
 
