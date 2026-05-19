@@ -337,6 +337,15 @@ prop038 strict refusal result shape proof orientation:
   target-shape requirements, forbidden live/public/persisted/runtime surfaces,
   and C2-X pressure hazards. Orientation only.
 
+prop038 strict refusal live scope orientation:
+  docs/org/indexes/prop038-strict-refusal-live-scope-orientation-map-v0.md
+  captures R82 boundaries for implementation-scope design/review: what R81
+  proved and did not authorize, exact scope-review questions, live write-scope
+  hazards, CompilerResult and CompilerOrchestrator authority hazards,
+  `report.pass_result` and `configuration_error` open questions, forbidden
+  implementation/public/persisted/runtime surfaces, and C3-X pressure hazards.
+  Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
