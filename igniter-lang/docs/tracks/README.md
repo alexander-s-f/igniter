@@ -66,6 +66,17 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 83 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../gates/prop038-strict-refusal-live-implementation-authorization-review-v0.md` | authorized-bounded-internal-only-implementation | Authorizes only the bounded internal-only strict-refusal live implementation slice; public API/CLI, loader/report, CompatibilityReport, runtime, Gate 3, and production remain closed |
+| `prop038-strict-refusal-live-implementation-v0.md` | done | Lands bounded internal-only implementation in `compiler_orchestrator.rb` and `compiler_result.rb` plus live proof harness; 16 cases / 46 checks / 0 failed; all 11 command matrix commands PASS |
+| `../discussions/prop038-strict-refusal-live-implementation-pressure-v0.md` | proceed | All 10 scope checks pass; no blockers; one non-blocking instrumentation asymmetry for non-strict success-path `assembler_calls`; forbidden surfaces remain closed |
+| `stage3-round83-status-curation-v0.md` | done | R83 status curation; records landed bounded internal-only implementation, proof matrix, pressure verdict, preserved non-authorizations, and next acceptance/closure recommendation |
+
+---
+
 ## Stage 3 Round 82 Evidence
 
 | Track | Status | Notes |
