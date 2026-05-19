@@ -47,7 +47,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-032](PROP-032-assumptions-block-v0.md) | experiment-pass | `assumptions {}` block + `uses assumptions NAME`; Phase 1/2/3/4 compiler proofs accepted by S3-R36-C2-A; PROP-033 evidence validation and runtime receipts remain excluded |
 | [PROP-036](PROP-036-compiler-profile-manifest-identity-v0.md) | accepted | `compiler_profile_id` manifest identity; accepted proposal-only by S3-R35-C3-A; separate implementation authorization required before code |
 | [PROP-037](PROP-037-external-progression-service-liveness-v0.md) | accepted | External progression and service liveness semantics; accepted proposal-only by S3-R37-C3-A; descriptor/proof follow-ups only, no parser/runtime/fragment-class authorization |
-| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A; bounded report-only internal annotation accepted/closed by S3-R67-C3-A; hybrid `contract_digest` policy design accepted by S3-R68-C3-A; shape-policy proof accepted by S3-R69-C3-A; recompute-match proof accepted by S3-R70-C3-A; report-only integration proof accepted by S3-R71-C3-A; errata/design text accepted by S3-R72-C3-A; live validator implementation design accepted by S3-R73-C4-A; bounded live validator implementation accepted by S3-R74-C3-A; compile-refusal preconditions design accepted by S3-R75-C3-A; strict-mode/refusal trigger design accepted by S3-R76-C4-A; proof-local strict-mode refusal trigger experiment accepted/closed by S3-R77-C3-A; live-refusal boundary design accepted by S3-R78-C4-A; internal orchestrator strict-source/status design accepted by S3-R79-C4-A with implementation held; only strict-refusal result-shape/non-persisting path design may open next |
+| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A; bounded report-only internal annotation accepted/closed by S3-R67-C3-A; hybrid `contract_digest` policy design accepted by S3-R68-C3-A; shape-policy proof accepted by S3-R69-C3-A; recompute-match proof accepted by S3-R70-C3-A; report-only integration proof accepted by S3-R71-C3-A; errata/design text accepted by S3-R72-C3-A; live validator implementation design accepted by S3-R73-C4-A; bounded live validator implementation accepted by S3-R74-C3-A; compile-refusal preconditions design accepted by S3-R75-C3-A; strict-mode/refusal trigger design accepted by S3-R76-C4-A; proof-local strict-mode refusal trigger experiment accepted/closed by S3-R77-C3-A; live-refusal boundary design accepted by S3-R78-C4-A; internal orchestrator strict-source/status design accepted by S3-R79-C4-A; strict-refusal result-shape/non-persisting path design accepted by S3-R80-C4-A with implementation held; only proof-local strict-refusal result-shape route may open next |
 
 ---
 
@@ -154,13 +154,16 @@ proof-local experiment with 12 cases / 15 checks PASS; only
 `contract_digest_mismatch` maps to proof-local `would_refuse`, while live
 `refused` behavior remains absent. S3-R78-C4-A accepts the live-refusal boundary
 design and keeps implementation held. S3-R79-C4-A accepts the internal
-orchestrator strict-source/status design and keeps implementation held. Only
-`strict-refusal-result-shape-and-nonpersisting-path-design-v0` may open next,
-and it is design-only; it must decide strict-refusal result shape,
-non-persisting path semantics, malformed strict requirement policy, public
-result key-set behavior, and nested diagnostic exposure before implementation
-can be considered. Compiler/orchestrator integration, live compile refusal,
-public surfaces, `CompilerResult`, persisted reports/sidecars, loader/report,
+orchestrator strict-source/status design and keeps implementation held.
+S3-R80-C4-A accepts the strict-refusal result-shape/non-persisting path design
+and keeps implementation held. Only
+`prop038-strict-refusal-result-shape-proof-local-v0` may open next, and it is
+proof-local only; it must verify the accepted `refused` target shape,
+malformed strict requirement `configuration_error` target shape, public result
+key-set allowlist, nested diagnostic isolation, and `compilation_report_path:
+null` non-persisting convention before implementation can be considered.
+Compiler/orchestrator integration, live compile refusal, public surfaces,
+`CompilerResult`, persisted reports/sidecars, loader/report,
 CompatibilityReport, runtime, Gate 3 widening, and production remain closed.
 Managed local recursion / loop-class extensions move to PROP-039+ or later.
 
@@ -242,8 +245,9 @@ PROP-038 errata/design text accepted; live validator implementation design
 accepted; bounded live validator implementation accepted; compile-refusal
 preconditions design accepted; strict-mode/refusal trigger design accepted;
 strict-mode refusal trigger proof-local experiment accepted/closed;
-live-refusal boundary design accepted with implementation held; and internal
-orchestrator strict-source/status design accepted with implementation held. Only
-strict-refusal result-shape/non-persisting path design may open next. Managed
-local recursion / loop-class extensions use PROP-039+ as placeholder only until
-formal assignment.
+live-refusal boundary design accepted with implementation held; internal
+orchestrator strict-source/status design accepted with implementation held; and
+strict-refusal result-shape/non-persisting path design accepted with
+implementation held. Only proof-local strict-refusal result-shape work may open
+next. Managed local recursion / loop-class extensions use PROP-039+ as
+placeholder only until formal assignment.
