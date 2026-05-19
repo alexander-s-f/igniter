@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 77 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-strict-mode-refusal-trigger-proof-local-boundary-map-v0.md` | active orientation map | C0-O org-sidecar boundary map; distinguishes proof-local `would_refuse` from live compiler refusal, public API/CLI behavior, `CompilerResult`, persisted artifacts, loader/report, CompatibilityReport, runtime, and production behavior; orientation only |
+| `prop038-strict-mode-refusal-trigger-proof-local-v0.md` | done | Proof-local strict-mode trigger experiment; PASS with 12 cases / 15 checks / 0 failed; only `contract_digest_mismatch` maps to proof-local `would_refuse`; no `igniter-lang/lib` files changed |
+| `../discussions/prop038-strict-mode-refusal-trigger-proof-local-pressure-v0.md` | proceed | All 9 scope checks pass; no blockers; NB-1 accepts the expected report-only integration rerun artifact; confirms `would_refuse` proof-local only, `refused` absent, and `compile_refusal_authorized=false` across all cases |
+| `../gates/prop038-strict-mode-refusal-trigger-proof-local-acceptance-decision-v0.md` | accepted-proof-local-trigger-closure | Accepts the bounded proof-local trigger experiment and closes the S3-R76 authorization; authorizes only design route `prop038-live-refusal-implementation-boundary-design-v0`; live refusal/compiler behavior, public API/CLI, `CompilerResult`, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, and production remain closed |
+| `stage3-round77-status-curation-v0.md` | done | R77 status curation; records accepted proof-local closure, preserved closed surfaces, remaining live-refusal blockers, and R78 design-only recommendation |
+
+---
+
 ## Stage 3 Round 76 Evidence
 
 | Track | Status | Notes |
@@ -74,8 +86,8 @@ not PROP promotion, and not parser/tooling authorization.
 | `prop038-contract-digest-strict-mode-refusal-trigger-design-v0.md` | done | Design-only strict-mode/refusal trigger semantics; recommends gate-controlled proof-local strict source, wrapper vocabulary, fail-open recompute policy, and proof-local matrix without enabling refusal |
 | `prop038-strict-mode-current-compiler-surface-survey-v0.md` | done | Read-only survey of current compiler/report/CLI surface; maps provider entry point, no-field/no-refusal paths, public result boundary, and "must not infer strict mode" list |
 | `../discussions/prop038-strict-mode-refusal-trigger-design-pressure-v0.md` | proceed | All 9 scope checks pass; no blockers; two non-blocking notes resolved by C4-A; confirms `would_refuse` proof vocabulary, gate-controlled source, fail-open recompute, and preserved legacy paths |
-| `../gates/prop038-strict-mode-refusal-trigger-design-decision-v0.md` | accepted-design-authorized-proof-local-experiment | Accepts design and authorizes only `prop038-strict-mode-refusal-trigger-proof-local-v0` next; live refusal/compiler behavior, public API/CLI, `CompilerResult`, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, and production remain closed |
-| `stage3-round76-status-curation-v0.md` | done | R76 status curation; records accepted design, proof-local-only next route, candidate statuses, preserved closed surfaces, and R77 recommendation |
+| `../gates/prop038-strict-mode-refusal-trigger-design-decision-v0.md` | accepted-design-authorized-proof-local-experiment | Accepted design and authorized only `prop038-strict-mode-refusal-trigger-proof-local-v0`; that proof-local route was satisfied and closed in R77; live refusal/compiler behavior, public API/CLI, `CompilerResult`, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, and production remain closed |
+| `stage3-round76-status-curation-v0.md` | done | R76 status curation; records accepted design, proof-local-only next route later satisfied and closed in R77, candidate statuses, and preserved closed surfaces |
 
 ---
 

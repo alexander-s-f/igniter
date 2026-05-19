@@ -47,7 +47,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-032](PROP-032-assumptions-block-v0.md) | experiment-pass | `assumptions {}` block + `uses assumptions NAME`; Phase 1/2/3/4 compiler proofs accepted by S3-R36-C2-A; PROP-033 evidence validation and runtime receipts remain excluded |
 | [PROP-036](PROP-036-compiler-profile-manifest-identity-v0.md) | accepted | `compiler_profile_id` manifest identity; accepted proposal-only by S3-R35-C3-A; separate implementation authorization required before code |
 | [PROP-037](PROP-037-external-progression-service-liveness-v0.md) | accepted | External progression and service liveness semantics; accepted proposal-only by S3-R37-C3-A; descriptor/proof follow-ups only, no parser/runtime/fragment-class authorization |
-| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A; bounded report-only internal annotation accepted/closed by S3-R67-C3-A; hybrid `contract_digest` policy design accepted by S3-R68-C3-A; shape-policy proof accepted by S3-R69-C3-A; recompute-match proof accepted by S3-R70-C3-A; report-only integration proof accepted by S3-R71-C3-A; errata/design text accepted by S3-R72-C3-A; live validator implementation design accepted by S3-R73-C4-A; bounded live validator implementation accepted by S3-R74-C3-A; compile-refusal preconditions design accepted by S3-R75-C3-A; strict-mode/refusal trigger design accepted by S3-R76-C4-A with only proof-local trigger experiment authorized next |
+| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A; bounded report-only internal annotation accepted/closed by S3-R67-C3-A; hybrid `contract_digest` policy design accepted by S3-R68-C3-A; shape-policy proof accepted by S3-R69-C3-A; recompute-match proof accepted by S3-R70-C3-A; report-only integration proof accepted by S3-R71-C3-A; errata/design text accepted by S3-R72-C3-A; live validator implementation design accepted by S3-R73-C4-A; bounded live validator implementation accepted by S3-R74-C3-A; compile-refusal preconditions design accepted by S3-R75-C3-A; strict-mode/refusal trigger design accepted by S3-R76-C4-A; proof-local strict-mode refusal trigger experiment accepted/closed by S3-R77-C3-A; only live-refusal implementation boundary design may open next |
 
 ---
 
@@ -149,9 +149,14 @@ S3-R75-C3-A accepts `prop038-contract-digest-compile-refusal-preconditions-desig
 as precondition design only. No `contract_digest_*` diagnostic is authorized as
 compile-refusal behavior. S3-R76-C4-A accepts the strict-mode/refusal trigger
 design and authorizes only `prop038-strict-mode-refusal-trigger-proof-local-v0`
-as the next bounded proof-local experiment. Compiler/orchestrator integration,
-live compile refusal, public surfaces, loader/report, CompatibilityReport,
-runtime, Gate 3 widening, and production remain closed.
+as the next bounded proof-local experiment. S3-R77-C3-A accepts and closes that
+proof-local experiment with 12 cases / 15 checks PASS; only
+`contract_digest_mismatch` maps to proof-local `would_refuse`, while live
+`refused` behavior remains absent. Only
+`prop038-live-refusal-implementation-boundary-design-v0` may open next, and it
+is design-only. Compiler/orchestrator integration, live compile refusal, public
+surfaces, `CompilerResult`, persisted reports/sidecars, loader/report,
+CompatibilityReport, runtime, Gate 3 widening, and production remain closed.
 Managed local recursion / loop-class extensions move to PROP-039+ or later.
 
 | ID | Title | Depends On | Stage | Priority |
@@ -231,5 +236,7 @@ and recompute-match proof accepted; report-only integration proof accepted with
 PROP-038 errata/design text accepted; live validator implementation design
 accepted; bounded live validator implementation accepted; compile-refusal
 preconditions design accepted; strict-mode/refusal trigger design accepted; and
-only proof-local trigger experiment authorized next. Managed local recursion /
-loop-class extensions use PROP-039+ as placeholder only until formal assignment.
+strict-mode refusal trigger proof-local experiment accepted/closed. Only
+live-refusal implementation boundary design may open next. Managed local
+recursion / loop-class extensions use PROP-039+ as placeholder only until formal
+assignment.
