@@ -306,6 +306,13 @@ prop038 strict-mode refusal trigger proof-local boundary:
   `would_refuse` may and may not mean, closed live/public/persisted/runtime
   surfaces, and C2-X pressure hazards. Orientation only.
 
+prop038 live refusal boundary design orientation:
+  docs/org/indexes/prop038-live-refusal-boundary-design-orientation-map-v0.md
+  captures R78 boundaries for live-refusal implementation boundary design: what
+  R77 proved and did not prove, remaining live-refusal blockers, possible live
+  strict source categories, forbidden implementation/public/persisted/runtime
+  surfaces, and C3-X pressure hazards. Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
