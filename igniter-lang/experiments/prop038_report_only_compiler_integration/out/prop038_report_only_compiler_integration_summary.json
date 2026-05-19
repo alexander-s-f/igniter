@@ -38,10 +38,16 @@
             "code": "compiler_profile_contract.wrong_kind",
             "message": "expected compiler_profile_contract",
             "path": "kind"
+          },
+          {
+            "code": "compiler_profile_contract.contract_digest_mismatch",
+            "message": "declared contract_digest does not match recomputed canonical contract digest",
+            "path": "contract_digest"
           }
         ],
         "diagnostic_codes": [
-          "compiler_profile_contract.wrong_kind"
+          "compiler_profile_contract.wrong_kind",
+          "compiler_profile_contract.contract_digest_mismatch"
         ],
         "digest_reference_policy": "prop038_24_plus",
         "compiler_integrated": false,

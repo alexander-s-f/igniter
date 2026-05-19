@@ -1,0 +1,415 @@
+{
+  "kind": "prop038_strict_mode_refusal_trigger_proof_summary",
+  "format_version": "0.1.0",
+  "track": "prop038-strict-mode-refusal-trigger-proof-local-v0",
+  "authority_ref": "igniter-lang/docs/gates/prop038-strict-mode-refusal-trigger-design-decision-v0.md",
+  "status": "PASS",
+  "strict_requirement": {
+    "kind": "compiler_profile_contract_strict_requirement",
+    "format_version": "0.1.0",
+    "mode": "strict_contract_digest",
+    "source": "proof_local_gate",
+    "refusal_candidates": [
+      "compiler_profile_contract.contract_digest_mismatch"
+    ],
+    "recompute_unavailable_policy": "fail_open_report_only",
+    "compile_refusal_authorized": false
+  },
+  "cases": [
+    {
+      "name": "report_only_valid_contract",
+      "validation_present": true,
+      "validation_diagnostic_codes": [],
+      "report_has_validation_field": true,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "not_evaluated",
+      "expected_decision": "not_evaluated",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "report_only",
+        "strict_validation_requested": false,
+        "strict_validation_source": null,
+        "refusal_candidate_diagnostics": [],
+        "compiler_refusal_decision": "not_evaluated",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": []
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    },
+    {
+      "name": "report_only_digest_mismatch_nested_only",
+      "validation_present": true,
+      "validation_diagnostic_codes": [
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "report_has_validation_field": true,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "not_evaluated",
+      "expected_decision": "not_evaluated",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "report_only",
+        "strict_validation_requested": false,
+        "strict_validation_source": null,
+        "refusal_candidate_diagnostics": [],
+        "compiler_refusal_decision": "not_evaluated",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": []
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    },
+    {
+      "name": "no_strict_source_not_evaluated",
+      "validation_present": true,
+      "validation_diagnostic_codes": [
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "report_has_validation_field": true,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "not_evaluated",
+      "expected_decision": "not_evaluated",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "report_only",
+        "strict_validation_requested": false,
+        "strict_validation_source": null,
+        "refusal_candidate_diagnostics": [],
+        "compiler_refusal_decision": "not_evaluated",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": []
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    },
+    {
+      "name": "strict_source_valid_contract_allow",
+      "validation_present": true,
+      "validation_diagnostic_codes": [],
+      "report_has_validation_field": true,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "allow",
+      "expected_decision": "allow",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "strict_contract_digest",
+        "strict_validation_requested": true,
+        "strict_validation_source": "proof_local_gate",
+        "refusal_candidate_diagnostics": [],
+        "compiler_refusal_decision": "allow",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": [],
+        "held_control_diagnostics": [],
+        "recompute_unavailable_policy": null
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    },
+    {
+      "name": "strict_source_digest_mismatch_would_refuse",
+      "validation_present": true,
+      "validation_diagnostic_codes": [
+        "compiler_profile_contract.contract_digest_mismatch"
+      ],
+      "report_has_validation_field": true,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "would_refuse",
+      "expected_decision": "would_refuse",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "strict_contract_digest",
+        "strict_validation_requested": true,
+        "strict_validation_source": "proof_local_gate",
+        "refusal_candidate_diagnostics": [
+          "compiler_profile_contract.contract_digest_mismatch"
+        ],
+        "compiler_refusal_decision": "would_refuse",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": [
+          {
+            "code": "compiler_profile_contract_refusal.contract_digest_mismatch",
+            "evidence_diagnostic": "compiler_profile_contract.contract_digest_mismatch",
+            "message": "would_refuse: compiler_profile_contract_refusal.contract_digest_mismatch evidence=compiler_profile_contract.contract_digest_mismatch"
+          }
+        ]
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    },
+    {
+      "name": "strict_source_invalid_digest_held_control",
+      "validation_present": true,
+      "validation_diagnostic_codes": [
+        "compiler_profile_contract.contract_digest_invalid"
+      ],
+      "report_has_validation_field": true,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "allow",
+      "expected_decision": "allow",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "strict_contract_digest",
+        "strict_validation_requested": true,
+        "strict_validation_source": "proof_local_gate",
+        "refusal_candidate_diagnostics": [],
+        "compiler_refusal_decision": "allow",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": [],
+        "held_control_diagnostics": [
+          "compiler_profile_contract.contract_digest_invalid"
+        ],
+        "recompute_unavailable_policy": null
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    },
+    {
+      "name": "strict_source_unsupported_policy_configuration_error",
+      "validation_present": true,
+      "validation_diagnostic_codes": [
+        "compiler_profile_contract.contract_digest_policy_unsupported"
+      ],
+      "report_has_validation_field": true,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "configuration_error",
+      "expected_decision": "configuration_error",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "strict_contract_digest",
+        "strict_validation_requested": true,
+        "strict_validation_source": "proof_local_gate",
+        "refusal_candidate_diagnostics": [],
+        "compiler_refusal_decision": "configuration_error",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": [],
+        "configuration_error": {
+          "message": "strict contract digest policy is unsupported",
+          "path": "digest_reference_policy",
+          "evidence_diagnostics": [
+            "compiler_profile_contract.contract_digest_policy_unsupported"
+          ]
+        }
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    },
+    {
+      "name": "strict_source_recompute_unavailable_fail_open",
+      "validation_present": true,
+      "validation_diagnostic_codes": [
+        "compiler_profile_contract.contract_digest_recompute_unavailable"
+      ],
+      "report_has_validation_field": true,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "allow",
+      "expected_decision": "allow",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "strict_contract_digest",
+        "strict_validation_requested": true,
+        "strict_validation_source": "proof_local_gate",
+        "refusal_candidate_diagnostics": [],
+        "compiler_refusal_decision": "allow",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": [],
+        "held_control_diagnostics": [
+          "compiler_profile_contract.contract_digest_recompute_unavailable"
+        ],
+        "recompute_unavailable_policy": "fail_open_report_only"
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    },
+    {
+      "name": "nil_provider_no_field_no_refusal",
+      "validation_present": false,
+      "validation_diagnostic_codes": [],
+      "report_has_validation_field": false,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "not_evaluated",
+      "expected_decision": "not_evaluated",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "report_only",
+        "strict_validation_requested": false,
+        "strict_validation_source": null,
+        "refusal_candidate_diagnostics": [],
+        "compiler_refusal_decision": "not_evaluated",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": []
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    },
+    {
+      "name": "non_hash_provider_no_field_no_refusal",
+      "validation_present": false,
+      "validation_diagnostic_codes": [],
+      "report_has_validation_field": false,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "not_evaluated",
+      "expected_decision": "not_evaluated",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "report_only",
+        "strict_validation_requested": false,
+        "strict_validation_source": null,
+        "refusal_candidate_diagnostics": [],
+        "compiler_refusal_decision": "not_evaluated",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": []
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    },
+    {
+      "name": "provider_error_no_field_no_refusal",
+      "validation_present": false,
+      "validation_diagnostic_codes": [],
+      "report_has_validation_field": false,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "not_evaluated",
+      "expected_decision": "not_evaluated",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "report_only",
+        "strict_validation_requested": false,
+        "strict_validation_source": null,
+        "refusal_candidate_diagnostics": [],
+        "compiler_refusal_decision": "not_evaluated",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": []
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    },
+    {
+      "name": "validator_error_no_field_no_refusal",
+      "validation_present": false,
+      "validation_diagnostic_codes": [],
+      "report_has_validation_field": false,
+      "top_level_diagnostics": [],
+      "compiler_refusal_decision": "not_evaluated",
+      "expected_decision": "not_evaluated",
+      "trigger_evaluation": {
+        "kind": "compiler_profile_contract_refusal_trigger_evaluation",
+        "format_version": "0.1.0",
+        "mode": "report_only",
+        "strict_validation_requested": false,
+        "strict_validation_source": null,
+        "refusal_candidate_diagnostics": [],
+        "compiler_refusal_decision": "not_evaluated",
+        "compiler_refusal_authorized": false,
+        "wrapper_evidence": []
+      },
+      "outcome_unchanged": true,
+      "pass": true
+    }
+  ],
+  "checks": [
+    {
+      "name": "cases_all_pass",
+      "pass": true
+    },
+    {
+      "name": "report_only_valid_contract.unchanged",
+      "pass": true
+    },
+    {
+      "name": "report_only_mismatch.nested_diagnostic_only",
+      "pass": true
+    },
+    {
+      "name": "no_strict_source.not_evaluated",
+      "pass": true
+    },
+    {
+      "name": "strict_valid.allow",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.would_refuse",
+      "pass": true
+    },
+    {
+      "name": "strict_mismatch.wrapper_evidence",
+      "pass": true
+    },
+    {
+      "name": "strict_invalid_digest.not_would_refuse",
+      "pass": true
+    },
+    {
+      "name": "strict_unsupported_policy.configuration_error",
+      "pass": true
+    },
+    {
+      "name": "strict_recompute_unavailable.fail_open",
+      "pass": true
+    },
+    {
+      "name": "legacy_paths.no_field_no_refusal",
+      "pass": true
+    },
+    {
+      "name": "top_level_diagnostics_unchanged",
+      "pass": true
+    },
+    {
+      "name": "public_result_unchanged",
+      "pass": true
+    },
+    {
+      "name": "wrapper_codes_proof_local_only",
+      "pass": true
+    },
+    {
+      "name": "compile_refusal_authorized_false",
+      "pass": true
+    }
+  ],
+  "failed_checks": [],
+  "decision_vocabulary": [
+    "not_evaluated",
+    "allow",
+    "would_refuse",
+    "configuration_error"
+  ],
+  "wrapper_vocabulary": [
+    "compiler_profile_contract_refusal.contract_digest_mismatch"
+  ],
+  "report_only_invariants": {
+    "top_level_diagnostics_unchanged": true,
+    "public_result_unchanged": true,
+    "compiler_result_changed": false,
+    "igapp_mutated": false,
+    "loader_report_touched": false,
+    "compatibility_report_touched": false,
+    "runtime_touched": false,
+    "production_touched": false
+  },
+  "non_authorizations_preserved": {
+    "live_compiler_orchestrator_behavior": false,
+    "live_compile_refusal": false,
+    "public_api_cli_widening": false,
+    "compiler_result_changes": false,
+    "persisted_reports_or_sidecars_outside_proof": false,
+    "parser_typechecker_semanticir_assembler_igapp": false,
+    "loader_report_or_compatibility_report": false,
+    "diagnostics_centralization": false,
+    "runtime_gate3_ledger_tbackend_bihistory_stream_olap_cache_production": false
+  },
+  "recommendation_for_c3_a": "accept"
+}
