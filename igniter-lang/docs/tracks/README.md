@@ -66,6 +66,19 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 78 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/indexes/prop038-live-refusal-boundary-design-orientation-map-v0.md` | active orientation map | C0-O org-sidecar map; separates live-refusal boundary design from authorizing live refusal, compiler behavior changes, public surfaces, persisted artifacts, and runtime/production behavior; orientation only |
+| `prop038-live-refusal-implementation-boundary-design-v0.md` | done | Design-only live-refusal boundary map; accepts R77 evidence as proof-local only, keeps implementation held, maps open blockers, recommends internal orchestrator option as next design candidate, and defines graduation rule for `would_refuse` -> `refused` behind a separate gate |
+| `prop038-live-refusal-current-pipeline-surface-survey-v0.md` | done | Read-only pipeline survey; maps current refusal points, report-only validation insertion, `report_for_assembly` boundary, public result shaping, CLI behavior, and protected surfaces; no code edited |
+| `../discussions/prop038-live-refusal-boundary-design-pressure-v0.md` | proceed | All 8 scope checks pass; no blockers; NB-1 first `compile_refusal_authorized: true` appears only as future design sketch; NB-2 records tension between no-persisted-report recommendation and existing `CompilerOrchestrator#refusal` report write path |
+| `../gates/prop038-live-refusal-implementation-boundary-design-decision-v0.md` | accepted-boundary-design-implementation-held | Accepts boundary design and authorizes only `internal-orchestrator-strict-source-and-status-design-v0` next; implementation, live compile refusal, public API/CLI, `CompilerResult`, persisted reports/sidecars, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, and production remain closed |
+| `stage3-round78-status-curation-v0.md` | done | R78 status curation; records accepted boundary design, implementation-held state, preserved closed surfaces, NB-2 next-route obligation, and R79 design-only recommendation |
+
+---
+
 ## Stage 3 Round 77 Evidence
 
 | Track | Status | Notes |
@@ -73,8 +86,8 @@ not PROP promotion, and not parser/tooling authorization.
 | `../org/indexes/prop038-strict-mode-refusal-trigger-proof-local-boundary-map-v0.md` | active orientation map | C0-O org-sidecar boundary map; distinguishes proof-local `would_refuse` from live compiler refusal, public API/CLI behavior, `CompilerResult`, persisted artifacts, loader/report, CompatibilityReport, runtime, and production behavior; orientation only |
 | `prop038-strict-mode-refusal-trigger-proof-local-v0.md` | done | Proof-local strict-mode trigger experiment; PASS with 12 cases / 15 checks / 0 failed; only `contract_digest_mismatch` maps to proof-local `would_refuse`; no `igniter-lang/lib` files changed |
 | `../discussions/prop038-strict-mode-refusal-trigger-proof-local-pressure-v0.md` | proceed | All 9 scope checks pass; no blockers; NB-1 accepts the expected report-only integration rerun artifact; confirms `would_refuse` proof-local only, `refused` absent, and `compile_refusal_authorized=false` across all cases |
-| `../gates/prop038-strict-mode-refusal-trigger-proof-local-acceptance-decision-v0.md` | accepted-proof-local-trigger-closure | Accepts the bounded proof-local trigger experiment and closes the S3-R76 authorization; authorizes only design route `prop038-live-refusal-implementation-boundary-design-v0`; live refusal/compiler behavior, public API/CLI, `CompilerResult`, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, and production remain closed |
-| `stage3-round77-status-curation-v0.md` | done | R77 status curation; records accepted proof-local closure, preserved closed surfaces, remaining live-refusal blockers, and R78 design-only recommendation |
+| `../gates/prop038-strict-mode-refusal-trigger-proof-local-acceptance-decision-v0.md` | accepted-proof-local-trigger-closure | Accepts the bounded proof-local trigger experiment and closes the S3-R76 authorization; its design route was accepted in R78; live refusal/compiler behavior, public API/CLI, `CompilerResult`, `.igapp`, loader/report, CompatibilityReport, runtime, Gate 3, and production remain closed |
+| `stage3-round77-status-curation-v0.md` | done | R77 status curation; records accepted proof-local closure, preserved closed surfaces, remaining live-refusal blockers, and the R78 design route later accepted by C4-A |
 
 ---
 
