@@ -313,6 +313,14 @@ prop038 live refusal boundary design orientation:
   strict source categories, forbidden implementation/public/persisted/runtime
   surfaces, and C3-X pressure hazards. Orientation only.
 
+prop038 internal strict source status orientation:
+  docs/org/indexes/prop038-internal-strict-source-status-orientation-map-v0.md
+  captures R79 boundaries for internal orchestrator strict-source/status design:
+  what R78 authorized and did not authorize, the unresolved
+  `CompilerOrchestrator#refusal` report-write tension, candidate source/status/
+  report questions, forbidden implementation/public/persisted/runtime surfaces,
+  and C3-X pressure hazards. Orientation only.
+
 architect decision:
   docs/org/reports/operational-memory-pilot-architect-approval-v0.md
   approves bounded pilot delegation to Org Architect Supervisor. Standardization
