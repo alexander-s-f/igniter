@@ -66,6 +66,19 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 89 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/tracks/compiler-mainline-reentry-boundary-map-v0.md` | done | Separates compiler mainline from Spark applied-pressure intake; confirms R89 Portfolio close packet path and recommends conservative no-code compiler-pack boundary report route |
+| `compiler-mainline-next-axis-options-v0.md` | done | Compares candidate compiler/profile axes; recommends `compiler-pack-boundary-report-v0` as primary next route and keeps strict-terminal regression hardening as backup only |
+| `compiler-mainline-touchpoint-and-proof-gap-survey-v0.md` | done | Maps compiler/profile touchpoints and proof gaps; identifies Ch6 / CompilationReport spec-lag; no tests or code edits |
+| `../discussions/compiler-mainline-next-axis-pressure-v0.md` | proceed | 6/6 checks PASS, no blockers, two non-blocking notes; recommends C4-A accept the pack boundary report and resolve Ch6 disposition |
+| `../gates/compiler-mainline-next-axis-decision-v0.md` | accepted-design-report-next-implementation-held | Accepts `compiler-pack-boundary-report-v0` after R89 closure; design/report-only; includes Ch6 spec-lag disposition section; implementation and protected surfaces remain closed |
+| `stage3-round89-status-curation-v0.md` | done | R89 status curation and Portfolio closure packet; no fallback report file needed; flags existing `compiler-pack-boundary-report-v0.md` S3-R31 filename collision for R90 handling |
+
+---
+
 ## Stage 3 Round 88 Evidence
 
 | Track | Status | Notes |
