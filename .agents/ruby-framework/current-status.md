@@ -124,6 +124,8 @@ Latest production-prep proof:
 - `reports/ruby-fixture-p1-observed-service-doc-readiness.md`
 - `tracks/igniter-embed-observed-service-doc-sync-v0.md`
 - `reports/ruby-doc-p2-igniter-embed-observed-service-doc-sync.md`
+- `tracks/ruby-framework-release-readiness-review-prep-v0.md`
+- `reports/ruby-rel-p1-release-readiness-review-prep.md`
 
 Proof status:
 
@@ -140,6 +142,7 @@ observed-service receipt recipe: filed
 package-doc/release-readiness notes: filed
 fixture docs readiness: filed
 igniter-embed observed-service doc sync: filed
+release-readiness review prep: filed
 Rubygems publish/release: not run
 ```
 
@@ -249,8 +252,9 @@ Ruby Framework lane contribution: done.
 Waiting: S3-R87-C3-A (Architect decision).
 Latest analysis/recipe round: done.
 Next round: no new implementation round open yet.
-Recommended next route: hold for Ruby docs unless Portfolio opens
-release-readiness review or Spark returns a richer observation/event receipt
-pair.
-Next report filename: to be determined by the next Portfolio/Spark route.
+Recommended next route: release-readiness review may open.
+Actual release, tag, and publish remain held until an explicit release route
+passes the blocker checklist and receives user/Portfolio authorization.
+Next report filename: to be determined by the formal release-readiness review
+route or the next Spark/Ruby adoption route.
 ```
