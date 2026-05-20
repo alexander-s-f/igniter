@@ -18,6 +18,7 @@ It is separate from:
 - `current-status.md` — compact lane map.
 - `spark-contractable-shadowing-adoption-plan-v0.md` — current design lane.
 - `cards/` — assigned Ruby Framework lane cards.
+- `recipes/` — practical adoption recipes approved by lane reports.
 - `reports/` — compact report packets for Portfolio.
 
 ## Reporting Rule

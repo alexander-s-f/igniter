@@ -17,6 +17,265 @@ implementation, changing `.igapp` format, or authorizing migration.
 
 ---
 
+## R90 Update: Compiler Mainline Pack Boundary Report
+
+Card: S3-R90-C1-P1
+Agent: `[Igniter-Lang Compiler/Grammar Expert]`
+Role: compiler-grammar-expert
+Route: UPDATE
+Status: done
+Date: 2026-05-20
+
+This section is the current mainline boundary report authorized by
+`docs/gates/compiler-mainline-next-axis-decision-v0.md`. The original S3-R31
+report remains below as historical foundation. R90 does not edit code, Ch6, or
+other specs, and does not authorize implementation.
+
+Affected neighbor roles:
+
+- `[Igniter-Lang Research Agent]`: proof fixture ownership and regression
+  matrix follow-up.
+- `[Igniter-Lang Implementation Agent]`: future implementation boundaries only;
+  no implementation is opened here.
+- `[Igniter-Lang Bridge Agent]`: loader/report/API surfaces remain closed.
+
+### R90 Sources Read
+
+- `docs/gates/compiler-mainline-next-axis-decision-v0.md`
+- `docs/tracks/stage3-round89-status-curation-v0.md`
+- `docs/org/tracks/compiler-mainline-reentry-boundary-map-v0.md`
+- `docs/tracks/compiler-mainline-next-axis-options-v0.md`
+- `docs/tracks/compiler-mainline-touchpoint-and-proof-gap-survey-v0.md`
+- `docs/discussions/compiler-mainline-next-axis-pressure-v0.md`
+- `docs/dev/compiler-profile-architecture-direction.md`
+- `docs/proposals/PROP-036-compiler-profile-manifest-identity-v0.md`
+- `docs/proposals/PROP-038-compiler-profile-contract-v0.md`
+- `docs/gates/prop038-strict-refusal-live-implementation-acceptance-decision-v0.md`
+- `docs/gates/prop038-strict-refusal-canon-sync-acceptance-decision-v0.md`
+- `docs/gates/r86-spec-sync-and-spark-applicability-routing-decision-v0.md`
+- Current compiler files read only:
+  - `lib/igniter_lang/compiler_orchestrator.rb`
+  - `lib/igniter_lang/compiler_result.rb`
+  - `lib/igniter_lang/compilation_report.rb`
+  - `lib/igniter_lang/compiler_profile_contract_validator.rb`
+  - `lib/igniter_lang/parser.rb`
+  - `lib/igniter_lang/classifier.rb`
+  - `lib/igniter_lang/typechecker.rb`
+  - `lib/igniter_lang/semanticir_emitter.rb`
+  - `lib/igniter_lang/assembler.rb`
+- Proof fixture inventory under `experiments/`, read only.
+
+### R90 Current Compiler Mainline Shape
+
+The current compiler is still a monolithic proof compiler with a profile
+evidence side-channel:
+
+```text
+CompilerOrchestrator
+  Parser
+  Classifier
+  TypeChecker
+  SemanticIREmitter.emit_typed
+  CompilationReport.enrich
+  optional compiler_profile_contract_validation report-only annotation
+  optional internal-only strict terminal
+  Assembler
+```
+
+Important accepted boundaries:
+
+- `compiler_profile_source` is facade/CLI transport to the assembler; it is not
+  a strict source and does not authorize dispatch migration.
+- `compiler_profile_contract_validation` is nested report-only evidence on
+  successful compile reports.
+- The strict terminal path is internal-only, non-persisting, skips assembly, and
+  does not write sidecars, `.igapp`, or compilation reports.
+- `compile_refusal_authorized: false` remains part of nested validation
+  evidence.
+- `report.pass_result == "ok"` remains invariant for strict terminal paths.
+- The validator is evidence; the orchestrator-level strict requirement decision
+  is the authority for the accepted internal strict path.
+
+Spark applied-pressure material is not compiler authority for this report.
+
+### Pack Boundary Table
+
+| Candidate boundary | Current files / evidence | Candidate owned surface | Current status | R90 boundary decision |
+|---|---|---|---|---|
+| `CoreLanguagePack` | `parser.rb`, `classifier.rb`, `typechecker.rb`, `semanticir_emitter.rb`, `assembler.rb`, `source_to_semanticir_fixture`, `production_compiler_cli` | Module/contract envelope, type declarations, core input/compute/output, literals, refs, field access, base SemanticIR and `.igapp` artifacts | Implemented as monolith | Candidate baseline pack only; do not split or dispatch yet. |
+| `OOFRegistryPack` | Parser/classifier/typechecker hardcoded diagnostics; proof goldens; `compilation_report` diagnostics | OOF descriptor registry, owner/stage metadata, stable public codes | Data not centralized | Candidate support boundary; first proof should be shadow registry only. |
+| `FragmentRegistryPack` | Classifier fragment assignment, SemanticIR/assembler fragment summaries, PROP-028/032 | Fragment vocabulary, precedence, max-fragment policy | Partly implemented and partly proposal-bound | Candidate support boundary; no independent pack computes max class yet. |
+| `EscapeBoundaryPack` | `read`/`escape_boundaries` in classifier/typechecker/emitter/assembler; `requirements.json` proofs | External read metadata, requirements from escape boundaries, non-temporal read handling | Implemented as shared monolith behavior | Candidate baseline-adjacent pack; must not imply runtime authority. |
+| `TemporalPack` | `history_type_proof`, `temporal_semanticir_access_node`, `temporal_assembler_boundary`, runtime load guard proofs | `History[T]`, `BiHistory[T]`, temporal access nodes, axes, temporal metadata, requirements and compatibility metadata | Compiler boundary implemented; runtime live reads guarded/closed | Candidate optional pack; metadata/runtime guard variants must stay separate. |
+| `StreamPack` | `stream_t_proof`, `classifier_pass_proof`, stream source fixtures, stream SemanticIR goldens | `stream`, `window`, `fold_stream`, stream input/fold nodes, OOF-S family | Compiler/proof surface implemented; production ingress closed | Candidate optional pack; do not migrate TBackend/read-inside-fold or production runner. |
+| `OLAPPack` | `olap_point_proof`, runtime smoke OLAP fixture, SemanticIR OLAP nodes | `OLAPPoint`, dimensions, measures, `olap_point_decl`, `olap_access_node`, `dims_record` | Compiler/proof boundary implemented; distributed OLAP closed | Candidate optional pack; no scatter/gather or executor implication. |
+| `InvariantPack` | `invariant_severity_proof`, typechecker/source fixtures, SemanticIR invariant lowering | Invariant declarations, severity/message/source metadata, violation nodes, TINV/PINV diagnostics | Compiler/proof boundary implemented | Candidate optional pack; runtime/report violation enforcement remains separate. |
+| `ContractModifiersPack` | `contract_modifiers_proof`, `contract_modifiers_pack_native_boundary` | `pure`, `observed`, `effect`, `privileged`, `irreversible`, modifier propagation, OOF-M1 | Implemented compiler boundary | Good first optional extraction candidate after shadow profile because blast radius is small. |
+| `AssumptionsPack` | `assumptions_proof`, source-to-SemanticIR assumption fixture, PROP-032 accepted path | `assumptions {}`, `uses assumptions`, registry, refs, `epistemic` fragment, OOF-A1/TASSUMP-1 | Implemented through parser/source/SemanticIR proof path | Candidate optional pack; PROP-033 evidence-list validation remains out of scope. |
+| `EvidenceObservationPack` | `classifier_pass_proof`, `source_to_semanticir_fixture`, evidence linked alert / confidence fixtures | Evidence and observation diagnostics, confidence misuse, alert evidence gates | Implemented as cross-cutting checks | Candidate optional/support pack; open whether to split evidence vs observation later. |
+| `PipelinePack` | Parser OOF hardening proofs, pipeline fixtures, PROP-037 progression pressure under `pipeline` slot | Pipeline syntax pressure, parser gates, progression descriptor metadata slot for v0 | Parser/proof pressure only; no scheduler | Candidate future boundary; do not treat progression as a new fragment class in v0. |
+| `CompilerProfileContractPack` | PROP-036/038 docs, `compiler_profile_contract_validator.rb`, `compilation_report.rb`, strict terminal proofs | Profile source transport, contract validation evidence, digest policy, strict terminal wrapper diagnostics | Live internal report-only and strict-terminal foundation accepted | Support boundary, not language pack; validator evidence is not authority. |
+
+### Pass / Owner Map
+
+| Pass / boundary | Current owner files | Candidate future owner | Notes |
+|---|---|---|---|
+| Parse | `parser.rb` | `CoreLanguagePack` plus optional parser rule contributors | Parser precedence is high risk; no pack rule dispatch is authorized. |
+| Classify | `classifier.rb` | `CoreLanguagePack`, `OOFRegistryPack`, `FragmentRegistryPack`, optional pack classifiers | Owns many current OOF decisions including stream, modifiers, assumptions, evidence. |
+| Typecheck | `typechecker.rb` | `CoreLanguagePack` plus optional type rule contributors | Owns temporal axes, stream fold body checks, OLAP, invariants, assumptions propagation. |
+| SemanticIR lowering | `semanticir_emitter.rb` | `CoreLanguagePack` plus optional lowering contributors | JSON shape drift is critical; any migration needs byte-for-byte golden parity first. |
+| Report enrichment | `compilation_report.rb`, `diagnostics.rb` | Compiler report support boundary | Nested profile validation evidence must remain isolated from top-level diagnostics. |
+| Profile contract validation | `compiler_profile_contract_validator.rb` | `CompilerProfileContractPack` support boundary | Evidence only; refusal authority remains orchestrator strict requirement path. |
+| Strict terminal | `compiler_orchestrator.rb`, `compiler_result.rb` | Orchestrator/status boundary, not pack validator | Internal-only; non-persisting; exact public key-set must be preserved. |
+| Assembly | `assembler.rb` and profile id assembler helpers/proofs | `CoreLanguagePack` assembler plus constrained pack artifact hooks | `report_for_assembly` currently receives pre-profile-validation report; preserve until explicit authorization. |
+| Runtime smoke | `compiler_orchestrator.rb` callback | Runtime proof harness | Not a compiler pack ownership source. |
+| Public API / CLI | `lib/igniter_lang.rb`, CLI proof files | Closed for strict source | Only `compiler_profile_source` transport is open today; no public strict requirement. |
+
+### OOF / Diagnostic Ownership Map
+
+| Code family | Candidate owner | Current layer | R90 note |
+|---|---|---|---|
+| `OOF-P0`, `OOF-P1`, `OOF-P2`, `OOF-P28`, `OOF-TY0` | `CoreLanguagePack` / `OOFRegistryPack` | Parser/emitter/typechecker | Keep public code stability before registry migration. |
+| `OOF-PG1`, `OOF-PG2`, `OOF-PG3`, `OOF-PG5` | `PipelinePack` | Parser | Pipeline remains future/profile pressure, not scheduler authority. |
+| `OOF-DM3` | `CoreLanguagePack` or future numeric type support | Parser | Do not create a new pack unless numeric surface expands. |
+| `OOF-H*`, `OOF-BT*`, `OOF-TM*` | `TemporalPack` | Classifier/typechecker/assembler guard proofs | `History[T]` / `BiHistory[T]` compile semantics stay separate from live reads. |
+| `OOF-S1`..`OOF-S5` | `StreamPack` | Parser/classifier/typechecker | Preserve SC-1/2/3 and OOF-S3 TypeChecker ownership. |
+| `OOF-O1`..`OOF-O5` | `OLAPPack` | Parser/typechecker | Distributed OLAP and executor behavior remain closed. |
+| `PINV-*`, `TINV-*`, `OOF-IV*`, `OOF-I*` | `InvariantPack` | Parser/typechecker/emitter | Runtime violation reporting is not opened by pack ownership. |
+| `OOF-M1` | `ContractModifiersPack` | Classifier/typechecker | Strong candidate for first optional extraction proof after shadow profile. |
+| `OOF-A1`, `TASSUMP-1` | `AssumptionsPack` | Classifier/typechecker/emitter | PROP-033 evidence-list validation remains excluded. |
+| `OOF-CE4`, `OOF-OS2`, `OOF-OS4` | `EvidenceObservationPack` | Classifier/typechecker/emitter | Ownership should be clarified before observation/evidence split. |
+| `OOF-PR*` | Progression design, not compiler pack authority | Descriptor proof only | Do not use PROP-037 progression OOFs to authorize compiler pack migration. |
+| `compiler_profile_contract.*` | `CompilerProfileContractPack` support boundary | Validator nested diagnostics | Not OOF; nested under `compiler_profile_contract_validation.diagnostics`. |
+| `compiler_profile_contract_refusal.*` | Orchestrator strict terminal boundary | `CompilerResult.strict_terminal` diagnostics | Wrapper diagnostics for internal strict terminal only. |
+
+### Fragment Ownership Map
+
+| Fragment class / state | Candidate owner | Current evidence | R90 disposition |
+|---|---|---|---|
+| `core` | `CoreLanguagePack` | Base contracts and CORE-typed temporal read values | Stable baseline. |
+| `escape` | `EscapeBoundaryPack` | External reads, requirements, coarse external-boundary behavior | Keep as coarse class until FragmentRegistry proof resolves precedence. |
+| `temporal` | `TemporalPack` | PROP-028, History/BiHistory classifier/typechecker/SemanticIR/assembler proofs | Stable node/contract fragment; value remains CORE-typed. |
+| `stream` | `StreamPack` | Stream proofs and SemanticIR lowering | Stable candidate, but ingress/external boundary interplay needs registry proof. |
+| `epistemic` | `AssumptionsPack` | PROP-032 assumptions proof and SemanticIR lowering | Implemented surface; keep evidence-list validation closed. |
+| `oof` | `OOFRegistryPack` / report status boundary | OOF blocks SemanticIR and assembly | Treat as status/fragment marker until registry proof fixes vocabulary. |
+| `olap` | `OLAPPack` candidate | OLAP nodes and OOFs, no production executor | Do not promote to fragment class without separate decision. |
+| `progression` | None in v0 | PROP-037 keeps progression metadata under `pipeline` | No new PROGRESSION fragment class. |
+
+### Proof Fixture Map
+
+| Boundary | Existing proof / fixture evidence | Suggested owner |
+|---|---|---|
+| Core parse/classify/typecheck/emit | `classifier_pass_proof`, `typechecker_proof`, `source_to_semanticir_fixture`, `production_compiler_cli`, `stage1_close_candidate`, `stage2_close_candidate` | `CoreLanguagePack` plus support registries |
+| Parser OOF hardening / pipeline gates | `parser_oof_hardening_stage2_proof` | `PipelinePack` / `CoreLanguagePack` |
+| Temporal compiler boundary | `history_type_proof`, `temporal_semanticir_access_node`, `temporal_assembler_boundary`, `temporal_requirements_from_escape_boundaries`, `temporal_cache_key_proof` | `TemporalPack` |
+| Temporal runtime/load guard separation | `temporal_runtime_load_guard`, `runtime_compatibility_report_temporal_load_check`, `temporal_executor_lib_prep`, `temporal_scope_exclusion_runtime_fixture`, `temporal_read_observation_proof` | Runtime/Bridge lane, not compiler pack authority |
+| Stream | `stream_t_proof`, stream classifier/source fixtures | `StreamPack` |
+| OLAP | `olap_point_proof`, runtime smoke OLAP artifact fixture | `OLAPPack` |
+| Invariants | `invariant_severity_proof` | `InvariantPack` |
+| Contract modifiers | `contract_modifiers_proof`, `contract_modifiers_pack_native_boundary` | `ContractModifiersPack` |
+| Assumptions | `assumptions_proof`, assumption source-to-SemanticIR fixture | `AssumptionsPack` |
+| Assembly / `.igapp` | `igapp_assembler_proof`, `temporal_assembler_boundary`, `production_compiler_cli` | Core assembler plus constrained pack hooks |
+| PROP-036 profile source/id | `minimal_compiler_profile_finalization_proof`, `assembler_compiler_profile_id_field`, `prop036_artifact_hash_ordering_proof`, `prop036_loader_status_report_proof`, `prop036_cli_profile_source_b3_b6_implementation_proof`, `prop036_ruby_facade_profile_source_exposure` | Profile source / assembler identity boundary |
+| PROP-038 contract validation | `compiler_profile_obligation_coverage_proof`, `compiler_profile_contract_proof`, validator coverage proofs, `prop038_report_only_compiler_integration`, digest shape/recompute/report-only proofs | `CompilerProfileContractPack` support boundary |
+| PROP-038 strict terminal | `prop038_strict_mode_refusal_trigger_proof`, `prop038_strict_refusal_result_shape_proof`, accepted R84 live internal implementation evidence | Orchestrator/status boundary |
+| Progression descriptor | `prop037_descriptor_oof_pr` and descriptor shape proofs | Future `PipelinePack` pressure only |
+
+### Migration Risk Table
+
+| Risk | Severity | Current pressure | Mitigation before migration |
+|---|---:|---|---|
+| Parser precedence drift | Critical | Optional parser rules across stream, OLAP, assumptions, invariants, modifiers | Shadow rule registry with conflict detection and byte-for-byte parse golden parity. |
+| Fragment precedence drift | Critical | `temporal`, `stream`, `escape`, `epistemic`, `oof` coexist with mixed ownership | Central FragmentRegistry proof before any pack computes contract class. |
+| OOF public-code drift | High | Diagnostics are asserted by proof goldens and status packets | OOF descriptor registry proof with owner/stage aliases and unchanged reports. |
+| Type environment coupling | High | Temporal, stream, OLAP, invariants, assumptions all share env and refs | Typed accumulator protocol design before pack-local type handlers. |
+| SemanticIR JSON drift | Critical | `.igapp`, source fixtures, assembler and runtime proofs depend on exact shapes | Byte-for-byte SemanticIR/CompilationReport/`.igapp` parity before dispatch. |
+| Assembler report isolation leak | Critical | `report_for_assembly` currently excludes nested PROP-038 validation evidence | Preserve isolation until explicit assembly/report authority opens it. |
+| Strict terminal authority leak | Critical | Validator emits evidence; orchestrator strict requirement decides terminal path | Never let validator diagnostics alone trigger live refusal. |
+| Public result shape drift | High | `public_result` currently deny-removes `report`; strict terminal has exact key-set proofs | Require public key-set proof before any result/status refactor. |
+| Loader/report inference | High | Compiler evidence could be mistaken for loader/report readiness | Keep CompatibilityReport and loader/report closed until separate route. |
+| Runtime authority confusion | Critical | Pack names like Temporal/Stream/OLAP can sound executable | Separate compiler metadata, runtime capability, live executor, and production authority. |
+| Spark lane contamination | Medium | Spark applied-pressure tracks are active nearby | Treat Spark only as pressure/specimen unless a compiler authority gate cites it. |
+| Existing track history collision | Low | R31 used same filename | R90 updates this file with current section and retains R31 as historical baseline. |
+
+### Ch6 / CompilationReport Spec-Lag Disposition
+
+R90 records disposition only; it does not edit Ch6 or any spec chapter.
+
+Ch6 / CompilationReport docs should later be synchronized to describe:
+
+- nested `compiler_profile_contract_validation` evidence on successful reports;
+- report-only invariants for PROP-038 validation diagnostics;
+- `report_for_assembly` isolation from nested profile validation evidence;
+- internal-only strict terminal behavior as non-persisting/no-sidecar/no-report/no-`.igapp`;
+- distinction between ordinary persisted refusal reports and strict terminal
+  wrapper diagnostics;
+- `report.pass_result == "ok"` invariant for strict terminal paths;
+- closed loader/report, CompatibilityReport, public API/CLI, runtime, and
+  production surfaces.
+
+Recommended future docs-only slice:
+`ch6-compilation-report-profile-evidence-sync-v0`. It should be authorized
+after this boundary report is accepted and before any public report/result
+surface widening.
+
+### Must Not Migrate Yet
+
+- No `CompilerKernel` implementation.
+- No live pack registry, pack dispatcher, or profile-assembled compiler.
+- No parser, classifier, typechecker, SemanticIR, assembler, or orchestrator
+  rewrite.
+- No `.igapp` manifest/golden mutation from pack identity.
+- No mandatory `compiler_profile_id` transition.
+- No public API/CLI strict source.
+- No loader/report or CompatibilityReport integration.
+- No central `IgniterLang::Diagnostics` migration for PROP-038 diagnostics.
+- No compile refusal widening beyond the accepted internal-only strict terminal
+  foundation.
+- No runtime, RuntimeMachine, Gate 3, Ledger/TBackend, BiHistory production
+  evaluation, stream/OLAP executor, cache, signing, or production behavior.
+- No progression scheduler, durable queue, checkpoint, or PROGRESSION fragment
+  class.
+- No Spark applied-pressure material as compiler authority.
+
+### Recommended Later Proof / Design Slices
+
+| Priority | Slice | Type | Purpose |
+|---:|---|---|---|
+| 1 | `compiler-pack-shadow-profile-proof-v1` | Proof-only | Refresh the existing shadow profile proof with current PROP-032 and R84/R86 accepted state; no dispatch. |
+| 2 | `compiler-profile-slot-contract-map-v0` | Design/proof | Map pack slots to PROP-038 required/optional slot vocabulary and strict registries. |
+| 3 | `oof-fragment-registry-shadow-proof-v0` | Proof-only | Freeze OOF descriptors and fragment precedence as data while preserving all goldens. |
+| 4 | `prop038-strict-terminal-regression-hardening-v0` | Proof-only | Harden accepted strict terminal key-set, nested diagnostics, no-persistence, and success-path invariants. |
+| 5 | `ch6-compilation-report-profile-evidence-sync-v0` | Docs-only | Close Ch6 / CompilationReport lag without changing behavior. |
+| 6 | `contract-modifiers-pack-adapter-proof-v0` | Proof-only | First optional pack adapter candidate because its compiler surface is small and runtime risk is low. |
+| 7 | `ordered-rule-contract-proof-v0` | Proof-only | Validate ordered rule graph before any pass registration or dispatch. |
+| 8 | `compiler-profile-id-mandatory-transition-design-v0` | Design-only | Only after pack/profile report evidence is accepted; no `.igapp` mutation yet. |
+
+### Closed Surfaces
+
+This report leaves closed:
+
+- code implementation;
+- parser syntax changes;
+- TypeChecker, SemanticIR, assembler, or RuntimeMachine behavior changes;
+- pack dispatch or profile-assembled compiler migration;
+- `.igapp`, goldens, manifest, loader/report, CompatibilityReport, and
+  persisted report changes;
+- public API/CLI profile or strict source widening;
+- `CompilerResult` shape changes;
+- production cache, signing, Ledger/TBackend, BiHistory production evaluation,
+  stream/OLAP production execution, Gate 3, and runtime authority;
+- Spark applied-pressure authority.
+
+### R90 Recommendation
+
+Accept the boundary report as a design map, not an implementation gate. The
+next safest compiler route is `compiler-pack-shadow-profile-proof-v1`, with
+`prop038-strict-terminal-regression-hardening-v0` as the backup if the team
+wants to harden the accepted R84 foundation before touching pack registries.
+
+---
+
 ## Sources Read
 
 - `docs/agent-context.md`

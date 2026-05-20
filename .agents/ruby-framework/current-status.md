@@ -114,8 +114,10 @@ ledger ContractableReceiptSink specs: 27 examples, 0 failures
 Latest production-prep proof:
 
 - `examples/rails_contracts_ledger/`
+- `recipes/observed-service-receipt-recipe-v0.md`
 - `reports/ruby-framework-rails-contracts-ledger-proof-round-v0.md`
 - `reports/port-2026-05-20-ruby-p1-minimal-receipt-shape.md`
+- `reports/port-2026-05-20-ruby-p2-observed-service-recipe.md`
 
 Proof status:
 
@@ -128,6 +130,7 @@ ledger package specs: 1254 examples, 0 failures
 gem build smoke: igniter, igniter-contracts, igniter-embed,
   igniter-extensions, igniter-ledger-client, igniter-ledger all build 0.5.1
 clean installed-gem Rails proof smoke: pass
+observed-service receipt recipe: filed
 Rubygems publish/release: not run
 ```
 
@@ -235,10 +238,9 @@ Round status:
 ```text
 Ruby Framework lane contribution: done.
 Waiting: S3-R87-C3-A (Architect decision).
-Latest analysis round: done.
+Latest analysis/recipe round: done.
 Next round: no new implementation round open yet.
-Next report filename: to be determined after C3-A or Spark redaction feasibility
-confirmation. If C3-A accepts the pilot scope and opens implementation-scope
-design, the next report would be:
-ruby-framework-spark-contractable-shadowing-implementation-scope-v0.md
+Recommended next route: Spark follow-up.
+Next report filename: to be determined when Spark returns one app-local
+persisted redacted receipt path or Portfolio opens release-readiness review.
 ```
