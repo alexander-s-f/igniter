@@ -115,6 +115,7 @@ Latest production-prep proof:
 
 - `examples/rails_contracts_ledger/`
 - `reports/ruby-framework-rails-contracts-ledger-proof-round-v0.md`
+- `reports/port-2026-05-20-ruby-p1-minimal-receipt-shape.md`
 
 Proof status:
 
@@ -126,6 +127,7 @@ root rake: 686 examples, 0 failures; RuboCop no offenses
 ledger package specs: 1254 examples, 0 failures
 gem build smoke: igniter, igniter-contracts, igniter-embed,
   igniter-extensions, igniter-ledger-client, igniter-ledger all build 0.5.1
+clean installed-gem Rails proof smoke: pass
 Rubygems publish/release: not run
 ```
 
