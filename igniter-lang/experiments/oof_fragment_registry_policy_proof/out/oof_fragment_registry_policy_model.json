@@ -1,0 +1,38 @@
+{
+  "kind": "oof_fragment_registry_policy_model",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-policy-proof-v0",
+  "alias_collision_policy": {
+    "canonical_codes_unique": true,
+    "aliases_must_have_descriptors": true,
+    "aliases_must_point_to_current_replacement": true,
+    "aliases_must_not_collide_across_canonical_codes": true
+  },
+  "oof_projection_guard": {
+    "primary_semantics": "status",
+    "secondary_projection": "fragment",
+    "blocked": true,
+    "loadable": false,
+    "status_only": true,
+    "capability": false
+  },
+  "guarded_non_fragments": {
+    "names": [
+      "olap",
+      "progression"
+    ],
+    "classification_kind": "not_fragment_class",
+    "precedence_candidate": null,
+    "loadable": false
+  },
+  "excluded_namespaces": [
+    "compiler_profile_contract.",
+    "compiler_profile_contract_refusal."
+  ],
+  "non_authority": {
+    "canon_changed": false,
+    "compiler_runtime_changed": false,
+    "registry_implementation_authorized": false,
+    "dispatch_authorized": false
+  }
+}

@@ -1,0 +1,241 @@
+{
+  "kind": "oof_fragment_registry_policy_proof_summary",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-policy-proof-v0",
+  "status": "PASS",
+  "policy_id": "oof_fragment_policy/sha256:027ba71cd5a14c104b3b246a",
+  "source_shadow_registry_status": "PASS",
+  "cases": [
+    {
+      "name": "alias_policy.valid_shadow_descriptors",
+      "expected": "accepted",
+      "diagnostics": [],
+      "status": "PASS",
+      "accepted": true
+    },
+    {
+      "name": "alias_policy.duplicate_code_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "oof_registry.code_collision",
+          "path": "descriptors[63].code",
+          "message": "descriptor code collides with an existing descriptor"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    },
+    {
+      "name": "alias_policy.alias_claimed_by_multiple_codes_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "oof_registry.alias_collision",
+          "path": "descriptors[10].aliases",
+          "message": "OOF-TM1 is claimed by multiple descriptors"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    },
+    {
+      "name": "alias_policy.missing_replacement_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "oof_registry.alias_missing_replacement",
+          "path": "descriptors[18].replacement_code",
+          "message": "compatibility alias requires an existing replacement"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    },
+    {
+      "name": "alias_policy.candidate_replacement_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "oof_registry.alias_replacement_not_current",
+          "path": "descriptors[18].replacement_code",
+          "message": "compatibility alias replacement must be a current descriptor"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    },
+    {
+      "name": "oof_projection.valid_blocked_non_loadable_status_only",
+      "expected": "accepted",
+      "diagnostics": [],
+      "status": "PASS",
+      "accepted": true
+    },
+    {
+      "name": "oof_projection.loadable_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "fragment_registry.oof_projection_loadable",
+          "path": "fragment.projection_guard.loadable",
+          "message": "oof projection must be non-loadable"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    },
+    {
+      "name": "oof_projection.capability_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "fragment_registry.oof_projection_capability",
+          "path": "fragment.projection_guard.capability",
+          "message": "oof projection must not grant capabilities"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    },
+    {
+      "name": "oof_projection.not_status_primary_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "fragment_registry.oof_projection_not_status_primary",
+          "path": "fragment.primary_semantics",
+          "message": "oof must be status-primary"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    },
+    {
+      "name": "guarded_non_fragment.valid_olap_progression",
+      "expected": "accepted",
+      "diagnostics": [],
+      "status": "PASS",
+      "accepted": true
+    },
+    {
+      "name": "guarded_non_fragment.olap_promotion_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "fragment_registry.guarded_non_fragment_promoted",
+          "path": "fragments.olap.classification_kind",
+          "message": "olap must not be promoted to fragment class"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    },
+    {
+      "name": "guarded_non_fragment.progression_precedence_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "fragment_registry.guarded_non_fragment_precedence",
+          "path": "fragments.progression.precedence_candidate",
+          "message": "progression must not receive fragment precedence"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    },
+    {
+      "name": "guarded_non_fragment.olap_loadable_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "fragment_registry.guarded_non_fragment_loadable",
+          "path": "fragments.olap.loadable",
+          "message": "olap must not be loadable"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    },
+    {
+      "name": "exclusion.valid_shadow_descriptors",
+      "expected": "accepted",
+      "diagnostics": [],
+      "status": "PASS",
+      "accepted": true
+    },
+    {
+      "name": "exclusion.compiler_profile_contract_descriptor_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "oof_registry.excluded_namespace",
+          "path": "descriptors[63]",
+          "message": "compiler_profile_contract.contract_digest_mismatch is outside the OOF namespace"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    },
+    {
+      "name": "exclusion.compiler_profile_refusal_alias_rejected",
+      "expected": "rejected",
+      "diagnostics": [
+        {
+          "code": "oof_registry.excluded_namespace",
+          "path": "descriptors[0]",
+          "message": "compiler_profile_contract_refusal.contract_digest_mismatch is outside the OOF namespace"
+        }
+      ],
+      "status": "PASS",
+      "accepted": false
+    }
+  ],
+  "checks": [
+    {
+      "name": "source_shadow_proof.pass_evidence",
+      "status": "PASS"
+    },
+    {
+      "name": "case_matrix.all_expected_results",
+      "status": "PASS"
+    },
+    {
+      "name": "alias_policy.accepts_valid_shadow_descriptors",
+      "status": "PASS"
+    },
+    {
+      "name": "alias_policy.rejects_collisions",
+      "status": "PASS"
+    },
+    {
+      "name": "oof_projection.blocks_loadability_and_capability",
+      "status": "PASS"
+    },
+    {
+      "name": "guarded_non_fragment.olap_progression_guarded",
+      "status": "PASS"
+    },
+    {
+      "name": "exclusion.profile_contract_namespaces_blocked",
+      "status": "PASS"
+    }
+  ],
+  "failed_cases": [],
+  "failed_checks": [],
+  "recommendation": "PASS_FOR_PROOF_ONLY_POLICY_MODEL_HOLD_IMPLEMENTATION",
+  "outputs": {
+    "summary": "igniter-lang/experiments/oof_fragment_registry_policy_proof/out/oof_fragment_registry_policy_proof_summary.json",
+    "policy_model": "igniter-lang/experiments/oof_fragment_registry_policy_proof/out/oof_fragment_registry_policy_model.json"
+  },
+  "closed_surfaces": {
+    "specs_or_canon_changed": false,
+    "compiler_code_changed": false,
+    "runtime_code_changed": false,
+    "registry_implementation_authorized": false,
+    "dispatch_authorized": false,
+    "public_api_cli_widening_authorized": false,
+    "igapp_or_golden_mutation_authorized": false
+  },
+  "implementation_authorized": false
+}
