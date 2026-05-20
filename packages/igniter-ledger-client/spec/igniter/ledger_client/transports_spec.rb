@@ -49,8 +49,8 @@ RSpec.describe "ledger client transports" do
       @code = code
     end
 
-    def read_body
-      @chunks.each { |chunk| yield chunk }
+    def read_body(&block)
+      @chunks.each { |chunk| block.call(chunk) }
     end
   end
 

@@ -292,7 +292,11 @@ module Igniter
         def initialize(raw = {})
           data = normalize_hash(raw)
           @ref = data[:ref] ? normalize_hash(data[:ref]).freeze : nil
-          @found = data.key?(:found) ? !!data[:found] : !ref.nil?
+          @found = if data.key?(:found)
+                     data[:found] ? true : false
+                   else
+                     !ref.nil?
+                   end
           freeze
         end
 

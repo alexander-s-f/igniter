@@ -87,11 +87,11 @@ shadow = Igniter::Extensions::Contracts.shadow_differential(
   candidate_name: "PricingV2"
 )
 
+tax_tolerated = tolerated.divergences.none? { |divergence| divergence.output_name == :tax }
+
 puts "contracts_differential_match=#{report.match?}"
 puts "contracts_differential_diverged=#{report.divergences.map(&:output_name).inspect}"
 puts "contracts_differential_candidate_only=#{report.candidate_only.keys.inspect}"
-puts "contracts_differential_tax_tolerated=#{tolerated.divergences.none? do |divergence|
-  divergence.output_name == :tax
-end}"
+puts "contracts_differential_tax_tolerated=#{tax_tolerated}"
 puts "contracts_shadow_match=#{shadow.match?}"
 puts "contracts_shadow_summary=#{shadow.summary}"

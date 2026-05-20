@@ -123,9 +123,7 @@ module Igniter
         convenience_filter[:partition_key] = partition_key if partition_key
         convenience_filter[:partition_value] = partition_value if partition_value
 
-        if filter && !convenience_filter.empty?
-          raise ArgumentError, "replay filter: cannot be combined with store/key/partition convenience arguments"
-        end
+        raise ArgumentError, "replay filter: cannot be combined with store/key/partition convenience arguments" if filter && !convenience_filter.empty?
 
         return filter if filter
         return nil if convenience_filter.empty?

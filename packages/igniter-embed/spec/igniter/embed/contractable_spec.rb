@@ -542,7 +542,7 @@ RSpec.describe Igniter::Embed::Contractable do
     store = memory_store
     runner = Igniter::Embed.contractable(:quote) do |config|
       config.primary ->(amount:) { { total: amount } }
-      config.candidate ->(amount:) { raise "boom" }
+      config.candidate ->(_amount:) { raise "boom" }
       config.async false
       config.store store
       config.redact_inputs ->(**inputs) { inputs }
@@ -590,7 +590,7 @@ RSpec.describe Igniter::Embed::Contractable do
 
   it "sets status :store_error when store adapter raises" do
     broken_store = Class.new do
-      def record(observation)
+      def record(_observation)
         raise "store is down"
       end
     end.new

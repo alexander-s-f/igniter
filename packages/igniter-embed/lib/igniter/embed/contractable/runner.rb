@@ -230,12 +230,12 @@ module Igniter
               )
             )
           end
-          if config.store_adapter&.respond_to?(:record_event)
-            begin
-              config.store_adapter.record_event(receipt)
-            rescue StandardError
-              nil
-            end
+          return unless config.store_adapter.respond_to?(:record_event)
+
+          begin
+            config.store_adapter.record_event(receipt)
+          rescue StandardError
+            nil
           end
         end
 
@@ -254,6 +254,14 @@ module Igniter
         end
 
         def build_event_receipt(event:, observation_id:, observation:)
+          observation_ref = if observation
+                              {
+                                observation_id: observation[:observation_id],
+                                match: observation[:match],
+                                accepted: observation[:accepted]
+                              }
+                            end
+
           {
             schema_version: 1,
             receipt_kind: :contractable_event,
@@ -264,11 +272,7 @@ module Igniter
             occurred_at: serialize_time(config.now),
             severity: SEVERITY_MAP.fetch(event, :info),
             summary: SUMMARY_MAP.fetch(event, event.to_s.tr("_", " ")),
-            observation_ref: observation ? {
-              observation_id: observation[:observation_id],
-              match: observation[:match],
-              accepted: observation[:accepted]
-            } : nil,
+            observation_ref: observation_ref,
             metadata: {}
           }
         end
@@ -306,7 +310,7 @@ module Igniter
         def dispatch_async(name:, inputs:, metadata:, handoff:, &block)
           adapter = config.async_adapter
           params = adapter.method(:enqueue).parameters
-          accepts_handoff = params.any? { |(type, pname)| (type == :key || type == :keyreq) && pname == :handoff } ||
+          accepts_handoff = params.any? { |(type, pname)| %i[key keyreq].include?(type) && pname == :handoff } ||
                             params.any? { |(type, _)| type == :keyrest }
           if accepts_handoff
             adapter.enqueue(name: name, inputs: inputs, metadata: metadata, handoff: handoff, &block)

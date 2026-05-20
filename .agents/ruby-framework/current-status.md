@@ -111,6 +111,24 @@ contracts + embed + ledger-client specs: 269 examples, 0 failures
 ledger ContractableReceiptSink specs: 27 examples, 0 failures
 ```
 
+Latest production-prep proof:
+
+- `examples/rails_contracts_ledger/`
+- `reports/ruby-framework-rails-contracts-ledger-proof-round-v0.md`
+
+Proof status:
+
+```text
+examples/contracts/differential.rb syntax/runtime: ok
+Rails contracts/ledger example: 1 test, 24 assertions, 0 failures
+Rails server smoke: http://127.0.0.1:3042/availability ok
+root rake: 686 examples, 0 failures; RuboCop no offenses
+ledger package specs: 1254 examples, 0 failures
+gem build smoke: igniter, igniter-contracts, igniter-embed,
+  igniter-extensions, igniter-ledger-client, igniter-ledger all build 0.5.1
+Rubygems publish/release: not run
+```
+
 ## Active Risks
 
 - Embed's default async adapter is a local Ruby thread. Spark production-adjacent
