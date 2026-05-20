@@ -47,7 +47,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-032](PROP-032-assumptions-block-v0.md) | experiment-pass | `assumptions {}` block + `uses assumptions NAME`; Phase 1/2/3/4 compiler proofs accepted by S3-R36-C2-A; PROP-033 evidence validation and runtime receipts remain excluded |
 | [PROP-036](PROP-036-compiler-profile-manifest-identity-v0.md) | accepted | `compiler_profile_id` manifest identity; accepted proposal-only by S3-R35-C3-A; separate implementation authorization required before code |
 | [PROP-037](PROP-037-external-progression-service-liveness-v0.md) | accepted | External progression and service liveness semantics; accepted proposal-only by S3-R37-C3-A; descriptor/proof follow-ups only, no parser/runtime/fragment-class authorization |
-| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; canonical contract object schema, slots, strict registries, ordered-rule graph, diagnostics, and non-authority boundaries; accepted proposal-only by S3-R61-C3-A; first proof-local experiment implementation accepted/closed by S3-R63-C3-A; bounded internal library validator extraction accepted/closed by S3-R65-C3-A; bounded report-only internal annotation accepted/closed by S3-R67-C3-A; hybrid `contract_digest` policy design accepted by S3-R68-C3-A; shape-policy proof accepted by S3-R69-C3-A; recompute-match proof accepted by S3-R70-C3-A; report-only integration proof accepted by S3-R71-C3-A; errata/design text accepted by S3-R72-C3-A; live validator implementation design accepted by S3-R73-C4-A; bounded live validator implementation accepted by S3-R74-C3-A; compile-refusal preconditions design accepted by S3-R75-C3-A; strict-mode/refusal trigger design accepted by S3-R76-C4-A; proof-local strict-mode refusal trigger experiment accepted/closed by S3-R77-C3-A; live-refusal boundary design accepted by S3-R78-C4-A; internal orchestrator strict-source/status design accepted by S3-R79-C4-A; strict-refusal result-shape/non-persisting path design accepted by S3-R80-C4-A; proof-local strict-refusal result-shape experiment accepted by S3-R81-C3-A; live implementation scope review accepted by S3-R82-C4-A with implementation held; only implementation authorization review may open next |
+| [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; accepted proposal-only by S3-R61-C3-A; proof-local implementation, internal validator extraction, report-only annotation, digest policy/proofs/errata, live validator implementation, strict-mode/refusal designs, proof-local result-shape, live implementation scope review, bounded internal-only strict-refusal implementation, live internal foundation acceptance, canon sync, and R86 Ch5/Ch7/language-spec sync are accepted in sequence through S3-R86-C4-A; public API/CLI, persisted reports/sidecars, loader/report, CompatibilityReport, runtime, Gate 3 widening, and production remain closed |
 
 ---
 
@@ -156,13 +156,14 @@ proof-local experiment with 12 cases / 15 checks PASS; only
 design and keeps implementation held. S3-R79-C4-A accepts the internal
 orchestrator strict-source/status design and keeps implementation held.
 S3-R80-C4-A accepts the strict-refusal result-shape/non-persisting path design
-and keeps implementation held. Only
-S3-R81-C3-A accepts the proof-local strict-refusal result-shape experiment with
-3 cases / 44 checks PASS and keeps implementation held. S3-R82-C4-A accepts the
-live implementation scope review and keeps implementation held. Only
-`prop038-strict-refusal-live-implementation-authorization-review-v0` may open
-next, and it is an authorization review only; no implementation card may open
-directly from R82.
+and keeps implementation held. S3-R81-C3-A accepts the proof-local
+strict-refusal result-shape experiment with 3 cases / 44 checks PASS and keeps
+implementation held. S3-R82-C4-A accepts the live implementation scope review
+and keeps implementation held. S3-R83-C1-A authorizes and S3-R83-C2-I lands the
+bounded internal-only strict-refusal live implementation; S3-R83-C3-X pressure
+passes, and S3-R84-C1-A accepts the slice as the live internal foundation. S3-R85
+accepts canon sync and regression/canon map, and S3-R86 accepts Ch5/Ch7/language-spec
+sync for that foundation.
 Compiler/orchestrator integration, live compile refusal, public surfaces,
 `CompilerResult`, persisted reports/sidecars, loader/report,
 CompatibilityReport, runtime, Gate 3 widening, and production remain closed.
@@ -250,7 +251,10 @@ live-refusal boundary design accepted with implementation held; internal
 orchestrator strict-source/status design accepted with implementation held; and
 strict-refusal result-shape/non-persisting path design accepted with
 implementation held; proof-local strict-refusal result-shape experiment accepted
-with implementation held; and live implementation scope review accepted with
-implementation held. Only implementation authorization review may open next.
+with implementation held; live implementation scope review accepted with
+implementation held; bounded internal-only strict-refusal live implementation
+authorized and landed; live internal foundation accepted; canon sync accepted;
+and R86 Ch5/Ch7/language-spec sync accepted. Spark CRM is an active
+applied-pressure source only, not PROP-038 authority.
 Managed local recursion / loop-class extensions use PROP-039+ as placeholder
 only until formal assignment.

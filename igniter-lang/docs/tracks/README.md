@@ -66,6 +66,19 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 86 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/tracks/sparkcrm-inbox-disposition-and-pressure-routing-v0.md` | done | Routes Spark CRM inbox report as `promoted-track / active applied-pressure source`; source is not canon, not implementation authority, and not Spark CRM production authority |
+| `prop038-strict-refusal-spec-chapter-sync-v0.md` | done | Synchronizes Ch5/Ch7/language-spec for R84/R85 PROP-038 strict-refusal internal foundation; no code or authority widening |
+| `sparkcrm-igniter-adoption-readiness-map-v0.md` | done | Readiness map: observe existing Spark services, shadow/compare contracts, emit redacted receipts, optional sidecar Ledger sink, sanitized Lang fixtures; replacement/runtime production paths closed |
+| `../discussions/r86-spec-sync-and-spark-applicability-pressure-v0.md` | proceed | 12/12 checks PASS, no blockers, four non-blocking notes; recommends C4-A accept sync/routing and bound Spark next route |
+| `../gates/r86-spec-sync-and-spark-applicability-routing-decision-v0.md` | accepted-spec-sync-spark-routed | Accepts spec sync and Spark routing; next route is `sparkcrm-contractable-shadowing-pilot-scope-v0`; no implementation authorized |
+| `stage3-round86-status-curation-v0.md` | done | R86 status curation; closes round card, updates status/index maps, and records Bridge Agent as Spark inbox next owner |
+
+---
+
 ## Stage 3 Round 85 Evidence
 
 | Track | Status | Notes |
