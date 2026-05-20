@@ -212,6 +212,61 @@ ObservedQuote = Igniter::Embed.contractable(:quote) do |config|
 end
 ```
 
+For an observed service, the normalizer should return a redacted aggregate
+summary. The primary callable remains authoritative and its raw result is still
+returned to the host app.
+
+```ruby
+AvailabilityObserver = Igniter::Embed.contractable(:availability) do |config|
+  config.role :observed_service
+  config.stage :captured
+  config.primary AvailabilityService
+  config.normalize_primary AvailabilitySummaryNormalizer
+  config.redact_inputs ->(**inputs) { inputs.slice(:request_ref, :window_ref) }
+  config.store AvailabilityObservationStore
+end
+
+class AvailabilitySummaryNormalizer
+  def self.call(_result)
+    {
+      status: :ok,
+      outputs: {
+        status: "success",
+        receipt_kind: "availability_slot_map_summary",
+        redaction_policy: "availability_slot_map_summary_v1",
+        availability_bucket: "available",
+        dominant_unavailable_state: "day_off",
+        available_ratio: 0.75,
+        total_slots: 4,
+        available_slots: 3,
+        scheduled_slots: 0,
+        off_schedule_slots: 0,
+        day_off_slots: 1,
+        past_slots: 0
+      },
+      metadata: { normalizer: :availability_summary_v1 }
+    }
+  end
+end
+```
+
+The aggregate payload above is a sanitized normalizer example. It becomes part
+of `receipt[:primary][:outputs]`; it is not the top-level Embed receipt
+envelope. In particular, `"availability_slot_map_summary"` is fixture/example
+vocabulary for the aggregate output shape, not an `igniter-embed` receipt kind.
+The Embed observation receipt that contains it still uses
+`receipt_kind: :contractable_observation`, and event receipts still use
+`receipt_kind: :contractable_event`.
+
+Keep this shape host-local:
+
+- choose the observed target, rollout flag, and sample rate in the app;
+- keep the redaction allow-list app-owned;
+- persist receipts through an app-owned store adapter;
+- treat Ledger sinks as optional adapters, not as the source of truth;
+- do not infer release readiness or a public schema from synthetic aggregate
+  examples.
+
 ## Observation Receipts
 
 Each contractable call produces a canonical observation receipt. The receipt

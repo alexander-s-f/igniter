@@ -60,6 +60,8 @@ architecture. They are not production migration authorization.
 | `../discussions/oof-fragment-registry-design-pressure-v0.md` | proceed | R94 pressure PASS 7/7; recommends proof-only policy proof and preserves implementation/spec/canon/compiler/runtime closures |
 | `oof-fragment-registry-policy-proof-v0.md` | done / PASS | R95 proof-only policy model PASS 16/16 cases and 7/7 checks; covers alias/collision, OOF projection guard, guarded non-fragments, and profile-contract namespace exclusion; implementation held |
 | `../gates/oof-fragment-registry-policy-proof-acceptance-decision-v0.md` | accepted-pinv-tinv-lifecycle-design-next-implementation-held | R96 accepts R95 as proof-only policy evidence and opens only design-only `pinv-tinv-lifecycle-and-registry-classification-design-v0`; implementation-boundary design remains held |
+| `pinv-tinv-lifecycle-and-registry-classification-design-v0.md` | done | R97 classifies PINV/TINV as non-public invariant support metadata, not OOF descriptors or aliases; public OOF authority remains with `OOF-IV*` / `OOF-I*` |
+| `../gates/pinv-tinv-lifecycle-classification-acceptance-decision-v0.md` | accepted-implementation-boundary-design-next-implementation-held | R98 accepts R97 and opens only design-only `oof-fragment-registry-implementation-boundary-design-v0`; implementation/spec/canon/compiler/runtime surfaces remain closed |
 
 ---
 
@@ -68,6 +70,9 @@ architecture. They are not production migration authorization.
 | Track | Status | Notes |
 |-------|--------|-------|
 | `spark-availability-metrics-fixture-design-v0.md` | done | Design-only P4 route for sanitized synthetic metrics-backed aggregate examples; no fixture files created; recommends pressure review before fixture creation |
+| `../discussions/spark-availability-metrics-fixture-design-pressure-v0.md` | proceed | P5 pressure PASS 7/7; success fixtures safe; error fixture held pending Spark confirmation that `unknown` is synthetic-only |
+| `spark-availability-synthetic-fixture-creation-v0.md` | done | P6 creates two success-case synthetic fixtures only; error summary held; no spec/proposal/canon/compiler/runtime surfaces changed |
+| `spark-availability-error-fixture-design-v0.md` | done | P7 design-only optional error fixture; marks `unknown` as synthetic error-fixture vocabulary only, not Spark production state vocabulary; no fixture file created |
 
 ---
 
