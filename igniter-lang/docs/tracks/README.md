@@ -52,6 +52,14 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Stage 3 Round 93 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `oof-fragment-registry-ownership-and-canon-semantics-design-v0.md` | done | Design-only R93 packet: OOFRegistry as kernel service data populated by pack-owned descriptors; FragmentRegistry as kernel service data populated by fragment-owner packs; `oof` status-primary with secondary projection; recommends pressure-only `oof-fragment-registry-design-pressure-v0` next |
+
+---
+
 ## Shadow Agent Orchestra Research
 
 These tracks are shadow orchestration research. They are not Igniter-Lang syntax,
