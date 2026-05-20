@@ -70,6 +70,7 @@ not PROP promotion, and not parser/tooling authorization.
 
 | Track | Status | Notes |
 |-------|--------|-------|
+| `compiler-pack-shadow-profile-proof-v1.md` | done / PASS | LANG-R91 proof-only shadow profile refresh; 18/18 checks PASS; records PROP-032 current assumptions surface, PROP-036 optional profile-id transport, PROP-038 internal-only strict terminal; recommends proof-only `oof-fragment-registry-shadow-proof-v0` next |
 | `../org/tracks/compiler-pack-boundary-report-r90-file-boundary-v0.md` | done | Selects Option A: update existing `compiler-pack-boundary-report-v0.md` with a clearly marked R90 addendum and preserve S3-R31 body as historical foundation |
 | `compiler-pack-boundary-report-v0.md` | done | R90 addendum accepted as current compiler pack boundary design/report evidence; no code, Ch6, or spec edits; S3-R31 body remains historical |
 | `compiler-pack-boundary-proof-fixture-and-oof-survey-v0.md` | done | Maps proof fixtures, OOF ownership, fragments, and stale S3-R31 assumptions; recommends proof-only shadow profile or OOF/fragment registry route |

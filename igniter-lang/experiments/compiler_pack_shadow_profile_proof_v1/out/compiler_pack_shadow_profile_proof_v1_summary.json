@@ -1,0 +1,1069 @@
+{
+  "kind": "compiler_pack_shadow_profile_proof_v1_summary",
+  "format_version": "0.2.0",
+  "track": "compiler-pack-shadow-profile-proof-v1",
+  "status": "PASS",
+  "profile": {
+    "kind": "compiler_profile_shadow",
+    "format_version": "0.2.0",
+    "track": "compiler-pack-shadow-profile-proof-v1",
+    "dispatch_mode": "shadow_no_dispatch",
+    "compiler_pipeline": "current_monolithic_parser_classifier_typechecker_emit_typed_assembler",
+    "r90_boundary": {
+      "source": "compiler-pack-boundary-report-decision-v0",
+      "proof_only": true,
+      "no_implementation": true,
+      "no_live_dispatch": true,
+      "no_pack_registry_implementation": true,
+      "no_igapp_mutation": true,
+      "spark_is_applied_pressure_only": true
+    },
+    "prop_state": {
+      "prop032_assumptions": "accepted_current_compiler_surface_prop033_evidence_validation_closed",
+      "prop036_compiler_profile_id": "optional_explicit_compiler_profile_source_transport_supported_mandatory_transition_closed",
+      "prop038_strict_terminal": "accepted_internal_only_non_persisting_foundation_public_runtime_closed"
+    },
+    "igapp_manifest_changes": [],
+    "compiler_profile_id_in_igapp": "optional_when_explicit_compiler_profile_source_is_supplied_no_mandatory_transition",
+    "packs": [
+      {
+        "name": "CoreLanguagePack",
+        "implementation_id": "core_language.proof_compiler_adapter.v1",
+        "status": "current_surface_shadow",
+        "requires_packs": [],
+        "provides_capabilities": [
+          "core_language",
+          "core_fragment",
+          "core_type_refs",
+          "core_semanticir"
+        ],
+        "parser_rules": [
+          "module_decl",
+          "type_decl",
+          "trait_decl",
+          "impl_decl",
+          "contract_shape_decl",
+          "contract_decl",
+          "input_decl",
+          "compute_decl",
+          "output_decl",
+          "literals",
+          "refs",
+          "field_access",
+          "core_calls",
+          "core_operators"
+        ],
+        "classifier_rules": [
+          "core_symbols",
+          "dependency_graph",
+          "unresolved_symbol",
+          "core_fragment_default"
+        ],
+        "type_rules": [
+          "primitive_type_ir",
+          "expression_inference",
+          "output_typecheck",
+          "typed_core_nodes"
+        ],
+        "semanticir_handlers": [
+          "contract_ir",
+          "compute_node",
+          "output_node",
+          "compilation_report"
+        ],
+        "assembler_hooks": [
+          "base_igapp_layout",
+          "manifest",
+          "semantic_ir_program",
+          "compilation_report",
+          "requirements",
+          "core_contract_file"
+        ],
+        "fragment_classes": [
+          "core"
+        ],
+        "oof_codes": [
+          "OOF-P0",
+          "OOF-P1",
+          "OOF-P2",
+          "OOF-P28",
+          "OOF-TY0",
+          "OOF-DM3"
+        ]
+      },
+      {
+        "name": "OOFRegistry",
+        "implementation_id": "oof_registry.shadow_descriptor_registry.v1",
+        "status": "kernel_service_candidate_data_only",
+        "requires_packs": [],
+        "provides_capabilities": [
+          "oof_registry",
+          "oof_descriptor_lookup",
+          "oof_stage_ownership"
+        ],
+        "parser_rules": [],
+        "classifier_rules": [
+          "oof_descriptor_registration"
+        ],
+        "type_rules": [
+          "oof_alias_registration"
+        ],
+        "semanticir_handlers": [
+          "oof_report_diagnostics"
+        ],
+        "assembler_hooks": [
+          "oof_manifest_metadata_deferred"
+        ],
+        "fragment_classes": [
+          "oof"
+        ],
+        "oof_codes": []
+      },
+      {
+        "name": "FragmentRegistry",
+        "implementation_id": "fragment_registry.shadow_precedence_registry.v1",
+        "status": "kernel_service_candidate_data_only",
+        "requires_packs": [],
+        "provides_capabilities": [
+          "fragment_registry",
+          "fragment_precedence"
+        ],
+        "parser_rules": [],
+        "classifier_rules": [
+          "contract_fragment_precedence",
+          "node_value_fragment_split"
+        ],
+        "type_rules": [
+          "fragment_validation"
+        ],
+        "semanticir_handlers": [
+          "fragment_passthrough"
+        ],
+        "assembler_hooks": [
+          "fragment_summary",
+          "max_fragment_class"
+        ],
+        "fragment_classes": [
+          "core",
+          "escape",
+          "stream",
+          "temporal",
+          "epistemic",
+          "oof"
+        ],
+        "oof_codes": []
+      },
+      {
+        "name": "EscapeBoundaryPack",
+        "implementation_id": "escape_boundary.current_monolith_adapter.v1",
+        "status": "current_surface_shadow",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "escape_boundary",
+          "read_surface",
+          "escape_fragment"
+        ],
+        "parser_rules": [
+          "escape_decl",
+          "read_decl",
+          "lifecycle",
+          "scoped_by",
+          "cardinality",
+          "schema_version",
+          "tenant_free"
+        ],
+        "classifier_rules": [
+          "escape_decl_classification",
+          "non_temporal_read_classification"
+        ],
+        "type_rules": [
+          "read_metadata_passthrough",
+          "escape_boundary_validation"
+        ],
+        "semanticir_handlers": [
+          "escape_boundaries"
+        ],
+        "assembler_hooks": [
+          "requirements_from_escape_boundaries",
+          "capability_effect_summary"
+        ],
+        "fragment_classes": [
+          "escape"
+        ],
+        "oof_codes": []
+      },
+      {
+        "name": "TemporalPack",
+        "implementation_id": "temporal.metadata_only_guarded.v1",
+        "status": "current_surface_shadow_runtime_closed",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "EscapeBoundaryPack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "temporal",
+          "history_read",
+          "bihistory_read",
+          "temporal_access_node"
+        ],
+        "parser_rules": [
+          "History_type_ref",
+          "BiHistory_type_ref",
+          "coordinate_syntax_deferred"
+        ],
+        "classifier_rules": [
+          "temporal_read_detection",
+          "temporal_value_core_split",
+          "temporal_capability_selection"
+        ],
+        "type_rules": [
+          "history_at",
+          "bihistory_at",
+          "temporal_axis_validation",
+          "temporal_coordinate_refs"
+        ],
+        "semanticir_handlers": [
+          "temporal_input_node",
+          "temporal_access_node",
+          "temporal_escape_boundaries"
+        ],
+        "assembler_hooks": [
+          "temporal_contract_index",
+          "temporal_nodes",
+          "temporal_requirements",
+          "temporal_guard_metadata"
+        ],
+        "fragment_classes": [
+          "temporal"
+        ],
+        "oof_codes": [
+          "OOF-H1",
+          "OOF-H2",
+          "OOF-H3",
+          "OOF-H4",
+          "OOF-BT1",
+          "OOF-BT2",
+          "OOF-BT3",
+          "OOF-BT4",
+          "OOF-TM1",
+          "OOF-TM3",
+          "OOF-TM4",
+          "OOF-TM5",
+          "OOF-TM6"
+        ]
+      },
+      {
+        "name": "StreamPack",
+        "implementation_id": "stream.current_monolith_adapter.v1",
+        "status": "current_surface_shadow_production_closed",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "EscapeBoundaryPack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "stream",
+          "stream_input",
+          "stream_window",
+          "fold_stream"
+        ],
+        "parser_rules": [
+          "stream_decl",
+          "window_decl",
+          "fold_stream_decl",
+          "window_bounded",
+          "count_bounded"
+        ],
+        "classifier_rules": [
+          "stream_ingress",
+          "fold_stream_tracking",
+          "direct_stream_use",
+          "missing_window"
+        ],
+        "type_rules": [
+          "fold_stream_core_body",
+          "fold_stream_result_type"
+        ],
+        "semanticir_handlers": [
+          "stream_input_node",
+          "window_decl_node",
+          "fold_stream_node"
+        ],
+        "assembler_hooks": [
+          "stream_nodes",
+          "stream_requirements",
+          "stream_window_requirements"
+        ],
+        "fragment_classes": [
+          "stream"
+        ],
+        "oof_codes": [
+          "OOF-S1",
+          "OOF-S2",
+          "OOF-S3",
+          "OOF-S4",
+          "OOF-S5"
+        ]
+      },
+      {
+        "name": "OLAPPack",
+        "implementation_id": "olap.current_monolith_adapter.v1",
+        "status": "current_surface_shadow_executor_closed",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "olap_point",
+          "olap_type_ref",
+          "olap_access"
+        ],
+        "parser_rules": [
+          "olap_point_decl",
+          "OLAPPoint_type_ref",
+          "dims_record",
+          "slice_record"
+        ],
+        "classifier_rules": [
+          "olap_symbol_registration"
+        ],
+        "type_rules": [
+          "olap_env",
+          "olap_declaration_validation",
+          "olap_slice_type",
+          "olap_rollup_type"
+        ],
+        "semanticir_handlers": [
+          "olap_point_decl",
+          "olap_access_node"
+        ],
+        "assembler_hooks": [
+          "olap_requirements_deferred"
+        ],
+        "fragment_classes": [],
+        "oof_codes": [
+          "OOF-O1",
+          "OOF-O2",
+          "OOF-O3",
+          "OOF-O4",
+          "OOF-O5"
+        ]
+      },
+      {
+        "name": "InvariantPack",
+        "implementation_id": "invariant.current_monolith_adapter.v1",
+        "status": "current_surface_shadow_runtime_persistence_closed",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "invariant",
+          "invariant_severity",
+          "invariant_coverage"
+        ],
+        "parser_rules": [
+          "invariant_decl",
+          "predicate",
+          "severity",
+          "label",
+          "message",
+          "overridable_with"
+        ],
+        "classifier_rules": [
+          "invariant_dependency_refs",
+          "invariant_author_fields",
+          "invariant_source_metadata"
+        ],
+        "type_rules": [
+          "invariant_predicate_bool",
+          "invariant_output_effect",
+          "invariant_output_propagation"
+        ],
+        "semanticir_handlers": [
+          "invariant_node",
+          "invariant_coverage"
+        ],
+        "assembler_hooks": [
+          "invariant_report_metadata_deferred"
+        ],
+        "fragment_classes": [],
+        "oof_codes": [
+          "OOF-IV1",
+          "OOF-IV2",
+          "OOF-IV3",
+          "OOF-I1",
+          "OOF-I2",
+          "OOF-I3",
+          "OOF-I4",
+          "OOF-I5",
+          "PINV-1",
+          "PINV-2",
+          "PINV-3",
+          "PINV-4",
+          "TINV-1",
+          "TINV-2",
+          "TINV-3"
+        ]
+      },
+      {
+        "name": "ContractModifiersPack",
+        "implementation_id": "contract_modifiers.current_monolith_adapter.v1",
+        "status": "current_surface_shadow",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "EscapeBoundaryPack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "contract_modifiers",
+          "modifier_fragment_widening"
+        ],
+        "parser_rules": [
+          "pure",
+          "observed",
+          "effect",
+          "privileged",
+          "irreversible"
+        ],
+        "classifier_rules": [
+          "modifier_passthrough",
+          "modifier_fragment_mapping",
+          "pure_escape_oof"
+        ],
+        "type_rules": [
+          "modifier_oof_propagation",
+          "modifier_typed_passthrough"
+        ],
+        "semanticir_handlers": [
+          "contract_ir_modifier"
+        ],
+        "assembler_hooks": [
+          "manifest_modifier_passthrough"
+        ],
+        "fragment_classes": [],
+        "oof_codes": [
+          "OOF-M1"
+        ]
+      },
+      {
+        "name": "AssumptionsPack",
+        "implementation_id": "assumptions.current_monolith_adapter.v1",
+        "status": "current_surface_shadow_prop033_closed",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "ContractModifiersPack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "assumptions",
+          "epistemic_fragment",
+          "assumption_refs"
+        ],
+        "parser_rules": [
+          "assumptions_block",
+          "assumption_decl",
+          "uses_assumptions",
+          "output_evidence_refs_deferred"
+        ],
+        "classifier_rules": [
+          "assumption_registry",
+          "assumption_refs",
+          "uses_assumptions_epistemic",
+          "undeclared_assumption_oof"
+        ],
+        "type_rules": [
+          "assumption_strength_range",
+          "oof_a1_propagation"
+        ],
+        "semanticir_handlers": [
+          "assumption_registry",
+          "assumption_refs"
+        ],
+        "assembler_hooks": [
+          "assumption_receipt_metadata_deferred"
+        ],
+        "fragment_classes": [
+          "epistemic"
+        ],
+        "oof_codes": [
+          "OOF-A1",
+          "TASSUMP-1"
+        ]
+      },
+      {
+        "name": "EvidenceObservationPack",
+        "implementation_id": "evidence_observation.current_monolith_adapter.v1",
+        "status": "current_surface_shadow_receipts_closed",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "evidence_observation",
+          "confidence_label_checks"
+        ],
+        "parser_rules": [],
+        "classifier_rules": [
+          "confidence_as_bool_oof",
+          "evidence_linked_alert_gate"
+        ],
+        "type_rules": [
+          "evidence_alert_validation"
+        ],
+        "semanticir_handlers": [
+          "evidence_diagnostics"
+        ],
+        "assembler_hooks": [
+          "observation_metadata_deferred"
+        ],
+        "fragment_classes": [],
+        "oof_codes": [
+          "OOF-CE4",
+          "OOF-OS2",
+          "OOF-OS4"
+        ]
+      },
+      {
+        "name": "PipelinePack",
+        "implementation_id": "pipeline.current_parser_surface_shadow.v1",
+        "status": "current_surface_shadow_scheduler_closed",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "pipeline_surface"
+        ],
+        "parser_rules": [
+          "pipeline_decl",
+          "step_decl",
+          "scoped_by_gate",
+          "tenant_free_gate"
+        ],
+        "classifier_rules": [
+          "pipeline_symbol_registration_deferred"
+        ],
+        "type_rules": [
+          "pipeline_flow_typecheck_deferred"
+        ],
+        "semanticir_handlers": [
+          "pipeline_ir_deferred"
+        ],
+        "assembler_hooks": [
+          "pipeline_manifest_deferred"
+        ],
+        "fragment_classes": [],
+        "oof_codes": [
+          "OOF-PG1",
+          "OOF-PG2",
+          "OOF-PG3",
+          "OOF-PG5"
+        ]
+      },
+      {
+        "name": "CompilerProfileContractPack",
+        "implementation_id": "compiler_profile_contract.support_boundary.v1",
+        "status": "support_boundary_evidence_only",
+        "requires_packs": [
+          "CoreLanguagePack",
+          "OOFRegistry",
+          "FragmentRegistry"
+        ],
+        "provides_capabilities": [
+          "compiler_profile_source_transport",
+          "compiler_profile_contract_validation",
+          "report_only_evidence",
+          "internal_strict_terminal_boundary"
+        ],
+        "parser_rules": [],
+        "classifier_rules": [],
+        "type_rules": [
+          "profile_slot_obligation_mapping"
+        ],
+        "semanticir_handlers": [
+          "compiler_profile_contract_validation_report_only"
+        ],
+        "assembler_hooks": [
+          "compiler_profile_id_optional_explicit_source_transport"
+        ],
+        "fragment_classes": [],
+        "oof_codes": [],
+        "diagnostic_namespaces": [
+          "compiler_profile_contract",
+          "compiler_profile_contract_refusal"
+        ]
+      }
+    ],
+    "fragment_registry": {
+      "candidate_precedence": [
+        "oof",
+        "temporal",
+        "stream",
+        "escape",
+        "epistemic",
+        "core"
+      ],
+      "status": "shadow_candidate_not_authoritative",
+      "required_classes": [
+        "core",
+        "escape",
+        "stream",
+        "temporal",
+        "epistemic",
+        "oof"
+      ],
+      "owners": {
+        "core": [
+          "CoreLanguagePack",
+          "FragmentRegistry"
+        ],
+        "escape": [
+          "FragmentRegistry",
+          "EscapeBoundaryPack"
+        ],
+        "stream": [
+          "FragmentRegistry",
+          "StreamPack"
+        ],
+        "temporal": [
+          "FragmentRegistry",
+          "TemporalPack"
+        ],
+        "epistemic": [
+          "FragmentRegistry",
+          "AssumptionsPack"
+        ],
+        "oof": [
+          "OOFRegistry",
+          "FragmentRegistry"
+        ]
+      }
+    },
+    "oof_registry": {
+      "status": "shadow_descriptor_registry_owner_only",
+      "codes": {
+        "OOF-A1": {
+          "owner_pack": "AssumptionsPack",
+          "implementation_id": "assumptions.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-BT1": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-BT2": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-BT3": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-BT4": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-CE4": {
+          "owner_pack": "EvidenceObservationPack",
+          "implementation_id": "evidence_observation.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-DM3": {
+          "owner_pack": "CoreLanguagePack",
+          "implementation_id": "core_language.proof_compiler_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-H1": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-H2": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-H3": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-H4": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-I1": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-I2": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-I3": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-I4": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-I5": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-IV1": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-IV2": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-IV3": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-M1": {
+          "owner_pack": "ContractModifiersPack",
+          "implementation_id": "contract_modifiers.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-O1": {
+          "owner_pack": "OLAPPack",
+          "implementation_id": "olap.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-O2": {
+          "owner_pack": "OLAPPack",
+          "implementation_id": "olap.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-O3": {
+          "owner_pack": "OLAPPack",
+          "implementation_id": "olap.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-O4": {
+          "owner_pack": "OLAPPack",
+          "implementation_id": "olap.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-O5": {
+          "owner_pack": "OLAPPack",
+          "implementation_id": "olap.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-OS2": {
+          "owner_pack": "EvidenceObservationPack",
+          "implementation_id": "evidence_observation.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-OS4": {
+          "owner_pack": "EvidenceObservationPack",
+          "implementation_id": "evidence_observation.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-P0": {
+          "owner_pack": "CoreLanguagePack",
+          "implementation_id": "core_language.proof_compiler_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-P1": {
+          "owner_pack": "CoreLanguagePack",
+          "implementation_id": "core_language.proof_compiler_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-P2": {
+          "owner_pack": "CoreLanguagePack",
+          "implementation_id": "core_language.proof_compiler_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-P28": {
+          "owner_pack": "CoreLanguagePack",
+          "implementation_id": "core_language.proof_compiler_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-PG1": {
+          "owner_pack": "PipelinePack",
+          "implementation_id": "pipeline.current_parser_surface_shadow.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-PG2": {
+          "owner_pack": "PipelinePack",
+          "implementation_id": "pipeline.current_parser_surface_shadow.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-PG3": {
+          "owner_pack": "PipelinePack",
+          "implementation_id": "pipeline.current_parser_surface_shadow.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-PG5": {
+          "owner_pack": "PipelinePack",
+          "implementation_id": "pipeline.current_parser_surface_shadow.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-S1": {
+          "owner_pack": "StreamPack",
+          "implementation_id": "stream.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-S2": {
+          "owner_pack": "StreamPack",
+          "implementation_id": "stream.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-S3": {
+          "owner_pack": "StreamPack",
+          "implementation_id": "stream.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-S4": {
+          "owner_pack": "StreamPack",
+          "implementation_id": "stream.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-S5": {
+          "owner_pack": "StreamPack",
+          "implementation_id": "stream.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-TM1": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-TM3": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-TM4": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-TM5": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-TM6": {
+          "owner_pack": "TemporalPack",
+          "implementation_id": "temporal.metadata_only_guarded.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "OOF-TY0": {
+          "owner_pack": "CoreLanguagePack",
+          "implementation_id": "core_language.proof_compiler_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "PINV-1": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "PINV-2": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "PINV-3": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "PINV-4": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "TASSUMP-1": {
+          "owner_pack": "AssumptionsPack",
+          "implementation_id": "assumptions.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "TINV-1": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "TINV-2": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        },
+        "TINV-3": {
+          "owner_pack": "InvariantPack",
+          "implementation_id": "invariant.current_monolith_adapter.v1",
+          "descriptor_status": "shadow_owner_only"
+        }
+      },
+      "required_codes": [
+        "OOF-P0",
+        "OOF-P1",
+        "OOF-P2",
+        "OOF-P28",
+        "OOF-TY0",
+        "OOF-DM3",
+        "OOF-PG1",
+        "OOF-PG2",
+        "OOF-PG3",
+        "OOF-PG5",
+        "OOF-H1",
+        "OOF-BT1",
+        "OOF-BT2",
+        "OOF-BT3",
+        "OOF-BT4",
+        "OOF-TM1",
+        "OOF-TM3",
+        "OOF-TM4",
+        "OOF-TM5",
+        "OOF-TM6",
+        "OOF-S1",
+        "OOF-S2",
+        "OOF-S3",
+        "OOF-S4",
+        "OOF-S5",
+        "OOF-O1",
+        "OOF-O2",
+        "OOF-O3",
+        "OOF-O4",
+        "OOF-O5",
+        "OOF-IV1",
+        "OOF-IV2",
+        "OOF-IV3",
+        "OOF-I4",
+        "PINV-1",
+        "TINV-1",
+        "OOF-M1",
+        "OOF-A1",
+        "TASSUMP-1",
+        "OOF-CE4",
+        "OOF-OS2",
+        "OOF-OS4"
+      ],
+      "not_oof_namespaces": [
+        "compiler_profile_contract",
+        "compiler_profile_contract_refusal"
+      ]
+    },
+    "assembler_contract": {
+      "semantic_ir_shape": "unchanged",
+      "compilation_report_shape": "unchanged",
+      "igapp_shape": "unchanged",
+      "artifact_hooks_are_descriptive_only": true,
+      "report_for_assembly_profile_validation_isolation": "preserved"
+    },
+    "strict_terminal_contract": {
+      "source": "PROP-038 accepted internal foundation",
+      "authority": "orchestrator_strict_requirement_only",
+      "validator_diagnostics_are_evidence_only": true,
+      "non_persisting": true,
+      "no_sidecar": true,
+      "no_igapp": true,
+      "public_api_cli_closed": true
+    },
+    "closed_surfaces": [
+      "implementation",
+      "live_pack_dispatch",
+      "pack_registry",
+      "profile_assembled_compiler",
+      "parser_rewrite",
+      "classifier_rewrite",
+      "typechecker_rewrite",
+      "semanticir_rewrite",
+      "assembler_rewrite",
+      "orchestrator_rewrite",
+      "igapp_mutation",
+      "public_api_cli_widening",
+      "loader_report",
+      "compatibility_report",
+      "runtime",
+      "gate3",
+      "ledger_tbackend",
+      "cache",
+      "signing",
+      "production",
+      "spark_fixture_spec"
+    ],
+    "recommended_next_proof": "oof-fragment-registry-shadow-proof-v0",
+    "open_questions": [
+      "Resolve whether oof is a fragment class, a report status, or both.",
+      "Resolve canonical fragment precedence before any classifier dispatch migration.",
+      "Define OOF descriptor schema before native registry implementation.",
+      "Decide whether CompilerProfileContractPack remains a support boundary or becomes kernel service metadata."
+    ],
+    "profile_id": "compiler_profile_shadow_v1/sha256:34db3eb4dbe36e18f8e6dd73"
+  },
+  "checks": {
+    "profile.kind": true,
+    "profile.dispatch_mode_shadow": true,
+    "profile.id_deterministic": true,
+    "r90.proof_only_boundary_preserved": true,
+    "prop032.assumptions_current_surface": true,
+    "prop036.optional_profile_id_reality_recorded": true,
+    "prop038.strict_terminal_internal_only": true,
+    "packs.unique_names": true,
+    "packs.dependencies_satisfied": true,
+    "packs.implementation_ids_present": true,
+    "oof.codes_unique": true,
+    "oof.required_codes_owned": true,
+    "oof.profile_contract_diagnostics_not_oof": true,
+    "fragments.required_classes_owned": true,
+    "fragments.precedence_candidate_complete": true,
+    "igapp.no_manifest_or_golden_mutation": true,
+    "shadow.no_runtime_authorization": true,
+    "closed_surfaces.all_preserved": true
+  },
+  "evidence_summary": {
+    "pack_count": 13,
+    "capability_count": 38,
+    "oof_code_count": 54,
+    "fragment_classes": [
+      "core",
+      "escape",
+      "stream",
+      "temporal",
+      "epistemic",
+      "oof"
+    ],
+    "igapp_manifest_change": false,
+    "compiler_dispatch_change": false,
+    "native_pack_migration_authorized": false,
+    "public_api_cli_change": false,
+    "loader_report_change": false,
+    "compatibility_report_change": false,
+    "runtime_or_production_change": false,
+    "spark_authority_used": false
+  },
+  "next_recommended_slice": "oof-fragment-registry-shadow-proof-v0"
+}
