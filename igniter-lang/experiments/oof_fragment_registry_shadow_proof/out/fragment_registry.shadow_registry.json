@@ -1,0 +1,146 @@
+{
+  "kind": "fragment_shadow_registry",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-shadow-proof-v0",
+  "fragments": [
+    {
+      "name": "oof",
+      "owner_pack_or_boundary": "OOFRegistryPack",
+      "current_or_candidate": "current_shadow_status_and_fragment_marker",
+      "applies_to": [
+        "contract",
+        "node",
+        "report_status"
+      ],
+      "classification_kind": "status_fragment_both_candidate",
+      "value_flow_notes": "OOF blocks SemanticIR/assembly; it may appear in fragment summaries but must not be treated as a capability.",
+      "precedence_candidate": 100,
+      "canonical_status": "non_canon_candidate",
+      "non_authority_notes": "C0 requires evaluating fragment/status/both; live answer remains undecided."
+    },
+    {
+      "name": "temporal",
+      "owner_pack_or_boundary": "TemporalPack",
+      "current_or_candidate": "current",
+      "applies_to": [
+        "contract",
+        "node"
+      ],
+      "classification_kind": "language_fragment",
+      "value_flow_notes": "Temporal read node is TEMPORAL; selected value remains CORE-typed via value_fragment_class.",
+      "precedence_candidate": 90,
+      "canonical_status": "non_canon_candidate"
+    },
+    {
+      "name": "stream",
+      "owner_pack_or_boundary": "StreamPack",
+      "current_or_candidate": "current_shadow",
+      "applies_to": [
+        "contract",
+        "node"
+      ],
+      "classification_kind": "language_fragment",
+      "value_flow_notes": "Stream ingress/fold metadata remains compiler/proof-local; production ingress stays closed.",
+      "precedence_candidate": 80,
+      "canonical_status": "non_canon_candidate"
+    },
+    {
+      "name": "epistemic",
+      "owner_pack_or_boundary": "AssumptionsPack",
+      "current_or_candidate": "current",
+      "applies_to": [
+        "contract",
+        "node"
+      ],
+      "classification_kind": "language_fragment",
+      "value_flow_notes": "Assumptions surface is current compiler evidence; PROP-033 evidence-list validation remains closed.",
+      "precedence_candidate": 70,
+      "canonical_status": "non_canon_candidate"
+    },
+    {
+      "name": "escape",
+      "owner_pack_or_boundary": "EscapeBoundaryPack",
+      "current_or_candidate": "current",
+      "applies_to": [
+        "contract",
+        "node"
+      ],
+      "classification_kind": "trust_boundary_fragment",
+      "value_flow_notes": "External read/effect boundary; runtime authority remains closed.",
+      "precedence_candidate": 60,
+      "canonical_status": "non_canon_candidate"
+    },
+    {
+      "name": "core",
+      "owner_pack_or_boundary": "CoreLanguagePack",
+      "current_or_candidate": "current",
+      "applies_to": [
+        "contract",
+        "node",
+        "value"
+      ],
+      "classification_kind": "language_fragment",
+      "value_flow_notes": "Baseline pure compiler surface.",
+      "precedence_candidate": 10,
+      "canonical_status": "non_canon_candidate"
+    },
+    {
+      "name": "olap",
+      "owner_pack_or_boundary": "OLAPPack",
+      "current_or_candidate": "excluded_candidate_owner_only",
+      "applies_to": [
+        "owner_surface"
+      ],
+      "classification_kind": "not_fragment_class",
+      "value_flow_notes": "OLAP has nodes and diagnostics but is not promoted to fragment class.",
+      "precedence_candidate": null,
+      "canonical_status": "excluded_non_fragment"
+    },
+    {
+      "name": "progression",
+      "owner_pack_or_boundary": "PipelinePack",
+      "current_or_candidate": "excluded",
+      "applies_to": [
+        "descriptor_metadata_under_pipeline"
+      ],
+      "classification_kind": "not_fragment_class",
+      "value_flow_notes": "PROP-037 progression remains under pipeline metadata; no PROGRESSION fragment class.",
+      "precedence_candidate": null,
+      "canonical_status": "excluded_non_fragment"
+    }
+  ],
+  "oof_model_alternatives": [
+    {
+      "model": "oof_as_fragment",
+      "benefit": "Fits current fragment summaries and assembler refusal checks.",
+      "risk": "May make failure look like a language capability.",
+      "proof_recommendation": "not_preferred_alone"
+    },
+    {
+      "model": "oof_as_status",
+      "benefit": "Clean diagnostic/status model.",
+      "risk": "Does not fully explain existing fragment_class: oof summaries.",
+      "proof_recommendation": "insufficient_alone"
+    },
+    {
+      "model": "oof_as_both",
+      "benefit": "Matches current proof/compiler intuition while keeping blocking status explicit.",
+      "risk": "Needs stronger non-authority invariants before canonization.",
+      "proof_recommendation": "preferred_shadow_model"
+    }
+  ],
+  "candidate_precedence_high_to_low": [
+    "oof",
+    "temporal",
+    "stream",
+    "epistemic",
+    "escape",
+    "core"
+  ],
+  "precedence_status": "proof_local_non_canon",
+  "non_authority": {
+    "fragment_registry_implementation_authorized": false,
+    "compiler_classification_change_authorized": false,
+    "assembler_summary_change_authorized": false
+  }
+}

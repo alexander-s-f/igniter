@@ -1,0 +1,115 @@
+{
+  "kind": "oof_fragment_registry_shadow_proof_summary",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-shadow-proof-v0",
+  "status": "PASS",
+  "registry_id": "oof_fragment_shadow_registry/sha256:279c9e69b50264539027d6a7",
+  "source_evidence": {
+    "compiler_pack_shadow_profile_proof_v1_summary": "igniter-lang/experiments/compiler_pack_shadow_profile_proof_v1/out/compiler_pack_shadow_profile_proof_v1_summary.json",
+    "compiler_pack_shadow_profile_proof_v1_status": "PASS",
+    "dispatch_mode": "shadow_no_dispatch"
+  },
+  "descriptor_count": 63,
+  "fragment_count": 8,
+  "candidate_precedence_high_to_low": [
+    "oof",
+    "temporal",
+    "stream",
+    "epistemic",
+    "escape",
+    "core"
+  ],
+  "oof_recommendation": "model_oof_as_both_for_shadow_only",
+  "checks": [
+    {
+      "name": "source_profile_v1.pass_evidence",
+      "status": "PASS"
+    },
+    {
+      "name": "source_profile_v1.shadow_no_dispatch",
+      "status": "PASS"
+    },
+    {
+      "name": "descriptor.codes_unique",
+      "status": "PASS"
+    },
+    {
+      "name": "descriptor.required_fields_present",
+      "status": "PASS"
+    },
+    {
+      "name": "descriptor.source_profile_oof_codes_covered",
+      "status": "PASS"
+    },
+    {
+      "name": "descriptor.aliases_resolve_to_compatibility_alias_descriptors",
+      "status": "PASS"
+    },
+    {
+      "name": "descriptor.compatibility_aliases_have_replacements",
+      "status": "PASS"
+    },
+    {
+      "name": "descriptor.current_codes_have_owner_stage_stability",
+      "status": "PASS"
+    },
+    {
+      "name": "descriptor.profile_contract_diagnostics_excluded",
+      "status": "PASS"
+    },
+    {
+      "name": "descriptor.runtime_smoke_helper_excluded",
+      "status": "PASS"
+    },
+    {
+      "name": "fragment.required_current_names_have_owners",
+      "status": "PASS"
+    },
+    {
+      "name": "fragment.olap_and_progression_not_promoted",
+      "status": "PASS"
+    },
+    {
+      "name": "fragment.temporal_node_value_split_representable",
+      "status": "PASS"
+    },
+    {
+      "name": "fragment.epistemic_current_prop033_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "fragment.candidate_precedence_deterministic_non_canon",
+      "status": "PASS"
+    },
+    {
+      "name": "fragment.oof_alternatives_evaluated",
+      "status": "PASS"
+    },
+    {
+      "name": "fragment.oof_preferred_shadow_model_is_both",
+      "status": "PASS"
+    },
+    {
+      "name": "closed_surfaces.preserved",
+      "status": "PASS"
+    }
+  ],
+  "failed_checks": [],
+  "outputs": {
+    "summary": "igniter-lang/experiments/oof_fragment_registry_shadow_proof/out/oof_fragment_registry_shadow_proof_summary.json",
+    "oof_descriptors": "igniter-lang/experiments/oof_fragment_registry_shadow_proof/out/oof_descriptors.shadow_registry.json",
+    "fragments": "igniter-lang/experiments/oof_fragment_registry_shadow_proof/out/fragment_registry.shadow_registry.json"
+  },
+  "closed_surfaces": {
+    "compiler_code_changed": false,
+    "specs_or_proposals_changed": false,
+    "registry_implementation_authorized": false,
+    "dispatch_authorized": false,
+    "igapp_or_golden_mutation_authorized": false,
+    "public_api_cli_widening_authorized": false,
+    "loader_report_or_compatibility_report_authorized": false,
+    "runtime_or_production_authorized": false,
+    "spark_fixture_or_production_authorized": false
+  },
+  "implementation_authorized": false
+}

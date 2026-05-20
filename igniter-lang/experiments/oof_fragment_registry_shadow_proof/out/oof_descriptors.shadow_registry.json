@@ -1,0 +1,1312 @@
+{
+  "kind": "oof_descriptor_shadow_registry",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-shadow-proof-v0",
+  "source_profile_id": "compiler_profile_shadow_v1/sha256:34db3eb4dbe36e18f8e6dd73",
+  "source_shadow_profile_status": "PASS",
+  "descriptors": [
+    {
+      "code": "OOF-P0",
+      "family": "core_parse_or_emit",
+      "owner_pack_or_boundary": "CoreLanguagePack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb",
+        "lib/igniter_lang/semanticir_emitter.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": "Generic unsupported parser/emitter construct; public code retained until a later registry design narrows it."
+    },
+    {
+      "code": "OOF-P1",
+      "family": "core_symbol_resolution",
+      "owner_pack_or_boundary": "CoreLanguagePack",
+      "source_stage": "classifier",
+      "compiler_layer": "classifier_typechecker_semanticir",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/classifier.rb",
+        "lib/igniter_lang/typechecker.rb",
+        "lib/igniter_lang/semanticir_emitter.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-P2",
+      "family": "core_parser_contract_shape",
+      "owner_pack_or_boundary": "CoreLanguagePack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-P28",
+      "family": "core_parser_shape",
+      "owner_pack_or_boundary": "CoreLanguagePack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-TY0",
+      "family": "core_type",
+      "owner_pack_or_boundary": "CoreLanguagePack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker_semanticir",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb",
+        "lib/igniter_lang/semanticir_emitter.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-DM3",
+      "family": "decimal_numeric",
+      "owner_pack_or_boundary": "CoreLanguagePack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": "Owned by core until numeric support grows enough to justify a separate pack."
+    },
+    {
+      "code": "OOF-PG1",
+      "family": "pipeline_parser",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-PG2",
+      "family": "pipeline_parser",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-PG3",
+      "family": "pipeline_parser",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-PG5",
+      "family": "pipeline_parser",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": "Pipeline remains syntax/descriptor pressure only; no scheduler authority."
+    },
+    {
+      "code": "OOF-H1",
+      "family": "temporal_history",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [
+        "OOF-TM1"
+      ],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-H2",
+      "family": "temporal_history",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "proof_only",
+      "compiler_layer": "proof_only",
+      "severity": "error",
+      "status_class": "candidate_oof",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/history_type_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": "Present in shadow pack profile as temporal family pressure; not promoted as a live emitted code by this proof."
+    },
+    {
+      "code": "OOF-H3",
+      "family": "temporal_history",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "proof_only",
+      "compiler_layer": "proof_only",
+      "severity": "error",
+      "status_class": "candidate_oof",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/history_type_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-H4",
+      "family": "temporal_history",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "proof_only",
+      "compiler_layer": "proof_only",
+      "severity": "error",
+      "status_class": "candidate_oof",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/history_type_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-BT1",
+      "family": "temporal_bihistory",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [
+        "OOF-TM3"
+      ],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-BT2",
+      "family": "temporal_bihistory",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [
+        "OOF-TM4"
+      ],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-BT3",
+      "family": "temporal_bihistory",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [
+        "OOF-TM5"
+      ],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-BT4",
+      "family": "temporal_bihistory",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [
+        "OOF-TM6"
+      ],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-TM1",
+      "family": "temporal_alias",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "compatibility_alias",
+      "public_code_stability": "stable_compatibility_alias",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": true,
+      "deprecated_by": "OOF-H1",
+      "replacement_code": "OOF-H1",
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "compatibility_alias",
+      "non_authority_notes": "Compatibility alias retained for public diagnostic stability; canonical descriptor remains OOF-H1."
+    },
+    {
+      "code": "OOF-TM3",
+      "family": "temporal_alias",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "compatibility_alias",
+      "public_code_stability": "stable_compatibility_alias",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": true,
+      "deprecated_by": "OOF-BT1",
+      "replacement_code": "OOF-BT1",
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "compatibility_alias",
+      "non_authority_notes": "Compatibility alias retained for public diagnostic stability; canonical descriptor remains OOF-BT1."
+    },
+    {
+      "code": "OOF-TM4",
+      "family": "temporal_alias",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "compatibility_alias",
+      "public_code_stability": "stable_compatibility_alias",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": true,
+      "deprecated_by": "OOF-BT2",
+      "replacement_code": "OOF-BT2",
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "compatibility_alias",
+      "non_authority_notes": "Compatibility alias retained for public diagnostic stability; canonical descriptor remains OOF-BT2."
+    },
+    {
+      "code": "OOF-TM5",
+      "family": "temporal_alias",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "compatibility_alias",
+      "public_code_stability": "stable_compatibility_alias",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": true,
+      "deprecated_by": "OOF-BT3",
+      "replacement_code": "OOF-BT3",
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "compatibility_alias",
+      "non_authority_notes": "Compatibility alias retained for public diagnostic stability; canonical descriptor remains OOF-BT3."
+    },
+    {
+      "code": "OOF-TM6",
+      "family": "temporal_alias",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "compatibility_alias",
+      "public_code_stability": "stable_compatibility_alias",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": true,
+      "deprecated_by": "OOF-BT4",
+      "replacement_code": "OOF-BT4",
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "compatibility_alias",
+      "non_authority_notes": "Compatibility alias retained for public diagnostic stability; canonical descriptor remains OOF-BT4."
+    },
+    {
+      "code": "OOF-S1",
+      "family": "stream",
+      "owner_pack_or_boundary": "StreamPack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-S2",
+      "family": "stream",
+      "owner_pack_or_boundary": "StreamPack",
+      "source_stage": "classifier",
+      "compiler_layer": "classifier",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/classifier.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-S3",
+      "family": "stream",
+      "owner_pack_or_boundary": "StreamPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-S4",
+      "family": "stream",
+      "owner_pack_or_boundary": "StreamPack",
+      "source_stage": "classifier",
+      "compiler_layer": "classifier",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/classifier.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-S5",
+      "family": "stream",
+      "owner_pack_or_boundary": "StreamPack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-O1",
+      "family": "olap",
+      "owner_pack_or_boundary": "OLAPPack",
+      "source_stage": "proof_only",
+      "compiler_layer": "proof_only",
+      "severity": "error",
+      "status_class": "candidate_oof",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/olap_point_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": "OLAP is a candidate owner surface, not a fragment class."
+    },
+    {
+      "code": "OOF-O2",
+      "family": "olap",
+      "owner_pack_or_boundary": "OLAPPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "warning",
+      "status_class": "warning_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-O3",
+      "family": "olap",
+      "owner_pack_or_boundary": "OLAPPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-O4",
+      "family": "olap",
+      "owner_pack_or_boundary": "OLAPPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-O5",
+      "family": "olap",
+      "owner_pack_or_boundary": "OLAPPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-IV1",
+      "family": "invariant",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-IV2",
+      "family": "invariant",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-IV3",
+      "family": "invariant",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-I1",
+      "family": "invariant",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "proof_only",
+      "compiler_layer": "proof_only",
+      "severity": "error",
+      "status_class": "candidate_oof",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/invariant_severity_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-I2",
+      "family": "invariant",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "proof_only",
+      "compiler_layer": "proof_only",
+      "severity": "error",
+      "status_class": "candidate_oof",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/invariant_severity_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-I3",
+      "family": "invariant",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "proof_only",
+      "compiler_layer": "proof_only",
+      "severity": "error",
+      "status_class": "candidate_oof",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/invariant_severity_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-I4",
+      "family": "invariant",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "parser",
+      "compiler_layer": "parser_typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb",
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-I5",
+      "family": "invariant",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "proof_only",
+      "compiler_layer": "proof_only",
+      "severity": "error",
+      "status_class": "candidate_oof",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/invariant_severity_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "PINV-1",
+      "family": "invariant_parser_proof",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "proof_marker",
+      "status_class": "proof_marker",
+      "public_code_stability": "proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": "PINV/TINV are proof/checkpoint markers, not current blocking public OOF codes."
+    },
+    {
+      "code": "PINV-2",
+      "family": "invariant_parser_proof",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "proof_marker",
+      "status_class": "proof_marker",
+      "public_code_stability": "proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "PINV-3",
+      "family": "invariant_parser_proof",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "proof_marker",
+      "status_class": "proof_marker",
+      "public_code_stability": "proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "PINV-4",
+      "family": "invariant_parser_proof",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "proof_marker",
+      "status_class": "proof_marker",
+      "public_code_stability": "proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/parser.rb"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "TINV-1",
+      "family": "invariant_type_proof",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "proof_marker",
+      "status_class": "proof_marker",
+      "public_code_stability": "proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "TINV-2",
+      "family": "invariant_type_proof",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "proof_marker",
+      "status_class": "proof_marker",
+      "public_code_stability": "proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "TINV-3",
+      "family": "invariant_type_proof",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "proof_marker",
+      "status_class": "proof_marker",
+      "public_code_stability": "proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-M1",
+      "family": "contract_modifier",
+      "owner_pack_or_boundary": "ContractModifiersPack",
+      "source_stage": "classifier",
+      "compiler_layer": "classifier_typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/classifier.rb",
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-A1",
+      "family": "assumption",
+      "owner_pack_or_boundary": "AssumptionsPack",
+      "source_stage": "classifier",
+      "compiler_layer": "classifier_typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/classifier.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "TASSUMP-1",
+      "family": "assumption",
+      "owner_pack_or_boundary": "AssumptionsPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/typechecker.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": "Non-OOF-prefix assumption diagnostic remains in the shadow descriptor table because R91 pack data owns it."
+    },
+    {
+      "code": "OOF-CE4",
+      "family": "evidence_observation",
+      "owner_pack_or_boundary": "EvidenceObservationPack",
+      "source_stage": "classifier",
+      "compiler_layer": "classifier_semanticir",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/classifier.rb",
+        "lib/igniter_lang/semanticir_emitter.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-OS2",
+      "family": "evidence_observation",
+      "owner_pack_or_boundary": "EvidenceObservationPack",
+      "source_stage": "classifier",
+      "compiler_layer": "classifier_semanticir",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/classifier.rb",
+        "lib/igniter_lang/semanticir_emitter.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-OS4",
+      "family": "evidence_observation",
+      "owner_pack_or_boundary": "EvidenceObservationPack",
+      "source_stage": "semanticir",
+      "compiler_layer": "semanticir",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "lib/igniter_lang/semanticir_emitter.rb"
+      ],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-PR1",
+      "family": "progression_descriptor",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "proof_only",
+      "compiler_layer": "descriptor_proof",
+      "severity": "error",
+      "status_class": "descriptor_only",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/prop037_descriptor_oof_pr_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": "Progression remains descriptor/report-only pressure under pipeline; no PROGRESSION fragment class."
+    },
+    {
+      "code": "OOF-PR2",
+      "family": "progression_descriptor",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "proof_only",
+      "compiler_layer": "descriptor_proof",
+      "severity": "error",
+      "status_class": "descriptor_only",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/prop037_descriptor_oof_pr_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-PR3",
+      "family": "progression_descriptor",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "proof_only",
+      "compiler_layer": "descriptor_proof",
+      "severity": "error",
+      "status_class": "descriptor_only",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/prop037_descriptor_oof_pr_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-PR4",
+      "family": "progression_descriptor",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "proof_only",
+      "compiler_layer": "descriptor_proof",
+      "severity": "error",
+      "status_class": "descriptor_only",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/prop037_descriptor_oof_pr_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-PR5",
+      "family": "progression_descriptor",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "proof_only",
+      "compiler_layer": "descriptor_proof",
+      "severity": "error",
+      "status_class": "descriptor_only",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/prop037_descriptor_oof_pr_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-PR6",
+      "family": "progression_descriptor",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "proof_only",
+      "compiler_layer": "descriptor_proof",
+      "severity": "error",
+      "status_class": "descriptor_only",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/prop037_descriptor_oof_pr_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-PR7",
+      "family": "progression_descriptor",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "proof_only",
+      "compiler_layer": "descriptor_proof",
+      "severity": "error",
+      "status_class": "descriptor_only",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/prop037_descriptor_oof_pr_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-PR8",
+      "family": "progression_descriptor",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "proof_only",
+      "compiler_layer": "descriptor_proof",
+      "severity": "error",
+      "status_class": "descriptor_only",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/prop037_descriptor_oof_pr_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-PR9",
+      "family": "progression_descriptor",
+      "owner_pack_or_boundary": "PipelinePack",
+      "source_stage": "proof_only",
+      "compiler_layer": "descriptor_proof",
+      "severity": "error",
+      "status_class": "descriptor_only",
+      "public_code_stability": "candidate_proof_only",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": [
+        "experiments/prop037_descriptor_oof_pr_proof"
+      ],
+      "current_status": "candidate",
+      "non_authority_notes": ""
+    }
+  ],
+  "excluded_diagnostic_namespaces": [
+    {
+      "namespace": "compiler_profile_contract.*",
+      "owner_pack_or_boundary": "CompilerProfileContractPack",
+      "classification": "excluded_from_oof_namespace",
+      "reason": "Nested report-only validator diagnostics, not language OOF diagnostics."
+    },
+    {
+      "namespace": "compiler_profile_contract_refusal.*",
+      "owner_pack_or_boundary": "CompilerOrchestratorStrictTerminalBoundary",
+      "classification": "excluded_from_oof_namespace",
+      "reason": "Internal strict-terminal wrapper diagnostics, not language OOF diagnostics."
+    },
+    {
+      "namespace": "OOF-RUNTIME-SMOKE",
+      "owner_pack_or_boundary": "RuntimeSmoke",
+      "classification": "excluded_runtime_helper",
+      "reason": "Runtime smoke helper diagnostic must not be promoted into the language OOF registry."
+    }
+  ],
+  "non_authority": {
+    "registry_implementation_authorized": false,
+    "dispatch_authorized": false,
+    "public_diagnostic_contract_authorized": false
+  }
+}
