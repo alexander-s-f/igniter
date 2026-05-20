@@ -57,6 +57,9 @@ architecture. They are not production migration authorization.
 | Track | Status | Notes |
 |-------|--------|-------|
 | `oof-fragment-registry-ownership-and-canon-semantics-design-v0.md` | done | Design-only R93 packet: OOFRegistry as kernel service data populated by pack-owned descriptors; FragmentRegistry as kernel service data populated by fragment-owner packs; `oof` status-primary with secondary projection; recommends pressure-only `oof-fragment-registry-design-pressure-v0` next |
+| `../discussions/oof-fragment-registry-design-pressure-v0.md` | proceed | R94 pressure PASS 7/7; recommends proof-only policy proof and preserves implementation/spec/canon/compiler/runtime closures |
+| `oof-fragment-registry-policy-proof-v0.md` | done / PASS | R95 proof-only policy model PASS 16/16 cases and 7/7 checks; covers alias/collision, OOF projection guard, guarded non-fragments, and profile-contract namespace exclusion; implementation held |
+| `../gates/oof-fragment-registry-policy-proof-acceptance-decision-v0.md` | accepted-pinv-tinv-lifecycle-design-next-implementation-held | R96 accepts R95 as proof-only policy evidence and opens only design-only `pinv-tinv-lifecycle-and-registry-classification-design-v0`; implementation-boundary design remains held |
 
 ---
 
