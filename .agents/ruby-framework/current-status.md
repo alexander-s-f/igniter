@@ -111,15 +111,37 @@ This lane does not authorize:
 - Igniter-Lang runtime execution of Spark decisions;
 - compiler, parser, TypeChecker, public CLI/API, or strict-refusal changes.
 
+## R87 Round Context
+
+R87 coordinates Spark CRM contractable shadowing pilot scope across lanes.
+
+| Card | Agent | Status |
+| --- | --- | --- |
+| S3-R87-C0-O | Org Architect Supervisor | done — reporting/letter boundary confirmed |
+| S3-R87-C1-P1 | Igniter-Lang Bridge Agent | done — Igniter-Lang pilot scope track complete |
+| S3-R87-C1-RF1 | Ruby Framework Supervisor | done — RF pilot scope card complete |
+| S3-R87-C2-X | External Pressure Reviewer | done — 11/11 PASS, verdict: proceed |
+| S3-R87-C3-A | Architect Supervisor | **pending** — decision gate not yet run |
+| S3-R87-C4-S | Status Curator | pending — awaits C3-A |
+
+Ruby Framework lane contribution to R87 is filed. The lane is waiting for the
+Architect decision before opening the next work scope.
+
 ## Open Roadmap
 
 Primary roadmap:
 
 - `spark-contractable-shadowing-adoption-plan-v0`
 
-First proposed card:
+Ruby Framework pilot scope card (R87):
 
 - `cards/s3-r87-c1-rf1-spark-contractable-shadowing-pilot-scope-v0.md`
+
+Ruby Framework design track (R87):
+
+- `tracks/spark-contractable-shadowing-pilot-scope-v0.md`
+
+Next card: none open until C3-A lands and authorizes or redirects scope.
 
 ## Portfolio Reporting
 
@@ -129,14 +151,19 @@ This lane follows `igniter-lang/docs/org/portfolio-reporting-protocol-v0.md`.
 Reports are written under `.agents/ruby-framework/reports/` only when closing a
 lane round or asking Portfolio for a decision.
 
-Current report state:
-
-```text
-No report packet -> lane round is not closed for Portfolio.
-```
-
-Next report filename reserved:
+Current round report (filed, awaiting Architect):
 
 ```text
 .agents/ruby-framework/reports/ruby-framework-spark-contractable-shadowing-adoption-round-v0.md
+```
+
+Round status:
+
+```text
+Ruby Framework lane contribution: done.
+Waiting: S3-R87-C3-A (Architect decision).
+Next round: no new round open yet.
+Next report filename: to be determined after C3-A. If C3-A accepts the pilot
+scope and opens an implementation authorization track, the next report would be:
+ruby-framework-spark-contractable-shadowing-implementation-scope-v0.md
 ```
