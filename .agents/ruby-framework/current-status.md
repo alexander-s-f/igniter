@@ -118,6 +118,8 @@ Latest production-prep proof:
 - `reports/ruby-framework-rails-contracts-ledger-proof-round-v0.md`
 - `reports/port-2026-05-20-ruby-p1-minimal-receipt-shape.md`
 - `reports/port-2026-05-20-ruby-p2-observed-service-recipe.md`
+- `tracks/observed-service-recipe-package-doc-sync-v0.md`
+- `reports/ruby-doc-p1-observed-service-package-doc-sync.md`
 
 Proof status:
 
@@ -131,6 +133,7 @@ gem build smoke: igniter, igniter-contracts, igniter-embed,
   igniter-extensions, igniter-ledger-client, igniter-ledger all build 0.5.1
 clean installed-gem Rails proof smoke: pass
 observed-service receipt recipe: filed
+package-doc/release-readiness notes: filed
 Rubygems publish/release: not run
 ```
 

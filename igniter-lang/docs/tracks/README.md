@@ -60,6 +60,14 @@ architecture. They are not production migration authorization.
 
 ---
 
+## Spark Availability Metrics Fixture Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `spark-availability-metrics-fixture-design-v0.md` | done | Design-only P4 route for sanitized synthetic metrics-backed aggregate examples; no fixture files created; recommends pressure review before fixture creation |
+
+---
+
 ## Shadow Agent Orchestra Research
 
 These tracks are shadow orchestration research. They are not Igniter-Lang syntax,
