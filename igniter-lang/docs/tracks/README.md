@@ -66,6 +66,15 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 84 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../gates/prop038-strict-refusal-live-implementation-acceptance-decision-v0.md` | accepted-live-internal-foundation | Accepts the R83 bounded internal-only strict-refusal implementation as the live internal foundation; no new implementation or public/runtime expansion authorized |
+| `stage3-round84-status-curation-v0.md` | done | R84 status curation; records accepted live internal foundation, preserved closed surfaces, and requirement that future routes need separate Architect gates |
+
+---
+
 ## Stage 3 Round 83 Evidence
 
 | Track | Status | Notes |
