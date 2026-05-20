@@ -82,6 +82,35 @@ storage internals once the adoption path leaves local proof mode.
   as append-only history partitioned by `observation_id`.
 - LedgerClient can carry the sink through the protocol boundary.
 
+Current analysis:
+
+- `tracks/ruby-framework-current-state-analysis-v0.md`
+
+Analysis verdict:
+
+```text
+Ready now:
+  app-local primary-only observation design
+  existing Embed receipt vocabulary
+  app-owned redaction allow-list
+  app-owned record_observation / record_event adapter
+  optional Ledger sidecar proof
+
+Not ready / not authorized:
+  shadow candidate implementation
+  high-volume production-adjacent rollout
+  generalized Rails adoption kit as public API
+  Spark production authority switch
+  Ledger source-of-truth usage
+```
+
+Verification:
+
+```text
+contracts + embed + ledger-client specs: 269 examples, 0 failures
+ledger ContractableReceiptSink specs: 27 examples, 0 failures
+```
+
 ## Active Risks
 
 - Embed's default async adapter is a local Ruby thread. Spark production-adjacent
@@ -186,8 +215,10 @@ Round status:
 ```text
 Ruby Framework lane contribution: done.
 Waiting: S3-R87-C3-A (Architect decision).
-Next round: no new round open yet.
-Next report filename: to be determined after C3-A. If C3-A accepts the pilot
-scope and opens an implementation authorization track, the next report would be:
+Latest analysis round: done.
+Next round: no new implementation round open yet.
+Next report filename: to be determined after C3-A or Spark redaction feasibility
+confirmation. If C3-A accepts the pilot scope and opens implementation-scope
+design, the next report would be:
 ruby-framework-spark-contractable-shadowing-implementation-scope-v0.md
 ```
