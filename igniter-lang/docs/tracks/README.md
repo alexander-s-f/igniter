@@ -66,6 +66,19 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 90 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/tracks/compiler-pack-boundary-report-r90-file-boundary-v0.md` | done | Selects Option A: update existing `compiler-pack-boundary-report-v0.md` with a clearly marked R90 addendum and preserve S3-R31 body as historical foundation |
+| `compiler-pack-boundary-report-v0.md` | done | R90 addendum accepted as current compiler pack boundary design/report evidence; no code, Ch6, or spec edits; S3-R31 body remains historical |
+| `compiler-pack-boundary-proof-fixture-and-oof-survey-v0.md` | done | Maps proof fixtures, OOF ownership, fragments, and stale S3-R31 assumptions; recommends proof-only shadow profile or OOF/fragment registry route |
+| `../discussions/compiler-pack-boundary-report-pressure-v0.md` | proceed | 7/7 checks PASS, no blockers, two non-blocking notes about stale S3-R31 wording and historical handoff pointer |
+| `../gates/compiler-pack-boundary-report-decision-v0.md` | accepted-proof-only-shadow-profile-next-implementation-held | Accepts the report as design evidence; opens only proof-only `compiler-pack-shadow-profile-proof-v1` after R90 closure; implementation and protected surfaces remain closed |
+| `stage3-round90-status-curation-v0.md` | done | R90 status curation and Portfolio closure packet; no fallback report file needed |
+
+---
+
 ## Stage 3 Round 89 Evidence
 
 | Track | Status | Notes |

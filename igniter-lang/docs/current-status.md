@@ -243,6 +243,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R89 accepts compiler-pack-boundary-report-v0 as
                             the next compiler mainline route: design/report-only,
                             implementation held;
+                            R90 accepts the compiler pack boundary report as
+                            design evidence and routes only proof-only
+                            compiler-pack-shadow-profile-proof-v1 next;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime, production remain blocked
 ─────────────────────────────────────────────────────────────────
@@ -740,6 +743,13 @@ Round 89 landed:
   S3-R89-C3-X: next-axis pressure                                   ✅ proceed; 6/6 checks; no blockers; 2 NBs
   S3-R89-C4-A: next-axis decision                                   ✅ accepted-design-report-next-implementation-held
   S3-R89-C5-S: round status curation / Portfolio packet             ✅ done; no fallback report needed
+Round 90 landed:
+  S3-R90-C0-O: pack boundary report file-boundary                    ✅ done; Option A selected
+  S3-R90-C1-P1: compiler pack boundary report                        ✅ done; R90 addendum in existing file
+  S3-R90-C2-P1: proof fixture / OOF survey                           ✅ done; stale S3-R31 assumptions mapped
+  S3-R90-C3-X: pack boundary pressure                                ✅ proceed; 7/7 checks; no blockers; 2 NBs
+  S3-R90-C4-A: pack boundary report decision                         ✅ accepted-proof-only-shadow-profile-next-implementation-held
+  S3-R90-C5-S: round status curation / Portfolio packet              ✅ done; no fallback report needed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -778,6 +788,8 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   guidance questions routed to response intake,
                   R89 accepts compiler-pack-boundary-report-v0 as the next
                   compiler mainline route, design/report-only with implementation held,
+                  R90 accepts that report as design evidence and opens only
+                  proof-only compiler-pack-shadow-profile-proof-v1 next,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
@@ -2014,6 +2026,18 @@ S3-R89 result:      C0-O separates the compiler mainline from Spark applied-pres
                       CompatibilityReport, `.igapp`, dispatch, runtime, Gate 3, Ledger/TBackend, cache,
                       signing, production behavior, Spark fixture/spec work, or Spark implementation is
                       authorized by R89.
+S3-R90 result:      C0-O selects Option A for the existing `compiler-pack-boundary-report-v0.md` file:
+                      keep a clearly marked R90 addendum at the top and preserve the S3-R31 body as
+                      historical foundation. C1-P1 lands that no-code design/report addendum. C2-P1 maps
+                      proof fixtures, OOF ownership, fragment ownership, and stale S3-R31 assumptions.
+                      C3-X returns `proceed` with 7/7 checks PASS, no blockers, and two non-blocking notes.
+                      C4-A accepts the report as design/report evidence with status
+                      `accepted-proof-only-shadow-profile-next-implementation-held`; Ch6 sync remains
+                      deferred, S3-R31 stale wording is recorded as non-blocking, and the next route is
+                      proof-only `compiler-pack-shadow-profile-proof-v1`. No implementation, live dispatch,
+                      pack registry implementation, `.igapp` mutation, public API/CLI widening, loader/report,
+                      CompatibilityReport, runtime, Ledger/TBackend, cache, signing, production behavior, or
+                      Spark fixture/spec work is authorized by R90.
 ```
 
 ### Spec Freshness
