@@ -1,9 +1,17 @@
 # Spark CRM Ledger x Igniter Applicability Analysis
 
-Status: inbox / вне трека  
+Status: triaged / routed to S3-R86 applied-pressure track  
 Date: 2026-05-20  
 Scope: Spark CRM Ledger-related models/services + Igniter contracts/embed + Igniter Ledger + Igniter-Lang  
 Privacy note: this report intentionally avoids secrets, provider endpoints, credentials, customer payloads, and sensitive raw data.
+
+Disposition:
+- Routed by Architect Supervisor into `S3-R86`.
+- Next owner: `sparkcrm-igniter-adoption-readiness-map-v0`.
+- Use as applied-pressure source only; not canon and not implementation
+  authority.
+- Intended pressure lanes: Igniter Ruby framework adoption, Igniter Ledger
+  sidecar research, and Igniter-Lang sanitized fixtures/spec pressure.
 
 ## Executive Verdict
 

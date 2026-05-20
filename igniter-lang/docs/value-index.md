@@ -361,6 +361,8 @@ Source:
 - [tracks/spark-technician-availability-fixture-v0.md](tracks/spark-technician-availability-fixture-v0.md)
 - [tracks/spark-lead-signal-boundary-pressure-v0.md](tracks/spark-lead-signal-boundary-pressure-v0.md)
 - [tracks/spark-operation-action-lifecycle-pressure-v0.md](tracks/spark-operation-action-lifecycle-pressure-v0.md)
+- [inbox/sparkcrm-ledger-igniter-applicability-analysis-2026-05-20.md](inbox/sparkcrm-ledger-igniter-applicability-analysis-2026-05-20.md)
+- [org/tracks/sparkcrm-inbox-disposition-and-pressure-routing-v0.md](org/tracks/sparkcrm-inbox-disposition-and-pressure-routing-v0.md)
 
 ### OSINT Is A Fractal Use Case
 
