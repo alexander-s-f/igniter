@@ -38,14 +38,17 @@ explicitly asks for archaeology, bridge mapping, or package pressure.
 
 ## Active Roles
 
-### Super-Role
+### Super-Roles
 
 | Role | File | Primary Ownership |
 |------|------|-------------------|
+| `[Portfolio Architect Supervisor]` | [portfolio-architect-supervisor.md](portfolio-architect-supervisor.md) | meta-layer cross-project coherence: Igniter-Lang, Igniter Ruby Framework, Spark CRM, report packets, cross-lane decisions |
 | `[Architect Supervisor / Codex]` | [architect-supervisor.md](architect-supervisor.md) | supervisory control loop: cards, gates, authority decisions, protected-surface boundaries, drift self-healing |
 
-The Architect Supervisor is a super-role, not a normal work role. It assigns and
-reviews roles; other agents may recommend supervisor actions but must not assume
+The Portfolio Architect Supervisor and Architect Supervisor are super-roles, not
+normal work roles. The Portfolio layer coordinates cross-project boundaries and
+report packets. The local Architect Supervisor owns the Igniter-Lang card/gate
+control loop. Other agents may recommend supervisor actions but must not assume
 supervisor authority.
 
 ### Work Roles
@@ -73,6 +76,13 @@ Architect Supervisor
   -> owns Architect gate decisions, implementation authorization, protected-surface boundaries
   -> applies Drift Self-Healing Protocol when maps/cards/tracks drift
   -> does not replace work roles or turn track recommendations into canon without a decision
+
+Portfolio Architect Supervisor
+  -> meta-layer super-role: coordinates Igniter-Lang, Igniter Ruby Framework,
+     and Spark CRM without taking over local execution
+  -> reads compact report packets before local tracks
+  -> owns cross-lane boundary decisions and routing
+  -> applies `docs/org/portfolio-reporting-protocol-v0.md`
 
 Research Agent
   -> makes ideas executable or scenario-grounded

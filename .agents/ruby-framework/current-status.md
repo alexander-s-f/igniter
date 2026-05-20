@@ -120,3 +120,23 @@ Primary roadmap:
 First proposed card:
 
 - `cards/s3-r87-c1-rf1-spark-contractable-shadowing-pilot-scope-v0.md`
+
+## Portfolio Reporting
+
+Status: adopted.
+
+This lane follows `igniter-lang/docs/org/portfolio-reporting-protocol-v0.md`.
+Reports are written under `.agents/ruby-framework/reports/` only when closing a
+lane round or asking Portfolio for a decision.
+
+Current report state:
+
+```text
+No report packet -> lane round is not closed for Portfolio.
+```
+
+Next report filename reserved:
+
+```text
+.agents/ruby-framework/reports/ruby-framework-spark-contractable-shadowing-adoption-round-v0.md
+```

@@ -17,6 +17,10 @@ orientation maps, documentation hygiene reports, process insights, and
 agent-memory experiments without becoming a source of language, compiler,
 runtime, gate, proposal, or production authority.
 
+The Portfolio layer now uses
+[`portfolio-reporting-protocol-v0.md`](portfolio-reporting-protocol-v0.md) for
+cross-lane reports between Igniter-Lang, Igniter Ruby Framework, and Spark CRM.
+
 The main Architect Supervisor remains responsible for active cards, protected
 surface decisions, implementation authorization, and gate decisions.
 
@@ -91,6 +95,9 @@ current-map.md
 
 reports/
   Compact stage-level reports and sidecar findings.
+
+portfolio-reporting-protocol-v0.md
+  Cross-lane report packet protocol for Portfolio Architect Supervisor.
 
 memory-contracts/
   Draft schemas for operational-contract memory.
