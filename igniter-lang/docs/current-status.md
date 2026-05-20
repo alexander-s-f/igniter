@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-19
+Last updated: 2026-05-20
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -231,6 +231,7 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             authorized and landed with 16 cases / 46 checks PASS
                             and C3-X pressure proceed;
                             R84 accepts that implementation as the live internal foundation;
+                            R85 syncs PROP-038 canon text to R84 without widening behavior;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime, production remain blocked
 ─────────────────────────────────────────────────────────────────
@@ -2439,6 +2440,8 @@ PROP-038   compiler_profile_contract     accepted proposal-only by S3-R61-C3-A;
                                          bounded internal-only strict-refusal live implementation authorized
                                            and landed by S3-R83-C1-A/C2-I/C3-X;
                                          accepted as live internal foundation by S3-R84-C1-A;
+                                         R85 canon sync records internal-only authority
+                                           without public/runtime widening;
                                          public API/CLI,
                                          persisted reports, sidecars, loader/report,
                                          CompatibilityReport, and production/runtime authority remain closed

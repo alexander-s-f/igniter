@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-19
+Last updated: 2026-05-20
 
 ---
 
@@ -63,6 +63,14 @@ not PROP promotion, and not parser/tooling authorization.
 | `portable-context-mnemonics-reconstruction-proof-v0.md` | done | Tests MN-A/MN-B/MN-C reconstruction; balanced MN-B scores best as default external validation seed; preserves evidence/closure/auth invariant |
 | `portable-context-mnemonics-shadow-round-synthesis-v0.md` | done | Synthesizes C1/C2/C3 into a two-model external validation packet; recommends continuing as Agent Orchestra DNA candidate while keeping all PROP/spec/parser/tooling bridges closed |
 | `portable-context-mnemonics-blind-test-context-packet-v0.md` | done | Records informal blind-test results; finds register header improves reconstruction but `CLOSED+gate` remains ambiguous; proposes Context Packet v0 with mini-grammar, dictionary id, domain-qualified atoms, invariants, and expansion refs |
+
+---
+
+## Stage 3 Round 85 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `prop038-strict-refusal-canon-sync-v0.md` | done | Syncs PROP-038/current-status canon with R84 accepted live internal foundation; preserves internal-only strict source, validator-as-evidence, `compile_refusal_authorized: false`, `report.pass_result == "ok"`, exact 13-key terminal key-set, non-persisting terminal paths, and closed public/runtime surfaces |
 
 ---
 

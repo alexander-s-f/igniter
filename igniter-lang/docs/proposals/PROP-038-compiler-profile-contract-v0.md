@@ -13,6 +13,8 @@ Source tracks:
 - `docs/tracks/compiler-profile-contract-schema-and-rule-ownership-pressure-v0.md`
 - `docs/tracks/compiler-profile-contract-validator-coverage-proof-v0.md`
 - `docs/tracks/prop038-contract-digest-validation-policy-design-v0.md`
+- `docs/tracks/prop038-strict-refusal-live-implementation-v0.md`
+- `docs/tracks/prop038-strict-refusal-canon-sync-v0.md`
 
 ---
 
@@ -460,8 +462,9 @@ The accepted v0 policy is:
 
 ```text
 shape policy + recompute policy are design/proof vocabulary
-live validator implementation remains held
-compile refusal remains closed
+live validator diagnostics are implemented inside the internal validator
+bounded internal-only strict refusal is accepted as a live internal foundation
+public/runtime/production refusal remains closed
 ```
 
 The accepted reference shape remains:
@@ -617,8 +620,83 @@ without a separate Architect decision.
 - `.igapp` manifest;
 - refusal-report behavior.
 
-Compile refusal remains closed. Any future refusal behavior requires a separate
-explicit gate after live implementation and report-only behavior are accepted.
+Contract digest diagnostics alone do not authorize refusal. R84 accepts only the
+bounded internal-only strict refusal foundation described in §10.4. Any public
+exposure, loader/report behavior, CompatibilityReport status, persisted refusal
+report, runtime behavior, or production refusal behavior still requires a
+separate explicit gate.
+
+### §10.4 Strict Refusal Live Internal Foundation
+
+R84 accepts the R83 bounded internal-only strict-refusal implementation as the
+live internal foundation for PROP-038.
+
+Accepted authority model:
+
+```text
+internal strict requirement source
+  -> orchestrator-level strict requirement decision path
+  -> report-only compiler_profile_contract_validation evidence
+  -> non-persisting strict terminal CompilerResult when selected
+```
+
+Normative boundaries:
+
+- the strict source is an internal constructor/test seam only;
+- the orchestrator-level strict requirement decision path is the authority;
+- `CompilerProfileContractValidator` output is evidence, not authority;
+- nested `compile_refusal_authorized: false` remains a report-only marker;
+- `report.pass_result == "ok"` remains invariant for strict terminal paths;
+- strict terminal paths are non-persisting, with no sidecar, no report write,
+  no `.igapp`, and no assembler call;
+- raw validator diagnostics remain nested under
+  `compiler_profile_contract_validation.diagnostics`;
+- public diagnostics use wrapper codes only.
+
+Accepted strict terminal statuses:
+
+```text
+refused
+configuration_error
+```
+
+Accepted strict terminal public key-set for both statuses:
+
+```text
+kind
+format_version
+status
+program_id
+source_path
+source_hash
+grammar_version
+stages
+igapp_path
+contracts
+compilation_report_path
+diagnostics
+warnings
+```
+
+Accepted public wrapper diagnostics:
+
+```text
+compiler_profile_contract_refusal.contract_digest_mismatch
+compiler_profile_contract_refusal.strict_requirement_malformed
+```
+
+Closed surfaces:
+
+- public Ruby API;
+- CLI;
+- env/config/manifest/default/generated strict source lookup;
+- loader/report strict source or status;
+- CompatibilityReport strict source or status;
+- persisted refusal reports;
+- sidecars;
+- `.igapp` mutation;
+- `IgniterLang::Diagnostics` centralization;
+- RuntimeMachine, Gate 3, runtime, and production behavior.
 
 ---
 
@@ -745,9 +823,14 @@ Accepted evidence:
 - `docs/gates/prop038-contract-digest-shape-policy-proof-decision-v0.md`
 - `docs/gates/prop038-contract-digest-recompute-match-proof-decision-v0.md`
 - `docs/gates/prop038-contract-digest-report-only-integration-proof-decision-v0.md`
+- `docs/gates/prop038-contract-digest-live-validator-implementation-acceptance-decision-v0.md`
+- `docs/gates/prop038-strict-refusal-live-implementation-authorization-review-v0.md`
+- `docs/gates/prop038-strict-refusal-live-implementation-acceptance-decision-v0.md`
+- `docs/tracks/prop038-strict-refusal-live-implementation-v0.md`
 - `experiments/prop038_contract_digest_shape_policy_proof/out/prop038_contract_digest_shape_policy_proof_summary.json`
 - `experiments/prop038_contract_digest_recompute_match_proof/out/prop038_contract_digest_recompute_match_proof_summary.json`
 - `experiments/prop038_contract_digest_report_only_integration_proof/out/prop038_contract_digest_report_only_integration_proof_summary.json`
+- `experiments/prop038_strict_refusal_live_implementation_proof/out/prop038_strict_refusal_live_implementation_proof_summary.json`
 - `experiments/compiler_profile_contract_proof/out/compiler_profile_contract_proof_summary.json`
 
 R60 proof evidence shows:
@@ -772,10 +855,34 @@ R69-R71 digest proof evidence shows:
 - top-level diagnostics, `pass_result`, stages, compile status, public result,
   assembler execution, `.igapp` manifest, and refusal-report behavior remain
   unchanged;
-- live validator/compiler implementation remains held.
+- live validator/compiler implementation was later split into bounded internal
+  steps.
 
-This proof evidence supports proposal authoring. It does not prove
-implementation readiness.
+R74 live validator evidence shows:
+
+- all four `contract_digest_*` diagnostics are implemented inside
+  `IgniterLang::CompilerProfileContractValidator`;
+- validator result shape remains internal/report-only;
+- compile refusal, public API/CLI, loader/report, CompatibilityReport, runtime,
+  and production behavior remain closed.
+
+R83/R84 strict-refusal live evidence shows:
+
+- bounded internal-only strict refusal is accepted as the live internal
+  foundation;
+- strict source is constructor/test-seam only;
+- validator output remains evidence, not authority;
+- nested `compile_refusal_authorized: false` remains report-only evidence;
+- `report.pass_result == "ok"` remains invariant for strict terminal paths;
+- `refused` and `configuration_error` share the exact 13-key public key-set;
+- strict terminal paths are non-persisting and skip sidecar/report/`.igapp`
+  writes and assembler execution;
+- public API/CLI, loader/report, CompatibilityReport, RuntimeMachine/Gate 3,
+  runtime, and production remain closed.
+
+This proof evidence supports the current PROP-038 canon. It does not authorize
+public exposure, persisted artifacts, loader/report behavior,
+CompatibilityReport behavior, runtime, Gate 3, or production behavior.
 
 ---
 
@@ -803,6 +910,12 @@ PROP-038 does not authorize:
 - cache;
 - production behavior.
 
+The R84 live internal foundation is the sole accepted exception to the older
+blanket "no compile refusal implementation" wording: it is internal-only,
+constructor/test-seam driven, non-persisting, and bounded to the accepted
+`CompilerOrchestrator` / `CompilerResult` strict terminal path. It does not open
+any excluded surface above.
+
 ---
 
 ## §17. Open Questions
@@ -827,16 +940,18 @@ live: sidecar, receipt bundle, `.ilk`, or another artifact?
 
 ## §18. Deferred Implementation Gates
 
-Before implementation may begin:
+Before any additional or widened implementation may begin:
 
 1. PROP-038 must be reviewed and accepted by a separate governance decision.
 2. A separate implementation authorization must name exact write scope.
-3. The implementation card must state whether validation is report-only or can
-   refuse compilation.
+3. The implementation card must state whether it is report-only, internal-only
+   strict terminal behavior, public exposure, persisted artifact behavior,
+   loader/report behavior, CompatibilityReport behavior, or runtime behavior.
 4. Any persisted output requires a golden/artifact mutation policy.
-5. Loader/report and CompatibilityReport work require separate authorizations.
-6. Dispatch migration requires a separate proof and authorization.
-7. Runtime/production behavior remains closed unless explicitly opened by later
+5. Public Ruby API and CLI exposure require separate authorizations.
+6. Loader/report and CompatibilityReport work require separate authorizations.
+7. Dispatch migration requires a separate proof and authorization.
+8. Runtime/production behavior remains closed unless explicitly opened by later
    governance.
 
 ---
