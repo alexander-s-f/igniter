@@ -66,6 +66,17 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 88 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/tracks/sparkcrm-letter-guidance-alignment-v0.md` | done | Aligns R88 letter route with Base Role, Portfolio guidance `PG-2026-05-20-01`, R87 decision, and Portfolio closure packet expectation; recommends letter status `draft` |
+| `../org/letters/sparkcrm-contractable-shadowing-pilot-scope-letter-v0.md` | draft | Cross-lane communication/request packet only; asks Spark/Ruby/Ledger/Lang to answer active guidance questions; not sent/received/answered/accepted and not implementation authority |
+| `../discussions/sparkcrm-contractable-shadowing-letter-pressure-v0.md` | proceed | 9/9 checks PASS, no blockers, one non-blocking note: `availability_slotmap_v0` is recommendation pending Spark confirmation, not decided vocabulary |
+| `stage3-round88-status-curation-v0.md` | done | R88 status curation and Portfolio closure packet; routes response intake next; no fallback report file needed |
+
+---
+
 ## Stage 3 Round 87 Evidence
 
 | Track | Status | Notes |

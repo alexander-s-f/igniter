@@ -237,6 +237,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R87 accepts AvailabilityLedger::SlotMap why-not
                             pilot scope as design-only and routes only a
                             communication/request letter next;
+                            R88 creates/reviews that draft letter, preserves
+                            primary_observed_only, and routes response intake
+                            with guidance questions still open;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime, production remain blocked
 ─────────────────────────────────────────────────────────────────
@@ -722,6 +725,11 @@ Round 87 landed:
   S3-R87-C2-X: pilot scope pressure                               ✅ proceed; 11/11 checks; no blockers; 4 NBs
   S3-R87-C3-A: pilot scope decision                               ✅ accepted-scope-letter-next-implementation-held
   S3-R87-C4-S: round status curation / Portfolio packet           ✅ done; no fallback report needed
+Round 88 landed:
+  S3-R88-C0-O: letter guidance alignment                           ✅ done; PG-2026-05-20-01 active
+  S3-R88-C1-P1: Spark CRM cross-lane letter                        ✅ draft created; not sent/answered/accepted
+  S3-R88-C2-X: letter pressure                                     ✅ proceed; 9/9 checks; no blockers; 1 NB
+  S3-R88-C3-S: round status curation / Portfolio packet            ✅ done; no fallback report needed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -756,6 +764,8 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   canon sync accepted by R85,
                   spec chapter sync accepted by R86,
                   Spark CRM pilot scope accepted by R87 as design-only pressure,
+                  R88 draft cross-lane letter created/reviewed with active
+                  guidance questions routed to response intake,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
@@ -1966,6 +1976,19 @@ S3-R87 result:      C0-O confirms `stage3-round87-status-curation-v0.md` as the 
                       a communication/request letter only. No implementation, Spark code access/edits, Ruby
                       Framework implementation, Ledger sidecar implementation, Igniter-Lang fixture/spec
                       implementation, runtime, or production behavior is authorized.
+S3-R88 result:      C0-O aligns the letter route with Portfolio guidance `PG-2026-05-20-01` and confirms
+                      `stage3-round88-status-curation-v0.md` can serve as the Portfolio close packet. C1-P1
+                      creates the Spark CRM contractable shadowing cross-lane letter with status `draft`;
+                      it is not sent, received, answered, or accepted. C2-X returns `proceed` with 9/9
+                      checks PASS, no blockers, and one non-blocking note: `availability_slotmap_v0` is a
+                      recommendation pending Spark confirmation, not decided vocabulary. C3-S records the
+                      three active guidance questions as open/routed: Spark why-not summaries without raw
+                      slot payloads, Ruby minimal receipt shape without new package code, and Igniter-Lang
+                      sanitized fixture vocabulary to wait for. Next route is
+                      `sparkcrm-contractable-shadowing-letter-response-intake-v0` or equivalent lane-specific
+                      response packets. No implementation, Spark code access/edits, Ruby Framework
+                      implementation, Ledger sidecar implementation, Igniter-Lang fixture/spec implementation,
+                      runtime, production behavior, or letter-as-authority is authorized.
 ```
 
 ### Spec Freshness
