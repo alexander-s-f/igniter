@@ -66,6 +66,19 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 92 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/tracks/oof-fragment-registry-shadow-proof-boundary-v0.md` | done | Re-anchors R92 on LANG-R91 PASS; defines proof-only OOF/Fragment registry boundary and closed surfaces |
+| `oof-fragment-registry-shadow-proof-v0.md` | done / PASS | Proof-local shadow registry PASS 18/18; 63 OOF descriptors, 8 fragment rows, registry_id `oof_fragment_shadow_registry/sha256:279c9e69b50264539027d6a7`; no live registry or dispatch |
+| `oof-fragment-registry-semantics-review-v0.md` | proceed-with-notes | Recommends `oof` as status-primary with secondary fragment projection candidate, and `oof > temporal > stream > escape > epistemic > core` as non-canon reference ordering |
+| `../discussions/oof-fragment-registry-shadow-proof-pressure-v0.md` | proceed | 7/7 checks PASS; no blockers; three non-blocking notes resolved by C4-A |
+| `../gates/oof-fragment-registry-shadow-proof-decision-v0.md` | accepted-design-only-registry-semantics-next-implementation-held | Accepts proof-only evidence; opens only design-only ownership/canon-semantics route; implementation and protected surfaces remain closed |
+| `stage3-round92-status-curation-v0.md` | done | R92 status curation and Portfolio closure packet; no fallback report file needed |
+
+---
+
 ## Stage 3 Round 90 Evidence
 
 | Track | Status | Notes |

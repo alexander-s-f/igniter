@@ -246,6 +246,13 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R90 accepts the compiler pack boundary report as
                             design evidence and routes only proof-only
                             compiler-pack-shadow-profile-proof-v1 next;
+                            LANG-R91 compiler-pack shadow profile proof PASS
+                            18/18, proof-only/no-dispatch;
+                            R92 OOF/Fragment registry shadow proof accepted
+                            as proof-only evidence, registry_id
+                            oof_fragment_shadow_registry/sha256:279c9e69b50264539027d6a7;
+                            next route is design-only ownership/canon-semantics,
+                            implementation held;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime, production remain blocked
 ─────────────────────────────────────────────────────────────────
@@ -750,6 +757,15 @@ Round 90 landed:
   S3-R90-C3-X: pack boundary pressure                                ✅ proceed; 7/7 checks; no blockers; 2 NBs
   S3-R90-C4-A: pack boundary report decision                         ✅ accepted-proof-only-shadow-profile-next-implementation-held
   S3-R90-C5-S: round status curation / Portfolio packet              ✅ done; no fallback report needed
+LANG-R91 landed:
+  compiler-pack-shadow-profile-proof-v1                              ✅ PASS 18/18; proof-only shadow profile; no dispatch
+Round 92 landed:
+  S3-R92-C0-O: OOF/Fragment registry boundary                         ✅ done; proof-only boundary anchored on LANG-R91
+  S3-R92-C1-P1: OOF/Fragment registry shadow proof                    ✅ PASS 18/18; 63 OOF descriptors + 8 fragment rows
+  S3-R92-C2-P1: OOF/fragment semantics review                         ✅ proceed-with-notes; status-primary/projection-secondary recommended
+  S3-R92-C3-X: shadow proof pressure                                  ✅ proceed; 7/7 checks; no blockers; 3 NBs
+  S3-R92-C4-A: shadow proof decision                                  ✅ accepted-design-only-registry-semantics-next-implementation-held
+  S3-R92-C5-S: round status curation / Portfolio packet               ✅ done; no fallback report needed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -790,6 +806,10 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   compiler mainline route, design/report-only with implementation held,
                   R90 accepts that report as design evidence and opens only
                   proof-only compiler-pack-shadow-profile-proof-v1 next,
+                  LANG-R91 closes that proof with 18/18 PASS and recommends
+                  proof-only OOF/Fragment registry shadow proof,
+                  R92 accepts that OOF/Fragment proof as proof-only evidence
+                  and opens only design-only ownership/canon-semantics next,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
@@ -2038,6 +2058,22 @@ S3-R90 result:      C0-O selects Option A for the existing `compiler-pack-bounda
                       pack registry implementation, `.igapp` mutation, public API/CLI widening, loader/report,
                       CompatibilityReport, runtime, Ledger/TBackend, cache, signing, production behavior, or
                       Spark fixture/spec work is authorized by R90.
+S3-R92 result:      LANG-R91 first closes `compiler-pack-shadow-profile-proof-v1` with 18/18 PASS and
+                      `shadow_no_dispatch`. R92 then lands the proof-only OOF/Fragment registry route:
+                      C1-P1 produces a proof-local shadow registry with 63 OOF descriptors, 8 fragment
+                      rows, and registry_id `oof_fragment_shadow_registry/sha256:279c9e69b50264539027d6a7`;
+                      C2-P1 recommends `oof` as status-primary with secondary fragment projection candidate;
+                      C3-X returns `proceed` with 7/7 checks PASS and no blockers; C4-A accepts the proof
+                      as proof-only evidence with status
+                      `accepted-design-only-registry-semantics-next-implementation-held`. Forward reference
+                      candidate ordering is `oof > temporal > stream > escape > epistemic > core`, non-canon.
+                      The only next route is design-only
+                      `oof-fragment-registry-ownership-and-canon-semantics-design-v0`. No implementation,
+                      live `OOFRegistry`/`FragmentRegistry`, parser/classifier/TypeChecker/SemanticIR/
+                      assembler/orchestrator/dispatch change, public API/CLI widening, loader/report,
+                      CompatibilityReport, `.igapp`, spec/proposal/canon mutation, runtime/Gate 3,
+                      Ledger/TBackend, cache, signing, production behavior, or Spark fixture/spec work is
+                      authorized by R92.
 ```
 
 ### Spec Freshness
