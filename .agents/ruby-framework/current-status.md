@@ -126,6 +126,8 @@ Latest production-prep proof:
 - `reports/ruby-doc-p2-igniter-embed-observed-service-doc-sync.md`
 - `tracks/ruby-framework-release-readiness-review-prep-v0.md`
 - `reports/ruby-rel-p1-release-readiness-review-prep.md`
+- `tracks/ruby-framework-release-readiness-review-v0.md`
+- `reports/ruby-rel-p2-release-readiness-review.md`
 
 Proof status:
 
@@ -143,6 +145,7 @@ package-doc/release-readiness notes: filed
 fixture docs readiness: filed
 igniter-embed observed-service doc sync: filed
 release-readiness review prep: filed
+release-readiness review: HOLD for release execution
 Rubygems publish/release: not run
 ```
 
@@ -252,9 +255,10 @@ Ruby Framework lane contribution: done.
 Waiting: S3-R87-C3-A (Architect decision).
 Latest analysis/recipe round: done.
 Next round: no new implementation round open yet.
-Recommended next route: release-readiness review may open.
-Actual release, tag, and publish remain held until an explicit release route
-passes the blocker checklist and receives user/Portfolio authorization.
-Next report filename: to be determined by the formal release-readiness review
-route or the next Spark/Ruby adoption route.
+Recommended next route: hold until release execution blockers are resolved.
+Technical gates passed, but release/tag/publish remain held pending explicit
+authorization, version/tag decision for existing `v0.5.1`, working-tree cleanup,
+and commit.
+Next report filename: to be determined by the release execution route or the
+next Spark/Ruby adoption route.
 ```
