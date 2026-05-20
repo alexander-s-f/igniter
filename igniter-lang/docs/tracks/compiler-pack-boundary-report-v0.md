@@ -31,6 +31,15 @@ This section is the current mainline boundary report authorized by
 report remains below as historical foundation. R90 does not edit code, Ch6, or
 other specs, and does not authorize implementation.
 
+S3-R90-C0-O selected this exact report path and write scope:
+
+```text
+igniter-lang/docs/tracks/compiler-pack-boundary-report-v0.md
+```
+
+It also selected historical handling: preserve the S3-R31 foundation body and
+use the R90 section as the current addendum.
+
 Affected neighbor roles:
 
 - `[Igniter-Lang Research Agent]`: proof fixture ownership and regression
@@ -41,6 +50,7 @@ Affected neighbor roles:
 
 ### R90 Sources Read
 
+- `docs/org/tracks/compiler-pack-boundary-report-r90-file-boundary-v0.md`
 - `docs/gates/compiler-mainline-next-axis-decision-v0.md`
 - `docs/tracks/stage3-round89-status-curation-v0.md`
 - `docs/org/tracks/compiler-mainline-reentry-boundary-map-v0.md`
@@ -97,6 +107,31 @@ Important accepted boundaries:
   is the authority for the accepted internal strict path.
 
 Spark applied-pressure material is not compiler authority for this report.
+
+### R89 Acceptance Bar And Hold Triggers Preserved
+
+This R90 report satisfies the R89 acceptance bar only if it remains:
+
+- descriptive and no-code;
+- accurate against current compiler/profile evidence;
+- explicit about Spark/compiler lane separation;
+- clear about pass, fragment, OOF, proof, report-only, and strict terminal
+  responsibilities;
+- explicit about migration risks and `must_not_migrate_yet`;
+- protective of all closed surfaces.
+
+Hold or redirect any follow-up that implies or starts:
+
+- live pack dispatch;
+- pack registry implementation;
+- parser/classifier/TypeChecker/SemanticIR/assembler rewrites;
+- public profile input or public strict source;
+- public API/CLI widening;
+- `.igapp` or golden migration;
+- loader/report or CompatibilityReport authority;
+- RuntimeMachine/Gate 3 or runtime authority;
+- Ledger/TBackend, cache, signing, or production behavior;
+- Spark fixture/spec work as compiler authority.
 
 ### Pack Boundary Table
 
