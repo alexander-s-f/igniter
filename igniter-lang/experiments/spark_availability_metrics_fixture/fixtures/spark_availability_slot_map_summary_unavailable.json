@@ -1,0 +1,14 @@
+{
+  "status": "success",
+  "receipt_kind": "availability_slot_map_summary",
+  "redaction_policy": "availability_slot_map_summary_v1",
+  "availability_bucket": "unavailable",
+  "dominant_unavailable_state": "past",
+  "available_ratio": 0.0,
+  "total_slots": 3,
+  "available_slots": 0,
+  "scheduled_slots": 0,
+  "off_schedule_slots": 0,
+  "day_off_slots": 0,
+  "past_slots": 3
+}
