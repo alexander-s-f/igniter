@@ -120,6 +120,8 @@ Latest production-prep proof:
 - `reports/port-2026-05-20-ruby-p2-observed-service-recipe.md`
 - `tracks/observed-service-recipe-package-doc-sync-v0.md`
 - `reports/ruby-doc-p1-observed-service-package-doc-sync.md`
+- `tracks/observed-service-fixture-doc-readiness-v0.md`
+- `reports/ruby-fixture-p1-observed-service-doc-readiness.md`
 
 Proof status:
 
@@ -134,6 +136,7 @@ gem build smoke: igniter, igniter-contracts, igniter-embed,
 clean installed-gem Rails proof smoke: pass
 observed-service receipt recipe: filed
 package-doc/release-readiness notes: filed
+fixture docs readiness: filed
 Rubygems publish/release: not run
 ```
 
@@ -243,7 +246,7 @@ Ruby Framework lane contribution: done.
 Waiting: S3-R87-C3-A (Architect decision).
 Latest analysis/recipe round: done.
 Next round: no new implementation round open yet.
-Recommended next route: Spark follow-up.
-Next report filename: to be determined when Spark returns one app-local
-persisted redacted receipt path or Portfolio opens release-readiness review.
+Recommended next route: Spark feedback, then narrow package-doc sync.
+Next report filename: to be determined when Spark resolves fixture/doc blockers
+or Portfolio opens the package-doc sync round.
 ```
