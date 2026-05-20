@@ -71,6 +71,10 @@ not PROP promotion, and not parser/tooling authorization.
 | Track | Status | Notes |
 |-------|--------|-------|
 | `prop038-strict-refusal-canon-sync-v0.md` | done | Syncs PROP-038/current-status canon with R84 accepted live internal foundation; preserves internal-only strict source, validator-as-evidence, `compile_refusal_authorized: false`, `report.pass_result == "ok"`, exact 13-key terminal key-set, non-persisting terminal paths, and closed public/runtime surfaces |
+| `prop038-strict-refusal-regression-and-canon-map-v0.md` | done | Compact canon/regression map for the R84 accepted internal-only foundation; records 10 regression anchors, expansion risks, and future expansion guard checklist; no proof rerun or implementation authorization |
+| `../discussions/prop038-strict-refusal-canon-sync-pressure-v0.md` | proceed | 8/8 checks PASS, no blockers, 3 non-blocking notes: Ch5/Ch7 spec wording deferred, C2 read-only/no proof rerun, CLI/assembler anchors not rerun |
+| `../gates/prop038-strict-refusal-canon-sync-acceptance-decision-v0.md` | accepted-canon-sync-docs-spec-sync-next | Accepts canon sync and regression/canon map; next route is `prop038-strict-refusal-spec-chapter-sync-v0`; no implementation or public/runtime expansion |
+| `stage3-round85-status-curation-v0.md` | done | R85 status curation; records accepted sync, pressure verdict, preserved closed surfaces, and docs/spec sync next route |
 
 ---
 
