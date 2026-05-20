@@ -2,7 +2,7 @@
 
 Status: active
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-19
+Last updated: 2026-05-20
 
 ---
 
@@ -215,3 +215,4 @@ Authorized signed-addendum scope:
 | [prop038-strict-refusal-live-implementation-acceptance-decision-v0.md](prop038-strict-refusal-live-implementation-acceptance-decision-v0.md) | S3-R84-C1-A | accepted-live-internal-foundation | Accepts the R83 bounded internal-only strict-refusal live implementation as the live internal foundation; closes only that implementation slice; no new implementation, public API/CLI widening, loader/report, CompatibilityReport, persisted reports/sidecars, `.igapp`, runtime, Gate 3, or production behavior opens |
 | [prop038-strict-refusal-canon-sync-acceptance-decision-v0.md](prop038-strict-refusal-canon-sync-acceptance-decision-v0.md) | S3-R85-C4-A | accepted-canon-sync-docs-spec-sync-next | Accepts the R85 PROP-038 strict-refusal canon sync and regression/canon map; confirms PROP-038 now reflects the R84 live internal foundation without new implementation authority; next route is docs/spec sync only; public API/CLI, loader/report, CompatibilityReport, persisted reports/sidecars, `.igapp`, runtime, Gate 3, and production remain closed |
 | [r86-spec-sync-and-spark-applicability-routing-decision-v0.md](r86-spec-sync-and-spark-applicability-routing-decision-v0.md) | S3-R86-C4-A | accepted-spec-sync-spark-routed | Accepts PROP-038 Ch5/Ch7/language-spec sync; routes Spark CRM inbox report as `promoted-track / active applied-pressure source`; next route is `sparkcrm-contractable-shadowing-pilot-scope-v0` design/scope only; no implementation, Spark production integration, public API/CLI, loader/report, CompatibilityReport, RuntimeMachine/Gate 3, runtime, or production widening authorized |
+| [sparkcrm-contractable-shadowing-pilot-scope-decision-v0.md](sparkcrm-contractable-shadowing-pilot-scope-decision-v0.md) | S3-R87-C3-A | accepted-scope-letter-next-implementation-held | Accepts `AvailabilityLedger::SlotMap` as the first Spark CRM contractable shadowing pilot scope for why-not availability diagnostics; authorizes only status curation and a communication/request letter next; implementation, Spark code access/edits, Ruby Framework implementation, Ledger sidecar implementation, Igniter-Lang fixture/spec implementation, runtime, and production remain closed |
