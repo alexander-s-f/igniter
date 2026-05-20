@@ -234,7 +234,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R85 accepts PROP-038 canon sync and regression/canon map;
                             R86 accepts Ch5/Ch7/language-spec sync and routes
                             Spark CRM as active applied-pressure source;
-                            next route is Spark CRM pilot scope/design only;
+                            R87 accepts AvailabilityLedger::SlotMap why-not
+                            pilot scope as design-only and routes only a
+                            communication/request letter next;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime, production remain blocked
 ─────────────────────────────────────────────────────────────────
@@ -714,6 +716,12 @@ Round 86 landed:
   S3-R86-C3-X: spec/Spark applicability pressure                  ✅ proceed; 12/12 checks; no blockers; 4 NBs
   S3-R86-C4-A: spec sync and Spark routing decision               ✅ accepted-spec-sync-spark-routed
   S3-R86-C5-S: round status curation                             ✅ done
+Round 87 landed:
+  S3-R87-C0-O: cross-lane reporting/letter boundary               ✅ Portfolio close packet route established
+  S3-R87-C1-P1: Spark pilot scope                                 ✅ AvailabilityLedger::SlotMap recommended; design-only
+  S3-R87-C2-X: pilot scope pressure                               ✅ proceed; 11/11 checks; no blockers; 4 NBs
+  S3-R87-C3-A: pilot scope decision                               ✅ accepted-scope-letter-next-implementation-held
+  S3-R87-C4-S: round status curation / Portfolio packet           ✅ done; no fallback report needed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -747,6 +755,7 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   accepted as live internal foundation by R84,
                   canon sync accepted by R85,
                   spec chapter sync accepted by R86,
+                  Spark CRM pilot scope accepted by R87 as design-only pressure,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
@@ -1943,6 +1952,20 @@ S3-R86 result:      C0-O routes the Spark CRM inbox report as `promoted-track / 
                       Spark data exposure, Igniter-Lang runtime execution of Spark decisions, public API/CLI,
                       loader/report, CompatibilityReport, `.igapp`, RuntimeMachine/Gate 3, runtime, and
                       production widening remain closed.
+S3-R87 result:      C0-O confirms `stage3-round87-status-curation-v0.md` as the default Portfolio close
+                      packet and keeps letters as communication/request material only. C1-P1 scopes
+                      `AvailabilityLedger::SlotMap` as the first Spark CRM contractable shadowing target for
+                      why-not availability diagnostics, with mode `primary_observed_only`, redacted receipts,
+                      digest policy, opt-in low-volume sampling, fail-open missing receipt behavior, optional
+                      later sidecar, and a 17-item implementation authorization checklist. C2-X returns
+                      `proceed` with 11/11 checks PASS, no blockers, and four non-blocking notes. C3-A accepts
+                      the scope with status `accepted-scope-letter-next-implementation-held`, requires
+                      `service_ref`, idempotency key/storage behavior, and Spark lane confirmation before any
+                      implementation authorization, and treats `sparkcrm-availability-ledger-why-not-fixture-v0`
+                      as recommendation only. Next route is `sparkcrm-contractable-shadowing-pilot-scope-letter-v0`,
+                      a communication/request letter only. No implementation, Spark code access/edits, Ruby
+                      Framework implementation, Ledger sidecar implementation, Igniter-Lang fixture/spec
+                      implementation, runtime, or production behavior is authorized.
 ```
 
 ### Spec Freshness

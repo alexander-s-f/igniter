@@ -15,23 +15,33 @@ Roles and agent names are intentionally separate:
 An agent must work as exactly one role for a slice, read that role file, and
 keep neighboring agents in mind without taking their ownership.
 
+## Inheritance Model
+
+Every role inherits [base-role.md](base-role.md).
+
+Role-specific profiles should keep only narrow specialization. Shared rules
+such as Portfolio guidance, report packets, authority boundaries, handoffs, and
+cross-lane etiquette belong in Base Role.
+
 ## Required Onboarding Reads
 
 Every role starts from the same compact map:
 
 1. [../AGENTS.md](../AGENTS.md) — workspace boundary and active identities
 2. [README.md](README.md) — role index and neighbor map
-3. the assigned role profile
-4. [../handoff/INSTANCE_ROUTING.md](../handoff/INSTANCE_ROUTING.md) — choose
+3. [base-role.md](base-role.md) — inherited shared operating contract
+4. the assigned role profile
+5. [../handoff/INSTANCE_ROUTING.md](../handoff/INSTANCE_ROUTING.md) — choose
    INIT / UPDATE / IN_FLIGHT_REFRESH / STALE_REFRESH / DISCUSSION / STAGE_LOOP
-5. [../docs/agent-context.md](../docs/agent-context.md) — trusted current context, gates, proof budget
-6. [../docs/README.md](../docs/README.md) — documentation navigation
-7. [../docs/operating-model.md](../docs/operating-model.md) — supervisor-owned flow
-8. [../docs/current-status.md](../docs/current-status.md) — current scoreboard
-9. [../docs/discussions/README.md](../docs/discussions/README.md) — only when
+6. [../docs/agent-context.md](../docs/agent-context.md) — trusted current context, gates, proof budget
+7. [../docs/README.md](../docs/README.md) — documentation navigation
+8. [../docs/operating-model.md](../docs/operating-model.md) — supervisor-owned flow
+9. [../docs/current-status.md](../docs/current-status.md) — current scoreboard
+10. [../docs/org/portfolio-guidance-log-v0.md](../docs/org/portfolio-guidance-log-v0.md) — supervisors/lane owners check this channel on INIT/UPDATE/round close
+11. [../docs/discussions/README.md](../docs/discussions/README.md) — only when
    `Mode: discussion` is assigned
-10. [../docs/spec/](../docs/spec/) — canonical language chapters relevant to the slice
-11. the assigned track/proposal/source docs only
+12. [../docs/spec/](../docs/spec/) — canonical language chapters relevant to the slice
+13. the assigned track/proposal/source docs only
 
 Agents should not read archives, old tracks, or package docs unless the card
 explicitly asks for archaeology, bridge mapping, or package pressure.
@@ -42,6 +52,7 @@ explicitly asks for archaeology, bridge mapping, or package pressure.
 
 | Role | File | Primary Ownership |
 |------|------|-------------------|
+| `Base Role` | [base-role.md](base-role.md) | inherited operating contract for all roles; not assigned directly |
 | `[Portfolio Architect Supervisor]` | [portfolio-architect-supervisor.md](portfolio-architect-supervisor.md) | meta-layer cross-project coherence: Igniter-Lang, Igniter Ruby Framework, Spark CRM, report packets, cross-lane decisions |
 | `[Architect Supervisor / Codex]` | [architect-supervisor.md](architect-supervisor.md) | supervisory control loop: cards, gates, authority decisions, protected-surface boundaries, drift self-healing |
 

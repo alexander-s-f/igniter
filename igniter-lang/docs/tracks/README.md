@@ -66,6 +66,18 @@ not PROP promotion, and not parser/tooling authorization.
 
 ---
 
+## Stage 3 Round 87 Evidence
+
+| Track | Status | Notes |
+|-------|--------|-------|
+| `../org/tracks/sparkcrm-pilot-cross-lane-reporting-and-letter-boundary-v0.md` | done | Confirms R87 Portfolio close packet path and letter boundary; status-curation track can serve as report packet if it contains required fields |
+| `sparkcrm-contractable-shadowing-pilot-scope-v0.md` | done | Recommends `AvailabilityLedger::SlotMap` for first why-not availability diagnostics pilot; defines redacted receipt shape, digest policy, sampling gate, fail-open behavior, sidecar boundary, and 17-item implementation authorization checklist |
+| `../discussions/sparkcrm-contractable-shadowing-pilot-scope-pressure-v0.md` | proceed | 11/11 checks PASS, no blockers, four non-blocking notes for future implementation / C3-A disposition |
+| `../gates/sparkcrm-contractable-shadowing-pilot-scope-decision-v0.md` | accepted-scope-letter-next-implementation-held | Accepts `AvailabilityLedger::SlotMap` scope as design-only; next route is `sparkcrm-contractable-shadowing-pilot-scope-letter-v0`; implementation and production remain closed |
+| `stage3-round87-status-curation-v0.md` | done | R87 status curation and Portfolio closure packet; no fallback report file needed |
+
+---
+
 ## Stage 3 Round 86 Evidence
 
 | Track | Status | Notes |

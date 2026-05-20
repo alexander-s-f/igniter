@@ -20,6 +20,8 @@ runtime, gate, proposal, or production authority.
 The Portfolio layer now uses
 [`portfolio-reporting-protocol-v0.md`](portfolio-reporting-protocol-v0.md) for
 cross-lane reports between Igniter-Lang, Igniter Ruby Framework, and Spark CRM.
+It uses [`portfolio-guidance-log-v0.md`](portfolio-guidance-log-v0.md) for
+high-level directives, nudges, constraints, and questions to local supervisors.
 
 The main Architect Supervisor remains responsible for active cards, protected
 surface decisions, implementation authorization, and gate decisions.
@@ -98,6 +100,9 @@ reports/
 
 portfolio-reporting-protocol-v0.md
   Cross-lane report packet protocol for Portfolio Architect Supervisor.
+
+portfolio-guidance-log-v0.md
+  Portfolio guidance channel checked by supervisors and lane owners.
 
 memory-contracts/
   Draft schemas for operational-contract memory.

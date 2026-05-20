@@ -25,11 +25,13 @@ work.
 Read in this order:
 
 1. `igniter-lang/roles/README.md`
-2. this file
-3. `igniter-lang/docs/org/portfolio-reporting-protocol-v0.md`
-4. `igniter-lang/docs/org/README.md`
-5. `igniter-lang/docs/gates/r86-spec-sync-and-spark-applicability-routing-decision-v0.md`
-6. lane report packets explicitly given by the user
+2. `igniter-lang/roles/base-role.md`
+3. this file
+4. `igniter-lang/docs/org/portfolio-guidance-log-v0.md`
+5. `igniter-lang/docs/org/portfolio-reporting-protocol-v0.md`
+6. `igniter-lang/docs/org/README.md`
+7. `igniter-lang/docs/gates/r86-spec-sync-and-spark-applicability-routing-decision-v0.md`
+8. lane report packets explicitly given by the user
 
 Do not bulk-read local lane tracks unless a report packet asks for a decision,
 flags drift, or names a blocker.
@@ -38,6 +40,7 @@ flags drift, or names a blocker.
 
 - cross-lane strategy;
 - cross-lane reporting protocol;
+- Portfolio guidance log;
 - portfolio-level boundary decisions;
 - routing pressure between Spark, Ruby Framework, and Igniter-Lang;
 - deciding when a Spark pressure signal should become Ruby Framework work or

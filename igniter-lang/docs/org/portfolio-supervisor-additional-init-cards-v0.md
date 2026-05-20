@@ -5,7 +5,7 @@ Owner: [Portfolio Architect Supervisor]
 Date: 2026-05-20
 
 Use these cards to update local supervisors with the Portfolio reporting
-protocol.
+protocol, Base Role inheritance, and Portfolio guidance channel.
 
 ---
 
@@ -20,15 +20,20 @@ Parent: [Portfolio Architect Supervisor]
 Workspace: /Users/alex/dev/projects/igniter
 
 Goal:
-Adopt the Portfolio reporting protocol for Igniter-Lang lane closure.
+Adopt the Base Role, Portfolio reporting protocol, and Portfolio guidance
+channel for Igniter-Lang lane closure.
 
 Read:
+- /Users/alex/dev/projects/igniter/igniter-lang/roles/base-role.md
+- /Users/alex/dev/projects/igniter/igniter-lang/docs/org/portfolio-guidance-log-v0.md
 - /Users/alex/dev/projects/igniter/igniter-lang/docs/org/portfolio-reporting-protocol-v0.md
 - /Users/alex/dev/projects/igniter/igniter-lang/docs/reports/README.md
 - /Users/alex/dev/projects/igniter/igniter-lang/roles/portfolio-architect-supervisor.md
 - current active Igniter-Lang status-curation track, if one exists
 
 Rules:
+- Check the Portfolio guidance log on INIT/UPDATE and before opening a new
+  lane round.
 - Existing `stage*-round*-status-curation` tracks may serve as report packets
   if they contain summary, evidence, blockers, cross-lane requests, and next
   route.
@@ -37,7 +42,7 @@ Rules:
 - Do not ask Portfolio to rediscover round state from all raw tracks.
 
 Deliver:
-- Confirm reporting protocol adopted.
+- Confirm Base Role, guidance log, and reporting protocol adopted.
 - Name the report packet or status-curation equivalent that will close the next
   Igniter-Lang round for Portfolio.
 ```
@@ -55,15 +60,19 @@ Parent: [Portfolio Architect Supervisor]
 Workspace: /Users/alex/dev/projects/igniter
 
 Goal:
-Adopt the Portfolio reporting protocol for the Ruby Framework lane.
+Adopt the Base Role, Portfolio reporting protocol, and Portfolio guidance
+channel for the Ruby Framework lane.
 
 Read:
 - /Users/alex/dev/projects/igniter/.agents/ruby-framework/README.md
 - /Users/alex/dev/projects/igniter/.agents/ruby-framework/reports/README.md
+- /Users/alex/dev/projects/igniter/igniter-lang/roles/base-role.md
+- /Users/alex/dev/projects/igniter/igniter-lang/docs/org/portfolio-guidance-log-v0.md
 - /Users/alex/dev/projects/igniter/igniter-lang/docs/org/portfolio-reporting-protocol-v0.md
 - /Users/alex/dev/projects/igniter/igniter-lang/roles/portfolio-architect-supervisor.md
 
 Rules:
+- Check Portfolio guidance before opening/closing Ruby Framework lane rounds.
 - At the end of every Ruby Framework lane round, write one compact report packet
   under `.agents/ruby-framework/reports/`.
 - The report must surface decisions needed from Portfolio, changed files,
@@ -72,7 +81,7 @@ Rules:
   a blocker or decision.
 
 Deliver:
-- Confirm reporting protocol adopted.
+- Confirm Base Role, guidance log, and reporting protocol adopted.
 - Create the next report filename you will use, or state that no round is open
   yet.
 ```
@@ -90,16 +99,20 @@ Parent: [Portfolio Architect Supervisor]
 Workspace: /Users/alex/dev/projects/sparkcrm
 
 Goal:
-Adopt Portfolio report packets while preserving Spark's lightweight fast-lane
-style.
+Adopt the Base Role, Portfolio guidance channel, and Portfolio report packets
+while preserving Spark's lightweight fast-lane style.
 
 Read:
 - /Users/alex/dev/projects/sparkcrm/.agents/FAST_LANE.md
 - /Users/alex/dev/projects/sparkcrm/.agents/operating-model.md
 - /Users/alex/dev/projects/sparkcrm/.agents/spark-app/letters/outgoing/ if it exists
+- /Users/alex/dev/projects/igniter/igniter-lang/roles/base-role.md
+- /Users/alex/dev/projects/igniter/igniter-lang/docs/org/portfolio-guidance-log-v0.md
 - /Users/alex/dev/projects/igniter/igniter-lang/docs/org/portfolio-reporting-protocol-v0.md
 
 Rules:
+- Check Portfolio guidance before asking for cross-lane decisions or opening a
+  medium/long Spark-Igniter lane.
 - Fast-lane work may still close with a short Fast Lane Receipt.
 - A Portfolio report packet is required only when asking Portfolio to accept a
   completed lane round, make a cross-lane decision, route work to another
@@ -109,7 +122,7 @@ Rules:
 - Letters are requests/handoffs. Reports are closure packets.
 
 Deliver:
-- Confirm reporting protocol adopted.
+- Confirm Base Role, guidance log, and reporting protocol adopted.
 - Create or name the Spark reports directory.
 - State when you will use a fast-lane receipt vs a Portfolio report packet.
 ```
