@@ -22,6 +22,8 @@ The Portfolio layer now uses
 cross-lane reports between Igniter-Lang, Igniter Ruby Framework, and Spark CRM.
 It uses [`portfolio-guidance-log-v0.md`](portfolio-guidance-log-v0.md) for
 high-level directives, nudges, constraints, and questions to local supervisors.
+It uses `portfolio-dispatches/` for copyable supervisor-level dispatch packets
+that local supervisors can self-plan around.
 
 The main Architect Supervisor remains responsible for active cards, protected
 surface decisions, implementation authorization, and gate decisions.
@@ -97,6 +99,9 @@ current-map.md
 
 reports/
   Compact stage-level reports and sidecar findings.
+
+portfolio-dispatches/
+  Supervisor-level dispatch packets from Portfolio to local lane supervisors.
 
 portfolio-reporting-protocol-v0.md
   Cross-lane report packet protocol for Portfolio Architect Supervisor.
