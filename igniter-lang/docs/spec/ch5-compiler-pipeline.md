@@ -1,7 +1,8 @@
 # Ch5: Compiler Pipeline
 
-Source PROPs: PROP-018, PROP-019.1, PROP-027, PROP-028
+Source PROPs: PROP-018, PROP-019.1, PROP-027, PROP-028, PROP-038
 Status: synced after `CompilerOrchestrator` switched to `emit_typed` (S3-R5-C4)
+and after R84 accepted the PROP-038 internal-only strict-refusal foundation
 
 Primary evidence:
 
@@ -11,6 +12,9 @@ Primary evidence:
 - `experiments/production_compiler_cli/`
 - `experiments/stage1_close_candidate/`
 - `experiments/stage2_close_candidate/`
+- `docs/gates/prop038-strict-refusal-live-implementation-acceptance-decision-v0.md`
+- `docs/tracks/prop038-strict-refusal-live-implementation-v0.md`
+- `experiments/prop038_strict_refusal_live_implementation_proof/`
 
 ---
 
@@ -31,14 +35,18 @@ source.ig
   TypedProgram
   │
   ▼ Stage 3: Emit
-  SemanticIREmitter.emit_typed(TypedProgram)
+SemanticIREmitter.emit_typed(TypedProgram)
   │
   ▼
-  SemanticIRProgram            only on full success
-  CompilationReport            always written
+SemanticIRProgram            only on full success
+CompilationReport            produced for decision/report evidence
+  │
+  ├─ PROP-038 internal strict terminal, if selected:
+  │    non-persisting CompilerResult refused | configuration_error
+  │    no sidecar, no report write, no .igapp, no assembler call
   │
   ▼ Stage 4: Assemble
-  .igapp/ directory
+.igapp/ directory
   │
   ▼ Stage 5: Load
   RuntimeMachine.load(path)
@@ -49,6 +57,9 @@ Key invariant:
 ```text
 SemanticIRProgram is emitted only when CompilationReport.pass_result == "ok".
 OOF contracts never appear in loadable SemanticIRProgram.
+PROP-038 strict terminal paths keep report.pass_result == "ok" but skip
+assembly because the internal orchestrator strict requirement decision path
+selects a non-persisting terminal CompilerResult.
 ```
 
 ---
@@ -61,11 +72,77 @@ OOF contracts never appear in loadable SemanticIRProgram.
 | Classify | ParsedProgram | ClassifiedProgram | parse error |
 | Typecheck | ClassifiedProgram | TypedProgram | classify OOF |
 | Emit | TypedProgram | SemanticIRProgram + CompilationReport | typecheck OOF |
-| Assemble | CompilationReport + SemanticIRProgram | `.igapp/` | `pass_result != "ok"` |
+| Internal strict terminal | CompilationReport + nested `compiler_profile_contract_validation` evidence | non-persisting CompilerResult `refused` / `configuration_error` | absent internal strict requirement |
+| Assemble | CompilationReport + SemanticIRProgram | `.igapp/` | `pass_result != "ok"` or PROP-038 strict terminal selected |
 | Load | `.igapp/` | LoadResult / CompatibilityReport | invalid manifest/report/contract |
 
 `SemanticIREmitter#emit_typed(typed_program)` is the production emitter entry.
 It is the only Stage 2+ lowering path used by `CompilerOrchestrator`.
+
+### 5.2.1 PROP-038 Internal Strict Refusal Boundary
+
+R84 accepts a bounded internal-only strict-refusal foundation for PROP-038.
+
+Accepted compiler authority model:
+
+```text
+internal strict requirement source
+  -> orchestrator-level strict requirement decision path
+  -> report-only compiler_profile_contract_validation evidence
+  -> non-persisting strict terminal CompilerResult when selected
+```
+
+The strict source is an internal constructor/test seam only. It is not exposed
+through the public Ruby API, CLI, environment, config, manifest, loader/report,
+CompatibilityReport, RuntimeMachine, Gate 3, runtime, or production behavior.
+
+The validator remains evidence, not authority:
+
+```text
+CompilerProfileContractValidator output != refusal authority
+compile_refusal_authorized: false remains nested report-only evidence
+```
+
+Accepted strict terminal statuses:
+
+```text
+refused
+configuration_error
+```
+
+Both terminal statuses expose the same accepted 13-key public result shape:
+
+```text
+kind
+format_version
+status
+program_id
+source_path
+source_hash
+grammar_version
+stages
+igapp_path
+contracts
+compilation_report_path
+diagnostics
+warnings
+```
+
+Strict terminal behavior is non-persisting:
+
+```text
+report.pass_result == "ok"
+compilation_report_path == null
+igapp_path == null
+no sidecar
+no report write
+no .igapp
+no assembler call
+```
+
+This is a compiler/orchestrator boundary only. It does not add new parser,
+TypeChecker, SemanticIR, assembler, loader/report, CompatibilityReport,
+RuntimeMachine, Gate 3, runtime, or production authority.
 
 ---
 
@@ -188,6 +265,8 @@ C-7  BiHistory source -> typed path emits bitemporal temporal nodes
 C-8  invariant severity source -> typed path emits invariant lowering
 C-9  Assembler refuses non-ok reports and writes no loadable `.igapp/`
 C-10 TEMPORAL `.igapp/` loads for inspection but evaluate is guarded/refused
+C-11 PROP-038 internal strict terminal -> non-persisting CompilerResult,
+     report.pass_result "ok", no sidecar/report/.igapp/assembler call
 ```
 
 ---
@@ -217,4 +296,5 @@ production_compiler_cli_proof: PASS
 stage1_close_candidate: PASS
 stage2_close_candidate: PASS
 release-gate: PASS, publish not attempted
+prop038_strict_refusal_live_implementation_proof: PASS
 ```

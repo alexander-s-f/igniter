@@ -2,7 +2,7 @@
 
 Version: 0.3 — crystallized from Stage 1 PROPs
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-06
+Last updated: 2026-05-20
 
 > **The spec is now structured as chapters in `docs/spec/`.**
 > This file is the entry-point index.
@@ -17,9 +17,9 @@ Last updated: 2026-05-06
 | [Ch2](spec/ch2-source-surface.md) | Source Surface and Grammar | PROP-014, 015 | accepted / OOF gap |
 | [Ch3](spec/ch3-type-system.md) | Type System | PROP-004, 021 | ✅ PASS ✅ boundary CLOSED |
 | [Ch4](spec/ch4-fragment-classification.md) | Fragment Classification | PROP-003, 020 | ✅ PASS |
-| [Ch5](spec/ch5-compiler-pipeline.md) | Compiler Pipeline | PROP-018, 019.1 | accepted / assembler blocked |
+| [Ch5](spec/ch5-compiler-pipeline.md) | Compiler Pipeline | PROP-018, 019.1, 038 | accepted / R84 strict-refusal internal foundation synced |
 | [Ch6](spec/ch6-semanticir.md) | SemanticIR and CompilationReport | PROP-019.1 | ✅ PASS ✅ assembler PASS |
-| [Ch7](spec/ch7-runtime.md) | RuntimeMachine | PROP-006, 009, 011 | accepted + proven ✅ |
+| [Ch7](spec/ch7-runtime.md) | RuntimeMachine | PROP-006, 009, 011, 038 | accepted + proven ✅ / PROP-038 strict refusal is non-runtime |
 | [Ch8](spec/ch8-stdlib.md) | Stdlib | PROP-013 | accepted / proof pending |
 | [Ch9](spec/ch9-stage2-reserved.md) | Stage 2 Reserved Primitives | PROP-022–025 | deferred |
 
@@ -32,6 +32,8 @@ accepted + PASS   Ch3 (TypeChecker + boundary), Ch4 (classifier), Ch5 (pipeline 
                   Ch6 (SemanticIR + assembler), Ch7 (RuntimeMachine), Ch8 (stdlib kernel)
 accepted partial  Ch2 (OOF parse gap — non-blocking)
 deferred          Ch9 (Stage 2)
+compiler-profile  PROP-038 strict refusal is accepted only as an internal compiler
+                  foundation; public/runtime/production refusal remains closed
 ```
 
 ---

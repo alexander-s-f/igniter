@@ -1,9 +1,10 @@
 # Ch7: RuntimeMachine
 
 Source PROPs: PROP-005, PROP-006, PROP-008, PROP-009, PROP-009.1, PROP-011,
-PROP-022, PROP-022A, PROP-028, PROP-030, PROP-030A
+PROP-022, PROP-022A, PROP-028, PROP-030, PROP-030A, PROP-038
 Status: synced for approved-restricted Stage 3 Gate 3 Phase 1 semantics and
-S3-R16 proof-local lib boundary (2026-05-09)
+S3-R16 proof-local lib boundary (2026-05-09); R86 adds PROP-038 strict-refusal
+non-runtime boundary
 Primary evidence:
 
 - `experiments/runtime_machine_memory_proof/` — load/evaluate/checkpoint/resume PASS
@@ -16,6 +17,8 @@ Primary evidence:
 - `docs/tracks/prop-005-temporal-read-observation-v0.md` — temporal read observation envelope PASS
 - `docs/tracks/compatibility-report-composition-v0.md` — composed report shape PASS
 - `docs/tracks/runtime-temporal-executor-lib-prep-v0.md` — `IgniterLang::TemporalExecutor::Phase1` proof-local lib boundary PASS 17/17
+- `docs/gates/prop038-strict-refusal-live-implementation-acceptance-decision-v0.md` — internal-only compiler strict-refusal foundation
+- `docs/tracks/prop038-strict-refusal-canon-sync-v0.md` — PROP-038 canon sync
 
 ---
 
@@ -62,6 +65,43 @@ Gate invariant:
 ```text
 CompatibilityReport must not be trusted before Boot + Verification complete.
 ```
+
+### 7.2.1 PROP-038 Strict Refusal Is Not A Runtime Surface
+
+R84 accepts PROP-038 strict refusal only as an internal compiler/orchestrator
+foundation. It is not a RuntimeMachine load or evaluate capability.
+
+Accepted compiler-side boundary:
+
+```text
+internal strict requirement source
+  -> orchestrator-level strict requirement decision path
+  -> report-only compiler_profile_contract_validation evidence
+  -> non-persisting strict terminal CompilerResult when selected
+```
+
+Runtime implications:
+
+- strict terminal paths produce no loadable `.igapp`;
+- strict terminal paths write no sidecar and no compilation report artifact;
+- strict terminal paths do not enter `RuntimeMachine.load`;
+- strict terminal paths do not produce or consume a CompatibilityReport;
+- `CompilerProfileContractValidator` output remains compiler evidence, not
+  runtime authority;
+- nested `compile_refusal_authorized: false` remains report-only evidence.
+
+Closed surfaces:
+
+```text
+public API/CLI strict source
+loader/report strict source or status
+CompatibilityReport strict source or status
+RuntimeMachine/Gate 3 strict-refusal behavior
+runtime/production strict-refusal behavior
+```
+
+Any future runtime or loader/report interpretation of PROP-038 strict refusal
+requires a separate Architect decision.
 
 ---
 
