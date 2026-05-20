@@ -22,7 +22,17 @@ It is separate from:
 
 ## Reporting Rule
 
+The Ruby Framework lane adopts:
+
+- `igniter-lang/roles/base-role.md`
+- `igniter-lang/docs/org/portfolio-guidance-log-v0.md`
+- `igniter-lang/docs/org/portfolio-reporting-protocol-v0.md`
+
+Before opening or closing any Ruby Framework lane round, check the Portfolio
+guidance log for active lane guidance.
+
 Use `reports/` when closing a lane round or asking Portfolio for a decision.
+Every closed Ruby Framework lane round must have one compact report packet.
 
 ```text
 No report packet -> lane round is not closed for Portfolio.
@@ -32,4 +42,5 @@ See:
 
 ```text
 igniter-lang/docs/org/portfolio-reporting-protocol-v0.md
+igniter-lang/docs/org/portfolio-guidance-log-v0.md
 ```

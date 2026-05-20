@@ -147,9 +147,33 @@ Next card: none open until C3-A lands and authorizes or redirects scope.
 
 Status: adopted.
 
-This lane follows `igniter-lang/docs/org/portfolio-reporting-protocol-v0.md`.
-Reports are written under `.agents/ruby-framework/reports/` only when closing a
-lane round or asking Portfolio for a decision.
+The lane adopts:
+
+- `igniter-lang/roles/base-role.md`;
+- `igniter-lang/docs/org/portfolio-guidance-log-v0.md`;
+- `igniter-lang/docs/org/portfolio-reporting-protocol-v0.md`.
+
+Before opening or closing Ruby Framework lane rounds, check Portfolio guidance.
+At the end of each Ruby Framework lane round, write one compact report packet
+under `.agents/ruby-framework/reports/`.
+
+Reports must surface decisions needed from Portfolio, changed files, evidence,
+risks/drift, cross-lane requests, and the recommended next route. Portfolio
+should not need to read every local track unless the report points to a blocker
+or decision.
+
+Active guidance checked:
+
+```text
+PG-2026-05-20-01
+```
+
+Adopted implication:
+
+```text
+Keep Spark x Igniter adoption in primary_observed_only mode until one redacted
+receipt path is proven end-to-end.
+```
 
 Current round report (filed, awaiting Architect):
 
