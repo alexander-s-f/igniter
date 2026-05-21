@@ -11,8 +11,10 @@
 #   - expose public API or CLI
 #   - call runtime, Ledger/TBackend, Gate 3, cache, signing, or production behavior
 #
-# Authorized by: LANG-R102-A
-# Track: oof-fragment-registry-implementation-boundary-proof-v0
+# Authorized by: LANG-R102-A (registry validator)
+#                LANG-R110-A (source-envelope helper)
+# Tracks: oof-fragment-registry-implementation-boundary-proof-v0
+#         oof-fragment-registry-source-envelope-helper-proof-v0
 #
 # R92 historical note: the shadow proof JSON at
 #   experiments/oof_fragment_registry_shadow_proof/out/oof_descriptors.shadow_registry.json
@@ -46,6 +48,39 @@ module IgniterLang
     # Acceptable public_code_stability values for support markers (non-public).
     SUPPORT_MARKER_STABILITY_VALUES = %w[non_public_support_marker proof_only].freeze
 
+    # -------------------------------------------------------------------------
+    # Source-envelope helper — accepted and held/rejected source modes.
+    # Authorized by: LANG-R110-A
+    # These constants are internal to this helper and are NOT public API.
+    # -------------------------------------------------------------------------
+
+    # Accepted source modes for validate_source_envelope.
+    SOURCE_ACCEPTED_MODES = %w[proof_fixture caller_supplied].freeze
+
+    # Held modes: recognized but not yet authorized for helper processing.
+    SOURCE_HELD_MODES = %w[profile_candidate pack_descriptor_candidate].freeze
+
+    # Accepted authority kinds for source envelope.
+    SOURCE_ACCEPTED_AUTHORITY_KINDS = %w[proof_only design_accepted].freeze
+
+    # Accepted (non-canon) canon_status values.
+    SOURCE_ACCEPTED_CANON_STATUSES = %w[non_canon accepted_design].freeze
+
+    # Source-envelope helper diagnostic codes.
+    # These are internal helper diagnostics. They are NOT language OOF codes and
+    # are NOT central IgniterLang::Diagnostics entries.
+    SOURCE_DIAG_WRONG_KIND                 = "oof_registry.source.validation.wrong_kind".freeze
+    SOURCE_DIAG_UNSUPPORTED_FORMAT_VERSION = "oof_registry.source.validation.unsupported_format_version".freeze
+    SOURCE_DIAG_UNSUPPORTED_SOURCE_MODE    = "oof_registry.source.validation.unsupported_source_mode".freeze
+    SOURCE_DIAG_HELD_SOURCE_MODE           = "oof_registry.source.validation.held_source_mode".freeze
+    SOURCE_DIAG_INVALID_AUTHORITY_KIND     = "oof_registry.source.validation.invalid_authority_kind".freeze
+    SOURCE_DIAG_CANON_STATUS_FORBIDDEN     = "oof_registry.source.validation.canon_status_forbidden".freeze
+    SOURCE_DIAG_MISSING_AUTHORITY          = "oof_registry.source.validation.missing_authority".freeze
+    SOURCE_DIAG_MISSING_AUTHORITY_REF      = "oof_registry.source.validation.missing_authority_ref".freeze
+    SOURCE_DIAG_MISSING_REGISTRY           = "oof_registry.source.validation.missing_registry".freeze
+    SOURCE_DIAG_SURFACE_OPEN               = "oof_registry.source.validation.surface_open".freeze
+
+    # -------------------------------------------------------------------------
     # Internal validator diagnostic codes.
     # These are NOT public language OOF codes and are NOT central IgniterLang::Diagnostics entries.
     DIAG_MISSING_SECTION               = "oof_registry.validation.missing_section".freeze
@@ -129,6 +164,124 @@ module IgniterLang
       end
 
       build_result(diags.empty?, diags, inactive_rows)
+    end
+
+    # Validate a source envelope and, if valid, validate its nested registry.
+    #
+    # This is an internal helper only. It is NOT a public API, NOT a loader,
+    # NOT a compiler pass, and NOT a report surface. It is callable only from
+    # proof-local harnesses via direct require of this file.
+    #
+    # Authorized by: LANG-R110-A
+    # Design: oof-fragment-registry-source-envelope-helper-boundary-design-v0 (LANG-R109-D1)
+    #
+    # @param source_envelope [Hash] A source envelope describing where the registry
+    #   hash comes from. Must have kind, format_version, source_mode, authority, registry.
+    # @param installed_boundaries [Array<String>, nil]
+    #   Forwarded to the nested registry validate call when source envelope passes.
+    #
+    # @return [Hash] Internal source-envelope validation result.
+    #   - valid: true only when source-envelope validation AND nested registry validation pass.
+    #   - source_mode: the source_mode from the envelope (or nil if envelope is malformed).
+    #   - registry_present: whether the envelope contained a registry hash.
+    #   - source_diagnostics: internal source-envelope diagnostics only.
+    #   - registry_validation: the nested registry validation result, or nil if source invalid.
+    #   - closed_surface_assertions: all false (machine-assertable).
+    #   NEVER touches compiler state, reports, or public surfaces.
+    def validate_source_envelope(source_envelope, installed_boundaries: nil)
+      source_diags = []
+
+      # Step 1 — envelope must be a Hash with correct kind
+      unless source_envelope.is_a?(Hash)
+        source_diags << source_diag(SOURCE_DIAG_WRONG_KIND,
+          "source envelope must be a Hash, got #{source_envelope.class}")
+        return build_source_result(false, nil, false, source_diags, nil)
+      end
+
+      if source_envelope["kind"] != "oof_fragment_registry_source"
+        source_diags << source_diag(SOURCE_DIAG_WRONG_KIND,
+          "source envelope kind must be 'oof_fragment_registry_source', " \
+          "got #{source_envelope["kind"].inspect}")
+      end
+
+      # Step 2 — format version
+      unless source_envelope["format_version"] == "0.1.0"
+        source_diags << source_diag(SOURCE_DIAG_UNSUPPORTED_FORMAT_VERSION,
+          "source envelope format_version must be '0.1.0', " \
+          "got #{source_envelope["format_version"].inspect}")
+      end
+
+      # Step 3 — source mode
+      source_mode = source_envelope["source_mode"]
+      if SOURCE_HELD_MODES.include?(source_mode)
+        source_diags << source_diag(SOURCE_DIAG_HELD_SOURCE_MODE,
+          "source_mode #{source_mode.inspect} is known but held; " \
+          "only 'proof_fixture' and 'caller_supplied' are accepted in this helper")
+      elsif !SOURCE_ACCEPTED_MODES.include?(source_mode)
+        source_diags << source_diag(SOURCE_DIAG_UNSUPPORTED_SOURCE_MODE,
+          "source_mode #{source_mode.inspect} is not supported; " \
+          "accepted: proof_fixture, caller_supplied")
+      end
+
+      # Step 4 — authority object
+      authority = source_envelope["authority"]
+      if authority.is_a?(Hash)
+        # authority_ref must be present
+        if authority["authority_ref"].to_s.strip.empty?
+          source_diags << source_diag(SOURCE_DIAG_MISSING_AUTHORITY_REF,
+            "authority.authority_ref is required and must be non-empty")
+        end
+
+        # authority_kind must be within proof/design scope
+        authority_kind = authority["authority_kind"]
+        unless SOURCE_ACCEPTED_AUTHORITY_KINDS.include?(authority_kind)
+          source_diags << source_diag(SOURCE_DIAG_INVALID_AUTHORITY_KIND,
+            "authority.authority_kind #{authority_kind.inspect} is outside proof/design scope; " \
+            "accepted: proof_only, design_accepted")
+        end
+
+        # canon_status must not be canon
+        canon_status = authority["canon_status"]
+        if canon_status == "canon"
+          source_diags << source_diag(SOURCE_DIAG_CANON_STATUS_FORBIDDEN,
+            "canon-status source envelopes are forbidden in this helper; " \
+            "authority.canon_status must not be 'canon'")
+        elsif !SOURCE_ACCEPTED_CANON_STATUSES.include?(canon_status)
+          source_diags << source_diag(SOURCE_DIAG_CANON_STATUS_FORBIDDEN,
+            "authority.canon_status #{canon_status.inspect} is not an accepted non-canon status; " \
+            "accepted: non_canon, accepted_design")
+        end
+      else
+        source_diags << source_diag(SOURCE_DIAG_MISSING_AUTHORITY,
+          "source envelope authority object is missing or not a Hash")
+      end
+
+      # Step 5 — nested registry must be present
+      registry_present = source_envelope["registry"].is_a?(Hash)
+      unless registry_present
+        source_diags << source_diag(SOURCE_DIAG_MISSING_REGISTRY,
+          "source envelope must contain a 'registry' Hash; nested registry is missing or invalid")
+      end
+
+      # Step 6 — closed-surface assertions must all be false
+      envelope_assertions = source_envelope.fetch("closed_surface_assertions", nil)
+      if envelope_assertions.is_a?(Hash) && !envelope_assertions.values.all?(false)
+        open_keys = envelope_assertions.select { |_k, v| v }.keys
+        source_diags << source_diag(SOURCE_DIAG_SURFACE_OPEN,
+          "source envelope closed_surface_assertions must all be false; " \
+          "open assertions: #{open_keys.inspect}")
+      end
+
+      # If source envelope has any diagnostics, do NOT call nested registry validator.
+      if source_diags.any?
+        return build_source_result(false, source_mode, registry_present, source_diags, nil)
+      end
+
+      # Source envelope passed — call existing nested registry validator.
+      registry_result = validate(source_envelope["registry"], installed_boundaries: installed_boundaries)
+      source_valid = registry_result.fetch("valid")
+
+      build_source_result(source_valid, source_mode, true, [], registry_result)
     end
 
     private
@@ -310,6 +463,35 @@ module IgniterLang
       end
 
       diags
+    end
+
+    def source_diag(code, message)
+      { "code" => code, "message" => message }
+    end
+
+    def build_source_result(valid, source_mode, registry_present, source_diags, registry_validation)
+      {
+        "kind"             => "oof_fragment_registry_source_validation",
+        "format_version"   => "0.1.0",
+        "valid"            => valid,
+        "source_mode"      => source_mode,
+        "registry_present" => registry_present,
+        "source_diagnostics" => source_diags,
+        "registry_validation" => registry_validation,
+        "closed_surface_assertions" => {
+          "static_data_file"              => false,
+          "lib_igniter_lang_rb_require"   => false,
+          "compiler_pass_integration"     => false,
+          "public_api_cli"                => false,
+          "top_level_report_diagnostics"  => false,
+          "compiler_result_field"         => false,
+          "loader_report"                 => false,
+          "compatibility_report"          => false,
+          "runtime_behavior"              => false,
+          "igapp_mutation"                => false,
+          "specs_canon_proposals"         => false
+        }
+      }
     end
 
     def diag(code, message)

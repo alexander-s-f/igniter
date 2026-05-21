@@ -1,0 +1,107 @@
+{
+  "kind": "oof_fragment_registry_source_envelope_helper_proof_summary",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-source-envelope-helper-proof-v0",
+  "status": "PASS",
+  "cases_total": 9,
+  "cases_pass": 9,
+  "checks_total": 10,
+  "checks_pass": 10,
+  "cases": [
+    {
+      "name": "SE1.valid_proof_fixture_source_validates_nested_registry",
+      "status": "PASS"
+    },
+    {
+      "name": "SE2.valid_caller_supplied_source_validates_nested_registry",
+      "status": "PASS"
+    },
+    {
+      "name": "SE3.wrong_kind_rejected_internally",
+      "status": "PASS"
+    },
+    {
+      "name": "SE4.missing_registry_rejected_internally",
+      "status": "PASS"
+    },
+    {
+      "name": "SE5.profile_candidate_held_internally",
+      "status": "PASS"
+    },
+    {
+      "name": "SE6.pack_descriptor_candidate_held_internally",
+      "status": "PASS"
+    },
+    {
+      "name": "SE7.canon_status_rejected_internally",
+      "status": "PASS"
+    },
+    {
+      "name": "SE8.open_closed_surface_assertion_rejected_internally",
+      "status": "PASS"
+    },
+    {
+      "name": "SE9.invalid_nested_registry_reports_diagnostics_without_public_surface_keys",
+      "status": "PASS"
+    }
+  ],
+  "checks": [
+    {
+      "name": "CS1.oof_fragment_registry_data_rb_absent",
+      "status": "PASS"
+    },
+    {
+      "name": "CS2.lib_igniter_lang_rb_does_not_require_registry",
+      "status": "PASS"
+    },
+    {
+      "name": "CS3.compiler_passes_do_not_require_helper",
+      "status": "PASS"
+    },
+    {
+      "name": "CS4.all_case_results_have_no_public_surface_keys",
+      "status": "PASS"
+    },
+    {
+      "name": "CS5.all_helper_results_closed_surface_assertions_false",
+      "status": "PASS"
+    },
+    {
+      "name": "CS6.no_separate_helper_file",
+      "status": "PASS"
+    },
+    {
+      "name": "CS7.validate_source_envelope_is_instance_method_of_OOFFragmentRegistry",
+      "status": "PASS"
+    },
+    {
+      "name": "CS8.validate_source_envelope_not_in_igniter_lang_rb_public_surface",
+      "status": "PASS"
+    },
+    {
+      "name": "CS9.nested_registry_not_called_when_source_envelope_invalid",
+      "status": "PASS"
+    },
+    {
+      "name": "CS10.result_kind_is_oof_fragment_registry_source_validation",
+      "status": "PASS"
+    }
+  ],
+  "failed_cases": [],
+  "failed_checks": [],
+  "closed_surfaces": {
+    "static_data_file": false,
+    "lib_igniter_lang_rb_require": false,
+    "compiler_pass_integration": false,
+    "public_api_cli": false,
+    "top_level_report_diagnostics": false,
+    "compiler_result_field": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "runtime_behavior": false,
+    "igapp_mutation": false,
+    "specs_canon_proposals": false
+  },
+  "implementation_authorized": true,
+  "authorized_by": "LANG-R110-A"
+}
