@@ -76,6 +76,10 @@ architecture. They are not production migration authorization.
 | `../gates/oof-fragment-registry-source-envelope-helper-implementation-authorization-review-v0.md` | authorized-bounded-internal-source-envelope-helper-proof-slice | R110 authorizes only the internal helper/proof slice in `oof_fragment_registry.rb`, proof experiment folder, and proof track; loader/report/public/compiler/spec/runtime/data-file/Spark surfaces remain closed |
 | `oof-fragment-registry-source-envelope-helper-proof-v0.md` | done / PASS | R111 lands `validate_source_envelope` inside `OOFFragmentRegistry`; helper proof 9/9 cases and 10/10 checks PASS; pinned matrix PASS with R107 UTF-8 locale note |
 | `../gates/oof-fragment-registry-source-envelope-helper-acceptance-decision-v0.md` | accepted-helper-closure-utf8-proof-hygiene-next | R112 accepts R111 closure and opens only `oof-fragment-registry-utf8-proof-hygiene-cleanup-v0`; compiler integration, profile/pack promotion, loader/report/public/spec/runtime/data-file surfaces remain closed |
+| `oof-fragment-registry-profile-pack-source-mode-proof-v0.md` | done / PASS | R115 proves proof-only `profile_candidate` / `pack_descriptor_candidate` modeling: 9/9 cases and 7/7 checks PASS; live helper still holds both modes |
+| `oof-fragment-registry-source-authority-design-v0.md` | done | R116 designs both-authority semantics: pack rows own row provenance, profile owns selected pack set/order/conflict policy; implementation held |
+| `oof-fragment-registry-source-authority-precedence-proof-v0.md` | done / PASS | R117 proves precedence: 9/9 cases and 9/9 checks PASS; duplicate ownership rejects aggregate, profile cannot override pack-row conflict, `SOURCE_ACCEPTED_MODES` unchanged |
+| `../gates/oof-fragment-registry-source-authority-model-acceptance-decision-v0.md` | accepted-proof-design-foundation-implementation-held-preconditions-design-next | R118 accepts profile/pack source-authority model as proof/design foundation and opens only design-only source-acceptance preconditions; implementation/compiler/public/report/runtime/spec/PROP surfaces remain closed |
 
 ---
 
