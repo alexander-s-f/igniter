@@ -68,6 +68,10 @@ architecture. They are not production migration authorization.
 | `../gates/oof-fragment-registry-implementation-authorization-review-v0.md` | authorized-bounded-internal-validator-proof-slice | R102 authorizes only `lib/igniter_lang/oof_fragment_registry.rb`, `experiments/oof_fragment_registry_implementation_boundary_proof/**`, and proof track; compiler integration/public/runtime/Spark surfaces remain closed |
 | `oof-fragment-registry-implementation-boundary-proof-v0.md` | done / PASS | R103 lands isolated internal validator and proof-local harness inside R102 scope; 27/27 proof checks PASS and pinned 8-command matrix PASS; `oof_fragment_registry_data.rb` absent |
 | `../gates/oof-fragment-registry-implementation-acceptance-decision-v0.md` | accepted-closure-static-internal-data-design-next | R104 accepts R103 closure and opens only design-only `oof-fragment-registry-static-internal-data-design-v0`; compiler integration and static data implementation remain closed |
+| `oof-fragment-registry-static-internal-data-design-v0.md` | done | R105 rejects `oof_fragment_registry_data.rb` and static proof-derived registry constants for now; recommends supplied source boundary before any non-proof registry data |
+| `oof-fragment-registry-loader-supplied-data-source-design-v0.md` | done | R106 designs staged non-canon source envelope; keeps loader/report/profile/pack paths future-only and recommends proof-local supplied-data source evidence |
+| `oof-fragment-registry-supplied-data-source-proof-v0.md` | done / PASS | R107 proves proof-local supplied-data source envelope checks: 7/7 cases and 9/9 checks PASS; nested registry validation remains in `IgniterLang::OOFFragmentRegistry`; implementation held |
+| `../gates/oof-fragment-registry-source-envelope-validation-placement-decision-v0.md` | accepted-proof-local-evidence-helper-boundary-design-next-implementation-held | R108 accepts R107 proof evidence, keeps current source-envelope validation proof-local, and opens only design-only internal helper boundary; loader/report/public/compiler/spec/runtime/data-file surfaces remain closed |
 
 ---
 
