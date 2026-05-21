@@ -80,6 +80,9 @@ architecture. They are not production migration authorization.
 | `oof-fragment-registry-source-authority-design-v0.md` | done | R116 designs both-authority semantics: pack rows own row provenance, profile owns selected pack set/order/conflict policy; implementation held |
 | `oof-fragment-registry-source-authority-precedence-proof-v0.md` | done / PASS | R117 proves precedence: 9/9 cases and 9/9 checks PASS; duplicate ownership rejects aggregate, profile cannot override pack-row conflict, `SOURCE_ACCEPTED_MODES` unchanged |
 | `../gates/oof-fragment-registry-source-authority-model-acceptance-decision-v0.md` | accepted-proof-design-foundation-implementation-held-preconditions-design-next | R118 accepts profile/pack source-authority model as proof/design foundation and opens only design-only source-acceptance preconditions; implementation/compiler/public/report/runtime/spec/PROP surfaces remain closed |
+| `oof-fragment-registry-profile-pack-source-acceptance-preconditions-design-v0.md` | done | R119 defines exact blocker checklist and internal-only result shape before profile/pack source acceptance; no implementation or `SOURCE_ACCEPTED_MODES` change |
+| `../discussions/oof-fragment-registry-profile-pack-source-acceptance-bridge-pressure-v0.md` | proceed-with-nonblockers | R120 finds no bridge blockers; NB-1 future-qualifies accepted-mode wording, NB-2 splits pre-authorization invariant from post-authorization proof assertion |
+| `../gates/oof-fragment-registry-profile-pack-source-acceptance-authorization-review-v0.md` | authorized-bounded-profile-pack-source-acceptance-helper-slice | R121 authorizes only internal helper acceptance for `profile_candidate` and `pack_descriptor_candidate`; public/report/compiler/PROP/runtime/Spark surfaces remain closed |
 
 ---
 
