@@ -1,0 +1,21 @@
+{
+  "kind": "compiler_profile_oof_registry_source_input_model",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-compiler-profile-source-input-proof-v0",
+  "packet_ref": "out/compiler_profile_oof_registry_source_input.packet.json",
+  "mapped_helper_envelopes_ref": "out/mapped_helper_envelopes.json",
+  "mapping_policy": "proof_only_packet_to_oof_fragment_registry_source_envelopes",
+  "deterministic_mapping_digest": "5e2f8977e09143d9825d45c1",
+  "closed_surface_assertions": {
+    "compiler_integration": false,
+    "public_api_cli": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "igapp_mutation": false,
+    "prop036_manifest_change": false,
+    "prop038_validator_report_change": false,
+    "runtime_behavior": false,
+    "production_behavior": false,
+    "spark_surface": false
+  }
+}

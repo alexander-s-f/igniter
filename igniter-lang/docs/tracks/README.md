@@ -85,6 +85,8 @@ architecture. They are not production migration authorization.
 | `../gates/oof-fragment-registry-profile-pack-source-acceptance-authorization-review-v0.md` | authorized-bounded-profile-pack-source-acceptance-helper-slice | R121 authorizes only internal helper acceptance for `profile_candidate` and `pack_descriptor_candidate`; public/report/compiler/PROP/runtime/Spark surfaces remain closed |
 | `oof-fragment-registry-profile-pack-source-acceptance-proof-v0.md` | implemented-with-matrix-stale-proof-failures | R122 implements the bounded internal helper acceptance: acceptance proof PASS 13/13 cases and 5/5 checks; old proof expectations were intentionally left for R123 refresh |
 | `oof-fragment-registry-profile-pack-source-proof-refresh-v0.md` | done / PASS | R123 refreshes stale proof expectations after R121/R122: full 11-command matrix PASS; candidate modes accepted only inside internal helper; external surfaces remain closed |
+| `oof-fragment-registry-compiler-profile-source-input-design-v0.md` | done | R124 designs a proof-only compiler-profile source-input packet route; compiler/public/report/loader/runtime implementation remains held |
+| `oof-fragment-registry-compiler-profile-source-input-proof-v0.md` | done / PASS | R125 proves proof-only source-input packet mapping to helper envelopes: 9/9 cases and 6/6 checks PASS; source-input model accepted, implementation held |
 
 ---
 
