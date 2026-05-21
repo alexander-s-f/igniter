@@ -1,0 +1,52 @@
+{
+  "kind": "oof_fragment_registry_source_model",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-supplied-data-source-proof-v0",
+  "source_envelope": {
+    "kind": "oof_fragment_registry_source",
+    "format_version": "0.1.0",
+    "source_mode": "proof_fixture",
+    "authority": {
+      "authority_ref": "LANG-R106-D1",
+      "authority_kind": "proof_only",
+      "canon_status": "non_canon"
+    },
+    "row_authority_policy": "whole_registry",
+    "historical_source_refs": [
+      "experiments/oof_fragment_registry_shadow_proof/out/oof_descriptors.shadow_registry.json"
+    ],
+    "closed_surface_assertions": {
+      "static_data_file": false,
+      "lib_igniter_lang_rb_require": false,
+      "compiler_pass_integration": false,
+      "public_api_cli": false,
+      "top_level_report_diagnostics": false,
+      "compiler_result_field": false,
+      "loader_report": false,
+      "compatibility_report": false,
+      "runtime_behavior": false,
+      "igapp_mutation": false,
+      "specs_canon_proposals": false
+    },
+    "registry_ref": "experiments/oof_fragment_registry_implementation_boundary_proof/fixtures/forward_shape_valid.json"
+  },
+  "nested_registry_hash": {
+    "validated_by": "IgniterLang::OOFFragmentRegistry#validate",
+    "static_data_file": false,
+    "public_entrypoint_require": false,
+    "compiler_pass_integration": false
+  },
+  "non_authority": {
+    "static_data_file": false,
+    "lib_igniter_lang_rb_require": false,
+    "compiler_pass_integration": false,
+    "public_api_cli": false,
+    "top_level_report_diagnostics": false,
+    "compiler_result_field": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "runtime_behavior": false,
+    "igapp_mutation": false,
+    "specs_canon_proposals": false
+  }
+}

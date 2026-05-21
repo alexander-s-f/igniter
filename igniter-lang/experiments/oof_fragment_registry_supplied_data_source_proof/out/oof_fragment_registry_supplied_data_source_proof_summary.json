@@ -1,0 +1,367 @@
+{
+  "kind": "oof_fragment_registry_supplied_data_source_proof_summary",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-supplied-data-source-proof-v0",
+  "status": "PASS",
+  "source_model_id": "oof_fragment_registry_source/sha256:113ed721edf851c171a13693",
+  "cases": [
+    {
+      "name": "valid_proof_fixture_source_validates_nested_registry",
+      "expected": "accepted",
+      "accepted": true,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": true,
+          "registry_present": true,
+          "diagnostics": [],
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "nested_registry_validation": {
+          "kind": "oof_fragment_registry_validation",
+          "format_version": "0.1.0",
+          "valid": true,
+          "registry_service_present": true,
+          "checked_sections": [
+            "oof_descriptors",
+            "fragment_rows",
+            "support_markers.invariant_support_markers",
+            "excluded_namespaces"
+          ],
+          "diagnostics": [],
+          "inactive_rows": [],
+          "closed_surface_assertions": {
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false
+          }
+        },
+        "nested_registry_validated_through": "IgniterLang::OOFFragmentRegistry#validate"
+      }
+    },
+    {
+      "name": "valid_caller_supplied_source_validates_nested_registry",
+      "expected": "accepted",
+      "accepted": true,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": true,
+          "registry_present": true,
+          "diagnostics": [],
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "nested_registry_validation": {
+          "kind": "oof_fragment_registry_validation",
+          "format_version": "0.1.0",
+          "valid": true,
+          "registry_service_present": true,
+          "checked_sections": [
+            "oof_descriptors",
+            "fragment_rows",
+            "support_markers.invariant_support_markers",
+            "excluded_namespaces"
+          ],
+          "diagnostics": [],
+          "inactive_rows": [],
+          "closed_surface_assertions": {
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid_source_envelope_wrong_kind_internal_only",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": false,
+          "registry_present": true,
+          "diagnostics": [
+            {
+              "code": "oof_registry.source.validation.wrong_kind",
+              "message": "kind must be oof_fragment_registry_source"
+            }
+          ],
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "public_fields_present": []
+      }
+    },
+    {
+      "name": "invalid_source_envelope_canon_status_internal_only",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": false,
+          "registry_present": true,
+          "diagnostics": [
+            {
+              "code": "oof_registry.source.validation.invalid_canon_status",
+              "message": "canon_status must not be canon in this proof"
+            }
+          ],
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "public_fields_present": []
+      }
+    },
+    {
+      "name": "invalid_source_envelope_missing_registry_internal_only",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": false,
+          "registry_present": false,
+          "diagnostics": [
+            {
+              "code": "oof_registry.source.validation.missing_registry",
+              "message": "nested registry hash is required"
+            }
+          ],
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "public_fields_present": []
+      }
+    },
+    {
+      "name": "invalid_source_envelope_profile_candidate_internal_only",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": false,
+          "registry_present": true,
+          "diagnostics": [
+            {
+              "code": "oof_registry.source.validation.unsupported_source_mode",
+              "message": "source_mode must be proof_fixture or caller_supplied"
+            }
+          ],
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "public_fields_present": []
+      }
+    },
+    {
+      "name": "valid_source_envelope_invalid_nested_registry_rejected_internally",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": true,
+          "registry_present": true,
+          "diagnostics": [],
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "nested_registry_validation": {
+          "kind": "oof_fragment_registry_validation",
+          "format_version": "0.1.0",
+          "valid": false,
+          "registry_service_present": true,
+          "checked_sections": [
+            "oof_descriptors",
+            "fragment_rows",
+            "support_markers.invariant_support_markers",
+            "excluded_namespaces"
+          ],
+          "diagnostics": [
+            {
+              "code": "oof_registry.validation.wrong_kind",
+              "message": "registry.kind must be 'oof_fragment_registry', got \"not_oof_fragment_registry\""
+            }
+          ],
+          "inactive_rows": [],
+          "closed_surface_assertions": {
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false
+          }
+        },
+        "public_fields_present": []
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "r103_validator_proof.pass_evidence",
+      "status": "PASS"
+    },
+    {
+      "name": "case_matrix.expected_results",
+      "status": "PASS"
+    },
+    {
+      "name": "nested_registry_hash_validated_by_existing_validator",
+      "status": "PASS"
+    },
+    {
+      "name": "invalid_source_envelopes_internal_only",
+      "status": "PASS"
+    },
+    {
+      "name": "no_static_data_file",
+      "status": "PASS"
+    },
+    {
+      "name": "lib_igniter_lang_rb_does_not_require_registry",
+      "status": "PASS"
+    },
+    {
+      "name": "no_compiler_pass_integration_require",
+      "status": "PASS"
+    },
+    {
+      "name": "validator_result_no_public_surface_keys",
+      "status": "PASS"
+    },
+    {
+      "name": "no_public_api_cli_report_compatibility_runtime_fields",
+      "status": "PASS"
+    }
+  ],
+  "failed_cases": [],
+  "failed_checks": [],
+  "recommendation": "PASS_FOR_PROOF_ONLY_SUPPLIED_DATA_SOURCE_HOLD_IMPLEMENTATION",
+  "outputs": {
+    "summary": "igniter-lang/experiments/oof_fragment_registry_supplied_data_source_proof/out/oof_fragment_registry_supplied_data_source_proof_summary.json",
+    "source_model": "igniter-lang/experiments/oof_fragment_registry_supplied_data_source_proof/out/oof_fragment_registry_source_model.json"
+  },
+  "closed_surfaces": {
+    "static_data_file": false,
+    "lib_igniter_lang_rb_require": false,
+    "compiler_pass_integration": false,
+    "public_api_cli": false,
+    "top_level_report_diagnostics": false,
+    "compiler_result_field": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "runtime_behavior": false,
+    "igapp_mutation": false,
+    "specs_canon_proposals": false
+  },
+  "implementation_authorized": false
+}
