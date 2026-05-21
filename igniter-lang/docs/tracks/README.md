@@ -87,6 +87,9 @@ architecture. They are not production migration authorization.
 | `oof-fragment-registry-profile-pack-source-proof-refresh-v0.md` | done / PASS | R123 refreshes stale proof expectations after R121/R122: full 11-command matrix PASS; candidate modes accepted only inside internal helper; external surfaces remain closed |
 | `oof-fragment-registry-compiler-profile-source-input-design-v0.md` | done | R124 designs a proof-only compiler-profile source-input packet route; compiler/public/report/loader/runtime implementation remains held |
 | `oof-fragment-registry-compiler-profile-source-input-proof-v0.md` | done / PASS | R125 proves proof-only source-input packet mapping to helper envelopes: 9/9 cases and 6/6 checks PASS; source-input model accepted, implementation held |
+| `compiler-profile-source-input-lifecycle-owner-design-v0.md` | done | R126 chooses hybrid profile assembly ownership and internal constructor/test seam as future carrier; implementation and public/report/compiler surfaces remain held |
+| `../discussions/compiler-profile-source-input-lifecycle-bridge-pressure-v0.md` | proceed-with-nonblockers | R127 finds no bridge blockers; NB-1 requires "internal profile-assembly source packet" wording, NB-2 defines `finalized_internal` as non-PROP-036 internal assembly state |
+| `../gates/internal-profile-assembly-source-packet-implementation-authorization-review-v0.md` | authorized-bounded-internal-profile-assembly-source-packet | R128 authorizes only an internal profile-assembly source packet implementation in one internal lib file plus proof experiment/track; public/report/compiler/manifest/PROP/runtime/Spark surfaces remain closed |
 
 ---
 
