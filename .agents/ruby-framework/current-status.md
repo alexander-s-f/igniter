@@ -138,6 +138,8 @@ Latest production-prep proof:
 - `reports/ruby-push-p1-0-5-2-push-readiness.md`
 - `tracks/ruby-0-5-2-publish-readiness-v0.md`
 - `reports/ruby-publish-p1-0-5-2-publish-readiness.md`
+- `tracks/ruby-0-5-2-publish-execution-v0.md`
+- `reports/ruby-publish-p2-0-5-2-publish-execution.md`
 
 Proof status:
 
@@ -161,7 +163,8 @@ release blocker closure plan: filed
 0.5.2 release execution boundary: approved and executed locally
 0.5.2 push readiness: PASS, waiting for explicit push approval
 0.5.2 publish readiness: PASS, waiting for explicit publish approval phrase
-Rubygems publish/release: not run
+0.5.2 publish execution: HOLD, Rubygems credentials missing before gem push
+Rubygems publish/release: not run; no gems published
 ```
 
 ## Active Risks
