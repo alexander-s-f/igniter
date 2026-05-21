@@ -32,8 +32,8 @@ module OOFFragmentRegistrySuppliedDataSourceProof
   def run
     FileUtils.mkdir_p(OUT_DIR)
 
-    registry = JSON.parse(File.read(FIXTURE_PATH))
-    r103_summary = JSON.parse(File.read(R103_SUMMARY_PATH))
+    registry = JSON.parse(File.read(FIXTURE_PATH, encoding: "utf-8"))
+    r103_summary = JSON.parse(File.read(R103_SUMMARY_PATH, encoding: "utf-8"))
     valid_envelope = supplied_source_envelope(registry)
     validator = IgniterLang::OOFFragmentRegistry.new
 
@@ -120,7 +120,7 @@ module OOFFragmentRegistrySuppliedDataSourceProof
       !ROOT.join("lib/igniter_lang/oof_fragment_registry_data.rb").exist?
     end
     checks << check("lib_igniter_lang_rb_does_not_require_registry") do
-      content = File.read(ROOT / "lib/igniter_lang.rb")
+      content = File.read(ROOT / "lib/igniter_lang.rb", encoding: "utf-8")
       !content.include?("oof_fragment_registry")
     end
     checks << check("no_compiler_pass_integration_require") do
@@ -129,7 +129,7 @@ module OOFFragmentRegistrySuppliedDataSourceProof
         compilation_report compiler_result cli diagnostics
       ].map { |name| ROOT / "lib/igniter_lang/#{name}.rb" }
       compiler_files.all? do |path|
-        !path.exist? || !File.read(path).include?("oof_fragment_registry")
+        !path.exist? || !File.read(path, encoding: "utf-8").include?("oof_fragment_registry")
       end
     end
     checks << check("validator_result_no_public_surface_keys") do

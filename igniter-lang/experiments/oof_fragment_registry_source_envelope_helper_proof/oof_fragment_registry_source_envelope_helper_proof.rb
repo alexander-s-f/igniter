@@ -53,7 +53,7 @@ module OOFFragmentRegistrySourceEnvelopeHelperProof
   def run
     FileUtils.mkdir_p(OUT_DIR)
 
-    registry    = JSON.parse(File.read(FIXTURE_PATH))
+    registry    = JSON.parse(File.read(FIXTURE_PATH, encoding: "utf-8"))
     validator   = IgniterLang::OOFFragmentRegistry.new
     cases       = []
 
@@ -226,7 +226,7 @@ module OOFFragmentRegistrySourceEnvelopeHelperProof
 
     checks << check("CS2.lib_igniter_lang_rb_does_not_require_registry") do
       main_lib = ROOT / "lib/igniter_lang.rb"
-      !main_lib.exist? || !File.read(main_lib).include?("oof_fragment_registry")
+      !main_lib.exist? || !File.read(main_lib, encoding: "utf-8").include?("oof_fragment_registry")
     end
 
     checks << check("CS3.compiler_passes_do_not_require_helper") do
@@ -236,7 +236,7 @@ module OOFFragmentRegistrySourceEnvelopeHelperProof
       ]
       compiler_names.all? do |name|
         path = ROOT / "lib/igniter_lang/#{name}.rb"
-        !path.exist? || !File.read(path).include?("oof_fragment_registry")
+        !path.exist? || !File.read(path, encoding: "utf-8").include?("oof_fragment_registry")
       end
     end
 

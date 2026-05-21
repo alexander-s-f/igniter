@@ -59,7 +59,7 @@ module OOFFragmentRegistryBoundaryProof
   end
 
   def load_fixture(filename)
-    JSON.parse(File.read(FIXTURE_DIR / filename))
+    JSON.parse(File.read(FIXTURE_DIR / filename, encoding: "utf-8"))
   end
 
   def diag_codes(result)
@@ -94,7 +94,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "valid=#{result["valid"].inspect}, diags=#{diag_codes(result).inspect}" \
         unless result["valid"] == true
       raise "unexpected inactive_rows" unless result["inactive_rows"].empty?
-      "valid=true, inactive_rows=0 ✓"
+      "valid=true, inactive_rows=0 [ok]"
     end
 
     # V2: Result has required internal shape fields
@@ -105,7 +105,7 @@ module OOFFragmentRegistryBoundaryProof
       missing = required.reject { |k| result.key?(k) }
       raise "missing result fields: #{missing.inspect}" unless missing.empty?
       raise "registry_service_present must be true" unless result["registry_service_present"]
-      "all required result fields present ✓"
+      "all required result fields present [ok]"
     end
 
     # V3: Closed-surface assertions all false
@@ -114,7 +114,7 @@ module OOFFragmentRegistryBoundaryProof
       csa = result.fetch("closed_surface_assertions")
       failures = csa.select { |_k, v| v != false }
       raise "unexpected closed surface assertions: #{failures.inspect}" unless failures.empty?
-      "all closed_surface_assertions: false ✓"
+      "all closed_surface_assertions: false [ok]"
     end
 
     # V4: PINV/TINV are NOT in oof_descriptors (R98 forward shape)
@@ -124,7 +124,7 @@ module OOFFragmentRegistryBoundaryProof
       pinv_tinv_in_oof = oof_codes.select { |c| c&.match?(/\A(PINV|TINV)-/) }
       raise "found PINV/TINV codes in oof_descriptors: #{pinv_tinv_in_oof.inspect}" \
         unless pinv_tinv_in_oof.empty?
-      "PINV/TINV absent from oof_descriptors ✓"
+      "PINV/TINV absent from oof_descriptors [ok]"
     end
 
     # V5: PINV/TINV are in support_markers.invariant_support_markers
@@ -133,7 +133,7 @@ module OOFFragmentRegistryBoundaryProof
       sm_codes = reg.dig("support_markers", "invariant_support_markers").map { |m| m["code"] }
       pinv_tinv = sm_codes.select { |c| c&.match?(/\A(PINV|TINV)-/) }
       raise "no PINV/TINV codes in invariant_support_markers" if pinv_tinv.empty?
-      "PINV/TINV found in invariant_support_markers: #{pinv_tinv.inspect} ✓"
+      "PINV/TINV found in invariant_support_markers: #{pinv_tinv.inspect} [ok]"
     end
 
     results
@@ -154,7 +154,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false, got #{result["valid"]}" if result["valid"]
       raise "expected duplicate_code diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_DUPLICATE_CODE)
-      "duplicate code rejected with #{IgniterLang::OOFFragmentRegistry::DIAG_DUPLICATE_CODE} ✓"
+      "duplicate code rejected with #{IgniterLang::OOFFragmentRegistry::DIAG_DUPLICATE_CODE} [ok]"
     end
 
     # R2: Alias collision — two descriptors share the same alias
@@ -201,7 +201,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false, got #{result["valid"]}" if result["valid"]
       raise "expected alias_collision diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_ALIAS_COLLISION)
-      "alias cross-collision rejected with #{IgniterLang::OOFFragmentRegistry::DIAG_ALIAS_COLLISION} ✓"
+      "alias cross-collision rejected with #{IgniterLang::OOFFragmentRegistry::DIAG_ALIAS_COLLISION} [ok]"
     end
 
     # R3: Deprecated descriptor without replacement
@@ -229,7 +229,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false" if result["valid"]
       raise "expected alias_missing_replacement diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_ALIAS_MISSING_REPLACEMENT)
-      "deprecated without replacement rejected ✓"
+      "deprecated without replacement rejected [ok]"
     end
 
     # R4: PINV in oof_descriptors is rejected
@@ -257,7 +257,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false, got #{result["valid"]}" if result["valid"]
       raise "expected support_marker_in_oof_descriptors diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_SUPPORT_MARKER_IN_DESCRIPTORS)
-      "PINV in oof_descriptors rejected with #{IgniterLang::OOFFragmentRegistry::DIAG_SUPPORT_MARKER_IN_DESCRIPTORS} ✓"
+      "PINV in oof_descriptors rejected with #{IgniterLang::OOFFragmentRegistry::DIAG_SUPPORT_MARKER_IN_DESCRIPTORS} [ok]"
     end
 
     # R5: TINV in oof_descriptors is rejected
@@ -285,7 +285,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false" if result["valid"]
       raise "expected support_marker_in_oof_descriptors diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_SUPPORT_MARKER_IN_DESCRIPTORS)
-      "TINV in oof_descriptors rejected ✓"
+      "TINV in oof_descriptors rejected [ok]"
     end
 
     # R6: Support marker with public stability rejected
@@ -307,7 +307,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false" if result["valid"]
       raise "expected support_marker_public diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_SUPPORT_MARKER_PUBLIC)
-      "support marker with public stability rejected ✓"
+      "support marker with public stability rejected [ok]"
     end
 
     # R7: Support marker code collision with OOF code rejected
@@ -329,7 +329,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false" if result["valid"]
       raise "expected support_marker_code_collision diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_SUPPORT_MARKER_CODE_COLLISION)
-      "support marker code collision rejected ✓"
+      "support marker code collision rejected [ok]"
     end
 
     # R8: Excluded namespace descriptor rejected
@@ -357,7 +357,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false" if result["valid"]
       raise "expected excluded_namespace_collision diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_EXCLUDED_NAMESPACE_COLLISION)
-      "excluded namespace descriptor rejected ✓"
+      "excluded namespace descriptor rejected [ok]"
     end
 
     # R9: oof fragment row with loadable:true rejected
@@ -369,7 +369,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false" if result["valid"]
       raise "expected oof_projection_loadable diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_OOF_PROJECTION_LOADABLE)
-      "oof loadable=true rejected ✓"
+      "oof loadable=true rejected [ok]"
     end
 
     # R10: oof fragment row with capability:true rejected
@@ -381,7 +381,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false" if result["valid"]
       raise "expected oof_projection_capability diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_OOF_PROJECTION_CAPABILITY)
-      "oof capability=true rejected ✓"
+      "oof capability=true rejected [ok]"
     end
 
     # R11: olap as fragment class rejected
@@ -393,7 +393,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false" if result["valid"]
       raise "expected guarded_non_fragment_violation diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_GUARDED_NON_FRAGMENT)
-      "olap as language_fragment rejected ✓"
+      "olap as language_fragment rejected [ok]"
     end
 
     # R12: progression as fragment class rejected
@@ -405,7 +405,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false" if result["valid"]
       raise "expected guarded_non_fragment_violation diag" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_GUARDED_NON_FRAGMENT)
-      "progression as language_fragment rejected ✓"
+      "progression as language_fragment rejected [ok]"
     end
 
     # R13: Missing required excluded namespace rejected
@@ -416,7 +416,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected valid=false" if result["valid"]
       raise "expected missing_section diag for excluded namespace" \
         unless has_diag?(result, IgniterLang::OOFFragmentRegistry::DIAG_MISSING_SECTION)
-      "missing required excluded namespace rejected ✓"
+      "missing required excluded namespace rejected [ok]"
     end
 
     results
@@ -528,7 +528,7 @@ module OOFFragmentRegistryBoundaryProof
       raise "expected sections oof_descriptor, fragment_row, support_marker" \
         unless sections == %w[fragment_row oof_descriptor support_marker]
 
-      "3 inactive rows recorded for SyntheticAbsentPack (oof_descriptor, fragment_row, support_marker) ✓"
+      "3 inactive rows recorded for SyntheticAbsentPack (oof_descriptor, fragment_row, support_marker) [ok]"
     end
 
     # INV-ABS2: Inactive rows are NOT emitted (closed_surface_assertions remain false)
@@ -540,14 +540,14 @@ module OOFFragmentRegistryBoundaryProof
       failures = csa.select { |_k, v| v != false }
       raise "closed_surface_assertions flipped: #{failures.inspect}" unless failures.empty?
       inactive = result.fetch("inactive_rows")
-      "inactive_rows=#{inactive.size}, closed_surface_assertions all false ✓"
+      "inactive_rows=#{inactive.size}, closed_surface_assertions all false [ok]"
     end
 
     # INV-ABS3: No installed_boundaries → all rows active (no inactive rows reported)
     results << assert_pass("INV-ABS3.no_boundary_check_without_installed_boundaries") do
       result = v.validate(base_registry)  # no installed_boundaries
       raise "expected empty inactive_rows" unless result.fetch("inactive_rows").empty?
-      "inactive_rows empty when installed_boundaries not supplied ✓"
+      "inactive_rows empty when installed_boundaries not supplied [ok]"
     end
 
     results
@@ -564,12 +564,12 @@ module OOFFragmentRegistryBoundaryProof
     results << assert_pass("CS1.validator_not_in_igniter_lang_rb") do
       main_lib = ROOT / "lib/igniter_lang.rb"
       if main_lib.exist?
-        content = File.read(main_lib)
+        content = File.read(main_lib, encoding: "utf-8")
         if content.include?("oof_fragment_registry")
           raise "lib/igniter_lang.rb requires oof_fragment_registry — must not be required from public entrypoint"
         end
       end
-      "lib/igniter_lang.rb does not require oof_fragment_registry ✓"
+      "lib/igniter_lang.rb does not require oof_fragment_registry [ok]"
     end
 
     # CS2: Validator class does not define compiler pass methods
@@ -580,7 +580,7 @@ module OOFFragmentRegistryBoundaryProof
           IgniterLang::OOFFragmentRegistry.private_method_defined?(m)
       end
       raise "compiler pass methods found in validator: #{found.inspect}" unless found.empty?
-      "no compiler pass methods in OOFFragmentRegistry ✓"
+      "no compiler pass methods in OOFFragmentRegistry [ok]"
     end
 
     # CS3: Validation result has no report/CompilerResult/public fields
@@ -592,7 +592,7 @@ module OOFFragmentRegistryBoundaryProof
       ]
       found = forbidden_keys.select { |k| result.key?(k) }
       raise "public/report fields found in result: #{found.inspect}" unless found.empty?
-      "result contains no public/report/CompilerResult fields ✓"
+      "result contains no public/report/CompilerResult fields [ok]"
     end
 
     # CS4: oof_fragment_registry_data.rb does not exist (explicitly out of first slice)
@@ -601,7 +601,7 @@ module OOFFragmentRegistryBoundaryProof
       if data_file.exist?
         raise "lib/igniter_lang/oof_fragment_registry_data.rb exists — explicitly out of first slice"
       end
-      "lib/igniter_lang/oof_fragment_registry_data.rb does not exist ✓"
+      "lib/igniter_lang/oof_fragment_registry_data.rb does not exist [ok]"
     end
 
     # CS5: R92 historical JSON is present and unchanged (non-migration policy)
@@ -610,16 +610,16 @@ module OOFFragmentRegistryBoundaryProof
       unless r92_json.exist?
         raise "R92 historical JSON not found at #{r92_json.relative_path_from(ROOT)}"
       end
-      r92_data = JSON.parse(File.read(r92_json))
+      r92_data = JSON.parse(File.read(r92_json, encoding: "utf-8"))
       # R92 has PINV/TINV in descriptors (historical placement)
       r92_pinv = r92_data.fetch("descriptors", []).map { |d| d["code"] }.select { |c| c&.match?(/\A(PINV|TINV)-/) }
       raise "R92 historical JSON lost its PINV/TINV descriptors — was it mutated?" if r92_pinv.empty?
       # Our forward fixture has PINV/TINV in support_markers, not oof_descriptors
-      fwd = JSON.parse(File.read(FIXTURE_DIR / "forward_shape_valid.json"))
+      fwd = JSON.parse(File.read(FIXTURE_DIR / "forward_shape_valid.json", encoding: "utf-8"))
       fwd_oof_pinv = fwd.fetch("oof_descriptors").map { |d| d["code"] }.select { |c| c&.match?(/\A(PINV|TINV)-/) }
       raise "forward fixture still has PINV/TINV in oof_descriptors" unless fwd_oof_pinv.empty?
       "R92 historical JSON retained unchanged (#{r92_pinv.size} PINV/TINV in oof_descriptors); " \
-        "forward fixture has 0 PINV/TINV in oof_descriptors ✓"
+        "forward fixture has 0 PINV/TINV in oof_descriptors [ok]"
     end
 
     # CS6: Validator exposes no public diagnostic API/CLI output method
@@ -629,7 +629,7 @@ module OOFFragmentRegistryBoundaryProof
         IgniterLang::OOFFragmentRegistry.method_defined?(m)
       end
       raise "public CLI/diagnostic methods found: #{found.inspect}" unless found.empty?
-      "no public CLI/diagnostic output methods in OOFFragmentRegistry ✓"
+      "no public CLI/diagnostic output methods in OOFFragmentRegistry [ok]"
     end
 
     results
