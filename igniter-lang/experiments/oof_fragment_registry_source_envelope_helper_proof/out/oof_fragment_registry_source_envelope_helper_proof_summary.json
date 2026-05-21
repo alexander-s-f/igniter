@@ -2,11 +2,11 @@
   "kind": "oof_fragment_registry_source_envelope_helper_proof_summary",
   "format_version": "0.1.0",
   "track": "oof-fragment-registry-source-envelope-helper-proof-v0",
-  "status": "PASS",
+  "status": "FAIL",
   "cases_total": 9,
-  "cases_pass": 9,
+  "cases_pass": 7,
   "checks_total": 10,
-  "checks_pass": 10,
+  "checks_pass": 8,
   "cases": [
     {
       "name": "SE1.valid_proof_fixture_source_validates_nested_registry",
@@ -26,11 +26,13 @@
     },
     {
       "name": "SE5.profile_candidate_held_internally",
-      "status": "PASS"
+      "status": "FAIL",
+      "error": "expected oof_registry.source.validation.held_source_mode diagnostic"
     },
     {
       "name": "SE6.pack_descriptor_candidate_held_internally",
-      "status": "PASS"
+      "status": "FAIL",
+      "error": "expected oof_registry.source.validation.held_source_mode diagnostic"
     },
     {
       "name": "SE7.canon_status_rejected_internally",
@@ -64,7 +66,7 @@
     },
     {
       "name": "CS5.all_helper_results_closed_surface_assertions_false",
-      "status": "PASS"
+      "status": "FAIL"
     },
     {
       "name": "CS6.no_separate_helper_file",
@@ -84,11 +86,31 @@
     },
     {
       "name": "CS10.result_kind_is_oof_fragment_registry_source_validation",
-      "status": "PASS"
+      "status": "FAIL"
     }
   ],
-  "failed_cases": [],
-  "failed_checks": [],
+  "failed_cases": [
+    {
+      "name": "SE5.profile_candidate_held_internally",
+      "status": "FAIL",
+      "error": "expected oof_registry.source.validation.held_source_mode diagnostic"
+    },
+    {
+      "name": "SE6.pack_descriptor_candidate_held_internally",
+      "status": "FAIL",
+      "error": "expected oof_registry.source.validation.held_source_mode diagnostic"
+    }
+  ],
+  "failed_checks": [
+    {
+      "name": "CS5.all_helper_results_closed_surface_assertions_false",
+      "status": "FAIL"
+    },
+    {
+      "name": "CS10.result_kind_is_oof_fragment_registry_source_validation",
+      "status": "FAIL"
+    }
+  ],
   "closed_surfaces": {
     "static_data_file": false,
     "lib_igniter_lang_rb_require": false,

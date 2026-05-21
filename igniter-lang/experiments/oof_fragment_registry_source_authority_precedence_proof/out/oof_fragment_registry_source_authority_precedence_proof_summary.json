@@ -2,7 +2,7 @@
   "kind": "oof_fragment_registry_source_authority_precedence_proof_summary",
   "format_version": "0.1.0",
   "track": "oof-fragment-registry-source-authority-precedence-proof-v0",
-  "status": "PASS",
+  "status": "FAIL",
   "model_id": "oof_fragment_source_authority_precedence/sha256:9a1d154be544cb87dfa7001b",
   "cases": [
     {
@@ -599,11 +599,40 @@
           "format_version": "0.1.0",
           "valid": false,
           "source_mode": "profile_candidate",
-          "registry_present": true,
+          "registry_present": false,
+          "source_authority": {
+            "authority_ref": "LANG-R117-P1 plus LANG-R116-D1",
+            "authority_kind": "proof_only",
+            "canon_status": "non_canon"
+          },
           "source_diagnostics": [
             {
-              "code": "oof_registry.source.validation.held_source_mode",
-              "message": "source_mode \"profile_candidate\" is known but held; only 'proof_fixture' and 'caller_supplied' are accepted in this helper"
+              "code": "oof_registry.source.validation.missing_pack_descriptor",
+              "message": "profile_candidate must include pack_descriptor_candidates"
+            },
+            {
+              "code": "oof_registry.source.validation.missing_selected_pack_ref",
+              "message": "profile_candidate selected pack_ref \"pack_descriptor_candidate/proof:CoreLanguagePack\" was not supplied"
+            },
+            {
+              "code": "oof_registry.source.validation.missing_selected_pack_ref",
+              "message": "profile_candidate selected pack_ref \"pack_descriptor_candidate/proof:InvariantPack\" was not supplied"
+            },
+            {
+              "code": "oof_registry.source.validation.missing_selected_pack_ref",
+              "message": "profile_candidate selected pack_ref \"pack_descriptor_candidate/proof:OLAPPack\" was not supplied"
+            },
+            {
+              "code": "oof_registry.source.validation.missing_selected_pack_ref",
+              "message": "profile_candidate selected pack_ref \"pack_descriptor_candidate/proof:OOFRegistryPack\" was not supplied"
+            },
+            {
+              "code": "oof_registry.source.validation.missing_selected_pack_ref",
+              "message": "profile_candidate selected pack_ref \"pack_descriptor_candidate/proof:PipelinePack\" was not supplied"
+            },
+            {
+              "code": "oof_registry.source.validation.missing_selected_pack_ref",
+              "message": "profile_candidate selected pack_ref \"pack_descriptor_candidate/proof:TemporalPack\" was not supplied"
             }
           ],
           "registry_validation": null,
@@ -621,7 +650,7 @@
             "specs_canon_proposals": false
           }
         },
-        "held_source_mode": true,
+        "held_source_mode": false,
         "registry_validation_called": false
       }
     },
@@ -637,10 +666,15 @@
           "valid": false,
           "source_mode": "pack_descriptor_candidate",
           "registry_present": true,
+          "source_authority": {
+            "authority_ref": "LANG-R117-P1 plus LANG-R116-D1",
+            "authority_kind": "proof_only",
+            "canon_status": "non_canon"
+          },
           "source_diagnostics": [
             {
-              "code": "oof_registry.source.validation.held_source_mode",
-              "message": "source_mode \"pack_descriptor_candidate\" is known but held; only 'proof_fixture' and 'caller_supplied' are accepted in this helper"
+              "code": "oof_registry.validation.owner_boundary_absent",
+              "message": "pack_descriptor_candidate \"pack_descriptor_candidate/proof:CoreLanguagePack\" must include owner_pack_or_boundary"
             }
           ],
           "registry_validation": null,
@@ -658,7 +692,7 @@
             "specs_canon_proposals": false
           }
         },
-        "held_source_mode": true,
+        "held_source_mode": false,
         "registry_validation_called": false
       }
     }
@@ -690,11 +724,11 @@
     },
     {
       "name": "live_helper_profile_pack_modes_held",
-      "status": "PASS"
+      "status": "FAIL"
     },
     {
       "name": "source_accepted_modes_unchanged",
-      "status": "PASS"
+      "status": "FAIL"
     },
     {
       "name": "closed_surfaces_preserved",
@@ -702,8 +736,17 @@
     }
   ],
   "failed_cases": [],
-  "failed_checks": [],
-  "recommendation": "SOURCE_AUTHORITY_DESIGN_ACCEPTED_FOR_PROOF_HOLD_IMPLEMENTATION",
+  "failed_checks": [
+    {
+      "name": "live_helper_profile_pack_modes_held",
+      "status": "FAIL"
+    },
+    {
+      "name": "source_accepted_modes_unchanged",
+      "status": "FAIL"
+    }
+  ],
+  "recommendation": "HOLD",
   "outputs": {
     "summary": "igniter-lang/experiments/oof_fragment_registry_source_authority_precedence_proof/out/oof_fragment_registry_source_authority_precedence_proof_summary.json",
     "model": "igniter-lang/experiments/oof_fragment_registry_source_authority_precedence_proof/out/oof_fragment_registry_source_authority_precedence_model.json",
