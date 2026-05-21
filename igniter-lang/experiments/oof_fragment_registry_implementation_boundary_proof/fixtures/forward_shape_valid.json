@@ -1,0 +1,227 @@
+{
+  "kind": "oof_fragment_registry",
+  "format_version": "0.1.0",
+  "source_authority": {
+    "authority_ref": "LANG-R98-A plus LANG-R101-D1",
+    "authority_kind": "design_accepted",
+    "canon_status": "non_canon"
+  },
+  "historical_source_refs": [
+    "experiments/oof_fragment_registry_shadow_proof/out/oof_descriptors.shadow_registry.json"
+  ],
+  "migration_policy": "non_migration_historical_artifact",
+  "forward_shape_authority": "LANG-R98-A plus LANG-R101-D1",
+  "oof_descriptors": [
+    {
+      "code": "OOF-P0",
+      "family": "core_parse_or_emit",
+      "owner_pack_or_boundary": "CoreLanguagePack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": ["lib/igniter_lang/parser.rb"],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-IV1",
+      "family": "invariant",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": ["lib/igniter_lang/parser.rb"],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-IV2",
+      "family": "invariant",
+      "owner_pack_or_boundary": "InvariantPack",
+      "source_stage": "parser",
+      "compiler_layer": "parser",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": ["lib/igniter_lang/parser.rb"],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-H1",
+      "family": "temporal_history",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "blocking_oof",
+      "public_code_stability": "stable_current",
+      "message_stability": "stable_family_message",
+      "aliases": ["OOF-TM1"],
+      "deprecated": false,
+      "deprecated_by": null,
+      "replacement_code": null,
+      "source_refs": ["lib/igniter_lang/typechecker.rb"],
+      "current_status": "current",
+      "non_authority_notes": ""
+    },
+    {
+      "code": "OOF-TM1",
+      "family": "temporal_alias",
+      "owner_pack_or_boundary": "TemporalPack",
+      "source_stage": "typechecker",
+      "compiler_layer": "typechecker",
+      "severity": "error",
+      "status_class": "compatibility_alias",
+      "public_code_stability": "stable_compatibility_alias",
+      "message_stability": "stable_family_message",
+      "aliases": [],
+      "deprecated": true,
+      "deprecated_by": "OOF-H1",
+      "replacement_code": "OOF-H1",
+      "source_refs": ["lib/igniter_lang/typechecker.rb"],
+      "current_status": "compatibility_alias",
+      "non_authority_notes": "Compatibility alias; canonical descriptor is OOF-H1."
+    }
+  ],
+  "fragment_rows": [
+    {
+      "name": "oof",
+      "owner_pack_or_boundary": "OOFRegistryPack",
+      "current_or_candidate": "current_shadow_status_and_fragment_marker",
+      "applies_to": ["contract", "node", "report_status"],
+      "classification_kind": "status_fragment_both_candidate",
+      "value_flow_notes": "OOF blocks SemanticIR/assembly; status-primary projection; blocked, non-loadable, capability-free.",
+      "precedence_candidate": 100,
+      "canonical_status": "non_canon_candidate",
+      "loadable": false,
+      "capability": false,
+      "non_authority_notes": "oof is status-primary/secondary projection; must remain non-loadable and capability-free."
+    },
+    {
+      "name": "temporal",
+      "owner_pack_or_boundary": "TemporalPack",
+      "current_or_candidate": "current",
+      "applies_to": ["contract", "node"],
+      "classification_kind": "language_fragment",
+      "value_flow_notes": "Temporal read node is TEMPORAL; selected value remains CORE-typed.",
+      "precedence_candidate": 90,
+      "canonical_status": "non_canon_candidate",
+      "loadable": true,
+      "capability": true,
+      "non_authority_notes": ""
+    },
+    {
+      "name": "olap",
+      "owner_pack_or_boundary": "OLAPPack",
+      "current_or_candidate": "excluded_candidate_owner_only",
+      "applies_to": ["owner_surface"],
+      "classification_kind": "not_fragment_class",
+      "value_flow_notes": "OLAP has nodes and diagnostics but is not promoted to fragment class.",
+      "precedence_candidate": null,
+      "canonical_status": "excluded_non_fragment",
+      "loadable": false,
+      "capability": false,
+      "non_authority_notes": "Guarded non-fragment; olap remains not_fragment_class."
+    },
+    {
+      "name": "progression",
+      "owner_pack_or_boundary": "PipelinePack",
+      "current_or_candidate": "excluded",
+      "applies_to": ["descriptor_metadata_under_pipeline"],
+      "classification_kind": "not_fragment_class",
+      "value_flow_notes": "PROP-037 progression remains under pipeline metadata; no PROGRESSION fragment class.",
+      "precedence_candidate": null,
+      "canonical_status": "excluded_non_fragment",
+      "loadable": false,
+      "capability": false,
+      "non_authority_notes": "Guarded non-fragment; progression remains not_fragment_class."
+    },
+    {
+      "name": "core",
+      "owner_pack_or_boundary": "CoreLanguagePack",
+      "current_or_candidate": "current",
+      "applies_to": ["contract", "node", "value"],
+      "classification_kind": "language_fragment",
+      "value_flow_notes": "Baseline pure compiler surface.",
+      "precedence_candidate": 10,
+      "canonical_status": "non_canon_candidate",
+      "loadable": true,
+      "capability": true,
+      "non_authority_notes": ""
+    }
+  ],
+  "support_markers": {
+    "invariant_support_markers": [
+      {
+        "code": "PINV-1",
+        "family": "invariant_parser_support",
+        "owner_pack_or_boundary": "InvariantPack",
+        "source_stage": "parser",
+        "compiler_layer": "parser",
+        "lifecycle_state": "support_metadata_current",
+        "public_code_stability": "non_public_support_marker",
+        "related_oof_descriptors": ["OOF-IV1", "OOF-IV2"],
+        "source_refs": ["lib/igniter_lang/parser.rb"],
+        "non_authority_notes": "Support marker only; not emitted as a public diagnostic."
+      },
+      {
+        "code": "PINV-2",
+        "family": "invariant_parser_support",
+        "owner_pack_or_boundary": "InvariantPack",
+        "source_stage": "parser",
+        "compiler_layer": "parser",
+        "lifecycle_state": "support_metadata_current",
+        "public_code_stability": "non_public_support_marker",
+        "related_oof_descriptors": ["OOF-IV1"],
+        "source_refs": ["lib/igniter_lang/parser.rb"],
+        "non_authority_notes": "Support marker only; not emitted as a public diagnostic."
+      },
+      {
+        "code": "TINV-1",
+        "family": "invariant_type_support",
+        "owner_pack_or_boundary": "InvariantPack",
+        "source_stage": "typechecker",
+        "compiler_layer": "typechecker",
+        "lifecycle_state": "support_metadata_current",
+        "public_code_stability": "non_public_support_marker",
+        "related_oof_descriptors": ["OOF-IV1"],
+        "source_refs": ["lib/igniter_lang/typechecker.rb"],
+        "non_authority_notes": "Support marker only; not emitted as a public diagnostic."
+      }
+    ]
+  },
+  "excluded_namespaces": [
+    {
+      "prefix": "compiler_profile_contract.",
+      "reason": "PROP-038 contract-object diagnostics are not language OOF codes.",
+      "forbidden_as": ["oof_descriptor", "oof_alias"],
+      "owner_boundary": "CompilerProfileContractPack"
+    },
+    {
+      "prefix": "compiler_profile_contract_refusal.",
+      "reason": "PROP-038 contract-object refusal diagnostics are not language OOF codes.",
+      "forbidden_as": ["oof_descriptor", "oof_alias"],
+      "owner_boundary": "CompilerProfileContractPack"
+    }
+  ]
+}

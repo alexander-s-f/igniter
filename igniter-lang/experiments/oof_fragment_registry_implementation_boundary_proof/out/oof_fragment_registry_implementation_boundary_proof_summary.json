@@ -1,0 +1,157 @@
+{
+  "kind": "oof_fragment_registry_implementation_boundary_proof_summary",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-implementation-boundary-proof-v0",
+  "card": "LANG-R103-I",
+  "status": "PASS",
+  "pass_count": 27,
+  "fail_count": 0,
+  "checks": [
+    {
+      "check": "V1.valid_forward_shape_passes",
+      "result": "PASS",
+      "detail": "valid=true, inactive_rows=0 ✓"
+    },
+    {
+      "check": "V2.result_shape_fields_present",
+      "result": "PASS",
+      "detail": "all required result fields present ✓"
+    },
+    {
+      "check": "V3.closed_surface_assertions_all_false",
+      "result": "PASS",
+      "detail": "all closed_surface_assertions: false ✓"
+    },
+    {
+      "check": "V4.pinv_tinv_not_in_oof_descriptors",
+      "result": "PASS",
+      "detail": "PINV/TINV absent from oof_descriptors ✓"
+    },
+    {
+      "check": "V5.pinv_tinv_in_support_markers_bucket",
+      "result": "PASS",
+      "detail": "PINV/TINV found in invariant_support_markers: [\"PINV-1\", \"PINV-2\", \"TINV-1\"] ✓"
+    },
+    {
+      "check": "R1.duplicate_oof_descriptor_code_rejected",
+      "result": "PASS",
+      "detail": "duplicate code rejected with oof_registry.validation.duplicate_code ✓"
+    },
+    {
+      "check": "R2.alias_collision_rejected",
+      "result": "PASS",
+      "detail": "alias cross-collision rejected with oof_registry.validation.alias_collision ✓"
+    },
+    {
+      "check": "R3.deprecated_without_replacement_rejected",
+      "result": "PASS",
+      "detail": "deprecated without replacement rejected ✓"
+    },
+    {
+      "check": "R4.pinv_in_oof_descriptors_rejected",
+      "result": "PASS",
+      "detail": "PINV in oof_descriptors rejected with oof_registry.validation.support_marker_in_oof_descriptors ✓"
+    },
+    {
+      "check": "R5.tinv_in_oof_descriptors_rejected",
+      "result": "PASS",
+      "detail": "TINV in oof_descriptors rejected ✓"
+    },
+    {
+      "check": "R6.support_marker_public_stability_rejected",
+      "result": "PASS",
+      "detail": "support marker with public stability rejected ✓"
+    },
+    {
+      "check": "R7.support_marker_code_collision_rejected",
+      "result": "PASS",
+      "detail": "support marker code collision rejected ✓"
+    },
+    {
+      "check": "R8.excluded_namespace_descriptor_rejected",
+      "result": "PASS",
+      "detail": "excluded namespace descriptor rejected ✓"
+    },
+    {
+      "check": "R9.oof_fragment_loadable_rejected",
+      "result": "PASS",
+      "detail": "oof loadable=true rejected ✓"
+    },
+    {
+      "check": "R10.oof_fragment_capability_rejected",
+      "result": "PASS",
+      "detail": "oof capability=true rejected ✓"
+    },
+    {
+      "check": "R11.olap_fragment_class_rejected",
+      "result": "PASS",
+      "detail": "olap as language_fragment rejected ✓"
+    },
+    {
+      "check": "R12.progression_fragment_class_rejected",
+      "result": "PASS",
+      "detail": "progression as language_fragment rejected ✓"
+    },
+    {
+      "check": "R13.missing_required_excluded_namespace_rejected",
+      "result": "PASS",
+      "detail": "missing required excluded namespace rejected ✓"
+    },
+    {
+      "check": "INV-ABS1.absent_owner_rows_recorded_as_inactive",
+      "result": "PASS",
+      "detail": "3 inactive rows recorded for SyntheticAbsentPack (oof_descriptor, fragment_row, support_marker) ✓"
+    },
+    {
+      "check": "INV-ABS2.inactive_rows_not_emitted",
+      "result": "PASS",
+      "detail": "inactive_rows=11, closed_surface_assertions all false ✓"
+    },
+    {
+      "check": "INV-ABS3.no_boundary_check_without_installed_boundaries",
+      "result": "PASS",
+      "detail": "inactive_rows empty when installed_boundaries not supplied ✓"
+    },
+    {
+      "check": "CS1.validator_not_in_igniter_lang_rb",
+      "result": "PASS",
+      "detail": "lib/igniter_lang.rb does not require oof_fragment_registry ✓"
+    },
+    {
+      "check": "CS2.validator_no_compiler_pass_methods",
+      "result": "PASS",
+      "detail": "no compiler pass methods in OOFFragmentRegistry ✓"
+    },
+    {
+      "check": "CS3.result_has_no_public_fields",
+      "result": "PASS",
+      "detail": "result contains no public/report/CompilerResult fields ✓"
+    },
+    {
+      "check": "CS4.data_file_does_not_exist",
+      "result": "PASS",
+      "detail": "lib/igniter_lang/oof_fragment_registry_data.rb does not exist ✓"
+    },
+    {
+      "check": "CS5.r92_historical_json_not_migrated",
+      "result": "PASS",
+      "detail": "R92 historical JSON retained unchanged (7 PINV/TINV in oof_descriptors); forward fixture has 0 PINV/TINV in oof_descriptors ✓"
+    },
+    {
+      "check": "CS6.validator_no_public_cli_methods",
+      "result": "PASS",
+      "detail": "no public CLI/diagnostic output methods in OOFFragmentRegistry ✓"
+    }
+  ],
+  "closed_surface_assertions": {
+    "compiler_integration": false,
+    "public_api_cli": false,
+    "top_level_report_diagnostics": false,
+    "compiler_result_field": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "runtime_behavior": false,
+    "igapp_mutation": false
+  },
+  "r92_non_migration_note": "R92 historical JSON (experiments/oof_fragment_registry_shadow_proof/out/oof_descriptors.shadow_registry.json) placed PINV-*/TINV-* in oof_descriptors as historical proof evidence. That placement is NON-FORWARD. This proof does not migrate it. The forward shape (LANG-R98-A + LANG-R101-D1) places PINV-*/TINV-* exclusively under support_markers.invariant_support_markers."
+}
