@@ -1,0 +1,331 @@
+{
+  "kind": "oof_fragment_registry_profile_pack_source_mode_proof_summary",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-profile-pack-source-mode-proof-v0",
+  "status": "PASS",
+  "model_id": "oof_fragment_profile_pack_source/sha256:8a6a582e14790fe4995a9c62",
+  "cases": [
+    {
+      "name": "profile_candidate_model_valid_non_canon_proof_only",
+      "expected": "accepted",
+      "accepted": true,
+      "status": "PASS",
+      "details": {
+        "profile_model_validation": {
+          "valid": true,
+          "diagnostics": [],
+          "closed_surface_assertions": {
+            "live_helper_acceptance": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false
+          }
+        }
+      }
+    },
+    {
+      "name": "pack_descriptor_candidates_model_valid_non_canon_proof_only",
+      "expected": "accepted",
+      "accepted": true,
+      "status": "PASS",
+      "details": {
+        "pack_model_validation": {
+          "valid": true,
+          "diagnostics": [],
+          "closed_surface_assertions": {
+            "live_helper_acceptance": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false
+          }
+        }
+      }
+    },
+    {
+      "name": "derived_registry_from_pack_candidates_validates",
+      "expected": "accepted",
+      "accepted": true,
+      "status": "PASS",
+      "details": {
+        "nested_registry_validation": {
+          "kind": "oof_fragment_registry_validation",
+          "format_version": "0.1.0",
+          "valid": true,
+          "registry_service_present": true,
+          "checked_sections": [
+            "oof_descriptors",
+            "fragment_rows",
+            "support_markers.invariant_support_markers",
+            "excluded_namespaces"
+          ],
+          "diagnostics": [],
+          "inactive_rows": [],
+          "closed_surface_assertions": {
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false
+          }
+        },
+        "validated_by": "IgniterLang::OOFFragmentRegistry#validate"
+      }
+    },
+    {
+      "name": "live_helper_profile_candidate_still_held",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": false,
+          "source_mode": "profile_candidate",
+          "registry_present": true,
+          "source_diagnostics": [
+            {
+              "code": "oof_registry.source.validation.held_source_mode",
+              "message": "source_mode \"profile_candidate\" is known but held; only 'proof_fixture' and 'caller_supplied' are accepted in this helper"
+            }
+          ],
+          "registry_validation": null,
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "held_source_mode": true,
+        "registry_validation_called": false
+      }
+    },
+    {
+      "name": "live_helper_pack_descriptor_candidate_still_held",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": false,
+          "source_mode": "pack_descriptor_candidate",
+          "registry_present": true,
+          "source_diagnostics": [
+            {
+              "code": "oof_registry.source.validation.held_source_mode",
+              "message": "source_mode \"pack_descriptor_candidate\" is known but held; only 'proof_fixture' and 'caller_supplied' are accepted in this helper"
+            }
+          ],
+          "registry_validation": null,
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "held_source_mode": true,
+        "registry_validation_called": false
+      }
+    },
+    {
+      "name": "duplicate_oof_row_ownership_rejected_by_proof_model",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "pack_model_validation": {
+          "valid": false,
+          "diagnostics": [
+            {
+              "code": "profile_pack_source.duplicate_oof_row_ownership",
+              "message": "OOF-P0 is owned by multiple pack descriptors"
+            }
+          ],
+          "closed_surface_assertions": {
+            "live_helper_acceptance": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false
+          }
+        }
+      }
+    },
+    {
+      "name": "duplicate_fragment_row_ownership_rejected_by_proof_model",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "pack_model_validation": {
+          "valid": false,
+          "diagnostics": [
+            {
+              "code": "profile_pack_source.duplicate_fragment_row_ownership",
+              "message": "core is owned by multiple pack descriptors"
+            }
+          ],
+          "closed_surface_assertions": {
+            "live_helper_acceptance": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false
+          }
+        }
+      }
+    },
+    {
+      "name": "compiler_profile_contract_descriptor_rejected_by_proof_model",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "pack_model_validation": {
+          "valid": false,
+          "diagnostics": [
+            {
+              "code": "profile_pack_source.excluded_oof_namespace",
+              "message": "pack_candidates[0].owned_oof_descriptors: compiler_profile_contract.contract_digest_mismatch is under excluded namespace compiler_profile_contract."
+            }
+          ],
+          "closed_surface_assertions": {
+            "live_helper_acceptance": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false
+          }
+        }
+      }
+    },
+    {
+      "name": "compiler_profile_contract_refusal_alias_rejected_by_proof_model",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "pack_model_validation": {
+          "valid": false,
+          "diagnostics": [
+            {
+              "code": "profile_pack_source.excluded_oof_namespace",
+              "message": "pack_candidates[0].owned_oof_descriptors.aliases: compiler_profile_contract_refusal.contract_digest_mismatch is under excluded namespace compiler_profile_contract_refusal."
+            }
+          ],
+          "closed_surface_assertions": {
+            "live_helper_acceptance": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false
+          }
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "source_helper_summary.pass_evidence",
+      "status": "PASS"
+    },
+    {
+      "name": "case_matrix.expected_results",
+      "status": "PASS"
+    },
+    {
+      "name": "derived_registry_validated_by_existing_validator",
+      "status": "PASS"
+    },
+    {
+      "name": "live_helper_profile_pack_modes_held",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_model_rejects_duplicate_row_ownership",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_model_excludes_compiler_profile_contract_namespace",
+      "status": "PASS"
+    },
+    {
+      "name": "closed_surfaces_preserved",
+      "status": "PASS"
+    }
+  ],
+  "failed_cases": [],
+  "failed_checks": [],
+  "recommendation": "SOURCE_AUTHORITY_DESIGN_NEXT",
+  "outputs": {
+    "summary": "igniter-lang/experiments/oof_fragment_registry_profile_pack_source_mode_proof/out/oof_fragment_registry_profile_pack_source_mode_proof_summary.json",
+    "model": "igniter-lang/experiments/oof_fragment_registry_profile_pack_source_mode_proof/out/oof_fragment_registry_profile_pack_source_mode_model.json",
+    "derived_registry": "igniter-lang/experiments/oof_fragment_registry_profile_pack_source_mode_proof/out/derived_registry_from_pack_candidates.json"
+  },
+  "closed_surfaces": {
+    "live_helper_acceptance": false,
+    "compiler_integration": false,
+    "public_api_cli": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "igapp_mutation": false,
+    "runtime_behavior": false,
+    "specs_canon_proposals": false,
+    "prop036_manifest_change": false,
+    "prop038_validator_report_change": false
+  },
+  "implementation_authorized": false
+}

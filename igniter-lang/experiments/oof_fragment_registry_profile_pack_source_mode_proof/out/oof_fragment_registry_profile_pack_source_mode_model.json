@@ -1,0 +1,204 @@
+{
+  "kind": "oof_fragment_registry_profile_pack_source_mode_model",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-profile-pack-source-mode-proof-v0",
+  "profile_candidate": {
+    "kind": "oof_fragment_registry_source",
+    "format_version": "0.1.0",
+    "source_mode": "profile_candidate",
+    "authority": {
+      "authority_ref": "LANG-R115-P1 plus LANG-R114-D1",
+      "authority_kind": "proof_only",
+      "canon_status": "non_canon"
+    },
+    "profile_ref": "compiler_profile_candidate/proof:LANG-R115-local",
+    "profile_contract_ref": "compiler_profile_contract_candidate/proof:LANG-R115-local",
+    "row_authority_policy": "pack_descriptor_rows_aggregated_by_profile",
+    "pack_refs": [
+      "pack_descriptor_candidate/proof:CoreLanguagePack",
+      "pack_descriptor_candidate/proof:InvariantPack",
+      "pack_descriptor_candidate/proof:OLAPPack",
+      "pack_descriptor_candidate/proof:OOFRegistryPack",
+      "pack_descriptor_candidate/proof:PipelinePack",
+      "pack_descriptor_candidate/proof:TemporalPack"
+    ],
+    "closed_surface_assertions": {
+      "live_helper_acceptance": false,
+      "compiler_integration": false,
+      "public_api_cli": false,
+      "loader_report": false,
+      "compatibility_report": false,
+      "igapp_mutation": false,
+      "runtime_behavior": false,
+      "specs_canon_proposals": false,
+      "prop036_manifest_change": false,
+      "prop038_validator_report_change": false
+    }
+  },
+  "pack_descriptor_candidates": [
+    {
+      "kind": "oof_fragment_registry_source",
+      "format_version": "0.1.0",
+      "source_mode": "pack_descriptor_candidate",
+      "authority": {
+        "authority_ref": "LANG-R115-P1 plus LANG-R114-D1",
+        "authority_kind": "proof_only",
+        "canon_status": "non_canon"
+      },
+      "pack_ref": "pack_descriptor_candidate/proof:CoreLanguagePack",
+      "slot_name": "core_language",
+      "row_authority_policy": "pack_owns_declared_rows",
+      "closed_surface_assertions": {
+        "live_helper_acceptance": false,
+        "compiler_integration": false,
+        "public_api_cli": false,
+        "loader_report": false,
+        "compatibility_report": false,
+        "igapp_mutation": false,
+        "runtime_behavior": false,
+        "specs_canon_proposals": false,
+        "prop036_manifest_change": false,
+        "prop038_validator_report_change": false
+      }
+    },
+    {
+      "kind": "oof_fragment_registry_source",
+      "format_version": "0.1.0",
+      "source_mode": "pack_descriptor_candidate",
+      "authority": {
+        "authority_ref": "LANG-R115-P1 plus LANG-R114-D1",
+        "authority_kind": "proof_only",
+        "canon_status": "non_canon"
+      },
+      "pack_ref": "pack_descriptor_candidate/proof:InvariantPack",
+      "slot_name": "invariant",
+      "row_authority_policy": "pack_owns_declared_rows",
+      "closed_surface_assertions": {
+        "live_helper_acceptance": false,
+        "compiler_integration": false,
+        "public_api_cli": false,
+        "loader_report": false,
+        "compatibility_report": false,
+        "igapp_mutation": false,
+        "runtime_behavior": false,
+        "specs_canon_proposals": false,
+        "prop036_manifest_change": false,
+        "prop038_validator_report_change": false
+      }
+    },
+    {
+      "kind": "oof_fragment_registry_source",
+      "format_version": "0.1.0",
+      "source_mode": "pack_descriptor_candidate",
+      "authority": {
+        "authority_ref": "LANG-R115-P1 plus LANG-R114-D1",
+        "authority_kind": "proof_only",
+        "canon_status": "non_canon"
+      },
+      "pack_ref": "pack_descriptor_candidate/proof:OLAPPack",
+      "slot_name": "olap",
+      "row_authority_policy": "pack_owns_declared_rows",
+      "closed_surface_assertions": {
+        "live_helper_acceptance": false,
+        "compiler_integration": false,
+        "public_api_cli": false,
+        "loader_report": false,
+        "compatibility_report": false,
+        "igapp_mutation": false,
+        "runtime_behavior": false,
+        "specs_canon_proposals": false,
+        "prop036_manifest_change": false,
+        "prop038_validator_report_change": false
+      }
+    },
+    {
+      "kind": "oof_fragment_registry_source",
+      "format_version": "0.1.0",
+      "source_mode": "pack_descriptor_candidate",
+      "authority": {
+        "authority_ref": "LANG-R115-P1 plus LANG-R114-D1",
+        "authority_kind": "proof_only",
+        "canon_status": "non_canon"
+      },
+      "pack_ref": "pack_descriptor_candidate/proof:OOFRegistryPack",
+      "slot_name": "oofregistry",
+      "row_authority_policy": "pack_owns_declared_rows",
+      "closed_surface_assertions": {
+        "live_helper_acceptance": false,
+        "compiler_integration": false,
+        "public_api_cli": false,
+        "loader_report": false,
+        "compatibility_report": false,
+        "igapp_mutation": false,
+        "runtime_behavior": false,
+        "specs_canon_proposals": false,
+        "prop036_manifest_change": false,
+        "prop038_validator_report_change": false
+      }
+    },
+    {
+      "kind": "oof_fragment_registry_source",
+      "format_version": "0.1.0",
+      "source_mode": "pack_descriptor_candidate",
+      "authority": {
+        "authority_ref": "LANG-R115-P1 plus LANG-R114-D1",
+        "authority_kind": "proof_only",
+        "canon_status": "non_canon"
+      },
+      "pack_ref": "pack_descriptor_candidate/proof:PipelinePack",
+      "slot_name": "pipeline",
+      "row_authority_policy": "pack_owns_declared_rows",
+      "closed_surface_assertions": {
+        "live_helper_acceptance": false,
+        "compiler_integration": false,
+        "public_api_cli": false,
+        "loader_report": false,
+        "compatibility_report": false,
+        "igapp_mutation": false,
+        "runtime_behavior": false,
+        "specs_canon_proposals": false,
+        "prop036_manifest_change": false,
+        "prop038_validator_report_change": false
+      }
+    },
+    {
+      "kind": "oof_fragment_registry_source",
+      "format_version": "0.1.0",
+      "source_mode": "pack_descriptor_candidate",
+      "authority": {
+        "authority_ref": "LANG-R115-P1 plus LANG-R114-D1",
+        "authority_kind": "proof_only",
+        "canon_status": "non_canon"
+      },
+      "pack_ref": "pack_descriptor_candidate/proof:TemporalPack",
+      "slot_name": "temporal",
+      "row_authority_policy": "pack_owns_declared_rows",
+      "closed_surface_assertions": {
+        "live_helper_acceptance": false,
+        "compiler_integration": false,
+        "public_api_cli": false,
+        "loader_report": false,
+        "compatibility_report": false,
+        "igapp_mutation": false,
+        "runtime_behavior": false,
+        "specs_canon_proposals": false,
+        "prop036_manifest_change": false,
+        "prop038_validator_report_change": false
+      }
+    }
+  ],
+  "derived_registry_ref": "out/derived_registry_from_pack_candidates.json",
+  "live_helper_acceptance": "held_source_mode_for_profile_and_pack_candidates",
+  "closed_surface_assertions": {
+    "live_helper_acceptance": false,
+    "compiler_integration": false,
+    "public_api_cli": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "igapp_mutation": false,
+    "runtime_behavior": false,
+    "specs_canon_proposals": false,
+    "prop036_manifest_change": false,
+    "prop038_validator_report_change": false
+  }
+}
