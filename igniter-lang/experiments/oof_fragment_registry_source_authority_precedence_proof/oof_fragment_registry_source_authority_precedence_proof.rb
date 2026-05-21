@@ -18,7 +18,6 @@ module OOFFragmentRegistrySourceAuthorityPrecedenceProof
   module_function
 
   TRACK = "oof-fragment-registry-source-authority-precedence-proof-v0"
-  HELD_CODE = IgniterLang::OOFFragmentRegistry::SOURCE_DIAG_HELD_SOURCE_MODE
   EXCLUDED_PREFIXES = IgniterLang::OOFFragmentRegistry::REQUIRED_EXCLUDED_PREFIXES
 
   def run
@@ -98,22 +97,22 @@ module OOFFragmentRegistrySourceAuthorityPrecedenceProof
       }]
     end
 
-    cases << case_result("live_helper_profile_candidate_still_held", expected: "rejected") do
-      envelope = profile_source_envelope(profile, fixture_registry)
+    cases << case_result("live_helper_profile_candidate_accepted_internal_only", expected: "accepted") do
+      envelope = profile_source_envelope(profile, pack_candidates, fixture_registry)
       result = validator.validate_source_envelope(envelope)
       [result.fetch("valid"), {
         "source_validation" => result,
-        "held_source_mode" => has_diag?(result, HELD_CODE),
+        "source_diagnostics_empty" => result.fetch("source_diagnostics").empty?,
         "registry_validation_called" => !result.fetch("registry_validation").nil?
       }]
     end
 
-    cases << case_result("live_helper_pack_descriptor_candidate_still_held", expected: "rejected") do
-      envelope = pack_source_envelope(pack_candidates.first, fixture_registry)
+    cases << case_result("live_helper_pack_descriptor_candidate_accepted_internal_only", expected: "accepted") do
+      envelope = pack_source_envelope(pack_candidates.first)
       result = validator.validate_source_envelope(envelope)
       [result.fetch("valid"), {
         "source_validation" => result,
-        "held_source_mode" => has_diag?(result, HELD_CODE),
+        "source_diagnostics_empty" => result.fetch("source_diagnostics").empty?,
         "registry_validation_called" => !result.fetch("registry_validation").nil?
       }]
     end
@@ -144,18 +143,24 @@ module OOFFragmentRegistrySourceAuthorityPrecedenceProof
         success.dig("details", "nested_registry_validation", "valid") == true &&
         invalids.any?
     end
-    checks << check("live_helper_profile_pack_modes_held") do
+    checks << check("live_helper_profile_pack_modes_accepted_internal_only") do
       %w[
-        live_helper_profile_candidate_still_held
-        live_helper_pack_descriptor_candidate_still_held
+        live_helper_profile_candidate_accepted_internal_only
+        live_helper_pack_descriptor_candidate_accepted_internal_only
       ].all? do |name|
         entry = cases.find { |candidate| candidate.fetch("name") == name }
-        entry.dig("details", "held_source_mode") == true &&
-          entry.dig("details", "registry_validation_called") == false
-      end
+        entry.fetch("accepted") == true &&
+          entry.dig("details", "source_diagnostics_empty") == true
+      end &&
+        cases.find { |candidate| candidate.fetch("name") == "live_helper_profile_candidate_accepted_internal_only" }
+          .dig("details", "registry_validation_called") == true &&
+        cases.find { |candidate| candidate.fetch("name") == "live_helper_pack_descriptor_candidate_accepted_internal_only" }
+          .dig("details", "registry_validation_called") == false
     end
-    checks << check("source_accepted_modes_unchanged") do
-      IgniterLang::OOFFragmentRegistry::SOURCE_ACCEPTED_MODES == %w[proof_fixture caller_supplied]
+    checks << check("source_accepted_modes_authorized_exact") do
+      IgniterLang::OOFFragmentRegistry::SOURCE_ACCEPTED_MODES ==
+        %w[proof_fixture caller_supplied profile_candidate pack_descriptor_candidate] &&
+        IgniterLang::OOFFragmentRegistry::SOURCE_HELD_MODES.empty?
     end
     checks << check("closed_surfaces_preserved") do
       closed_surface_assertions.values.all?(false) &&
@@ -180,7 +185,7 @@ module OOFFragmentRegistrySourceAuthorityPrecedenceProof
       "profile_candidate" => profile,
       "pack_descriptor_candidates" => pack_candidates.map { |candidate| candidate.slice("pack_ref", "slot_name", "owner_pack_or_boundary") },
       "derived_registry_ref" => "out/derived_registry_authority_precedence.json",
-      "live_helper_acceptance" => "held_source_mode_for_profile_and_pack_candidates",
+      "live_helper_acceptance" => "profile_pack_candidate_modes_accepted_internal_only",
       "closed_surface_assertions" => closed_surface_assertions
     }
 
@@ -194,7 +199,9 @@ module OOFFragmentRegistrySourceAuthorityPrecedenceProof
       "checks" => checks,
       "failed_cases" => failed_cases,
       "failed_checks" => failed_checks,
-      "recommendation" => status == "PASS" ? "SOURCE_AUTHORITY_DESIGN_ACCEPTED_FOR_PROOF_HOLD_IMPLEMENTATION" : "HOLD",
+      "recommendation" => status == "PASS" ? "R122_CLOSURE_ACCEPTED" : "HOLD",
+      "accepted_modes" => IgniterLang::OOFFragmentRegistry::SOURCE_ACCEPTED_MODES,
+      "held_modes" => IgniterLang::OOFFragmentRegistry::SOURCE_HELD_MODES,
       "outputs" => {
         "summary" => "igniter-lang/experiments/oof_fragment_registry_source_authority_precedence_proof/out/oof_fragment_registry_source_authority_precedence_proof_summary.json",
         "model" => "igniter-lang/experiments/oof_fragment_registry_source_authority_precedence_proof/out/oof_fragment_registry_source_authority_precedence_model.json",
@@ -394,19 +401,27 @@ module OOFFragmentRegistrySourceAuthorityPrecedenceProof
     end
   end
 
-  def profile_source_envelope(profile, registry)
-    profile.merge("registry" => registry)
+  def profile_source_envelope(profile, pack_candidates, registry)
+    profile.merge(
+      "profile_contract_ref" => "compiler_profile_contract_candidate/proof:LANG-R123-refresh",
+      "pack_descriptor_candidates" => pack_candidates,
+      "excluded_namespaces" => registry.fetch("excluded_namespaces")
+    )
   end
 
-  def pack_source_envelope(pack, registry)
+  def pack_source_envelope(pack)
     {
       "kind" => "oof_fragment_registry_source",
       "format_version" => "0.1.0",
       "source_mode" => "pack_descriptor_candidate",
       "authority" => proof_authority,
       "pack_ref" => pack.fetch("pack_ref"),
+      "slot_name" => pack.fetch("slot_name"),
+      "owner_pack_or_boundary" => pack.fetch("owner_pack_or_boundary"),
       "row_authority_policy" => "pack_owns_declared_rows",
-      "registry" => registry,
+      "owned_oof_descriptors" => pack.fetch("owned_oof_descriptors"),
+      "owned_fragment_rows" => pack.fetch("owned_fragment_rows"),
+      "owned_support_markers" => pack.fetch("owned_support_markers"),
       "closed_surface_assertions" => closed_surface_assertions
     }
   end
@@ -433,10 +448,6 @@ module OOFFragmentRegistrySourceAuthorityPrecedenceProof
       "diagnostics" => diagnostics,
       "closed_surface_assertions" => closed_surface_assertions
     }
-  end
-
-  def has_diag?(result, code)
-    result.fetch("source_diagnostics", []).any? { |entry| entry.fetch("code") == code }
   end
 
   def diag(code, message)
@@ -477,7 +488,7 @@ module OOFFragmentRegistrySourceAuthorityPrecedenceProof
 
   def closed_surface_assertions
     {
-      "source_accepted_modes_changed" => false,
+      "source_accepted_modes_widened_beyond_authorized" => false,
       "compiler_integration" => false,
       "public_api_cli" => false,
       "loader_report" => false,

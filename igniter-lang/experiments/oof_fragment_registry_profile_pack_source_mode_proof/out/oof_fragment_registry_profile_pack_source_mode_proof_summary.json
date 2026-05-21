@@ -2,8 +2,8 @@
   "kind": "oof_fragment_registry_profile_pack_source_mode_proof_summary",
   "format_version": "0.1.0",
   "track": "oof-fragment-registry-profile-pack-source-mode-proof-v0",
-  "status": "FAIL",
-  "model_id": "oof_fragment_profile_pack_source/sha256:8a6a582e14790fe4995a9c62",
+  "status": "PASS",
+  "model_id": "oof_fragment_profile_pack_source/sha256:fb2a3c8e1b95f7fb9953998e",
   "cases": [
     {
       "name": "profile_candidate_model_valid_non_canon_proof_only",
@@ -15,7 +15,7 @@
           "valid": true,
           "diagnostics": [],
           "closed_surface_assertions": {
-            "live_helper_acceptance": false,
+            "external_surface_acceptance": false,
             "compiler_integration": false,
             "public_api_cli": false,
             "loader_report": false,
@@ -39,7 +39,7 @@
           "valid": true,
           "diagnostics": [],
           "closed_surface_assertions": {
-            "live_helper_acceptance": false,
+            "external_surface_acceptance": false,
             "compiler_integration": false,
             "public_api_cli": false,
             "loader_report": false,
@@ -87,82 +87,83 @@
       }
     },
     {
-      "name": "live_helper_profile_candidate_still_held",
-      "expected": "rejected",
-      "accepted": false,
+      "name": "live_helper_profile_candidate_accepted_internal_only",
+      "expected": "accepted",
+      "accepted": true,
       "status": "PASS",
       "details": {
         "source_validation": {
           "kind": "oof_fragment_registry_source_validation",
           "format_version": "0.1.0",
-          "valid": false,
+          "valid": true,
           "source_mode": "profile_candidate",
-          "registry_present": false,
-          "source_authority": {
-            "authority_ref": "LANG-R115-P1 plus LANG-R114-D1",
-            "authority_kind": "proof_only",
-            "canon_status": "non_canon"
-          },
-          "source_diagnostics": [
-            {
-              "code": "oof_registry.source.validation.missing_selected_pack_ref",
-              "message": "profile_candidate must include non-empty selected_pack_refs"
-            },
-            {
-              "code": "oof_registry.source.validation.invalid_pack_order",
-              "message": "profile_candidate pack_order must exactly match selected_pack_refs"
-            },
-            {
-              "code": "oof_registry.source.validation.invalid_conflict_policy",
-              "message": "profile_candidate conflict_policy must reject duplicate row ownership"
-            },
-            {
-              "code": "oof_registry.source.validation.missing_pack_descriptor",
-              "message": "profile_candidate must include pack_descriptor_candidates"
-            }
-          ],
-          "registry_validation": null,
-          "closed_surface_assertions": {
-            "static_data_file": false,
-            "lib_igniter_lang_rb_require": false,
-            "compiler_pass_integration": false,
-            "public_api_cli": false,
-            "top_level_report_diagnostics": false,
-            "compiler_result_field": false,
-            "loader_report": false,
-            "compatibility_report": false,
-            "runtime_behavior": false,
-            "igapp_mutation": false,
-            "specs_canon_proposals": false
-          }
-        },
-        "held_source_mode": false,
-        "registry_validation_called": false
-      }
-    },
-    {
-      "name": "live_helper_pack_descriptor_candidate_still_held",
-      "expected": "rejected",
-      "accepted": false,
-      "status": "PASS",
-      "details": {
-        "source_validation": {
-          "kind": "oof_fragment_registry_source_validation",
-          "format_version": "0.1.0",
-          "valid": false,
-          "source_mode": "pack_descriptor_candidate",
           "registry_present": true,
           "source_authority": {
             "authority_ref": "LANG-R115-P1 plus LANG-R114-D1",
             "authority_kind": "proof_only",
             "canon_status": "non_canon"
           },
-          "source_diagnostics": [
-            {
-              "code": "oof_registry.validation.owner_boundary_absent",
-              "message": "pack_descriptor_candidate \"pack_descriptor_candidate/proof:CoreLanguagePack\" must include owner_pack_or_boundary"
+          "source_diagnostics": [],
+          "registry_validation": {
+            "kind": "oof_fragment_registry_validation",
+            "format_version": "0.1.0",
+            "valid": true,
+            "registry_service_present": true,
+            "checked_sections": [
+              "oof_descriptors",
+              "fragment_rows",
+              "support_markers.invariant_support_markers",
+              "excluded_namespaces"
+            ],
+            "diagnostics": [],
+            "inactive_rows": [],
+            "closed_surface_assertions": {
+              "compiler_integration": false,
+              "public_api_cli": false,
+              "top_level_report_diagnostics": false,
+              "compiler_result_field": false,
+              "loader_report": false,
+              "compatibility_report": false,
+              "runtime_behavior": false,
+              "igapp_mutation": false
             }
-          ],
+          },
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "source_diagnostics_empty": true,
+        "registry_validation_called": true
+      }
+    },
+    {
+      "name": "live_helper_pack_descriptor_candidate_accepted_internal_only",
+      "expected": "accepted",
+      "accepted": true,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": true,
+          "source_mode": "pack_descriptor_candidate",
+          "registry_present": false,
+          "source_authority": {
+            "authority_ref": "LANG-R115-P1 plus LANG-R114-D1",
+            "authority_kind": "proof_only",
+            "canon_status": "non_canon"
+          },
+          "source_diagnostics": [],
           "registry_validation": null,
           "closed_surface_assertions": {
             "static_data_file": false,
@@ -178,7 +179,7 @@
             "specs_canon_proposals": false
           }
         },
-        "held_source_mode": false,
+        "source_diagnostics_empty": true,
         "registry_validation_called": false
       }
     },
@@ -197,7 +198,7 @@
             }
           ],
           "closed_surface_assertions": {
-            "live_helper_acceptance": false,
+            "external_surface_acceptance": false,
             "compiler_integration": false,
             "public_api_cli": false,
             "loader_report": false,
@@ -226,7 +227,7 @@
             }
           ],
           "closed_surface_assertions": {
-            "live_helper_acceptance": false,
+            "external_surface_acceptance": false,
             "compiler_integration": false,
             "public_api_cli": false,
             "loader_report": false,
@@ -255,7 +256,7 @@
             }
           ],
           "closed_surface_assertions": {
-            "live_helper_acceptance": false,
+            "external_surface_acceptance": false,
             "compiler_integration": false,
             "public_api_cli": false,
             "loader_report": false,
@@ -284,7 +285,7 @@
             }
           ],
           "closed_surface_assertions": {
-            "live_helper_acceptance": false,
+            "external_surface_acceptance": false,
             "compiler_integration": false,
             "public_api_cli": false,
             "loader_report": false,
@@ -313,8 +314,8 @@
       "status": "PASS"
     },
     {
-      "name": "live_helper_profile_pack_modes_held",
-      "status": "FAIL"
+      "name": "live_helper_profile_pack_modes_accepted_internal_only",
+      "status": "PASS"
     },
     {
       "name": "proof_model_rejects_duplicate_row_ownership",
@@ -330,20 +331,22 @@
     }
   ],
   "failed_cases": [],
-  "failed_checks": [
-    {
-      "name": "live_helper_profile_pack_modes_held",
-      "status": "FAIL"
-    }
+  "failed_checks": [],
+  "recommendation": "R122_CLOSURE_ACCEPTED",
+  "accepted_modes": [
+    "proof_fixture",
+    "caller_supplied",
+    "profile_candidate",
+    "pack_descriptor_candidate"
   ],
-  "recommendation": "HOLD",
+  "held_modes": [],
   "outputs": {
     "summary": "igniter-lang/experiments/oof_fragment_registry_profile_pack_source_mode_proof/out/oof_fragment_registry_profile_pack_source_mode_proof_summary.json",
     "model": "igniter-lang/experiments/oof_fragment_registry_profile_pack_source_mode_proof/out/oof_fragment_registry_profile_pack_source_mode_model.json",
     "derived_registry": "igniter-lang/experiments/oof_fragment_registry_profile_pack_source_mode_proof/out/derived_registry_from_pack_candidates.json"
   },
   "closed_surfaces": {
-    "live_helper_acceptance": false,
+    "external_surface_acceptance": false,
     "compiler_integration": false,
     "public_api_cli": false,
     "loader_report": false,

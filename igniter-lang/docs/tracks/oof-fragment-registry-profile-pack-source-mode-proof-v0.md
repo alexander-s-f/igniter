@@ -31,9 +31,11 @@ spec/runtime files and does not change live helper acceptance.
 
 ```text
 R111/R112 landed validate_source_envelope as an internal helper.
-Live helper accepts only proof_fixture and caller_supplied.
+R121/R122 now accept profile_candidate and pack_descriptor_candidate inside
+that internal helper only.
 R114 recommended proof-only modeling for profile_candidate and pack_descriptor_candidate.
-LANG-R115 proves the model while live helper still returns held_source_mode.
+LANG-R123 refreshes stale proof expectations after the authorized helper
+acceptance fixed point.
 ```
 
 ---
@@ -70,7 +72,8 @@ Result:
 PASS oof-fragment-registry-profile-pack-source-mode-proof-v0
 cases: 9/9
 checks: 7/7
-recommendation: SOURCE_AUTHORITY_DESIGN_NEXT
+recommendation: R122_CLOSURE_ACCEPTED
+refreshed_recommendation: R122_CLOSURE_ACCEPTED
 model_id: oof_fragment_profile_pack_source/sha256:8a6a582e14790fe4995a9c62
 ```
 
@@ -100,15 +103,19 @@ The proof models:
 IgniterLang::OOFFragmentRegistry#validate
 ```
 
-The live helper is still tested separately:
+The live helper is tested separately:
 
 ```text
 IgniterLang::OOFFragmentRegistry#validate_source_envelope
 ```
 
-For both candidate source modes, live helper returns
-`oof_registry.source.validation.held_source_mode` and does not call nested
-registry validation.
+For both candidate source modes, live helper acceptance is now internal-only:
+
+- `profile_candidate` validates source shape, derives the aggregate registry,
+  and calls nested registry validation;
+- `pack_descriptor_candidate` validates source shape without requiring a nested
+  registry;
+- external/public/report/compiler surfaces remain closed.
 
 ---
 
@@ -119,8 +126,8 @@ registry validation.
 | `profile_candidate_model_valid_non_canon_proof_only` | accepted | PASS | Profile model has proof-only/non-canon authority and synthetic refs only. |
 | `pack_descriptor_candidates_model_valid_non_canon_proof_only` | accepted | PASS | Pack descriptor model has proof-only/non-canon authority and pack row ownership. |
 | `derived_registry_from_pack_candidates_validates` | accepted | PASS | Derived registry validates through existing `OOFFragmentRegistry#validate`. |
-| `live_helper_profile_candidate_still_held` | rejected | PASS | Live helper returns `held_source_mode`; nested registry is not called. |
-| `live_helper_pack_descriptor_candidate_still_held` | rejected | PASS | Live helper returns `held_source_mode`; nested registry is not called. |
+| `live_helper_profile_candidate_accepted_internal_only` | accepted | PASS | Live helper accepts profile candidate internally, derives registry, and calls nested validation. |
+| `live_helper_pack_descriptor_candidate_accepted_internal_only` | accepted | PASS | Live helper accepts pack descriptor candidate internally without requiring nested registry. |
 | `duplicate_oof_row_ownership_rejected_by_proof_model` | rejected | PASS | Duplicate OOF descriptor ownership across pack descriptors is rejected. |
 | `duplicate_fragment_row_ownership_rejected_by_proof_model` | rejected | PASS | Duplicate fragment row ownership across pack descriptors is rejected. |
 | `compiler_profile_contract_descriptor_rejected_by_proof_model` | rejected | PASS | `compiler_profile_contract.*` cannot become an OOF descriptor. |
@@ -135,7 +142,7 @@ registry validation.
 | `source_helper_summary.pass_evidence` | PASS |
 | `case_matrix.expected_results` | PASS |
 | `derived_registry_validated_by_existing_validator` | PASS |
-| `live_helper_profile_pack_modes_held` | PASS |
+| `live_helper_profile_pack_modes_accepted_internal_only` | PASS |
 | `proof_model_rejects_duplicate_row_ownership` | PASS |
 | `proof_model_excludes_compiler_profile_contract_namespace` | PASS |
 | `closed_surfaces_preserved` | PASS |
@@ -163,19 +170,18 @@ and does not authorize compiler integration.
 Recommendation:
 
 ```text
-SOURCE_AUTHORITY_DESIGN_NEXT
+R122_CLOSURE_ACCEPTED
 ```
 
 Reason:
 
-- proof-only profile/pack source mode modeling is now green;
-- duplicate row ownership and excluded namespace behavior are machine-tested;
-- live helper still holds both candidate modes;
-- the next unresolved question is source authority, not more local modeling.
+- proof-only profile/pack source mode modeling remains green;
+- duplicate row ownership and excluded namespace behavior remain machine-tested;
+- live helper now accepts both candidate modes inside the internal helper only;
+- external compiler/report/public/runtime surfaces remain closed.
 
-Implementation remains held. Changing `SOURCE_ACCEPTED_MODES` or routing these
-modes into compiler/profile/pack/loader behavior still needs a separate
-Architect decision.
+Routing these modes into compiler/profile/pack/loader behavior still needs a
+separate Architect decision.
 
 ---
 
@@ -184,7 +190,7 @@ Architect decision.
 The proof asserts closed surfaces:
 
 ```text
-live_helper_acceptance: false
+external_surface_acceptance: false
 compiler_integration: false
 public_api_cli: false
 loader_report: false
@@ -203,17 +209,17 @@ runtime files.
 
 ## Blockers Before Implementation
 
-Before either candidate mode can be accepted by live helper or used by compiler
-systems, require:
+Before either candidate mode can be used by compiler systems or any external
+surface, require:
 
 - source-authority design deciding profile-level authority, pack-row authority,
   or both;
 - PROP-036 alignment for profile identity without `.igapp` mutation;
 - PROP-038 alignment without changing validator/report behavior;
-- pack descriptor schema acceptance;
+- pack descriptor schema promotion beyond the internal helper;
 - Bridge review before loader/report or CompatibilityReport is opened;
 - full parity proof for compiler/report/`.igapp` behavior;
-- explicit Architect authorization to change `SOURCE_ACCEPTED_MODES`.
+- explicit Architect authorization beyond R121/R122 internal helper acceptance.
 
 ---
 
@@ -222,7 +228,7 @@ systems, require:
 This proof does not authorize:
 
 - library/compiler/public/report/spec/runtime edits;
-- changing `SOURCE_ACCEPTED_MODES`;
+- widening `SOURCE_ACCEPTED_MODES` beyond the four R121/R122 modes;
 - loader/report behavior;
 - public API/CLI input or output;
 - compiler integration;
@@ -255,8 +261,8 @@ Neighbors: Compiler/Grammar Expert | Bridge Agent
   source modes.
 - Built synthetic pack descriptors from the R103 forward fixture and derived a
   registry that validates through OOFFragmentRegistry#validate.
-- Proved live validate_source_envelope still returns held_source_mode for both
-  candidate modes.
+- Proved live validate_source_envelope accepts both candidate modes inside the
+  internal helper only.
 
 [S]
 - PASS: 9/9 cases, 7/7 checks.
@@ -276,9 +282,10 @@ Neighbors: Compiler/Grammar Expert | Bridge Agent
   -> PASS, 27/27 checks
 
 [R]
-- Recommendation: source-authority design next.
-- Do not change live helper acceptance or compiler/profile/pack/loader behavior.
+- Recommendation: accept R122 closure for this proof surface.
+- Do not route candidate modes into compiler/profile/pack/loader behavior.
 
 [Next]
-- Open a source-authority design card if progressing; otherwise hold.
+- Open a separate implementation card only if progressing beyond internal helper
+  acceptance.
 ```

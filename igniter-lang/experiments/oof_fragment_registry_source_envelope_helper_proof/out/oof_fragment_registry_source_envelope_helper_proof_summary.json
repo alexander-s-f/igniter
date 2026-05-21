@@ -2,11 +2,11 @@
   "kind": "oof_fragment_registry_source_envelope_helper_proof_summary",
   "format_version": "0.1.0",
   "track": "oof-fragment-registry-source-envelope-helper-proof-v0",
-  "status": "FAIL",
+  "status": "PASS",
   "cases_total": 9,
-  "cases_pass": 7,
+  "cases_pass": 9,
   "checks_total": 10,
-  "checks_pass": 8,
+  "checks_pass": 10,
   "cases": [
     {
       "name": "SE1.valid_proof_fixture_source_validates_nested_registry",
@@ -25,14 +25,12 @@
       "status": "PASS"
     },
     {
-      "name": "SE5.profile_candidate_held_internally",
-      "status": "FAIL",
-      "error": "expected oof_registry.source.validation.held_source_mode diagnostic"
+      "name": "SE5.profile_candidate_accepted_internally",
+      "status": "PASS"
     },
     {
-      "name": "SE6.pack_descriptor_candidate_held_internally",
-      "status": "FAIL",
-      "error": "expected oof_registry.source.validation.held_source_mode diagnostic"
+      "name": "SE6.pack_descriptor_candidate_accepted_internally",
+      "status": "PASS"
     },
     {
       "name": "SE7.canon_status_rejected_internally",
@@ -66,7 +64,7 @@
     },
     {
       "name": "CS5.all_helper_results_closed_surface_assertions_false",
-      "status": "FAIL"
+      "status": "PASS"
     },
     {
       "name": "CS6.no_separate_helper_file",
@@ -86,31 +84,11 @@
     },
     {
       "name": "CS10.result_kind_is_oof_fragment_registry_source_validation",
-      "status": "FAIL"
+      "status": "PASS"
     }
   ],
-  "failed_cases": [
-    {
-      "name": "SE5.profile_candidate_held_internally",
-      "status": "FAIL",
-      "error": "expected oof_registry.source.validation.held_source_mode diagnostic"
-    },
-    {
-      "name": "SE6.pack_descriptor_candidate_held_internally",
-      "status": "FAIL",
-      "error": "expected oof_registry.source.validation.held_source_mode diagnostic"
-    }
-  ],
-  "failed_checks": [
-    {
-      "name": "CS5.all_helper_results_closed_surface_assertions_false",
-      "status": "FAIL"
-    },
-    {
-      "name": "CS10.result_kind_is_oof_fragment_registry_source_validation",
-      "status": "FAIL"
-    }
-  ],
+  "failed_cases": [],
+  "failed_checks": [],
   "closed_surfaces": {
     "static_data_file": false,
     "lib_igniter_lang_rb_require": false,
@@ -125,5 +103,12 @@
     "specs_canon_proposals": false
   },
   "implementation_authorized": true,
-  "authorized_by": "LANG-R110-A"
+  "authorized_by": "LANG-R110-A plus LANG-R121-A/LANG-R122-I1",
+  "accepted_modes": [
+    "proof_fixture",
+    "caller_supplied",
+    "profile_candidate",
+    "pack_descriptor_candidate"
+  ],
+  "held_modes": []
 }

@@ -70,7 +70,7 @@ Result:
 PASS oof-fragment-registry-source-authority-precedence-proof-v0
 cases: 9/9
 checks: 9/9
-recommendation: SOURCE_AUTHORITY_DESIGN_ACCEPTED_FOR_PROOF_HOLD_IMPLEMENTATION
+recommendation: R122_CLOSURE_ACCEPTED
 model_id: oof_fragment_source_authority_precedence/sha256:9a1d154be544cb87dfa7001b
 ```
 
@@ -90,17 +90,18 @@ The derived registry is validated only after proof-model aggregation succeeds.
 The existing `IgniterLang::OOFFragmentRegistry#validate` remains the nested
 registry validator.
 
-The existing live source-envelope helper remains held for both future modes:
+The existing live source-envelope helper now accepts both candidate modes inside
+the internal helper only:
 
 ```text
-profile_candidate -> oof_registry.source.validation.held_source_mode
-pack_descriptor_candidate -> oof_registry.source.validation.held_source_mode
+profile_candidate -> source valid, derived registry validated
+pack_descriptor_candidate -> source valid, registry_validation may remain null
 ```
 
-`SOURCE_ACCEPTED_MODES` remains:
+`SOURCE_ACCEPTED_MODES` is exactly:
 
 ```text
-proof_fixture caller_supplied
+proof_fixture caller_supplied profile_candidate pack_descriptor_candidate
 ```
 
 ---
@@ -116,8 +117,8 @@ proof_fixture caller_supplied
 | `profile_cannot_silently_override_pack_row_conflicts` | rejected | PASS | Profile-level override attempt cannot hide a pack-row conflict. |
 | `missing_selected_pack_ref_rejects_aggregate` | rejected | PASS | Profile-selected missing pack ref rejects aggregate. |
 | `excluded_namespace_rejects_aggregate` | rejected | PASS | `compiler_profile_contract.*` remains excluded from OOF descriptors. |
-| `live_helper_profile_candidate_still_held` | rejected | PASS | Live helper keeps `profile_candidate` held and does not validate nested registry. |
-| `live_helper_pack_descriptor_candidate_still_held` | rejected | PASS | Live helper keeps `pack_descriptor_candidate` held and does not validate nested registry. |
+| `live_helper_profile_candidate_accepted_internal_only` | accepted | PASS | Live helper accepts `profile_candidate` internally, derives registry, and calls nested validation. |
+| `live_helper_pack_descriptor_candidate_accepted_internal_only` | accepted | PASS | Live helper accepts `pack_descriptor_candidate` internally without requiring nested registry. |
 
 ---
 
@@ -131,8 +132,8 @@ proof_fixture caller_supplied
 | `profile_authority_owns_selection_order_conflict_policy` | PASS |
 | `conflicts_reject_without_profile_override` | PASS |
 | `derived_registry_validates_only_after_aggregation` | PASS |
-| `live_helper_profile_pack_modes_held` | PASS |
-| `source_accepted_modes_unchanged` | PASS |
+| `live_helper_profile_pack_modes_accepted_internal_only` | PASS |
+| `source_accepted_modes_authorized_exact` | PASS |
 | `closed_surfaces_preserved` | PASS |
 
 No failed cases or checks.
@@ -159,7 +160,7 @@ source-authority modeling and does not authorize integration.
 The proof asserts the following surfaces remain closed:
 
 ```text
-source_accepted_modes_changed: false
+source_accepted_modes_widened_beyond_authorized: false
 compiler_integration: false
 public_api_cli: false
 loader_report: false
@@ -174,7 +175,7 @@ implementation_authorized: false
 
 The proof does not change:
 
-- `SOURCE_ACCEPTED_MODES`;
+- `SOURCE_ACCEPTED_MODES` beyond the four R121/R122 modes;
 - `lib/igniter_lang/oof_fragment_registry.rb`;
 - library/compiler/public/report/spec/runtime files;
 - `.igapp` artifacts or goldens;
@@ -188,16 +189,15 @@ The proof does not change:
 Recommendation:
 
 ```text
-SOURCE_AUTHORITY_DESIGN_ACCEPTED_FOR_PROOF_HOLD_IMPLEMENTATION
+R122_CLOSURE_ACCEPTED
 ```
 
 Interpretation:
 
-- source-authority design is accepted at proof level;
-- more proof is not required for the R116 precedence model itself;
-- implementation remains held until a separate Architect decision opens live
-  helper acceptance, registry source authority, pack/profile schema, or compiler
-  integration.
+- source-authority design remains accepted at proof level;
+- more proof is not required for the R116/R121/R122 precedence model itself;
+- internal helper acceptance is now reflected by the proof;
+- compiler/profile/pack/loader integration remains held.
 
 ---
 
@@ -207,16 +207,16 @@ Interpretation:
 selected pack set, order, and conflict policy. Duplicate row ownership rejects
 the aggregate and cannot be silently overridden by the profile.
 
-[S] Proof-local experiment only. Live helper still returns `held_source_mode`
-for `profile_candidate` and `pack_descriptor_candidate`; `SOURCE_ACCEPTED_MODES`
-is unchanged.
+[S] Proof-local experiment only. Live helper now accepts `profile_candidate`
+and `pack_descriptor_candidate` inside the internal helper boundary;
+`SOURCE_ACCEPTED_MODES` is exactly the four R121/R122 modes.
 
 [T] PASS:
 `ruby igniter-lang/experiments/oof_fragment_registry_source_authority_precedence_proof/oof_fragment_registry_source_authority_precedence_proof.rb`
 -> `cases: 9/9`, `checks: 9/9`.
 
-[R] Recommendation is source-authority design accepted for proof, implementation
-hold.
+[R] Recommendation is R122 closure accepted for this proof surface; broader
+implementation remains held.
 
 [Next] If Architect opens implementation later, name exact write scope for
 source-envelope acceptance, pack/profile schema, registry provenance fields, and

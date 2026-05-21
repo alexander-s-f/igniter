@@ -36,7 +36,7 @@
     ],
     "conflict_policy": "reject_duplicate_row_ownership",
     "closed_surface_assertions": {
-      "source_accepted_modes_changed": false,
+      "source_accepted_modes_widened_beyond_authorized": false,
       "compiler_integration": false,
       "public_api_cli": false,
       "loader_report": false,
@@ -82,9 +82,9 @@
     }
   ],
   "derived_registry_ref": "out/derived_registry_authority_precedence.json",
-  "live_helper_acceptance": "held_source_mode_for_profile_and_pack_candidates",
+  "live_helper_acceptance": "profile_pack_candidate_modes_accepted_internal_only",
   "closed_surface_assertions": {
-    "source_accepted_modes_changed": false,
+    "source_accepted_modes_widened_beyond_authorized": false,
     "compiler_integration": false,
     "public_api_cli": false,
     "loader_report": false,

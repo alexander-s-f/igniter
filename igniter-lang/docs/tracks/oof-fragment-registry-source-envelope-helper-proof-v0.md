@@ -75,8 +75,8 @@ existing .igapp goldens                               UNCHANGED
 **New constants (all internal, not public OOF codes):**
 
 ```ruby
-SOURCE_ACCEPTED_MODES         = %w[proof_fixture caller_supplied].freeze
-SOURCE_HELD_MODES             = %w[profile_candidate pack_descriptor_candidate].freeze
+SOURCE_ACCEPTED_MODES         = %w[proof_fixture caller_supplied profile_candidate pack_descriptor_candidate].freeze
+SOURCE_HELD_MODES             = [].freeze
 SOURCE_ACCEPTED_AUTHORITY_KINDS = %w[proof_only design_accepted].freeze
 SOURCE_ACCEPTED_CANON_STATUSES  = %w[non_canon accepted_design].freeze
 
@@ -109,13 +109,19 @@ def build_source_result(...)         # builds internal source-validation result 
 
 1. Envelope must be a Hash with `kind: "oof_fragment_registry_source"`.
 2. `format_version` must be `"0.1.0"`.
-3. `source_mode` checked: accepted → proceed; held → `held_source_mode`; other → `unsupported_source_mode`.
+3. `source_mode` checked: accepted → proceed; held modes are currently empty; other → `unsupported_source_mode`.
 4. `authority` object: presence, `authority_ref`, `authority_kind` (must be proof/design), `canon_status` (must not be `"canon"`).
-5. `registry` key must be a Hash; otherwise `missing_registry`.
+5. `registry` key must be a Hash for direct registry sources (`proof_fixture`,
+   `caller_supplied`); candidate modes validate their candidate shape.
 6. `closed_surface_assertions` in envelope must all be false; otherwise `surface_open`.
 7. If any source diagnostics → return with `registry_validation: nil` (nested validator NOT called).
-8. If source envelope passes → call existing `validate(registry, installed_boundaries:)` and embed result.
-9. `valid: true` only when both source envelope and nested registry are valid.
+8. If a direct registry source passes → call existing
+   `validate(registry, installed_boundaries:)` and embed result.
+9. If a `profile_candidate` source passes → derive the aggregate registry from
+   selected pack candidates, then call the nested registry validator.
+10. If a `pack_descriptor_candidate` source passes without a registry →
+   accept the source and leave `registry_validation: null`.
+11. `valid: true` only when required source-envelope and nested-registry checks pass.
 
 **Result shape:**
 
@@ -162,8 +168,8 @@ For invalid source envelopes: `registry_validation: null`.
 | SE2. valid_caller_supplied_source_validates_nested_registry | caller_supplied mode passes; nested registry validated | PASS |
 | SE3. wrong_kind_rejected_internally | kind ≠ oof_fragment_registry_source → wrong_kind | PASS |
 | SE4. missing_registry_rejected_internally | registry key absent → missing_registry | PASS |
-| SE5. profile_candidate_held_internally | source_mode profile_candidate → held_source_mode | PASS |
-| SE6. pack_descriptor_candidate_held_internally | source_mode pack_descriptor_candidate → held_source_mode | PASS |
+| SE5. profile_candidate_accepted_internally | profile_candidate validates internally, derives registry, and calls nested validator | PASS |
+| SE6. pack_descriptor_candidate_accepted_internally | pack_descriptor_candidate validates internally without requiring nested registry | PASS |
 | SE7. canon_status_rejected_internally | authority.canon_status = "canon" → canon_status_forbidden | PASS |
 | SE8. open_closed_surface_assertion_rejected_internally | closed_surface_assertions has true value → surface_open | PASS |
 | SE9. invalid_nested_registry_reports_diagnostics_without_public_surface_keys | source valid; nested invalid; diagnostics present; no public surface keys | PASS |
@@ -242,8 +248,9 @@ registry fixture contains non-ASCII characters. The R107 proof outcome is
    TypeChecker requires a separate authorization card.
 3. **Public API/CLI**: any public surface requires a separate Bridge/Architect card.
 4. **Loader/report or CompatibilityReport**: separately closed.
-5. **`profile_candidate` and `pack_descriptor_candidate` source modes**: held in
-   this helper. Promotion to accepted requires separate proof and Architect review.
+5. **`profile_candidate` and `pack_descriptor_candidate` source modes**:
+   accepted inside the internal helper only by LANG-R121-A/LANG-R122-I1.
+   Public/API/report/compiler integration remains separately blocked.
 
 ---
 
@@ -259,8 +266,9 @@ Status: done
 [D]
 - Added validate_source_envelope method and source-envelope constants to
   lib/igniter_lang/oof_fragment_registry.rb.
-- Accepted modes: proof_fixture, caller_supplied.
-- Held/rejected: profile_candidate, pack_descriptor_candidate (held_source_mode).
+- Accepted modes: proof_fixture, caller_supplied, profile_candidate,
+  pack_descriptor_candidate.
+- Held modes: none.
 - Rejected: canon-status envelopes (canon_status_forbidden), open surface assertions
   (surface_open), wrong kind (wrong_kind), missing registry (missing_registry).
 - Nested registry validator called only after source envelope passes.
@@ -282,12 +290,14 @@ Status: done
 - validate_source_envelope is callable only from proof-local harnesses via
   direct require of lib/igniter_lang/oof_fragment_registry.rb.
 - No caller outside proof scripts uses the helper today.
-- Compiler integration, public API, oof_fragment_registry_data.rb, and
-  profile_candidate/pack_descriptor_candidate source modes remain separately blocked.
+- Compiler integration, public API, and oof_fragment_registry_data.rb remain
+  separately blocked.
+- profile_candidate/pack_descriptor_candidate are accepted only inside this
+  internal helper boundary.
 
 [Next]
 - Architect may authorize oof_fragment_registry_data.rb (static internal constants).
 - Architect may authorize compiler pass lookup integration (separate bounded slice).
-- profile_candidate/pack_descriptor_candidate promotion requires separate proof and
-  Architect authorization.
+- Any profile_candidate/pack_descriptor_candidate promotion beyond the internal
+  helper requires separate proof and Architect authorization.
 ```

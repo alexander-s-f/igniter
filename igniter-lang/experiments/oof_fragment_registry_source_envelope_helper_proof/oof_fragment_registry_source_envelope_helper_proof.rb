@@ -12,8 +12,8 @@
 #   - accepted modes (proof_fixture, caller_supplied) pass and validate nested registry
 #   - wrong kind rejected internally
 #   - missing registry rejected internally
-#   - profile_candidate held/rejected internally
-#   - pack_descriptor_candidate held/rejected internally
+#   - profile_candidate accepted inside internal helper only
+#   - pack_descriptor_candidate accepted inside internal helper only
 #   - canon status rejected internally
 #   - open closed-surface assertion rejected internally
 #   - invalid nested registry reports nested registry diagnostics without public surface keys
@@ -121,33 +121,32 @@ module OOFFragmentRegistrySourceEnvelopeHelperProof
       result
     end
 
+    pack_candidates = pack_candidates_from_fixture(registry)
+
     # -------------------------------------------------------------------------
-    # Case 5 — profile_candidate held/rejected internally
+    # Case 5 — profile_candidate accepted inside internal helper only
     # -------------------------------------------------------------------------
-    cases << run_case("SE5.profile_candidate_held_internally", expected: false) do
-      env    = proof_fixture_envelope(registry).merge("source_mode" => "profile_candidate")
+    cases << run_case("SE5.profile_candidate_accepted_internally", expected: true) do
+      env    = profile_candidate_envelope(pack_candidates, registry)
       result = validator.validate_source_envelope(env)
-      raise "should be invalid" if result["valid"]
-      raise "registry_validation should be nil" unless result["registry_validation"].nil?
-      expected_code = "oof_registry.source.validation.held_source_mode"
-      unless result["source_diagnostics"].any? { |d| d["code"] == expected_code }
-        raise "expected #{expected_code} diagnostic"
-      end
+      raise "should be valid" unless result["valid"]
+      raise "source_mode mismatch" unless result["source_mode"] == "profile_candidate"
+      raise "source_diagnostics should be empty" unless result["source_diagnostics"].empty?
+      raise "registry_validation should be present" unless result["registry_validation"].is_a?(Hash)
+      raise "nested registry should be valid" unless result["registry_validation"]["valid"]
       result
     end
 
     # -------------------------------------------------------------------------
-    # Case 6 — pack_descriptor_candidate held/rejected internally
+    # Case 6 — pack_descriptor_candidate accepted inside internal helper only
     # -------------------------------------------------------------------------
-    cases << run_case("SE6.pack_descriptor_candidate_held_internally", expected: false) do
-      env    = proof_fixture_envelope(registry).merge("source_mode" => "pack_descriptor_candidate")
+    cases << run_case("SE6.pack_descriptor_candidate_accepted_internally", expected: true) do
+      env    = pack_candidates.first
       result = validator.validate_source_envelope(env)
-      raise "should be invalid" if result["valid"]
+      raise "should be valid" unless result["valid"]
+      raise "source_mode mismatch" unless result["source_mode"] == "pack_descriptor_candidate"
+      raise "source_diagnostics should be empty" unless result["source_diagnostics"].empty?
       raise "registry_validation should be nil" unless result["registry_validation"].nil?
-      expected_code = "oof_registry.source.validation.held_source_mode"
-      unless result["source_diagnostics"].any? { |d| d["code"] == expected_code }
-        raise "expected #{expected_code} diagnostic"
-      end
       result
     end
 
@@ -276,9 +275,10 @@ module OOFFragmentRegistrySourceEnvelopeHelperProof
     end
 
     checks << check("CS9.nested_registry_not_called_when_source_envelope_invalid") do
-      # Cases 3-8 all have invalid source envelopes → registry_validation must be nil
+      # Cases 3, 4, 7, and 8 have invalid source envelopes → registry_validation must be nil.
+      # Cases 5 and 6 are now accepted internally by LANG-R121-A/LANG-R122-I1.
       invalid_source_cases = cases.select do |c|
-        %w[SE3 SE4 SE5 SE6 SE7 SE8].any? { |prefix| c[:name].start_with?(prefix) }
+        %w[SE3 SE4 SE7 SE8].any? { |prefix| c[:name].start_with?(prefix) }
       end
       invalid_source_cases.all? { |c| c[:result]["registry_validation"].nil? }
     end
@@ -311,7 +311,9 @@ module OOFFragmentRegistrySourceEnvelopeHelperProof
         "specs_canon_proposals" => false
       ),
       "implementation_authorized" => true,
-      "authorized_by"             => "LANG-R110-A"
+      "authorized_by"             => "LANG-R110-A plus LANG-R121-A/LANG-R122-I1",
+      "accepted_modes"            => IgniterLang::OOFFragmentRegistry::SOURCE_ACCEPTED_MODES,
+      "held_modes"                => IgniterLang::OOFFragmentRegistry::SOURCE_HELD_MODES
     }
 
     File.write(
@@ -350,6 +352,69 @@ module OOFFragmentRegistrySourceEnvelopeHelperProof
       "closed_surface_assertions" => closed_surface_assertions,
       "registry"                => registry_hash
     }
+  end
+
+  def pack_candidates_from_fixture(registry)
+    owner_names = (
+      registry.fetch("oof_descriptors").map { |row| row.fetch("owner_pack_or_boundary") } +
+      registry.fetch("fragment_rows").map { |row| row.fetch("owner_pack_or_boundary") } +
+      registry.dig("support_markers", "invariant_support_markers").map { |row| row.fetch("owner_pack_or_boundary") }
+    ).uniq.sort
+
+    owner_names.map do |owner|
+      {
+        "kind" => "oof_fragment_registry_source",
+        "format_version" => "0.1.0",
+        "source_mode" => "pack_descriptor_candidate",
+        "authority" => r122_authority,
+        "pack_ref" => "pack_descriptor_candidate/proof:#{owner}",
+        "slot_name" => owner_to_slot(owner),
+        "owner_pack_or_boundary" => owner,
+        "row_authority_policy" => "pack_owns_declared_rows",
+        "owned_oof_descriptors" => registry.fetch("oof_descriptors").select { |row| row.fetch("owner_pack_or_boundary") == owner },
+        "owned_fragment_rows" => registry.fetch("fragment_rows").select { |row| row.fetch("owner_pack_or_boundary") == owner },
+        "owned_support_markers" => registry.dig("support_markers", "invariant_support_markers").select { |row| row.fetch("owner_pack_or_boundary") == owner },
+        "closed_surface_assertions" => closed_surface_assertions
+      }
+    end
+  end
+
+  def profile_candidate_envelope(pack_candidates, registry)
+    selected_refs = pack_candidates.map { |pack| pack.fetch("pack_ref") }
+    {
+      "kind" => "oof_fragment_registry_source",
+      "format_version" => "0.1.0",
+      "source_mode" => "profile_candidate",
+      "authority" => r122_authority,
+      "profile_ref" => "compiler_profile_candidate/proof:LANG-R123-refresh",
+      "profile_contract_ref" => "compiler_profile_contract_candidate/proof:LANG-R123-refresh",
+      "row_authority_policy" => "pack_descriptor_rows_aggregated_by_profile",
+      "selected_pack_refs" => selected_refs,
+      "pack_order" => selected_refs,
+      "conflict_policy" => {
+        "duplicate_oof_descriptor" => "reject",
+        "duplicate_fragment_row" => "reject",
+        "duplicate_support_marker" => "reject",
+        "duplicate_alias_owner" => "reject",
+        "missing_selected_pack_ref" => "reject",
+        "excluded_namespace" => "reject"
+      },
+      "pack_descriptor_candidates" => pack_candidates,
+      "excluded_namespaces" => registry.fetch("excluded_namespaces"),
+      "closed_surface_assertions" => closed_surface_assertions
+    }
+  end
+
+  def r122_authority
+    {
+      "authority_ref" => "LANG-R121-A plus LANG-R122-I1",
+      "authority_kind" => "proof_only",
+      "canon_status" => "non_canon"
+    }
+  end
+
+  def owner_to_slot(owner)
+    owner.gsub(/Pack\z/, "").gsub(/([a-z])([A-Z])/, "\\1_\\2").downcase
   end
 
   def closed_surface_assertions
