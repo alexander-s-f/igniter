@@ -130,6 +130,8 @@ Latest production-prep proof:
 - `reports/ruby-rel-p2-release-readiness-review.md`
 - `tracks/ruby-release-execution-blocker-closure-plan-v0.md`
 - `reports/ruby-rel-p3-blocker-closure-plan.md`
+- `tracks/ruby-0-5-2-release-execution-preflight-v0.md`
+- `reports/ruby-rel-p4-0-5-2-release-execution-preflight.md`
 
 Proof status:
 
@@ -149,6 +151,7 @@ igniter-embed observed-service doc sync: filed
 release-readiness review prep: filed
 release-readiness review: HOLD for release execution
 release blocker closure plan: filed
+0.5.2 release execution preflight: filed
 Rubygems publish/release: not run
 ```
 
@@ -258,11 +261,11 @@ Ruby Framework lane contribution: done.
 Waiting: S3-R87-C3-A (Architect decision).
 Latest analysis/recipe round: done.
 Next round: no new implementation round open yet.
-Recommended next route: prepare `0.5.2` release execution if user/Portfolio
-approves.
-Release/tag/publish remain held pending explicit authorization, version/tag
-decision, `log/.keep` cleanup, stale gem artifact cleanup decision, final gates,
-and Rubygems credentials/MFA check.
+Recommended next route: wait for user/Portfolio authorization on the `0.5.2`
+preflight decisions.
+Release/tag/publish remain held. If approved, execute cleanup, version bump,
+final gates, gem rebuild, clean installed-gem smoke, commit, and tag; keep
+publish as a second explicit authorization unless directed otherwise.
 Next report filename: to be determined by the release execution route or the
 next Spark/Ruby adoption route.
 ```

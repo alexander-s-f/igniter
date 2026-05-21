@@ -62,6 +62,10 @@ architecture. They are not production migration authorization.
 | `../gates/oof-fragment-registry-policy-proof-acceptance-decision-v0.md` | accepted-pinv-tinv-lifecycle-design-next-implementation-held | R96 accepts R95 as proof-only policy evidence and opens only design-only `pinv-tinv-lifecycle-and-registry-classification-design-v0`; implementation-boundary design remains held |
 | `pinv-tinv-lifecycle-and-registry-classification-design-v0.md` | done | R97 classifies PINV/TINV as non-public invariant support metadata, not OOF descriptors or aliases; public OOF authority remains with `OOF-IV*` / `OOF-I*` |
 | `../gates/pinv-tinv-lifecycle-classification-acceptance-decision-v0.md` | accepted-implementation-boundary-design-next-implementation-held | R98 accepts R97 and opens only design-only `oof-fragment-registry-implementation-boundary-design-v0`; implementation/spec/canon/compiler/runtime surfaces remain closed |
+| `oof-fragment-registry-implementation-boundary-design-v0.md` | done | R99 designs isolated internal validator plus proof-local parity harness boundary; implementation held pending pressure and authorization review |
+| `../discussions/oof-fragment-registry-implementation-boundary-pressure-v0.md` | proceed | R100 pressure PASS; write scope isolated, parity plan comprehensive, but 9 blockers routed to R101 closure |
+| `oof-fragment-registry-authorization-blocker-closure-design-v0.md` | done | R101 closes/routes R100 blockers; pins first-slice write scope, excludes `oof_fragment_registry_data.rb`, includes support markers, defines inactive-row proof and 8-command matrix |
+| `../gates/oof-fragment-registry-implementation-authorization-review-v0.md` | authorized-bounded-internal-validator-proof-slice | R102 authorizes only `lib/igniter_lang/oof_fragment_registry.rb`, `experiments/oof_fragment_registry_implementation_boundary_proof/**`, and proof track; compiler integration/public/runtime/Spark surfaces remain closed |
 
 ---
 
