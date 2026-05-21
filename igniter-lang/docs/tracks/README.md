@@ -72,6 +72,8 @@ architecture. They are not production migration authorization.
 | `oof-fragment-registry-loader-supplied-data-source-design-v0.md` | done | R106 designs staged non-canon source envelope; keeps loader/report/profile/pack paths future-only and recommends proof-local supplied-data source evidence |
 | `oof-fragment-registry-supplied-data-source-proof-v0.md` | done / PASS | R107 proves proof-local supplied-data source envelope checks: 7/7 cases and 9/9 checks PASS; nested registry validation remains in `IgniterLang::OOFFragmentRegistry`; implementation held |
 | `../gates/oof-fragment-registry-source-envelope-validation-placement-decision-v0.md` | accepted-proof-local-evidence-helper-boundary-design-next-implementation-held | R108 accepts R107 proof evidence, keeps current source-envelope validation proof-local, and opens only design-only internal helper boundary; loader/report/public/compiler/spec/runtime/data-file surfaces remain closed |
+| `oof-fragment-registry-source-envelope-helper-boundary-design-v0.md` | done | R109 recommends bounded internal helper placement inside `oof_fragment_registry.rb`; accepted modes are only `proof_fixture` and `caller_supplied`; separate helper/data files and public/compiler/runtime surfaces remain closed |
+| `../gates/oof-fragment-registry-source-envelope-helper-implementation-authorization-review-v0.md` | authorized-bounded-internal-source-envelope-helper-proof-slice | R110 authorizes only the internal helper/proof slice in `oof_fragment_registry.rb`, proof experiment folder, and proof track; loader/report/public/compiler/spec/runtime/data-file/Spark surfaces remain closed |
 
 ---
 
