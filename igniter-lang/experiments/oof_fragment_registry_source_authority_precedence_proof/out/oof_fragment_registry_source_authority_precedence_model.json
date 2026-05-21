@@ -1,0 +1,99 @@
+{
+  "kind": "oof_fragment_registry_source_authority_precedence_model",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-source-authority-precedence-proof-v0",
+  "authority_precedence": {
+    "row_identity_and_ownership": "pack_row_authority",
+    "selected_pack_set_order_conflict_policy": "profile_level_authority",
+    "pack_row_conflict": "profile_rejects_aggregate_no_override"
+  },
+  "profile_candidate": {
+    "kind": "oof_fragment_registry_source",
+    "format_version": "0.1.0",
+    "source_mode": "profile_candidate",
+    "authority": {
+      "authority_ref": "LANG-R117-P1 plus LANG-R116-D1",
+      "authority_kind": "proof_only",
+      "canon_status": "non_canon"
+    },
+    "profile_ref": "compiler_profile_candidate/proof:LANG-R117-local",
+    "row_authority_policy": "pack_descriptor_rows_aggregated_by_profile",
+    "selected_pack_refs": [
+      "pack_descriptor_candidate/proof:CoreLanguagePack",
+      "pack_descriptor_candidate/proof:InvariantPack",
+      "pack_descriptor_candidate/proof:OLAPPack",
+      "pack_descriptor_candidate/proof:OOFRegistryPack",
+      "pack_descriptor_candidate/proof:PipelinePack",
+      "pack_descriptor_candidate/proof:TemporalPack"
+    ],
+    "pack_order": [
+      "pack_descriptor_candidate/proof:CoreLanguagePack",
+      "pack_descriptor_candidate/proof:InvariantPack",
+      "pack_descriptor_candidate/proof:OLAPPack",
+      "pack_descriptor_candidate/proof:OOFRegistryPack",
+      "pack_descriptor_candidate/proof:PipelinePack",
+      "pack_descriptor_candidate/proof:TemporalPack"
+    ],
+    "conflict_policy": "reject_duplicate_row_ownership",
+    "closed_surface_assertions": {
+      "source_accepted_modes_changed": false,
+      "compiler_integration": false,
+      "public_api_cli": false,
+      "loader_report": false,
+      "compatibility_report": false,
+      "igapp_mutation": false,
+      "runtime_behavior": false,
+      "specs_canon_proposals": false,
+      "prop036_manifest_change": false,
+      "prop038_validator_report_change": false,
+      "implementation_authorized": false
+    }
+  },
+  "pack_descriptor_candidates": [
+    {
+      "pack_ref": "pack_descriptor_candidate/proof:CoreLanguagePack",
+      "slot_name": "core_language",
+      "owner_pack_or_boundary": "CoreLanguagePack"
+    },
+    {
+      "pack_ref": "pack_descriptor_candidate/proof:InvariantPack",
+      "slot_name": "invariant",
+      "owner_pack_or_boundary": "InvariantPack"
+    },
+    {
+      "pack_ref": "pack_descriptor_candidate/proof:OLAPPack",
+      "slot_name": "olap",
+      "owner_pack_or_boundary": "OLAPPack"
+    },
+    {
+      "pack_ref": "pack_descriptor_candidate/proof:OOFRegistryPack",
+      "slot_name": "oofregistry",
+      "owner_pack_or_boundary": "OOFRegistryPack"
+    },
+    {
+      "pack_ref": "pack_descriptor_candidate/proof:PipelinePack",
+      "slot_name": "pipeline",
+      "owner_pack_or_boundary": "PipelinePack"
+    },
+    {
+      "pack_ref": "pack_descriptor_candidate/proof:TemporalPack",
+      "slot_name": "temporal",
+      "owner_pack_or_boundary": "TemporalPack"
+    }
+  ],
+  "derived_registry_ref": "out/derived_registry_authority_precedence.json",
+  "live_helper_acceptance": "held_source_mode_for_profile_and_pack_candidates",
+  "closed_surface_assertions": {
+    "source_accepted_modes_changed": false,
+    "compiler_integration": false,
+    "public_api_cli": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "igapp_mutation": false,
+    "runtime_behavior": false,
+    "specs_canon_proposals": false,
+    "prop036_manifest_change": false,
+    "prop038_validator_report_change": false,
+    "implementation_authorized": false
+  }
+}

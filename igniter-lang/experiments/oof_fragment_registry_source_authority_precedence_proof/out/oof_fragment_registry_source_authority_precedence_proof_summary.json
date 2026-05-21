@@ -1,0 +1,726 @@
+{
+  "kind": "oof_fragment_registry_source_authority_precedence_proof_summary",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-source-authority-precedence-proof-v0",
+  "status": "PASS",
+  "model_id": "oof_fragment_source_authority_precedence/sha256:9a1d154be544cb87dfa7001b",
+  "cases": [
+    {
+      "name": "pack_row_authority_owns_row_provenance",
+      "expected": "accepted",
+      "accepted": true,
+      "status": "PASS",
+      "details": {
+        "pack_row_provenance_validation": {
+          "valid": true,
+          "diagnostics": [],
+          "closed_surface_assertions": {
+            "source_accepted_modes_changed": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false,
+            "implementation_authorized": false
+          }
+        }
+      }
+    },
+    {
+      "name": "profile_authority_owns_selected_pack_set_order_conflict_policy",
+      "expected": "accepted",
+      "accepted": true,
+      "status": "PASS",
+      "details": {
+        "profile_authority_validation": {
+          "valid": true,
+          "diagnostics": [],
+          "closed_surface_assertions": {
+            "source_accepted_modes_changed": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false,
+            "implementation_authorized": false
+          }
+        }
+      }
+    },
+    {
+      "name": "derived_registry_validates_after_proof_model_aggregation",
+      "expected": "accepted",
+      "accepted": true,
+      "status": "PASS",
+      "details": {
+        "aggregate_validation": {
+          "valid": true,
+          "diagnostics": [],
+          "closed_surface_assertions": {
+            "source_accepted_modes_changed": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false,
+            "implementation_authorized": false
+          },
+          "registry": {
+            "kind": "oof_fragment_registry",
+            "format_version": "0.1.0",
+            "source_authority": {
+              "authority_ref": "LANG-R117-P1/proof-authority-precedence",
+              "authority_kind": "proof_only",
+              "canon_status": "non_canon",
+              "profile_ref": "compiler_profile_candidate/proof:LANG-R117-local",
+              "profile_authority_scope": "selected_pack_set_order_conflict_policy",
+              "pack_row_authority_scope": "row_identity_ownership"
+            },
+            "historical_source_refs": [
+              "experiments/oof_fragment_registry_shadow_proof/out/oof_descriptors.shadow_registry.json"
+            ],
+            "migration_policy": "proof_derived_after_authority_precedence_aggregation",
+            "forward_shape_authority": "LANG-R98-A plus LANG-R101-D1",
+            "oof_descriptors": [
+              {
+                "code": "OOF-P0",
+                "family": "core_parse_or_emit",
+                "owner_pack_or_boundary": "CoreLanguagePack",
+                "source_stage": "parser",
+                "compiler_layer": "parser",
+                "severity": "error",
+                "status_class": "blocking_oof",
+                "public_code_stability": "stable_current",
+                "message_stability": "stable_family_message",
+                "aliases": [],
+                "deprecated": false,
+                "deprecated_by": null,
+                "replacement_code": null,
+                "source_refs": [
+                  "lib/igniter_lang/parser.rb"
+                ],
+                "current_status": "current",
+                "non_authority_notes": "",
+                "row_authority": {
+                  "pack_ref": "pack_descriptor_candidate/proof:CoreLanguagePack",
+                  "authority_kind": "proof_only",
+                  "canon_status": "non_canon"
+                }
+              },
+              {
+                "code": "OOF-IV1",
+                "family": "invariant",
+                "owner_pack_or_boundary": "InvariantPack",
+                "source_stage": "parser",
+                "compiler_layer": "parser",
+                "severity": "error",
+                "status_class": "blocking_oof",
+                "public_code_stability": "stable_current",
+                "message_stability": "stable_family_message",
+                "aliases": [],
+                "deprecated": false,
+                "deprecated_by": null,
+                "replacement_code": null,
+                "source_refs": [
+                  "lib/igniter_lang/parser.rb"
+                ],
+                "current_status": "current",
+                "non_authority_notes": "",
+                "row_authority": {
+                  "pack_ref": "pack_descriptor_candidate/proof:InvariantPack",
+                  "authority_kind": "proof_only",
+                  "canon_status": "non_canon"
+                }
+              },
+              {
+                "code": "OOF-IV2",
+                "family": "invariant",
+                "owner_pack_or_boundary": "InvariantPack",
+                "source_stage": "parser",
+                "compiler_layer": "parser",
+                "severity": "error",
+                "status_class": "blocking_oof",
+                "public_code_stability": "stable_current",
+                "message_stability": "stable_family_message",
+                "aliases": [],
+                "deprecated": false,
+                "deprecated_by": null,
+                "replacement_code": null,
+                "source_refs": [
+                  "lib/igniter_lang/parser.rb"
+                ],
+                "current_status": "current",
+                "non_authority_notes": "",
+                "row_authority": {
+                  "pack_ref": "pack_descriptor_candidate/proof:InvariantPack",
+                  "authority_kind": "proof_only",
+                  "canon_status": "non_canon"
+                }
+              },
+              {
+                "code": "OOF-H1",
+                "family": "temporal_history",
+                "owner_pack_or_boundary": "TemporalPack",
+                "source_stage": "typechecker",
+                "compiler_layer": "typechecker",
+                "severity": "error",
+                "status_class": "blocking_oof",
+                "public_code_stability": "stable_current",
+                "message_stability": "stable_family_message",
+                "aliases": [
+                  "OOF-TM1"
+                ],
+                "deprecated": false,
+                "deprecated_by": null,
+                "replacement_code": null,
+                "source_refs": [
+                  "lib/igniter_lang/typechecker.rb"
+                ],
+                "current_status": "current",
+                "non_authority_notes": "",
+                "row_authority": {
+                  "pack_ref": "pack_descriptor_candidate/proof:TemporalPack",
+                  "authority_kind": "proof_only",
+                  "canon_status": "non_canon"
+                }
+              },
+              {
+                "code": "OOF-TM1",
+                "family": "temporal_alias",
+                "owner_pack_or_boundary": "TemporalPack",
+                "source_stage": "typechecker",
+                "compiler_layer": "typechecker",
+                "severity": "error",
+                "status_class": "compatibility_alias",
+                "public_code_stability": "stable_compatibility_alias",
+                "message_stability": "stable_family_message",
+                "aliases": [],
+                "deprecated": true,
+                "deprecated_by": "OOF-H1",
+                "replacement_code": "OOF-H1",
+                "source_refs": [
+                  "lib/igniter_lang/typechecker.rb"
+                ],
+                "current_status": "compatibility_alias",
+                "non_authority_notes": "Compatibility alias; canonical descriptor is OOF-H1.",
+                "row_authority": {
+                  "pack_ref": "pack_descriptor_candidate/proof:TemporalPack",
+                  "authority_kind": "proof_only",
+                  "canon_status": "non_canon"
+                }
+              }
+            ],
+            "fragment_rows": [
+              {
+                "name": "core",
+                "owner_pack_or_boundary": "CoreLanguagePack",
+                "current_or_candidate": "current",
+                "applies_to": [
+                  "contract",
+                  "node",
+                  "value"
+                ],
+                "classification_kind": "language_fragment",
+                "value_flow_notes": "Baseline pure compiler surface.",
+                "precedence_candidate": 10,
+                "canonical_status": "non_canon_candidate",
+                "loadable": true,
+                "capability": true,
+                "non_authority_notes": "",
+                "row_authority": {
+                  "pack_ref": "pack_descriptor_candidate/proof:CoreLanguagePack",
+                  "authority_kind": "proof_only",
+                  "canon_status": "non_canon"
+                }
+              },
+              {
+                "name": "olap",
+                "owner_pack_or_boundary": "OLAPPack",
+                "current_or_candidate": "excluded_candidate_owner_only",
+                "applies_to": [
+                  "owner_surface"
+                ],
+                "classification_kind": "not_fragment_class",
+                "value_flow_notes": "OLAP has nodes and diagnostics but is not promoted to fragment class.",
+                "precedence_candidate": null,
+                "canonical_status": "excluded_non_fragment",
+                "loadable": false,
+                "capability": false,
+                "non_authority_notes": "Guarded non-fragment; olap remains not_fragment_class.",
+                "row_authority": {
+                  "pack_ref": "pack_descriptor_candidate/proof:OLAPPack",
+                  "authority_kind": "proof_only",
+                  "canon_status": "non_canon"
+                }
+              },
+              {
+                "name": "oof",
+                "owner_pack_or_boundary": "OOFRegistryPack",
+                "current_or_candidate": "current_shadow_status_and_fragment_marker",
+                "applies_to": [
+                  "contract",
+                  "node",
+                  "report_status"
+                ],
+                "classification_kind": "status_fragment_both_candidate",
+                "value_flow_notes": "OOF blocks SemanticIR/assembly; status-primary projection; blocked, non-loadable, capability-free.",
+                "precedence_candidate": 100,
+                "canonical_status": "non_canon_candidate",
+                "loadable": false,
+                "capability": false,
+                "non_authority_notes": "oof is status-primary/secondary projection; must remain non-loadable and capability-free.",
+                "row_authority": {
+                  "pack_ref": "pack_descriptor_candidate/proof:OOFRegistryPack",
+                  "authority_kind": "proof_only",
+                  "canon_status": "non_canon"
+                }
+              },
+              {
+                "name": "progression",
+                "owner_pack_or_boundary": "PipelinePack",
+                "current_or_candidate": "excluded",
+                "applies_to": [
+                  "descriptor_metadata_under_pipeline"
+                ],
+                "classification_kind": "not_fragment_class",
+                "value_flow_notes": "PROP-037 progression remains under pipeline metadata; no PROGRESSION fragment class.",
+                "precedence_candidate": null,
+                "canonical_status": "excluded_non_fragment",
+                "loadable": false,
+                "capability": false,
+                "non_authority_notes": "Guarded non-fragment; progression remains not_fragment_class.",
+                "row_authority": {
+                  "pack_ref": "pack_descriptor_candidate/proof:PipelinePack",
+                  "authority_kind": "proof_only",
+                  "canon_status": "non_canon"
+                }
+              },
+              {
+                "name": "temporal",
+                "owner_pack_or_boundary": "TemporalPack",
+                "current_or_candidate": "current",
+                "applies_to": [
+                  "contract",
+                  "node"
+                ],
+                "classification_kind": "language_fragment",
+                "value_flow_notes": "Temporal read node is TEMPORAL; selected value remains CORE-typed.",
+                "precedence_candidate": 90,
+                "canonical_status": "non_canon_candidate",
+                "loadable": true,
+                "capability": true,
+                "non_authority_notes": "",
+                "row_authority": {
+                  "pack_ref": "pack_descriptor_candidate/proof:TemporalPack",
+                  "authority_kind": "proof_only",
+                  "canon_status": "non_canon"
+                }
+              }
+            ],
+            "support_markers": {
+              "invariant_support_markers": [
+                {
+                  "code": "PINV-1",
+                  "family": "invariant_parser_support",
+                  "owner_pack_or_boundary": "InvariantPack",
+                  "source_stage": "parser",
+                  "compiler_layer": "parser",
+                  "lifecycle_state": "support_metadata_current",
+                  "public_code_stability": "non_public_support_marker",
+                  "related_oof_descriptors": [
+                    "OOF-IV1",
+                    "OOF-IV2"
+                  ],
+                  "source_refs": [
+                    "lib/igniter_lang/parser.rb"
+                  ],
+                  "non_authority_notes": "Support marker only; not emitted as a public diagnostic.",
+                  "row_authority": {
+                    "pack_ref": "pack_descriptor_candidate/proof:InvariantPack",
+                    "authority_kind": "proof_only",
+                    "canon_status": "non_canon"
+                  }
+                },
+                {
+                  "code": "PINV-2",
+                  "family": "invariant_parser_support",
+                  "owner_pack_or_boundary": "InvariantPack",
+                  "source_stage": "parser",
+                  "compiler_layer": "parser",
+                  "lifecycle_state": "support_metadata_current",
+                  "public_code_stability": "non_public_support_marker",
+                  "related_oof_descriptors": [
+                    "OOF-IV1"
+                  ],
+                  "source_refs": [
+                    "lib/igniter_lang/parser.rb"
+                  ],
+                  "non_authority_notes": "Support marker only; not emitted as a public diagnostic.",
+                  "row_authority": {
+                    "pack_ref": "pack_descriptor_candidate/proof:InvariantPack",
+                    "authority_kind": "proof_only",
+                    "canon_status": "non_canon"
+                  }
+                },
+                {
+                  "code": "TINV-1",
+                  "family": "invariant_type_support",
+                  "owner_pack_or_boundary": "InvariantPack",
+                  "source_stage": "typechecker",
+                  "compiler_layer": "typechecker",
+                  "lifecycle_state": "support_metadata_current",
+                  "public_code_stability": "non_public_support_marker",
+                  "related_oof_descriptors": [
+                    "OOF-IV1"
+                  ],
+                  "source_refs": [
+                    "lib/igniter_lang/typechecker.rb"
+                  ],
+                  "non_authority_notes": "Support marker only; not emitted as a public diagnostic.",
+                  "row_authority": {
+                    "pack_ref": "pack_descriptor_candidate/proof:InvariantPack",
+                    "authority_kind": "proof_only",
+                    "canon_status": "non_canon"
+                  }
+                }
+              ]
+            },
+            "excluded_namespaces": [
+              {
+                "prefix": "compiler_profile_contract.",
+                "reason": "PROP-038 contract-object diagnostics are not language OOF codes.",
+                "forbidden_as": [
+                  "oof_descriptor",
+                  "oof_alias"
+                ],
+                "owner_boundary": "CompilerProfileContractPack"
+              },
+              {
+                "prefix": "compiler_profile_contract_refusal.",
+                "reason": "PROP-038 contract-object refusal diagnostics are not language OOF codes.",
+                "forbidden_as": [
+                  "oof_descriptor",
+                  "oof_alias"
+                ],
+                "owner_boundary": "CompilerProfileContractPack"
+              }
+            ]
+          }
+        },
+        "registry_validation_called": true,
+        "nested_registry_validation": {
+          "kind": "oof_fragment_registry_validation",
+          "format_version": "0.1.0",
+          "valid": true,
+          "registry_service_present": true,
+          "checked_sections": [
+            "oof_descriptors",
+            "fragment_rows",
+            "support_markers.invariant_support_markers",
+            "excluded_namespaces"
+          ],
+          "diagnostics": [],
+          "inactive_rows": [],
+          "closed_surface_assertions": {
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false
+          }
+        },
+        "validated_by": "IgniterLang::OOFFragmentRegistry#validate"
+      }
+    },
+    {
+      "name": "duplicate_row_ownership_rejects_aggregate",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "aggregate_validation": {
+          "valid": false,
+          "diagnostics": [
+            {
+              "code": "authority_precedence.row_owner_mismatch",
+              "message": "OOF-P0 owner does not match pack authority"
+            },
+            {
+              "code": "authority_precedence.duplicate_row_ownership",
+              "message": "oof_descriptor:OOF-P0 claimed by pack_descriptor_candidate/proof:CoreLanguagePack and pack_descriptor_candidate/proof:InvariantPack"
+            }
+          ],
+          "closed_surface_assertions": {
+            "source_accepted_modes_changed": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false,
+            "implementation_authorized": false
+          },
+          "registry": null
+        },
+        "registry_validation_called": false
+      }
+    },
+    {
+      "name": "profile_cannot_silently_override_pack_row_conflicts",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "aggregate_validation": {
+          "valid": false,
+          "diagnostics": [
+            {
+              "code": "authority_precedence.row_owner_mismatch",
+              "message": "OOF-P0 owner does not match pack authority"
+            },
+            {
+              "code": "authority_precedence.profile_override_forbidden",
+              "message": "profile cannot silently override pack-row conflicts"
+            },
+            {
+              "code": "authority_precedence.duplicate_row_ownership",
+              "message": "oof_descriptor:OOF-P0 claimed by pack_descriptor_candidate/proof:CoreLanguagePack and pack_descriptor_candidate/proof:InvariantPack"
+            }
+          ],
+          "closed_surface_assertions": {
+            "source_accepted_modes_changed": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false,
+            "implementation_authorized": false
+          },
+          "registry": null
+        },
+        "profile_override_present": true,
+        "registry_validation_called": false
+      }
+    },
+    {
+      "name": "missing_selected_pack_ref_rejects_aggregate",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "aggregate_validation": {
+          "valid": false,
+          "diagnostics": [
+            {
+              "code": "authority_precedence.missing_selected_pack_ref",
+              "message": "profile selected missing pack refs: pack_descriptor_candidate/proof:MissingPack"
+            }
+          ],
+          "closed_surface_assertions": {
+            "source_accepted_modes_changed": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false,
+            "implementation_authorized": false
+          },
+          "registry": null
+        },
+        "registry_validation_called": false
+      }
+    },
+    {
+      "name": "excluded_namespace_rejects_aggregate",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "aggregate_validation": {
+          "valid": false,
+          "diagnostics": [
+            {
+              "code": "authority_precedence.excluded_oof_namespace",
+              "message": "compiler_profile_contract.contract_digest_mismatch is under excluded namespace compiler_profile_contract."
+            }
+          ],
+          "closed_surface_assertions": {
+            "source_accepted_modes_changed": false,
+            "compiler_integration": false,
+            "public_api_cli": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "igapp_mutation": false,
+            "runtime_behavior": false,
+            "specs_canon_proposals": false,
+            "prop036_manifest_change": false,
+            "prop038_validator_report_change": false,
+            "implementation_authorized": false
+          },
+          "registry": null
+        },
+        "registry_validation_called": false
+      }
+    },
+    {
+      "name": "live_helper_profile_candidate_still_held",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": false,
+          "source_mode": "profile_candidate",
+          "registry_present": true,
+          "source_diagnostics": [
+            {
+              "code": "oof_registry.source.validation.held_source_mode",
+              "message": "source_mode \"profile_candidate\" is known but held; only 'proof_fixture' and 'caller_supplied' are accepted in this helper"
+            }
+          ],
+          "registry_validation": null,
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "held_source_mode": true,
+        "registry_validation_called": false
+      }
+    },
+    {
+      "name": "live_helper_pack_descriptor_candidate_still_held",
+      "expected": "rejected",
+      "accepted": false,
+      "status": "PASS",
+      "details": {
+        "source_validation": {
+          "kind": "oof_fragment_registry_source_validation",
+          "format_version": "0.1.0",
+          "valid": false,
+          "source_mode": "pack_descriptor_candidate",
+          "registry_present": true,
+          "source_diagnostics": [
+            {
+              "code": "oof_registry.source.validation.held_source_mode",
+              "message": "source_mode \"pack_descriptor_candidate\" is known but held; only 'proof_fixture' and 'caller_supplied' are accepted in this helper"
+            }
+          ],
+          "registry_validation": null,
+          "closed_surface_assertions": {
+            "static_data_file": false,
+            "lib_igniter_lang_rb_require": false,
+            "compiler_pass_integration": false,
+            "public_api_cli": false,
+            "top_level_report_diagnostics": false,
+            "compiler_result_field": false,
+            "loader_report": false,
+            "compatibility_report": false,
+            "runtime_behavior": false,
+            "igapp_mutation": false,
+            "specs_canon_proposals": false
+          }
+        },
+        "held_source_mode": true,
+        "registry_validation_called": false
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "r115_profile_pack_proof.pass_evidence",
+      "status": "PASS"
+    },
+    {
+      "name": "case_matrix.expected_results",
+      "status": "PASS"
+    },
+    {
+      "name": "pack_row_authority_primary",
+      "status": "PASS"
+    },
+    {
+      "name": "profile_authority_owns_selection_order_conflict_policy",
+      "status": "PASS"
+    },
+    {
+      "name": "conflicts_reject_without_profile_override",
+      "status": "PASS"
+    },
+    {
+      "name": "derived_registry_validates_only_after_aggregation",
+      "status": "PASS"
+    },
+    {
+      "name": "live_helper_profile_pack_modes_held",
+      "status": "PASS"
+    },
+    {
+      "name": "source_accepted_modes_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "closed_surfaces_preserved",
+      "status": "PASS"
+    }
+  ],
+  "failed_cases": [],
+  "failed_checks": [],
+  "recommendation": "SOURCE_AUTHORITY_DESIGN_ACCEPTED_FOR_PROOF_HOLD_IMPLEMENTATION",
+  "outputs": {
+    "summary": "igniter-lang/experiments/oof_fragment_registry_source_authority_precedence_proof/out/oof_fragment_registry_source_authority_precedence_proof_summary.json",
+    "model": "igniter-lang/experiments/oof_fragment_registry_source_authority_precedence_proof/out/oof_fragment_registry_source_authority_precedence_model.json",
+    "derived_registry": "igniter-lang/experiments/oof_fragment_registry_source_authority_precedence_proof/out/derived_registry_authority_precedence.json"
+  },
+  "closed_surfaces": {
+    "source_accepted_modes_changed": false,
+    "compiler_integration": false,
+    "public_api_cli": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "igapp_mutation": false,
+    "runtime_behavior": false,
+    "specs_canon_proposals": false,
+    "prop036_manifest_change": false,
+    "prop038_validator_report_change": false,
+    "implementation_authorized": false
+  },
+  "implementation_authorized": false
+}
