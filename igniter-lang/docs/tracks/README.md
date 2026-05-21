@@ -66,6 +66,8 @@ architecture. They are not production migration authorization.
 | `../discussions/oof-fragment-registry-implementation-boundary-pressure-v0.md` | proceed | R100 pressure PASS; write scope isolated, parity plan comprehensive, but 9 blockers routed to R101 closure |
 | `oof-fragment-registry-authorization-blocker-closure-design-v0.md` | done | R101 closes/routes R100 blockers; pins first-slice write scope, excludes `oof_fragment_registry_data.rb`, includes support markers, defines inactive-row proof and 8-command matrix |
 | `../gates/oof-fragment-registry-implementation-authorization-review-v0.md` | authorized-bounded-internal-validator-proof-slice | R102 authorizes only `lib/igniter_lang/oof_fragment_registry.rb`, `experiments/oof_fragment_registry_implementation_boundary_proof/**`, and proof track; compiler integration/public/runtime/Spark surfaces remain closed |
+| `oof-fragment-registry-implementation-boundary-proof-v0.md` | done / PASS | R103 lands isolated internal validator and proof-local harness inside R102 scope; 27/27 proof checks PASS and pinned 8-command matrix PASS; `oof_fragment_registry_data.rb` absent |
+| `../gates/oof-fragment-registry-implementation-acceptance-decision-v0.md` | accepted-closure-static-internal-data-design-next | R104 accepts R103 closure and opens only design-only `oof-fragment-registry-static-internal-data-design-v0`; compiler integration and static data implementation remain closed |
 
 ---
 

@@ -134,6 +134,8 @@ Latest production-prep proof:
 - `reports/ruby-rel-p4-0-5-2-release-execution-preflight.md`
 - `tracks/ruby-0-5-2-release-execution-approval-handoff-v0.md`
 - `reports/ruby-rel-p5-0-5-2-release-execution-approval-handoff.md`
+- `tracks/ruby-0-5-2-push-readiness-v0.md`
+- `reports/ruby-push-p1-0-5-2-push-readiness.md`
 
 Proof status:
 
@@ -155,6 +157,7 @@ release-readiness review: HOLD for release execution
 release blocker closure plan: filed
 0.5.2 release execution preflight: filed
 0.5.2 release execution boundary: approved and executed locally
+0.5.2 push readiness: PASS, waiting for explicit push approval
 Rubygems publish/release: publish held for second explicit authorization
 ```
 
@@ -264,8 +267,9 @@ Ruby Framework lane contribution: done.
 Waiting: S3-R87-C3-A (Architect decision).
 Latest analysis/recipe round: done.
 Next round: no new implementation round open yet.
-Recommended next route: publish requires second explicit authorization; push
-commit/tag remains separate per user instruction.
+Recommended next route: wait for explicit push approval for `git push origin
+master` and `git push origin v0.5.2`, or open a separate branch/cherry-pick
+route if only the release commit/tag should move.
 Release execution boundary completed locally: version bump, gates, gem build,
 clean installed-gem smoke, commit, and tag. Spark production readiness remains
 out of scope.
