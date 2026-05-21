@@ -1,61 +1,61 @@
 PATH
   remote: .
   specs:
-    igniter (0.5.1)
+    igniter (0.5.2)
 
 PATH
   remote: packages/igniter-agents
   specs:
-    igniter-agents (0.5.1)
-      igniter-ai (= 0.5.1)
+    igniter-agents (0.5.2)
+      igniter-ai (= 0.5.2)
 
 PATH
   remote: packages/igniter-ai
   specs:
-    igniter-ai (0.5.1)
+    igniter-ai (0.5.2)
 
 PATH
   remote: packages/igniter-application
   specs:
-    igniter-application (0.5.1)
-      igniter-agents (= 0.5.1)
-      igniter-ai (= 0.5.1)
-      igniter-contracts (= 0.5.1)
-      igniter-extensions (= 0.5.1)
+    igniter-application (0.5.2)
+      igniter-agents (= 0.5.2)
+      igniter-ai (= 0.5.2)
+      igniter-contracts (= 0.5.2)
+      igniter-extensions (= 0.5.2)
 
 PATH
   remote: packages/igniter-contracts
   specs:
-    igniter-contracts (0.5.1)
+    igniter-contracts (0.5.2)
 
 PATH
   remote: packages/igniter-extensions
   specs:
-    igniter-extensions (0.5.1)
-      igniter-contracts (= 0.5.1)
+    igniter-extensions (0.5.2)
+      igniter-contracts (= 0.5.2)
 
 PATH
   remote: packages/igniter-hub
   specs:
-    igniter-hub (0.5.1)
+    igniter-hub (0.5.2)
 
 PATH
   remote: packages/igniter-ledger-client
   specs:
-    igniter-ledger-client (0.5.1)
+    igniter-ledger-client (0.5.2)
 
 PATH
   remote: packages/igniter-mcp-adapter
   specs:
-    igniter-mcp-adapter (0.5.1)
-      igniter-extensions (= 0.5.1)
+    igniter-mcp-adapter (0.5.2)
+      igniter-extensions (= 0.5.2)
 
 PATH
   remote: packages/igniter-web
   specs:
-    igniter-web (0.5.1)
+    igniter-web (0.5.2)
       arbre
-      igniter-application (= 0.5.1)
+      igniter-application (= 0.5.2)
 
 GEM
   remote: https://rubygems.org/

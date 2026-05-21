@@ -132,6 +132,8 @@ Latest production-prep proof:
 - `reports/ruby-rel-p3-blocker-closure-plan.md`
 - `tracks/ruby-0-5-2-release-execution-preflight-v0.md`
 - `reports/ruby-rel-p4-0-5-2-release-execution-preflight.md`
+- `tracks/ruby-0-5-2-release-execution-approval-handoff-v0.md`
+- `reports/ruby-rel-p5-0-5-2-release-execution-approval-handoff.md`
 
 Proof status:
 
@@ -152,7 +154,8 @@ release-readiness review prep: filed
 release-readiness review: HOLD for release execution
 release blocker closure plan: filed
 0.5.2 release execution preflight: filed
-Rubygems publish/release: not run
+0.5.2 release execution boundary: approved and executed locally
+Rubygems publish/release: publish held for second explicit authorization
 ```
 
 ## Active Risks
@@ -261,11 +264,11 @@ Ruby Framework lane contribution: done.
 Waiting: S3-R87-C3-A (Architect decision).
 Latest analysis/recipe round: done.
 Next round: no new implementation round open yet.
-Recommended next route: wait for user/Portfolio authorization on the `0.5.2`
-preflight decisions.
-Release/tag/publish remain held. If approved, execute cleanup, version bump,
-final gates, gem rebuild, clean installed-gem smoke, commit, and tag; keep
-publish as a second explicit authorization unless directed otherwise.
-Next report filename: to be determined by the release execution route or the
-next Spark/Ruby adoption route.
+Recommended next route: publish requires second explicit authorization; push
+commit/tag remains separate per user instruction.
+Release execution boundary completed locally: version bump, gates, gem build,
+clean installed-gem smoke, commit, and tag. Spark production readiness remains
+out of scope.
+Next report filename: to be determined by publish authorization route, push
+route, or the next Spark/Ruby adoption route.
 ```

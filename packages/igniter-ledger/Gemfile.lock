@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    igniter-ledger (0.5.1)
+    igniter-ledger (0.5.2)
       msgpack (~> 1.0)
       rack (~> 3.0)
 
@@ -51,7 +51,7 @@ DEPENDENCIES
 
 CHECKSUMS
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
-  igniter-ledger (0.5.1)
+  igniter-ledger (0.5.2)
   msgpack (1.8.0) sha256=e64ce0212000d016809f5048b48eb3a65ffb169db22238fb4b72472fecb2d732
   nio4r (2.7.5) sha256=6c90168e48fb5f8e768419c93abb94ba2b892a1d0602cb06eef16d8b7df1dca1
   puma (6.6.1) sha256=b9b56e4a4ea75d1bfa6d9e1972ee2c9f43d0883f011826d914e8e37b3694ea1e
