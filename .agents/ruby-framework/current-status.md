@@ -136,6 +136,8 @@ Latest production-prep proof:
 - `reports/ruby-rel-p5-0-5-2-release-execution-approval-handoff.md`
 - `tracks/ruby-0-5-2-push-readiness-v0.md`
 - `reports/ruby-push-p1-0-5-2-push-readiness.md`
+- `tracks/ruby-0-5-2-publish-readiness-v0.md`
+- `reports/ruby-publish-p1-0-5-2-publish-readiness.md`
 
 Proof status:
 
@@ -158,7 +160,8 @@ release blocker closure plan: filed
 0.5.2 release execution preflight: filed
 0.5.2 release execution boundary: approved and executed locally
 0.5.2 push readiness: PASS, waiting for explicit push approval
-Rubygems publish/release: publish held for second explicit authorization
+0.5.2 publish readiness: PASS, waiting for explicit publish approval phrase
+Rubygems publish/release: not run
 ```
 
 ## Active Risks
@@ -267,12 +270,11 @@ Ruby Framework lane contribution: done.
 Waiting: S3-R87-C3-A (Architect decision).
 Latest analysis/recipe round: done.
 Next round: no new implementation round open yet.
-Recommended next route: wait for explicit push approval for `git push origin
-master` and `git push origin v0.5.2`, or open a separate branch/cherry-pick
-route if only the release commit/tag should move.
-Release execution boundary completed locally: version bump, gates, gem build,
-clean installed-gem smoke, commit, and tag. Spark production readiness remains
-out of scope.
-Next report filename: to be determined by publish authorization route, push
-route, or the next Spark/Ruby adoption route.
+Recommended next route: wait for explicit publish approval phrase if the user
+wants Rubygems publish. Remote tag `v0.5.2` is present and matches local release
+commit; local `master` is ahead of `origin/master` by unrelated Lang commits,
+but branch push is not required for publish.
+Spark production readiness remains out of scope.
+Next report filename: to be determined by publish execution route or the next
+Spark/Ruby adoption route.
 ```
