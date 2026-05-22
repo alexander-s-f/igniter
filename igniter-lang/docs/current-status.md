@@ -263,6 +263,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             contracts, no lib/root/classifier/report/artifact/
                             runtime/Spark drift; next route is authorization
                             review only, implementation still held;
+                            R147 authorizes only bounded direct-require helper
+                            implementation/proof next; helper implementation
+                            not landed yet, root require/classifier wiring/live
+                            dispatch and public/runtime/Spark surfaces closed;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime, production remain blocked
 ─────────────────────────────────────────────────────────────────
@@ -787,6 +791,9 @@ Round 146 landed:
   S3-R146-C2-X: helper boundary pressure                                ✅ proceed; 7/7 checks; no blockers
   S3-R146-C3-A: helper boundary decision                                ✅ accepted-proof-implementation-authorization-review-next-implementation-held
   S3-R146-C4-S: status curation / next-route pointer                    ✅ done; implementation held, demo-shadow note-only
+Round 147 landed:
+  S3-R147-C1-A: helper implementation authorization review              ✅ authorized-bounded-direct-require-helper-implementation
+  S3-R147-C2-S: status curation / next-route pointer                    ✅ done; implementation authorized next, not landed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -838,6 +845,10 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   R146 accepts that proof-only helper boundary and opens only
                   `fragment-registry-compatibility-adapter-helper-implementation-authorization-review-v0`
                   next; implementation remains held,
+                  R147 authorizes only bounded direct-require helper
+                  implementation/proof next:
+                  `fragment-registry-compatibility-adapter-helper-implementation-proof-v0`;
+                  implementation is authorized but not landed,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
@@ -2134,6 +2145,23 @@ S3-R146 result:     C1-P1 proves the proof-only internal helper boundary for the
                       CompilerResult, CompatibilityReport, PROP-036/PROP-038 mutation, runtime, Spark,
                       production, Ledger/TBackend, BiHistory, stream/OLAP, cache, signing, deployment, and
                       demo work remain closed.
+S3-R147 result:     C1-A authorizes a bounded direct-require-only internal helper implementation/proof
+                      route with status `authorized-bounded-direct-require-helper-implementation`.
+                      Exact next route:
+                      `fragment-registry-compatibility-adapter-helper-implementation-proof-v0`.
+                      Authorized future write scope is limited to
+                      `igniter-lang/lib/igniter_lang/fragment_registry_compatibility_adapter.rb`,
+                      `igniter-lang/experiments/fragment_registry_compatibility_adapter_helper_implementation_proof/**`,
+                      and `igniter-lang/docs/tracks/fragment-registry-compatibility-adapter-helper-implementation-proof-v0.md`.
+                      The helper API shape is fixed to R146 C1 for this first slice:
+                      `IgniterLang::FragmentRegistryCompatibilityAdapter.project(input_hash) -> result_hash`.
+                      Implementation is authorized next but not landed by R147. Still closed:
+                      any edit outside the exact write scope, root require, classifier wiring/live dispatch,
+                      `contract_fragment_for` replacement, parser/classifier/TypeChecker/SemanticIR/
+                      assembler/report/`.igapp`, `ClassifiedProgram` schema changes, public API/CLI,
+                      loader/report, CompilationReport, CompilerResult, CompatibilityReport, artifact/golden
+                      mutation, PROP-036/PROP-038 mutation, runtime, Spark, production, Ledger/TBackend,
+                      BiHistory, stream/OLAP, cache, signing, deployment, and demo work.
 ```
 
 ### Spec Freshness
