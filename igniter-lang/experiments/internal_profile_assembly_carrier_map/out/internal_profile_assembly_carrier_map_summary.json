@@ -1,0 +1,48 @@
+{
+  "kind": "internal_profile_assembly_carrier_map_summary",
+  "format_version": "0.1.0",
+  "track": "internal-profile-assembly-carrier-map-v0",
+  "status": "PASS",
+  "map_path": "igniter-lang/experiments/internal_profile_assembly_carrier_map/out/internal_profile_assembly_carrier_map.json",
+  "map_digest": "d65c9c3d03dd3358fe7dff10",
+  "source_result_kind": "internal_profile_assembly_result",
+  "checks": [
+    {
+      "name": "carrier_map_kind",
+      "status": "PASS"
+    },
+    {
+      "name": "source_result_kind_internal_profile_assembly_result",
+      "status": "PASS"
+    },
+    {
+      "name": "deterministic_digest_present",
+      "status": "PASS"
+    },
+    {
+      "name": "not_compiler_profile",
+      "status": "PASS"
+    },
+    {
+      "name": "not_compiler_profile_id",
+      "status": "PASS"
+    },
+    {
+      "name": "not_igapp_report_loader_compatibility_runtime_or_production",
+      "status": "PASS"
+    },
+    {
+      "name": "closed_surface_assertions_all_false",
+      "status": "PASS"
+    },
+    {
+      "name": "bridge_review_required_before_external_carriers",
+      "status": "PASS"
+    }
+  ],
+  "failed_checks": [],
+  "implementation_authorized": false,
+  "compiler_pipeline_integration_authorized": false,
+  "public_report_loader_runtime_authorized": false,
+  "recommendation": "HOLD_LIVE_CARRIER_BRIDGE_PRESSURE_BEFORE_EXTERNAL_SURFACE"
+}

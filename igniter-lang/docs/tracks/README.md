@@ -96,6 +96,8 @@ architecture. They are not production migration authorization.
 | `../gates/internal-profile-assembly-boundary-implementation-authorization-review-v0.md` | authorized-bounded-internal-profile-assembly-boundary | R132 authorizes only `IgniterLang::InternalProfileAssembly` as a tiny internal boundary object/result; root require, compiler pipeline, public/report/manifest/PROP/runtime/Spark surfaces remain closed |
 | `internal-profile-assembly-boundary-implementation-v0.md` | done / PASS | R133 implements `IgniterLang::InternalProfileAssembly`; implementation proof PASS 7/7 cases and 5/5 checks; R134 resolves the stale R131 matrix assertion |
 | `internal-profile-assembly-boundary-proof-maintenance-v0.md` | done / PASS | R134 supersedes R131 `no_new_lib_assembly_boundary_file` with authorized-file/direct-require-only check; full R132/R133 matrix PASS and external surfaces remain closed |
+| `internal-profile-assembly-next-carrier-design-v0.md` | done | R135 recommends a no-code/proof-local `internal_profile_assembly_carrier_map`; live carriers remain held and Bridge review is required before external surfaces |
+| `internal-profile-assembly-carrier-map-v0.md` | done / PASS | R136 creates proof-local carrier map JSON; deterministic digest PASS; map is not CompilerProfile, compiler_profile_id, `.igapp`, report, loader, CompatibilityReport, runtime readiness, or production readiness |
 
 ---
 

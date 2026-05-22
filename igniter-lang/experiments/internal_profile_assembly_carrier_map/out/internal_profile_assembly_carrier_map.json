@@ -1,0 +1,186 @@
+{
+  "kind": "internal_profile_assembly_carrier_map",
+  "format_version": "0.1.0",
+  "track": "internal-profile-assembly-carrier-map-v0",
+  "source_result_kind": "internal_profile_assembly_result",
+  "source_result_lifecycle_state": "finalized_internal",
+  "source_result_refs": [
+    "igniter-lang/experiments/internal_profile_assembly_boundary_proof/out/internal_profile_assembly_result.valid.json",
+    "igniter-lang/experiments/internal_profile_assembly_boundary_implementation_proof/out/internal_profile_assembly_result.valid.json"
+  ],
+  "candidate_consumers": [
+    {
+      "consumer": "track_docs_and_design_docs",
+      "allowed_now": true,
+      "carrier_mode": "evidence_reference_only",
+      "reason": "May cite internal_profile_assembly_result shape and digests as design evidence."
+    },
+    {
+      "consumer": "proof_local_carrier_map_experiment",
+      "allowed_now": true,
+      "carrier_mode": "proof_local_json_only",
+      "reason": "May classify future consumers and blockers without becoming compiler input."
+    },
+    {
+      "consumer": "internal_migration_design_packet",
+      "allowed_now": true,
+      "carrier_mode": "design_only",
+      "reason": "May describe future profile/pack migration checkpoints before implementation authorization."
+    },
+    {
+      "consumer": "future_internal_profile_assembly_adapter",
+      "allowed_now": false,
+      "carrier_mode": "implementation_review_required",
+      "reason": "Would require exact write scope, direct-require-only proof, invalid-result rejection cases, and parity matrix."
+    }
+  ],
+  "blocked_consumers": [
+    {
+      "consumer": "lib_igniter_lang_root_require",
+      "blocked_reason": "Would expose internal assembly from the package root."
+    },
+    {
+      "consumer": "igniter_lang_compile_facade",
+      "blocked_reason": "Would make the map a public compiler input."
+    },
+    {
+      "consumer": "cli",
+      "blocked_reason": "Would imply path loading or public error/status semantics."
+    },
+    {
+      "consumer": "parser_classifier_typechecker_semanticir_assembler_orchestrator",
+      "blocked_reason": "Would connect internal profile assembly to the current compiler pipeline before pack migration authority."
+    },
+    {
+      "consumer": "compilation_report_compiler_result_diagnostics",
+      "blocked_reason": "Would create report/result vocabulary and public diagnostic exposure."
+    },
+    {
+      "consumer": "loader_report_or_compatibility_report",
+      "blocked_reason": "Would turn internal profile assembly evidence into load/readiness evidence."
+    },
+    {
+      "consumer": "igapp_manifest_sidecar_golden",
+      "blocked_reason": "Would mutate artifact identity or golden fixtures."
+    },
+    {
+      "consumer": "prop036_manifest_identity_or_profile_id",
+      "blocked_reason": "internal_profile_assembly_result is not compiler_profile_id and not PROP-036 finalization."
+    },
+    {
+      "consumer": "prop038_contract_validation_or_strict_terminal",
+      "blocked_reason": "internal_profile_assembly_result is not validator authority and not strict-refusal authority."
+    },
+    {
+      "consumer": "runtime_gate3_ledger_tbackend_cache_signing_production_spark",
+      "blocked_reason": "Compiler/profile metadata is not runtime capability, production readiness, or Spark authority."
+    }
+  ],
+  "pack_boundary_refs": [
+    {
+      "ref": "igniter-lang/docs/tracks/compiler-pack-boundary-report-v0.md",
+      "role": "current compiler-pack boundary map"
+    },
+    {
+      "ref": "igniter-lang/docs/tracks/compiler-profile-source-input-lifecycle-owner-design-v0.md",
+      "role": "hybrid profile assembly owner/lifecycle design"
+    },
+    {
+      "ref": "igniter-lang/docs/tracks/oof-fragment-registry-compiler-profile-source-input-design-v0.md",
+      "role": "profile/pack source-input boundary"
+    },
+    {
+      "ref": "igniter-lang/docs/tracks/internal-profile-assembly-next-carrier-design-v0.md",
+      "role": "R135 next-carrier design authority"
+    }
+  ],
+  "oof_fragment_registry_refs": [
+    {
+      "ref": "igniter-lang/lib/igniter_lang/oof_fragment_registry.rb",
+      "role": "internal validator helper only"
+    },
+    {
+      "ref": "igniter-lang/docs/tracks/oof-fragment-registry-compiler-profile-source-input-proof-v0.md",
+      "role": "source-input packet proof"
+    },
+    {
+      "ref": "igniter-lang/experiments/oof_fragment_registry_compiler_profile_source_input_proof/out/oof_fragment_registry_compiler_profile_source_input_proof_summary.json",
+      "role": "proof summary"
+    }
+  ],
+  "required_parity_proofs": [
+    {
+      "proof": "r132_r133_r134_matrix",
+      "required_before": "any live carrier implementation review"
+    },
+    {
+      "proof": "deterministic_carrier_map_digest",
+      "required_before": "using this map as implementation evidence"
+    },
+    {
+      "proof": "not_compiler_profile_or_profile_id",
+      "required_before": "profile migration design acceptance"
+    },
+    {
+      "proof": "no_root_require_or_pipeline_usage",
+      "required_before": "any lib carrier implementation"
+    },
+    {
+      "proof": "no_public_report_loader_manifest_runtime_mutation",
+      "required_before": "any external carrier discussion"
+    },
+    {
+      "proof": "semanticir_compilation_report_igapp_byte_for_byte_parity",
+      "required_before": "compiler pack dispatch or pipeline migration"
+    },
+    {
+      "proof": "oof_fragment_registry_parity",
+      "required_before": "OOF/Fragment registry use as live profile input"
+    }
+  ],
+  "bridge_review_required_before": [
+    "public_api_cli",
+    "loader_report",
+    "compatibility_report",
+    "compilation_report_public_result",
+    "igapp_manifest_sidecar",
+    "runtime_readiness",
+    "production_or_spark_carrier"
+  ],
+  "anti_confusion_assertions": {
+    "is_compiler_profile": false,
+    "is_compiler_profile_id": false,
+    "is_igapp": false,
+    "is_manifest": false,
+    "is_compilation_report": false,
+    "is_loader_report": false,
+    "is_compatibility_report": false,
+    "is_runtime_readiness": false,
+    "is_production_readiness": false,
+    "is_prop036_finalization": false,
+    "is_prop038_authority": false
+  },
+  "closed_surface_assertions": {
+    "lib_root_require": false,
+    "compiler_pipeline_usage": false,
+    "public_api_cli": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "compilation_report_public_result": false,
+    "igapp_mutation": false,
+    "manifest_mutation": false,
+    "sidecar_or_golden_mutation": false,
+    "prop036_mutation": false,
+    "prop038_mutation": false,
+    "runtime_behavior": false,
+    "production_behavior": false,
+    "spark_surface": false
+  },
+  "determinism_policy": {
+    "array_order": "stable_as_listed_by_design",
+    "object_key_order": "canonical_json_for_digest",
+    "volatile_fields": [],
+    "external_lookup_required": false
+  },
+  "recommendation": "HOLD_LIVE_CARRIER_BRIDGE_PRESSURE_BEFORE_EXTERNAL_SURFACE"
+}
