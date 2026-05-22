@@ -93,6 +93,7 @@ architecture. They are not production migration authorization.
 | `internal-profile-assembly-source-packet-implementation-v0.md` | done / PASS | R129 implements `IgniterLang::InternalProfileAssemblySourcePacket`: 6/6 cases and 5/5 checks PASS; root require and compiler pipeline remain closed |
 | `internal-profile-assembly-boundary-design-v0.md` | done | R130 designs proof-only `internal_profile_assembly_result` boundary around the packet and OOF registry; implementation review held |
 | `internal-profile-assembly-boundary-proof-v0.md` | done / PASS | R131 proves proof-only assembly boundary/result: 6/6 cases and 5/5 checks PASS; valid packet finalizes internally, invalid packets do not finalize, external surfaces remain closed |
+| `../gates/internal-profile-assembly-boundary-implementation-authorization-review-v0.md` | authorized-bounded-internal-profile-assembly-boundary | R132 authorizes only `IgniterLang::InternalProfileAssembly` as a tiny internal boundary object/result; root require, compiler pipeline, public/report/manifest/PROP/runtime/Spark surfaces remain closed |
 
 ---
 
