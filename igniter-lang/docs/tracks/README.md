@@ -104,6 +104,7 @@ architecture. They are not production migration authorization.
 | `oof-fragment-registry-parity-proof-v0.md` | done / PASS | R141 proves observed emitted OOF codes have shadow descriptors; alias/deprecation and excluded namespace parity PASS; `compiler_profile_contract.*` leakage absent; remains shadow-only |
 | `fragment-precedence-parity-proof-v0.md` | done / HOLD | R142 proves fragment row coverage, OOF status projection, and guarded non-fragment parity; holds live precedence migration because stream-vs-escape and epistemic-vs-escape would drift if candidate order became live |
 | `fragment-precedence-compatibility-adapter-proof-v0.md` | done / PASS | R144 proves R143 two-layer declaration-presence + selected-fragment adapter preserves all 23 observed classifier goldens; adapter remains proof-local and live dispatch held |
+| `fragment-registry-adapter-evidence-and-risk-map-v0.md` | done | R145 maps live classifier behavior, proof-local adapter behavior, touchpoints, hidden mutation risks, and missing evidence before any future adapter implementation review |
 
 ---
 
