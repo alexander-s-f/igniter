@@ -104,7 +104,10 @@ architecture. They are not production migration authorization.
 | `oof-fragment-registry-parity-proof-v0.md` | done / PASS | R141 proves observed emitted OOF codes have shadow descriptors; alias/deprecation and excluded namespace parity PASS; `compiler_profile_contract.*` leakage absent; remains shadow-only |
 | `fragment-precedence-parity-proof-v0.md` | done / HOLD | R142 proves fragment row coverage, OOF status projection, and guarded non-fragment parity; holds live precedence migration because stream-vs-escape and epistemic-vs-escape would drift if candidate order became live |
 | `fragment-precedence-compatibility-adapter-proof-v0.md` | done / PASS | R144 proves R143 two-layer declaration-presence + selected-fragment adapter preserves all 23 observed classifier goldens; adapter remains proof-local and live dispatch held |
+| `fragment-registry-adapter-implementation-boundary-design-v0.md` | done | R145 C1 designs adapter boundary: selected-fragment compatibility belongs near classifier semantics, first implementation candidate held, reports/`.igapp`/runtime closed |
 | `fragment-registry-adapter-evidence-and-risk-map-v0.md` | done | R145 maps live classifier behavior, proof-local adapter behavior, touchpoints, hidden mutation risks, and missing evidence before any future adapter implementation review |
+| `../discussions/fragment-registry-adapter-boundary-pressure-v0.md` | proceed-with-notes | R145 C3 pressure PASS 6/6; NB-1 vocabulary alignment, NB-2 first-slice divergence, NB-3 classifier-parity scope routed to C4-A |
+| `../gates/fragment-registry-adapter-implementation-boundary-decision-v0.md` | accepted-design-proof-route-next-implementation-held | R145 C4 accepts design/proof foundation and opens only proof/design internal-helper boundary; implementation, live classifier dispatch, SemanticIR/report/`.igapp`, public/runtime/Spark surfaces remain closed |
 
 ---
 
