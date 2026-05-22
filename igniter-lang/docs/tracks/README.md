@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-20
+Last updated: 2026-05-22
 
 ---
 
@@ -108,6 +108,7 @@ architecture. They are not production migration authorization.
 | `fragment-registry-adapter-evidence-and-risk-map-v0.md` | done | R145 maps live classifier behavior, proof-local adapter behavior, touchpoints, hidden mutation risks, and missing evidence before any future adapter implementation review |
 | `../discussions/fragment-registry-adapter-boundary-pressure-v0.md` | proceed-with-notes | R145 C3 pressure PASS 6/6; NB-1 vocabulary alignment, NB-2 first-slice divergence, NB-3 classifier-parity scope routed to C4-A |
 | `../gates/fragment-registry-adapter-implementation-boundary-decision-v0.md` | accepted-design-proof-route-next-implementation-held | R145 C4 accepts design/proof foundation and opens only proof/design internal-helper boundary; implementation, live classifier dispatch, SemanticIR/report/`.igapp`, public/runtime/Spark surfaces remain closed |
+| `stage3-round145-status-curation-v0.md` | done | R145 status curation: records accepted/held adapter boundary, proof/design next route, closed surfaces, and demo-shadow note-only state |
 
 ---
 

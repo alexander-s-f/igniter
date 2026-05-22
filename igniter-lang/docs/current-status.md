@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-20
+Last updated: 2026-05-22
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -253,6 +253,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             oof_fragment_shadow_registry/sha256:279c9e69b50264539027d6a7;
                             next route is design-only ownership/canon-semantics,
                             implementation held;
+                            R145 accepts fragment registry adapter boundary
+                            as design/proof foundation: selected-fragment
+                            compatibility is classifier-local, live dispatch
+                            and implementation remain held; next route is only
+                            proof/design internal-helper boundary proof;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime, production remain blocked
 ─────────────────────────────────────────────────────────────────
@@ -766,6 +771,12 @@ Round 92 landed:
   S3-R92-C3-X: shadow proof pressure                                  ✅ proceed; 7/7 checks; no blockers; 3 NBs
   S3-R92-C4-A: shadow proof decision                                  ✅ accepted-design-only-registry-semantics-next-implementation-held
   S3-R92-C5-S: round status curation / Portfolio packet               ✅ done; no fallback report needed
+Round 145 landed:
+  S3-R145-C1-P1: fragment registry adapter boundary design             ✅ done; design-only, implementation held
+  S3-R145-C2-P1: adapter evidence/risk map                             ✅ done; live classifier and artifact risks mapped
+  S3-R145-C3-X: adapter boundary pressure                              ✅ proceed-with-notes; 6/6 checks; no blockers
+  S3-R145-C4-A: adapter boundary decision                              ✅ accepted-design-proof-route-next-implementation-held
+  S3-R145-C5-S: status curation / next-route pointer                   ✅ done; demo-shadow remains note-only
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -810,6 +821,10 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   proof-only OOF/Fragment registry shadow proof,
                   R92 accepts that OOF/Fragment proof as proof-only evidence
                   and opens only design-only ownership/canon-semantics next,
+                  R145 accepts fragment registry adapter boundary as
+                  design/proof foundation and opens only proof/design
+                  `fragment-registry-compatibility-adapter-internal-helper-boundary-proof-v0`
+                  next; implementation remains held,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
@@ -2074,6 +2089,21 @@ S3-R92 result:      LANG-R91 first closes `compiler-pack-shadow-profile-proof-v1
                       CompatibilityReport, `.igapp`, spec/proposal/canon mutation, runtime/Gate 3,
                       Ledger/TBackend, cache, signing, production behavior, or Spark fixture/spec work is
                       authorized by R92.
+S3-R145 result:     C1-P1 designs the fragment registry compatibility adapter boundary as design-only;
+                      C2-P1 maps live classifier behavior, proof-local adapter evidence, touchpoints, and
+                      hidden mutation risks; C3-X returns `proceed-with-notes` with 6/6 checks PASS and no
+                      blockers; C4-A accepts the boundary as design/proof foundation with status
+                      `accepted-design-proof-route-next-implementation-held`. Accepted boundary:
+                      selected-fragment compatibility is classifier-local; declaration-fragment vocabulary
+                      rows belong to pack-as-owner vocabulary and/or fragment registry service data;
+                      profile/pack metadata may reference proof evidence only; reports do not own adapter
+                      semantics. Held boundary: implementation, live classifier dispatch, `Classifier`
+                      wiring, parser/TypeChecker/SemanticIR/assembler/`.igapp`, public API/CLI,
+                      loader/report, CompatibilityReport, runtime, Spark, production, Ledger/TBackend,
+                      BiHistory, stream/OLAP, cache, signing, and deployment remain closed. Next allowed
+                      route is proof/design only:
+                      `fragment-registry-compatibility-adapter-internal-helper-boundary-proof-v0`.
+                      Demo-shadow remains a usefulness note only and does not open demo work.
 ```
 
 ### Spec Freshness
