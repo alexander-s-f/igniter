@@ -1,0 +1,71 @@
+{
+  "kind": "fragment_precedence_parity_summary",
+  "format_version": "0.1.0",
+  "track": "fragment-precedence-parity-proof-v0",
+  "card": "LANG-R142-P1",
+  "status": "HOLD",
+  "parity_matrix_path": "igniter-lang/experiments/fragment_precedence_parity_proof/out/fragment_precedence_parity_matrix.json",
+  "parity_matrix_digest": "81d9f687b9f59afb362e1ffc",
+  "source_ownership_map_digest": "2342d159c833e5d0900cf4f4",
+  "fragment_shadow_registry_id": "oof_fragment_shadow_registry/sha256:279c9e69b50264539027d6a7",
+  "observed_fragment_names": [
+    "core",
+    "epistemic",
+    "escape",
+    "oof",
+    "temporal"
+  ],
+  "observed_fragment_names_missing_shadow_rows": [],
+  "checks": [
+    {
+      "name": "consumes_r140_fragment_registry_boundary",
+      "status": "PASS"
+    },
+    {
+      "name": "observed_fragment_assignments_have_shadow_rows",
+      "status": "PASS"
+    },
+    {
+      "name": "temporal_precedence_preserves_current_classifier_behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "oof_status_projection_non_loadable_non_capability",
+      "status": "PASS"
+    },
+    {
+      "name": "guarded_non_fragments_olap_progression_remain_non_fragment",
+      "status": "PASS"
+    },
+    {
+      "name": "stream_candidate_precedence_preserves_current_classifier_behavior_if_live",
+      "status": "HOLD"
+    },
+    {
+      "name": "epistemic_escape_candidate_precedence_preserves_current_classifier_behavior_if_live",
+      "status": "HOLD"
+    },
+    {
+      "name": "fragment_registry_data_not_live_classifier_dispatch",
+      "status": "PASS"
+    }
+  ],
+  "failed_checks": [],
+  "held_checks": [
+    "stream_candidate_precedence_preserves_current_classifier_behavior_if_live",
+    "epistemic_escape_candidate_precedence_preserves_current_classifier_behavior_if_live"
+  ],
+  "closed_surface_assertions": {
+    "fragment_registry_live_dispatch": false,
+    "classifier_changed": false,
+    "diagnostics_changed": false,
+    "reports_changed": false,
+    "igapp_changed": false,
+    "prop036_changed": false,
+    "prop038_changed": false,
+    "runtime_changed": false,
+    "production_changed": false,
+    "spark_changed": false
+  },
+  "recommendation": "HOLD_LIVE_FRAGMENT_PRECEDENCE_MIGRATION_MORE_PROOF"
+}

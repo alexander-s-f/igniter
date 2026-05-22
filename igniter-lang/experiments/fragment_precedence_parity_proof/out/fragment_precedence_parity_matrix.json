@@ -1,0 +1,187 @@
+{
+  "kind": "fragment_precedence_parity_matrix",
+  "format_version": "0.1.0",
+  "track": "fragment-precedence-parity-proof-v0",
+  "card": "LANG-R142-P1",
+  "status": "HOLD",
+  "source_ownership_map": {
+    "ref": "igniter-lang/experiments/compiler_pack_pass_boundary_ownership_map/out/compiler_pack_pass_boundary_ownership_map.json",
+    "digest": "2342d159c833e5d0900cf4f4",
+    "boundary": "fragment_registry"
+  },
+  "source_fragment_shadow_registry": {
+    "ref": "igniter-lang/experiments/oof_fragment_registry_shadow_proof/out/fragment_registry.shadow_registry.json",
+    "registry_id": "oof_fragment_shadow_registry/sha256:279c9e69b50264539027d6a7",
+    "fragment_count": 8,
+    "candidate_precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "epistemic",
+      "escape",
+      "core"
+    ],
+    "precedence_status": "proof_local_non_canon"
+  },
+  "source_policy_model": {
+    "ref": "igniter-lang/experiments/oof_fragment_registry_policy_proof/out/oof_fragment_registry_policy_model.json",
+    "oof_projection_guard": {
+      "primary_semantics": "status",
+      "secondary_projection": "fragment",
+      "blocked": true,
+      "loadable": false,
+      "status_only": true,
+      "capability": false
+    },
+    "guarded_non_fragments": [
+      "olap",
+      "progression"
+    ]
+  },
+  "observed_classifier_sources": [
+    "igniter-lang/experiments/classifier_pass_proof/golden/*.classified.json",
+    "igniter-lang/experiments/contract_modifiers_proof/golden/*.classified.json",
+    "igniter-lang/experiments/assumptions_proof/golden/*.classified.json"
+  ],
+  "observed_contract_fragment_counts": {
+    "core": 5,
+    "epistemic": 1,
+    "escape": 7,
+    "oof": 7,
+    "temporal": 3
+  },
+  "observed_declaration_fragment_presence_by_contract": {
+    "core": 23,
+    "epistemic": 3,
+    "escape": 11,
+    "oof": 3,
+    "temporal": 3
+  },
+  "observed_fragment_names": [
+    "core",
+    "epistemic",
+    "escape",
+    "oof",
+    "temporal"
+  ],
+  "observed_fragment_names_missing_shadow_rows": [],
+  "guarded_non_fragment_observations": {
+    "olap_fragment_assignments_observed": 0,
+    "progression_fragment_assignments_observed": 0,
+    "policy_requires_not_fragment_class": true,
+    "parity": "PASS"
+  },
+  "precedence_parity_cases": [
+    {
+      "case": "core_only_contracts",
+      "observed_contract_fragment": "core",
+      "shadow_rows_cover_fragments": [
+        "core"
+      ],
+      "result": "PASS",
+      "notes": "Pure/core classified programs remain core."
+    },
+    {
+      "case": "oof_over_core_or_escape",
+      "observed_contract_fragment": "oof",
+      "shadow_precedence_support": "oof is highest candidate and policy says status-primary blocked projection",
+      "result": "PASS",
+      "notes": "OOF contracts remain blocking status/secondary fragment; no loadable capability is inferred."
+    },
+    {
+      "case": "temporal_over_escape",
+      "observed_contract_fragment": "temporal",
+      "example": "igniter-lang/experiments/contract_modifiers_proof/golden/observed_temporal_precedence.classified.json",
+      "shadow_precedence_support": "temporal outranks escape",
+      "result": "PASS",
+      "notes": "Observed temporal read plus escape capability remains temporal at contract level; selected value remains core via node/value split."
+    },
+    {
+      "case": "stream_candidate_vs_current_escape_bucket",
+      "observed_contract_fragment": "escape",
+      "examples": [
+        "igniter-lang/experiments/classifier_pass_proof/golden/stream_fold_core.classified.json",
+        "igniter-lang/experiments/classifier_pass_proof/golden/stream_ingress_escape.classified.json"
+      ],
+      "shadow_precedence_support": "stream candidate outranks escape if made live",
+      "result": "HOLD",
+      "notes": "Current classifier still buckets stream declarations/contracts under escape. A live stream precedence row would change behavior unless a compatibility adapter preserves the current escape bucket."
+    },
+    {
+      "case": "epistemic_escape_mixed_contract",
+      "observed_contract_fragment": "escape",
+      "example": "igniter-lang/experiments/assumptions_proof/golden/assumption_basic.classified.json",
+      "shadow_precedence_support": "epistemic candidate outranks escape if made live",
+      "result": "HOLD",
+      "notes": "Current classifier chooses escape when assumptions and escape both appear. A live epistemic-over-escape precedence row would change behavior unless revised or guarded."
+    },
+    {
+      "case": "epistemic_only_contract",
+      "observed_contract_fragment": "epistemic",
+      "example": "igniter-lang/experiments/assumptions_proof/golden/epistemic_only_pure.classified.json",
+      "shadow_precedence_support": "epistemic row exists",
+      "result": "PASS",
+      "notes": "Epistemic-only proof remains representable."
+    }
+  ],
+  "oof_status_projection": {
+    "observed_oof_contract_count": 7,
+    "policy_blocked": true,
+    "policy_loadable": false,
+    "policy_capability": false,
+    "loadable_capability_projection": false,
+    "parity": "PASS"
+  },
+  "proof_only_non_authority": {
+    "fragment_registry_live_dispatch": false,
+    "classifier_changed": false,
+    "diagnostics_changed": false,
+    "reports_changed": false,
+    "igapp_changed": false,
+    "prop036_changed": false,
+    "prop038_changed": false,
+    "runtime_changed": false,
+    "production_changed": false,
+    "spark_changed": false
+  },
+  "pass_fail_matrix": [
+    {
+      "check": "consumes_r140_fragment_registry_boundary",
+      "result": "PASS"
+    },
+    {
+      "check": "observed_fragment_assignments_have_shadow_rows",
+      "result": "PASS"
+    },
+    {
+      "check": "temporal_precedence_preserves_current_classifier_behavior",
+      "result": "PASS"
+    },
+    {
+      "check": "oof_status_projection_non_loadable_non_capability",
+      "result": "PASS"
+    },
+    {
+      "check": "guarded_non_fragments_olap_progression_remain_non_fragment",
+      "result": "PASS"
+    },
+    {
+      "check": "stream_candidate_precedence_preserves_current_classifier_behavior_if_live",
+      "result": "HOLD"
+    },
+    {
+      "check": "epistemic_escape_candidate_precedence_preserves_current_classifier_behavior_if_live",
+      "result": "HOLD"
+    },
+    {
+      "check": "fragment_registry_data_not_live_classifier_dispatch",
+      "result": "PASS"
+    }
+  ],
+  "failed_checks": [],
+  "held_checks": [
+    "stream_candidate_precedence_preserves_current_classifier_behavior_if_live",
+    "epistemic_escape_candidate_precedence_preserves_current_classifier_behavior_if_live"
+  ],
+  "recommendation": "HOLD_LIVE_FRAGMENT_PRECEDENCE_MIGRATION_MORE_PROOF"
+}

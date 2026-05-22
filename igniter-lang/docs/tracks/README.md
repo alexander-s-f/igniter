@@ -102,6 +102,7 @@ architecture. They are not production migration authorization.
 | `internal-profile-migration-projection-proof-v0.md` | done / PASS | R139 creates proof-local migration projection JSON; digest PASS; proves pure projection is not CompilerProfile, compiler_profile_id, `.igapp`, report, PROP-036/038 authority, runtime, or production readiness |
 | `compiler-pack-pass-boundary-ownership-map-v0.md` | done / PASS | R140 maps parser/classifier/TypeChecker/SemanticIR/assembler/OOF/fragment ownership; digest PASS; HP2-HP6 hold points active; implementation remains held |
 | `oof-fragment-registry-parity-proof-v0.md` | done / PASS | R141 proves observed emitted OOF codes have shadow descriptors; alias/deprecation and excluded namespace parity PASS; `compiler_profile_contract.*` leakage absent; remains shadow-only |
+| `fragment-precedence-parity-proof-v0.md` | done / HOLD | R142 proves fragment row coverage, OOF status projection, and guarded non-fragment parity; holds live precedence migration because stream-vs-escape and epistemic-vs-escape would drift if candidate order became live |
 
 ---
 
