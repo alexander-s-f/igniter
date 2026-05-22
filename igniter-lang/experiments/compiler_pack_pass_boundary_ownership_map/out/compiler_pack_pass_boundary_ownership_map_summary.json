@@ -1,0 +1,46 @@
+{
+  "kind": "compiler_pack_pass_boundary_ownership_map_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-pack-pass-boundary-ownership-map-v0",
+  "status": "PASS",
+  "ownership_map_path": "igniter-lang/experiments/compiler_pack_pass_boundary_ownership_map/out/compiler_pack_pass_boundary_ownership_map.json",
+  "ownership_map_digest": "2342d159c833e5d0900cf4f4",
+  "source_projection_ref": "igniter-lang/experiments/internal_profile_migration_projection/out/internal_profile_migration_projection.json",
+  "source_projection_digest": "6d80b68b3a73231481759c9d",
+  "boundary_count": 7,
+  "checks": [
+    {
+      "name": "ownership_map_kind",
+      "status": "PASS"
+    },
+    {
+      "name": "consumes_r139_projection_digest",
+      "status": "PASS"
+    },
+    {
+      "name": "all_required_boundaries_present",
+      "status": "PASS"
+    },
+    {
+      "name": "each_boundary_has_owner_contribution_anchors_risk_and_parity",
+      "status": "PASS"
+    },
+    {
+      "name": "required_hold_points_present",
+      "status": "PASS"
+    },
+    {
+      "name": "not_dispatch_plan_or_profile_identity",
+      "status": "PASS"
+    },
+    {
+      "name": "closed_surface_assertions_all_false",
+      "status": "PASS"
+    }
+  ],
+  "failed_checks": [],
+  "implementation_authorized": false,
+  "compiler_pipeline_adapter_authorized": false,
+  "public_report_loader_manifest_runtime_authorized": false,
+  "recommendation": "HOLD_IMPLEMENTATION_MORE_PROOF_NEXT"
+}

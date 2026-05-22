@@ -1,0 +1,242 @@
+{
+  "kind": "compiler_pack_pass_boundary_ownership_map",
+  "format_version": "0.1.0",
+  "track": "compiler-pack-pass-boundary-ownership-map-v0",
+  "source_projection": {
+    "ref": "igniter-lang/experiments/internal_profile_migration_projection/out/internal_profile_migration_projection.json",
+    "digest": "6d80b68b3a73231481759c9d",
+    "status": "proof_only"
+  },
+  "ownership_status": "proof_design_map_only",
+  "boundaries": [
+    {
+      "boundary": "parser",
+      "candidate_owner_pack": "CoreLanguagePack",
+      "secondary_candidate_packs": [
+        "PipelinePack",
+        "TemporalPack",
+        "StreamPack",
+        "OLAPPack",
+        "InvariantPack",
+        "ContractModifiersPack",
+        "AssumptionsPack"
+      ],
+      "contribution_type": "syntax_rule_metadata_and_parser_oof_ownership",
+      "current_implementation_anchor": "igniter-lang/lib/igniter_lang/parser.rb",
+      "proof_golden_anchors": [
+        "igniter-lang/experiments/parser_oof_hardening_stage2_proof/parser_oof_hardening_stage2_proof.rb",
+        "igniter-lang/experiments/source_to_semanticir_fixture/golden/*.parsed_ast.json",
+        "igniter-lang/experiments/contract_modifiers_proof/golden/*.parsed.json"
+      ],
+      "ambiguity_risk": "high_parser_precedence_drift",
+      "required_parity_proof_before_migration": "byte_for_byte_parsed_ast_and_parser_oof_golden_parity",
+      "migration_stance": "hold_live_rule_dispatch"
+    },
+    {
+      "boundary": "classifier",
+      "candidate_owner_pack": "CoreLanguagePack",
+      "secondary_candidate_packs": [
+        "OOFRegistryPack",
+        "FragmentRegistryPack",
+        "TemporalPack",
+        "StreamPack",
+        "EvidenceObservationPack",
+        "AssumptionsPack",
+        "ContractModifiersPack"
+      ],
+      "contribution_type": "fragment_assignment_oof_blocking_and_classified_program_metadata",
+      "current_implementation_anchor": "igniter-lang/lib/igniter_lang/classifier.rb",
+      "proof_golden_anchors": [
+        "igniter-lang/experiments/classifier_pass_proof/classifier_pass_proof.rb",
+        "igniter-lang/experiments/classifier_pass_proof/golden/*.classified.json",
+        "igniter-lang/experiments/contract_modifiers_proof/golden/*.classified.json"
+      ],
+      "ambiguity_risk": "high_fragment_and_oof_owner_overlap",
+      "required_parity_proof_before_migration": "byte_for_byte_classified_program_fragment_and_oof_parity",
+      "migration_stance": "hold_pack_classifier_handlers"
+    },
+    {
+      "boundary": "typechecker",
+      "candidate_owner_pack": "CoreLanguagePack",
+      "secondary_candidate_packs": [
+        "TemporalPack",
+        "StreamPack",
+        "OLAPPack",
+        "InvariantPack",
+        "AssumptionsPack",
+        "EvidenceObservationPack",
+        "ContractModifiersPack"
+      ],
+      "contribution_type": "type_rule_metadata_typed_program_metadata_and_type_oof_ownership",
+      "current_implementation_anchor": "igniter-lang/lib/igniter_lang/typechecker.rb",
+      "proof_golden_anchors": [
+        "igniter-lang/experiments/typechecker_proof/typechecker_proof.rb",
+        "igniter-lang/experiments/typechecker_proof/golden/*.typed.json",
+        "igniter-lang/experiments/typechecker_proof/classified/*.classified.json"
+      ],
+      "ambiguity_risk": "high_shared_type_environment_and_cross_surface_refs",
+      "required_parity_proof_before_migration": "byte_for_byte_typed_program_and_type_oof_golden_parity",
+      "migration_stance": "hold_typed_accumulator_extraction"
+    },
+    {
+      "boundary": "semanticir",
+      "candidate_owner_pack": "CoreLanguagePack",
+      "secondary_candidate_packs": [
+        "TemporalPack",
+        "StreamPack",
+        "OLAPPack",
+        "InvariantPack",
+        "AssumptionsPack",
+        "EvidenceObservationPack",
+        "ContractModifiersPack"
+      ],
+      "contribution_type": "lowering_metadata_semanticir_node_shape_and_compilation_report_inputs",
+      "current_implementation_anchor": "igniter-lang/lib/igniter_lang/semanticir_emitter.rb",
+      "proof_golden_anchors": [
+        "igniter-lang/experiments/source_to_semanticir_fixture/source_to_semanticir_fixture.rb",
+        "igniter-lang/experiments/source_to_semanticir_fixture/golden/*.semantic_ir.json",
+        "igniter-lang/experiments/source_to_semanticir_fixture/golden/*.compilation_report.json",
+        "igniter-lang/experiments/temporal_semanticir_access_node/golden/*.semantic_ir.json"
+      ],
+      "ambiguity_risk": "critical_semanticir_and_report_json_shape_drift",
+      "required_parity_proof_before_migration": "byte_for_byte_semanticir_program_and_compilation_report_parity",
+      "migration_stance": "hold_lowering_contributor_dispatch"
+    },
+    {
+      "boundary": "assembler",
+      "candidate_owner_pack": "CoreLanguagePack",
+      "secondary_candidate_packs": [
+        "TemporalPack",
+        "CompilerProfileContractPack",
+        "ProfileSourceBoundary"
+      ],
+      "contribution_type": "artifact_assembly_metadata_requirements_and_manifest_shape",
+      "current_implementation_anchor": "igniter-lang/lib/igniter_lang/assembler.rb",
+      "proof_golden_anchors": [
+        "igniter-lang/experiments/igapp_assembler_proof/igapp_assembler_proof.rb",
+        "igniter-lang/experiments/igapp_assembler_proof/out/*.igapp/**",
+        "igniter-lang/experiments/temporal_assembler_boundary/out/*.igapp/**",
+        "igniter-lang/experiments/assembler_compiler_profile_id_field/out/*.igapp/**"
+      ],
+      "ambiguity_risk": "critical_igapp_manifest_report_for_assembly_and_golden_drift",
+      "required_parity_proof_before_migration": "byte_for_byte_igapp_manifest_contract_requirements_and_report_for_assembly_parity",
+      "migration_stance": "hold_pack_artifact_hooks"
+    },
+    {
+      "boundary": "oof_registry",
+      "candidate_owner_pack": "OOFRegistryPack",
+      "secondary_candidate_packs": [
+        "CoreLanguagePack",
+        "TemporalPack",
+        "StreamPack",
+        "OLAPPack",
+        "InvariantPack",
+        "ContractModifiersPack",
+        "AssumptionsPack",
+        "EvidenceObservationPack",
+        "PipelinePack"
+      ],
+      "contribution_type": "oof_descriptor_owner_stage_alias_and_public_code_lifecycle_metadata",
+      "current_implementation_anchor": "igniter-lang/lib/igniter_lang/oof_fragment_registry.rb",
+      "proof_golden_anchors": [
+        "igniter-lang/experiments/oof_fragment_registry_shadow_proof/out/oof_descriptors.shadow_registry.json",
+        "igniter-lang/experiments/oof_fragment_registry_policy_proof/out/oof_fragment_registry_policy_model.json",
+        "igniter-lang/experiments/oof_fragment_registry_compiler_profile_source_input_proof/out/oof_fragment_registry_compiler_profile_source_input_proof_summary.json"
+      ],
+      "ambiguity_risk": "critical_oof_code_drift_and_namespace_leakage",
+      "required_parity_proof_before_migration": "public_oof_code_message_stage_alias_and_exclusion_namespace_parity",
+      "migration_stance": "shadow_data_only_until_diagnostic_parity"
+    },
+    {
+      "boundary": "fragment_registry",
+      "candidate_owner_pack": "FragmentRegistryPack",
+      "secondary_candidate_packs": [
+        "CoreLanguagePack",
+        "EscapeBoundaryPack",
+        "TemporalPack",
+        "StreamPack",
+        "AssumptionsPack",
+        "OOFRegistryPack",
+        "OLAPPack",
+        "PipelinePack"
+      ],
+      "contribution_type": "fragment_row_precedence_guarded_non_fragment_and_status_projection_metadata",
+      "current_implementation_anchor": "igniter-lang/lib/igniter_lang/classifier.rb",
+      "proof_golden_anchors": [
+        "igniter-lang/experiments/oof_fragment_registry_shadow_proof/out/fragment_registry.shadow_registry.json",
+        "igniter-lang/experiments/oof_fragment_registry_policy_proof/out/oof_fragment_registry_policy_model.json",
+        "igniter-lang/experiments/classifier_pass_proof/golden/*.classified.json"
+      ],
+      "ambiguity_risk": "critical_fragment_precedence_drift_and_oof_status_confusion",
+      "required_parity_proof_before_migration": "fragment_assignment_precedence_guarded_non_fragment_and_oof_status_projection_parity",
+      "migration_stance": "shadow_data_only_until_fragment_precedence_parity"
+    }
+  ],
+  "hold_points": [
+    {
+      "code": "HP2",
+      "name": "pack_ownership_ambiguity",
+      "status": "active_hold_point",
+      "trigger": "A pass contribution has multiple plausible pack owners."
+    },
+    {
+      "code": "HP3",
+      "name": "fragment_precedence_ambiguity",
+      "status": "active_hold_point",
+      "trigger": "Fragment registry proof cannot preserve current classifier behavior."
+    },
+    {
+      "code": "HP4",
+      "name": "oof_code_drift",
+      "status": "active_hold_point",
+      "trigger": "Registry data changes emitted diagnostic code, message, or stage."
+    },
+    {
+      "code": "HP5",
+      "name": "semanticir_report_drift",
+      "status": "active_hold_point",
+      "trigger": "Projection or adapter changes SemanticIR or CompilationReport goldens."
+    },
+    {
+      "code": "HP6",
+      "name": "prop038_leakage",
+      "status": "active_hold_point",
+      "trigger": "Profile migration tries to use validator diagnostics as authority."
+    }
+  ],
+  "anti_confusion_assertions": {
+    "is_dispatch_plan": false,
+    "is_compiler_profile": false,
+    "is_compiler_profile_id": false,
+    "is_igapp": false,
+    "is_compilation_report": false,
+    "is_loader_report": false,
+    "is_compatibility_report": false,
+    "is_prop036_authority": false,
+    "is_prop038_authority": false,
+    "is_runtime_readiness": false,
+    "is_production_readiness": false
+  },
+  "closed_surface_assertions": {
+    "lib_edits": false,
+    "root_require": false,
+    "compiler_pipeline_adapter": false,
+    "public_api_cli": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "igapp_mutation": false,
+    "manifest_mutation": false,
+    "golden_mutation": false,
+    "prop036_mutation": false,
+    "prop038_mutation": false,
+    "runtime_behavior": false,
+    "production_behavior": false,
+    "spark_surface": false
+  },
+  "recommended_next": [
+    "oof_fragment_registry_parity_proof",
+    "fragment_precedence_parity_proof",
+    "semanticir_report_igapp_parity_plan"
+  ],
+  "recommendation": "HOLD_IMPLEMENTATION_MORE_PROOF_NEXT"
+}

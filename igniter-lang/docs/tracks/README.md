@@ -100,6 +100,7 @@ architecture. They are not production migration authorization.
 | `internal-profile-assembly-carrier-map-v0.md` | done / PASS | R136 creates proof-local carrier map JSON; deterministic digest PASS; map is not CompilerProfile, compiler_profile_id, `.igapp`, report, loader, CompatibilityReport, runtime readiness, or production readiness |
 | `compiler-pack-profile-migration-design-v0.md` | done | R138 designs CP1 migration: future CompilerProfile as frozen compiler-surface snapshot, CompilerPack as declarative contribution unit, pure projection first |
 | `internal-profile-migration-projection-proof-v0.md` | done / PASS | R139 creates proof-local migration projection JSON; digest PASS; proves pure projection is not CompilerProfile, compiler_profile_id, `.igapp`, report, PROP-036/038 authority, runtime, or production readiness |
+| `compiler-pack-pass-boundary-ownership-map-v0.md` | done / PASS | R140 maps parser/classifier/TypeChecker/SemanticIR/assembler/OOF/fragment ownership; digest PASS; HP2-HP6 hold points active; implementation remains held |
 
 ---
 
