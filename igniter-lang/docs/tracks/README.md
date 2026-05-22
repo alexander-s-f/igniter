@@ -90,6 +90,9 @@ architecture. They are not production migration authorization.
 | `compiler-profile-source-input-lifecycle-owner-design-v0.md` | done | R126 chooses hybrid profile assembly ownership and internal constructor/test seam as future carrier; implementation and public/report/compiler surfaces remain held |
 | `../discussions/compiler-profile-source-input-lifecycle-bridge-pressure-v0.md` | proceed-with-nonblockers | R127 finds no bridge blockers; NB-1 requires "internal profile-assembly source packet" wording, NB-2 defines `finalized_internal` as non-PROP-036 internal assembly state |
 | `../gates/internal-profile-assembly-source-packet-implementation-authorization-review-v0.md` | authorized-bounded-internal-profile-assembly-source-packet | R128 authorizes only an internal profile-assembly source packet implementation in one internal lib file plus proof experiment/track; public/report/compiler/manifest/PROP/runtime/Spark surfaces remain closed |
+| `internal-profile-assembly-source-packet-implementation-v0.md` | done / PASS | R129 implements `IgniterLang::InternalProfileAssemblySourcePacket`: 6/6 cases and 5/5 checks PASS; root require and compiler pipeline remain closed |
+| `internal-profile-assembly-boundary-design-v0.md` | done | R130 designs proof-only `internal_profile_assembly_result` boundary around the packet and OOF registry; implementation review held |
+| `internal-profile-assembly-boundary-proof-v0.md` | done / PASS | R131 proves proof-only assembly boundary/result: 6/6 cases and 5/5 checks PASS; valid packet finalizes internally, invalid packets do not finalize, external surfaces remain closed |
 
 ---
 

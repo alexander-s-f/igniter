@@ -1,0 +1,23 @@
+{
+  "kind": "internal_profile_assembly_boundary_model",
+  "format_version": "0.1.0",
+  "track": "internal-profile-assembly-boundary-proof-v0",
+  "assembly_result_ref": "out/internal_profile_assembly_result.valid.json",
+  "packet_digest": "daa67b3f2faf5216175ded43",
+  "helper_envelopes_digest": "5e2f8977e09143d9825d45c1",
+  "result_digest": "a55d3660932252ea78201c4d",
+  "closed_surface_assertions": {
+    "root_require": false,
+    "compiler_pipeline_usage": false,
+    "public_api_cli": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "igapp_mutation": false,
+    "manifest_mutation": false,
+    "prop036_mutation": false,
+    "prop038_mutation": false,
+    "runtime_behavior": false,
+    "production_behavior": false,
+    "spark_surface": false
+  }
+}
