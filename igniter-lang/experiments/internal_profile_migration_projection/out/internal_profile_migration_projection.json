@@ -1,0 +1,197 @@
+{
+  "kind": "internal_profile_migration_projection",
+  "format_version": "0.1.0",
+  "track": "internal-profile-migration-projection-proof-v0",
+  "source": {
+    "carrier_map_ref": "igniter-lang/experiments/internal_profile_assembly_carrier_map/out/internal_profile_assembly_carrier_map.json",
+    "carrier_map_digest": "d65c9c3d03dd3358fe7dff10",
+    "source_result_kind": "internal_profile_assembly_result",
+    "source_result_lifecycle_state": "finalized_internal"
+  },
+  "projection_status": "proof_only",
+  "adapter_candidate": {
+    "kind": "pure_projection_adapter_candidate",
+    "status": "design_candidate_only",
+    "allowed_operations": [
+      "read_carrier_map_fields",
+      "copy_refs_and_digests",
+      "classify_future_responsibilities",
+      "emit_projection_model"
+    ],
+    "forbidden_operations": [
+      "root_require",
+      "compiler_pass_invocation",
+      "handler_registration",
+      "profile_id_derivation",
+      "manifest_or_igapp_write",
+      "report_or_result_write",
+      "runtime_readiness_decision",
+      "production_execution"
+    ]
+  },
+  "future_compiler_profile": {
+    "model": "frozen_compiler_surface_snapshot",
+    "status": "future_responsibility_model_only",
+    "responsibilities": [
+      "installed_pack_set",
+      "canonical_pack_order",
+      "pass_contribution_index",
+      "oof_descriptor_index",
+      "fragment_registry_view",
+      "compiler_capability_vocabulary",
+      "pack_dependency_closure",
+      "deterministic_digest_inputs",
+      "non_authority_metadata"
+    ],
+    "must_not": [
+      "drive_live_dispatch",
+      "be_public_api_cli_input",
+      "be_compiler_profile_id",
+      "be_igapp_manifest_identity",
+      "be_loader_report_or_compatibility_report",
+      "be_runtime_capability_or_readiness"
+    ]
+  },
+  "future_compiler_pack": {
+    "model": "declarative_contribution_unit",
+    "status": "future_responsibility_model_only",
+    "responsibilities": [
+      "stable_pack_ref",
+      "slot_name",
+      "provided_surfaces_metadata",
+      "oof_ownership_metadata",
+      "fragment_ownership_metadata",
+      "dependencies_and_incompatibilities",
+      "compiler_capability_labels",
+      "proof_anchors",
+      "implementation_variant_label"
+    ],
+    "must_not": [
+      "mutate_parser_classifier_typechecker_emitter_or_assembler_by_presence",
+      "register_live_handlers_without_gate",
+      "imply_runtime_executor_availability",
+      "write_igapp_or_manifest_metadata",
+      "alter_prop036_or_prop038_behavior"
+    ]
+  },
+  "projected_boundaries": [
+    {
+      "boundary": "parser",
+      "future_candidate_owner": "CoreLanguagePack plus optional parser rule contributors",
+      "migration_stance": "design_only_shadow_rule_registry_required"
+    },
+    {
+      "boundary": "classifier",
+      "future_candidate_owner": "CoreLanguagePack plus OOFRegistryPack and FragmentRegistryPack",
+      "migration_stance": "design_only_oof_fragment_parity_required"
+    },
+    {
+      "boundary": "typechecker",
+      "future_candidate_owner": "CoreLanguagePack plus optional type rule contributors",
+      "migration_stance": "design_only_typed_accumulator_protocol_required"
+    },
+    {
+      "boundary": "semanticir",
+      "future_candidate_owner": "CoreLanguagePack plus optional lowering contributors",
+      "migration_stance": "design_only_byte_for_byte_semanticir_report_parity_required"
+    },
+    {
+      "boundary": "assembler",
+      "future_candidate_owner": "CoreLanguagePack assembler plus constrained pack artifact hooks",
+      "migration_stance": "closed_report_for_assembly_and_igapp_parity_required"
+    },
+    {
+      "boundary": "oof_registry",
+      "future_candidate_owner": "OOFRegistryPack",
+      "migration_stance": "shadow_data_first_no_public_diagnostic_change"
+    },
+    {
+      "boundary": "fragment_registry",
+      "future_candidate_owner": "FragmentRegistryPack",
+      "migration_stance": "shadow_data_first_preserve_precedence_and_guarded_non_fragments"
+    }
+  ],
+  "migration_order": [
+    "freeze_projection_model",
+    "prove_projection_from_carrier_map",
+    "prove_oof_and_fragment_registry_parity",
+    "prove_pass_boundary_ownership_maps",
+    "design_internal_direct_require_only_adapter_if_needed",
+    "request_exact_one_file_implementation_authorization",
+    "run_parity_regression_matrix",
+    "route_bridge_pressure_before_external_carriers"
+  ],
+  "hold_points": [
+    {
+      "code": "HP1",
+      "name": "projection_ambiguity",
+      "trigger": "Projection cannot distinguish profile evidence from compiler_profile_id."
+    },
+    {
+      "code": "HP2",
+      "name": "pack_ownership_ambiguity",
+      "trigger": "A pass contribution has multiple plausible pack owners."
+    },
+    {
+      "code": "HP3",
+      "name": "fragment_precedence_ambiguity",
+      "trigger": "Fragment registry proof cannot preserve current classifier behavior."
+    },
+    {
+      "code": "HP4",
+      "name": "oof_code_drift",
+      "trigger": "Registry data changes emitted diagnostic code, message, or stage."
+    },
+    {
+      "code": "HP5",
+      "name": "semanticir_report_drift",
+      "trigger": "Projection or adapter changes SemanticIR or CompilationReport goldens."
+    },
+    {
+      "code": "HP6",
+      "name": "prop038_leakage",
+      "trigger": "Profile migration tries to use validator diagnostics as authority."
+    },
+    {
+      "code": "HP7",
+      "name": "external_carrier_pressure",
+      "trigger": "Public, report, manifest, loader, runtime, production, or Spark carrier is requested."
+    }
+  ],
+  "anti_confusion_assertions": {
+    "is_compiler_profile": false,
+    "is_compiler_profile_id": false,
+    "is_igapp": false,
+    "is_manifest": false,
+    "is_compilation_report": false,
+    "is_loader_report": false,
+    "is_compatibility_report": false,
+    "is_prop036_authority": false,
+    "is_prop038_authority": false,
+    "is_runtime_readiness": false,
+    "is_production_readiness": false
+  },
+  "closed_surface_assertions": {
+    "lib_root_require": false,
+    "compiler_pipeline_usage": false,
+    "public_api_cli": false,
+    "loader_report": false,
+    "compatibility_report": false,
+    "compilation_report_public_result": false,
+    "igapp_mutation": false,
+    "manifest_mutation": false,
+    "sidecar_or_golden_mutation": false,
+    "prop036_mutation": false,
+    "prop038_mutation": false,
+    "runtime_behavior": false,
+    "production_behavior": false,
+    "spark_surface": false
+  },
+  "required_next_proofs": [
+    "oof_fragment_registry_parity",
+    "fragment_precedence_parity",
+    "pass_boundary_ownership_map",
+    "semanticir_compilation_report_igapp_byte_for_byte_parity"
+  ],
+  "recommendation": "HOLD_IMPLEMENTATION_OWNERSHIP_PRESSURE_NEXT"
+}

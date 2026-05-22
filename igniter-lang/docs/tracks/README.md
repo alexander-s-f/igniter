@@ -98,6 +98,8 @@ architecture. They are not production migration authorization.
 | `internal-profile-assembly-boundary-proof-maintenance-v0.md` | done / PASS | R134 supersedes R131 `no_new_lib_assembly_boundary_file` with authorized-file/direct-require-only check; full R132/R133 matrix PASS and external surfaces remain closed |
 | `internal-profile-assembly-next-carrier-design-v0.md` | done | R135 recommends a no-code/proof-local `internal_profile_assembly_carrier_map`; live carriers remain held and Bridge review is required before external surfaces |
 | `internal-profile-assembly-carrier-map-v0.md` | done / PASS | R136 creates proof-local carrier map JSON; deterministic digest PASS; map is not CompilerProfile, compiler_profile_id, `.igapp`, report, loader, CompatibilityReport, runtime readiness, or production readiness |
+| `compiler-pack-profile-migration-design-v0.md` | done | R138 designs CP1 migration: future CompilerProfile as frozen compiler-surface snapshot, CompilerPack as declarative contribution unit, pure projection first |
+| `internal-profile-migration-projection-proof-v0.md` | done / PASS | R139 creates proof-local migration projection JSON; digest PASS; proves pure projection is not CompilerProfile, compiler_profile_id, `.igapp`, report, PROP-036/038 authority, runtime, or production readiness |
 
 ---
 

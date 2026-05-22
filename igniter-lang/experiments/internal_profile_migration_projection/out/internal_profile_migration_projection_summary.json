@@ -1,0 +1,53 @@
+{
+  "kind": "internal_profile_migration_projection_summary",
+  "format_version": "0.1.0",
+  "track": "internal-profile-migration-projection-proof-v0",
+  "status": "PASS",
+  "projection_path": "igniter-lang/experiments/internal_profile_migration_projection/out/internal_profile_migration_projection.json",
+  "projection_digest": "6d80b68b3a73231481759c9d",
+  "source_carrier_map_ref": "igniter-lang/experiments/internal_profile_assembly_carrier_map/out/internal_profile_assembly_carrier_map.json",
+  "source_carrier_map_digest": "d65c9c3d03dd3358fe7dff10",
+  "checks": [
+    {
+      "name": "projection_kind",
+      "status": "PASS"
+    },
+    {
+      "name": "consumes_r136_carrier_map_digest",
+      "status": "PASS"
+    },
+    {
+      "name": "future_compiler_profile_is_snapshot_model_only",
+      "status": "PASS"
+    },
+    {
+      "name": "future_compiler_pack_is_declarative_unit_only",
+      "status": "PASS"
+    },
+    {
+      "name": "adapter_candidate_is_pure_projection_only",
+      "status": "PASS"
+    },
+    {
+      "name": "not_compiler_profile",
+      "status": "PASS"
+    },
+    {
+      "name": "not_compiler_profile_id",
+      "status": "PASS"
+    },
+    {
+      "name": "not_igapp_compilation_report_prop036_prop038_runtime_or_production",
+      "status": "PASS"
+    },
+    {
+      "name": "closed_surface_assertions_all_false",
+      "status": "PASS"
+    }
+  ],
+  "failed_checks": [],
+  "implementation_authorized": false,
+  "compiler_pipeline_integration_authorized": false,
+  "public_report_loader_manifest_runtime_authorized": false,
+  "recommendation": "HOLD_IMPLEMENTATION_OWNERSHIP_PRESSURE_NEXT"
+}
