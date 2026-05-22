@@ -103,6 +103,7 @@ architecture. They are not production migration authorization.
 | `compiler-pack-pass-boundary-ownership-map-v0.md` | done / PASS | R140 maps parser/classifier/TypeChecker/SemanticIR/assembler/OOF/fragment ownership; digest PASS; HP2-HP6 hold points active; implementation remains held |
 | `oof-fragment-registry-parity-proof-v0.md` | done / PASS | R141 proves observed emitted OOF codes have shadow descriptors; alias/deprecation and excluded namespace parity PASS; `compiler_profile_contract.*` leakage absent; remains shadow-only |
 | `fragment-precedence-parity-proof-v0.md` | done / HOLD | R142 proves fragment row coverage, OOF status projection, and guarded non-fragment parity; holds live precedence migration because stream-vs-escape and epistemic-vs-escape would drift if candidate order became live |
+| `fragment-precedence-compatibility-adapter-proof-v0.md` | done / PASS | R144 proves R143 two-layer declaration-presence + selected-fragment adapter preserves all 23 observed classifier goldens; adapter remains proof-local and live dispatch held |
 
 ---
 

@@ -1,0 +1,464 @@
+{
+  "kind": "fragment_precedence_compatibility_adapter_matrix",
+  "format_version": "0.1.0",
+  "track": "fragment-precedence-compatibility-adapter-proof-v0",
+  "card": "LANG-R144-P1",
+  "status": "PASS",
+  "source_design": {
+    "ref": "igniter-lang/docs/tracks/fragment-precedence-resolution-design-v0.md",
+    "card": "LANG-R143-D1",
+    "decision": "split declaration fragment presence from contract-level selected fragment"
+  },
+  "source_parity_matrix": {
+    "ref": "igniter-lang/experiments/fragment_precedence_parity_proof/out/fragment_precedence_parity_matrix.json",
+    "digest": "81d9f687b9f59afb362e1ffc",
+    "held_checks_resolved_by_adapter": [
+      "stream_candidate_precedence_preserves_current_classifier_behavior_if_live",
+      "epistemic_escape_candidate_precedence_preserves_current_classifier_behavior_if_live"
+    ]
+  },
+  "declaration_fragment_presence": {
+    "source": "proof_local_adapter_derived_from_current_classified_goldens",
+    "rules": [
+      {
+        "presence": "core",
+        "when": "core input/compute/output/value declarations are present"
+      },
+      {
+        "presence": "escape",
+        "when": "escape declarations or escape-classified external boundary declarations are present"
+      },
+      {
+        "presence": "stream",
+        "when": "stream, window, or fold_stream declarations are present, even when current declaration fragment_class is escape"
+      },
+      {
+        "presence": "epistemic",
+        "when": "uses_assumptions declarations are present"
+      },
+      {
+        "presence": "temporal",
+        "when": "temporal read declarations or node_fragment_class temporal are present"
+      },
+      {
+        "presence": "oof",
+        "when": "contract has OOF log or selected fragment is oof"
+      }
+    ],
+    "observed_presence_counts": {
+      "core": 23,
+      "escape": 11,
+      "stream": 4,
+      "epistemic": 3,
+      "temporal": 3,
+      "oof": 7
+    }
+  },
+  "selected_fragment_adapter": {
+    "held_live_dispatch": true,
+    "rules_in_order": [
+      {
+        "if": "oof present",
+        "selected": "oof"
+      },
+      {
+        "if": "temporal present",
+        "selected": "temporal"
+      },
+      {
+        "if": "escape present",
+        "selected": "escape"
+      },
+      {
+        "if": "stream present",
+        "selected": "escape"
+      },
+      {
+        "if": "epistemic present",
+        "selected": "epistemic"
+      },
+      {
+        "otherwise": "core"
+      }
+    ],
+    "notes": [
+      "stream present maps to the existing escape compatibility bucket",
+      "escape before epistemic preserves mixed assumptions plus escape behavior",
+      "temporal before escape preserves temporal plus escape behavior",
+      "oof remains status-primary and blocks loadability/capability"
+    ]
+  },
+  "required_case_matrix": [
+    {
+      "case": "stream_contracts_select_escape_record_stream_presence",
+      "examples": [
+        "Fixture.StreamClassifier.StreamIngressEscape",
+        "Fixture.StreamClassifier.StreamFoldCore"
+      ],
+      "presence_required": [
+        "stream",
+        "escape"
+      ],
+      "adapter_selected": "escape",
+      "current_classifier_selected": "escape",
+      "result": "PASS"
+    },
+    {
+      "case": "epistemic_plus_escape_selects_escape_record_epistemic_presence",
+      "examples": [
+        "Risk.Scoring.ScoreInteraction"
+      ],
+      "presence_required": [
+        "epistemic",
+        "escape"
+      ],
+      "adapter_selected": "escape",
+      "current_classifier_selected": "escape",
+      "result": "PASS"
+    },
+    {
+      "case": "epistemic_only_selects_epistemic",
+      "examples": [
+        "Risk.Scoring.PureEpistemicScore"
+      ],
+      "presence_required": [
+        "epistemic"
+      ],
+      "adapter_selected": "epistemic",
+      "current_classifier_selected": "epistemic",
+      "result": "PASS"
+    },
+    {
+      "case": "temporal_plus_escape_selects_temporal",
+      "examples": [
+        "Proof.ContractModifiers.ObservedTemporalPrecedence.ReadHistory"
+      ],
+      "presence_required": [
+        "temporal",
+        "escape"
+      ],
+      "adapter_selected": "temporal",
+      "current_classifier_selected": "temporal",
+      "result": "PASS"
+    },
+    {
+      "case": "oof_status_primary_blocked_non_loadable_non_capability",
+      "examples": [
+        "Proof.ContractModifiers.OofM1.BrokenPure",
+        "Risk.Scoring.BadAssumptionUse",
+        "Fixture.StreamClassifier.StreamDirectUse"
+      ],
+      "presence_required": [
+        "oof"
+      ],
+      "adapter_selected": "oof",
+      "policy": {
+        "primary_semantics": "status",
+        "blocked": true,
+        "loadable": false,
+        "capability": false
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "guarded_non_fragments_remain_non_fragment",
+      "names": [
+        "olap",
+        "progression"
+      ],
+      "classification_kind": "not_fragment_class",
+      "adapter_selected": null,
+      "result": "PASS"
+    }
+  ],
+  "current_classifier_parity": {
+    "observed_contract_count": 23,
+    "mismatches": [],
+    "rows": [
+      {
+        "contract": "Fixture.SourceToSemanticIR.Add.Add",
+        "presence": [
+          "core"
+        ],
+        "current_fragment_class": "core",
+        "adapter_selected_fragment": "core",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Fixture.SourceToSemanticIR.ClaimEvidence.ClaimEvidenceBundle",
+        "presence": [
+          "core"
+        ],
+        "current_fragment_class": "core",
+        "adapter_selected_fragment": "core",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Fixture.SourceToSemanticIR.Alert.EvidenceLinkedAlertGate",
+        "presence": [
+          "core"
+        ],
+        "current_fragment_class": "core",
+        "adapter_selected_fragment": "core",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Fixture.SourceToSemanticIR.NegativeConfidence.BadConfidenceAsBool",
+        "presence": [
+          "core",
+          "oof"
+        ],
+        "current_fragment_class": "oof",
+        "adapter_selected_fragment": "oof",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Fixture.SourceToSemanticIR.NegativeAlert.BadEvidenceLessAlertGate",
+        "presence": [
+          "core",
+          "oof"
+        ],
+        "current_fragment_class": "oof",
+        "adapter_selected_fragment": "oof",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Fixture.StreamClassifier.StreamDirectUse",
+        "presence": [
+          "core",
+          "escape",
+          "oof",
+          "stream"
+        ],
+        "current_fragment_class": "oof",
+        "adapter_selected_fragment": "oof",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Fixture.StreamClassifier.StreamMissingWindow",
+        "presence": [
+          "core",
+          "escape",
+          "oof",
+          "stream"
+        ],
+        "current_fragment_class": "oof",
+        "adapter_selected_fragment": "oof",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Fixture.SourceToSemanticIR.Negative.BadUnresolvedSymbol",
+        "presence": [
+          "core",
+          "oof"
+        ],
+        "current_fragment_class": "oof",
+        "adapter_selected_fragment": "oof",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Fixture.StreamClassifier.StreamFoldCore",
+        "presence": [
+          "core",
+          "escape",
+          "stream"
+        ],
+        "current_fragment_class": "escape",
+        "adapter_selected_fragment": "escape",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Fixture.StreamClassifier.StreamIngressEscape",
+        "presence": [
+          "core",
+          "escape",
+          "stream"
+        ],
+        "current_fragment_class": "escape",
+        "adapter_selected_fragment": "escape",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Fixture.Classifier.Temporal.TemporalBiHistoryRead",
+        "presence": [
+          "core",
+          "temporal"
+        ],
+        "current_fragment_class": "temporal",
+        "adapter_selected_fragment": "temporal",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Fixture.Classifier.Temporal.TemporalHistoryRead",
+        "presence": [
+          "core",
+          "temporal"
+        ],
+        "current_fragment_class": "temporal",
+        "adapter_selected_fragment": "temporal",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Proof.ContractModifiers.Variants.NotifyUser",
+        "presence": [
+          "core",
+          "escape"
+        ],
+        "current_fragment_class": "escape",
+        "adapter_selected_fragment": "escape",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Proof.ContractModifiers.Variants.ApproveExpense",
+        "presence": [
+          "core",
+          "escape"
+        ],
+        "current_fragment_class": "escape",
+        "adapter_selected_fragment": "escape",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Proof.ContractModifiers.Variants.ArchiveRecord",
+        "presence": [
+          "core",
+          "escape"
+        ],
+        "current_fragment_class": "escape",
+        "adapter_selected_fragment": "escape",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Proof.ContractModifiers.ObservedBasic.ReadSensor",
+        "presence": [
+          "core",
+          "escape"
+        ],
+        "current_fragment_class": "escape",
+        "adapter_selected_fragment": "escape",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Proof.ContractModifiers.ObservedTemporalPrecedence.ReadHistory",
+        "presence": [
+          "core",
+          "escape",
+          "temporal"
+        ],
+        "current_fragment_class": "temporal",
+        "adapter_selected_fragment": "temporal",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Proof.ContractModifiers.OofM1.BrokenPure",
+        "presence": [
+          "core",
+          "escape",
+          "oof"
+        ],
+        "current_fragment_class": "oof",
+        "adapter_selected_fragment": "oof",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Proof.ContractModifiers.PureExplicit.ScoreRisk",
+        "presence": [
+          "core"
+        ],
+        "current_fragment_class": "core",
+        "adapter_selected_fragment": "core",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Proof.ContractModifiers.PureImplicit.ScoreRisk",
+        "presence": [
+          "core"
+        ],
+        "current_fragment_class": "core",
+        "adapter_selected_fragment": "core",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Risk.Scoring.ScoreInteraction",
+        "presence": [
+          "core",
+          "epistemic",
+          "escape"
+        ],
+        "current_fragment_class": "escape",
+        "adapter_selected_fragment": "escape",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Risk.Scoring.PureEpistemicScore",
+        "presence": [
+          "core",
+          "epistemic"
+        ],
+        "current_fragment_class": "epistemic",
+        "adapter_selected_fragment": "epistemic",
+        "parity": "PASS"
+      },
+      {
+        "contract": "Risk.Scoring.BadAssumptionUse",
+        "presence": [
+          "core",
+          "epistemic",
+          "oof"
+        ],
+        "current_fragment_class": "oof",
+        "adapter_selected_fragment": "oof",
+        "parity": "PASS"
+      }
+    ]
+  },
+  "held_live_dispatch": true,
+  "proof_only_non_authority": {
+    "adapter_live_dispatch": false,
+    "classifier_changed": false,
+    "diagnostics_changed": false,
+    "reports_changed": false,
+    "igapp_changed": false,
+    "prop036_changed": false,
+    "prop038_changed": false,
+    "runtime_changed": false,
+    "production_changed": false,
+    "spark_changed": false
+  },
+  "pass_fail_matrix": [
+    {
+      "check": "stream_contracts_select_escape_record_stream_presence",
+      "result": "PASS"
+    },
+    {
+      "check": "epistemic_escape_selects_escape_record_epistemic_presence",
+      "result": "PASS"
+    },
+    {
+      "check": "epistemic_only_selects_epistemic",
+      "result": "PASS"
+    },
+    {
+      "check": "temporal_escape_selects_temporal",
+      "result": "PASS"
+    },
+    {
+      "check": "oof_status_primary_blocked_non_loadable_non_capability",
+      "result": "PASS"
+    },
+    {
+      "check": "olap_progression_guarded_non_fragments",
+      "result": "PASS"
+    },
+    {
+      "check": "all_observed_classifier_goldens_keep_fragment_class",
+      "result": "PASS"
+    },
+    {
+      "check": "adapter_output_proof_local_not_live_dispatch",
+      "result": "PASS"
+    }
+  ],
+  "failed_checks": [],
+  "recommendation": "ACCEPT_ADAPTER_PARITY_HOLD_LIVE_DISPATCH"
+}

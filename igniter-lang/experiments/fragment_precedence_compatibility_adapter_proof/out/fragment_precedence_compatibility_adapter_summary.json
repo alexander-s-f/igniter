@@ -1,0 +1,62 @@
+{
+  "kind": "fragment_precedence_compatibility_adapter_summary",
+  "format_version": "0.1.0",
+  "track": "fragment-precedence-compatibility-adapter-proof-v0",
+  "card": "LANG-R144-P1",
+  "status": "PASS",
+  "adapter_matrix_path": "igniter-lang/experiments/fragment_precedence_compatibility_adapter_proof/out/fragment_precedence_compatibility_adapter_matrix.json",
+  "adapter_matrix_digest": "65e876f5ae23ce761c16b704",
+  "source_design": "igniter-lang/docs/tracks/fragment-precedence-resolution-design-v0.md",
+  "source_parity_matrix_digest": "81d9f687b9f59afb362e1ffc",
+  "observed_contract_count": 23,
+  "current_classifier_parity_mismatches": [],
+  "held_live_dispatch": true,
+  "checks": [
+    {
+      "name": "stream_contracts_select_escape_record_stream_presence",
+      "status": "PASS"
+    },
+    {
+      "name": "epistemic_escape_selects_escape_record_epistemic_presence",
+      "status": "PASS"
+    },
+    {
+      "name": "epistemic_only_selects_epistemic",
+      "status": "PASS"
+    },
+    {
+      "name": "temporal_escape_selects_temporal",
+      "status": "PASS"
+    },
+    {
+      "name": "oof_status_primary_blocked_non_loadable_non_capability",
+      "status": "PASS"
+    },
+    {
+      "name": "olap_progression_guarded_non_fragments",
+      "status": "PASS"
+    },
+    {
+      "name": "all_observed_classifier_goldens_keep_fragment_class",
+      "status": "PASS"
+    },
+    {
+      "name": "adapter_output_proof_local_not_live_dispatch",
+      "status": "PASS"
+    }
+  ],
+  "failed_checks": [],
+  "closed_surface_assertions": {
+    "adapter_live_dispatch": false,
+    "classifier_changed": false,
+    "diagnostics_changed": false,
+    "reports_changed": false,
+    "igapp_changed": false,
+    "prop036_changed": false,
+    "prop038_changed": false,
+    "runtime_changed": false,
+    "production_changed": false,
+    "spark_changed": false
+  },
+  "recommendation": "ACCEPT_ADAPTER_PARITY_HOLD_LIVE_DISPATCH"
+}
