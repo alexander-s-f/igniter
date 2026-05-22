@@ -143,14 +143,54 @@ R147 preserves later demo usefulness as a note only. No demo lane, demo fixture,
 demo artifact, Spark work, or production-facing scenario is opened by this
 round.
 
+## Mandatory C1-A Requirements for C2-I
+
+The C1-A gate promotes two previously-flagged notes to mandatory proof
+requirements for the implementation card:
+
+1. **Dynamic closed-surface checks** — The implementation proof must verify the
+   helper file's existence, the root-require state, and the classifier's
+   non-reference to the helper through live filesystem/content reads, not
+   hardcoded static `false` values.
+
+2. **`assumptions_proof` in regression matrix** — The assumptions proof
+   (39 named checks) must be run and its result recorded as part of the
+   implementation proof matrix.
+
+---
+
+## Round Receipt
+
+```text
+round: S3-R147
+line: compiler-mainline / fragment-registry-adapter
+status: closed
+closed_by: S3-R147-C2-S
+  doc: igniter-lang/docs/tracks/stage3-round147-status-curation-v0.md
+decision: authorized-bounded-direct-require-helper-implementation
+helper_implementation_status: authorized_next_not_landed
+next_route: fragment-registry-compatibility-adapter-helper-implementation-proof-v0
+authorized_write_scope:
+  igniter-lang/lib/igniter_lang/fragment_registry_compatibility_adapter.rb
+  igniter-lang/experiments/fragment_registry_compatibility_adapter_helper_implementation_proof/**
+  igniter-lang/docs/tracks/fragment-registry-compatibility-adapter-helper-implementation-proof-v0.md
+root_require_authorized: no
+classifier_wiring_authorized: no
+live_classifier_dispatch_authorized: no
+demo_work_authorized: no
+```
+
+---
+
 ## Handoff
 
 [D] R147 authorizes only the bounded direct-require helper
-implementation/proof route.
+implementation/proof route. Dynamic closed-surface checks and
+`assumptions_proof` are mandatory per C1-A.
 
 [S] The implementation is authorized next but not landed. The authorized helper
 is internal-only and direct-require-only; root require and classifier wiring are
-forbidden.
+forbidden. API shape is pinned to R146 C1 (no refinement without delta review).
 
 [T] Status docs only. No code or tests were run by this status-curation card.
 
@@ -159,4 +199,4 @@ public surfaces, reports, `.igapp`, runtime, Spark, production, or edits outside
 the exact write scope from R147.
 
 [Next] Run `fragment-registry-compatibility-adapter-helper-implementation-proof-v0`
-as bounded implementation plus proof.
+as S3-R147-C2-I (implementation agent, bounded implementation plus proof).
