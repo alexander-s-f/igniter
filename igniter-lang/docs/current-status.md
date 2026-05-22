@@ -258,6 +258,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             compatibility is classifier-local, live dispatch
                             and implementation remain held; next route is only
                             proof/design internal-helper boundary proof;
+                            R146 accepts that proof-only helper boundary:
+                            19 checks PASS, R144 parity preserved across 23
+                            contracts, no lib/root/classifier/report/artifact/
+                            runtime/Spark drift; next route is authorization
+                            review only, implementation still held;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime, production remain blocked
 ─────────────────────────────────────────────────────────────────
@@ -777,6 +782,11 @@ Round 145 landed:
   S3-R145-C3-X: adapter boundary pressure                              ✅ proceed-with-notes; 6/6 checks; no blockers
   S3-R145-C4-A: adapter boundary decision                              ✅ accepted-design-proof-route-next-implementation-held
   S3-R145-C5-S: status curation / next-route pointer                   ✅ done; demo-shadow remains note-only
+Round 146 landed:
+  S3-R146-C1-P1: helper boundary proof                                  ✅ PASS; 19 checks + 23-contract R144 parity
+  S3-R146-C2-X: helper boundary pressure                                ✅ proceed; 7/7 checks; no blockers
+  S3-R146-C3-A: helper boundary decision                                ✅ accepted-proof-implementation-authorization-review-next-implementation-held
+  S3-R146-C4-S: status curation / next-route pointer                    ✅ done; implementation held, demo-shadow note-only
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -824,6 +834,9 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   R145 accepts fragment registry adapter boundary as
                   design/proof foundation and opens only proof/design
                   `fragment-registry-compatibility-adapter-internal-helper-boundary-proof-v0`
+                  next; implementation remains held,
+                  R146 accepts that proof-only helper boundary and opens only
+                  `fragment-registry-compatibility-adapter-helper-implementation-authorization-review-v0`
                   next; implementation remains held,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
@@ -2104,6 +2117,23 @@ S3-R145 result:     C1-P1 designs the fragment registry compatibility adapter bo
                       route is proof/design only:
                       `fragment-registry-compatibility-adapter-internal-helper-boundary-proof-v0`.
                       Demo-shadow remains a usefulness note only and does not open demo work.
+S3-R146 result:     C1-P1 proves the proof-only internal helper boundary for the fragment registry
+                      compatibility adapter: helper input/result shapes, R144 selected-fragment parity
+                      across 23 contracts, negative scans, and command matrix PASS. Proof summary:
+                      19 checks, 0 failures, helper_result_digest
+                      `ae26685d3afd77a2e2cc35c5`. C2-X returns `proceed` with 7/7 checks PASS and
+                      no blockers, carrying implementation-review notes for dynamic closed-surface checks,
+                      `assumptions_proof`, broader scans, and exact/delta result shape. C3-A accepts the
+                      proof-only boundary with status
+                      `accepted-proof-implementation-authorization-review-next-implementation-held`.
+                      Next route is authorization-review only:
+                      `fragment-registry-compatibility-adapter-helper-implementation-authorization-review-v0`.
+                      Implementation, `lib/` helper creation, root require, classifier wiring/live dispatch,
+                      `contract_fragment_for` replacement, parser/TypeChecker/SemanticIR/assembler/`.igapp`,
+                      `ClassifiedProgram` schema changes, public API/CLI, loader/report, CompilationReport,
+                      CompilerResult, CompatibilityReport, PROP-036/PROP-038 mutation, runtime, Spark,
+                      production, Ledger/TBackend, BiHistory, stream/OLAP, cache, signing, deployment, and
+                      demo work remain closed.
 ```
 
 ### Spec Freshness
