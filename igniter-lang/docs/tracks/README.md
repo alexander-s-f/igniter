@@ -109,6 +109,9 @@ architecture. They are not production migration authorization.
 | `../discussions/fragment-registry-adapter-boundary-pressure-v0.md` | proceed-with-notes | R145 C3 pressure PASS 6/6; NB-1 vocabulary alignment, NB-2 first-slice divergence, NB-3 classifier-parity scope routed to C4-A |
 | `../gates/fragment-registry-adapter-implementation-boundary-decision-v0.md` | accepted-design-proof-route-next-implementation-held | R145 C4 accepts design/proof foundation and opens only proof/design internal-helper boundary; implementation, live classifier dispatch, SemanticIR/report/`.igapp`, public/runtime/Spark surfaces remain closed |
 | `stage3-round145-status-curation-v0.md` | done | R145 status curation: records accepted/held adapter boundary, proof/design next route, closed surfaces, and demo-shadow note-only state |
+| `fragment-registry-compatibility-adapter-internal-helper-boundary-proof-v0.md` | done / PASS | R146 C1 proof-only helper boundary: helper input/result shape, R144 parity 23/23, negative scans, and command matrix PASS without lib/root/classifier wiring |
+| `../discussions/fragment-registry-compatibility-adapter-helper-boundary-pressure-v0.md` | proceed | R146 C2 pressure PASS 7/7; carries implementation-review notes for dynamic lib checks, assumptions proof, broader scans, and exact/delta helper result shape |
+| `../gates/fragment-registry-compatibility-adapter-helper-boundary-proof-decision-v0.md` | accepted-proof-implementation-authorization-review-next-implementation-held | R146 C3 accepts proof-only helper boundary and opens only implementation-authorization review; implementation and protected compiler/public/runtime/Spark surfaces remain closed |
 
 ---
 
