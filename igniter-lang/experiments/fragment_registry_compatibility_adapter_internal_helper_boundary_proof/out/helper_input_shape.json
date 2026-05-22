@@ -1,0 +1,236 @@
+{
+  "boundary_mode": "proof_only_internal_helper",
+  "classifier_wiring_authorized": false,
+  "closed_surface_assertions": {
+    "assembler_changed": false,
+    "classifier_wiring": false,
+    "igapp_changed": false,
+    "lib_helper_file_created": false,
+    "parser_changed": false,
+    "production_changed": false,
+    "public_api_cli_changed": false,
+    "report_changed": false,
+    "root_require_changed": false,
+    "runtime_changed": false,
+    "semanticir_changed": false,
+    "spark_changed": false,
+    "typechecker_changed": false
+  },
+  "contracts": [
+    {
+      "contract_ref": "Fixture.SourceToSemanticIR.Add.Add",
+      "current_selected_fragment": "core",
+      "declaration_fragment_presence": [
+        "core"
+      ]
+    },
+    {
+      "contract_ref": "Fixture.SourceToSemanticIR.ClaimEvidence.ClaimEvidenceBundle",
+      "current_selected_fragment": "core",
+      "declaration_fragment_presence": [
+        "core"
+      ]
+    },
+    {
+      "contract_ref": "Fixture.SourceToSemanticIR.Alert.EvidenceLinkedAlertGate",
+      "current_selected_fragment": "core",
+      "declaration_fragment_presence": [
+        "core"
+      ]
+    },
+    {
+      "contract_ref": "Fixture.SourceToSemanticIR.NegativeConfidence.BadConfidenceAsBool",
+      "current_selected_fragment": "oof",
+      "declaration_fragment_presence": [
+        "core",
+        "oof"
+      ]
+    },
+    {
+      "contract_ref": "Fixture.SourceToSemanticIR.NegativeAlert.BadEvidenceLessAlertGate",
+      "current_selected_fragment": "oof",
+      "declaration_fragment_presence": [
+        "core",
+        "oof"
+      ]
+    },
+    {
+      "contract_ref": "Fixture.StreamClassifier.StreamDirectUse",
+      "current_selected_fragment": "oof",
+      "declaration_fragment_presence": [
+        "core",
+        "escape",
+        "oof",
+        "stream"
+      ]
+    },
+    {
+      "contract_ref": "Fixture.StreamClassifier.StreamMissingWindow",
+      "current_selected_fragment": "oof",
+      "declaration_fragment_presence": [
+        "core",
+        "escape",
+        "oof",
+        "stream"
+      ]
+    },
+    {
+      "contract_ref": "Fixture.SourceToSemanticIR.Negative.BadUnresolvedSymbol",
+      "current_selected_fragment": "oof",
+      "declaration_fragment_presence": [
+        "core",
+        "oof"
+      ]
+    },
+    {
+      "contract_ref": "Fixture.StreamClassifier.StreamFoldCore",
+      "current_selected_fragment": "escape",
+      "declaration_fragment_presence": [
+        "core",
+        "escape",
+        "stream"
+      ]
+    },
+    {
+      "contract_ref": "Fixture.StreamClassifier.StreamIngressEscape",
+      "current_selected_fragment": "escape",
+      "declaration_fragment_presence": [
+        "core",
+        "escape",
+        "stream"
+      ]
+    },
+    {
+      "contract_ref": "Fixture.Classifier.Temporal.TemporalBiHistoryRead",
+      "current_selected_fragment": "temporal",
+      "declaration_fragment_presence": [
+        "core",
+        "temporal"
+      ]
+    },
+    {
+      "contract_ref": "Fixture.Classifier.Temporal.TemporalHistoryRead",
+      "current_selected_fragment": "temporal",
+      "declaration_fragment_presence": [
+        "core",
+        "temporal"
+      ]
+    },
+    {
+      "contract_ref": "Proof.ContractModifiers.Variants.NotifyUser",
+      "current_selected_fragment": "escape",
+      "declaration_fragment_presence": [
+        "core",
+        "escape"
+      ]
+    },
+    {
+      "contract_ref": "Proof.ContractModifiers.Variants.ApproveExpense",
+      "current_selected_fragment": "escape",
+      "declaration_fragment_presence": [
+        "core",
+        "escape"
+      ]
+    },
+    {
+      "contract_ref": "Proof.ContractModifiers.Variants.ArchiveRecord",
+      "current_selected_fragment": "escape",
+      "declaration_fragment_presence": [
+        "core",
+        "escape"
+      ]
+    },
+    {
+      "contract_ref": "Proof.ContractModifiers.ObservedBasic.ReadSensor",
+      "current_selected_fragment": "escape",
+      "declaration_fragment_presence": [
+        "core",
+        "escape"
+      ]
+    },
+    {
+      "contract_ref": "Proof.ContractModifiers.ObservedTemporalPrecedence.ReadHistory",
+      "current_selected_fragment": "temporal",
+      "declaration_fragment_presence": [
+        "core",
+        "escape",
+        "temporal"
+      ]
+    },
+    {
+      "contract_ref": "Proof.ContractModifiers.OofM1.BrokenPure",
+      "current_selected_fragment": "oof",
+      "declaration_fragment_presence": [
+        "core",
+        "escape",
+        "oof"
+      ]
+    },
+    {
+      "contract_ref": "Proof.ContractModifiers.PureExplicit.ScoreRisk",
+      "current_selected_fragment": "core",
+      "declaration_fragment_presence": [
+        "core"
+      ]
+    },
+    {
+      "contract_ref": "Proof.ContractModifiers.PureImplicit.ScoreRisk",
+      "current_selected_fragment": "core",
+      "declaration_fragment_presence": [
+        "core"
+      ]
+    },
+    {
+      "contract_ref": "Risk.Scoring.ScoreInteraction",
+      "current_selected_fragment": "escape",
+      "declaration_fragment_presence": [
+        "core",
+        "epistemic",
+        "escape"
+      ]
+    },
+    {
+      "contract_ref": "Risk.Scoring.PureEpistemicScore",
+      "current_selected_fragment": "epistemic",
+      "declaration_fragment_presence": [
+        "core",
+        "epistemic"
+      ]
+    },
+    {
+      "contract_ref": "Risk.Scoring.BadAssumptionUse",
+      "current_selected_fragment": "oof",
+      "declaration_fragment_presence": [
+        "core",
+        "epistemic",
+        "oof"
+      ]
+    }
+  ],
+  "direct_require_only_if_later_implemented": true,
+  "format_version": "0.1.0",
+  "guarded_non_fragments": [
+    {
+      "classification_kind": "not_fragment_class",
+      "name": "olap",
+      "selected_fragment": null
+    },
+    {
+      "classification_kind": "not_fragment_class",
+      "name": "progression",
+      "selected_fragment": null
+    }
+  ],
+  "kind": "fragment_registry_compatibility_adapter_helper_input",
+  "oof_projection_policy": {
+    "blocked": true,
+    "capability": false,
+    "loadable": false,
+    "primary_semantics": "status"
+  },
+  "source_r144": {
+    "matrix_digest": "65e876f5ae23ce761c16b704",
+    "matrix_ref": "igniter-lang/experiments/fragment_precedence_compatibility_adapter_proof/out/fragment_precedence_compatibility_adapter_matrix.json",
+    "summary_ref": "igniter-lang/experiments/fragment_precedence_compatibility_adapter_proof/out/fragment_precedence_compatibility_adapter_summary.json"
+  }
+}

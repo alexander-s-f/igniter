@@ -1,0 +1,167 @@
+{
+  "card": "S3-R146-C1-P1",
+  "check_count": 19,
+  "checks": [
+    {
+      "detail": "R144 summary status=PASS",
+      "name": "source_r144_summary_pass",
+      "status": "PASS"
+    },
+    {
+      "detail": "R144 adapter remains proof-local",
+      "name": "source_r144_held_live_dispatch",
+      "status": "PASS"
+    },
+    {
+      "detail": "R144 selected-fragment mismatches empty",
+      "name": "source_r144_no_mismatches",
+      "status": "PASS"
+    },
+    {
+      "detail": "helper input is proof-only, direct-require-only, and unwired",
+      "name": "helper_input_shape",
+      "status": "PASS"
+    },
+    {
+      "detail": "helper result is proof-only and live dispatch is held",
+      "name": "helper_result_shape",
+      "status": "PASS"
+    },
+    {
+      "detail": "all 23 selected fragments match R144 current classifier selection",
+      "name": "r144_selected_fragment_parity_preserved",
+      "status": "PASS"
+    },
+    {
+      "detail": "stream presence remains escape-selected",
+      "name": "stream_presence_selects_escape",
+      "status": "PASS"
+    },
+    {
+      "detail": "epistemic plus escape remains escape-selected",
+      "name": "epistemic_escape_presence_selects_escape",
+      "status": "PASS"
+    },
+    {
+      "detail": "epistemic-only remains epistemic-selected",
+      "name": "epistemic_only_selects_epistemic",
+      "status": "PASS"
+    },
+    {
+      "detail": "temporal plus escape remains temporal-selected",
+      "name": "temporal_escape_selects_temporal",
+      "status": "PASS"
+    },
+    {
+      "detail": "OOF stays status-primary blocked projection",
+      "name": "oof_status_primary_blocked_non_loadable_non_capability",
+      "status": "PASS"
+    },
+    {
+      "detail": "olap/progression remain guarded non-fragments",
+      "name": "olap_progression_guarded_non_fragments",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang.rb",
+      "name": "negative_scan_root_require",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang/classifier.rb",
+      "name": "negative_scan_classifier_wiring",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang/compilation_report.rb",
+      "name": "negative_scan_report_surface",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang/assembler.rb",
+      "name": "negative_scan_igapp_assembler_surface",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang/cli.rb",
+      "name": "negative_scan_public_cli_surface",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang/temporal_executor.rb",
+      "name": "negative_scan_runtime_surface",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixture.rb",
+      "name": "negative_scan_spark_surface",
+      "status": "PASS"
+    }
+  ],
+  "classifier_wiring_authorized": false,
+  "closed_surface_assertions": {
+    "assembler_changed": false,
+    "classifier_wiring": false,
+    "igapp_changed": false,
+    "lib_helper_file_created": false,
+    "parser_changed": false,
+    "production_changed": false,
+    "public_api_cli_changed": false,
+    "report_changed": false,
+    "root_require_changed": false,
+    "runtime_changed": false,
+    "semanticir_changed": false,
+    "spark_changed": false,
+    "typechecker_changed": false
+  },
+  "failed_checks": [],
+  "format_version": "0.1.0",
+  "helper_input_digest": "47e938fdea0e46e067a2c88b",
+  "helper_input_path": "igniter-lang/experiments/fragment_registry_compatibility_adapter_internal_helper_boundary_proof/out/helper_input_shape.json",
+  "helper_result_digest": "ae26685d3afd77a2e2cc35c5",
+  "helper_result_path": "igniter-lang/experiments/fragment_registry_compatibility_adapter_internal_helper_boundary_proof/out/helper_result_shape.json",
+  "implementation_authorized": false,
+  "kind": "fragment_registry_compatibility_adapter_internal_helper_boundary_proof_summary",
+  "negative_scans": [
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang.rb",
+      "name": "negative_scan_root_require",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang/classifier.rb",
+      "name": "negative_scan_classifier_wiring",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang/compilation_report.rb",
+      "name": "negative_scan_report_surface",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang/assembler.rb",
+      "name": "negative_scan_igapp_assembler_surface",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang/cli.rb",
+      "name": "negative_scan_public_cli_surface",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/lib/igniter_lang/temporal_executor.rb",
+      "name": "negative_scan_runtime_surface",
+      "status": "PASS"
+    },
+    {
+      "detail": "no hits in igniter-lang/experiments/sparkcrm_bihistory_fixture/sparkcrm_bihistory_fixture.rb",
+      "name": "negative_scan_spark_surface",
+      "status": "PASS"
+    }
+  ],
+  "observed_contract_count": 23,
+  "recommendation": "ACCEPT_PROOF_ONLY_HELPER_BOUNDARY_HOLD_IMPLEMENTATION",
+  "source_r144_matrix_digest": "65e876f5ae23ce761c16b704",
+  "status": "PASS",
+  "track": "fragment-registry-compatibility-adapter-internal-helper-boundary-proof-v0"
+}
