@@ -94,6 +94,8 @@ architecture. They are not production migration authorization.
 | `internal-profile-assembly-boundary-design-v0.md` | done | R130 designs proof-only `internal_profile_assembly_result` boundary around the packet and OOF registry; implementation review held |
 | `internal-profile-assembly-boundary-proof-v0.md` | done / PASS | R131 proves proof-only assembly boundary/result: 6/6 cases and 5/5 checks PASS; valid packet finalizes internally, invalid packets do not finalize, external surfaces remain closed |
 | `../gates/internal-profile-assembly-boundary-implementation-authorization-review-v0.md` | authorized-bounded-internal-profile-assembly-boundary | R132 authorizes only `IgniterLang::InternalProfileAssembly` as a tiny internal boundary object/result; root require, compiler pipeline, public/report/manifest/PROP/runtime/Spark surfaces remain closed |
+| `internal-profile-assembly-boundary-implementation-v0.md` | done / PASS | R133 implements `IgniterLang::InternalProfileAssembly`; implementation proof PASS 7/7 cases and 5/5 checks; R134 resolves the stale R131 matrix assertion |
+| `internal-profile-assembly-boundary-proof-maintenance-v0.md` | done / PASS | R134 supersedes R131 `no_new_lib_assembly_boundary_file` with authorized-file/direct-require-only check; full R132/R133 matrix PASS and external surfaces remain closed |
 
 ---
 

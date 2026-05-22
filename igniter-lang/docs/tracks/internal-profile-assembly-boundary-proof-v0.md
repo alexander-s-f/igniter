@@ -24,8 +24,11 @@ Affected neighbor roles:
 - `[Igniter-Lang Bridge Agent]` — public/report/loader/CompatibilityReport,
   runtime, production, and package surfaces remain closed.
 
-This track creates only an experiment-local boundary proof. It does not add a
-new `lib/` file and does not connect to the current compiler pipeline.
+This track originally created only an experiment-local boundary proof. R134
+maintenance supersedes the pre-R132 "no lib assembly boundary file" assertion:
+R132/R133 authorized `lib/igniter_lang/internal_profile_assembly.rb` as an
+internal-only direct-require file. The remaining closure is unchanged: no root
+require, no compiler pipeline usage, and no public/report/runtime carrier.
 
 ---
 
@@ -35,6 +38,7 @@ new `lib/` file and does not connect to the current compiler pipeline.
 R129 implemented InternalProfileAssemblySourcePacket as an internal constructor/test seam.
 R130 designed a proof-only assembly boundary that returns internal_profile_assembly_result.
 R131 proves the boundary/result shape without compiler integration.
+R134 maintains R131 after R132/R133 authorized the internal lib boundary file.
 ```
 
 ---
@@ -73,7 +77,7 @@ Result:
 PASS internal-profile-assembly-boundary-proof-v0
 cases: 6/6
 checks: 5/5
-recommendation: ACCEPT_PROOF_IMPLEMENTATION_REVIEW_HOLD
+recommendation: ACCEPT_R133_CLOSURE
 model_id: internal_profile_assembly_boundary/sha256:f2e95b73af499d03e59a8c6e
 packet_digest: daa67b3f2faf5216175ded43
 result_digest: a55d3660932252ea78201c4d
@@ -135,7 +139,7 @@ and not runtime or production readiness.
 | --- | --- |
 | `packet_does_not_become_compiler_input` | PASS |
 | `root_require_remains_closed` | PASS |
-| `no_new_lib_assembly_boundary_file` | PASS |
+| `authorized_internal_assembly_file_exists_direct_require_only` | PASS |
 | `public_report_runtime_manifest_prop_surfaces_closed` | PASS |
 | `case_matrix_expected_results` | PASS |
 
@@ -177,11 +181,13 @@ spark_surface: false
 
 The proof also checks:
 
-- no `InternalProfileAssemblySourcePacket` usage in parser/classifier/
-  TypeChecker/SemanticIR/assembler/orchestrator files;
-- `lib/igniter_lang.rb` does not require
+- no `InternalProfileAssemblySourcePacket` or `InternalProfileAssembly` usage in
+  parser/classifier/TypeChecker/SemanticIR/assembler/orchestrator files;
+- `lib/igniter_lang.rb` does not require `internal_profile_assembly` or
   `internal_profile_assembly_source_packet`;
-- no new `lib/igniter_lang/internal_profile_assembly*.rb` boundary file exists;
+- the authorized `lib/igniter_lang/internal_profile_assembly.rb` file exists as
+  a direct-require-only internal file, and no
+  `lib/igniter_lang/internal_profile_assembly_boundary.rb` file exists;
 - public/report/runtime/manifest/PROP-adjacent files do not reference
   `internal_profile_assembly_result`.
 
@@ -189,17 +195,16 @@ The proof also checks:
 
 ## Recommendation
 
-Recommendation:
+R134 maintenance recommendation:
 
 ```text
-accept proof
-implementation review hold
+accept R133 closure
 Bridge pressure deferred unless a future carrier is proposed
 ```
 
 Reason:
 
-- proof-only result shape is now concrete and deterministic;
+- internal-only result shape is concrete and deterministic;
 - required failure modes remain internal and non-finalizing;
 - packet does not become compiler input;
 - root require and external surfaces remain closed.

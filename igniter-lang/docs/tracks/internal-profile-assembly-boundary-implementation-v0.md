@@ -194,6 +194,11 @@ continue passing, while the R131 proof intentionally asserted
 proof-only status but stale after R132 authorization. This track did not edit
 the R131 proof because it is outside the LANG-R133-I1 write scope.
 
+R134 maintenance resolved this matrix conflict by superseding the stale R131
+assertion with `authorized_internal_assembly_file_exists_direct_require_only`.
+The full R132/R133 matrix now passes; see
+`internal-profile-assembly-boundary-proof-maintenance-v0.md`.
+
 ---
 
 ## Closed Surfaces

@@ -1342,7 +1342,7 @@
       "status": "PASS"
     },
     {
-      "name": "no_new_lib_assembly_boundary_file",
+      "name": "authorized_internal_assembly_file_exists_direct_require_only",
       "status": "PASS"
     },
     {
@@ -1376,7 +1376,13 @@
     "production_behavior": false,
     "spark_surface": false
   },
-  "implementation_authorized": false,
+  "superseded_pre_implementation_check": {
+    "name": "no_new_lib_assembly_boundary_file",
+    "superseded_by": "authorized_internal_assembly_file_exists_direct_require_only",
+    "reason": "R132/R133 authorized lib/igniter_lang/internal_profile_assembly.rb as an internal-only boundary."
+  },
+  "implementation_authorized": true,
+  "implementation_authority_ref": "igniter-lang/docs/gates/internal-profile-assembly-boundary-implementation-authorization-review-v0.md",
   "compiler_integration_authorized": false,
-  "recommendation": "ACCEPT_PROOF_IMPLEMENTATION_REVIEW_HOLD"
+  "recommendation": "ACCEPT_R133_CLOSURE"
 }

@@ -97,15 +97,20 @@ module InternalProfileAssemblyBoundaryProof
     checks = []
     checks << check("packet_does_not_become_compiler_input") do
       no_file_mentions?(compiler_pipeline_files, "InternalProfileAssemblySourcePacket") &&
-        no_file_mentions?(compiler_pipeline_files, "internal_profile_assembly_source_packet")
+        no_file_mentions?(compiler_pipeline_files, "internal_profile_assembly_source_packet") &&
+        no_file_mentions?(compiler_pipeline_files, "InternalProfileAssembly") &&
+        no_file_mentions?(compiler_pipeline_files, "internal_profile_assembly")
     end
     checks << check("root_require_remains_closed") do
       main_lib = ROOT / "lib/igniter_lang.rb"
-      !main_lib.exist? || !File.read(main_lib, encoding: "utf-8").include?("internal_profile_assembly_source_packet")
+      !main_lib.exist? ||
+        !File.read(main_lib, encoding: "utf-8").match?(/internal_profile_assembly(_source_packet)?/)
     end
-    checks << check("no_new_lib_assembly_boundary_file") do
-      !ROOT.join("lib/igniter_lang/internal_profile_assembly.rb").exist? &&
-        !ROOT.join("lib/igniter_lang/internal_profile_assembly_boundary.rb").exist?
+    checks << check("authorized_internal_assembly_file_exists_direct_require_only") do
+      assembly_file = ROOT / "lib/igniter_lang/internal_profile_assembly.rb"
+      assembly_file.exist? &&
+        !ROOT.join("lib/igniter_lang/internal_profile_assembly_boundary.rb").exist? &&
+        !File.read(assembly_file, encoding: "utf-8").include?("require_relative")
     end
     checks << check("public_report_runtime_manifest_prop_surfaces_closed") do
       valid_result.fetch("closed_surface_assertions").values.all?(false) &&
@@ -155,9 +160,16 @@ module InternalProfileAssemblyBoundaryProof
         "negative_results" => "igniter-lang/experiments/internal_profile_assembly_boundary_proof/out/internal_profile_assembly_result.negatives.json"
       },
       "closed_surfaces" => assembly_closed_surface_assertions,
-      "implementation_authorized" => false,
+      "superseded_pre_implementation_check" => {
+        "name" => "no_new_lib_assembly_boundary_file",
+        "superseded_by" => "authorized_internal_assembly_file_exists_direct_require_only",
+        "reason" => "R132/R133 authorized lib/igniter_lang/internal_profile_assembly.rb as an internal-only boundary."
+      },
+      "implementation_authorized" => true,
+      "implementation_authority_ref" =>
+        "igniter-lang/docs/gates/internal-profile-assembly-boundary-implementation-authorization-review-v0.md",
       "compiler_integration_authorized" => false,
-      "recommendation" => status == "PASS" ? "ACCEPT_PROOF_IMPLEMENTATION_REVIEW_HOLD" : "HOLD"
+      "recommendation" => status == "PASS" ? "ACCEPT_R133_CLOSURE" : "HOLD"
     }
 
     negative_results = cases
