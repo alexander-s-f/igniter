@@ -1,0 +1,294 @@
+{
+  "classifier_wiring_authorized": false,
+  "format_version": "0.1.0",
+  "guarded_non_fragments": [
+    {
+      "classification_kind": "not_fragment_class",
+      "name": "olap",
+      "selected_fragment": null
+    },
+    {
+      "classification_kind": "not_fragment_class",
+      "name": "progression",
+      "selected_fragment": null
+    }
+  ],
+  "held_live_dispatch": true,
+  "kind": "fragment_registry_compatibility_adapter_helper_result",
+  "oof_projection_policy": {
+    "blocked": true,
+    "capability": false,
+    "loadable": false,
+    "primary_semantics": "status"
+  },
+  "r144_parity": {
+    "preserved": true,
+    "source_digest": "65e876f5ae23ce761c16b704",
+    "source_status": "PASS"
+  },
+  "selected_fragment_projection": {
+    "mismatches": [],
+    "rows": [
+      {
+        "contract_ref": "Fixture.SourceToSemanticIR.Add.Add",
+        "current_selected_fragment": "core",
+        "declaration_fragment_presence": [
+          "core"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "core"
+      },
+      {
+        "contract_ref": "Fixture.SourceToSemanticIR.ClaimEvidence.ClaimEvidenceBundle",
+        "current_selected_fragment": "core",
+        "declaration_fragment_presence": [
+          "core"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "core"
+      },
+      {
+        "contract_ref": "Fixture.SourceToSemanticIR.Alert.EvidenceLinkedAlertGate",
+        "current_selected_fragment": "core",
+        "declaration_fragment_presence": [
+          "core"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "core"
+      },
+      {
+        "contract_ref": "Fixture.SourceToSemanticIR.NegativeConfidence.BadConfidenceAsBool",
+        "current_selected_fragment": "oof",
+        "declaration_fragment_presence": [
+          "core",
+          "oof"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "oof"
+      },
+      {
+        "contract_ref": "Fixture.SourceToSemanticIR.NegativeAlert.BadEvidenceLessAlertGate",
+        "current_selected_fragment": "oof",
+        "declaration_fragment_presence": [
+          "core",
+          "oof"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "oof"
+      },
+      {
+        "contract_ref": "Fixture.StreamClassifier.StreamDirectUse",
+        "current_selected_fragment": "oof",
+        "declaration_fragment_presence": [
+          "core",
+          "escape",
+          "oof",
+          "stream"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "oof"
+      },
+      {
+        "contract_ref": "Fixture.StreamClassifier.StreamMissingWindow",
+        "current_selected_fragment": "oof",
+        "declaration_fragment_presence": [
+          "core",
+          "escape",
+          "oof",
+          "stream"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "oof"
+      },
+      {
+        "contract_ref": "Fixture.SourceToSemanticIR.Negative.BadUnresolvedSymbol",
+        "current_selected_fragment": "oof",
+        "declaration_fragment_presence": [
+          "core",
+          "oof"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "oof"
+      },
+      {
+        "contract_ref": "Fixture.StreamClassifier.StreamFoldCore",
+        "current_selected_fragment": "escape",
+        "declaration_fragment_presence": [
+          "core",
+          "escape",
+          "stream"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "escape"
+      },
+      {
+        "contract_ref": "Fixture.StreamClassifier.StreamIngressEscape",
+        "current_selected_fragment": "escape",
+        "declaration_fragment_presence": [
+          "core",
+          "escape",
+          "stream"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "escape"
+      },
+      {
+        "contract_ref": "Fixture.Classifier.Temporal.TemporalBiHistoryRead",
+        "current_selected_fragment": "temporal",
+        "declaration_fragment_presence": [
+          "core",
+          "temporal"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "temporal"
+      },
+      {
+        "contract_ref": "Fixture.Classifier.Temporal.TemporalHistoryRead",
+        "current_selected_fragment": "temporal",
+        "declaration_fragment_presence": [
+          "core",
+          "temporal"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "temporal"
+      },
+      {
+        "contract_ref": "Proof.ContractModifiers.Variants.NotifyUser",
+        "current_selected_fragment": "escape",
+        "declaration_fragment_presence": [
+          "core",
+          "escape"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "escape"
+      },
+      {
+        "contract_ref": "Proof.ContractModifiers.Variants.ApproveExpense",
+        "current_selected_fragment": "escape",
+        "declaration_fragment_presence": [
+          "core",
+          "escape"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "escape"
+      },
+      {
+        "contract_ref": "Proof.ContractModifiers.Variants.ArchiveRecord",
+        "current_selected_fragment": "escape",
+        "declaration_fragment_presence": [
+          "core",
+          "escape"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "escape"
+      },
+      {
+        "contract_ref": "Proof.ContractModifiers.ObservedBasic.ReadSensor",
+        "current_selected_fragment": "escape",
+        "declaration_fragment_presence": [
+          "core",
+          "escape"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "escape"
+      },
+      {
+        "contract_ref": "Proof.ContractModifiers.ObservedTemporalPrecedence.ReadHistory",
+        "current_selected_fragment": "temporal",
+        "declaration_fragment_presence": [
+          "core",
+          "escape",
+          "temporal"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "temporal"
+      },
+      {
+        "contract_ref": "Proof.ContractModifiers.OofM1.BrokenPure",
+        "current_selected_fragment": "oof",
+        "declaration_fragment_presence": [
+          "core",
+          "escape",
+          "oof"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "oof"
+      },
+      {
+        "contract_ref": "Proof.ContractModifiers.PureExplicit.ScoreRisk",
+        "current_selected_fragment": "core",
+        "declaration_fragment_presence": [
+          "core"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "core"
+      },
+      {
+        "contract_ref": "Proof.ContractModifiers.PureImplicit.ScoreRisk",
+        "current_selected_fragment": "core",
+        "declaration_fragment_presence": [
+          "core"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "core"
+      },
+      {
+        "contract_ref": "Risk.Scoring.ScoreInteraction",
+        "current_selected_fragment": "escape",
+        "declaration_fragment_presence": [
+          "core",
+          "epistemic",
+          "escape"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "escape"
+      },
+      {
+        "contract_ref": "Risk.Scoring.PureEpistemicScore",
+        "current_selected_fragment": "epistemic",
+        "declaration_fragment_presence": [
+          "core",
+          "epistemic"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "epistemic"
+      },
+      {
+        "contract_ref": "Risk.Scoring.BadAssumptionUse",
+        "current_selected_fragment": "oof",
+        "declaration_fragment_presence": [
+          "core",
+          "epistemic",
+          "oof"
+        ],
+        "parity": "PASS",
+        "selected_fragment": "oof"
+      }
+    ],
+    "rules_in_order": [
+      {
+        "if": "oof present",
+        "selected": "oof"
+      },
+      {
+        "if": "temporal present",
+        "selected": "temporal"
+      },
+      {
+        "if": "escape present",
+        "selected": "escape"
+      },
+      {
+        "if": "stream present",
+        "selected": "escape"
+      },
+      {
+        "if": "epistemic present",
+        "selected": "epistemic"
+      },
+      {
+        "otherwise": "core"
+      }
+    ]
+  }
+}

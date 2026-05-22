@@ -1,0 +1,269 @@
+{
+  "authorized_by": "S3-R147-C1-A",
+  "card": "S3-R147-C2-I",
+  "checks": [
+    {
+      "name": "RS1.result_kind_correct",
+      "status": "PASS"
+    },
+    {
+      "name": "RS2.result_format_version",
+      "status": "PASS"
+    },
+    {
+      "name": "RS3.held_live_dispatch_true",
+      "status": "PASS"
+    },
+    {
+      "name": "RS4.classifier_wiring_authorized_false",
+      "status": "PASS"
+    },
+    {
+      "name": "RS5.selected_fragment_projection_present",
+      "status": "PASS"
+    },
+    {
+      "name": "RS6.rules_in_order_present",
+      "status": "PASS"
+    },
+    {
+      "name": "R144.row_count_23",
+      "status": "PASS"
+    },
+    {
+      "name": "R144.all_rows_pass",
+      "status": "PASS"
+    },
+    {
+      "name": "R144.mismatches_empty",
+      "status": "PASS"
+    },
+    {
+      "name": "R144.r144_parity_preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "R144.r144_source_digest_matches",
+      "status": "PASS"
+    },
+    {
+      "name": "COMPAT1.stream_presence_selects_escape",
+      "status": "PASS"
+    },
+    {
+      "name": "COMPAT2.epistemic_plus_escape_selects_escape",
+      "status": "PASS"
+    },
+    {
+      "name": "COMPAT3.epistemic_only_selects_epistemic",
+      "status": "PASS"
+    },
+    {
+      "name": "COMPAT4.temporal_plus_escape_selects_temporal",
+      "status": "PASS"
+    },
+    {
+      "name": "COMPAT5.oof_present_selects_oof",
+      "status": "PASS"
+    },
+    {
+      "name": "OOF1.policy_status_primary",
+      "status": "PASS"
+    },
+    {
+      "name": "OOF2.policy_blocked_true",
+      "status": "PASS"
+    },
+    {
+      "name": "OOF3.policy_loadable_false",
+      "status": "PASS"
+    },
+    {
+      "name": "OOF4.policy_capability_false",
+      "status": "PASS"
+    },
+    {
+      "name": "GNF1.olap_is_guarded_non_fragment",
+      "status": "PASS"
+    },
+    {
+      "name": "GNF2.progression_is_guarded_non_fragment",
+      "status": "PASS"
+    },
+    {
+      "name": "GNF3.guarded_selected_fragment_null",
+      "status": "PASS"
+    },
+    {
+      "name": "CS1.helper_file_exists_at_authorized_path",
+      "status": "PASS"
+    },
+    {
+      "name": "CS2.root_require_does_not_reference_helper",
+      "status": "PASS"
+    },
+    {
+      "name": "CS3.classifier_does_not_reference_helper",
+      "status": "PASS"
+    },
+    {
+      "name": "CS4.no_live_classifier_dispatch_method",
+      "status": "PASS"
+    },
+    {
+      "name": "CS5.classifier_wiring_false_in_result",
+      "status": "PASS"
+    },
+    {
+      "name": "CS6.held_live_dispatch_true_in_result",
+      "status": "PASS"
+    },
+    {
+      "name": "CS7.no_classifiedprogram_field_added",
+      "status": "PASS"
+    },
+    {
+      "name": "CS8.no_compilation_report_or_compiler_result_change",
+      "status": "PASS"
+    },
+    {
+      "name": "CS9.no_assembler_or_semanticir_reference",
+      "status": "PASS"
+    },
+    {
+      "name": "CS10.no_cli_reference",
+      "status": "PASS"
+    },
+    {
+      "name": "NEG1.vocab_scan_no_hits_outside_helper",
+      "status": "PASS"
+    },
+    {
+      "name": "REG.classifier_pass_proof.passes",
+      "status": "PASS"
+    },
+    {
+      "name": "REG.contract_modifiers_proof.passes",
+      "status": "PASS"
+    },
+    {
+      "name": "REG.assumptions_proof.passes",
+      "status": "PASS"
+    },
+    {
+      "name": "REG.source_to_semanticir_fixture.passes",
+      "status": "PASS"
+    },
+    {
+      "name": "REG.igapp_assembler_proof.passes",
+      "status": "PASS"
+    },
+    {
+      "name": "REG.invariant_severity_proof.passes",
+      "status": "PASS"
+    },
+    {
+      "name": "PARITY.igapp_result_summary_stable",
+      "status": "PASS"
+    },
+    {
+      "name": "PARITY.semanticir_golden_stable",
+      "status": "PASS"
+    },
+    {
+      "name": "PARITY.regression_all_commands_passed",
+      "status": "PASS"
+    },
+    {
+      "name": "PARITY.assumptions_golden_stable",
+      "status": "PASS"
+    }
+  ],
+  "checks_fail": 0,
+  "checks_pass": 44,
+  "checks_total": 44,
+  "closed_surface_assertions": {
+    "assembler_changed": false,
+    "classifiedprogram_field_added": false,
+    "classifier_references_helper": false,
+    "cli_changed": false,
+    "compilation_report_changed": false,
+    "compiler_result_changed": false,
+    "helper_file_exists_at_authorized_path": true,
+    "igapp_golden_mutated": false,
+    "live_classifier_dispatch": false,
+    "prop036_mutated": false,
+    "prop038_mutated": false,
+    "root_require_references_helper": false,
+    "runtime_spark_production_changed": false,
+    "semanticir_emitter_changed": false,
+    "source_to_semanticir_golden_mutated": false
+  },
+  "failed_checks": [],
+  "format_version": "0.1.0",
+  "input_digest": "47e938fdea0e46e067a2c88b",
+  "kind": "fragment_registry_compatibility_adapter_helper_implementation_proof_summary",
+  "parity_evidence": {
+    "assumptions_golden_digest": "156da071b981e15cc32fea13",
+    "assumptions_golden_files": 12,
+    "contract_modifiers_golden_digest": "319721cd4d9e10f0a23c4fa1",
+    "contract_modifiers_golden_files": 23,
+    "igapp_result_summary_digest": "f8b4426843a85b6a03d6629a",
+    "igapp_result_summary_path": "experiments/igapp_assembler_proof/out/result_summary.json",
+    "invariant_severity_digest": "b47e6cf8f64de68cd911c516",
+    "invariant_severity_path": "experiments/invariant_severity_proof/summary.json",
+    "semanticir_golden_digest": "f3f7fa48455bed3adb2e8777",
+    "semanticir_golden_files": 23,
+    "semanticir_note": "--check-golden mode verifies against this golden directory"
+  },
+  "r144_contracts": 23,
+  "r144_mismatches": 0,
+  "r144_parity_preserved": true,
+  "regression_matrix": [
+    {
+      "cmd": "igniter-lang/experiments/classifier_pass_proof/classifier_pass_proof.rb",
+      "exit_code": 0,
+      "label": "classifier_pass_proof",
+      "status": "PASS"
+    },
+    {
+      "cmd": "igniter-lang/experiments/contract_modifiers_proof/contract_modifiers_proof.rb",
+      "exit_code": 0,
+      "label": "contract_modifiers_proof",
+      "status": "PASS"
+    },
+    {
+      "cmd": "igniter-lang/experiments/assumptions_proof/assumptions_proof.rb",
+      "exit_code": 0,
+      "label": "assumptions_proof",
+      "status": "PASS"
+    },
+    {
+      "cmd": "igniter-lang/experiments/source_to_semanticir_fixture/source_to_semanticir_fixture.rb --check-golden",
+      "exit_code": 0,
+      "label": "source_to_semanticir_fixture",
+      "status": "PASS"
+    },
+    {
+      "cmd": "igniter-lang/experiments/igapp_assembler_proof/igapp_assembler_proof.rb",
+      "exit_code": 0,
+      "label": "igapp_assembler_proof",
+      "status": "PASS"
+    },
+    {
+      "cmd": "igniter-lang/experiments/invariant_severity_proof/invariant_severity_proof.rb",
+      "exit_code": 0,
+      "label": "invariant_severity_proof",
+      "status": "PASS"
+    }
+  ],
+  "result_digest": "c109ef1b1b124fd825172327",
+  "status": "PASS",
+  "track": "fragment-registry-compatibility-adapter-helper-implementation-proof-v0",
+  "vocab_scan": {
+    "hits": [],
+    "scanned_files": 19,
+    "scanned_terms": 4,
+    "status": "CLEAN"
+  }
+}
