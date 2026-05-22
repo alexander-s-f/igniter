@@ -113,6 +113,7 @@ architecture. They are not production migration authorization.
 | `../discussions/fragment-registry-compatibility-adapter-helper-boundary-pressure-v0.md` | proceed | R146 C2 pressure PASS 7/7; carries implementation-review notes for dynamic lib checks, assumptions proof, broader scans, and exact/delta helper result shape |
 | `../gates/fragment-registry-compatibility-adapter-helper-boundary-proof-decision-v0.md` | accepted-proof-implementation-authorization-review-next-implementation-held | R146 C3 accepts proof-only helper boundary and opens only implementation-authorization review; implementation and protected compiler/public/runtime/Spark surfaces remain closed |
 | `stage3-round146-status-curation-v0.md` | done | R146 status curation: records accepted helper-boundary proof, authorization-review next route, implementation-held status, closed surfaces, and demo-shadow note-only state |
+| `../gates/fragment-registry-compatibility-adapter-helper-implementation-authorization-review-v0.md` | authorized-bounded-direct-require-helper-implementation | R147 C1 authorizes only bounded direct-require helper implementation/proof; exact C2-I scope limited to helper file, proof experiment, and track; root/classifier/compiler/report/artifact/public/runtime/Spark remain closed |
 
 ---
 
