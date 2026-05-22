@@ -1,0 +1,797 @@
+{
+  "bad_authority_remains_invalid_and_does_not_finalize": {
+    "kind": "internal_profile_assembly_result",
+    "format_version": "0.1.0",
+    "valid": false,
+    "lifecycle_state": "implementation_candidate",
+    "input_lifecycle_state": "implementation_candidate",
+    "packet_kind": "compiler_profile_oof_registry_source_input",
+    "packet_digest": "516461ce7ce4c3cc8511147b",
+    "helper_envelopes_digest": "c389723a4e921be3b8fd04c8",
+    "profile_validation": {
+      "kind": "oof_fragment_registry_source_validation",
+      "format_version": "0.1.0",
+      "valid": false,
+      "source_mode": "profile_candidate",
+      "registry_present": false,
+      "source_authority": {
+        "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+        "authority_kind": "runtime",
+        "canon_status": "non_canon"
+      },
+      "source_diagnostics": [
+        {
+          "code": "oof_registry.source.validation.invalid_authority_kind",
+          "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+        }
+      ],
+      "registry_validation": null,
+      "closed_surface_assertions": {
+        "static_data_file": false,
+        "lib_igniter_lang_rb_require": false,
+        "compiler_pass_integration": false,
+        "public_api_cli": false,
+        "top_level_report_diagnostics": false,
+        "compiler_result_field": false,
+        "loader_report": false,
+        "compatibility_report": false,
+        "runtime_behavior": false,
+        "igapp_mutation": false,
+        "specs_canon_proposals": false
+      }
+    },
+    "pack_descriptor_validations": [
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": false,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "runtime",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [
+          {
+            "code": "oof_registry.source.validation.invalid_authority_kind",
+            "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+          }
+        ],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": false,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "runtime",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [
+          {
+            "code": "oof_registry.source.validation.invalid_authority_kind",
+            "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+          }
+        ],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": false,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "runtime",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [
+          {
+            "code": "oof_registry.source.validation.invalid_authority_kind",
+            "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+          }
+        ],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": false,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "runtime",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [
+          {
+            "code": "oof_registry.source.validation.invalid_authority_kind",
+            "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+          }
+        ],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": false,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "runtime",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [
+          {
+            "code": "oof_registry.source.validation.invalid_authority_kind",
+            "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+          }
+        ],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": false,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "runtime",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [
+          {
+            "code": "oof_registry.source.validation.invalid_authority_kind",
+            "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+          }
+        ],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "profile_validation",
+        "source_code": "oof_registry.source.validation.invalid_authority_kind",
+        "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+      },
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "pack_descriptor_validations[0]",
+        "source_code": "oof_registry.source.validation.invalid_authority_kind",
+        "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+      },
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "pack_descriptor_validations[1]",
+        "source_code": "oof_registry.source.validation.invalid_authority_kind",
+        "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+      },
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "pack_descriptor_validations[2]",
+        "source_code": "oof_registry.source.validation.invalid_authority_kind",
+        "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+      },
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "pack_descriptor_validations[3]",
+        "source_code": "oof_registry.source.validation.invalid_authority_kind",
+        "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+      },
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "pack_descriptor_validations[4]",
+        "source_code": "oof_registry.source.validation.invalid_authority_kind",
+        "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+      },
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "pack_descriptor_validations[5]",
+        "source_code": "oof_registry.source.validation.invalid_authority_kind",
+        "message": "authority.authority_kind \"runtime\" is outside proof/design scope; accepted: proof_only, design_accepted"
+      }
+    ],
+    "finalized_internal_meaning": "internal assembly state only; not PROP-036 finalization, not compiler_profile_id, and not manifest/profile identity",
+    "closed_surface_assertions": {
+      "root_require": false,
+      "compiler_pipeline_usage": false,
+      "public_api_cli": false,
+      "loader_report": false,
+      "compatibility_report": false,
+      "igapp_mutation": false,
+      "manifest_mutation": false,
+      "prop036_mutation": false,
+      "prop038_mutation": false,
+      "runtime_behavior": false,
+      "production_behavior": false,
+      "spark_surface": false
+    }
+  },
+  "duplicate_row_ownership_does_not_finalize": {
+    "kind": "internal_profile_assembly_result",
+    "format_version": "0.1.0",
+    "valid": false,
+    "lifecycle_state": "implementation_candidate",
+    "input_lifecycle_state": "implementation_candidate",
+    "packet_kind": "compiler_profile_oof_registry_source_input",
+    "packet_digest": "ca9a89d580ab29c562453b87",
+    "helper_envelopes_digest": "fafd8ad17d8597a5054a12b7",
+    "profile_validation": {
+      "kind": "oof_fragment_registry_source_validation",
+      "format_version": "0.1.0",
+      "valid": false,
+      "source_mode": "profile_candidate",
+      "registry_present": false,
+      "source_authority": {
+        "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+        "authority_kind": "proof_only",
+        "canon_status": "non_canon"
+      },
+      "source_diagnostics": [
+        {
+          "code": "oof_registry.source.validation.row_owner_mismatch",
+          "message": "oof_descriptor \"OOF-P0\" owner \"CoreLanguagePack\" does not match pack owner \"InvariantPack\""
+        },
+        {
+          "code": "oof_registry.source.validation.duplicate_row_ownership",
+          "message": "oof_descriptor:OOF-P0 claimed by pack_descriptor_candidate/proof:CoreLanguagePack and pack_descriptor_candidate/proof:InvariantPack"
+        }
+      ],
+      "registry_validation": null,
+      "closed_surface_assertions": {
+        "static_data_file": false,
+        "lib_igniter_lang_rb_require": false,
+        "compiler_pass_integration": false,
+        "public_api_cli": false,
+        "top_level_report_diagnostics": false,
+        "compiler_result_field": false,
+        "loader_report": false,
+        "compatibility_report": false,
+        "runtime_behavior": false,
+        "igapp_mutation": false,
+        "specs_canon_proposals": false
+      }
+    },
+    "pack_descriptor_validations": [
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": true,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": false,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [
+          {
+            "code": "oof_registry.source.validation.row_owner_mismatch",
+            "message": "oof_descriptor \"OOF-P0\" owner \"CoreLanguagePack\" does not match pack owner \"InvariantPack\""
+          }
+        ],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": true,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": true,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": true,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": true,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "profile_validation",
+        "source_code": "oof_registry.source.validation.row_owner_mismatch",
+        "message": "oof_descriptor \"OOF-P0\" owner \"CoreLanguagePack\" does not match pack owner \"InvariantPack\""
+      },
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "profile_validation",
+        "source_code": "oof_registry.source.validation.duplicate_row_ownership",
+        "message": "oof_descriptor:OOF-P0 claimed by pack_descriptor_candidate/proof:CoreLanguagePack and pack_descriptor_candidate/proof:InvariantPack"
+      },
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "pack_descriptor_validations[1]",
+        "source_code": "oof_registry.source.validation.row_owner_mismatch",
+        "message": "oof_descriptor \"OOF-P0\" owner \"CoreLanguagePack\" does not match pack owner \"InvariantPack\""
+      }
+    ],
+    "finalized_internal_meaning": "internal assembly state only; not PROP-036 finalization, not compiler_profile_id, and not manifest/profile identity",
+    "closed_surface_assertions": {
+      "root_require": false,
+      "compiler_pipeline_usage": false,
+      "public_api_cli": false,
+      "loader_report": false,
+      "compatibility_report": false,
+      "igapp_mutation": false,
+      "manifest_mutation": false,
+      "prop036_mutation": false,
+      "prop038_mutation": false,
+      "runtime_behavior": false,
+      "production_behavior": false,
+      "spark_surface": false
+    }
+  },
+  "excluded_namespace_claim_does_not_finalize": {
+    "kind": "internal_profile_assembly_result",
+    "format_version": "0.1.0",
+    "valid": false,
+    "lifecycle_state": "implementation_candidate",
+    "input_lifecycle_state": "implementation_candidate",
+    "packet_kind": "compiler_profile_oof_registry_source_input",
+    "packet_digest": "bd4b7cac739eedc48d9f44bd",
+    "helper_envelopes_digest": "f7646180fa5a197a52c0e213",
+    "profile_validation": {
+      "kind": "oof_fragment_registry_source_validation",
+      "format_version": "0.1.0",
+      "valid": false,
+      "source_mode": "profile_candidate",
+      "registry_present": false,
+      "source_authority": {
+        "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+        "authority_kind": "proof_only",
+        "canon_status": "non_canon"
+      },
+      "source_diagnostics": [
+        {
+          "code": "oof_registry.source.validation.excluded_namespace_claim",
+          "message": "\"compiler_profile_contract.contract_digest_mismatch\" is under excluded namespace \"compiler_profile_contract.\""
+        },
+        {
+          "code": "oof_registry.source.validation.excluded_namespace_claim",
+          "message": "\"compiler_profile_contract.contract_digest_mismatch\" is under excluded namespace \"compiler_profile_contract.\""
+        }
+      ],
+      "registry_validation": null,
+      "closed_surface_assertions": {
+        "static_data_file": false,
+        "lib_igniter_lang_rb_require": false,
+        "compiler_pass_integration": false,
+        "public_api_cli": false,
+        "top_level_report_diagnostics": false,
+        "compiler_result_field": false,
+        "loader_report": false,
+        "compatibility_report": false,
+        "runtime_behavior": false,
+        "igapp_mutation": false,
+        "specs_canon_proposals": false
+      }
+    },
+    "pack_descriptor_validations": [
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": false,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [
+          {
+            "code": "oof_registry.source.validation.excluded_namespace_claim",
+            "message": "\"compiler_profile_contract.contract_digest_mismatch\" is under excluded namespace \"compiler_profile_contract.\""
+          }
+        ],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": true,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": true,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": true,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": true,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      },
+      {
+        "kind": "oof_fragment_registry_source_validation",
+        "format_version": "0.1.0",
+        "valid": true,
+        "source_mode": "pack_descriptor_candidate",
+        "registry_present": false,
+        "source_authority": {
+          "authority_ref": "LANG-R124-D1 plus LANG-R125-P1",
+          "authority_kind": "proof_only",
+          "canon_status": "non_canon"
+        },
+        "source_diagnostics": [],
+        "registry_validation": null,
+        "closed_surface_assertions": {
+          "static_data_file": false,
+          "lib_igniter_lang_rb_require": false,
+          "compiler_pass_integration": false,
+          "public_api_cli": false,
+          "top_level_report_diagnostics": false,
+          "compiler_result_field": false,
+          "loader_report": false,
+          "compatibility_report": false,
+          "runtime_behavior": false,
+          "igapp_mutation": false,
+          "specs_canon_proposals": false
+        }
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "profile_validation",
+        "source_code": "oof_registry.source.validation.excluded_namespace_claim",
+        "message": "\"compiler_profile_contract.contract_digest_mismatch\" is under excluded namespace \"compiler_profile_contract.\""
+      },
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "profile_validation",
+        "source_code": "oof_registry.source.validation.excluded_namespace_claim",
+        "message": "\"compiler_profile_contract.contract_digest_mismatch\" is under excluded namespace \"compiler_profile_contract.\""
+      },
+      {
+        "code": "internal_profile_assembly.packet_validation_failed",
+        "path": "pack_descriptor_validations[0]",
+        "source_code": "oof_registry.source.validation.excluded_namespace_claim",
+        "message": "\"compiler_profile_contract.contract_digest_mismatch\" is under excluded namespace \"compiler_profile_contract.\""
+      }
+    ],
+    "finalized_internal_meaning": "internal assembly state only; not PROP-036 finalization, not compiler_profile_id, and not manifest/profile identity",
+    "closed_surface_assertions": {
+      "root_require": false,
+      "compiler_pipeline_usage": false,
+      "public_api_cli": false,
+      "loader_report": false,
+      "compatibility_report": false,
+      "igapp_mutation": false,
+      "manifest_mutation": false,
+      "prop036_mutation": false,
+      "prop038_mutation": false,
+      "runtime_behavior": false,
+      "production_behavior": false,
+      "spark_surface": false
+    }
+  }
+}
