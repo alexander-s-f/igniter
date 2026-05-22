@@ -1,0 +1,62 @@
+{
+  "kind": "oof_fragment_registry_parity_summary",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-parity-proof-v0",
+  "card": "LANG-R141-P1",
+  "status": "PASS",
+  "parity_matrix_path": "igniter-lang/experiments/oof_fragment_registry_parity_proof/out/oof_fragment_registry_parity_matrix.json",
+  "parity_matrix_digest": "f96e020c2e75223acb8addbf",
+  "source_ownership_map_digest": "2342d159c833e5d0900cf4f4",
+  "shadow_descriptor_count": 63,
+  "observed_code_count": 25,
+  "missing_observed_descriptors": [],
+  "alias_count": 5,
+  "excluded_namespaces": [
+    "compiler_profile_contract.*",
+    "compiler_profile_contract_refusal.*"
+  ],
+  "checks": [
+    {
+      "name": "consumes_r140_oof_registry_boundary",
+      "status": "PASS"
+    },
+    {
+      "name": "observed_public_oof_codes_have_shadow_descriptors",
+      "status": "PASS"
+    },
+    {
+      "name": "message_stage_modeled_for_observed_descriptors",
+      "status": "PASS"
+    },
+    {
+      "name": "aliases_have_deprecated_replacement_metadata",
+      "status": "PASS"
+    },
+    {
+      "name": "excluded_namespaces_absent_from_oof_descriptors_and_aliases",
+      "status": "PASS"
+    },
+    {
+      "name": "compiler_profile_contract_no_leakage",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_only_closed_surfaces",
+      "status": "PASS"
+    }
+  ],
+  "failed_checks": [],
+  "closed_surface_assertions": {
+    "lib_edits": false,
+    "diagnostics_changed": false,
+    "reports_changed": false,
+    "cli_changed": false,
+    "igapp_changed": false,
+    "prop036_changed": false,
+    "prop038_changed": false,
+    "runtime_changed": false,
+    "production_changed": false,
+    "spark_changed": false
+  },
+  "recommendation": "ACCEPT_OOF_PARITY_FOR_SHADOW_PROOF_DATA_ONLY"
+}

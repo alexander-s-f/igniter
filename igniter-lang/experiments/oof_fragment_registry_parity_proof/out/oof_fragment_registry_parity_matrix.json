@@ -1,0 +1,329 @@
+{
+  "kind": "oof_fragment_registry_parity_matrix",
+  "format_version": "0.1.0",
+  "track": "oof-fragment-registry-parity-proof-v0",
+  "source_ownership_map": {
+    "ref": "igniter-lang/experiments/compiler_pack_pass_boundary_ownership_map/out/compiler_pack_pass_boundary_ownership_map.json",
+    "digest": "2342d159c833e5d0900cf4f4",
+    "boundary": "oof_registry"
+  },
+  "shadow_registry": {
+    "ref": "igniter-lang/experiments/oof_fragment_registry_shadow_proof/out/oof_descriptors.shadow_registry.json",
+    "descriptor_count": 63,
+    "excluded_namespaces": [
+      "compiler_profile_contract.*",
+      "compiler_profile_contract_refusal.*",
+      "OOF-RUNTIME-SMOKE"
+    ]
+  },
+  "policy_model": {
+    "ref": "igniter-lang/experiments/oof_fragment_registry_policy_proof/out/oof_fragment_registry_policy_model.json",
+    "alias_collision_policy": "valid_shadow_descriptors",
+    "excluded_namespaces": [
+      "compiler_profile_contract.",
+      "compiler_profile_contract_refusal."
+    ]
+  },
+  "observed_emitted_oof_codes": [
+    "OOF-BT1",
+    "OOF-BT2",
+    "OOF-BT3",
+    "OOF-BT4",
+    "OOF-CE4",
+    "OOF-DM3",
+    "OOF-H1",
+    "OOF-I4",
+    "OOF-IV3",
+    "OOF-M1",
+    "OOF-OS2",
+    "OOF-P1",
+    "OOF-P2",
+    "OOF-PG1",
+    "OOF-PG2",
+    "OOF-PG3",
+    "OOF-PG5",
+    "OOF-S2",
+    "OOF-S3",
+    "OOF-S4",
+    "OOF-TM1",
+    "OOF-TM3",
+    "OOF-TM4",
+    "OOF-TM5",
+    "OOF-TM6"
+  ],
+  "observed_sources": [
+    "igniter-lang/experiments/parser_oof_hardening_stage2_proof/parser_oof_hardening_stage2_proof.json",
+    "igniter-lang/experiments/classifier_pass_proof/golden/*.classified.json",
+    "igniter-lang/experiments/typechecker_proof/golden/*.typed.json",
+    "igniter-lang/experiments/source_to_semanticir_fixture/golden/*.compilation_report.json",
+    "igniter-lang/experiments/contract_modifiers_proof/golden/*.classified.json",
+    "igniter-lang/experiments/contract_modifiers_proof/golden/*.typed.json"
+  ],
+  "parity_rows": [
+    {
+      "code": "OOF-BT1",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "blocking_oof",
+      "alias_metadata": ["OOF-TM3"],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-BT2",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "blocking_oof",
+      "alias_metadata": ["OOF-TM4"],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-BT3",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "blocking_oof",
+      "alias_metadata": ["OOF-TM5"],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-BT4",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "blocking_oof",
+      "alias_metadata": ["OOF-TM6"],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-CE4",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "classifier",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-DM3",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "parser",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-H1",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "blocking_oof",
+      "alias_metadata": ["OOF-TM1"],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-I4",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "parser",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-IV3",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-M1",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "classifier",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-OS2",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "classifier",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-P1",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "classifier",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-P2",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "parser",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-PG1",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "parser",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-PG2",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "parser",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-PG3",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "parser",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-PG5",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "parser",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-S2",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "classifier",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-S3",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-S4",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "classifier",
+      "status_class": "blocking_oof",
+      "alias_metadata": [],
+      "replacement_code": null,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-TM1",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "compatibility_alias",
+      "alias_metadata": [],
+      "replacement_code": "OOF-H1",
+      "deprecated": true,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-TM3",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "compatibility_alias",
+      "alias_metadata": [],
+      "replacement_code": "OOF-BT1",
+      "deprecated": true,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-TM4",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "compatibility_alias",
+      "alias_metadata": [],
+      "replacement_code": "OOF-BT2",
+      "deprecated": true,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-TM5",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "compatibility_alias",
+      "alias_metadata": [],
+      "replacement_code": "OOF-BT3",
+      "deprecated": true,
+      "parity": "pass"
+    },
+    {
+      "code": "OOF-TM6",
+      "shadow_descriptor_present": true,
+      "source_stage_parity": "typechecker",
+      "status_class": "compatibility_alias",
+      "alias_metadata": [],
+      "replacement_code": "OOF-BT4",
+      "deprecated": true,
+      "parity": "pass"
+    }
+  ],
+  "alias_parity": [
+    {"alias": "OOF-TM1", "replacement_code": "OOF-H1", "deprecated": true, "parity": "pass"},
+    {"alias": "OOF-TM3", "replacement_code": "OOF-BT1", "deprecated": true, "parity": "pass"},
+    {"alias": "OOF-TM4", "replacement_code": "OOF-BT2", "deprecated": true, "parity": "pass"},
+    {"alias": "OOF-TM5", "replacement_code": "OOF-BT3", "deprecated": true, "parity": "pass"},
+    {"alias": "OOF-TM6", "replacement_code": "OOF-BT4", "deprecated": true, "parity": "pass"}
+  ],
+  "excluded_namespace_parity": {
+    "compiler_profile_contract.*": "excluded_from_oof",
+    "compiler_profile_contract_refusal.*": "excluded_from_oof",
+    "compiler_profile_contract_leakage_detected": false
+  },
+  "shadow_only_descriptors_not_observed_as_emitted": {
+    "status": "allowed_shadow_data_only",
+    "examples": [
+      "OOF-H2",
+      "OOF-H3",
+      "OOF-H4",
+      "OOF-O1",
+      "OOF-PR1"
+    ]
+  },
+  "closed_surface_assertions": {
+    "lib_edits": false,
+    "diagnostics_changed": false,
+    "reports_changed": false,
+    "cli_changed": false,
+    "igapp_changed": false,
+    "prop036_changed": false,
+    "prop038_changed": false,
+    "runtime_changed": false,
+    "production_changed": false,
+    "spark_changed": false
+  },
+  "recommendation": "ACCEPT_OOF_PARITY_FOR_SHADOW_PROOF_DATA_ONLY"
+}
