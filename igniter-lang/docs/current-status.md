@@ -278,7 +278,8 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             only proof-only source-mode/static-data boundary
                             proof next; R153 accepts proof PASS 16/16;
                             R154 authorizes only bounded internal-carrier
-                            implementation next; Spark L3B and Orders P1 remain
+                            implementation; R155 accepts that implementation
+                            closure and pauses the carrier lane; Spark L3B and Orders P1 remain
                             applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -838,6 +839,11 @@ Round 153 landed:
 Round 154 landed:
   S3-R154-C1-A: internal carrier implementation authorization review      ✅ authorized-bounded-internal-carrier-implementation
   S3-R154-C2-S: status curation / next-route pointer                     ✅ done; bounded internal implementation S3-R154-C2-I next
+Round 155 landed:
+  S3-R154-C2-I: bounded internal carrier implementation                   ✅ done/PASS; proof 9/9; command matrix PASS
+  S3-R155-C1-X: internal carrier implementation pressure                  ✅ proceed; 12/12 checks; no blockers
+  S3-R155-C2-A: internal carrier implementation acceptance                ✅ accepted-implementation-closure-pause-next
+  S3-R155-C3-S: status curation / carrier lane pointer                    ✅ done; no immediate follow-up / pause
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -903,9 +909,10 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   `compiler-profile-source-mode-static-data-boundary-design-v0`
                   next; R152 accepts that boundary and opens only proof-only
                   `compiler-profile-source-mode-static-data-boundary-proof-v0`
-                  next; R153 accepts proof and R154 authorizes only
-                  `compiler-profile-source-mode-static-data-internal-carrier-implementation-v0`
-                  next; Spark L3B and Orders P1 remain applied pressure only;
+                  next; R153 accepts proof, R154 authorizes only
+                  `compiler-profile-source-mode-static-data-internal-carrier-implementation-v0`,
+                  and R155 accepts that implementation closure with no immediate
+                  follow-up / pause; Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
@@ -2321,6 +2328,20 @@ S3-R154 result:     C1-A authorizes only the bounded internal carrier implementa
                       not landed by status curation. R154 does not authorize root require,
                       compiler integration, public surfaces, report/artifact work, Spark integration,
                       runtime, production, or demo work.
+S3-R155 result:     C2-A accepts the bounded internal static-data carrier implementation
+                      closure with status `accepted-implementation-closure-pause-next`.
+                      Implementation commit `8fa97a60` is accepted in the exact bounded
+                      scope: `igniter-lang/lib/igniter_lang/internal_profile_static_data_carrier.rb`,
+                      the internal-carrier implementation proof experiment/output directory, and
+                      `igniter-lang/docs/tracks/compiler-profile-source-mode-static-data-internal-carrier-implementation-v0.md`.
+                      Pressure proceeds with 12/12 checks PASS and no blockers; proof summary
+                      records 9/9 PASS and the required five-command matrix PASS. The carrier
+                      is direct-require-only, root require remains closed, compiler pipeline
+                      references remain absent, valid data maps to
+                      `IgniterLang::InternalProfileAssemblySourcePacket`, and the carrier does
+                      not produce `finalized_internal`. Exact next route: no immediate follow-up
+                      / pause. R155 does not authorize new implementation, public surfaces,
+                      report/artifact work, Spark integration, runtime, production, or demo work.
 ```
 
 ### Spec Freshness

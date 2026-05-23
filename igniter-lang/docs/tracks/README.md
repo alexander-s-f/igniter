@@ -137,6 +137,10 @@ architecture. They are not production migration authorization.
 | `stage3-round153-status-curation-v0.md` | done | R153 status curation: records accepted proof, implementation-authorization review next boundary, Spark pressure-only disposition, and closed implementation/public/report/runtime/demo surfaces |
 | `../gates/compiler-profile-source-mode-static-data-internal-carrier-implementation-authorization-review-v0.md` | authorized-bounded-internal-carrier-implementation | R154 C1 authorizes only `IgniterLang::InternalProfileStaticDataCarrier` as a direct-require internal carrier/test seam for a future bounded implementation card; public/report/artifact/Spark/runtime/demo surfaces remain closed |
 | `stage3-round154-status-curation-v0.md` | done | R154 status curation: records bounded internal-carrier authorization, Portfolio review satisfied for exact S3-R154-C2-I boundary only, implementation not yet landed, and closed protected surfaces |
+| `compiler-profile-source-mode-static-data-internal-carrier-implementation-v0.md` | done / PASS | R154 C2-I lands bounded direct-require internal static-data carrier implementation; proof summary 9/9 PASS and command matrix PASS; root require/compiler pipeline/public/report/Spark/runtime/demo remain closed |
+| `../discussions/compiler-profile-source-mode-static-data-internal-carrier-implementation-pressure-v0.md` | proceed | R155 C1 pressure PASS 12/12 with no blockers; notes stricter forbidden fields, unnamed lower-risk validation paths, and adjacent admin dispatch commit as non-blocking |
+| `../gates/compiler-profile-source-mode-static-data-internal-carrier-implementation-acceptance-decision-v0.md` | accepted-implementation-closure-pause-next | R155 C2 accepts bounded internal carrier implementation closure and opens no immediate follow-up; any widening requires fresh Portfolio-visible review |
+| `stage3-round155-status-curation-v0.md` | done | R155 status curation: records accepted implementation closure, carrier lane pause, Spark pressure-only disposition, and closed public/report/artifact/runtime/demo surfaces |
 
 ---
 
