@@ -253,9 +253,10 @@ module FragmentRegistryCompatibilityAdapterHelperImplementationProof
     checks << check("CS4.no_live_classifier_dispatch_method") do
       # The helper class must not define a method suggesting live dispatch
       forbidden = [:dispatch, :classify, :wire, :register, :install]
-      (IgniterLang::FragmentRegistryCompatibilityAdapter.methods(false) &
-        IgniterLang::FragmentRegistryCompatibilityAdapter.private_methods(false) &
-        forbidden).empty?
+      helper_methods =
+        IgniterLang::FragmentRegistryCompatibilityAdapter.methods(false) +
+        IgniterLang::FragmentRegistryCompatibilityAdapter.private_methods(false)
+      (helper_methods.uniq & forbidden).empty?
     end
 
     checks << check("CS5.classifier_wiring_false_in_result") do
@@ -374,23 +375,7 @@ module FragmentRegistryCompatibilityAdapterHelperImplementationProof
       "parity_evidence" => parity_evidence,
       "checks"         => checks,
       "failed_checks"  => failed_checks,
-      "closed_surface_assertions" => {
-        "helper_file_exists_at_authorized_path"         => HELPER_FILE.exist?,
-        "root_require_references_helper"                => false,
-        "classifier_references_helper"                  => false,
-        "live_classifier_dispatch"                      => false,
-        "classifiedprogram_field_added"                 => false,
-        "compilation_report_changed"                    => false,
-        "compiler_result_changed"                       => false,
-        "assembler_changed"                             => false,
-        "semanticir_emitter_changed"                    => false,
-        "cli_changed"                                   => false,
-        "igapp_golden_mutated"                          => false,
-        "source_to_semanticir_golden_mutated"           => false,
-        "prop036_mutated"                               => false,
-        "prop038_mutated"                               => false,
-        "runtime_spark_production_changed"              => false
-      }
+      "closed_surface_assertions" => closed_surface_assertions(checks)
     }
 
     write_json(OUT_DIR / "fragment_registry_compatibility_adapter_helper_implementation_proof_summary.json",
@@ -419,11 +404,12 @@ module FragmentRegistryCompatibilityAdapterHelperImplementationProof
   def run_vocab_scan
     lib_dir  = LANG / "lib/igniter_lang"
     lib_files = Dir.glob("#{lib_dir}/*.rb").sort
+    authorized_skipped_files = lib_files.select { |path| path == HELPER_FILE.to_s }
+    checked_files = lib_files - authorized_skipped_files
     hits      = []
 
     FORBIDDEN_VOCAB.each do |term|
-      lib_files.each do |path|
-        next if path == HELPER_FILE.to_s  # authorized — skip
+      checked_files.each do |path|
         content = File.read(path, encoding: "utf-8")
         if content.include?(term)
           hits << { "file" => path.sub("#{LANG}/", ""), "term" => term }
@@ -432,7 +418,13 @@ module FragmentRegistryCompatibilityAdapterHelperImplementationProof
     end
 
     {
-      scanned_files: lib_files.length,
+      total_files: lib_files.length,
+      checked_files: checked_files.length,
+      authorized_skipped_files: authorized_skipped_files.length,
+      authorized_skipped_paths: authorized_skipped_files.map { |path| path.sub("#{LANG}/", "") },
+      scan_count_label: "#{lib_files.length} total / #{checked_files.length} checked / " \
+                        "#{authorized_skipped_files.length} authorized skipped",
+      scanned_files: checked_files.length,
       scanned_terms: FORBIDDEN_VOCAB.length,
       hits:          hits,
       status:        hits.empty? ? "CLEAN" : "HITS_FOUND"
@@ -484,13 +476,47 @@ module FragmentRegistryCompatibilityAdapterHelperImplementationProof
     commands.map do |entry|
       output = IO.popen([*entry[:cmd], err: [:child, :out]], &:read)
       exit_ok = $?.success?
+      actual_count = exposed_ok_count(output)
+      count_assertion = command_count_assertion(entry[:expected], actual_count)
 
       {
         label:       entry[:label],
         cmd:         entry[:cmd][1..].map { |p| p.sub("#{ROOT}/", "") }.join(" "),
-        status:      exit_ok ? "PASS" : "FAIL",
+        status:      (exit_ok && count_assertion[:status] != "FAIL") ? "PASS" : "FAIL",
         exit_code:   $?.exitstatus,
+        expected_check_count: entry[:expected],
+        observed_check_count: actual_count,
+        check_count_assertion: count_assertion,
         raw_output:  output
+      }
+    end
+  end
+
+  def exposed_ok_count(output)
+    count = output.lines.count { |line| line.match?(/:\s+ok\s*$/) }
+    count.positive? ? count : nil
+  end
+
+  def command_count_assertion(expected_count, observed_count)
+    if observed_count.nil?
+      {
+        status: "UNAVAILABLE",
+        machine_asserted: false,
+        reason: "command output did not expose countable ': ok' lines"
+      }
+    elsif observed_count == expected_count
+      {
+        status: "PASS",
+        machine_asserted: true,
+        expected: expected_count,
+        observed: observed_count
+      }
+    else
+      {
+        status: "FAIL",
+        machine_asserted: true,
+        expected: expected_count,
+        observed: observed_count
       }
     end
   end
@@ -570,6 +596,31 @@ module FragmentRegistryCompatibilityAdapterHelperImplementationProof
     { "name" => name, "status" => result ? "PASS" : "FAIL" }
   rescue => e
     { "name" => name, "status" => "FAIL", "error" => e.message }
+  end
+
+  def closed_surface_assertions(checks)
+    status_by_name = checks.to_h { |entry| [entry["name"], entry["status"]] }
+
+    {
+      "helper_file_exists_at_authorized_path" => pass?(status_by_name, "CS1.helper_file_exists_at_authorized_path"),
+      "root_require_references_helper" => !pass?(status_by_name, "CS2.root_require_does_not_reference_helper"),
+      "classifier_references_helper" => !pass?(status_by_name, "CS3.classifier_does_not_reference_helper"),
+      "live_classifier_dispatch" => !pass?(status_by_name, "CS4.no_live_classifier_dispatch_method"),
+      "classifiedprogram_field_added" => !pass?(status_by_name, "CS7.no_classifiedprogram_field_added"),
+      "compilation_report_or_compiler_result_changed" =>
+        !pass?(status_by_name, "CS8.no_compilation_report_or_compiler_result_change"),
+      "assembler_or_semanticir_reference_added" => !pass?(status_by_name, "CS9.no_assembler_or_semanticir_reference"),
+      "cli_reference_added" => !pass?(status_by_name, "CS10.no_cli_reference"),
+      "unauthorized_vocab_hits_outside_helper" => !pass?(status_by_name, "NEG1.vocab_scan_no_hits_outside_helper"),
+      "regression_matrix_failed" => !pass?(status_by_name, "PARITY.regression_all_commands_passed"),
+      "igapp_parity_evidence_missing" => !pass?(status_by_name, "PARITY.igapp_result_summary_stable"),
+      "source_to_semanticir_parity_evidence_missing" => !pass?(status_by_name, "PARITY.semanticir_golden_stable"),
+      "assumptions_parity_evidence_missing" => !pass?(status_by_name, "PARITY.assumptions_golden_stable")
+    }
+  end
+
+  def pass?(status_by_name, check_name)
+    status_by_name[check_name] == "PASS"
   end
 
   def short_digest(value)

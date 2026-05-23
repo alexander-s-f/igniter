@@ -183,21 +183,19 @@
   "checks_pass": 44,
   "checks_total": 44,
   "closed_surface_assertions": {
-    "assembler_changed": false,
+    "assembler_or_semanticir_reference_added": false,
+    "assumptions_parity_evidence_missing": false,
     "classifiedprogram_field_added": false,
     "classifier_references_helper": false,
-    "cli_changed": false,
-    "compilation_report_changed": false,
-    "compiler_result_changed": false,
+    "cli_reference_added": false,
+    "compilation_report_or_compiler_result_changed": false,
     "helper_file_exists_at_authorized_path": true,
-    "igapp_golden_mutated": false,
+    "igapp_parity_evidence_missing": false,
     "live_classifier_dispatch": false,
-    "prop036_mutated": false,
-    "prop038_mutated": false,
+    "regression_matrix_failed": false,
     "root_require_references_helper": false,
-    "runtime_spark_production_changed": false,
-    "semanticir_emitter_changed": false,
-    "source_to_semanticir_golden_mutated": false
+    "source_to_semanticir_parity_evidence_missing": false,
+    "unauthorized_vocab_hits_outside_helper": false
   },
   "failed_checks": [],
   "format_version": "0.1.0",
@@ -221,39 +219,87 @@
   "r144_parity_preserved": true,
   "regression_matrix": [
     {
+      "check_count_assertion": {
+        "expected": 21,
+        "machine_asserted": true,
+        "observed": 21,
+        "status": "PASS"
+      },
       "cmd": "igniter-lang/experiments/classifier_pass_proof/classifier_pass_proof.rb",
       "exit_code": 0,
+      "expected_check_count": 21,
       "label": "classifier_pass_proof",
+      "observed_check_count": 21,
       "status": "PASS"
     },
     {
+      "check_count_assertion": {
+        "expected": 20,
+        "machine_asserted": true,
+        "observed": 20,
+        "status": "PASS"
+      },
       "cmd": "igniter-lang/experiments/contract_modifiers_proof/contract_modifiers_proof.rb",
       "exit_code": 0,
+      "expected_check_count": 20,
       "label": "contract_modifiers_proof",
+      "observed_check_count": 20,
       "status": "PASS"
     },
     {
+      "check_count_assertion": {
+        "expected": 39,
+        "machine_asserted": true,
+        "observed": 39,
+        "status": "PASS"
+      },
       "cmd": "igniter-lang/experiments/assumptions_proof/assumptions_proof.rb",
       "exit_code": 0,
+      "expected_check_count": 39,
       "label": "assumptions_proof",
+      "observed_check_count": 39,
       "status": "PASS"
     },
     {
+      "check_count_assertion": {
+        "expected": 31,
+        "machine_asserted": true,
+        "observed": 31,
+        "status": "PASS"
+      },
       "cmd": "igniter-lang/experiments/source_to_semanticir_fixture/source_to_semanticir_fixture.rb --check-golden",
       "exit_code": 0,
+      "expected_check_count": 31,
       "label": "source_to_semanticir_fixture",
+      "observed_check_count": 31,
       "status": "PASS"
     },
     {
+      "check_count_assertion": {
+        "expected": 17,
+        "machine_asserted": true,
+        "observed": 17,
+        "status": "PASS"
+      },
       "cmd": "igniter-lang/experiments/igapp_assembler_proof/igapp_assembler_proof.rb",
       "exit_code": 0,
+      "expected_check_count": 17,
       "label": "igapp_assembler_proof",
+      "observed_check_count": 17,
       "status": "PASS"
     },
     {
+      "check_count_assertion": {
+        "expected": 34,
+        "machine_asserted": true,
+        "observed": 34,
+        "status": "PASS"
+      },
       "cmd": "igniter-lang/experiments/invariant_severity_proof/invariant_severity_proof.rb",
       "exit_code": 0,
+      "expected_check_count": 34,
       "label": "invariant_severity_proof",
+      "observed_check_count": 34,
       "status": "PASS"
     }
   ],
@@ -261,9 +307,16 @@
   "status": "PASS",
   "track": "fragment-registry-compatibility-adapter-helper-implementation-proof-v0",
   "vocab_scan": {
+    "authorized_skipped_files": 1,
+    "authorized_skipped_paths": [
+      "lib/igniter_lang/fragment_registry_compatibility_adapter.rb"
+    ],
+    "checked_files": 18,
     "hits": [],
-    "scanned_files": 19,
+    "scan_count_label": "19 total / 18 checked / 1 authorized skipped",
+    "scanned_files": 18,
     "scanned_terms": 4,
-    "status": "CLEAN"
+    "status": "CLEAN",
+    "total_files": 19
   }
 }
