@@ -122,6 +122,7 @@ architecture. They are not production migration authorization.
 | `fragment-registry-compatibility-adapter-helper-proof-hygiene-v0.md` | done / PASS | R149 C1 proof hygiene fixes CS4, scan counts, live-derived closed-surface assertions, and machine-asserted pinned command counts without helper code edits |
 | `../discussions/fragment-registry-compatibility-adapter-helper-proof-hygiene-pressure-v0.md` | proceed | R149 C2 pressure PASS 8/8; helper unchanged, write scope exact, command matrix PASS, root/classifier/live dispatch/public/runtime surfaces closed |
 | `../gates/fragment-registry-compatibility-adapter-helper-proof-hygiene-acceptance-decision-v0.md` | accepted-proof-hygiene-strategic-vector-next | R149 C3 accepts proof hygiene and selects status curation then strategic compiler-mainline vector decision; no automatic classifier wiring or report/artifact route |
+| `stage3-round149-status-curation-v0.md` | done | R149 status curation: records accepted proof hygiene, strategic vector decision next route, unchanged helper implementation, closed wiring/root/public/runtime surfaces, and demo-shadow note-only state |
 
 ---
 

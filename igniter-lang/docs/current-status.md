@@ -267,9 +267,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             implementation/proof next; R148 accepts that
                             helper implementation as landed/closed with 44/44
                             proof checks PASS and R144 23/23 parity preserved;
-                            next route is proof-hygiene only, root require/
-                            classifier wiring/live dispatch and public/runtime/
-                            Spark surfaces closed;
+                            R149 accepts proof hygiene: CS4 fixed, scan counts
+                            clarified, closed-surface assertions live-derived,
+                            pinned counts machine-asserted; next route is a
+                            strategic compiler-mainline vector decision only,
+                            root require/classifier wiring/live dispatch and
+                            public/runtime/Spark surfaces closed;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime, production remain blocked
 ─────────────────────────────────────────────────────────────────
@@ -802,6 +805,11 @@ Round 148 landed:
   S3-R148-C1-X: helper implementation pressure                           ✅ proceed-with-notes; 12/12 checks; no blockers
   S3-R148-C2-A: helper implementation acceptance                         ✅ accepted-implementation-closure-proof-hygiene-next
   S3-R148-C3-S: status curation / next-route pointer                     ✅ done; proof-hygiene next only
+Round 149 landed:
+  S3-R149-C1-P1: helper proof hygiene                                    ✅ done/PASS; CS4 fixed, counts/assertions repaired
+  S3-R149-C2-X: proof-hygiene pressure                                   ✅ proceed; 8/8 checks; no blockers
+  S3-R149-C3-A: proof-hygiene acceptance                                 ✅ accepted-proof-hygiene-strategic-vector-next
+  S3-R149-C4-S: status curation / next-route pointer                     ✅ done; strategic vector decision next only
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -859,6 +867,8 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   R148 accepts that helper implementation as landed/closed
                   with next route only
                   `fragment-registry-compatibility-adapter-helper-proof-hygiene-v0`;
+                  R149 accepts proof hygiene and opens only strategic
+                  `compiler-mainline-strategic-vector-decision-v0` next;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
@@ -2190,6 +2200,19 @@ S3-R148 result:     C2-A accepts the bounded direct-require-only helper implemen
                       loader/report, CompilationReport, CompilerResult, CompatibilityReport, artifact/golden
                       mutation, PROP-036/PROP-038 mutation, runtime, Spark, production, Ledger/TBackend,
                       BiHistory, stream/OLAP, cache, signing, deployment, or demo work.
+S3-R149 result:     C3-A accepts the proof-hygiene cleanup with status
+                      `accepted-proof-hygiene-strategic-vector-next`.
+                      The R148 proof-quality follow-up is closed: CS4 now uses a public/private
+                      singleton-method union scan, vocabulary scan count is clarified as
+                      19 total / 18 checked / 1 authorized skipped, closed-surface assertions are
+                      live-derived from CS/NEG/PARITY checks where practical, and all six pinned
+                      regression counts are machine-asserted. Proof summary remains PASS 44/44,
+                      R144 evidence remains 23 contracts with 0 mismatches, and the helper
+                      implementation file was not edited. Exact next route:
+                      `compiler-mainline-strategic-vector-decision-v0`.
+                      R149 does not authorize implementation, root require, classifier wiring/live
+                      dispatch, public surfaces, reports, artifacts, `.igapp`, loader/report,
+                      CompatibilityReport, runtime, Spark, production, or demo work.
 ```
 
 ### Spec Freshness
