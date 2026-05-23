@@ -125,6 +125,8 @@ architecture. They are not production migration authorization.
 | `stage3-round149-status-curation-v0.md` | done | R149 status curation: records accepted proof hygiene, strategic vector decision next route, unchanged helper implementation, closed wiring/root/public/runtime surfaces, and demo-shadow note-only state |
 | `../gates/compiler-mainline-strategic-vector-decision-v0.md` | adapter-lane-paused-compiler-profile-architecture-reentry-next | R150 pauses adapter lane, treats Spark L3B as applied pressure only, and opens only design/report compiler-profile architecture reentry map; no implementation, wiring, report/artifact, Spark, production, or demo work |
 | `stage3-round150-status-curation-v0.md` | done | R150 status curation: records adapter lane paused, Spark pressure-only disposition, exact S3-R151 design/report next boundary, closed implementation/wiring/Spark/demo surfaces |
+| `compiler-profile-architecture-reentry-map-v0.md` | done | R151 C1 maps compiler/profile architecture axes and recommends design-only `compiler-profile-source-mode-static-data-boundary-design-v0`; adapter lane paused, Spark pressure external, implementation/public/report/runtime/demo surfaces closed |
+| `stage3-round151-status-curation-v0.md` | done | R151 status curation: records source-mode/static-data boundary design as next route, adapter lane paused, Spark pressure-only disposition, closed implementation/wiring/public/report/runtime/demo surfaces |
 
 ---
 

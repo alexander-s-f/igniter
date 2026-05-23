@@ -273,7 +273,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             strategic compiler-mainline vector decision only,
                             R150 pauses the adapter lane and opens only design/
                             report compiler-profile architecture reentry next;
-                            Spark L3B remains applied pressure only; root
+                            R151 selects source-mode/static-data boundary
+                            design next; Spark L3B and Orders P1 remain
+                            applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
@@ -816,6 +818,9 @@ Round 149 landed:
 Round 150 landed:
   S3-R150-C1-A: compiler-mainline strategic vector decision              ✅ adapter-lane-paused-compiler-profile-architecture-reentry-next
   S3-R150-C2-S: status curation / next-route pointer                     ✅ done; design/report architecture reentry next only
+Round 151 landed:
+  S3-R151-C1-D: compiler/profile architecture reentry map                ✅ done; source-mode/static-data boundary design next
+  S3-R151-C2-S: status curation / next-route pointer                     ✅ done; design-only S3-R152 next
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -877,7 +882,9 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   `compiler-mainline-strategic-vector-decision-v0` next;
                   R150 pauses the adapter lane and opens only design/report
                   `compiler-profile-architecture-reentry-map-v0` next;
-                  Spark L3B remains applied pressure only;
+                  R151 recommends design-only
+                  `compiler-profile-source-mode-static-data-boundary-design-v0`
+                  next; Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
@@ -2235,6 +2242,19 @@ S3-R150 result:     C1-A pauses the fragment registry adapter lane with status
                       `igniter-lang/docs/tracks/compiler-profile-architecture-reentry-map-v0.md`.
                       R150 does not authorize implementation, classifier wiring, Spark integration,
                       demo work, public/report/artifact surfaces, `.igapp`, runtime, or production.
+S3-R151 result:     C1-D maps compiler/profile architecture reentry and recommends
+                      design-only `compiler-profile-source-mode-static-data-boundary-design-v0`
+                      as the next compiler-mainline route. Adapter continuation remains paused.
+                      Source-mode/static-data is selected to clarify static-data authority versus
+                      profile/pack source-mode authority, internal library data versus proof fixture
+                      versus future profile assembly input, and `finalized_internal` as internal-only
+                      rather than PROP-036 identity. PROP-036, PROP-038, adapter helper closure, Spark
+                      L3B, and Orders P1 are inputs only. Spark remains external applied pressure; no
+                      Spark access, fixture/spec creation, compiler changes, production integration,
+                      or demo work is authorized. Exact next boundary: S3-R152-C1-D, design-only,
+                      write scope `igniter-lang/docs/tracks/compiler-profile-source-mode-static-data-boundary-design-v0.md`.
+                      R151 does not authorize implementation, classifier wiring, public surfaces,
+                      report/artifact work, runtime, production, or demo work.
 ```
 
 ### Spec Freshness
