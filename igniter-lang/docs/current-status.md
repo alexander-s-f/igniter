@@ -271,8 +271,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             clarified, closed-surface assertions live-derived,
                             pinned counts machine-asserted; next route is a
                             strategic compiler-mainline vector decision only,
-                            root require/classifier wiring/live dispatch and
-                            public/runtime/Spark surfaces closed;
+                            R150 pauses the adapter lane and opens only design/
+                            report compiler-profile architecture reentry next;
+                            Spark L3B remains applied pressure only; root
+                            require/classifier wiring/live dispatch and public/
+                            runtime/Spark surfaces closed;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime, production remain blocked
 ─────────────────────────────────────────────────────────────────
@@ -810,6 +813,9 @@ Round 149 landed:
   S3-R149-C2-X: proof-hygiene pressure                                   ✅ proceed; 8/8 checks; no blockers
   S3-R149-C3-A: proof-hygiene acceptance                                 ✅ accepted-proof-hygiene-strategic-vector-next
   S3-R149-C4-S: status curation / next-route pointer                     ✅ done; strategic vector decision next only
+Round 150 landed:
+  S3-R150-C1-A: compiler-mainline strategic vector decision              ✅ adapter-lane-paused-compiler-profile-architecture-reentry-next
+  S3-R150-C2-S: status curation / next-route pointer                     ✅ done; design/report architecture reentry next only
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -869,6 +875,9 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   `fragment-registry-compatibility-adapter-helper-proof-hygiene-v0`;
                   R149 accepts proof hygiene and opens only strategic
                   `compiler-mainline-strategic-vector-decision-v0` next;
+                  R150 pauses the adapter lane and opens only design/report
+                  `compiler-profile-architecture-reentry-map-v0` next;
+                  Spark L3B remains applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
@@ -2213,6 +2222,19 @@ S3-R149 result:     C3-A accepts the proof-hygiene cleanup with status
                       R149 does not authorize implementation, root require, classifier wiring/live
                       dispatch, public surfaces, reports, artifacts, `.igapp`, loader/report,
                       CompatibilityReport, runtime, Spark, production, or demo work.
+S3-R150 result:     C1-A pauses the fragment registry adapter lane with status
+                      `adapter-lane-paused-compiler-profile-architecture-reentry-next`.
+                      Chosen next compiler-mainline route:
+                      `compiler-profile-architecture-reentry-map-v0`.
+                      The adapter lane is closed at a bounded point: helper boundary proof accepted,
+                      helper implementation accepted, proof hygiene accepted, root require closed,
+                      classifier wiring closed, and live dispatch closed. Spark L3B remains external
+                      applied pressure only; override divergences are semantic-pressure candidates and
+                      business-design signals, not automatic compiler requirements. Exact next boundary:
+                      S3-R151-C1-D, design/report only, write scope
+                      `igniter-lang/docs/tracks/compiler-profile-architecture-reentry-map-v0.md`.
+                      R150 does not authorize implementation, classifier wiring, Spark integration,
+                      demo work, public/report/artifact surfaces, `.igapp`, runtime, or production.
 ```
 
 ### Spec Freshness
