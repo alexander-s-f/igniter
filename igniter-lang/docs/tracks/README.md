@@ -135,6 +135,8 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-profile-source-mode-static-data-boundary-proof-pressure-v0.md` | proceed | R153 C2 pressure PASS 10/10; notes PROP-036 scan forbidden-payload scope and stated semantic closed-surface assertions as non-blocking |
 | `../gates/compiler-profile-source-mode-static-data-boundary-proof-decision-v0.md` | accepted-implementation-authorization-review-next | R153 C3 accepts proof and opens only implementation-authorization review; no implementation/public/report/artifact/Spark/runtime/demo work |
 | `stage3-round153-status-curation-v0.md` | done | R153 status curation: records accepted proof, implementation-authorization review next boundary, Spark pressure-only disposition, and closed implementation/public/report/runtime/demo surfaces |
+| `../gates/compiler-profile-source-mode-static-data-internal-carrier-implementation-authorization-review-v0.md` | authorized-bounded-internal-carrier-implementation | R154 C1 authorizes only `IgniterLang::InternalProfileStaticDataCarrier` as a direct-require internal carrier/test seam for a future bounded implementation card; public/report/artifact/Spark/runtime/demo surfaces remain closed |
+| `stage3-round154-status-curation-v0.md` | done | R154 status curation: records bounded internal-carrier authorization, Portfolio review satisfied for exact S3-R154-C2-I boundary only, implementation not yet landed, and closed protected surfaces |
 
 ---
 

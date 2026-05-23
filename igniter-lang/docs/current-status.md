@@ -276,9 +276,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R151 selects source-mode/static-data boundary
                             design next; R152 accepts that boundary and opens
                             only proof-only source-mode/static-data boundary
-                            proof next; R153 accepts proof PASS 16/16 and
-                            opens only implementation-authorization review
-                            next; Spark L3B and Orders P1 remain
+                            proof next; R153 accepts proof PASS 16/16;
+                            R154 authorizes only bounded internal-carrier
+                            implementation next; Spark L3B and Orders P1 remain
                             applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -835,6 +835,9 @@ Round 153 landed:
   S3-R153-C2-X: boundary proof pressure                                  ✅ proceed; 10/10 checks; no blockers
   S3-R153-C3-A: boundary proof decision                                  ✅ accepted-implementation-authorization-review-next
   S3-R153-C4-S: status curation / next-route pointer                     ✅ done; authorization-review S3-R154 next
+Round 154 landed:
+  S3-R154-C1-A: internal carrier implementation authorization review      ✅ authorized-bounded-internal-carrier-implementation
+  S3-R154-C2-S: status curation / next-route pointer                     ✅ done; bounded internal implementation S3-R154-C2-I next
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -900,8 +903,8 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   `compiler-profile-source-mode-static-data-boundary-design-v0`
                   next; R152 accepts that boundary and opens only proof-only
                   `compiler-profile-source-mode-static-data-boundary-proof-v0`
-                  next; R153 accepts proof and opens only
-                  `compiler-profile-source-mode-static-data-internal-carrier-implementation-authorization-review-v0`
+                  next; R153 accepts proof and R154 authorizes only
+                  `compiler-profile-source-mode-static-data-internal-carrier-implementation-v0`
                   next; Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
@@ -2304,6 +2307,20 @@ S3-R153 result:     C3-A accepts the source-mode/static-data boundary proof with
                       `igniter-lang/docs/gates/compiler-profile-source-mode-static-data-internal-carrier-implementation-authorization-review-v0.md`.
                       R153 does not authorize implementation, public surfaces, report/artifact work,
                       Spark integration, runtime, production, or demo work.
+S3-R154 result:     C1-A authorizes only the bounded internal carrier implementation
+                      boundary with status
+                      `authorized-bounded-internal-carrier-implementation`.
+                      Exact next boundary: S3-R154-C2-I,
+                      `compiler-profile-source-mode-static-data-internal-carrier-implementation-v0`.
+                      Allowed scope is limited to
+                      `igniter-lang/lib/igniter_lang/internal_profile_static_data_carrier.rb`,
+                      `igniter-lang/experiments/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof/**`,
+                      and `igniter-lang/docs/tracks/compiler-profile-source-mode-static-data-internal-carrier-implementation-v0.md`.
+                      Portfolio/Lang review is satisfied for that exact boundary only; any widening
+                      requires fresh Portfolio-visible review. Implementation is authorized next but
+                      not landed by status curation. R154 does not authorize root require,
+                      compiler integration, public surfaces, report/artifact work, Spark integration,
+                      runtime, production, or demo work.
 ```
 
 ### Spec Freshness
