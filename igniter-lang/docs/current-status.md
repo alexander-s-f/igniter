@@ -279,7 +279,8 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             proof next; R153 accepts proof PASS 16/16;
                             R154 authorizes only bounded internal-carrier
                             implementation; R155 accepts that implementation
-                            closure and pauses the carrier lane; Spark L3B and Orders P1 remain
+                            closure and pauses the carrier lane; R156 selects
+                            docs/spec sync next; Spark L3B and Orders P1 remain
                             applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -844,6 +845,9 @@ Round 155 landed:
   S3-R155-C1-X: internal carrier implementation pressure                  ✅ proceed; 12/12 checks; no blockers
   S3-R155-C2-A: internal carrier implementation acceptance                ✅ accepted-implementation-closure-pause-next
   S3-R155-C3-S: status curation / carrier lane pointer                    ✅ done; no immediate follow-up / pause
+Round 156 landed:
+  S3-R156-C1-A: post-carrier strategic vector decision                    ✅ docs-spec-sync-next
+  S3-R156-C2-S: status curation / next-route pointer                      ✅ done; docs/spec sync S3-R156-C2-P1 next
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -912,7 +916,9 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   next; R153 accepts proof, R154 authorizes only
                   `compiler-profile-source-mode-static-data-internal-carrier-implementation-v0`,
                   and R155 accepts that implementation closure with no immediate
-                  follow-up / pause; Spark L3B and Orders P1 remain applied pressure only;
+                  follow-up / pause; R156 selects docs/spec sync
+                  `compiler-profile-internal-carrier-docs-spec-sync-v0` next;
+                  Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
@@ -2342,6 +2348,17 @@ S3-R155 result:     C2-A accepts the bounded internal static-data carrier implem
                       not produce `finalized_internal`. Exact next route: no immediate follow-up
                       / pause. R155 does not authorize new implementation, public surfaces,
                       report/artifact work, Spark integration, runtime, production, or demo work.
+S3-R156 result:     C1-A selects docs/spec sync as the next compiler-mainline route
+                      with status `docs-spec-sync-next`. Exact next boundary:
+                      S3-R156-C2-P1,
+                      `compiler-profile-internal-carrier-docs-spec-sync-v0`,
+                      docs/spec sync only. The carrier lane remains accepted,
+                      closed, and paused; `InternalProfileStaticDataCarrier`
+                      remains direct-require-only and internal. Spark Orders
+                      Analytics remains external applied pressure only; demo-shadow
+                      remains held. R156 does not authorize implementation,
+                      public surfaces, report/artifact work, Spark integration,
+                      runtime, production, or demo work.
 ```
 
 ### Spec Freshness

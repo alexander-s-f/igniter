@@ -141,6 +141,8 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-profile-source-mode-static-data-internal-carrier-implementation-pressure-v0.md` | proceed | R155 C1 pressure PASS 12/12 with no blockers; notes stricter forbidden fields, unnamed lower-risk validation paths, and adjacent admin dispatch commit as non-blocking |
 | `../gates/compiler-profile-source-mode-static-data-internal-carrier-implementation-acceptance-decision-v0.md` | accepted-implementation-closure-pause-next | R155 C2 accepts bounded internal carrier implementation closure and opens no immediate follow-up; any widening requires fresh Portfolio-visible review |
 | `stage3-round155-status-curation-v0.md` | done | R155 status curation: records accepted implementation closure, carrier lane pause, Spark pressure-only disposition, and closed public/report/artifact/runtime/demo surfaces |
+| `../gates/compiler-mainline-post-carrier-strategic-vector-decision-v0.md` | docs-spec-sync-next | R156 C1 selects docs/spec sync as the next compiler-mainline route; carrier lane remains paused, Spark pressure external, and implementation/public/report/artifact/runtime/demo surfaces remain closed |
+| `stage3-round156-status-curation-v0.md` | done | R156 status curation: records docs/spec sync next boundary `compiler-profile-internal-carrier-docs-spec-sync-v0`, paused carrier lane, Spark pressure-only disposition, and closed protected surfaces |
 
 ---
 
