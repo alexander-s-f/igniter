@@ -1,0 +1,8 @@
+{
+  "assembly_lifecycle_state": "implementation_candidate",
+  "diagnostic_codes": [
+    "oof_registry.source.validation.duplicate_row_ownership",
+    "oof_registry.source.validation.duplicate_row_ownership"
+  ],
+  "valid": false
+}

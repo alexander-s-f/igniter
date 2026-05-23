@@ -1,0 +1,101 @@
+{
+  "authority": {
+    "authority_kind": "proof_only",
+    "authority_ref": "proof://igniter-lang/S3-R153/source-mode-static-data-boundary",
+    "canon_status": "non_canon"
+  },
+  "closed_surface_assertions": {
+    "compatibility_report": false,
+    "compiler_integration": false,
+    "demo_work": false,
+    "generated_index": false,
+    "lib_data": false,
+    "loader_report": false,
+    "manifest_artifact": false,
+    "production_behavior": false,
+    "public_report_carrier": false,
+    "runtime_behavior": false,
+    "shared_fixtures": false,
+    "spark_surface": false
+  },
+  "excluded_namespaces": [
+    {
+      "prefix": "compiler_profile_contract."
+    },
+    {
+      "prefix": "compiler_profile_contract_refusal."
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "synthetic_static_data_boundary_fixture",
+  "pack_descriptor_candidates": [
+    {
+      "authority": {
+        "authority_kind": "proof_only",
+        "authority_ref": "proof://igniter-lang/S3-R153/source-mode-static-data-boundary",
+        "canon_status": "non_canon"
+      },
+      "kind": "synthetic_pack_descriptor_candidate",
+      "owned_fragment_rows": [
+        {
+          "capability": false,
+          "classification_kind": "fragment_class",
+          "loadable": true,
+          "name": "core",
+          "owner_pack_or_boundary": "synthetic.core.pack"
+        }
+      ],
+      "owned_oof_descriptors": [
+        {
+          "aliases": [],
+          "code": "OOF-SYN1",
+          "deprecated": false,
+          "message": "synthetic proof-local boundary diagnostic",
+          "owner_pack_or_boundary": "synthetic.core.pack",
+          "public_code_stability": "proof_only",
+          "severity": "error",
+          "stage_owner": "classifier",
+          "status_class": "blocking_oof"
+        }
+      ],
+      "owned_support_markers": [],
+      "owner_pack_or_boundary": "synthetic.core.pack",
+      "pack_ref": "pack_descriptor_candidate/proof:SyntheticCorePack",
+      "row_authority_policy": "pack_owns_declared_rows",
+      "slot_name": "syntheticcorepack",
+      "source_mode": "pack_descriptor_candidate"
+    }
+  ],
+  "product_data_used": false,
+  "profile_candidate": {
+    "authority": {
+      "authority_kind": "proof_only",
+      "authority_ref": "proof://igniter-lang/S3-R153/source-mode-static-data-boundary",
+      "canon_status": "non_canon"
+    },
+    "conflict_policy": {
+      "duplicate_alias_owner": "reject",
+      "duplicate_fragment_row": "reject",
+      "duplicate_oof_descriptor": "reject",
+      "duplicate_support_marker": "reject",
+      "excluded_namespace": "reject",
+      "missing_selected_pack_ref": "reject"
+    },
+    "historical_source_refs": [],
+    "kind": "synthetic_profile_candidate",
+    "pack_order": [
+      "pack_descriptor_candidate/proof:SyntheticCorePack"
+    ],
+    "profile_contract_ref": null,
+    "profile_ref": "profile_candidate/proof:S3-R153-static-boundary",
+    "row_authority_policy": "pack_descriptor_rows_aggregated_by_profile",
+    "row_conflict_overrides": {},
+    "selected_pack_refs": [
+      "pack_descriptor_candidate/proof:SyntheticCorePack"
+    ],
+    "source_mode": "profile_candidate"
+  },
+  "shared_fixture": false,
+  "spark_data_used": false,
+  "static_data_status": "proof_local_only"
+}

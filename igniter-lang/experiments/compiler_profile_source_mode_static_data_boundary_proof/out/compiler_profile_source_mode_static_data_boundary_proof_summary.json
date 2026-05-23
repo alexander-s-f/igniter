@@ -1,0 +1,473 @@
+{
+  "adapter_evidence": {
+    "classifiedprogram_field_projection": {
+      "open": false,
+      "path": "lib/igniter_lang/classifier.rb"
+    },
+    "classifier_adapter_reference": {
+      "open": false,
+      "path": "lib/igniter_lang/classifier.rb"
+    },
+    "contract_fragment_for_replaced": {
+      "evidence": "existing classifier method remains local; no adapter reference",
+      "open": false
+    },
+    "live_dispatch_adapter_method_claimed": {
+      "evidence": "proof does not require or call adapter helper",
+      "open": false
+    },
+    "root_require_adapter_reference": {
+      "open": false,
+      "path": "lib/igniter_lang.rb"
+    }
+  },
+  "authority_preservation": {
+    "duplicate_ownership_rejected": true,
+    "pack_row_authority": "pack owns row identity, provenance, and row-local claims",
+    "profile_level_authority": "profile owns selected pack set, selected pack order, and aggregate conflict policy",
+    "selected_pack_refs": [
+      "pack_descriptor_candidate/proof:SyntheticCorePack"
+    ]
+  },
+  "card": "S3-R153-C1-P1",
+  "checks": [
+    {
+      "name": "static_data.proof_fixture_only",
+      "status": "PASS"
+    },
+    {
+      "name": "static_data.all_non_proof_surfaces_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "synthetic_shape.has_pack_descriptor_row",
+      "status": "PASS"
+    },
+    {
+      "name": "synthetic_shape.profile_references_selected_pack",
+      "status": "PASS"
+    },
+    {
+      "name": "synthetic_shape.duplicate_ownership_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "source_mode.profile_candidate_maps_to_internal_packet",
+      "status": "PASS"
+    },
+    {
+      "name": "source_mode.pack_descriptor_candidate_maps_to_internal_packet",
+      "status": "PASS"
+    },
+    {
+      "name": "source_mode.no_public_carrier_leakage",
+      "status": "PASS"
+    },
+    {
+      "name": "authority.pack_row_authority_preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "authority.profile_level_authority_preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "authority.profile_cannot_override_duplicate_pack_rows",
+      "status": "PASS"
+    },
+    {
+      "name": "lifecycle.finalized_internal_internal_only",
+      "status": "PASS"
+    },
+    {
+      "name": "prop036.negative_scan_clean_in_forbidden_payload",
+      "status": "PASS"
+    },
+    {
+      "name": "prop038.preserved_not_widened",
+      "status": "PASS"
+    },
+    {
+      "name": "adapter_evidence.proof_local_direct_require_only",
+      "status": "PASS"
+    },
+    {
+      "name": "closed_surfaces.remain_closed",
+      "status": "PASS"
+    }
+  ],
+  "checks_fail": 0,
+  "checks_pass": 16,
+  "checks_total": 16,
+  "closed_surface_scan": {
+    "artifact_hash": {
+      "evidence": "no artifact hash carrier",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "assembler": {
+      "evidence": "no proof token",
+      "open": false,
+      "path": "lib/igniter_lang/assembler.rb",
+      "status": "PASS"
+    },
+    "classifier_wiring": {
+      "evidence": "no adapter or static-data wiring",
+      "open": false,
+      "path": "lib/igniter_lang/classifier.rb",
+      "status": "PASS"
+    },
+    "compatibility_report": {
+      "evidence": "no CompatibilityReport carrier",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "demo": {
+      "evidence": "no demo behavior",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "golden_migration": {
+      "evidence": "no golden migration token",
+      "open": false,
+      "path": "experiments",
+      "status": "PASS"
+    },
+    "igapp": {
+      "evidence": "no proof token",
+      "open": false,
+      "path": "fixtures",
+      "status": "PASS"
+    },
+    "live_dispatch": {
+      "evidence": "no live dispatch invoked",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "loader_report": {
+      "evidence": "no loader/report carrier",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "manifest": {
+      "evidence": "no manifest carrier",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "parser": {
+      "evidence": "no proof token",
+      "open": false,
+      "path": "lib/igniter_lang/parser.rb",
+      "status": "PASS"
+    },
+    "persisted_report_behavior": {
+      "evidence": "no persisted reports",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "production": {
+      "evidence": "no production behavior",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "prop036_mutation": {
+      "evidence": "no PROP-036 mutation",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "prop038_mutation": {
+      "evidence": "no PROP-038 mutation",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "public_api_cli": {
+      "evidence": "no proof token",
+      "open": false,
+      "path": "lib/igniter_lang/cli.rb",
+      "status": "PASS"
+    },
+    "report": {
+      "evidence": "no proof token",
+      "open": false,
+      "path": "compilation_report/compiler_result",
+      "status": "PASS"
+    },
+    "root_require": {
+      "evidence": "no new static-data require",
+      "open": false,
+      "path": "lib/igniter_lang.rb",
+      "status": "PASS"
+    },
+    "runtime": {
+      "evidence": "no runtime call",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "runtime_refusal_authority": {
+      "evidence": "no runtime/refusal authority",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "semanticir": {
+      "evidence": "no proof token",
+      "open": false,
+      "path": "lib/igniter_lang/semanticir_emitter.rb",
+      "status": "PASS"
+    },
+    "sidecar": {
+      "evidence": "no sidecar carrier",
+      "open": false,
+      "path": "proof-local",
+      "status": "PASS"
+    },
+    "spark": {
+      "evidence": "no Spark proof token",
+      "open": false,
+      "path": "experiments",
+      "status": "PASS"
+    },
+    "typechecker": {
+      "evidence": "no proof token",
+      "open": false,
+      "path": "lib/igniter_lang/typechecker.rb",
+      "status": "PASS"
+    }
+  },
+  "command_matrix": [
+    {
+      "command": "ruby igniter-lang/experiments/compiler_profile_source_mode_static_data_boundary_proof/compiler_profile_source_mode_static_data_boundary_proof.rb",
+      "expected": "PASS",
+      "notes": "self command; existing proof/regression commands were not required because this runner directly validates the internal packet/registry boundary and performs closed-surface scans",
+      "observed": "PASS"
+    }
+  ],
+  "duplicate_diagnostics": [
+    "oof_registry.source.validation.duplicate_row_ownership",
+    "oof_registry.source.validation.duplicate_row_ownership"
+  ],
+  "duplicate_fixture_digest": "0e5cafabda8d7db5aecb308b",
+  "failed_checks": [],
+  "format_version": "0.1.0",
+  "kind": "compiler_profile_source_mode_static_data_boundary_proof_summary",
+  "lifecycle_preservation": [
+    {
+      "name": "prop036_identity",
+      "result": "PASS",
+      "value": false
+    },
+    {
+      "name": "manifest_identity",
+      "result": "PASS",
+      "value": false
+    },
+    {
+      "name": "public_finalization",
+      "result": "PASS",
+      "value": false
+    },
+    {
+      "name": "loader_report_status",
+      "result": "PASS",
+      "value": false
+    },
+    {
+      "name": "runtime_readiness",
+      "result": "PASS",
+      "value": false
+    },
+    {
+      "name": "production_readiness",
+      "result": "PASS",
+      "value": false
+    },
+    {
+      "name": "spark_readiness",
+      "result": "PASS",
+      "value": false
+    },
+    {
+      "name": "demo_readiness",
+      "result": "PASS",
+      "value": false
+    }
+  ],
+  "non_authorizations_preserved": {
+    "compatibility_report": false,
+    "compiler_integration": false,
+    "demo": false,
+    "generated_index": false,
+    "implementation": false,
+    "lib_data": false,
+    "loader_report": false,
+    "manifest_artifact": false,
+    "production": false,
+    "public_api_cli": false,
+    "runtime": false,
+    "shared_fixtures": false,
+    "spark": false
+  },
+  "proof_matrix": {
+    "adapter_evidence": {
+      "hold_status": "closed_surfaces_hold",
+      "result": "PASS"
+    },
+    "authority_preservation": {
+      "hold_status": "closed_surfaces_hold",
+      "result": "PASS"
+    },
+    "closed_surface_scans": {
+      "hold_status": "closed_surfaces_hold",
+      "result": "PASS"
+    },
+    "lifecycle_preservation": {
+      "hold_status": "closed_surfaces_hold",
+      "result": "PASS"
+    },
+    "minimal_synthetic_shape": {
+      "hold_status": "closed_surfaces_hold",
+      "result": "PASS"
+    },
+    "prop036_negative_scan": {
+      "hold_status": "closed_surfaces_hold",
+      "result": "PASS"
+    },
+    "prop038_preservation": {
+      "hold_status": "closed_surfaces_hold",
+      "result": "PASS"
+    },
+    "source_mode_mapping": {
+      "hold_status": "closed_surfaces_hold",
+      "result": "PASS"
+    },
+    "static_data_status_matrix": {
+      "hold_status": "closed_surfaces_hold",
+      "result": "PASS"
+    }
+  },
+  "prop036_negative_scan": {
+    "explicit_token_list_only": true,
+    "hits": [],
+    "scan_target": "forbidden_result_fields_and_closed_surface_outputs",
+    "status": "PASS",
+    "tokens": [
+      "compiler_profile_id",
+      "compiler_profile_id_source",
+      "compiler_profile_source",
+      "profile_source",
+      "profile finalization",
+      "manifest identity",
+      "default profile",
+      "named profile",
+      "profile discovery"
+    ]
+  },
+  "prop038_preservation": {
+    "contract_surface_mutated": false,
+    "excluded_namespaces_preserved": [
+      {
+        "prefix": "compiler_profile_contract."
+      },
+      {
+        "prefix": "compiler_profile_contract_refusal."
+      }
+    ],
+    "persisted_report_behavior_mutated": false,
+    "runtime_refusal_authority_mutated": false,
+    "strict_refusal_behavior_mutated": false
+  },
+  "recommendation": "accept proof",
+  "source_mode_mapping": {
+    "pack_source_modes": [
+      "pack_descriptor_candidate"
+    ],
+    "profile_source_mode": "profile_candidate",
+    "public_carrier_leakage": false,
+    "source_input_kind": "compiler_profile_oof_registry_source_input"
+  },
+  "static_data_fixture_digest": "a972e4085efe0ceff0070d2d",
+  "static_data_status_matrix": [
+    {
+      "allowed": true,
+      "boundary_status": "accepted_proof_local_only",
+      "result": "PASS",
+      "surface": "proof_fixture_static_data"
+    },
+    {
+      "allowed": false,
+      "boundary_status": "rejected",
+      "result": "PASS",
+      "surface": "internal_library_data"
+    },
+    {
+      "allowed": false,
+      "boundary_status": "rejected",
+      "result": "PASS",
+      "surface": "generated_index"
+    },
+    {
+      "allowed": false,
+      "boundary_status": "rejected",
+      "result": "PASS",
+      "surface": "public_default_discovery"
+    },
+    {
+      "allowed": false,
+      "boundary_status": "rejected",
+      "result": "PASS",
+      "surface": "loader_report"
+    },
+    {
+      "allowed": false,
+      "boundary_status": "rejected",
+      "result": "PASS",
+      "surface": "compatibility_report"
+    },
+    {
+      "allowed": false,
+      "boundary_status": "rejected",
+      "result": "PASS",
+      "surface": "manifest_artifact"
+    },
+    {
+      "allowed": false,
+      "boundary_status": "rejected",
+      "result": "PASS",
+      "surface": "runtime"
+    },
+    {
+      "allowed": false,
+      "boundary_status": "rejected",
+      "result": "PASS",
+      "surface": "spark"
+    },
+    {
+      "allowed": false,
+      "boundary_status": "rejected",
+      "result": "PASS",
+      "surface": "production"
+    },
+    {
+      "allowed": false,
+      "boundary_status": "rejected",
+      "result": "PASS",
+      "surface": "demo"
+    }
+  ],
+  "status": "PASS",
+  "track": "compiler-profile-source-mode-static-data-boundary-proof-v0",
+  "valid_assembly_digest": "7c0df6759852c1c2188c2c2e",
+  "valid_helper_envelopes_digest": "e00d3e50918648272bd4b745",
+  "valid_packet_digest": "52c59683d52184e7be229648"
+}
