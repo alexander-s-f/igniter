@@ -131,6 +131,10 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-profile-source-mode-static-data-boundary-pressure-v0.md` | proceed | R152 C2 pressure PASS 7/7; carries NB-1 minimal synthetic shape and NB-3 PROP-036 token scan guidance into proof route |
 | `../gates/compiler-profile-source-mode-static-data-boundary-decision-v0.md` | accepted-proof-only-next | R152 C3 accepts boundary design and opens only proof-only `compiler-profile-source-mode-static-data-boundary-proof-v0`; no implementation/public/report/artifact/Spark/runtime/demo work |
 | `stage3-round152-status-curation-v0.md` | done | R152 status curation: records accepted boundary, role hygiene note, proof-only S3-R153 next route, Spark pressure-only disposition, and closed surfaces |
+| `compiler-profile-source-mode-static-data-boundary-proof-v0.md` | done / PASS | R153 C1 proves source-mode/static-data boundary with synthetic proof-local data; PASS 16/16, duplicate ownership rejection, PROP-036 scoped scan, closed surfaces preserved |
+| `../discussions/compiler-profile-source-mode-static-data-boundary-proof-pressure-v0.md` | proceed | R153 C2 pressure PASS 10/10; notes PROP-036 scan forbidden-payload scope and stated semantic closed-surface assertions as non-blocking |
+| `../gates/compiler-profile-source-mode-static-data-boundary-proof-decision-v0.md` | accepted-implementation-authorization-review-next | R153 C3 accepts proof and opens only implementation-authorization review; no implementation/public/report/artifact/Spark/runtime/demo work |
+| `stage3-round153-status-curation-v0.md` | done | R153 status curation: records accepted proof, implementation-authorization review next boundary, Spark pressure-only disposition, and closed implementation/public/report/runtime/demo surfaces |
 
 ---
 

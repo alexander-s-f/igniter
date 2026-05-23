@@ -276,7 +276,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R151 selects source-mode/static-data boundary
                             design next; R152 accepts that boundary and opens
                             only proof-only source-mode/static-data boundary
-                            proof next; Spark L3B and Orders P1 remain
+                            proof next; R153 accepts proof PASS 16/16 and
+                            opens only implementation-authorization review
+                            next; Spark L3B and Orders P1 remain
                             applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -828,6 +830,11 @@ Round 152 landed:
   S3-R152-C2-X: source-mode/static-data boundary pressure                ✅ proceed; 7/7 checks; no blockers
   S3-R152-C3-A: source-mode/static-data boundary decision                ✅ accepted-proof-only-next
   S3-R152-C4-S: status curation / next-route pointer                     ✅ done; proof-only S3-R153 next
+Round 153 landed:
+  S3-R153-C1-P1: source-mode/static-data boundary proof                  ✅ done/PASS; 16/16 checks
+  S3-R153-C2-X: boundary proof pressure                                  ✅ proceed; 10/10 checks; no blockers
+  S3-R153-C3-A: boundary proof decision                                  ✅ accepted-implementation-authorization-review-next
+  S3-R153-C4-S: status curation / next-route pointer                     ✅ done; authorization-review S3-R154 next
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -893,6 +900,8 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   `compiler-profile-source-mode-static-data-boundary-design-v0`
                   next; R152 accepts that boundary and opens only proof-only
                   `compiler-profile-source-mode-static-data-boundary-proof-v0`
+                  next; R153 accepts proof and opens only
+                  `compiler-profile-source-mode-static-data-internal-carrier-implementation-authorization-review-v0`
                   next; Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
@@ -2279,6 +2288,21 @@ S3-R152 result:     C3-A accepts the source-mode/static-data boundary design wit
                       write scope `igniter-lang/experiments/compiler_profile_source_mode_static_data_boundary_proof/**`
                       and `igniter-lang/docs/tracks/compiler-profile-source-mode-static-data-boundary-proof-v0.md`.
                       R152 does not authorize implementation, public surfaces, report/artifact work,
+                      Spark integration, runtime, production, or demo work.
+S3-R153 result:     C3-A accepts the source-mode/static-data boundary proof with status
+                      `accepted-implementation-authorization-review-next`.
+                      Proof PASS 16/16: synthetic proof-local data only, non-trivial shape,
+                      source-mode mapping, duplicate ownership rejection, internal-only
+                      `finalized_internal`, PROP-036 scoped negative scan, PROP-038 preservation,
+                      adapter helper boundary, closed-surface scans, and command matrix accepted.
+                      Pressure NB-2 is explicitly acknowledged: PROP-036 scan targets forbidden
+                      result fields and closed-surface outputs, not every field name in the full
+                      summary; internal `profile_source_mode` vocabulary is acceptable proof
+                      vocabulary, not PROP-036 authority. Exact next boundary: S3-R154-C1-A,
+                      `compiler-profile-source-mode-static-data-internal-carrier-implementation-authorization-review-v0`,
+                      implementation-authorization review only, write scope
+                      `igniter-lang/docs/gates/compiler-profile-source-mode-static-data-internal-carrier-implementation-authorization-review-v0.md`.
+                      R153 does not authorize implementation, public surfaces, report/artifact work,
                       Spark integration, runtime, production, or demo work.
 ```
 
