@@ -1,0 +1,293 @@
+{
+  "assembly_evidence": {
+    "diagnostic_codes": [],
+    "input_lifecycle_state": "implementation_candidate",
+    "lifecycle_state": "finalized_internal",
+    "packet_kind": "compiler_profile_oof_registry_source_input",
+    "valid": true
+  },
+  "card": "S3-R154-C2-I",
+  "carrier_digest": "7df09332dabc4935e32f3d50",
+  "carrier_output_digest": "9d12c0dc1af4df629ccaeae1",
+  "carrier_output_forbidden_hits": [],
+  "checks": [
+    {
+      "name": "valid_static_data.builds_carrier",
+      "status": "PASS"
+    },
+    {
+      "name": "carrier.maps_to_source_packet",
+      "status": "PASS"
+    },
+    {
+      "name": "packet.validates_through_oof_fragment_registry",
+      "status": "PASS"
+    },
+    {
+      "name": "assembly.finalizes_only_internal_lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "duplicate_ownership.rejected_before_finalized_internal",
+      "status": "PASS"
+    },
+    {
+      "name": "invalid_cases.rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "carrier_outputs.forbidden_tokens_absent",
+      "status": "PASS"
+    },
+    {
+      "name": "r153_artifacts.not_required_to_rewrite",
+      "status": "PASS"
+    },
+    {
+      "name": "live_closed_surfaces.remain_closed",
+      "status": "PASS"
+    }
+  ],
+  "checks_fail": 0,
+  "checks_pass": 9,
+  "checks_total": 9,
+  "command_matrix": [
+    {
+      "command": "ruby -c igniter-lang/lib/igniter_lang/internal_profile_static_data_carrier.rb",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof.rb",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "command": "ruby -c igniter-lang/lib/igniter_lang/internal_profile_assembly_source_packet.rb",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "command": "ruby -c igniter-lang/lib/igniter_lang/internal_profile_assembly.rb",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "command": "ruby -c igniter-lang/lib/igniter_lang/oof_fragment_registry.rb",
+      "expected": "PASS",
+      "observed": "PASS"
+    }
+  ],
+  "duplicate_ownership_evidence": {
+    "diagnostic_codes": [
+      "internal_profile_assembly.packet_validation_failed",
+      "internal_profile_assembly.packet_validation_failed"
+    ],
+    "input_lifecycle_state": "implementation_candidate",
+    "lifecycle_state": "implementation_candidate",
+    "packet_kind": "compiler_profile_oof_registry_source_input",
+    "source_codes": [
+      "oof_registry.source.validation.duplicate_row_ownership",
+      "oof_registry.source.validation.duplicate_row_ownership"
+    ],
+    "valid": false
+  },
+  "failed_checks": [],
+  "format_version": "0.1.0",
+  "invalid_case_results": {
+    "forbidden_fields": {
+      "carrier_output_digest": "87275fafc7d832fa201ea3a3",
+      "carrier_output_forbidden_hits": [],
+      "diagnostic_codes": [
+        "internal_profile_static_data_carrier.forbidden_field",
+        "internal_profile_static_data_carrier.forbidden_field",
+        "internal_profile_static_data_carrier.forbidden_field"
+      ],
+      "source_packet_returned": false,
+      "valid": false
+    },
+    "invalid_authority": {
+      "carrier_output_digest": "1ab60433aa0fcb71e7b8a4f6",
+      "carrier_output_forbidden_hits": [],
+      "diagnostic_codes": [
+        "internal_profile_static_data_carrier.invalid_authority"
+      ],
+      "source_packet_returned": false,
+      "valid": false
+    },
+    "invalid_status": {
+      "carrier_output_digest": "29a9c8f63f63829bf01db543",
+      "carrier_output_forbidden_hits": [],
+      "diagnostic_codes": [
+        "internal_profile_static_data_carrier.unsupported_static_data_status"
+      ],
+      "source_packet_returned": false,
+      "valid": false
+    },
+    "missing_pack_descriptor_candidates": {
+      "carrier_output_digest": "5e0a0f26c2ecb01296105902",
+      "carrier_output_forbidden_hits": [],
+      "diagnostic_codes": [
+        "internal_profile_static_data_carrier.missing_pack_descriptor_candidates"
+      ],
+      "source_packet_returned": false,
+      "valid": false
+    },
+    "missing_profile_candidate": {
+      "carrier_output_digest": "854032d201afd030768be87a",
+      "carrier_output_forbidden_hits": [],
+      "diagnostic_codes": [
+        "internal_profile_static_data_carrier.missing_profile_candidate"
+      ],
+      "source_packet_returned": false,
+      "valid": false
+    },
+    "open_surface_assertion": {
+      "carrier_output_digest": "79073cbb97b7eaac9ee53604",
+      "carrier_output_forbidden_hits": [],
+      "diagnostic_codes": [
+        "internal_profile_static_data_carrier.surface_open"
+      ],
+      "source_packet_returned": false,
+      "valid": false
+    }
+  },
+  "kind": "compiler_profile_source_mode_static_data_internal_carrier_implementation_proof_summary",
+  "live_closed_surface_checks": {
+    "adapter_helper_not_called": {
+      "path": "lib/igniter_lang/internal_profile_static_data_carrier.rb",
+      "status": "PASS"
+    },
+    "classified_program_schema_unchanged": {
+      "path": "lib/igniter_lang/classifier.rb",
+      "status": "PASS"
+    },
+    "contract_fragment_for_preserved": {
+      "path": "lib/igniter_lang/classifier.rb",
+      "status": "PASS"
+    },
+    "pipeline_files_no_carrier_reference": {
+      "hits": [],
+      "status": "PASS"
+    },
+    "proposal_docs_not_in_write_scope": {
+      "path": "docs/proposals",
+      "status": "PASS"
+    },
+    "root_require_direct_only": {
+      "path": "lib/igniter_lang.rb",
+      "status": "PASS"
+    },
+    "root_require_not_opened": {
+      "path": "lib/igniter_lang.rb",
+      "status": "PASS"
+    }
+  },
+  "negative_scan_token_list": [
+    "compiler_profile_id",
+    "compiler_profile_id_source",
+    "compiler_profile_source",
+    "profile_source",
+    "profile finalization",
+    "manifest identity",
+    "default profile",
+    "named profile",
+    "profile discovery",
+    "igapp_path",
+    "compilation_report_path",
+    "loader_report",
+    "compatibility_report",
+    "compiler_result",
+    "manifest",
+    "sidecar",
+    "artifact_hash",
+    "runtime_ready",
+    "production_ready",
+    "spark_ready",
+    "demo_ready"
+  ],
+  "proof_matrix": [
+    {
+      "assertion": "valid synthetic/internal static data builds a carrier",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "carrier maps to InternalProfileAssemblySourcePacket",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "packet validates through OOFFragmentRegistry",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "assembly reaches finalized_internal only as internal lifecycle state",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "duplicate ownership remains rejected before finalized_internal",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "invalid status, authority, fields, and open surfaces are rejected",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "carrier output excludes forbidden public/profile/report/runtime vocabulary",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "R153 proof artifacts did not need rewrite",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "live closed surfaces remain closed",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "overall proof runner",
+      "expected": "PASS",
+      "observed": "PASS"
+    }
+  ],
+  "proof_output_surface_checks": {
+    "experiment_only_outputs": {
+      "paths": [
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof/out/carrier_output.valid.sanitized.json",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof/out/carrier_output.invalid_cases.sanitized.json",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof/out/assembly_evidence.sanitized.json",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof/out/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof_summary.json"
+      ],
+      "status": "PASS"
+    },
+    "no_forbidden_artifact_paths": {
+      "paths": [
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof/out/carrier_output.valid.sanitized.json",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof/out/carrier_output.invalid_cases.sanitized.json",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof/out/assembly_evidence.sanitized.json",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof/out/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof_summary.json"
+      ],
+      "status": "PASS"
+    }
+  },
+  "r153_artifacts_rewritten": false,
+  "recommendation": "accept closure",
+  "registry_validation": {
+    "lifecycle_state": "implementation_candidate",
+    "pack_source_diagnostic_codes": [],
+    "profile_source_diagnostic_codes": [],
+    "result_lifecycle_state": "finalized_internal",
+    "valid": true
+  },
+  "source_packet_digest": "f2d18d725f6b34096cb0eec1",
+  "status": "PASS",
+  "track": "compiler-profile-source-mode-static-data-internal-carrier-implementation-v0"
+}

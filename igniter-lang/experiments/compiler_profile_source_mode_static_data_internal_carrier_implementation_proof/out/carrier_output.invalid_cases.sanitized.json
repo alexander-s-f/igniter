@@ -1,0 +1,58 @@
+{
+  "forbidden_fields": {
+    "carrier_output_digest": "87275fafc7d832fa201ea3a3",
+    "carrier_output_forbidden_hits": [],
+    "diagnostic_codes": [
+      "internal_profile_static_data_carrier.forbidden_field",
+      "internal_profile_static_data_carrier.forbidden_field",
+      "internal_profile_static_data_carrier.forbidden_field"
+    ],
+    "source_packet_returned": false,
+    "valid": false
+  },
+  "invalid_authority": {
+    "carrier_output_digest": "1ab60433aa0fcb71e7b8a4f6",
+    "carrier_output_forbidden_hits": [],
+    "diagnostic_codes": [
+      "internal_profile_static_data_carrier.invalid_authority"
+    ],
+    "source_packet_returned": false,
+    "valid": false
+  },
+  "invalid_status": {
+    "carrier_output_digest": "29a9c8f63f63829bf01db543",
+    "carrier_output_forbidden_hits": [],
+    "diagnostic_codes": [
+      "internal_profile_static_data_carrier.unsupported_static_data_status"
+    ],
+    "source_packet_returned": false,
+    "valid": false
+  },
+  "missing_pack_descriptor_candidates": {
+    "carrier_output_digest": "5e0a0f26c2ecb01296105902",
+    "carrier_output_forbidden_hits": [],
+    "diagnostic_codes": [
+      "internal_profile_static_data_carrier.missing_pack_descriptor_candidates"
+    ],
+    "source_packet_returned": false,
+    "valid": false
+  },
+  "missing_profile_candidate": {
+    "carrier_output_digest": "854032d201afd030768be87a",
+    "carrier_output_forbidden_hits": [],
+    "diagnostic_codes": [
+      "internal_profile_static_data_carrier.missing_profile_candidate"
+    ],
+    "source_packet_returned": false,
+    "valid": false
+  },
+  "open_surface_assertion": {
+    "carrier_output_digest": "79073cbb97b7eaac9ee53604",
+    "carrier_output_forbidden_hits": [],
+    "diagnostic_codes": [
+      "internal_profile_static_data_carrier.surface_open"
+    ],
+    "source_packet_returned": false,
+    "valid": false
+  }
+}

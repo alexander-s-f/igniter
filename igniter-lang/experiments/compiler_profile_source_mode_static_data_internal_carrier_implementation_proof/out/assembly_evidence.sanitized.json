@@ -1,0 +1,19 @@
+{
+  "duplicate_ownership": {
+    "diagnostic_codes": [
+      "internal_profile_assembly.packet_validation_failed",
+      "internal_profile_assembly.packet_validation_failed"
+    ],
+    "input_lifecycle_state": "implementation_candidate",
+    "lifecycle_state": "implementation_candidate",
+    "packet_kind": "compiler_profile_oof_registry_source_input",
+    "valid": false
+  },
+  "valid": {
+    "diagnostic_codes": [],
+    "input_lifecycle_state": "implementation_candidate",
+    "lifecycle_state": "finalized_internal",
+    "packet_kind": "compiler_profile_oof_registry_source_input",
+    "valid": true
+  }
+}

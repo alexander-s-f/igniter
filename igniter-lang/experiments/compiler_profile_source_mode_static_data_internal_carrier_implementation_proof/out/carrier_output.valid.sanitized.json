@@ -1,0 +1,95 @@
+{
+  "authority": {
+    "authority_kind": "proof_only",
+    "authority_ref": "proof://S3-R154-C2-I",
+    "canon_status": "non_canon"
+  },
+  "closed_surface_assertions": {
+    "execution": false,
+    "external_entry": false,
+    "file_output": false,
+    "pipeline": false,
+    "root_require": false,
+    "scenario": false
+  },
+  "diagnostics": [],
+  "excluded_namespaces": [
+    {
+      "prefix": "compiler_profile_contract."
+    },
+    {
+      "prefix": "compiler_profile_contract_refusal."
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "internal_profile_static_data_carrier",
+  "pack_descriptor_candidates": [
+    {
+      "authority": {
+        "authority_kind": "proof_only",
+        "authority_ref": "proof://S3-R154-C2-I",
+        "canon_status": "non_canon"
+      },
+      "kind": "synthetic_pack_descriptor_candidate",
+      "owned_fragment_rows": [
+        {
+          "capability": false,
+          "classification_kind": "fragment_class",
+          "loadable": true,
+          "name": "core",
+          "owner_pack_or_boundary": "synthetic.core.pack"
+        }
+      ],
+      "owned_oof_descriptors": [
+        {
+          "aliases": [],
+          "code": "OOF-R154-SYN1",
+          "deprecated": false,
+          "message": "synthetic internal carrier diagnostic",
+          "owner_pack_or_boundary": "synthetic.core.pack",
+          "public_code_stability": "proof_only",
+          "severity": "error",
+          "stage_owner": "classifier",
+          "status_class": "blocking_oof"
+        }
+      ],
+      "owned_support_markers": [],
+      "owner_pack_or_boundary": "synthetic.core.pack",
+      "pack_ref": "pack_descriptor_candidate/proof:SyntheticCorePack",
+      "row_authority_policy": "pack_owns_declared_rows",
+      "slot_name": "syntheticcorepack",
+      "source_mode": "pack_descriptor_candidate"
+    }
+  ],
+  "profile_candidate": {
+    "authority": {
+      "authority_kind": "proof_only",
+      "authority_ref": "proof://S3-R154-C2-I",
+      "canon_status": "non_canon"
+    },
+    "conflict_policy": {
+      "duplicate_alias_owner": "reject",
+      "duplicate_fragment_row": "reject",
+      "duplicate_oof_descriptor": "reject",
+      "duplicate_support_marker": "reject",
+      "excluded_namespace": "reject",
+      "missing_selected_pack_ref": "reject"
+    },
+    "historical_source_refs": [],
+    "kind": "synthetic_profile_candidate",
+    "pack_order": [
+      "pack_descriptor_candidate/proof:SyntheticCorePack"
+    ],
+    "profile_contract_ref": null,
+    "profile_ref": "profile_candidate/proof:S3-R154-static-carrier",
+    "row_authority_policy": "pack_descriptor_rows_aggregated_by_profile",
+    "row_conflict_overrides": {},
+    "selected_pack_refs": [
+      "pack_descriptor_candidate/proof:SyntheticCorePack"
+    ],
+    "source_mode": "profile_candidate"
+  },
+  "static_data_digest": "7df09332dabc4935e32f3d50",
+  "static_data_status": "proof_local_only",
+  "valid": true
+}
