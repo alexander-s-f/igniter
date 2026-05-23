@@ -127,6 +127,10 @@ architecture. They are not production migration authorization.
 | `stage3-round150-status-curation-v0.md` | done | R150 status curation: records adapter lane paused, Spark pressure-only disposition, exact S3-R151 design/report next boundary, closed implementation/wiring/Spark/demo surfaces |
 | `compiler-profile-architecture-reentry-map-v0.md` | done | R151 C1 maps compiler/profile architecture axes and recommends design-only `compiler-profile-source-mode-static-data-boundary-design-v0`; adapter lane paused, Spark pressure external, implementation/public/report/runtime/demo surfaces closed |
 | `stage3-round151-status-curation-v0.md` | done | R151 status curation: records source-mode/static-data boundary design as next route, adapter lane paused, Spark pressure-only disposition, closed implementation/wiring/public/report/runtime/demo surfaces |
+| `compiler-profile-source-mode-static-data-boundary-design-v0.md` | done | R152 C1 accepts source-mode/static-data as design/proof candidate only; static data is not library data, generated index, public discovery, manifest/report/artifact/runtime/Spark authority |
+| `../discussions/compiler-profile-source-mode-static-data-boundary-pressure-v0.md` | proceed | R152 C2 pressure PASS 7/7; carries NB-1 minimal synthetic shape and NB-3 PROP-036 token scan guidance into proof route |
+| `../gates/compiler-profile-source-mode-static-data-boundary-decision-v0.md` | accepted-proof-only-next | R152 C3 accepts boundary design and opens only proof-only `compiler-profile-source-mode-static-data-boundary-proof-v0`; no implementation/public/report/artifact/Spark/runtime/demo work |
+| `stage3-round152-status-curation-v0.md` | done | R152 status curation: records accepted boundary, role hygiene note, proof-only S3-R153 next route, Spark pressure-only disposition, and closed surfaces |
 
 ---
 

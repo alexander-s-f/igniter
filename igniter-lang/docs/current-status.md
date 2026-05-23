@@ -274,7 +274,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R150 pauses the adapter lane and opens only design/
                             report compiler-profile architecture reentry next;
                             R151 selects source-mode/static-data boundary
-                            design next; Spark L3B and Orders P1 remain
+                            design next; R152 accepts that boundary and opens
+                            only proof-only source-mode/static-data boundary
+                            proof next; Spark L3B and Orders P1 remain
                             applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -821,6 +823,11 @@ Round 150 landed:
 Round 151 landed:
   S3-R151-C1-D: compiler/profile architecture reentry map                ✅ done; source-mode/static-data boundary design next
   S3-R151-C2-S: status curation / next-route pointer                     ✅ done; design-only S3-R152 next
+Round 152 landed:
+  S3-R152-C1-D: source-mode/static-data boundary design                  ✅ done; design/proof candidate only
+  S3-R152-C2-X: source-mode/static-data boundary pressure                ✅ proceed; 7/7 checks; no blockers
+  S3-R152-C3-A: source-mode/static-data boundary decision                ✅ accepted-proof-only-next
+  S3-R152-C4-S: status curation / next-route pointer                     ✅ done; proof-only S3-R153 next
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -884,6 +891,8 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   `compiler-profile-architecture-reentry-map-v0` next;
                   R151 recommends design-only
                   `compiler-profile-source-mode-static-data-boundary-design-v0`
+                  next; R152 accepts that boundary and opens only proof-only
+                  `compiler-profile-source-mode-static-data-boundary-proof-v0`
                   next; Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
@@ -2255,6 +2264,22 @@ S3-R151 result:     C1-D maps compiler/profile architecture reentry and recommen
                       write scope `igniter-lang/docs/tracks/compiler-profile-source-mode-static-data-boundary-design-v0.md`.
                       R151 does not authorize implementation, classifier wiring, public surfaces,
                       report/artifact work, runtime, production, or demo work.
+S3-R152 result:     C3-A accepts the source-mode/static-data boundary design with status
+                      `accepted-proof-only-next`. Static data remains a design/proof candidate only:
+                      not internal library data, not generated index, not public/default discovery,
+                      not manifest identity, not loader/report, not artifact state, not runtime
+                      authority, not Spark fixture/spec authority, and not production behavior.
+                      `finalized_internal` remains internal-only and not PROP-036 identity.
+                      PROP-036 and PROP-038 remain inputs, not widened authority. Adapter helper
+                      evidence remains prior/proof-local evidence only, not classifier authority.
+                      Spark remains external applied pressure only. Role hygiene: `compiler-profile-architect`
+                      is not a standing role; treat it as borrowed lens / specialization label.
+                      Exact next boundary: S3-R153-C1-P1,
+                      `compiler-profile-source-mode-static-data-boundary-proof-v0`, proof-only,
+                      write scope `igniter-lang/experiments/compiler_profile_source_mode_static_data_boundary_proof/**`
+                      and `igniter-lang/docs/tracks/compiler-profile-source-mode-static-data-boundary-proof-v0.md`.
+                      R152 does not authorize implementation, public surfaces, report/artifact work,
+                      Spark integration, runtime, production, or demo work.
 ```
 
 ### Spec Freshness
