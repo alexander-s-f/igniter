@@ -118,6 +118,7 @@ architecture. They are not production migration authorization.
 | `fragment-registry-compatibility-adapter-helper-implementation-proof-v0.md` | done / PASS | R147 C2-I implements direct-require helper: 44/44 proof checks, R144 23/23 parity, clean root/classifier/report/artifact scans, full regression matrix PASS |
 | `../discussions/fragment-registry-compatibility-adapter-helper-implementation-pressure-v0.md` | proceed-with-notes | R148 C1 pressure accepts implementation evidence with NB-1 CS4 proof-check logic bug disposition required; no implementation blockers, classifier wiring/root require remain closed |
 | `../gates/fragment-registry-compatibility-adapter-helper-implementation-acceptance-decision-v0.md` | accepted-implementation-closure-proof-hygiene-next | R148 C2 accepts helper implementation closure and opens only status curation plus proof-hygiene follow-up; no classifier wiring, root require, public/report/artifact/runtime/Spark authority |
+| `stage3-round148-status-curation-v0.md` | done | R148 status curation: records helper implementation accepted/landed/closed, proof-hygiene next route, closed classifier/root/public/runtime surfaces, and demo-shadow note-only state |
 
 ---
 

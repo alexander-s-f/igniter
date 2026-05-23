@@ -264,9 +264,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             runtime/Spark drift; next route is authorization
                             review only, implementation still held;
                             R147 authorizes only bounded direct-require helper
-                            implementation/proof next; helper implementation
-                            not landed yet, root require/classifier wiring/live
-                            dispatch and public/runtime/Spark surfaces closed;
+                            implementation/proof next; R148 accepts that
+                            helper implementation as landed/closed with 44/44
+                            proof checks PASS and R144 23/23 parity preserved;
+                            next route is proof-hygiene only, root require/
+                            classifier wiring/live dispatch and public/runtime/
+                            Spark surfaces closed;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
                             CompatibilityReport, receipts, signing, dispatch, runtime, production remain blocked
 ─────────────────────────────────────────────────────────────────
@@ -794,6 +797,11 @@ Round 146 landed:
 Round 147 landed:
   S3-R147-C1-A: helper implementation authorization review              ✅ authorized-bounded-direct-require-helper-implementation
   S3-R147-C2-S: status curation / next-route pointer                    ✅ done; implementation authorized next, not landed
+Round 148 landed:
+  S3-R147-C2-I: helper implementation proof                              ✅ done/PASS; 44/44 checks, R144 23/23 parity
+  S3-R148-C1-X: helper implementation pressure                           ✅ proceed-with-notes; 12/12 checks; no blockers
+  S3-R148-C2-A: helper implementation acceptance                         ✅ accepted-implementation-closure-proof-hygiene-next
+  S3-R148-C3-S: status curation / next-route pointer                     ✅ done; proof-hygiene next only
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -848,7 +856,10 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   R147 authorizes only bounded direct-require helper
                   implementation/proof next:
                   `fragment-registry-compatibility-adapter-helper-implementation-proof-v0`;
-                  implementation is authorized but not landed,
+                  R148 accepts that helper implementation as landed/closed
+                  with next route only
+                  `fragment-registry-compatibility-adapter-helper-proof-hygiene-v0`;
+                  classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
@@ -2162,6 +2173,23 @@ S3-R147 result:     C1-A authorizes a bounded direct-require-only internal helpe
                       loader/report, CompilationReport, CompilerResult, CompatibilityReport, artifact/golden
                       mutation, PROP-036/PROP-038 mutation, runtime, Spark, production, Ledger/TBackend,
                       BiHistory, stream/OLAP, cache, signing, deployment, and demo work.
+S3-R148 result:     C2-A accepts the bounded direct-require-only helper implementation closure
+                      with status `accepted-implementation-closure-proof-hygiene-next`.
+                      Implementation is landed and accepted only in the S3-R147-C2-I scope:
+                      helper file, helper implementation proof experiment, proof outputs, and track file.
+                      Proof evidence: 44/44 helper checks PASS, R144 selected-fragment parity preserved
+                      across 23 observed contracts, 0 mismatches, required regression matrix PASS,
+                      broad negative vocabulary scan clean outside the helper. C1-X pressure proceeds
+                      with notes and no blockers; CS4 proof-check logic is non-functional and must be
+                      fixed before reuse, but CS3/CS7/NEG1/source review/root-require checks independently
+                      protect the closed surfaces. Exact next route:
+                      `fragment-registry-compatibility-adapter-helper-proof-hygiene-v0`.
+                      R148 does not authorize helper code edits, root require, classifier wiring/live
+                      dispatch, `contract_fragment_for` replacement, parser/TypeChecker/SemanticIR/
+                      assembler/report/`.igapp`, `ClassifiedProgram` schema changes, public API/CLI,
+                      loader/report, CompilationReport, CompilerResult, CompatibilityReport, artifact/golden
+                      mutation, PROP-036/PROP-038 mutation, runtime, Spark, production, Ledger/TBackend,
+                      BiHistory, stream/OLAP, cache, signing, deployment, or demo work.
 ```
 
 ### Spec Freshness
