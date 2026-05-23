@@ -144,6 +144,8 @@ architecture. They are not production migration authorization.
 | `../gates/compiler-mainline-post-carrier-strategic-vector-decision-v0.md` | docs-spec-sync-next | R156 C1 selects docs/spec sync as the next compiler-mainline route; carrier lane remains paused, Spark pressure external, and implementation/public/report/artifact/runtime/demo surfaces remain closed |
 | `stage3-round156-status-curation-v0.md` | done | R156 status curation: records docs/spec sync next boundary `compiler-profile-internal-carrier-docs-spec-sync-v0`, paused carrier lane, Spark pressure-only disposition, and closed protected surfaces |
 | `compiler-profile-internal-carrier-docs-spec-sync-v0.md` | done | S3-R156-C2-P1 docs/spec sync: records accepted direct-require-only internal carrier closure, corrects living-map drift, holds old historical track wording, and recommends pause/no immediate follow-up |
+| `../gates/poc-mvp-live-touch-scope-decision-v0.md` | authorized-bounded-local-poc-implementation-proof | R157 C1 opens only bounded local POC/MVP live-touch implementation/proof under `experiments/poc_mvp_live_touch_v0/**`; public demo/release, Spark integration, production runtime, deployment, and language semantics remain closed |
+| `stage3-round157-status-curation-v0.md` | done | R157 status curation: records local POC/MVP route opened, exact S3-R157-C2-I `poc-mvp-live-touch-v0` boundary, public-demo/release closure, Spark pressure-only disposition, and closed runtime/deployment surfaces |
 
 ---
 
