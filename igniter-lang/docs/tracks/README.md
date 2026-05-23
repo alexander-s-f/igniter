@@ -115,6 +115,9 @@ architecture. They are not production migration authorization.
 | `stage3-round146-status-curation-v0.md` | done | R146 status curation: records accepted helper-boundary proof, authorization-review next route, implementation-held status, closed surfaces, and demo-shadow note-only state |
 | `../gates/fragment-registry-compatibility-adapter-helper-implementation-authorization-review-v0.md` | authorized-bounded-direct-require-helper-implementation | R147 C1 authorizes only bounded direct-require helper implementation/proof; exact C2-I scope limited to helper file, proof experiment, and track; root/classifier/compiler/report/artifact/public/runtime/Spark remain closed |
 | `stage3-round147-status-curation-v0.md` | done | R147 status curation: records bounded helper implementation authorization, exact next route, not-yet-landed implementation status, closed surfaces, and demo-shadow note-only state |
+| `fragment-registry-compatibility-adapter-helper-implementation-proof-v0.md` | done / PASS | R147 C2-I implements direct-require helper: 44/44 proof checks, R144 23/23 parity, clean root/classifier/report/artifact scans, full regression matrix PASS |
+| `../discussions/fragment-registry-compatibility-adapter-helper-implementation-pressure-v0.md` | proceed-with-notes | R148 C1 pressure accepts implementation evidence with NB-1 CS4 proof-check logic bug disposition required; no implementation blockers, classifier wiring/root require remain closed |
+| `../gates/fragment-registry-compatibility-adapter-helper-implementation-acceptance-decision-v0.md` | accepted-implementation-closure-proof-hygiene-next | R148 C2 accepts helper implementation closure and opens only status curation plus proof-hygiene follow-up; no classifier wiring, root require, public/report/artifact/runtime/Spark authority |
 
 ---
 
