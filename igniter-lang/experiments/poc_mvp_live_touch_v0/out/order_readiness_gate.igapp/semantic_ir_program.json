@@ -1,0 +1,91 @@
+{
+  "compilation_report_ref": "compilation_report/c81bd9f56d23d5d5",
+  "contracts": [
+    {
+      "contract_name": "OrderReadinessGate",
+      "contract_ref": "contract/OrderReadinessGate/sha256:2038b1066cfe9b1991478bb2",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "inventory_ready",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "payment_ready",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "inventory_ready",
+            "payment_ready"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "inventory_ready",
+                "resolved_type": {
+                  "name": "Bool",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "payment_ready",
+                "resolved_type": {
+                  "name": "Bool",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "stdlib.bool.and",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "ready",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "ready",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "PocMvp.OrderReadiness",
+  "program_id": "semanticir/c81bd9f56d23d5d5",
+  "source_hash": "sha256:c81bd9f56d23d5d5bd181d31de09ca2d290e93e7a25fb04dd15d2d31b3bf9242",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/poc_mvp_live_touch_v0/src/order_readiness_gate.ig"
+}

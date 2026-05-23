@@ -1,0 +1,69 @@
+{
+  "artifact_hash": "sha256:818dfc421b1d0750264976d9aa72d0022068ecb49951b52b6394cc8feed2a749",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:inventory_ready",
+        "input:payment_ready"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "inventory_ready"
+          },
+          {
+            "kind": "ref",
+            "name": "payment_ready"
+          }
+        ],
+        "operator": "stdlib.bool.and"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "ready",
+      "node_id": "node_ready",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    }
+  ],
+  "contract_id": "OrderReadinessGate",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "inventory_ready",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "local",
+      "name": "payment_ready",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "OrderReadinessGate",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "ready",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "source_contract_ref": "contract/OrderReadinessGate/sha256:2038b1066cfe9b1991478bb2",
+  "type_signature": {
+    "inputs": {
+      "inventory_ready": "Bool",
+      "payment_ready": "Bool"
+    },
+    "outputs": {
+      "ready": "Bool"
+    }
+  }
+}

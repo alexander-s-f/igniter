@@ -1,0 +1,91 @@
+{
+  "compilation_report_ref": "compilation_report/69e80714814516aa",
+  "contracts": [
+    {
+      "contract_name": "EconomicsShadowMargin",
+      "contract_ref": "contract/EconomicsShadowMargin/sha256:bdf69ecd181dbb333f31182f",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "unit_margin",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "order_count",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "unit_margin",
+            "order_count"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "unit_margin",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "order_count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "stdlib.integer.add",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "margin_signal",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "margin_signal",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "PocMvp.EconomicsShadow",
+  "program_id": "semanticir/69e80714814516aa",
+  "source_hash": "sha256:69e80714814516aa08ede0b75e1a172f3dac346a3757d9cd2d548542033c88f4",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/poc_mvp_live_touch_v0/src/economics_shadow_margin.ig"
+}

@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:ad2331d345f96690d5ec2aeb50649d00aa4c1dcb6fc1ed6a975101d3698a1330",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/69e80714814516aa",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "EconomicsShadowMargin": {
+      "contract_path": "contracts/economics_shadow_margin.json",
+      "contract_ref": "contract/EconomicsShadowMargin/sha256:bdf69ecd181dbb333f31182f",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "EconomicsShadowMargin": "contract/EconomicsShadowMargin/sha256:bdf69ecd181dbb333f31182f"
+  },
+  "contracts": [
+    "EconomicsShadowMargin"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/69e80714814516aa",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/69e80714814516aa",
+  "source_hash": "sha256:69e80714814516aa08ede0b75e1a172f3dac346a3757d9cd2d548542033c88f4",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/poc_mvp_live_touch_v0/src/economics_shadow_margin.ig",
+  "warnings": []
+}

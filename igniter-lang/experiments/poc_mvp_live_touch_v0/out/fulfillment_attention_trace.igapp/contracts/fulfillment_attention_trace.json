@@ -1,0 +1,69 @@
+{
+  "artifact_hash": "sha256:ca1196191c9cf46d840bb3c637216558e80cfd6a00aac9e87556439b7897822c",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:late_count",
+        "input:exception_count"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "late_count"
+          },
+          {
+            "kind": "ref",
+            "name": "exception_count"
+          }
+        ],
+        "operator": "stdlib.integer.add"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "attention_score",
+      "node_id": "node_attention_score",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "FulfillmentAttentionTrace",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "late_count",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "exception_count",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "FulfillmentAttentionTrace",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "attention_score",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/FulfillmentAttentionTrace/sha256:4e081f1f24f3198c594931b9",
+  "type_signature": {
+    "inputs": {
+      "exception_count": "Integer",
+      "late_count": "Integer"
+    },
+    "outputs": {
+      "attention_score": "Integer"
+    }
+  }
+}

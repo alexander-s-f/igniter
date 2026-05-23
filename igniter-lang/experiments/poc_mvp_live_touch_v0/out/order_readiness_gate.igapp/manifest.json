@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:818dfc421b1d0750264976d9aa72d0022068ecb49951b52b6394cc8feed2a749",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/c81bd9f56d23d5d5",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "OrderReadinessGate": {
+      "contract_path": "contracts/order_readiness_gate.json",
+      "contract_ref": "contract/OrderReadinessGate/sha256:2038b1066cfe9b1991478bb2",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "OrderReadinessGate": "contract/OrderReadinessGate/sha256:2038b1066cfe9b1991478bb2"
+  },
+  "contracts": [
+    "OrderReadinessGate"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/c81bd9f56d23d5d5",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/c81bd9f56d23d5d5",
+  "source_hash": "sha256:c81bd9f56d23d5d5bd181d31de09ca2d290e93e7a25fb04dd15d2d31b3bf9242",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/poc_mvp_live_touch_v0/src/order_readiness_gate.ig",
+  "warnings": []
+}

@@ -1,0 +1,69 @@
+{
+  "artifact_hash": "sha256:ad2331d345f96690d5ec2aeb50649d00aa4c1dcb6fc1ed6a975101d3698a1330",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:unit_margin",
+        "input:order_count"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "unit_margin"
+          },
+          {
+            "kind": "ref",
+            "name": "order_count"
+          }
+        ],
+        "operator": "stdlib.integer.add"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "margin_signal",
+      "node_id": "node_margin_signal",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "EconomicsShadowMargin",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "unit_margin",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "order_count",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "EconomicsShadowMargin",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "margin_signal",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/EconomicsShadowMargin/sha256:bdf69ecd181dbb333f31182f",
+  "type_signature": {
+    "inputs": {
+      "order_count": "Integer",
+      "unit_margin": "Integer"
+    },
+    "outputs": {
+      "margin_signal": "Integer"
+    }
+  }
+}

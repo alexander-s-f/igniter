@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:4148cb964a3f66b329c0d0caf98d1fbd5957ee7b0ad2bde85c48c0cd38bfba58",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/dc4f6665565b71d8",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "ChannelSignalScore": {
+      "contract_path": "contracts/channel_signal_score.json",
+      "contract_ref": "contract/ChannelSignalScore/sha256:07aafdfba627353da17abea3",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "ChannelSignalScore": "contract/ChannelSignalScore/sha256:07aafdfba627353da17abea3"
+  },
+  "contracts": [
+    "ChannelSignalScore"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/dc4f6665565b71d8",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/dc4f6665565b71d8",
+  "source_hash": "sha256:dc4f6665565b71d8cf707becf4f6a53754dc7a11300dccb93ff5765324186e56",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/poc_mvp_live_touch_v0/src/channel_signal_score.ig",
+  "warnings": []
+}

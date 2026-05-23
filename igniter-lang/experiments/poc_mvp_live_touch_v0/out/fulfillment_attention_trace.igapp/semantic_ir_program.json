@@ -1,0 +1,91 @@
+{
+  "compilation_report_ref": "compilation_report/518579a10a691cf9",
+  "contracts": [
+    {
+      "contract_name": "FulfillmentAttentionTrace",
+      "contract_ref": "contract/FulfillmentAttentionTrace/sha256:4e081f1f24f3198c594931b9",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "late_count",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "exception_count",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "late_count",
+            "exception_count"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "late_count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "exception_count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "stdlib.integer.add",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "attention_score",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "attention_score",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "PocMvp.FulfillmentAttention",
+  "program_id": "semanticir/518579a10a691cf9",
+  "source_hash": "sha256:518579a10a691cf9dd99d14ed6de59315e4d523786c9af52851566c20d94e3f4",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/poc_mvp_live_touch_v0/src/fulfillment_attention_trace.ig"
+}

@@ -1,0 +1,69 @@
+{
+  "artifact_hash": "sha256:4148cb964a3f66b329c0d0caf98d1fbd5957ee7b0ad2bde85c48c0cd38bfba58",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:visits",
+        "input:add_to_cart"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "visits"
+          },
+          {
+            "kind": "ref",
+            "name": "add_to_cart"
+          }
+        ],
+        "operator": "stdlib.integer.add"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "signal_score",
+      "node_id": "node_signal_score",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "ChannelSignalScore",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "visits",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "add_to_cart",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "ChannelSignalScore",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "signal_score",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/ChannelSignalScore/sha256:07aafdfba627353da17abea3",
+  "type_signature": {
+    "inputs": {
+      "add_to_cart": "Integer",
+      "visits": "Integer"
+    },
+    "outputs": {
+      "signal_score": "Integer"
+    }
+  }
+}

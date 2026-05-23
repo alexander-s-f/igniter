@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/dc4f6665565b71d8",
+  "semantic_ir_ref": "semanticir/dc4f6665565b71d8",
+  "source_hash": "sha256:dc4f6665565b71d8cf707becf4f6a53754dc7a11300dccb93ff5765324186e56",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/poc_mvp_live_touch_v0/src/channel_signal_score.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

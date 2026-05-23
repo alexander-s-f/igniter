@@ -1,0 +1,91 @@
+{
+  "compilation_report_ref": "compilation_report/dc4f6665565b71d8",
+  "contracts": [
+    {
+      "contract_name": "ChannelSignalScore",
+      "contract_ref": "contract/ChannelSignalScore/sha256:07aafdfba627353da17abea3",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "visits",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "add_to_cart",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "visits",
+            "add_to_cart"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "visits",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "add_to_cart",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "stdlib.integer.add",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "signal_score",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "signal_score",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "PocMvp.ChannelSignal",
+  "program_id": "semanticir/dc4f6665565b71d8",
+  "source_hash": "sha256:dc4f6665565b71d8cf707becf4f6a53754dc7a11300dccb93ff5765324186e56",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/poc_mvp_live_touch_v0/src/channel_signal_score.ig"
+}

@@ -1,0 +1,104 @@
+{
+  "card": "S3-R157-C2-I",
+  "entries": [
+    {
+      "compile_status": "ok",
+      "contract_name": "ChannelSignalScore",
+      "diagnostics_count": 0,
+      "igapp_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out/channel_signal_score.igapp",
+      "module_name": "PocMvp.ChannelSignal",
+      "observed_outputs": {
+        "signal_score": 17
+      },
+      "sample_input": {
+        "add_to_cart": 5,
+        "visits": 12
+      },
+      "source_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/src/channel_signal_score.ig",
+      "stages": {
+        "assemble": "ok",
+        "classify": "ok",
+        "emit": "ok",
+        "parse": "ok",
+        "typecheck": "ok"
+      },
+      "trace_status": "trusted",
+      "warnings_count": 0
+    },
+    {
+      "compile_status": "ok",
+      "contract_name": "OrderReadinessGate",
+      "diagnostics_count": 0,
+      "igapp_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out/order_readiness_gate.igapp",
+      "module_name": "PocMvp.OrderReadiness",
+      "observed_outputs": {
+        "ready": true
+      },
+      "sample_input": {
+        "inventory_ready": true,
+        "payment_ready": true
+      },
+      "source_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/src/order_readiness_gate.ig",
+      "stages": {
+        "assemble": "ok",
+        "classify": "ok",
+        "emit": "ok",
+        "parse": "ok",
+        "typecheck": "ok"
+      },
+      "trace_status": "trusted",
+      "warnings_count": 0
+    },
+    {
+      "compile_status": "ok",
+      "contract_name": "EconomicsShadowMargin",
+      "diagnostics_count": 0,
+      "igapp_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out/economics_shadow_margin.igapp",
+      "module_name": "PocMvp.EconomicsShadow",
+      "observed_outputs": {
+        "margin_signal": 29
+      },
+      "sample_input": {
+        "order_count": 21,
+        "unit_margin": 8
+      },
+      "source_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/src/economics_shadow_margin.ig",
+      "stages": {
+        "assemble": "ok",
+        "classify": "ok",
+        "emit": "ok",
+        "parse": "ok",
+        "typecheck": "ok"
+      },
+      "trace_status": "trusted",
+      "warnings_count": 0
+    },
+    {
+      "compile_status": "ok",
+      "contract_name": "FulfillmentAttentionTrace",
+      "diagnostics_count": 0,
+      "igapp_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out/fulfillment_attention_trace.igapp",
+      "module_name": "PocMvp.FulfillmentAttention",
+      "observed_outputs": {
+        "attention_score": 5
+      },
+      "sample_input": {
+        "exception_count": 3,
+        "late_count": 2
+      },
+      "source_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/src/fulfillment_attention_trace.ig",
+      "stages": {
+        "assemble": "ok",
+        "classify": "ok",
+        "emit": "ok",
+        "parse": "ok",
+        "typecheck": "ok"
+      },
+      "trace_status": "trusted",
+      "warnings_count": 0
+    }
+  ],
+  "format_version": "0.1.0",
+  "kind": "poc_mvp_live_touch_compile_transcript",
+  "track": "poc-mvp-live-touch-v0"
+}

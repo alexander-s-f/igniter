@@ -1,0 +1,204 @@
+{
+  "card": "S3-R157-C2-I",
+  "checks": [
+    {
+      "name": "source_file_count.exactly_four",
+      "status": "PASS"
+    },
+    {
+      "name": "source_files.expected_names",
+      "status": "PASS"
+    },
+    {
+      "name": "compile.all_sources_successful",
+      "status": "PASS"
+    },
+    {
+      "name": "igapp.outputs_inside_poc_out",
+      "status": "PASS"
+    },
+    {
+      "name": "runtime_trace.entry_per_source",
+      "status": "PASS"
+    },
+    {
+      "name": "runtime_trace.no_fake_success",
+      "status": "PASS"
+    },
+    {
+      "name": "closed_surfaces.remain_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "forbidden_tokens.absent_outside_negative_list",
+      "status": "PASS"
+    }
+  ],
+  "closed_surface_scan": {
+    "compiler_pipeline_files_unchanged_by_route": {
+      "hits": [],
+      "status": "PASS"
+    },
+    "no_external_fixture_paths": {
+      "path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out",
+      "status": "PASS"
+    },
+    "outputs_stay_inside_lab": {
+      "path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out",
+      "status": "PASS"
+    },
+    "public_api_cli_no_new_flags": {
+      "path": "bin/igniter-lang",
+      "status": "PASS"
+    },
+    "root_require_unchanged": {
+      "path": "lib/igniter_lang.rb",
+      "status": "PASS"
+    }
+  },
+  "command_matrix": [
+    {
+      "command": "ruby -c igniter-lang/experiments/poc_mvp_live_touch_v0/poc_mvp_live_touch_v0.rb",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/poc_mvp_live_touch_v0/poc_mvp_live_touch_v0.rb",
+      "expected": "PASS",
+      "observed": "PASS"
+    }
+  ],
+  "compile_transcript_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out/compile_transcript.json",
+  "failed_checks": [],
+  "forbidden_token_scan": {
+    "hits": [],
+    "negative_scan_token_list": [
+      "Spark",
+      "spark",
+      "production",
+      "Production",
+      "release_ready",
+      "public_demo",
+      "demo_ready",
+      "deployment",
+      "signing",
+      "Ledger",
+      "TBackend",
+      "BiHistory",
+      "stream",
+      "OLAP"
+    ],
+    "scan_target": "poc_sources_compile_transcript_runtime_trace"
+  },
+  "format_version": "0.1.0",
+  "kind": "poc_mvp_live_touch_summary",
+  "proof_matrix": [
+    {
+      "assertion": "source_file_count.exactly_four",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "source_files.expected_names",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "compile.all_sources_successful",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "igapp.outputs_inside_poc_out",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "runtime_trace.entry_per_source",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "runtime_trace.no_fake_success",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "closed_surfaces.remain_closed",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "forbidden_tokens.absent_outside_negative_list",
+      "expected": "PASS",
+      "observed": "PASS"
+    }
+  ],
+  "recommendation": "accept bounded local POC proof",
+  "runtime_trace_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out/runtime_trace.json",
+  "source_count": 4,
+  "sources": [
+    {
+      "compile_status": "ok",
+      "contract_name": "ChannelSignalScore",
+      "igapp_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out/channel_signal_score.igapp",
+      "module_name": "PocMvp.ChannelSignal",
+      "observed_outputs": {
+        "signal_score": 17
+      },
+      "sample_input": {
+        "add_to_cart": 5,
+        "visits": 12
+      },
+      "source_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/src/channel_signal_score.ig",
+      "trace_status": "trusted"
+    },
+    {
+      "compile_status": "ok",
+      "contract_name": "OrderReadinessGate",
+      "igapp_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out/order_readiness_gate.igapp",
+      "module_name": "PocMvp.OrderReadiness",
+      "observed_outputs": {
+        "ready": true
+      },
+      "sample_input": {
+        "inventory_ready": true,
+        "payment_ready": true
+      },
+      "source_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/src/order_readiness_gate.ig",
+      "trace_status": "trusted"
+    },
+    {
+      "compile_status": "ok",
+      "contract_name": "EconomicsShadowMargin",
+      "igapp_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out/economics_shadow_margin.igapp",
+      "module_name": "PocMvp.EconomicsShadow",
+      "observed_outputs": {
+        "margin_signal": 29
+      },
+      "sample_input": {
+        "order_count": 21,
+        "unit_margin": 8
+      },
+      "source_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/src/economics_shadow_margin.ig",
+      "trace_status": "trusted"
+    },
+    {
+      "compile_status": "ok",
+      "contract_name": "FulfillmentAttentionTrace",
+      "igapp_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/out/fulfillment_attention_trace.igapp",
+      "module_name": "PocMvp.FulfillmentAttention",
+      "observed_outputs": {
+        "attention_score": 5
+      },
+      "sample_input": {
+        "exception_count": 3,
+        "late_count": 2
+      },
+      "source_path": "igniter-lang/experiments/poc_mvp_live_touch_v0/src/fulfillment_attention_trace.ig",
+      "trace_status": "trusted"
+    }
+  ],
+  "status": "PASS",
+  "track": "poc-mvp-live-touch-v0"
+}
