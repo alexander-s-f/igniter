@@ -279,8 +279,8 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             proof next; R153 accepts proof PASS 16/16;
                             R154 authorizes only bounded internal-carrier
                             implementation; R155 accepts that implementation
-                            closure and pauses the carrier lane; R156 selects
-                            docs/spec sync next; Spark L3B and Orders P1 remain
+                            closure and pauses the carrier lane; R156 docs/spec
+                            sync is complete and recommends pause; Spark L3B and Orders P1 remain
                             applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -848,6 +848,7 @@ Round 155 landed:
 Round 156 landed:
   S3-R156-C1-A: post-carrier strategic vector decision                    ✅ docs-spec-sync-next
   S3-R156-C2-S: status curation / next-route pointer                      ✅ done; docs/spec sync S3-R156-C2-P1 next
+  S3-R156-C2-P1: internal carrier docs/spec sync                          ✅ done; current maps synced; pause/no immediate follow-up
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -915,9 +916,9 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   `compiler-profile-source-mode-static-data-boundary-proof-v0`
                   next; R153 accepts proof, R154 authorizes only
                   `compiler-profile-source-mode-static-data-internal-carrier-implementation-v0`,
-                  and R155 accepts that implementation closure with no immediate
-                  follow-up / pause; R156 selects docs/spec sync
-                  `compiler-profile-internal-carrier-docs-spec-sync-v0` next;
+                  and R155 accepts that implementation closure; R156 completes
+                  docs/spec sync `compiler-profile-internal-carrier-docs-spec-sync-v0`
+                  and recommends no immediate follow-up / pause;
                   Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
@@ -2330,8 +2331,8 @@ S3-R154 result:     C1-A authorizes only the bounded internal carrier implementa
                       `igniter-lang/experiments/compiler_profile_source_mode_static_data_internal_carrier_implementation_proof/**`,
                       and `igniter-lang/docs/tracks/compiler-profile-source-mode-static-data-internal-carrier-implementation-v0.md`.
                       Portfolio/Lang review is satisfied for that exact boundary only; any widening
-                      requires fresh Portfolio-visible review. Implementation is authorized next but
-                      not landed by status curation. R154 does not authorize root require,
+                      requires fresh Portfolio-visible review. Implementation was authorized next
+                      by R154 and later accepted in R155. R154 does not authorize root require,
                       compiler integration, public surfaces, report/artifact work, Spark integration,
                       runtime, production, or demo work.
 S3-R155 result:     C2-A accepts the bounded internal static-data carrier implementation
@@ -2359,6 +2360,19 @@ S3-R156 result:     C1-A selects docs/spec sync as the next compiler-mainline ro
                       remains held. R156 does not authorize implementation,
                       public surfaces, report/artifact work, Spark integration,
                       runtime, production, or demo work.
+S3-R156 C2-P1 sync: `compiler-profile-internal-carrier-docs-spec-sync-v0`
+                      completes the docs/status sync. Living maps now state that
+                      `IgniterLang::InternalProfileStaticDataCarrier` is accepted
+                      as a direct-require-only internal carrier/test seam, the
+                      carrier lane is paused, root require and compiler pipeline
+                      integration remain closed, public API/CLI and loader/report/
+                      `CompilationReport`/`CompilerResult`/CompatibilityReport remain
+                      closed, manifest/sidecar/artifact/`.igapp`/`.ilk`/golden
+                      migration remain closed, Spark remains external applied pressure
+                      only, and runtime/production/deployment/signing/cache/Ledger/
+                      TBackend/BiHistory/stream/OLAP/demo remain closed. Recommendation:
+                      no immediate compiler-mainline follow-up; pause until a fresh
+                      Portfolio-visible review opens a new boundary.
 ```
 
 ### Spec Freshness
