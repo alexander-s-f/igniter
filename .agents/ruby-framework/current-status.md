@@ -146,6 +146,8 @@ Latest production-prep proof:
 - `reports/s3-r158-c2-p1-ruby-framework-compiler-release-alignment.md`
 - `tracks/ruby-framework-docs-and-examples-hygiene-v0.md`
 - `reports/s3-r159-c3-p1-ruby-framework-docs-and-examples-hygiene.md`
+- `tracks/igniter-ledger-server-stress-boundary-probe-v0.md`
+- `reports/s3-r166-c2-p1-igniter-ledger-server-stress-boundary-probe.md`
 
 Proof status:
 
@@ -174,6 +176,7 @@ release blocker closure plan: filed
 Rubygems publish/release: complete for 0.5.2
 compiler release alignment fractal seed: PASS, docs boundary holds
 docs/examples hygiene: PASS, focused docs-only cleanup accepted
+ledger server stress boundary probe: PASS, bounded local probe completed
 ```
 
 ## Active Risks
@@ -206,6 +209,8 @@ This lane does not authorize:
 - compiler, parser, TypeChecker, public CLI/API, or strict-refusal changes.
 - compiler release compatibility promises from unfinished Igniter-Lang POC
   surfaces.
+- Ledger server production readiness, source-of-truth behavior, or unified
+  transport state-plane guarantees from bounded local probes.
 
 ## R87 Round Context
 
