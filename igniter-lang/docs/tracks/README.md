@@ -162,6 +162,8 @@ architecture. They are not production migration authorization.
 | `compiler-release-acceptance-harness-implementation-proof-v0.md` | done / HOLD | R161 C2-I lands proof-local harness runner implementation; command matrix 14/14 PASS, failed_checks 0, HOLD is branch/conditional boundary signal, not official RC evidence |
 | `compiler-release-acceptance-harness-implementation-closure-decision-v0.md` | conditional accept | R162 C1-A accepts proof-local runner closure, keeps HOLD as correct branch/conditional boundary signal, and requires semantic profile-source refusal follow-up before RC evidence authorization |
 | `stage3-round162-status-curation-v0.md` | done | R162 status curation: records conditional implementation closure, HOLD interpretation, branch/conditional disposition, semantic-refusal proof gap, RC evidence closed, and next semantic-profile refusal follow-up route |
+| `compiler-release-harness-semantic-profile-refusal-follow-up-decision-v0.md` | authorized bounded proof-local fix | R163 C1-A authorizes only harness-local semantic profile-source diagnostic extraction fix; reclassification rejected, compiler/library changes closed, RC evidence gathering closed |
+| `stage3-round163-status-curation-v0.md` | done | R163 status curation: records C2-I authorization boundary, semantic diagnostic disposition, R162 semantic condition closable after proof, branch/conditional HOLD still open, and RC evidence closed |
 
 ---
 

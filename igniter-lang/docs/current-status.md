@@ -288,8 +288,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R161 authorizes only bounded proof-local harness
                             runner implementation; R162 conditionally accepts
                             the runner closure with HOLD as correct branch/
-                            conditional boundary signal and routes semantic
-                            profile refusal follow-up next;
+                            conditional boundary signal; R163 authorizes only
+                            bounded proof-local semantic profile refusal follow-up
+                            next;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -883,6 +884,9 @@ Round 162 landed:
   S3-R161-C2-I: harness implementation proof                               ✅ done; 14/14 PASS; top-level HOLD, failed_checks 0
   S3-R162-C1-A: harness implementation closure decision                    ✅ conditional accept; semantic refusal follow-up required before RC evidence
   S3-R162-C2-S: status curation                                           ✅ done; next route semantic-profile refusal follow-up
+Round 163 landed:
+  S3-R163-C1-A: semantic profile refusal follow-up decision                ✅ authorized bounded proof-local harness fix only
+  S3-R163-C2-S: status curation / follow-up authorization map              ✅ done; C2-I may run in exact C1-A scope
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -962,7 +966,8 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   `compiler-release-acceptance-harness-implementation-authorization-review-v0`
                   next; R161 authorizes only bounded proof-local
                   `compiler-release-acceptance-harness-implementation-proof-v0`;
-                  R162 conditionally accepts that closure and opens only
+                  R162 conditionally accepts that closure; R163 authorizes only
+                  bounded proof-local
                   `compiler-release-harness-semantic-profile-refusal-follow-up-v0`
                   next;
                   Spark L3B and Orders P1 remain applied pressure only;
@@ -2517,6 +2522,26 @@ S3-R162 result:     C1-A conditionally accepts the proof-local harness runner
                       demo/release claim, public analyzer/tracer/visualizer, public
                       API/CLI widening, loader/report, CompatibilityReport, Spark/Ruby,
                       runtime, production, signing, deployment, or demo work is authorized.
+S3-R163 result:     C1-A authorizes only a bounded proof-local harness fix for
+                      `semantic_profile_wrong_kind.has_qualified_diagnostic = false`.
+                      The decision rejects reclassification as unresolved
+                      assembler-only refusal because the generated refusal report
+                      already contains the qualified diagnostic
+                      `compiler_profile_source.wrong_kind`; the gap is harness
+                      proof extraction, not compiler behavior. C2-I may edit only
+                      `igniter-lang/experiments/compiler_release_acceptance_harness_v0/**`
+                      and `igniter-lang/docs/tracks/compiler-release-harness-semantic-profile-refusal-follow-up-v0.md`.
+                      If C2-I proves `semantic_profile_wrong_kind.has_qualified_diagnostic = true`
+                      from report diagnostics, the R162 semantic condition can
+                      close. The separate branch/conditional HOLD
+                      `branch_conditional_if_expr_unsupported` remains open until
+                      Portfolio narrows first-RC language scope or routes
+                      branch/conditional support separately. Official RC evidence
+                      gathering, compiler/library changes, release execution,
+                      public demo/release, public analyzer/tracer/visualizer,
+                      public API/CLI widening, loader/report, CompatibilityReport,
+                      Spark/Ruby, runtime, production, signing, deployment, and
+                      demo work remain closed.
 ```
 
 ### Spec Freshness
