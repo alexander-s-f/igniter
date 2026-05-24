@@ -291,8 +291,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             conditional boundary signal; R163 proof closes the
                             semantic profile-source diagnostic gap; R164 accepts
                             narrowed first-RC scope excluding branch/conditional
-                            `if_expr`; R165 authorizes only bounded scope-aware
-                            harness update next, not official RC evidence;
+                            `if_expr`; R165/R166 land and accept the bounded
+                            scope-aware harness update with PASS; R167 authorizes
+                            only the next bounded official first-RC evidence
+                            gathering card, not release execution;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -895,9 +897,17 @@ Round 164 landed:
   S3-R164-C2-D: first-RC branch/conditional scope disposition              ✅ Option A recommended; first RC excludes branch/conditional `if_expr`
   S3-R164-C3-X: first-RC branch/conditional scope pressure                 ✅ proceed; NB-1..NB-5 binding for scope-aware update review
   S3-R164-C4-A: first-RC branch/conditional scope decision                 ✅ accepted; RC evidence still closed; scope-aware auth review next
-Round 165 active:
+Round 165 landed:
   S3-R165-C1-A: scope-aware harness update authorization review            ✅ authorized bounded harness-local update only
-  S3-R165-C2-S: status curation / authorization map                        ✅ done; C2-I may run in exact C1-A scope
+  S3-R165-C2-S: status curation / authorization map                        ✅ done; C2-I later landed and was accepted in Round 166
+Round 166 landed:
+  S3-R165-C2-I: scope-aware harness update proof                           ✅ done/PASS; branch_conditional_if_expr out_of_scope; failed_checks 0; hold_reasons 0
+  S3-R166-C1-A: scope-aware harness update acceptance prep                 ✅ recommend accept; official first-RC evidence authorization review next
+  S3-R166-C4-A: practical RC / Ledger / Spark cross-lane decision          ✅ accepts harness PASS; accepts Ruby stress probe; Spark schedule_grid direction accepted/deferred
+Round 167 landed:
+  S3-R167-C1-A: official first-RC evidence authorization review            ✅ authorizes bounded next evidence card only
+  S3-R167-C2-P1: Ruby Ledger state-plane/concurrency contract              ✅ PASS design boundary; implementation gated
+  S3-R167-C3-S: status curation                                            ✅ done; R168 evidence-gathering route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -979,10 +989,12 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   `compiler-release-acceptance-harness-implementation-proof-v0`;
                   R162 conditionally accepts that closure; R163/R164 close the
                   semantic profile-source diagnostic gap and narrow first-RC
-                  scope to exclude branch/conditional `if_expr`; R165 authorizes
-                  only bounded scope-aware harness update
-                  `compiler-release-acceptance-harness-scope-aware-update-v0`
-                  next, while official RC evidence gathering remains closed;
+                  scope to exclude branch/conditional `if_expr`; R165/R166 land
+                  and accept the bounded scope-aware harness update with PASS;
+                  R167 authorizes only bounded official first-RC evidence
+                  gathering next via
+                  `compiler-release-official-first-rc-evidence-gathering-v0`,
+                  while release execution and public claims remain closed;
                   Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
@@ -2565,6 +2577,36 @@ S3-R165 result:     C1-A authorizes only bounded scope-aware harness update
                       public API/CLI widening, loader/report, CompatibilityReport,
                       Spark/Ruby, runtime, production, signing, deployment, and
                       demo work remain closed.
+S3-R166 result:     C2-I lands the scope-aware harness update with top-level
+                      PASS, 14/14 command matrix PASS, empty `failed_checks`,
+                      empty `hold_reasons`, `branch_conditional_if_expr` marked
+                      `out_of_scope`, `release_scope.excluded_features` carrying
+                      `branch_conditional_if_expr`, S3-R164-C4-A exclusion basis,
+                      and `no_branch_conditional_claim`. C4-A accepts that Lang
+                      packet, accepts the Ruby Ledger bounded stress probe as
+                      local evidence, accepts Spark `schedule_grid` facade
+                      direction as compatibility-aligned, and opens only the
+                      official first-RC evidence-gathering authorization review
+                      next. Official RC evidence gathering remained closed in
+                      R166 itself.
+S3-R167 result:     C1-A authorizes official first-RC evidence gathering as a
+                      bounded next evidence card only:
+                      `S3-R168-C1-I / compiler-release-official-first-rc-evidence-gathering-v0`.
+                      Existing R165/R166 outputs are accepted only as
+                      preconditions and must not be relabeled in place. The
+                      fresh evidence packet must be created under
+                      `igniter-lang/experiments/compiler_release_official_first_rc_evidence_v0/**`
+                      with `official_first_rc_evidence_summary.json` and PASS
+                      status before its outputs may be called official first-RC
+                      evidence. C2-P1 records Ruby Ledger state-plane/concurrency
+                      design PASS with implementation gated: target one
+                      server-owned state plane and serialized server-hosted
+                      HTTP/TCP envelope dispatch. Spark `schedule_grid`
+                      report/observe remains deferred. Release execution, public
+                      release/demo claims, Spark production integration, Ruby
+                      package implementation/release, compiler behavior changes,
+                      runtime, production, signing, deployment, and demo work
+                      remain closed.
 ```
 
 ### Spec Freshness
