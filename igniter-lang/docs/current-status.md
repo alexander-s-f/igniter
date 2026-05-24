@@ -297,9 +297,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             gathering card; R168 accepts official first-RC
                             evidence for `repo_local_compiler_rc`; R169 accepts
                             release-readiness package; R170 authorizes only the
-                            bounded repo-local RC marker execution next; version
-                            change, tag/push/publish/sign/deploy, installed-gem
-                            readiness, and public claims remain closed;
+                            bounded repo-local RC marker execution next; R171
+                            accepts that marker with hash PASS; version change,
+                            tag/push/publish/sign/deploy, installed-gem readiness,
+                            package/install smoke execution, and public claims
+                            remain closed;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -932,7 +934,10 @@ Round 170 landed:
   S3-R170-C4-A: release execution authorization review                     ✅ authorizes only bounded repo-local RC marker next
   S3-R170-C5-S: status curation                                            ✅ done; R171 marker route recorded
 Round 171 landed:
-  S3-R171-C1-I: compiler release repo-local RC marker                     ✅ done; hash PASS; evidence PASS; non-claims preserved; marker closed
+  S3-R171-C1-I: compiler release repo-local RC marker                     ✅ done; hash PASS; evidence PASS; non-claims preserved
+  S3-R171-C2-X: repo-local RC marker pressure                             ✅ proceed; 12/12 checks PASS; no blockers
+  S3-R171-C3-A: repo-local RC marker acceptance decision                  ✅ accepts marker; package/install smoke auth review next
+  S3-R171-C4-S: status curation                                           ✅ done; R172 authorization-review route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2681,8 +2686,10 @@ S3-R170 result:     C4-A authorizes only the bounded repo-local compiler RC
                       The marker card must run the independent hash verification
                       from C4-A and preserve non-claims. Ruby Ledger hardening
                       remains independent/non-blocking; Spark remains excluded.
-S3-R171 result:     C1-I writes the repo-local compiler RC marker authorized by
-                      S3-R170-C4-A. Independent hash verification PASS:
+S3-R171 result:     C3-A accepts the repo-local compiler RC marker closure.
+                      C1-I writes the marker authorized by S3-R170-C4-A.
+                      C2-X pressure passes 12/12 checks with no blockers.
+                      Independent hash verification PASS:
                       `sha256:bc8d69f65c9267a604cb47e8ce0498a8373a80eaa264a2c53892139552a2618b`.
                       Official evidence scope `repo_local_compiler_rc` accepted,
                       evidence status PASS, authorization S3-R167-C1-A, acceptance
@@ -2694,6 +2701,8 @@ S3-R171 result:     C1-I writes the repo-local compiler RC marker authorized by
                       Public release/demo claims remain closed. Release execution
                       beyond this marker remains closed. Ruby Ledger hardening
                       remains independent/non-blocking. Spark remains excluded.
+                      Next route is only an authorization review:
+                      `compiler-release-package-install-smoke-authorization-review-v0`.
 ```
 
 ### Spec Freshness

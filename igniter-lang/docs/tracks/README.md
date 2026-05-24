@@ -190,6 +190,9 @@ architecture. They are not production migration authorization.
 | `compiler-release-execution-authorization-review-v0.md` | done / authorized bounded marker | R170 C4-A authorizes only `repo_local_compiler_rc_marker` execution next, requires independent hash verification, keeps version/tag/push/publish/sign/deploy/public claims closed, and leaves installed-gem/package readiness not established |
 | `stage3-round170-status-curation-v0.md` | done | R170 status curation records bounded repo-local marker authorization, null-version/tagging status, public claims and package readiness closure, closed surfaces, and next `compiler-release-repo-local-rc-marker-v0` route |
 | `compiler-release-repo-local-rc-marker-v0.md` | done | R171 C1-I writes the repo-local RC marker: independent hash verification PASS, official evidence `repo_local_compiler_rc` scope accepted, PASS status, all non-claims and exclusions preserved; no version change, no tag, no push, no gem publish; release execution beyond marker closed |
+| `../discussions/compiler-release-repo-local-rc-marker-pressure-v0.md` | proceed | R171 C2-X pressure passes 12/12 checks with no blockers; NB-1 about secondary `rg` command is informational only and not a blocker |
+| `compiler-release-repo-local-rc-marker-acceptance-decision-v0.md` | done / accepted | R171 C3-A accepts the repo-local compiler RC marker, keeps release execution beyond marker and public claims closed, keeps installed-gem/package readiness not established, and opens only package/install smoke authorization review next |
+| `stage3-round171-status-curation-v0.md` | done | R171 status curation records accepted marker, hash PASS, release/public/package readiness closures, closed surfaces, and next `compiler-release-package-install-smoke-authorization-review-v0` route |
 
 ---
 
