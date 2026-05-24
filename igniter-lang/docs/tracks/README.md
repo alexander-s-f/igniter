@@ -2,7 +2,7 @@
 
 Status: active index
 Owner: `[Architect Supervisor / Codex]`
-Last updated: 2026-05-22
+Last updated: 2026-05-24
 
 ---
 
@@ -164,6 +164,13 @@ architecture. They are not production migration authorization.
 | `stage3-round162-status-curation-v0.md` | done | R162 status curation: records conditional implementation closure, HOLD interpretation, branch/conditional disposition, semantic-refusal proof gap, RC evidence closed, and next semantic-profile refusal follow-up route |
 | `compiler-release-harness-semantic-profile-refusal-follow-up-decision-v0.md` | authorized bounded proof-local fix | R163 C1-A authorizes only harness-local semantic profile-source diagnostic extraction fix; reclassification rejected, compiler/library changes closed, RC evidence gathering closed |
 | `stage3-round163-status-curation-v0.md` | done | R163 status curation: records C2-I authorization boundary, semantic diagnostic disposition, R162 semantic condition closable after proof, branch/conditional HOLD still open, and RC evidence closed |
+| `compiler-release-harness-semantic-profile-refusal-follow-up-v0.md` | done / accepted by R164 | R163 C2-I lands the harness-local semantic profile-source diagnostic extraction fix; qualified diagnostic found from report diagnostics, failed_checks 0, branch/conditional HOLD remains separate |
+| `compiler-release-harness-semantic-profile-follow-up-closure-decision-v0.md` | done / accepted | R164 C1-A accepts semantic follow-up closure, formally closes the R162 semantic profile-source condition, and opens first-RC branch/conditional scope disposition as design-only |
+| `first-rc-branch-conditional-scope-disposition-v0.md` | done | R164 C2-D recommends Option A: first RC explicitly excludes branch/conditional `if_expr`; no code, parser, TypeChecker, SemanticIR, compiler, RC evidence, release, or public claims authorized |
+| `../discussions/first-rc-branch-conditional-scope-pressure-v0.md` | proceed | R164 C3-X pressure proceeds with no blockers and NB-1..NB-5: machine-visible out-of-scope marker, release_scope, non_claims, no-implementation wording, and RC evidence label protection |
+| `first-rc-branch-conditional-scope-decision-v0.md` | done / accepted | R164 C4-A accepts narrowed first-RC scope excluding branch/conditional `if_expr`; official RC evidence stays closed until a scope-aware harness update reruns to PASS and a later authorization review opens it |
+| `compiler-release-acceptance-harness-scope-aware-rc-evidence-authorization-review-v0.md` | authorized bounded harness update | R165 C1-A authorizes only scope-aware harness update under `experiments/compiler_release_acceptance_harness_v0/**` plus the C2-I track doc; outputs are not official RC evidence |
+| `stage3-round165-status-curation-v0.md` | done | R165 status curation records C2-I authorization boundary, required out_of_scope/release_scope/non_claims shape, RC evidence closure, branch/conditional implementation closure, and next scope-aware harness update route |
 
 ---
 

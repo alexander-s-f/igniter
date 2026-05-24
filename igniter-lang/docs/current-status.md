@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-22
+Last updated: 2026-05-24
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -288,9 +288,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R161 authorizes only bounded proof-local harness
                             runner implementation; R162 conditionally accepts
                             the runner closure with HOLD as correct branch/
-                            conditional boundary signal; R163 authorizes only
-                            bounded proof-local semantic profile refusal follow-up
-                            next;
+                            conditional boundary signal; R163 proof closes the
+                            semantic profile-source diagnostic gap; R164 accepts
+                            narrowed first-RC scope excluding branch/conditional
+                            `if_expr`; R165 authorizes only bounded scope-aware
+                            harness update next, not official RC evidence;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -886,7 +888,16 @@ Round 162 landed:
   S3-R162-C2-S: status curation                                           ✅ done; next route semantic-profile refusal follow-up
 Round 163 landed:
   S3-R163-C1-A: semantic profile refusal follow-up decision                ✅ authorized bounded proof-local harness fix only
-  S3-R163-C2-S: status curation / follow-up authorization map              ✅ done; C2-I may run in exact C1-A scope
+  S3-R163-C2-S: status curation / follow-up authorization map              ✅ done; C2-I later landed and was accepted in Round 164
+Round 164 landed:
+  S3-R163-C2-I: semantic profile refusal follow-up proof                   ✅ done; qualified diagnostic found; failed_checks 0; branch/conditional HOLD remains
+  S3-R164-C1-A: semantic profile follow-up closure decision                ✅ accepted; R162 semantic condition closed; branch/conditional scope decision next
+  S3-R164-C2-D: first-RC branch/conditional scope disposition              ✅ Option A recommended; first RC excludes branch/conditional `if_expr`
+  S3-R164-C3-X: first-RC branch/conditional scope pressure                 ✅ proceed; NB-1..NB-5 binding for scope-aware update review
+  S3-R164-C4-A: first-RC branch/conditional scope decision                 ✅ accepted; RC evidence still closed; scope-aware auth review next
+Round 165 active:
+  S3-R165-C1-A: scope-aware harness update authorization review            ✅ authorized bounded harness-local update only
+  S3-R165-C2-S: status curation / authorization map                        ✅ done; C2-I may run in exact C1-A scope
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -966,10 +977,12 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   `compiler-release-acceptance-harness-implementation-authorization-review-v0`
                   next; R161 authorizes only bounded proof-local
                   `compiler-release-acceptance-harness-implementation-proof-v0`;
-                  R162 conditionally accepts that closure; R163 authorizes only
-                  bounded proof-local
-                  `compiler-release-harness-semantic-profile-refusal-follow-up-v0`
-                  next;
+                  R162 conditionally accepts that closure; R163/R164 close the
+                  semantic profile-source diagnostic gap and narrow first-RC
+                  scope to exclude branch/conditional `if_expr`; R165 authorizes
+                  only bounded scope-aware harness update
+                  `compiler-release-acceptance-harness-scope-aware-update-v0`
+                  next, while official RC evidence gathering remains closed;
                   Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
@@ -2522,23 +2535,33 @@ S3-R162 result:     C1-A conditionally accepts the proof-local harness runner
                       demo/release claim, public analyzer/tracer/visualizer, public
                       API/CLI widening, loader/report, CompatibilityReport, Spark/Ruby,
                       runtime, production, signing, deployment, or demo work is authorized.
-S3-R163 result:     C1-A authorizes only a bounded proof-local harness fix for
+S3-R163 result:     C1-A authorized only a bounded proof-local harness fix for
                       `semantic_profile_wrong_kind.has_qualified_diagnostic = false`.
-                      The decision rejects reclassification as unresolved
-                      assembler-only refusal because the generated refusal report
-                      already contains the qualified diagnostic
-                      `compiler_profile_source.wrong_kind`; the gap is harness
-                      proof extraction, not compiler behavior. C2-I may edit only
+                      C2-I landed inside harness-local scope and proved the
+                      qualified diagnostic from report diagnostics:
+                      `compiler_profile_source.wrong_kind`. R164 C1-A accepted
+                      that closure and formally closed the R162 semantic condition.
+                      The remaining harness boundary became only
+                      `branch_conditional_if_expr_unsupported`.
+S3-R164 result:     C4-A accepts narrowed first-RC scope excluding branch/
+                      conditional `if_expr`. The first RC may cover the already
+                      supported repo-local compiler surfaces, but it must not
+                      claim branch or conditional expression support. Before any
+                      harness output can be labeled official RC evidence, the
+                      harness must make the exclusion machine-visible with
+                      `branch_conditional_if_expr` as out-of-scope, add
+                      `release_scope.excluded_features`, add an S3-R164-C4-A
+                      `exclusion_basis`, add `no_branch_conditional_claim`, and
+                      rerun to PASS with empty `failed_checks` and `hold_reasons`.
+                      Official RC evidence gathering remains closed.
+S3-R165 result:     C1-A authorizes only bounded scope-aware harness update
+                      work, and C2-S records that C2-I may run in exact scope:
                       `igniter-lang/experiments/compiler_release_acceptance_harness_v0/**`
-                      and `igniter-lang/docs/tracks/compiler-release-harness-semantic-profile-refusal-follow-up-v0.md`.
-                      If C2-I proves `semantic_profile_wrong_kind.has_qualified_diagnostic = true`
-                      from report diagnostics, the R162 semantic condition can
-                      close. The separate branch/conditional HOLD
-                      `branch_conditional_if_expr_unsupported` remains open until
-                      Portfolio narrows first-RC language scope or routes
-                      branch/conditional support separately. Official RC evidence
-                      gathering, compiler/library changes, release execution,
-                      public demo/release, public analyzer/tracer/visualizer,
+                      plus `igniter-lang/docs/tracks/compiler-release-acceptance-harness-scope-aware-update-v0.md`.
+                      Generated outputs remain scope-aware harness update evidence
+                      or pre-RC release-readiness evidence only, not official RC
+                      evidence. Branch/conditional implementation, parser,
+                      TypeChecker, SemanticIR, assembler, compiler/library changes,
                       public API/CLI widening, loader/report, CompatibilityReport,
                       Spark/Ruby, runtime, production, signing, deployment, and
                       demo work remain closed.
