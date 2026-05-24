@@ -193,6 +193,7 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-repo-local-rc-marker-pressure-v0.md` | proceed | R171 C2-X pressure passes 12/12 checks with no blockers; NB-1 about secondary `rg` command is informational only and not a blocker |
 | `compiler-release-repo-local-rc-marker-acceptance-decision-v0.md` | done / accepted | R171 C3-A accepts the repo-local compiler RC marker, keeps release execution beyond marker and public claims closed, keeps installed-gem/package readiness not established, and opens only package/install smoke authorization review next |
 | `stage3-round171-status-curation-v0.md` | done | R171 status curation records accepted marker, hash PASS, release/public/package readiness closures, closed surfaces, and next `compiler-release-package-install-smoke-authorization-review-v0` route |
+| `compiler-release-package-install-smoke-criteria-v0.md` | done | R172 C2-P1 defines concrete PKG-1..PKG-5 PASS/HOLD/FAIL criteria, required summary JSON shape, non-claims, and cleanup/retention policy; corrects installed CLI command to `igc compile`; no smoke run |
 
 ---
 
