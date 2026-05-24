@@ -180,6 +180,10 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-official-first-rc-evidence-pressure-v0.md` | proceed | R168 C3-X pressure passes 10/10 checks with no blockers; carries NB-1 hash cross-check, NB-2 command-matrix interpretation, and NB-3 self-reference naming for future evidence rounds |
 | `official-first-rc-evidence-acceptance-and-next-release-vector-decision-v0.md` | done / accepted | R168 C4-A accepts official first-RC evidence for `repo_local_compiler_rc`, keeps release execution and public claims closed, allows Ruby Ledger implementation to proceed independently under S3-R168-C2-A, and routes release-readiness summary/package next |
 | `stage3-round168-status-curation-v0.md` | done | R168 status curation records accepted official evidence, release execution/public claims closure, Ruby Ledger bounded implementation authorization, Spark deferral, and next `compiler-release-readiness-summary-package-v0` route |
+| `compiler-release-readiness-summary-package-v0.md` | done / accepted | R169 C1-D packages accepted official first-RC evidence for `repo_local_compiler_rc`, records installed-gem readiness not established, keeps release execution/public claims closed, and recommends authorization review next |
+| `../discussions/compiler-release-readiness-summary-package-pressure-v0.md` | proceed | R169 C3-X pressure passes 7/7 checks with no blockers; carries NB-1 version/tagging, NB-2 docs/non-claims by target type, and NB-3 package/install matrix pass criteria into authorization review |
+| `compiler-release-readiness-package-acceptance-decision-v0.md` | done / accepted | R169 C4-A accepts the release-readiness package, opens only `compiler-release-execution-authorization-review-v0` next, keeps release execution and public claims closed now, and keeps Spark out of the round |
+| `stage3-round169-status-curation-v0.md` | done | R169 status curation records accepted readiness package, release execution/public claims closure, Ruby Ledger hardening independent path, Spark exclusion, and next release-execution authorization review route |
 
 ---
 
