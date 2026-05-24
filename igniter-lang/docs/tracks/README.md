@@ -193,7 +193,11 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-repo-local-rc-marker-pressure-v0.md` | proceed | R171 C2-X pressure passes 12/12 checks with no blockers; NB-1 about secondary `rg` command is informational only and not a blocker |
 | `compiler-release-repo-local-rc-marker-acceptance-decision-v0.md` | done / accepted | R171 C3-A accepts the repo-local compiler RC marker, keeps release execution beyond marker and public claims closed, keeps installed-gem/package readiness not established, and opens only package/install smoke authorization review next |
 | `stage3-round171-status-curation-v0.md` | done | R171 status curation records accepted marker, hash PASS, release/public/package readiness closures, closed surfaces, and next `compiler-release-package-install-smoke-authorization-review-v0` route |
+| `compiler-release-package-install-smoke-boundary-v0.md` | done | R172 C1-P1 defines bounded local package/install smoke target, current version `0.1.0.pre.stage2`, installed `igc` command shape, temp-only artifact policy, and no-version/no-tag/no-publish stance |
 | `compiler-release-package-install-smoke-criteria-v0.md` | done | R172 C2-P1 defines concrete PKG-1..PKG-5 PASS/HOLD/FAIL criteria, required summary JSON shape, non-claims, and cleanup/retention policy; corrects installed CLI command to `igc compile`; no smoke run |
+| `../discussions/compiler-release-package-install-smoke-authorization-pressure-v0.md` | proceed | R172 C3-X pressure passes 11/11 checks with no blockers; C4-A must define repo write scope, defer or include profile-source checks, and assign the execution card designation |
+| `compiler-release-package-install-smoke-authorization-review-v0.md` | done / authorized bounded smoke | R172 C4-A authorizes only `S3-R173-C1-I / compiler-release-package-install-smoke-v0` for bounded local package/install smoke; installed readiness remains unestablished until PASS and later acceptance; public/version/tag/publish/sign/deploy surfaces remain closed |
+| `stage3-round172-status-curation-v0.md` | done | R172 status curation records bounded smoke authorization, installed package readiness hold, public/version/tag/publish closure, closed surfaces, and next `compiler-release-package-install-smoke-v0` route |
 
 ---
 
