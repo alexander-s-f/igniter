@@ -284,8 +284,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             POC/MVP live-touch next; R158 accepts the POC as
                             release-readiness seed evidence; R159 accepts the
                             compiler release-readiness map; R160 accepts the
-                            design-only compiler release acceptance harness and
-                            opens only implementation-authorization review next;
+                            design-only compiler release acceptance harness;
+                            R161 authorizes only bounded proof-local harness
+                            runner implementation next;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -872,6 +873,9 @@ Round 160 landed:
   S3-R160-C2-X: harness design pressure                                    ✅ proceed; no blockers; 5 notes to implementation gate
   S3-R160-C3-A: harness design decision                                    ✅ accepted; RC evidence gathering closed; authorization review next
   S3-R160-C4-S: status curation                                           ✅ done; R161 authorization-review route recommended
+Round 161 landed:
+  S3-R161-C1-A: harness implementation authorization review                ✅ authorized bounded proof-local harness runner only
+  S3-R161-C2-S: status curation / authorization map                        ✅ done; C2-I may run in exact C1-A scope
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -949,6 +953,8 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   hygiene; R160 accepts that design, closes R159 NB-1..NB-5
                   for design purposes, and opens only
                   `compiler-release-acceptance-harness-implementation-authorization-review-v0`
+                  next; R161 authorizes only bounded proof-local
+                  `compiler-release-acceptance-harness-implementation-proof-v0`
                   next;
                   Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
@@ -2461,6 +2467,25 @@ S3-R160 result:     C3-A accepts `compiler-release-acceptance-harness-design-v0`
                       widening, loader/report, CompatibilityReport, Spark integration,
                       Ruby docs/release, runtime, production, signing, deployment, or
                       demo work is authorized.
+S3-R161 result:     C1-A authorizes only a bounded proof-local compiler release
+                      acceptance harness runner implementation. C2-I may run as
+                      `compiler-release-acceptance-harness-implementation-proof-v0`
+                      and may edit only
+                      `igniter-lang/experiments/compiler_release_acceptance_harness_v0/**`
+                      plus `igniter-lang/docs/tracks/compiler-release-acceptance-harness-implementation-proof-v0.md`.
+                      R160 mandatory notes are closed for implementation
+                      authorization: input-diverse multi-input case required,
+                      normalization specimen policy pinned, current POC
+                      `compatibility_metadata.json` presence accepted as
+                      shape-only metadata not CompatibilityReport, `claimed_surfaces`
+                      required, and FAIL takes precedence over HOLD. Generated
+                      outputs are proof-local harness implementation evidence only,
+                      not official RC evidence. RC evidence gathering, release
+                      execution, public demo/release claims, analyzer/tracer/
+                      visualizer public tooling, public API/CLI widening,
+                      loader/report, CompatibilityReport, Spark integration,
+                      Ruby docs/release, runtime, production, signing, deployment,
+                      and demo work remain closed.
 ```
 
 ### Spec Freshness
