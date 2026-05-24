@@ -281,8 +281,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             implementation; R155 accepts that implementation
                             closure and pauses the carrier lane; R156 docs/spec
                             sync is complete; R157 opens only bounded local
-                            POC/MVP live-touch next; Spark L3B and Orders P1 remain
-                            applied pressure only; root
+                            POC/MVP live-touch next; R158 accepts the POC as
+                            release-readiness seed evidence; R159 accepts the
+                            compiler release-readiness map and opens only
+                            design-only acceptance-harness work next; Spark L3B
+                            and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
@@ -853,6 +856,16 @@ Round 156 landed:
 Round 157 landed:
   S3-R157-C1-A: POC/MVP live-touch scope decision                         ✅ authorized-bounded-local-poc-implementation-proof
   S3-R157-C2-S: status curation / next-route pointer                      ✅ done; local POC/MVP S3-R157-C2-I next
+Round 158 landed:
+  S3-R157-C2-I: POC/MVP live-touch implementation/proof                   ✅ done/PASS; 4/4 sources compiled; 4/4 trusted traces
+  S3-R158-C1-P1: compiler release POC acceptance seed                     ✅ accepted POC as bounded local demo-lab + release-readiness seed
+  S3-R158-C5-A: fractal supervisor packet synthesis                       ✅ accepted available packets; release-readiness map next
+Round 159 landed:
+  S3-R159-C1-D: compiler release-readiness map                            ✅ accepted as map; seed evidence only, not RC/public demo/release
+  S3-R159-C2-X: release-readiness map pressure                            ✅ proceed; no blockers; NB-1..NB-5 to harness design
+  S3-R159-C3-P1: Ruby Framework docs/examples hygiene                     ✅ PASS; docs-only cleanup accepted; no extra pass now
+  S3-R159-C4-A: release-readiness and Ruby hygiene decision               ✅ accepted; design-only acceptance harness next
+  S3-R159-C5-S: status curation                                           ✅ done; R160 design-only route recommended
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -923,7 +936,12 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   and R155 accepts that implementation closure; R156 completes
                   docs/spec sync `compiler-profile-internal-carrier-docs-spec-sync-v0`
                   and R157 opens only bounded local POC/MVP live-touch
-                  `poc-mvp-live-touch-v0` next;
+                  `poc-mvp-live-touch-v0` next; R158 accepts that POC as
+                  bounded demo-lab and release-readiness seed evidence; R159
+                  accepts `compiler-release-readiness-map-v0`, accepts pressure
+                  NB-1..NB-5 as next-design inputs, accepts Ruby docs/examples
+                  hygiene, and opens only design-only
+                  `compiler-release-acceptance-harness-design-v0` next;
                   Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
@@ -2393,6 +2411,25 @@ S3-R157 result:     C1-A authorizes only a bounded local POC/MVP implementation/
                       public API/CLI widening, loader/report, CompatibilityReport,
                       manifest/sidecar/artifact/golden migration outside the named POC
                       scope, and language semantics changes remain closed.
+S3-R159 result:     C4-A accepts the compiler release-readiness map, pressure
+                      review, and Ruby Framework docs/examples hygiene. The POC/MVP
+                      live-touch proof is release-readiness seed evidence only: not
+                      release-candidate evidence, not public demo/readiness, not
+                      public release readiness, not production runtime readiness,
+                      and not Spark integration readiness. Analyzer/tracer/visualizer
+                      may be considered only as design-only acceptance-harness pressure;
+                      implementation, public commands, public UI, and release-blocking
+                      tooling claims remain held. Spark sanitized candidates remain
+                      fixture/design inputs only: no Spark code/data access, fixture
+                      creation, production integration, or primary-ledger replacement.
+                      Ruby docs hygiene is accepted with no extra pass now; Ruby
+                      compiler-compatibility package docs wait for a stable Lang
+                      release-candidate export fixture. Next route:
+                      `compiler-release-acceptance-harness-design-v0`, design-only.
+                      No implementation, release execution, public demo/release,
+                      public API/CLI widening, loader/report, CompatibilityReport,
+                      PROP mutation, runtime, production, signing, deployment, or
+                      demo work is authorized.
 ```
 
 ### Spec Freshness
