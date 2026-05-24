@@ -184,6 +184,11 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-readiness-summary-package-pressure-v0.md` | proceed | R169 C3-X pressure passes 7/7 checks with no blockers; carries NB-1 version/tagging, NB-2 docs/non-claims by target type, and NB-3 package/install matrix pass criteria into authorization review |
 | `compiler-release-readiness-package-acceptance-decision-v0.md` | done / accepted | R169 C4-A accepts the release-readiness package, opens only `compiler-release-execution-authorization-review-v0` next, keeps release execution and public claims closed now, and keeps Spark out of the round |
 | `stage3-round169-status-curation-v0.md` | done | R169 status curation records accepted readiness package, release execution/public claims closure, Ruby Ledger hardening independent path, Spark exclusion, and next release-execution authorization review route |
+| `compiler-release-target-versioning-and-execution-options-v0.md` | done | R170 C1-P1 records target/versioning options; installed-gem readiness is not established, public gem release is premature, and Option A repo-local RC marker is safest if movement is desired |
+| `compiler-release-evidence-hash-docs-and-package-smoke-policy-v0.md` | done | R170 C2-P1 defines EH-1..EH-7 evidence hygiene policy, target-typed docs/non-claims, package/install smoke PASS/HOLD/FAIL criteria, and public wording guardrails without authorizing execution |
+| `../discussions/compiler-release-execution-authorization-pressure-v0.md` | proceed | R170 C3-X pressure passes 10/10 checks; C4-A must fix `igc compile` executable wording, use Section 5 Tier 3 wording if needed, and make Option A null-version-change explicit |
+| `compiler-release-execution-authorization-review-v0.md` | done / authorized bounded marker | R170 C4-A authorizes only `repo_local_compiler_rc_marker` execution next, requires independent hash verification, keeps version/tag/push/publish/sign/deploy/public claims closed, and leaves installed-gem/package readiness not established |
+| `stage3-round170-status-curation-v0.md` | done | R170 status curation records bounded repo-local marker authorization, null-version/tagging status, public claims and package readiness closure, closed surfaces, and next `compiler-release-repo-local-rc-marker-v0` route |
 
 ---
 

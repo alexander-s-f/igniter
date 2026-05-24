@@ -296,9 +296,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             only the next bounded official first-RC evidence
                             gathering card; R168 accepts official first-RC
                             evidence for `repo_local_compiler_rc`; R169 accepts
-                            release-readiness package and opens only release
-                            execution authorization review next; execution and
-                            public claims remain closed;
+                            release-readiness package; R170 authorizes only the
+                            bounded repo-local RC marker execution next; version
+                            change, tag/push/publish/sign/deploy, installed-gem
+                            readiness, and public claims remain closed;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -924,6 +925,12 @@ Round 169 landed:
   S3-R169-C3-X: release-readiness package pressure                         ✅ proceed; 7/7 checks PASS; NB-1..NB-3 to auth review
   S3-R169-C4-A: release-readiness package acceptance decision              ✅ accepts package; opens release-execution authorization review only
   S3-R169-C5-S: status curation                                            ✅ done; R170 authorization-review route recorded
+Round 170 landed:
+  S3-R170-C1-P1: release target/versioning options                         ✅ done; Option A repo-local marker recommended if movement desired
+  S3-R170-C2-P1: evidence hygiene/package smoke policy                     ✅ done; EH-1..EH-7 policy and PKG criteria defined
+  S3-R170-C3-X: release execution authorization pressure                   ✅ proceed; 10/10 checks PASS; NB-1..NB-3 fixed by C4-A
+  S3-R170-C4-A: release execution authorization review                     ✅ authorizes only bounded repo-local RC marker next
+  S3-R170-C5-S: status curation                                            ✅ done; R171 marker route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2657,6 +2664,21 @@ S3-R169 result:     C4-A accepts the compiler release-readiness summary/package
                       release/demo claims remain closed now. Ruby Ledger hardening
                       may proceed independently under the existing bounded
                       authorization; Spark remains out of R169.
+S3-R170 result:     C4-A authorizes only the bounded repo-local compiler RC
+                      marker execution card next:
+                      `compiler-release-repo-local-rc-marker-v0`. The target is
+                      `repo_local_compiler_rc_marker`, backed by the accepted
+                      official first-RC evidence for `repo_local_compiler_rc`.
+                      R170 makes the null-version-change stance explicit:
+                      `IgniterLang::VERSION` remains `0.1.0.pre.stage2`, no
+                      version file edit is authorized, no git tag or tag push is
+                      authorized, and no gem build/publish/sign/deploy action is
+                      authorized. Public release/demo claims remain closed;
+                      installed-gem/package readiness remains not established;
+                      package/install smoke is not authorized for the marker.
+                      The marker card must run the independent hash verification
+                      from C4-A and preserve non-claims. Ruby Ledger hardening
+                      remains independent/non-blocking; Spark remains excluded.
 ```
 
 ### Spec Freshness
