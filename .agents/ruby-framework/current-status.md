@@ -142,6 +142,8 @@ Latest production-prep proof:
 - `reports/ruby-publish-p2-0-5-2-publish-execution.md`
 - `tracks/ruby-0-5-2-post-release-closure-v0.md`
 - `reports/ruby-rel-p6-0-5-2-post-release-closure.md`
+- `tracks/ruby-framework-compiler-release-alignment-fractal-seed-v0.md`
+- `reports/s3-r158-c2-p1-ruby-framework-compiler-release-alignment.md`
 
 Proof status:
 
@@ -168,6 +170,7 @@ release blocker closure plan: filed
 0.5.2 publish execution: completed by user on Rubygems
 0.5.2 post-release closure: PASS, Rubygems index verifies all six gems
 Rubygems publish/release: complete for 0.5.2
+compiler release alignment fractal seed: PASS, docs boundary holds
 ```
 
 ## Active Risks
@@ -198,6 +201,8 @@ This lane does not authorize:
 - `.igapp` operational deployment for Spark;
 - Igniter-Lang runtime execution of Spark decisions;
 - compiler, parser, TypeChecker, public CLI/API, or strict-refusal changes.
+- compiler release compatibility promises from unfinished Igniter-Lang POC
+  surfaces.
 
 ## R87 Round Context
 
