@@ -434,20 +434,21 @@ module CompilerReleaseAcceptanceHarnessV0
     }
   end
 
-  # --- Branch/conditional HOLD check ---
-  # TypeChecker does not support if_expr (OOF-TY0 Unsupported expression kind: if_expr).
-  # Branch/conditional coverage requires new semantics and is HOLD per C1-A NB-1.
-  # Multi-input diversity is satisfied by mixed input types (Integer + Bool) in
-  # multi_input_diverse.ig (compile unit 4 of 5).
+  # --- Branch/conditional scope check ---
+  # S3-R164-C4-A Portfolio decision: branch/conditional if_expr is explicitly
+  # excluded from first RC scope. TypeChecker does not support if_expr (OOF-TY0).
+  # No branch/conditional implementation is authorized by the first RC scope decision.
+  # Post-RC language/compiler design lane only.
+  # This is no longer a HOLD; it is machine-visible as out_of_scope per S3-R165-C1-A.
   def check_branch_conditional
     {
-      "hold"   => true,
-      "reason" => "branch_conditional_if_expr_unsupported: TypeChecker does not support " \
-                  "if_expr (OOF-TY0 Unsupported expression kind: if_expr). " \
-                  "Branch/conditional coverage requires new semantics and is HOLD per C1-A NB-1. " \
-                  "Multi-input diversity satisfied via mixed input types (Integer + Bool) " \
-                  "in multi_input_diverse corpus entry (compile unit 4 of 5).",
-      "nb1_disposition" => "multi_input_diversity_achieved_via_mixed_types"
+      "hold"             => false,
+      "out_of_scope"     => true,
+      "exclusion_basis"  => "S3-R164-C4-A Portfolio acceptance of " \
+                            "first_rc_excludes_branch_conditional_if_expr",
+      "reason"           => "excluded from first RC scope by Portfolio decision S3-R164-C4-A; " \
+                            "post-RC language/compiler design lane; " \
+                            "no branch/conditional if_expr implementation authorized"
     }
   end
 
@@ -546,9 +547,13 @@ module CompilerReleaseAcceptanceHarnessV0
         "corpus_entry" => "poc_derived"
       },
       {
-        "feature"      => "branch_conditional_if_expr",
-        "status"       => "hold",
-        "reason"       => "TypeChecker does not support if_expr; requires new semantics per C1-A NB-1"
+        "feature"          => "branch_conditional_if_expr",
+        "status"           => "out_of_scope",
+        "reason"           => "excluded from first RC scope by Portfolio decision S3-R164-C4-A; " \
+                             "post-RC language/compiler design lane; " \
+                             "no branch/conditional if_expr implementation authorized by first RC scope",
+        "exclusion_basis"  => "S3-R164-C4-A Portfolio acceptance of " \
+                             "first_rc_excludes_branch_conditional_if_expr"
       }
     ]
   end
@@ -565,7 +570,11 @@ module CompilerReleaseAcceptanceHarnessV0
       "no_compatibility_report_public: compatibility_metadata.json checked as shape only",
       "no_rubygems_push: no gem tag, package, or publish",
       "no_production_runtime: proof-local runtime smoke only; not a production runtime claim",
-      "no_public_analyzer_tracer_visualizer: internal machine-readable summary only"
+      "no_public_analyzer_tracer_visualizer: internal machine-readable summary only",
+      "no_branch_conditional_claim: first RC scope explicitly excludes " \
+        "branch/conditional if_expr; no branch or conditional expression support is " \
+        "claimed; post-RC language design lane only; no branch/conditional " \
+        "implementation is authorized by this RC scope decision (S3-R164-C4-A)"
     ]
   end
 
@@ -609,6 +618,9 @@ module CompilerReleaseAcceptanceHarnessV0
           repo_local_load_path_smoke
           proof_local_runtime_smoke
         ],
+        "excluded_features"             => ["branch_conditional_if_expr"],
+        "exclusion_basis"               => "S3-R164-C4-A Portfolio acceptance of " \
+                                           "first_rc_excludes_branch_conditional_if_expr",
         "public_claims_authorized"      => false,
         "production_runtime_authorized" => false
       },
@@ -731,7 +743,9 @@ module CompilerReleaseAcceptanceHarnessV0
     norm = check_normalization(CORPUS_POS / "add_baseline.ig")
     failed_checks << "normalization_stability" unless norm["pass"]
 
-    # 9. Branch/conditional: HOLD per C1-A NB-1
+    # 9. Branch/conditional: out_of_scope per S3-R164-C4-A / S3-R165-C1-A
+    # No hold is added; exclusion is machine-visible via release_scope.excluded_features
+    # and feature_coverage.branch_conditional_if_expr.status = out_of_scope.
     branch_result = check_branch_conditional
     hold_reasons << branch_result["reason"] if branch_result["hold"]
 
