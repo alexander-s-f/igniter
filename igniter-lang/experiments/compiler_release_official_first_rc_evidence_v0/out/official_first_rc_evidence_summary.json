@@ -1,0 +1,102 @@
+{
+  "kind": "official_first_rc_evidence",
+  "format_version": "0.1.0",
+  "status": "PASS",
+  "authorization": "S3-R167-C1-A",
+  "track": "compiler-release-official-first-rc-evidence-gathering-v0",
+  "evidence_label": "official_first_rc_evidence",
+  "source_harness": {
+    "track": "compiler-release-acceptance-harness-scope-aware-update-v0",
+    "summary_path": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/compiler_release_acceptance_harness_summary.json",
+    "summary_sha256": "sha256:bc8d69f65c9267a604cb47e8ce0498a8373a80eaa264a2c53892139552a2618b",
+    "harness_status": "PASS",
+    "command_matrix_entries": 14,
+    "command_matrix_pass_count": 14,
+    "positive_corpus_count": 5,
+    "negative_corpus_count": 3,
+    "artifact_check_count": 5,
+    "failed_check_count": 0,
+    "hold_reason_count": 0,
+    "closed_surface_scan_status": "PASS",
+    "existing_output_relabeled": false
+  },
+  "release_scope": {
+    "scope": "repo_local_compiler_rc",
+    "claimed_surfaces": [
+      "repo_local_compiler_cli_positive_compile",
+      "repo_local_compiler_cli_refusal",
+      "repo_local_compiler_api_positive_compile",
+      "repo_local_load_path_smoke",
+      "proof_local_runtime_smoke"
+    ],
+    "excluded_features": [
+      "branch_conditional_if_expr"
+    ],
+    "exclusion_basis": "S3-R164-C4-A Portfolio acceptance of first_rc_excludes_branch_conditional_if_expr",
+    "public_claims_authorized": false,
+    "production_runtime_authorized": false
+  },
+  "command_matrix": [
+    {
+      "kind": "harness_syntax_check",
+      "cmd": "ruby -c igniter-lang/experiments/compiler_release_acceptance_harness_v0/compiler_release_acceptance_harness_v0.rb",
+      "pass": true,
+      "stdout": "Syntax OK",
+      "exit_status": 0
+    },
+    {
+      "kind": "harness_acceptance_run",
+      "cmd": "ruby igniter-lang/experiments/compiler_release_acceptance_harness_v0/compiler_release_acceptance_harness_v0.rb --mode acceptance",
+      "pass": true,
+      "exit_status": 0,
+      "stdout": "PASS compiler_release_acceptance_harness_v0\npositive_corpus_entries=5\nnegative_corpus_entries=3\ncommand_matrix_entries=14\nfailed_checks=0\nhold_reasons=0\nsummary=igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/compiler_release_acceptance_harness_summary.json"
+    },
+    {
+      "kind": "official_evidence_packet_shape_verification",
+      "cmd": "ruby -rjson -e '<verify required fields: kind, format_version, status, authorization, track, evidence_label, source_harness, release_scope, command_matrix, proof_artifacts, failed_checks, hold_reasons, non_claims>'",
+      "note": "executed after summary written",
+      "pass": true,
+      "exit_status": 0,
+      "stdout": "shape OK 13 fields present"
+    }
+  ],
+  "proof_artifacts": {
+    "harness_runner": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/compiler_release_acceptance_harness_v0.rb",
+    "harness_summary": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/compiler_release_acceptance_harness_summary.json",
+    "harness_summary_sha256": "sha256:bc8d69f65c9267a604cb47e8ce0498a8373a80eaa264a2c53892139552a2618b",
+    "official_evidence_summary": "igniter-lang/experiments/compiler_release_official_first_rc_evidence_v0/out/official_first_rc_evidence_summary.json"
+  },
+  "verification": {
+    "required_shape_fields": [
+      "kind",
+      "format_version",
+      "status",
+      "authorization",
+      "track",
+      "evidence_label",
+      "source_harness",
+      "release_scope",
+      "command_matrix",
+      "proof_artifacts",
+      "failed_checks",
+      "hold_reasons",
+      "non_claims"
+    ],
+    "pre_rc_output_relabeled": false,
+    "authorization_reference": "S3-R167-C1-A",
+    "branch_conditional_in_excluded": true,
+    "no_branch_conditional_claim_present": true
+  },
+  "non_claims": [
+    "no_release_execution: release execution not authorized by S3-R167-C1-A",
+    "no_public_demo_claim: public demo/release claims not authorized",
+    "no_branch_conditional_claim: first RC scope explicitly excludes branch/conditional if_expr; no branch or conditional expression support is claimed; post-RC language design lane only; no branch/conditional implementation authorized by first RC scope decision (S3-R164-C4-A)",
+    "no_spark_integration: Spark is non-authorizing context only for this card",
+    "no_ruby_framework_release: Ruby Framework changes not authorized by this card",
+    "no_public_api_cli_widening: uses existing compiler CLI/API surfaces only",
+    "no_production_runtime: repo_local_compiler_rc scope only",
+    "no_pre_rc_output_relabeled: existing R165/R166 outputs remain scope-aware harness update evidence / pre-RC release-readiness evidence; not relabeled as official first-RC evidence"
+  ],
+  "failed_checks": [],
+  "hold_reasons": []
+}
