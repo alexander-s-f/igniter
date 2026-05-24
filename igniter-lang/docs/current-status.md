@@ -283,9 +283,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             sync is complete; R157 opens only bounded local
                             POC/MVP live-touch next; R158 accepts the POC as
                             release-readiness seed evidence; R159 accepts the
-                            compiler release-readiness map and opens only
-                            design-only acceptance-harness work next; Spark L3B
-                            and Orders P1 remain applied pressure only; root
+                            compiler release-readiness map; R160 accepts the
+                            design-only compiler release acceptance harness and
+                            opens only implementation-authorization review next;
+                            Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
                             profile discovery/defaulting/finalization, golden migration, loader/report,
@@ -866,6 +867,11 @@ Round 159 landed:
   S3-R159-C3-P1: Ruby Framework docs/examples hygiene                     ✅ PASS; docs-only cleanup accepted; no extra pass now
   S3-R159-C4-A: release-readiness and Ruby hygiene decision               ✅ accepted; design-only acceptance harness next
   S3-R159-C5-S: status curation                                           ✅ done; R160 design-only route recommended
+Round 160 landed:
+  S3-R160-C1-D: compiler release acceptance harness design                 ✅ done; design-only harness boundary defined
+  S3-R160-C2-X: harness design pressure                                    ✅ proceed; no blockers; 5 notes to implementation gate
+  S3-R160-C3-A: harness design decision                                    ✅ accepted; RC evidence gathering closed; authorization review next
+  S3-R160-C4-S: status curation                                           ✅ done; R161 authorization-review route recommended
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -940,8 +946,10 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   bounded demo-lab and release-readiness seed evidence; R159
                   accepts `compiler-release-readiness-map-v0`, accepts pressure
                   NB-1..NB-5 as next-design inputs, accepts Ruby docs/examples
-                  hygiene, and opens only design-only
-                  `compiler-release-acceptance-harness-design-v0` next;
+                  hygiene; R160 accepts that design, closes R159 NB-1..NB-5
+                  for design purposes, and opens only
+                  `compiler-release-acceptance-harness-implementation-authorization-review-v0`
+                  next;
                   Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
@@ -2429,6 +2437,29 @@ S3-R159 result:     C4-A accepts the compiler release-readiness map, pressure
                       No implementation, release execution, public demo/release,
                       public API/CLI widening, loader/report, CompatibilityReport,
                       PROP mutation, runtime, production, signing, deployment, or
+                      demo work is authorized.
+S3-R160 result:     C3-A accepts `compiler-release-acceptance-harness-design-v0`
+                      and the C2-X pressure review. The five mandatory R159 notes
+                      are accepted for design closure: feature diversity beyond
+                      module count, fresh rerun policy for `production_compiler_cli_proof`,
+                      normative non-claims text, present/empty warning result-shape
+                      policy, and RC-wide negative scan token list. RC evidence
+                      gathering remains closed because no harness runner is authorized
+                      or implemented and no fresh RC matrix has run. R160 carries five
+                      mandatory implementation-authorization inputs forward: clarify
+                      input-diversity beyond "three summed integers"; pin the
+                      normalization failure specimen meaning; confirm or hold/future
+                      `compatibility_metadata.json`; add `claimed_surfaces` to the
+                      machine-readable `release_scope`; and declare FAIL-over-HOLD
+                      precedence. Analyzer/tracer/visualizer remains design vocabulary
+                      only; public command/UI and implementation are held. Spark remains
+                      sanitized fixture/design pressure only, and Ruby remains held
+                      until a stable Lang RC export fixture exists. Next route:
+                      `compiler-release-acceptance-harness-implementation-authorization-review-v0`,
+                      authorization review only. No harness implementation, RC evidence
+                      gathering, release execution, public demo/release, public API/CLI
+                      widening, loader/report, CompatibilityReport, Spark integration,
+                      Ruby docs/release, runtime, production, signing, deployment, or
                       demo work is authorized.
 ```
 

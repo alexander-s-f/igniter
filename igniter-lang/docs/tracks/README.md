@@ -153,6 +153,10 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-readiness-map-pressure-v0.md` | proceed | R159 C2-X pressure finds no blockers across 8/8 challenges; NB-1..NB-5 become required inputs for the next acceptance-harness design |
 | `compiler-release-readiness-and-ruby-hygiene-decision-v0.md` | done / accepted | R159 C4-A accepts the release-readiness map, pressure review, and Ruby Framework docs/examples hygiene; opens only design-only `compiler-release-acceptance-harness-design-v0`; no implementation/release/public/Spark/runtime authority |
 | `stage3-round159-status-curation-v0.md` | done | R159 status curation: records accepted map, analyzer/tracer/visualizer design-only disposition, Spark sanitized-pressure-only disposition, accepted Ruby hygiene, and R160 design-only harness route |
+| `compiler-release-acceptance-harness-design-v0.md` | done / accepted | R160 C1-D defines the first compiler release acceptance harness design: inputs, stable/normalized/excluded artifact fields, corpus requirements, command matrix, PASS/HOLD/FAIL packet, non-claims, and closed-surface scan; design only, no RC evidence gathering |
+| `../discussions/compiler-release-acceptance-harness-design-pressure-v0.md` | proceed | R160 C2-X pressure finds no blockers across 10/10 checks; C3-A carries five notes as mandatory implementation-authorization inputs |
+| `compiler-release-acceptance-harness-design-decision-v0.md` | done / accepted | R160 C3-A accepts the harness design and pressure review, keeps RC evidence gathering closed, and opens only `compiler-release-acceptance-harness-implementation-authorization-review-v0` next |
+| `stage3-round160-status-curation-v0.md` | done | R160 status curation: records accepted harness design, R159 NB-1..NB-5 design closure, R160 pressure notes carried forward, RC evidence still closed, Spark/Ruby held, and R161 authorization-review route |
 
 ---
 
