@@ -263,26 +263,64 @@ module CompilerReleaseAcceptanceHarnessV0
   end
 
   # --- CLI semantic refusal (wrong_kind profile source) ---
+  # Fix (S3-R163-C2-I): read the generated refusal compilation report for the
+  # qualified compiler_profile_source.* diagnostic instead of relying on the
+  # stdout snippet, which truncates before the diagnostics array.
+  # Expected diagnostic source: wrong_kind_should_not_exist.compilation_report.json
+  # Expected diagnostic: compiler_profile_source.wrong_kind
   def run_cli_semantic_refusal(src, out)
     wrong_kind = FIXTURES_DIR / "semantic_profile_source_wrong_kind.json"
     cmd  = igc_cmd(src, out, "--compiler-profile-source #{wrong_kind}")
     r    = run_cmd(cmd)
-    pass = !r["success"] && !Dir.exist?(out.to_s)
-    stdout_snippet = r["stdout"][0, 400]
-    has_qualified_diag = stdout_snippet.include?("compiler_profile_source.")
+
+    no_igapp      = !Dir.exist?(out.to_s)
+    exit_refused  = !r["success"]
+
+    # Compute compilation report path (assembler_refused writes report next to out)
+    report_path   = Pathname.new(out.to_s.delete_suffix(".igapp") + ".compilation_report.json")
+    qualified_diag, diag_source, observed_diag = extract_qualified_profile_diagnostic(report_path, r["stdout"])
+
+    # pass requires: non-zero exit, no igapp, AND has qualified diagnostic
+    pass = exit_refused && no_igapp && qualified_diag
+
     {
-      "surface"              => "repo_local_compiler_cli_refusal",
-      "kind"                 => "cli_semantic_profile_refusal",
-      "name"                 => "semantic_profile_wrong_kind",
-      "cmd"                  => "ruby -I igniter-lang/lib igniter-lang/bin/igc compile " \
-                                "add_baseline.ig --out ... --compiler-profile-source " \
-                                "semantic_profile_source_wrong_kind.json",
-      "pass"                 => pass,
-      "exit_status"          => r["exit_status"],
-      "no_igapp_written"     => !Dir.exist?(out.to_s),
-      "has_qualified_diagnostic" => has_qualified_diag,
-      "stdout"               => stdout_snippet
+      "surface"                      => "repo_local_compiler_cli_refusal",
+      "kind"                         => "cli_semantic_profile_refusal",
+      "name"                         => "semantic_profile_wrong_kind",
+      "cmd"                          => "ruby -I igniter-lang/lib igniter-lang/bin/igc compile " \
+                                        "add_baseline.ig --out ... --compiler-profile-source " \
+                                        "semantic_profile_source_wrong_kind.json",
+      "pass"                         => pass,
+      "exit_status"                  => r["exit_status"],
+      "no_igapp_written"             => no_igapp,
+      "has_qualified_diagnostic"     => qualified_diag,
+      "qualified_diagnostic_source"  => diag_source,
+      "observed_qualified_diagnostic" => observed_diag,
+      "stdout"                       => r["stdout"][0, 400]
     }
+  end
+
+  # Extract qualified compiler_profile_source.* diagnostic from the refusal report
+  # or, if report is absent, from stdout. Returns [found_bool, source_label, observed_string].
+  def extract_qualified_profile_diagnostic(report_path, stdout)
+    if report_path.exist?
+      begin
+        report = JSON.parse(File.read(report_path.to_s, encoding: "utf-8"))
+        diags  = report.fetch("diagnostics", [])
+        hit    = diags.find { |d| d.fetch("message", "").include?("compiler_profile_source.") }
+        if hit
+          observed = hit["message"].to_s.split(":").first(3).join(":").strip
+          return [true, "report_diagnostics", observed]
+        end
+      rescue => _e
+        # fall through to stdout check
+      end
+    end
+    # Fallback: stdout check (truncated; may miss diagnostics)
+    if stdout.include?("compiler_profile_source.")
+      return [true, "stdout_snippet", "compiler_profile_source.(stdout)"]
+    end
+    [false, "not_found", nil]
   end
 
   # --- Artifact check: compatibility_metadata.json shape ---
@@ -676,6 +714,9 @@ module CompilerReleaseAcceptanceHarnessV0
     )
     command_matrix << wrong_kind_r
     failed_checks << "preflight.semantic_profile_wrong_kind" unless wrong_kind_r["pass"]
+    unless wrong_kind_r["has_qualified_diagnostic"]
+      failed_checks << "preflight.semantic_profile_wrong_kind.no_qualified_diagnostic"
+    end
 
     # 7. Artifact checks: compatibility_metadata.json shape (NB-3)
     positive_sources.each do |src|

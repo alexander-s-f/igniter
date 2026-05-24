@@ -272,7 +272,9 @@
       "pass": true,
       "exit_status": 1,
       "no_igapp_written": true,
-      "has_qualified_diagnostic": false,
+      "has_qualified_diagnostic": true,
+      "qualified_diagnostic_source": "report_diagnostics",
+      "observed_qualified_diagnostic": "add_baseline: compiler_profile_source.wrong_kind: \"not_a_compiler_profile_id_source\"",
       "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"assembler_refused\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/add_baseline.ig\",\n  \"source_hash\": null,\n  \"grammar_version\": \"unknown\",\n  \"stages\": {\n    \"parse\": \"unknown\",\n    \"classify\": \"unknown\",\n    \"typecheck\":"
     }
   ],
