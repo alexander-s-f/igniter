@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/486403736d2a6ece",
+  "semantic_ir_ref": "semanticir/486403736d2a6ece",
+  "source_hash": "sha256:486403736d2a6ece292dc188eb722e16d11a3ad75e5cef8b1abdc1d3808e3569",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/poc_derived.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

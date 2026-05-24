@@ -1,0 +1,99 @@
+{
+  "artifact_hash": "sha256:4c4291e9a848d43def5e40013569543a04dfe84179c68570ca9998dd60059550",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:base",
+        "input:adjustment"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "base"
+          },
+          {
+            "kind": "ref",
+            "name": "adjustment"
+          }
+        ],
+        "operator": "stdlib.integer.add"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "raw_score",
+      "node_id": "node_raw_score",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:active"
+      ],
+      "expression": {
+        "kind": "ref",
+        "name": "active"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "is_valid",
+      "node_id": "node_is_valid",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    }
+  ],
+  "contract_id": "RiskScoreGate",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "base",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "adjustment",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "active",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "RiskScoreGate",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "raw_score",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "is_valid",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "source_contract_ref": "contract/RiskScoreGate/sha256:1dd77591d22258a4324fd379",
+  "type_signature": {
+    "inputs": {
+      "active": "Bool",
+      "adjustment": "Integer",
+      "base": "Integer"
+    },
+    "outputs": {
+      "is_valid": "Bool",
+      "raw_score": "Integer"
+    }
+  }
+}

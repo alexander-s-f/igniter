@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/8148965e841f6323",
+  "contracts": [
+    "BooleanGate"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "BooleanGate"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/8148965e841f6323",
+  "semantic_ir_ref": "semanticir/8148965e841f6323",
+  "source_hash": "sha256:8148965e841f6323da40d417864532c038aa7a2181cacc70fc1052aa1f02f10b",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/boolean_gate.ig"
+}

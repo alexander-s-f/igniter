@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:c86a0eeed8a9bd6b83be02c843a883a29d6e13503b8d004b75ea3732fe2533e7",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/8148965e841f6323",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "BooleanGate": {
+      "contract_path": "contracts/boolean_gate.json",
+      "contract_ref": "contract/BooleanGate/sha256:e78b240fa08df0d62592f1a0",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "BooleanGate": "contract/BooleanGate/sha256:e78b240fa08df0d62592f1a0"
+  },
+  "contracts": [
+    "BooleanGate"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/8148965e841f6323",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/8148965e841f6323",
+  "source_hash": "sha256:8148965e841f6323da40d417864532c038aa7a2181cacc70fc1052aa1f02f10b",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/boolean_gate.ig",
+  "warnings": []
+}

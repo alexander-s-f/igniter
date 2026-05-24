@@ -1,0 +1,28 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/compiler_error",
+  "grammar_version": "unknown",
+  "source_hash": null,
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/parse_refusal.ig",
+  "pass_result": "error",
+  "stages": {
+    "parse": "unknown",
+    "classify": "unknown",
+    "typecheck": "unknown",
+    "emit": "unknown"
+  },
+  "diagnostics": [
+    {
+      "rule": "compiler_error",
+      "severity": "error",
+      "message": "IgniterLang::ParseError: Expected colon, got ident(Integer)",
+      "category": "emitter_error",
+      "contract": null,
+      "node": null,
+      "path": null,
+      "span": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

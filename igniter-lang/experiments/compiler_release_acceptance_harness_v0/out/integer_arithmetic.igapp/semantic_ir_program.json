@@ -1,0 +1,146 @@
+{
+  "compilation_report_ref": "compilation_report/bb7f575fa621878b",
+  "contracts": [
+    {
+      "contract_name": "IntegerArithmetic",
+      "contract_ref": "contract/IntegerArithmetic/sha256:ca5b6d6692b993977978bdb3",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "base",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "offset",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "multiplier",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "base",
+            "offset"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "base",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "offset",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "stdlib.integer.add",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "shifted",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "shifted",
+            "multiplier"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "shifted",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "multiplier",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "stdlib.integer.add",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "scaled",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "shifted",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "scaled",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "Harness.IntegerArithmetic",
+  "program_id": "semanticir/bb7f575fa621878b",
+  "source_hash": "sha256:bb7f575fa621878b6a5a0e8cde3e939a2779456f00d675b46bd3e7cfd8138b63",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/integer_arithmetic.ig"
+}

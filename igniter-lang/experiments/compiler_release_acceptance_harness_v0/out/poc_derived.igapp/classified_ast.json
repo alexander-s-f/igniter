@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/486403736d2a6ece",
+  "contracts": [
+    "ChannelScore"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "ChannelScore"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/486403736d2a6ece",
+  "semantic_ir_ref": "semanticir/486403736d2a6ece",
+  "source_hash": "sha256:486403736d2a6ece292dc188eb722e16d11a3ad75e5cef8b1abdc1d3808e3569",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/poc_derived.ig"
+}

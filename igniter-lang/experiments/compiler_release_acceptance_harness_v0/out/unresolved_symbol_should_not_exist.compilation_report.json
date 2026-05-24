@@ -1,0 +1,28 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/85435f6e97acab60",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:85435f6e97acab605c91791731cd0e4c913bc72a7bd397cc992e0ecf013d7467",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/unresolved_symbol.ig",
+  "pass_result": "oof",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "oof",
+    "emit": "skipped"
+  },
+  "diagnostics": [
+    {
+      "rule": "OOF-P1",
+      "severity": "error",
+      "message": "Unresolved symbol: undefined_var",
+      "node": "bad_ref",
+      "path": "contract:UnresolvedSymbolTest/node:bad_ref",
+      "category": "typechecker_oof",
+      "contract": "UnresolvedSymbolTest",
+      "span": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

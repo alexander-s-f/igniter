@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:d072813dac955e82f0131c71d5669cdcf02f5d744408d7ec68199767d0162e0a",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/ae6a562f6fe1d466",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "AddBaseline": {
+      "contract_path": "contracts/add_baseline.json",
+      "contract_ref": "contract/AddBaseline/sha256:20610cbcd9bc51f517de6211",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "AddBaseline": "contract/AddBaseline/sha256:20610cbcd9bc51f517de6211"
+  },
+  "contracts": [
+    "AddBaseline"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/ae6a562f6fe1d466",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/ae6a562f6fe1d466",
+  "source_hash": "sha256:ae6a562f6fe1d466048fe1a0fba16e7f3e208fec0826069b7faf60765ee193fc",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/add_baseline.ig",
+  "warnings": []
+}

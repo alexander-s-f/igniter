@@ -1,0 +1,665 @@
+{
+  "kind": "compiler_release_acceptance_harness_summary",
+  "format_version": "0.1.0",
+  "track": "compiler-release-acceptance-harness-implementation-proof-v0",
+  "status": "HOLD",
+  "decision": "bounded proof-local harness runner implementation; outputs are proof-local harness implementation evidence only; not official RC evidence",
+  "release_scope": {
+    "scope": "repo_local_compiler_rc",
+    "claimed_surfaces": [
+      "repo_local_compiler_cli_positive_compile",
+      "repo_local_compiler_cli_refusal",
+      "repo_local_compiler_api_positive_compile",
+      "repo_local_load_path_smoke",
+      "proof_local_runtime_smoke"
+    ],
+    "public_claims_authorized": false,
+    "production_runtime_authorized": false
+  },
+  "corpus": {
+    "positive": [
+      {
+        "surface": "repo_local_compiler_cli_positive_compile",
+        "kind": "cli_positive_compile",
+        "name": "add_baseline",
+        "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile add_baseline.ig --out add_baseline.igapp",
+        "pass": true,
+        "exit_status": 0,
+        "igapp_written": true,
+        "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/ae6a562f6fe1d466\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/add_baseline.ig\",\n  \"source_hash\": \"sha256:ae6a562f6fe1d466048fe1a0fba16e7f3e208fec0826069b7faf60765ee193fc\",\n  \"grammar_version\": \"0.1.0\",\n  \"s"
+      },
+      {
+        "surface": "repo_local_compiler_cli_positive_compile",
+        "kind": "cli_positive_compile",
+        "name": "boolean_gate",
+        "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile boolean_gate.ig --out boolean_gate.igapp",
+        "pass": true,
+        "exit_status": 0,
+        "igapp_written": true,
+        "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/8148965e841f6323\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/boolean_gate.ig\",\n  \"source_hash\": \"sha256:8148965e841f6323da40d417864532c038aa7a2181cacc70fc1052aa1f02f10b\",\n  \"grammar_version\": \"0.1.0\",\n  \"s"
+      },
+      {
+        "surface": "repo_local_compiler_cli_positive_compile",
+        "kind": "cli_positive_compile",
+        "name": "integer_arithmetic",
+        "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile integer_arithmetic.ig --out integer_arithmetic.igapp",
+        "pass": true,
+        "exit_status": 0,
+        "igapp_written": true,
+        "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/bb7f575fa621878b\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/integer_arithmetic.ig\",\n  \"source_hash\": \"sha256:bb7f575fa621878b6a5a0e8cde3e939a2779456f00d675b46bd3e7cfd8138b63\",\n  \"grammar_version\": \"0.1.0\""
+      },
+      {
+        "surface": "repo_local_compiler_cli_positive_compile",
+        "kind": "cli_positive_compile",
+        "name": "multi_input_diverse",
+        "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile multi_input_diverse.ig --out multi_input_diverse.igapp",
+        "pass": true,
+        "exit_status": 0,
+        "igapp_written": true,
+        "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/150f0d20d57e1d11\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/multi_input_diverse.ig\",\n  \"source_hash\": \"sha256:150f0d20d57e1d11632580d554d5420036d71e5b3ad10dfc50a5b96567138aed\",\n  \"grammar_version\": \"0.1.0"
+      },
+      {
+        "surface": "repo_local_compiler_cli_positive_compile",
+        "kind": "cli_positive_compile",
+        "name": "poc_derived",
+        "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile poc_derived.ig --out poc_derived.igapp",
+        "pass": true,
+        "exit_status": 0,
+        "igapp_written": true,
+        "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/486403736d2a6ece\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/poc_derived.ig\",\n  \"source_hash\": \"sha256:486403736d2a6ece292dc188eb722e16d11a3ad75e5cef8b1abdc1d3808e3569\",\n  \"grammar_version\": \"0.1.0\",\n  \"st"
+      }
+    ],
+    "negative": [
+      {
+        "surface": "repo_local_compiler_cli_refusal",
+        "kind": "cli_refusal",
+        "name": "parse_refusal",
+        "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile parse_refusal.ig --out parse_refusal_should_not_exist.igapp",
+        "pass": true,
+        "exit_status": 1,
+        "no_igapp_written": true,
+        "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"error\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/parse_refusal.ig\",\n  \"source_hash\": null,\n  \"grammar_version\": \"unknown\",\n  \"stages\": {\n    \"parse\": \"unknown\",\n    \"classify\": \"unknown\",\n    \"typecheck\": \"unknown\","
+      },
+      {
+        "surface": "repo_local_compiler_cli_refusal",
+        "kind": "cli_refusal",
+        "name": "type_mismatch",
+        "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile type_mismatch.ig --out type_mismatch_should_not_exist.igapp",
+        "pass": true,
+        "exit_status": 1,
+        "no_igapp_written": true,
+        "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"oof\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/type_mismatch.ig\",\n  \"source_hash\": \"sha256:16b24ed06750aead49d0d568541f877ba8372c8244f8596755cdad19fdd91441\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"parse\": "
+      },
+      {
+        "surface": "repo_local_compiler_cli_refusal",
+        "kind": "cli_refusal",
+        "name": "unresolved_symbol",
+        "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile unresolved_symbol.ig --out unresolved_symbol_should_not_exist.igapp",
+        "pass": true,
+        "exit_status": 1,
+        "no_igapp_written": true,
+        "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"oof\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/unresolved_symbol.ig\",\n  \"source_hash\": \"sha256:85435f6e97acab605c91791731cd0e4c913bc72a7bd397cc992e0ecf013d7467\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"pars"
+      }
+    ],
+    "feature_coverage": [
+      {
+        "feature": "add_style_baseline",
+        "status": "covered",
+        "corpus_entry": "add_baseline"
+      },
+      {
+        "feature": "boolean_gate_conjunction",
+        "status": "covered",
+        "corpus_entry": "boolean_gate"
+      },
+      {
+        "feature": "integer_arithmetic_multi_input",
+        "status": "covered",
+        "corpus_entry": "integer_arithmetic",
+        "note": "computed node depends on more than two inputs via chained computes"
+      },
+      {
+        "feature": "multi_input_diverse_mixed_types",
+        "status": "covered",
+        "corpus_entry": "multi_input_diverse",
+        "nb1_note": "satisfies NB-1 mixed input types: Integer + Bool in same contract"
+      },
+      {
+        "feature": "poc_derived_synthetic",
+        "status": "covered",
+        "corpus_entry": "poc_derived"
+      },
+      {
+        "feature": "branch_conditional_if_expr",
+        "status": "hold",
+        "reason": "TypeChecker does not support if_expr; requires new semantics per C1-A NB-1"
+      }
+    ]
+  },
+  "command_matrix": [
+    {
+      "surface": "repo_local_load_path_smoke",
+      "kind": "load_path_smoke",
+      "cmd": "ruby -I igniter-lang/lib -e 'require \"igniter_lang\"; abort unless IgniterLang.respond_to?(:compile)'",
+      "pass": true,
+      "exit_status": 0,
+      "stderr": ""
+    },
+    {
+      "surface": "repo_local_compiler_cli_positive_compile",
+      "kind": "cli_positive_compile",
+      "name": "add_baseline",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile add_baseline.ig --out add_baseline.igapp",
+      "pass": true,
+      "exit_status": 0,
+      "igapp_written": true,
+      "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/ae6a562f6fe1d466\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/add_baseline.ig\",\n  \"source_hash\": \"sha256:ae6a562f6fe1d466048fe1a0fba16e7f3e208fec0826069b7faf60765ee193fc\",\n  \"grammar_version\": \"0.1.0\",\n  \"s"
+    },
+    {
+      "surface": "repo_local_compiler_cli_positive_compile",
+      "kind": "cli_positive_compile",
+      "name": "boolean_gate",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile boolean_gate.ig --out boolean_gate.igapp",
+      "pass": true,
+      "exit_status": 0,
+      "igapp_written": true,
+      "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/8148965e841f6323\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/boolean_gate.ig\",\n  \"source_hash\": \"sha256:8148965e841f6323da40d417864532c038aa7a2181cacc70fc1052aa1f02f10b\",\n  \"grammar_version\": \"0.1.0\",\n  \"s"
+    },
+    {
+      "surface": "repo_local_compiler_cli_positive_compile",
+      "kind": "cli_positive_compile",
+      "name": "integer_arithmetic",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile integer_arithmetic.ig --out integer_arithmetic.igapp",
+      "pass": true,
+      "exit_status": 0,
+      "igapp_written": true,
+      "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/bb7f575fa621878b\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/integer_arithmetic.ig\",\n  \"source_hash\": \"sha256:bb7f575fa621878b6a5a0e8cde3e939a2779456f00d675b46bd3e7cfd8138b63\",\n  \"grammar_version\": \"0.1.0\""
+    },
+    {
+      "surface": "repo_local_compiler_cli_positive_compile",
+      "kind": "cli_positive_compile",
+      "name": "multi_input_diverse",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile multi_input_diverse.ig --out multi_input_diverse.igapp",
+      "pass": true,
+      "exit_status": 0,
+      "igapp_written": true,
+      "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/150f0d20d57e1d11\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/multi_input_diverse.ig\",\n  \"source_hash\": \"sha256:150f0d20d57e1d11632580d554d5420036d71e5b3ad10dfc50a5b96567138aed\",\n  \"grammar_version\": \"0.1.0"
+    },
+    {
+      "surface": "repo_local_compiler_cli_positive_compile",
+      "kind": "cli_positive_compile",
+      "name": "poc_derived",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile poc_derived.ig --out poc_derived.igapp",
+      "pass": true,
+      "exit_status": 0,
+      "igapp_written": true,
+      "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/486403736d2a6ece\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/poc_derived.ig\",\n  \"source_hash\": \"sha256:486403736d2a6ece292dc188eb722e16d11a3ad75e5cef8b1abdc1d3808e3569\",\n  \"grammar_version\": \"0.1.0\",\n  \"st"
+    },
+    {
+      "surface": "repo_local_compiler_cli_positive_compile",
+      "kind": "cli_positive_compile_with_profile",
+      "name": "add_baseline_with_profile",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile add_baseline.ig --out add_baseline_with_profile.igapp --compiler-profile-source finalized_profile_source.json",
+      "pass": true,
+      "exit_status": 0,
+      "igapp_written": true,
+      "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/ae6a562f6fe1d466\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/add_baseline.ig\",\n  \"source_hash\": \"sha256:ae6a562f6fe1d466048fe1a0fba16e7f3e208fec0826069b7faf60765ee193fc\",\n  \"grammar_version\": \"0.1.0\",\n  \"s"
+    },
+    {
+      "surface": "repo_local_compiler_api_positive_compile",
+      "kind": "api_positive_compile",
+      "name": "api_add_baseline",
+      "cmd": "IgniterLang.compile(source_path: 'add_baseline.ig', out_path: 'api_add_baseline.igapp')",
+      "pass": true,
+      "status": "ok",
+      "igapp_written": true
+    },
+    {
+      "surface": "repo_local_compiler_cli_refusal",
+      "kind": "cli_refusal",
+      "name": "parse_refusal",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile parse_refusal.ig --out parse_refusal_should_not_exist.igapp",
+      "pass": true,
+      "exit_status": 1,
+      "no_igapp_written": true,
+      "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"error\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/parse_refusal.ig\",\n  \"source_hash\": null,\n  \"grammar_version\": \"unknown\",\n  \"stages\": {\n    \"parse\": \"unknown\",\n    \"classify\": \"unknown\",\n    \"typecheck\": \"unknown\","
+    },
+    {
+      "surface": "repo_local_compiler_cli_refusal",
+      "kind": "cli_refusal",
+      "name": "type_mismatch",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile type_mismatch.ig --out type_mismatch_should_not_exist.igapp",
+      "pass": true,
+      "exit_status": 1,
+      "no_igapp_written": true,
+      "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"oof\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/type_mismatch.ig\",\n  \"source_hash\": \"sha256:16b24ed06750aead49d0d568541f877ba8372c8244f8596755cdad19fdd91441\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"parse\": "
+    },
+    {
+      "surface": "repo_local_compiler_cli_refusal",
+      "kind": "cli_refusal",
+      "name": "unresolved_symbol",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile unresolved_symbol.ig --out unresolved_symbol_should_not_exist.igapp",
+      "pass": true,
+      "exit_status": 1,
+      "no_igapp_written": true,
+      "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"oof\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/unresolved_symbol.ig\",\n  \"source_hash\": \"sha256:85435f6e97acab605c91791731cd0e4c913bc72a7bd397cc992e0ecf013d7467\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"pars"
+    },
+    {
+      "surface": "repo_local_compiler_cli_refusal",
+      "kind": "cli_preflight_bad_path",
+      "name": "bad_profile_path",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile add_baseline.ig --out ... --compiler-profile-source /nonexistent/path.json",
+      "pass": true,
+      "exit_status": 1,
+      "no_igapp_written": true,
+      "stderr": "compiler profile source path not found"
+    },
+    {
+      "surface": "repo_local_compiler_cli_refusal",
+      "kind": "cli_preflight_malformed_json",
+      "name": "malformed_profile_json",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile add_baseline.ig --out ... --compiler-profile-source malformed_profile_source.json",
+      "pass": true,
+      "exit_status": 1,
+      "no_igapp_written": true,
+      "stderr": "compiler profile source file must contain valid JSON"
+    },
+    {
+      "surface": "repo_local_compiler_cli_refusal",
+      "kind": "cli_semantic_profile_refusal",
+      "name": "semantic_profile_wrong_kind",
+      "cmd": "ruby -I igniter-lang/lib igniter-lang/bin/igc compile add_baseline.ig --out ... --compiler-profile-source semantic_profile_source_wrong_kind.json",
+      "pass": true,
+      "exit_status": 1,
+      "no_igapp_written": true,
+      "has_qualified_diagnostic": false,
+      "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"assembler_refused\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/add_baseline.ig\",\n  \"source_hash\": null,\n  \"grammar_version\": \"unknown\",\n  \"stages\": {\n    \"parse\": \"unknown\",\n    \"classify\": \"unknown\",\n    \"typecheck\":"
+    }
+  ],
+  "artifact_checks": [
+    {
+      "kind": "compat_meta_check",
+      "name": "add_baseline",
+      "pass": true,
+      "checks": {
+        "kind_is_igapp_compatibility_metadata": true,
+        "format_version_present": true,
+        "canonical_artifact_present": true,
+        "metadata_shape_only": true
+      },
+      "kind_value": "igapp_compatibility_metadata",
+      "format_version_value": "0.1.0",
+      "canonical_artifact": "semantic_ir_program.json",
+      "not_public_compat_report": true
+    },
+    {
+      "kind": "compat_meta_check",
+      "name": "boolean_gate",
+      "pass": true,
+      "checks": {
+        "kind_is_igapp_compatibility_metadata": true,
+        "format_version_present": true,
+        "canonical_artifact_present": true,
+        "metadata_shape_only": true
+      },
+      "kind_value": "igapp_compatibility_metadata",
+      "format_version_value": "0.1.0",
+      "canonical_artifact": "semantic_ir_program.json",
+      "not_public_compat_report": true
+    },
+    {
+      "kind": "compat_meta_check",
+      "name": "integer_arithmetic",
+      "pass": true,
+      "checks": {
+        "kind_is_igapp_compatibility_metadata": true,
+        "format_version_present": true,
+        "canonical_artifact_present": true,
+        "metadata_shape_only": true
+      },
+      "kind_value": "igapp_compatibility_metadata",
+      "format_version_value": "0.1.0",
+      "canonical_artifact": "semantic_ir_program.json",
+      "not_public_compat_report": true
+    },
+    {
+      "kind": "compat_meta_check",
+      "name": "multi_input_diverse",
+      "pass": true,
+      "checks": {
+        "kind_is_igapp_compatibility_metadata": true,
+        "format_version_present": true,
+        "canonical_artifact_present": true,
+        "metadata_shape_only": true
+      },
+      "kind_value": "igapp_compatibility_metadata",
+      "format_version_value": "0.1.0",
+      "canonical_artifact": "semantic_ir_program.json",
+      "not_public_compat_report": true
+    },
+    {
+      "kind": "compat_meta_check",
+      "name": "poc_derived",
+      "pass": true,
+      "checks": {
+        "kind_is_igapp_compatibility_metadata": true,
+        "format_version_present": true,
+        "canonical_artifact_present": true,
+        "metadata_shape_only": true
+      },
+      "kind_value": "igapp_compatibility_metadata",
+      "format_version_value": "0.1.0",
+      "canonical_artifact": "semantic_ir_program.json",
+      "not_public_compat_report": true
+    }
+  ],
+  "normalization": {
+    "pass": true,
+    "strategy": "two_run_stability",
+    "stable_fields": [
+      "format_version",
+      "kind",
+      "contract_names",
+      "input_type_signatures"
+    ],
+    "normalized_fields": [
+      "compiled_at_excluded"
+    ],
+    "excluded_fields": [
+      "compiled_at",
+      "source_hash",
+      "artifact_hash",
+      "program_id",
+      "semantic_ir_ref",
+      "compilation_report_ref"
+    ],
+    "fields_compared": 4,
+    "fields_stable": 4
+  },
+  "warnings_policy": {
+    "result_shape_in_scope": true,
+    "warning_producing_fixture_required": false,
+    "unexpected_warning_result": "HOLD"
+  },
+  "closed_surface_scan": {
+    "token_list": [
+      "Spark",
+      "spark",
+      "sparkcrm",
+      "SparkCRM",
+      "ServiceCall",
+      "LeadChannel",
+      "OrdersAnalytics",
+      "service_call_price_shadow_evidence",
+      "service_call_override_divergence_policy",
+      "lead_channel_seed_review_decision",
+      "orders_analytics_evidence_coverage",
+      "production",
+      "Production",
+      "production_runtime",
+      "runtime_production",
+      "public_demo",
+      "demo_ready",
+      "release_ready",
+      "release_claim",
+      "deployment",
+      "deploy",
+      "signing",
+      "signature",
+      "RubyGems",
+      "gem_push",
+      "Ledger",
+      "TBackend",
+      "BiHistory",
+      "stream",
+      "OLAP",
+      "CompatibilityReport",
+      "CompilationReceipt",
+      "sidecar",
+      "cache",
+      "RuntimeMachine",
+      "contract_fragment_for",
+      "loader/report",
+      ".ilk",
+      "Gate 3",
+      "root require"
+    ],
+    "scan_targets": [
+      "add_baseline.ig",
+      "boolean_gate.ig",
+      "integer_arithmetic.ig",
+      "multi_input_diverse.ig",
+      "poc_derived.ig",
+      "parse_refusal.ig",
+      "type_mismatch.ig",
+      "unresolved_symbol.ig",
+      "classified_ast.json",
+      "compatibility_metadata.json",
+      "compilation_report.json",
+      "diagnostics.json",
+      "manifest.json",
+      "projections.json",
+      "requirements.json",
+      "semantic_ir_program.json",
+      "classified_ast.json",
+      "compatibility_metadata.json",
+      "compilation_report.json",
+      "diagnostics.json",
+      "manifest.json",
+      "projections.json",
+      "requirements.json",
+      "semantic_ir_program.json",
+      "classified_ast.json",
+      "compatibility_metadata.json",
+      "compilation_report.json",
+      "diagnostics.json",
+      "manifest.json",
+      "projections.json",
+      "requirements.json",
+      "semantic_ir_program.json",
+      "classified_ast.json",
+      "compatibility_metadata.json",
+      "compilation_report.json",
+      "diagnostics.json",
+      "manifest.json",
+      "projections.json",
+      "requirements.json",
+      "semantic_ir_program.json",
+      "classified_ast.json",
+      "compatibility_metadata.json",
+      "compilation_report.json",
+      "diagnostics.json",
+      "manifest.json",
+      "projections.json",
+      "requirements.json",
+      "semantic_ir_program.json",
+      "classified_ast.json",
+      "compatibility_metadata.json",
+      "compilation_report.json",
+      "diagnostics.json",
+      "manifest.json",
+      "projections.json",
+      "requirements.json",
+      "semantic_ir_program.json",
+      "classified_ast.json",
+      "compatibility_metadata.json",
+      "compilation_report.json",
+      "diagnostics.json",
+      "manifest.json",
+      "projections.json",
+      "requirements.json",
+      "semantic_ir_program.json",
+      "classified_ast.json",
+      "compatibility_metadata.json",
+      "compilation_report.json",
+      "diagnostics.json",
+      "manifest.json",
+      "projections.json",
+      "requirements.json",
+      "semantic_ir_program.json",
+      "classified_ast.json",
+      "compatibility_metadata.json",
+      "compilation_report.json",
+      "diagnostics.json",
+      "manifest.json",
+      "projections.json",
+      "requirements.json",
+      "semantic_ir_program.json"
+    ],
+    "hits": [],
+    "hits_count": 0,
+    "status": "PASS",
+    "allowed_context_exceptions": [
+      "fragment_class_names_in_precedence_arrays",
+      "runtime_machine_in_compatibility_metadata_notes"
+    ]
+  },
+  "non_claims": [
+    "no_official_rc_evidence: generated outputs are proof-local harness evidence only",
+    "no_release_execution: release execution not authorized",
+    "no_public_demo_claim: public demo claims not authorized by C1-A",
+    "no_spark_integration: Spark remains sanitized future fixture/design pressure only",
+    "no_ruby_framework_release: Ruby Framework held until stable Lang RC export fixture",
+    "no_public_api_cli_widening: runner uses existing compiler CLI/API/load-path surfaces only",
+    "no_compatibility_report_public: compatibility_metadata.json checked as shape only",
+    "no_rubygems_push: no gem tag, package, or publish",
+    "no_production_runtime: proof-local runtime smoke only; not a production runtime claim",
+    "no_public_analyzer_tracer_visualizer: internal machine-readable summary only"
+  ],
+  "failed_checks": [],
+  "hold_reasons": [
+    "branch_conditional_if_expr_unsupported: TypeChecker does not support if_expr (OOF-TY0 Unsupported expression kind: if_expr). Branch/conditional coverage requires new semantics and is HOLD per C1-A NB-1. Multi-input diversity satisfied via mixed input types (Integer + Bool) in multi_input_diverse corpus entry (compile unit 4 of 5)."
+  ],
+  "artifacts": {
+    "add_baseline": {
+      "path": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/add_baseline.igapp",
+      "kind": "igapp_dir",
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir_program.json"
+      ]
+    },
+    "add_baseline_with_profile": {
+      "path": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/add_baseline_with_profile.igapp",
+      "kind": "igapp_dir",
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir_program.json"
+      ]
+    },
+    "api_add_baseline": {
+      "path": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/api_add_baseline.igapp",
+      "kind": "igapp_dir",
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir_program.json"
+      ]
+    },
+    "boolean_gate": {
+      "path": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/boolean_gate.igapp",
+      "kind": "igapp_dir",
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir_program.json"
+      ]
+    },
+    "integer_arithmetic": {
+      "path": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/integer_arithmetic.igapp",
+      "kind": "igapp_dir",
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir_program.json"
+      ]
+    },
+    "multi_input_diverse": {
+      "path": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/multi_input_diverse.igapp",
+      "kind": "igapp_dir",
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir_program.json"
+      ]
+    },
+    "norm_run1": {
+      "path": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/norm_run1.igapp",
+      "kind": "igapp_dir",
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir_program.json"
+      ]
+    },
+    "norm_run2": {
+      "path": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/norm_run2.igapp",
+      "kind": "igapp_dir",
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir_program.json"
+      ]
+    },
+    "poc_derived": {
+      "path": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/poc_derived.igapp",
+      "kind": "igapp_dir",
+      "files": [
+        "classified_ast.json",
+        "compatibility_metadata.json",
+        "compilation_report.json",
+        "diagnostics.json",
+        "manifest.json",
+        "projections.json",
+        "requirements.json",
+        "semantic_ir_program.json"
+      ]
+    },
+    "summary": {
+      "path": "igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/compiler_release_acceptance_harness_summary.json",
+      "kind": "harness_summary_json"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/150f0d20d57e1d11",
+  "semantic_ir_ref": "semanticir/150f0d20d57e1d11",
+  "source_hash": "sha256:150f0d20d57e1d11632580d554d5420036d71e5b3ad10dfc50a5b96567138aed",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/multi_input_diverse.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

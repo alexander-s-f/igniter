@@ -1,0 +1,91 @@
+{
+  "compilation_report_ref": "compilation_report/8148965e841f6323",
+  "contracts": [
+    {
+      "contract_name": "BooleanGate",
+      "contract_ref": "contract/BooleanGate/sha256:e78b240fa08df0d62592f1a0",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "flag_a",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "flag_b",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "flag_a",
+            "flag_b"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "flag_a",
+                "resolved_type": {
+                  "name": "Bool",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "flag_b",
+                "resolved_type": {
+                  "name": "Bool",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "stdlib.bool.and",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "both_set",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "both_set",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "Harness.BooleanGate",
+  "program_id": "semanticir/8148965e841f6323",
+  "source_hash": "sha256:8148965e841f6323da40d417864532c038aa7a2181cacc70fc1052aa1f02f10b",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/boolean_gate.ig"
+}

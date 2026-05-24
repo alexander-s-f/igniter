@@ -1,0 +1,127 @@
+{
+  "compilation_report_ref": "compilation_report/150f0d20d57e1d11",
+  "contracts": [
+    {
+      "contract_name": "RiskScoreGate",
+      "contract_ref": "contract/RiskScoreGate/sha256:1dd77591d22258a4324fd379",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "base",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "adjustment",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "active",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "base",
+            "adjustment"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "base",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "adjustment",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "stdlib.integer.add",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "raw_score",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "active"
+          ],
+          "expr": {
+            "kind": "ref",
+            "name": "active",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "is_valid",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "raw_score",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "is_valid",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "Harness.RiskScore",
+  "program_id": "semanticir/150f0d20d57e1d11",
+  "source_hash": "sha256:150f0d20d57e1d11632580d554d5420036d71e5b3ad10dfc50a5b96567138aed",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/multi_input_diverse.ig"
+}

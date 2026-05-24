@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:03ddc14702e220da0d61a0c8edd84984e75ad6d27f350eb4d31a1741f9b8bea2",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/bb7f575fa621878b",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "IntegerArithmetic": {
+      "contract_path": "contracts/integer_arithmetic.json",
+      "contract_ref": "contract/IntegerArithmetic/sha256:ca5b6d6692b993977978bdb3",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "IntegerArithmetic": "contract/IntegerArithmetic/sha256:ca5b6d6692b993977978bdb3"
+  },
+  "contracts": [
+    "IntegerArithmetic"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/bb7f575fa621878b",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/bb7f575fa621878b",
+  "source_hash": "sha256:bb7f575fa621878b6a5a0e8cde3e939a2779456f00d675b46bd3e7cfd8138b63",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/integer_arithmetic.ig",
+  "warnings": []
+}

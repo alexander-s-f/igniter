@@ -1,0 +1,69 @@
+{
+  "artifact_hash": "sha256:c86a0eeed8a9bd6b83be02c843a883a29d6e13503b8d004b75ea3732fe2533e7",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:flag_a",
+        "input:flag_b"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "flag_a"
+          },
+          {
+            "kind": "ref",
+            "name": "flag_b"
+          }
+        ],
+        "operator": "stdlib.bool.and"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "both_set",
+      "node_id": "node_both_set",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    }
+  ],
+  "contract_id": "BooleanGate",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "flag_a",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "local",
+      "name": "flag_b",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "BooleanGate",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "both_set",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "source_contract_ref": "contract/BooleanGate/sha256:e78b240fa08df0d62592f1a0",
+  "type_signature": {
+    "inputs": {
+      "flag_a": "Bool",
+      "flag_b": "Bool"
+    },
+    "outputs": {
+      "both_set": "Bool"
+    }
+  }
+}

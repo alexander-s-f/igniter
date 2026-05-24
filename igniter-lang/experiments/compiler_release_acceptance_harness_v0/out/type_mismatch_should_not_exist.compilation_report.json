@@ -1,0 +1,28 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/16b24ed06750aead",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:16b24ed06750aead49d0d568541f877ba8372c8244f8596755cdad19fdd91441",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/type_mismatch.ig",
+  "pass_result": "oof",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "oof",
+    "emit": "skipped"
+  },
+  "diagnostics": [
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Integer, got Integer+Bool",
+      "node": "bad_sum",
+      "path": "contract:TypeMismatchTest/node:bad_sum",
+      "category": "typechecker_oof",
+      "contract": "TypeMismatchTest",
+      "span": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

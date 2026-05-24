@@ -1,0 +1,69 @@
+{
+  "artifact_hash": "sha256:b90083a8a8a987a6cc5d108ca5f621bb3f70903189c79675c744f3fcb6744c3b",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:visits",
+        "input:conversions"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "visits"
+          },
+          {
+            "kind": "ref",
+            "name": "conversions"
+          }
+        ],
+        "operator": "stdlib.integer.add"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "signal",
+      "node_id": "node_signal",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "ChannelScore",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "visits",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "conversions",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "ChannelScore",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "signal",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/ChannelScore/sha256:f525fafce83819d2de0b36ce",
+  "type_signature": {
+    "inputs": {
+      "conversions": "Integer",
+      "visits": "Integer"
+    },
+    "outputs": {
+      "signal": "Integer"
+    }
+  }
+}

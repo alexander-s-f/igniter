@@ -1,0 +1,110 @@
+{
+  "artifact_hash": "sha256:03ddc14702e220da0d61a0c8edd84984e75ad6d27f350eb4d31a1741f9b8bea2",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:base",
+        "input:offset"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "base"
+          },
+          {
+            "kind": "ref",
+            "name": "offset"
+          }
+        ],
+        "operator": "stdlib.integer.add"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "shifted",
+      "node_id": "node_shifted",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:shifted",
+        "input:multiplier"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "shifted"
+          },
+          {
+            "kind": "ref",
+            "name": "multiplier"
+          }
+        ],
+        "operator": "stdlib.integer.add"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "scaled",
+      "node_id": "node_scaled",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "IntegerArithmetic",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "base",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "offset",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "multiplier",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "IntegerArithmetic",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "shifted",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "scaled",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/IntegerArithmetic/sha256:ca5b6d6692b993977978bdb3",
+  "type_signature": {
+    "inputs": {
+      "base": "Integer",
+      "multiplier": "Integer",
+      "offset": "Integer"
+    },
+    "outputs": {
+      "scaled": "Integer",
+      "shifted": "Integer"
+    }
+  }
+}

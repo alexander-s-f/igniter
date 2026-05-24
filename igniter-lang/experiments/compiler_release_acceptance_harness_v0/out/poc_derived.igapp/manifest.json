@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:b90083a8a8a987a6cc5d108ca5f621bb3f70903189c79675c744f3fcb6744c3b",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/486403736d2a6ece",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "ChannelScore": {
+      "contract_path": "contracts/channel_score.json",
+      "contract_ref": "contract/ChannelScore/sha256:f525fafce83819d2de0b36ce",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "ChannelScore": "contract/ChannelScore/sha256:f525fafce83819d2de0b36ce"
+  },
+  "contracts": [
+    "ChannelScore"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/486403736d2a6ece",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/486403736d2a6ece",
+  "source_hash": "sha256:486403736d2a6ece292dc188eb722e16d11a3ad75e5cef8b1abdc1d3808e3569",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/poc_derived.ig",
+  "warnings": []
+}

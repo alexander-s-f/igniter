@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/150f0d20d57e1d11",
+  "contracts": [
+    "RiskScoreGate"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "RiskScoreGate"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/150f0d20d57e1d11",
+  "semantic_ir_ref": "semanticir/150f0d20d57e1d11",
+  "source_hash": "sha256:150f0d20d57e1d11632580d554d5420036d71e5b3ad10dfc50a5b96567138aed",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/multi_input_diverse.ig"
+}

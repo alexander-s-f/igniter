@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/bb7f575fa621878b",
+  "contracts": [
+    "IntegerArithmetic"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "IntegerArithmetic"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/bb7f575fa621878b",
+  "semantic_ir_ref": "semanticir/bb7f575fa621878b",
+  "source_hash": "sha256:bb7f575fa621878b6a5a0e8cde3e939a2779456f00d675b46bd3e7cfd8138b63",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/integer_arithmetic.ig"
+}
