@@ -294,7 +294,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             `if_expr`; R165/R166 land and accept the bounded
                             scope-aware harness update with PASS; R167 authorizes
                             only the next bounded official first-RC evidence
-                            gathering card, not release execution;
+                            gathering card; R168 accepts official first-RC
+                            evidence for `repo_local_compiler_rc`; release
+                            execution and public claims remain closed;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -908,6 +910,12 @@ Round 167 landed:
   S3-R167-C1-A: official first-RC evidence authorization review            ✅ authorizes bounded next evidence card only
   S3-R167-C2-P1: Ruby Ledger state-plane/concurrency contract              ✅ PASS design boundary; implementation gated
   S3-R167-C3-S: status curation                                            ✅ done; R168 evidence-gathering route recorded
+Round 168 landed:
+  S3-R168-C1-I: official first-RC evidence gathering                       ✅ PASS; 3/3 evidence commands; source harness 14/14 PASS
+  S3-R168-C2-A: Ruby Ledger unified state-plane authorization review       ✅ authorizes bounded package hardening independently
+  S3-R168-C3-X: official first-RC evidence pressure                        ✅ proceed; 10/10 checks PASS; NB-1..NB-3 future notes
+  S3-R168-C4-A: official evidence acceptance / next release vector         ✅ accepts official evidence; release execution/public claims closed
+  S3-R168-C5-S: status curation                                            ✅ done; R169 readiness-summary route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -993,8 +1001,11 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   and accept the bounded scope-aware harness update with PASS;
                   R167 authorizes only bounded official first-RC evidence
                   gathering next via
-                  `compiler-release-official-first-rc-evidence-gathering-v0`,
-                  while release execution and public claims remain closed;
+                  `compiler-release-official-first-rc-evidence-gathering-v0`;
+                  R168 accepts that official evidence for
+                  `repo_local_compiler_rc` and routes
+                  `compiler-release-readiness-summary-package-v0` next, while
+                  release execution and public claims remain closed;
                   Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class placeholder;
@@ -2607,6 +2618,23 @@ S3-R167 result:     C1-A authorizes official first-RC evidence gathering as a
                       package implementation/release, compiler behavior changes,
                       runtime, production, signing, deployment, and demo work
                       remain closed.
+S3-R168 result:     C4-A accepts the S3-R168-C1-I packet as official first-RC
+                      evidence for the narrowed `repo_local_compiler_rc` scope:
+                      evidence status PASS, 3/3 evidence command matrix PASS,
+                      source harness 14/14 PASS, failed_checks 0, hold_reasons
+                      0, positive corpus 5, negative corpus 3, artifact checks
+                      5, closed-surface scan PASS, branch/conditional `if_expr`
+                      excluded, and R165/R166 outputs not relabeled. This is
+                      evidence acceptance, not release execution. Release
+                      execution and public release/demo claims remain closed.
+                      Ruby Ledger implementation may proceed independently under
+                      S3-R168-C2-A as bounded package hardening for a shared
+                      StoreServer-hosted HTTP/TCP envelope state plane and
+                      serialized dispatch; no Ruby release, production benchmark,
+                      Spark binding, or legacy NetworkBackend bridge is opened.
+                      Spark `schedule_grid` report/observe remains deferred.
+                      Next Lang vector:
+                      `compiler-release-readiness-summary-package-v0`.
 ```
 
 ### Spec Freshness
