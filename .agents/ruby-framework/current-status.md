@@ -150,6 +150,8 @@ Latest production-prep proof:
 - `reports/s3-r166-c2-p1-igniter-ledger-server-stress-boundary-probe.md`
 - `tracks/ledger-server-envelope-state-plane-and-concurrency-contract-v0.md`
 - `reports/s3-r167-c2-p1-ledger-server-envelope-state-plane-and-concurrency-contract.md`
+- `reports/s3-r168-c2-a-ruby-ledger-unified-state-plane-implementation-authorization-review.md`
+- `reports/s3-r169-c2-p1-ruby-ledger-hardening-implementation-dispatch-packet.md`
 
 Proof status:
 
@@ -180,6 +182,8 @@ compiler release alignment fractal seed: PASS, docs boundary holds
 docs/examples hygiene: PASS, focused docs-only cleanup accepted
 ledger server stress boundary probe: PASS, bounded local probe completed
 ledger server envelope state-plane/concurrency contract: PASS, implementation gated
+ledger unified state-plane implementation authorization: authorized-bounded
+ledger hardening implementation dispatch packet: PASS, implementation card ready
 ```
 
 ## Active Risks
