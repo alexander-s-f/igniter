@@ -159,6 +159,9 @@ architecture. They are not production migration authorization.
 | `stage3-round160-status-curation-v0.md` | done | R160 status curation: records accepted harness design, R159 NB-1..NB-5 design closure, R160 pressure notes carried forward, RC evidence still closed, Spark/Ruby held, and R161 authorization-review route |
 | `compiler-release-acceptance-harness-implementation-authorization-review-v0.md` | authorized bounded proof-local implementation | R161 C1-A authorizes only proof-local harness runner implementation under `experiments/compiler_release_acceptance_harness_v0/**` plus the proof track; RC evidence gathering, release execution, public claims, Spark/Ruby, runtime, and production remain closed |
 | `stage3-round161-status-curation-v0.md` | done | R161 status curation: records exact C2-I authorization boundary, R160 note disposition, RC evidence closed, analyzer/tracer/visualizer internal-linkage-only status, Spark/Ruby held, and next `compiler-release-acceptance-harness-implementation-proof-v0` route |
+| `compiler-release-acceptance-harness-implementation-proof-v0.md` | done / HOLD | R161 C2-I lands proof-local harness runner implementation; command matrix 14/14 PASS, failed_checks 0, HOLD is branch/conditional boundary signal, not official RC evidence |
+| `compiler-release-acceptance-harness-implementation-closure-decision-v0.md` | conditional accept | R162 C1-A accepts proof-local runner closure, keeps HOLD as correct branch/conditional boundary signal, and requires semantic profile-source refusal follow-up before RC evidence authorization |
+| `stage3-round162-status-curation-v0.md` | done | R162 status curation: records conditional implementation closure, HOLD interpretation, branch/conditional disposition, semantic-refusal proof gap, RC evidence closed, and next semantic-profile refusal follow-up route |
 
 ---
 

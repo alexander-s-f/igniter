@@ -286,7 +286,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             compiler release-readiness map; R160 accepts the
                             design-only compiler release acceptance harness;
                             R161 authorizes only bounded proof-local harness
-                            runner implementation next;
+                            runner implementation; R162 conditionally accepts
+                            the runner closure with HOLD as correct branch/
+                            conditional boundary signal and routes semantic
+                            profile refusal follow-up next;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -876,6 +879,10 @@ Round 160 landed:
 Round 161 landed:
   S3-R161-C1-A: harness implementation authorization review                ✅ authorized bounded proof-local harness runner only
   S3-R161-C2-S: status curation / authorization map                        ✅ done; C2-I may run in exact C1-A scope
+Round 162 landed:
+  S3-R161-C2-I: harness implementation proof                               ✅ done; 14/14 PASS; top-level HOLD, failed_checks 0
+  S3-R162-C1-A: harness implementation closure decision                    ✅ conditional accept; semantic refusal follow-up required before RC evidence
+  S3-R162-C2-S: status curation                                           ✅ done; next route semantic-profile refusal follow-up
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -954,7 +961,9 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   for design purposes, and opens only
                   `compiler-release-acceptance-harness-implementation-authorization-review-v0`
                   next; R161 authorizes only bounded proof-local
-                  `compiler-release-acceptance-harness-implementation-proof-v0`
+                  `compiler-release-acceptance-harness-implementation-proof-v0`;
+                  R162 conditionally accepts that closure and opens only
+                  `compiler-release-harness-semantic-profile-refusal-follow-up-v0`
                   next;
                   Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
@@ -2486,6 +2495,28 @@ S3-R161 result:     C1-A authorizes only a bounded proof-local compiler release
                       loader/report, CompatibilityReport, Spark integration,
                       Ruby docs/release, runtime, production, signing, deployment,
                       and demo work remain closed.
+S3-R162 result:     C1-A conditionally accepts the proof-local harness runner
+                      implementation closure. The R161 implementation authorization
+                      is satisfied for the runner shape: command matrix 14/14 PASS,
+                      `failed_checks` 0, `release_scope.claimed_surfaces` present,
+                      `FAIL > HOLD > PASS` implemented, five positive corpus units,
+                      mixed `Integer + Bool` multi-input diversity, compatibility
+                      metadata shape checks, two-run normalization stability, and
+                      closed-surface scan PASS. The top-level harness status `HOLD`
+                      is accepted as correct because `if_expr` branch/conditional
+                      coverage is unsupported by the current TypeChecker (`OOF-TY0`);
+                      this is the intended boundary signal, not an implementation
+                      failure. RC evidence gathering remains closed because branch/
+                      conditional scope is not waived or narrowed and because the
+                      semantic profile-source wrong-kind case lacks the qualified
+                      `compiler_profile_source.*` diagnostic required by the accepted
+                      harness design. Next route:
+                      `compiler-release-harness-semantic-profile-refusal-follow-up-v0`,
+                      bounded proof-local fix/reclassification review only. No new
+                      implementation, official RC evidence, release execution, public
+                      demo/release claim, public analyzer/tracer/visualizer, public
+                      API/CLI widening, loader/report, CompatibilityReport, Spark/Ruby,
+                      runtime, production, signing, deployment, or demo work is authorized.
 ```
 
 ### Spec Freshness
