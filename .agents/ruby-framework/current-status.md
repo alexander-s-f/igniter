@@ -148,6 +148,8 @@ Latest production-prep proof:
 - `reports/s3-r159-c3-p1-ruby-framework-docs-and-examples-hygiene.md`
 - `tracks/igniter-ledger-server-stress-boundary-probe-v0.md`
 - `reports/s3-r166-c2-p1-igniter-ledger-server-stress-boundary-probe.md`
+- `tracks/ledger-server-envelope-state-plane-and-concurrency-contract-v0.md`
+- `reports/s3-r167-c2-p1-ledger-server-envelope-state-plane-and-concurrency-contract.md`
 
 Proof status:
 
@@ -177,6 +179,7 @@ Rubygems publish/release: complete for 0.5.2
 compiler release alignment fractal seed: PASS, docs boundary holds
 docs/examples hygiene: PASS, focused docs-only cleanup accepted
 ledger server stress boundary probe: PASS, bounded local probe completed
+ledger server envelope state-plane/concurrency contract: PASS, implementation gated
 ```
 
 ## Active Risks
