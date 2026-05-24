@@ -3,6 +3,10 @@
 Igniter Lang is currently an additive contracts-facing foundation, not a
 separate production language runtime.
 
+This page is not a release-compatibility promise for the next Igniter-Lang
+compiler. Treat these APIs as Ruby-side evidence/report carriers until a stable
+compiler release-candidate export fixture is accepted.
+
 Use it when you want a small reference surface for:
 
 - loading the Lang namespace with `require "igniter/lang"`
@@ -61,6 +65,8 @@ verify surfaces.
 It does not introduce a new compiler, runtime, scheduler, parser, or AST. The
 compiled artifact is still a contracts artifact, and execution behavior stays
 the same as ordinary contracts execution.
+Future compiler POC output should enter this surface only as redacted,
+report-only metadata or receipt payloads, not as Ruby execution semantics.
 
 ## Descriptors
 

@@ -39,6 +39,11 @@ All packages are pre-v1. API stability, transport guarantees, and production
 deployment promises should be checked in the owning package README and current
 track docs before depending on them.
 
+The Ruby Framework `0.5.2` release covered the currently published Ruby gem
+line: `igniter`, `igniter-contracts`, `igniter-extensions`, `igniter-embed`,
+`igniter-ledger-client`, and `igniter-ledger`. Other package directories may be
+active source lanes or proof packages, but they are not implied by that release.
+
 `igniter-ledger` and `igniter-durable-model` are no longer parked as passive research
 packages. They remain experimental in API shape, but they are active foundation
 work for Ledger-backed companion systems.

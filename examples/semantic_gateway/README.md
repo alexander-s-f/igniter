@@ -2,6 +2,8 @@
 
 Standalone experiment. Does not modify the `igniter` gem.  
 The original design note is private working material under `playgrounds/docs/`.
+This folder is not part of the current released Ruby Framework package surface
+or the active examples catalog; keep it as local research/prototype evidence.
 
 ## What This Is
 

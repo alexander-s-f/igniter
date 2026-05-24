@@ -144,6 +144,8 @@ Latest production-prep proof:
 - `reports/ruby-rel-p6-0-5-2-post-release-closure.md`
 - `tracks/ruby-framework-compiler-release-alignment-fractal-seed-v0.md`
 - `reports/s3-r158-c2-p1-ruby-framework-compiler-release-alignment.md`
+- `tracks/ruby-framework-docs-and-examples-hygiene-v0.md`
+- `reports/s3-r159-c3-p1-ruby-framework-docs-and-examples-hygiene.md`
 
 Proof status:
 
@@ -154,7 +156,7 @@ Rails server smoke: http://127.0.0.1:3042/availability ok
 root rake: 686 examples, 0 failures; RuboCop no offenses
 ledger package specs: 1254 examples, 0 failures
 gem build smoke: igniter, igniter-contracts, igniter-embed,
-  igniter-extensions, igniter-ledger-client, igniter-ledger all build 0.5.1
+  igniter-extensions, igniter-ledger-client, igniter-ledger all build 0.5.2
 clean installed-gem Rails proof smoke: pass
 observed-service receipt recipe: filed
 package-doc/release-readiness notes: filed
@@ -171,6 +173,7 @@ release blocker closure plan: filed
 0.5.2 post-release closure: PASS, Rubygems index verifies all six gems
 Rubygems publish/release: complete for 0.5.2
 compiler release alignment fractal seed: PASS, docs boundary holds
+docs/examples hygiene: PASS, focused docs-only cleanup accepted
 ```
 
 ## Active Risks
@@ -268,24 +271,22 @@ Keep Spark x Igniter adoption in primary_observed_only mode until one redacted
 receipt path is proven end-to-end.
 ```
 
-Current round report (filed, awaiting Architect):
+Current Ruby Framework hygiene report:
 
 ```text
-.agents/ruby-framework/reports/ruby-framework-spark-contractable-shadowing-adoption-round-v0.md
+.agents/ruby-framework/reports/s3-r159-c3-p1-ruby-framework-docs-and-examples-hygiene.md
 ```
 
 Round status:
 
 ```text
-Ruby Framework lane contribution: done.
-Waiting: S3-R87-C3-A (Architect decision).
-Latest analysis/recipe round: done.
-Next round: no new implementation round open yet.
-Recommended next route: wait for explicit publish approval phrase if the user
-wants Rubygems publish. Remote tag `v0.5.2` is present and matches local release
-commit; local `master` is ahead of `origin/master` by unrelated Lang commits,
-but branch push is not required for publish.
+Ruby Framework 0.5.2 release corridor: closed.
+Latest compiler alignment round: done.
+Latest docs/examples hygiene round: done.
+Recommended next route: hold for Lang release-candidate export fixture before
+any compiler compatibility package-doc sync; optional post-release public
+Rubygems install smoke remains support-only.
 Spark production readiness remains out of scope.
-Next report filename: to be determined by publish execution route or the next
-Spark/Ruby adoption route.
+Next report filename: to be determined by the next Portfolio route or local
+support smoke.
 ```

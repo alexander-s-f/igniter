@@ -47,6 +47,10 @@ Use package READMEs, runnable examples, and track docs to evaluate current
 capability. Production-grade guarantees and compatibility policy belong after
 v1.
 
+Released Ruby gems are the package surface that has been cut and published.
+Other package lanes in this repository may be active, local, or proof-only even
+when they appear in the framework map.
+
 ## Platform Lanes
 
 ### `igniter-contracts`
@@ -168,6 +172,8 @@ and approval gates.
 
 - Stable v1 API compatibility.
 - A production database adapter abstraction.
+- Igniter-Lang compiler/parser/runtime compatibility beyond the additive,
+  report-only Lang foundation currently documented for `igniter-contracts`.
 - Remote mutating Store operations for compaction/prune/purge.
 - Cluster consensus or deployment guarantees.
 - AI authority without receipts, policies, replay, and human approval paths.

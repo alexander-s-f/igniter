@@ -3,6 +3,9 @@
 This app is a small Rails proof for adopting Igniter in a host application
 without changing the host's primary business behavior.
 
+It is supporting evidence for the Ruby Framework package line, not a production
+Rails integration kit or a Spark production adoption recipe.
+
 It demonstrates:
 
 - `Igniter::Embed.contractable` in primary-only observed-service mode.

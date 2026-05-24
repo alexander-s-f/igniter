@@ -1,6 +1,8 @@
 # Line-Up Approximation — Prototype
 
 Standalone experiment. No changes to `igniter` gem.
+This folder is not part of the current released Ruby Framework package surface
+or the active examples catalog; keep it as local research/prototype evidence.
 
 ## What This Is
 

@@ -15,6 +15,9 @@ Active examples are limited to:
 
 Older demos were moved out of the active tree and should not be treated as
 current reference material.
+Some adjacent prototype folders may remain for local research comparison; if
+they are not listed in the catalog below, they are not part of the current
+release/support example surface.
 
 ## Runner
 
@@ -61,6 +64,10 @@ ruby examples/run.rb run contracts/contractable_shadow
 ruby examples/run.rb run contracts/step_result
 ruby examples/run.rb run contracts/lang_foundation
 ```
+
+`contracts/lang_foundation` is a report-only metadata proof over the current
+contracts runtime. It is not a standalone compiler/parser/runtime compatibility
+test for a future Igniter-Lang release.
 
 ## Active Example Lane
 

@@ -237,3 +237,8 @@ ruby examples/contracts/lang_foundation.rb
 
 See [Igniter Lang Foundation](../../docs/guide/igniter-lang-foundation.md) for
 the short guide.
+
+This is not a compatibility promise for the next Igniter-Lang compiler release.
+Until Igniter-Lang provides a stable release-candidate export fixture, Ruby
+should treat compiler POC material as redacted report-only evidence payloads,
+not executable language semantics.
