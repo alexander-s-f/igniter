@@ -189,6 +189,7 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-execution-authorization-pressure-v0.md` | proceed | R170 C3-X pressure passes 10/10 checks; C4-A must fix `igc compile` executable wording, use Section 5 Tier 3 wording if needed, and make Option A null-version-change explicit |
 | `compiler-release-execution-authorization-review-v0.md` | done / authorized bounded marker | R170 C4-A authorizes only `repo_local_compiler_rc_marker` execution next, requires independent hash verification, keeps version/tag/push/publish/sign/deploy/public claims closed, and leaves installed-gem/package readiness not established |
 | `stage3-round170-status-curation-v0.md` | done | R170 status curation records bounded repo-local marker authorization, null-version/tagging status, public claims and package readiness closure, closed surfaces, and next `compiler-release-repo-local-rc-marker-v0` route |
+| `compiler-release-repo-local-rc-marker-v0.md` | done | R171 C1-I writes the repo-local RC marker: independent hash verification PASS, official evidence `repo_local_compiler_rc` scope accepted, PASS status, all non-claims and exclusions preserved; no version change, no tag, no push, no gem publish; release execution beyond marker closed |
 
 ---
 

@@ -931,6 +931,8 @@ Round 170 landed:
   S3-R170-C3-X: release execution authorization pressure                   ✅ proceed; 10/10 checks PASS; NB-1..NB-3 fixed by C4-A
   S3-R170-C4-A: release execution authorization review                     ✅ authorizes only bounded repo-local RC marker next
   S3-R170-C5-S: status curation                                            ✅ done; R171 marker route recorded
+Round 171 landed:
+  S3-R171-C1-I: compiler release repo-local RC marker                     ✅ done; hash PASS; evidence PASS; non-claims preserved; marker closed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2679,6 +2681,19 @@ S3-R170 result:     C4-A authorizes only the bounded repo-local compiler RC
                       The marker card must run the independent hash verification
                       from C4-A and preserve non-claims. Ruby Ledger hardening
                       remains independent/non-blocking; Spark remains excluded.
+S3-R171 result:     C1-I writes the repo-local compiler RC marker authorized by
+                      S3-R170-C4-A. Independent hash verification PASS:
+                      `sha256:bc8d69f65c9267a604cb47e8ce0498a8373a80eaa264a2c53892139552a2618b`.
+                      Official evidence scope `repo_local_compiler_rc` accepted,
+                      evidence status PASS, authorization S3-R167-C1-A, acceptance
+                      S3-R168-C4-A. All non-claims and exclusions preserved.
+                      `IgniterLang::VERSION` remains `0.1.0.pre.stage2`. No version
+                      file edited. No tag, push, publish, sign, or deploy authorized.
+                      Branch/conditional `if_expr` remains excluded from first RC.
+                      Installed-gem/package readiness remains not established.
+                      Public release/demo claims remain closed. Release execution
+                      beyond this marker remains closed. Ruby Ledger hardening
+                      remains independent/non-blocking. Spark remains excluded.
 ```
 
 ### Spec Freshness
