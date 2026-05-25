@@ -207,6 +207,8 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-installed-gem-marker-and-next-vector-pressure-v0.md` | proceed | R174 C3-X pressure passes 9/9 checks with no blockers; carries full-chain release-closure citation and not-allowed wording constraints as future notes |
 | `compiler-release-installed-readiness-and-next-vector-decision-v0.md` | done / accepted | R174 C4-A accepts the installed-gem readiness marker, keeps local package/install smoke readiness bounded, selects profile-source smoke extension authorization review next, and keeps release execution/public/RubyGems/version/tag/publish/sign/deploy closed |
 | `stage3-round174-status-curation-v0.md` | done | R174 status curation records marker acceptance, selected profile-source authorization-review vector, public/version/tag/publish closure, profile-source execution closure, and closed surfaces |
+| `compiler-release-profile-source-smoke-extension-boundary-v0.md` | done | R175 C1-P1 defines the bounded installed-package profile-source smoke extension boundary, success/refusal fixtures, expected compiler_profile_id, non-claims, and execution-authorization preconditions; no smoke run or execution authorization |
+| `compiler-release-profile-source-smoke-extension-criteria-v0.md` | done | R175 C2-P1 defines PSS-0..PSS-8 PASS/HOLD/FAIL criteria, installed package isolation, command matrix, success/preflight/semantic refusal criteria, required result packet shape, artifact policy, and R173 NB-1 refusal-kind hygiene; no smoke run or execution authorization |
 
 ---
 
