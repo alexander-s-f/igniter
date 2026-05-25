@@ -300,10 +300,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             bounded repo-local RC marker execution next; R171
                             accepts that marker with hash PASS; R172 authorizes
                             only bounded local package/install smoke execution
-                            next; version change, tag/push/publish/sign/deploy,
-                            installed-gem readiness acceptance, public claims,
-                            profile-source smoke, runtime, and production remain
-                            closed;
+                            next; R173 accepts that smoke PASS and recognizes
+                            installed-gem/package readiness for local smoke scope
+                            only; version change, tag/push/publish/sign/deploy,
+                            public claims, profile-source smoke, runtime, and
+                            production remain closed;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -946,6 +947,11 @@ Round 172 landed:
   S3-R172-C3-X: package/install smoke authorization pressure              ✅ proceed; 11/11 checks PASS; no blockers
   S3-R172-C4-A: package/install smoke authorization review                ✅ authorizes bounded smoke execution next
   S3-R172-C5-S: status curation                                           ✅ done; R173 smoke execution route recorded
+Round 173 landed:
+  S3-R173-C1-I: package/install smoke execution                           ✅ PASS; PKG-0..PKG-5 PASS; 5/5 positive, 3/3 refusal
+  S3-R173-C2-X: package/install smoke pressure                            ✅ proceed; 14/14 checks PASS; no blockers
+  S3-R173-C3-A: package/install smoke acceptance decision                 ✅ accepts PASS; local installed package readiness recognized
+  S3-R173-C4-S: status curation                                           ✅ done; R174 readiness-marker route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2724,6 +2730,22 @@ S3-R172 result:     C4-A authorizes only bounded local package/install smoke
                       acceptance. Public release/demo claims, version edits,
                       gemspec edits, tags, push, publish, signing, deployment,
                       Spark, runtime, and production remain closed.
+S3-R173 result:     C3-A accepts the bounded local package/install smoke PASS.
+                      Run `S3R173C1I_20260525T063543Z` builds and installs
+                      `igniter_lang` version `0.1.0.pre.stage2` in isolated temp
+                      state; built gem SHA256:
+                      `sha256:dba3f0044535e8c05ad913a02c08ab06bab1602fb085290f225de206505ba46a`.
+                      PKG-0..PKG-5 PASS, failed_checks 0, hold_reasons 0,
+                      installed `igc compile` compiles 5/5 positive corpus files
+                      and refuses 3/3 negative corpus files, without repo-relative
+                      `-I` or repo path leak. Installed-gem/package readiness is
+                      recognized only for local package/install smoke scope.
+                      Public release/demo claims, RubyGems availability,
+                      production readiness, profile-source smoke, version edits,
+                      gemspec edits, tags, push, publish, signing, deployment,
+                      Spark, runtime, production, and public compatibility claims
+                      remain closed. Next route:
+                      `compiler-release-installed-gem-readiness-marker-v0`.
 ```
 
 ### Spec Freshness

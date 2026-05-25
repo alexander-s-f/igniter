@@ -198,6 +198,10 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-package-install-smoke-authorization-pressure-v0.md` | proceed | R172 C3-X pressure passes 11/11 checks with no blockers; C4-A must define repo write scope, defer or include profile-source checks, and assign the execution card designation |
 | `compiler-release-package-install-smoke-authorization-review-v0.md` | done / authorized bounded smoke | R172 C4-A authorizes only `S3-R173-C1-I / compiler-release-package-install-smoke-v0` for bounded local package/install smoke; installed readiness remains unestablished until PASS and later acceptance; public/version/tag/publish/sign/deploy surfaces remain closed |
 | `stage3-round172-status-curation-v0.md` | done | R172 status curation records bounded smoke authorization, installed package readiness hold, public/version/tag/publish closure, closed surfaces, and next `compiler-release-package-install-smoke-v0` route |
+| `compiler-release-package-install-smoke-v0.md` | done / PASS | R173 C1-I runs the bounded local package/install smoke: PKG-0..PKG-5 PASS, installed `igc compile`, 5/5 positive corpus, 3/3 refusal corpus, no repo path leak, no version/tag/publish/sign/deploy action |
+| `../discussions/compiler-release-package-install-smoke-pressure-v0.md` | proceed | R173 C2-X pressure passes 14/14 checks with no blockers; refusal_kind and PKG-0 criteria placement notes are non-blocking smoke hygiene |
+| `compiler-release-package-install-smoke-acceptance-decision-v0.md` | done / accepted | R173 C3-A accepts smoke PASS and recognizes installed-gem/package readiness only for bounded local smoke scope; public release/demo, RubyGems, production, version/tag/publish/sign/deploy, profile-source smoke, Spark, and Ruby Framework claims remain closed |
+| `stage3-round173-status-curation-v0.md` | done | R173 status curation records accepted smoke PASS, local installed package readiness scope, public/version/tag/publish closure, closed surfaces, and next `compiler-release-installed-gem-readiness-marker-v0` route |
 
 ---
 
