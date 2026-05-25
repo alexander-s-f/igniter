@@ -315,7 +315,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             the marker and opens public release/docs non-claims
                             planning only; R178 accepts that planning bundle
                             and opens bounded docs polish authorization review
-                            only;
+                            only; R179 accepts bounded docs polish, closes/
+                            fences CR-1 for this release-readiness lane,
+                            preserves CR-13 internal-only, and opens only
+                            release-execution authorization review next;
                             version change, tag/push/publish/sign/deploy,
                             release execution, public claims, runtime, and
                             production remain closed;
@@ -994,6 +997,12 @@ Round 178 landed:
   S3-R178-C3-X: public non-claims pressure                                ✅ proceed; 12/12 checks PASS
   S3-R178-C4-A: public non-claims planning decision                       ✅ accepts planning; bounded docs polish authorization review next
   S3-R178-C5-S: status curation                                           ✅ done; R179 authorization-review route recorded
+Round 179 landed:
+  S3-R179-C1-A: docs polish authorization review                          ✅ authorizes bounded docs polish only
+  S3-R179-C2-I: public nonclaims docs polish                              ✅ done; P1-P9 PASS; forbidden phrase scan CLEAN
+  S3-R179-C3-X: docs polish pressure                                      ✅ proceed; 12/12 checks PASS; no blockers
+  S3-R179-C4-A: docs polish acceptance decision                           ✅ accepts docs polish; release-execution authorization review next
+  S3-R179-C5-S: status curation                                           ✅ done; next authorization-review route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2895,6 +2904,24 @@ S3-R178 result:      C4-A accepts public release/docs non-claims planning.
                       `if_expr`, Spark integration, runtime, production,
                       package metadata, gemspec, compiler/runtime code, and new
                       implementation remain closed.
+S3-R179 result:      C4-A accepts bounded public non-claims docs polish.
+                      C2-I changed only the C1-A authorized files, closed/
+                      fenced CR-1 in the pressure specimen, replaced stale
+                      source-horizon navigation, added local-evidence
+                      non-claims wording, and cleaned `ruby-api.md` preamble
+                      wording. C2-I proof matrix P1-P9 passed and the
+                      forbidden phrase scan is CLEAN. C3-X pressure passes
+                      12/12 with no blockers or non-blocking notes. CR-1 is
+                      closed/fenced enough for this release-readiness lane.
+                      CR-13 remains internal-only; no public Spark production
+                      evidence wording was added. Next route is a decision-only
+                      release-execution authorization review. Release
+                      execution, public release/demo claims, RubyGems publish,
+                      version/tag/push/publish/sign/deploy, package metadata,
+                      gemspec edits, profile finalization/discovery/defaulting,
+                      branch/conditional `if_expr`, Spark integration/public
+                      evidence claims, compiler/runtime behavior, runtime, and
+                      production remain closed.
 ```
 
 ### Spec Freshness

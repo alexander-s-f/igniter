@@ -225,6 +225,11 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-public-nonclaims-pressure-v0.md` | proceed | R178 C3-X pressure passes 12/12 checks with no blockers on planning acceptance; verifies safe wording, non-claims, CR-1/CR-13 handling, and closed release/public surfaces |
 | `compiler-release-public-nonclaims-planning-decision-v0.md` | done / accepted | R178 C4-A accepts public release/docs non-claims planning as planning-only/future-authorized wording candidate, requires CR-1 handling before docs polish, keeps CR-13 internal by default, and opens bounded docs polish authorization review next |
 | `stage3-round178-status-curation-v0.md` | done | R178 status curation records accepted planning state, CR-1/CR-13 dispositions, next bounded docs polish authorization-review route, round receipt, and preserved non-authorizations |
+| `compiler-release-docs-polish-authorization-review-v0.md` | done / authorized bounded docs polish | R179 C1-A authorizes bounded docs polish in exact named files only; release execution, public claims, RubyGems, version/tag/push/publish/sign/deploy, Spark, compiler/runtime behavior remain closed |
+| `compiler-release-public-nonclaims-docs-polish-v0.md` | done | R179 C2-I performs bounded docs polish within authorized scope; CR-1 fixed/fenced; CR-13 remains internal-only; P1-P9 PASS; forbidden phrase scan CLEAN |
+| `../discussions/compiler-release-public-nonclaims-docs-polish-pressure-v0.md` | proceed | R179 C3-X pressure passes 12/12 checks with no blockers and no non-blocking notes; confirms closed surfaces stay closed |
+| `compiler-release-public-nonclaims-docs-polish-acceptance-decision-v0.md` | done / accepted | R179 C4-A accepts docs polish, CR-1 closure/fence, CR-13 internal-only preservation, and opens release-execution authorization review next while keeping execution/public claims closed |
+| `stage3-round179-status-curation-v0.md` | done | R179 status curation records accepted docs polish state, CR-1/CR-13 dispositions, next release-execution authorization-review route, round receipt, and preserved non-authorizations |
 
 ---
 
