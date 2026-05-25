@@ -220,6 +220,11 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-profile-source-installed-readiness-marker-pressure-v0.md` | proceed | R177 C2-X pressure passes 14/14 checks with no blockers; verifies marker fields, bounded wording, PSS-0..PSS-8, NB-1 hygiene, and non-claim preservation |
 | `compiler-release-profile-source-installed-readiness-marker-acceptance-decision-v0.md` | done / accepted | R177 C3-A accepts the bounded profile-source installed readiness marker, keeps release execution/public claims/RubyGems/version/profile-discovery/runtime/Spark surfaces closed, and opens public release/docs non-claims planning next |
 | `stage3-round177-status-curation-v0.md` | done | R177 status curation records accepted marker state, next public release/docs non-claims planning route, round receipt, and preserved non-authorizations |
+| `compiler-release-public-nonclaims-docs-scope-v0.md` | done | R178 C1-P1 drafts public release/docs non-claims planning wording, preferred phrase shapes, excluded surfaces, and later docs polish boundary; no public docs edited |
+| `compiler-release-public-readme-and-demo-claim-risk-survey-v0.md` | done | R178 C2-P1 surveys README/docs/demo-facing claim risk and classifies CR-1 as blocker before public docs polish and CR-13 as Portfolio-gated before public Spark mention |
+| `../discussions/compiler-release-public-nonclaims-pressure-v0.md` | proceed | R178 C3-X pressure passes 12/12 checks with no blockers on planning acceptance; verifies safe wording, non-claims, CR-1/CR-13 handling, and closed release/public surfaces |
+| `compiler-release-public-nonclaims-planning-decision-v0.md` | done / accepted | R178 C4-A accepts public release/docs non-claims planning as planning-only/future-authorized wording candidate, requires CR-1 handling before docs polish, keeps CR-13 internal by default, and opens bounded docs polish authorization review next |
+| `stage3-round178-status-curation-v0.md` | done | R178 status curation records accepted planning state, CR-1/CR-13 dispositions, next bounded docs polish authorization-review route, round receipt, and preserved non-authorizations |
 
 ---
 
