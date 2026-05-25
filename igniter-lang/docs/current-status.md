@@ -302,8 +302,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             only bounded local package/install smoke execution
                             next; R173 accepts that smoke PASS; R174 C1-S records
                             installed-gem/package readiness for local smoke scope
-                            only; version change, tag/push/publish/sign/deploy,
-                            public claims, profile-source smoke, runtime, and
+                            only; R174 C4-A accepts that marker and selects
+                            profile-source smoke extension authorization review
+                            next; version change, tag/push/publish/sign/deploy,
+                            release execution, public claims, runtime, and
                             production remain closed;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
@@ -954,6 +956,10 @@ Round 173 landed:
   S3-R173-C4-S: status curation                                           ✅ done; R174 readiness-marker route recorded
 Round 174 landed:
   S3-R174-C1-S: installed-gem readiness marker                            ✅ done; bounded local smoke readiness marker recorded
+  S3-R174-C2-P1: next release-vector options                              ✅ done; recommends profile-source smoke authorization review
+  S3-R174-C3-X: installed-gem marker / next-vector pressure               ✅ proceed; 9/9 checks PASS; no blockers
+  S3-R174-C4-A: installed-readiness and next-vector decision              ✅ accepts marker; profile-source smoke authorization review next
+  S3-R174-C5-S: status curation                                           ✅ done; R175 authorization-review route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2760,6 +2766,18 @@ S3-R174 C1-S:        Records the accepted installed-gem/package readiness marker
                       runtime, and production remain closed. Future smoke hygiene:
                       `type_mismatch.ig` and `unresolved_symbol.ig` refusal kind
                       should classify as `oof`.
+S3-R174 result:      C4-A accepts the installed-gem readiness marker as a bounded
+                      record of R173 local package/install smoke readiness for
+                      `igniter_lang 0.1.0.pre.stage2`. C3-X pressure passes 9/9
+                      with no blockers. The selected next release vector is
+                      profile-source smoke extension authorization review, not
+                      execution. Release execution remains closed across the full
+                      R170 -> R171 -> R172 -> R173 -> R174 chain. Public release/
+                      demo claims, RubyGems publish, version/tag/push/publish/
+                      sign/deploy, profile-source smoke execution, branch/
+                      conditional `if_expr`, Spark, Ruby Framework compatibility,
+                      runtime, and production remain closed. Next route:
+                      `compiler-release-profile-source-smoke-extension-boundary-v0`.
 ```
 
 ### Spec Freshness
