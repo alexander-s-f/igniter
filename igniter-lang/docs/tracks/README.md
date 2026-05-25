@@ -216,6 +216,7 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-profile-source-install-smoke-pressure-v0.md` | proceed | R176 C2-X pressure passes 19/19 checks with no blockers; NB-1 notes partial temp `out/` cleanup as non-blocking hygiene and NB-2 notes prior non-claims count wording |
 | `compiler-release-profile-source-install-smoke-acceptance-decision-v0.md` | done / accepted | R176 C3-A accepts the PASS smoke closure for bounded installed-package profile-source readiness evidence, preserves all release/public/version/profile-discovery/runtime/Spark non-authorizations, and selects profile-source installed readiness marker/status next |
 | `stage3-round176-status-curation-v0.md` | done | R176 status curation records accepted smoke state, run id/status, non-blocking cleanup hygiene, preserved non-authorizations, and next `compiler-release-profile-source-installed-readiness-marker-v0` route |
+| `compiler-release-profile-source-installed-readiness-marker-v0.md` | done | R177 C1-S records the bounded profile-source installed smoke readiness marker from accepted run `S3R176C1I_20260525T101425Z`, allowed/not-allowed wording, PSS-0..PSS-8 PASS, NB-1 cleanup hygiene, and preserved public/release/version/runtime/Spark non-authorizations |
 
 ---
 

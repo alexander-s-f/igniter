@@ -310,6 +310,8 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R176 accepts that smoke PASS for bounded installed
                             profile-source transport only and routes a
                             profile-source installed readiness marker next;
+                            R177 C1-S records that marker without opening
+                            public release/docs readiness;
                             version change, tag/push/publish/sign/deploy,
                             release execution, public claims, runtime, and
                             production remain closed;
@@ -977,6 +979,8 @@ Round 176 landed:
   S3-R176-C2-X: profile-source install smoke pressure                     ✅ proceed; 19/19 checks PASS; NB-1 temp cleanup hygiene
   S3-R176-C3-A: profile-source install smoke acceptance decision          ✅ accepts PASS; marker/status route next
   S3-R176-C4-S: status curation                                           ✅ done; R177 marker/status route recorded
+Round 177 landed:
+  S3-R177-C1-S: profile-source installed readiness marker                 ✅ done; bounded marker recorded; public release/docs readiness still closed
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2829,6 +2833,22 @@ S3-R176 result:      C3-A accepts the bounded installed-package profile-source
                       `if_expr`, Spark, runtime, and production remain closed.
                       Next route:
                       `compiler-release-profile-source-installed-readiness-marker-v0`.
+S3-R177 C1-S:        Records the accepted bounded installed-package
+                      profile-source smoke readiness marker. Allowed wording:
+                      the current local `igniter_lang` package builds, installs
+                      into an isolated gem home, loads without repo-relative
+                      `-I`, and the installed `igc` CLI preserves the accepted
+                      `--compiler-profile-source PATH.json` transport for one
+                      valid finalized profile-source case, one malformed JSON
+                      preflight refusal, and one semantic wrong-kind refusal.
+                      This marker is not public release/docs readiness and does
+                      not claim RubyGems availability, production readiness,
+                      public demo readiness, all-grammar support, branch/
+                      conditional `if_expr`, profile discovery/defaulting/
+                      finalization, Spark integration, or Ruby Framework
+                      compatibility. Public release/demo claims, release
+                      execution, RubyGems publish, version/tag/push/publish/
+                      sign/deploy, runtime, and production remain closed.
 ```
 
 ### Spec Freshness
