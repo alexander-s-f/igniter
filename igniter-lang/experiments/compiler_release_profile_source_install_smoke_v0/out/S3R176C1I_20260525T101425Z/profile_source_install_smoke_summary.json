@@ -1,0 +1,314 @@
+{
+  "kind": "compiler_release_profile_source_install_smoke_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R176-C1-I",
+  "track": "compiler-release-profile-source-install-smoke-v0",
+  "status": "PASS",
+  "authorized_by": "S3-R175-C4-A",
+  "run_id": "S3R176C1I_20260525T101425Z",
+  "executed_at_utc": "2026-05-25T10:14:26Z",
+  "release_scope": {
+    "scope": "bounded_installed_package_profile_source_smoke",
+    "source_marker": "local_package_install_smoke_only",
+    "base_run_id": "S3R173C1I_20260525T063543Z",
+    "public_claims_authorized": false,
+    "rubygems_publish_authorized": false,
+    "production_runtime_authorized": false,
+    "release_execution_authorized": false,
+    "profile_source_smoke_execution_only_if_authorized": true
+  },
+  "package": {
+    "gem_name": "igniter_lang",
+    "version": "0.1.0.pre.stage2",
+    "gemspec_path": "/Users/alex/dev/projects/igniter/igniter-lang/igniter_lang.gemspec",
+    "built_gem_path": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/build/igniter_lang-0.1.0.pre.stage2.gem",
+    "built_gem_sha256": "sha256:dba3f0044535e8c05ad913a02c08ab06bab1602fb085290f225de206505ba46a",
+    "executable_expected": "igc",
+    "executable_observed": "igc"
+  },
+  "environment": {
+    "ruby_version": "ruby 3.2.2 (2023-03-30 revision e51014f9c0) [arm64-darwin25]",
+    "gem_version": "4.0.10",
+    "smoke_root": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z",
+    "gem_home": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/gem_home",
+    "gem_path": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/gem_home",
+    "bin_dir": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/bin",
+    "cwd_for_installed_checks": "/private/tmp",
+    "repo_relative_i_used": false,
+    "rubylib_points_to_repo": false,
+    "repo_path_leak_observed": false
+  },
+  "criteria": {
+    "PSS-0": {
+      "status": "PASS",
+      "summary": "isolated build/install/require proven; igc present; no repo path leak"
+    },
+    "PSS-1": {
+      "status": "PASS",
+      "summary": "installed $BIN_DIR/igc used with explicit --compiler-profile-source PATH.json; no repo bin/igc; no inline JSON; no discovery"
+    },
+    "PSS-2": {
+      "status": "PASS",
+      "summary": "valid finalized profile source: exit 0; igapp written; compiler_profile_id matches compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7"
+    },
+    "PSS-3": {
+      "status": "PASS",
+      "summary": "preflight refusal: non-zero exit; stderr-only one-line; no igapp; no report"
+    },
+    "PSS-4": {
+      "status": "PASS",
+      "summary": "semantic refusal: non-zero; compiler_result JSON; report present; qualified compiler_profile_source.* diagnostic; no igapp"
+    },
+    "PSS-5": {
+      "status": "PASS",
+      "summary": "no finalization/discovery/defaulting: all profile sources are caller-supplied temp file copies; no named lookup; no inline JSON; no env/config/sidecar"
+    },
+    "PSS-6": {
+      "status": "PASS",
+      "summary": "refusal-kind labels match observed behavior: preflight=profile_source_preflight; semantic=profile_source_semantic_refusal"
+    },
+    "PSS-7": {
+      "status": "PASS",
+      "summary": "all non-claims present and true; no version/tag/push/publish/sign/deploy/release/public action taken"
+    },
+    "PSS-8": {
+      "status": "PASS",
+      "summary": "cleanup complete: GEM_HOME, BIN_DIR, fixtures, source, build removed; summary retained at durable path"
+    }
+  },
+  "command_matrix": [
+    {
+      "id": "PSS-0A",
+      "kind": "gemspec_syntax_check",
+      "cmd_shape": "ruby -c igniter_lang.gemspec",
+      "cmd": "ruby -c /Users/alex/dev/projects/igniter/igniter-lang/igniter_lang.gemspec",
+      "cwd": "/Users/alex/dev/projects/igniter/igniter-lang",
+      "env_shape": "system",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "Syntax OK",
+      "stderr_excerpt": "",
+      "artifacts": []
+    },
+    {
+      "id": "PSS-0B",
+      "kind": "gem_build",
+      "cmd_shape": "gem build igniter_lang.gemspec --output $BUILD_DIR/igniter_lang-$VERSION.gem",
+      "cmd": "gem build /Users/alex/dev/projects/igniter/igniter-lang/igniter_lang.gemspec --output /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/build/igniter_lang-0.1.0.pre.stage2.gem",
+      "cwd": "/Users/alex/dev/projects/igniter/igniter-lang",
+      "env_shape": "system",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "Successfully built RubyGem\n  Name: igniter_lang\n  Version: 0.1.0.pre.stage2\n  File: igniter_lang-0.1.0.pre.stage2.gem",
+      "stderr_excerpt": "",
+      "artifacts": [
+        "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/build/igniter_lang-0.1.0.pre.stage2.gem"
+      ],
+      "built_gem_sha256": "sha256:dba3f0044535e8c05ad913a02c08ab06bab1602fb085290f225de206505ba46a"
+    },
+    {
+      "id": "PSS-0C",
+      "kind": "gem_install_isolated",
+      "cmd_shape": "gem install --local --force --no-document --install-dir $GEM_HOME --bindir $BIN_DIR $GEM_PATH_LOCAL",
+      "cmd": "gem install --local --force --no-document --install-dir /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/gem_home --bindir /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/bin /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/build/igniter_lang-0.1.0.pre.stage2.gem",
+      "cwd": "/Users/alex/dev/projects/igniter/igniter-lang",
+      "env_shape": "system",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "Successfully installed igniter_lang-0.1.0.pre.stage2\n1 gem installed",
+      "stderr_excerpt": "",
+      "artifacts": [
+        "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/bin/igc"
+      ],
+      "igc_executable_present": true
+    },
+    {
+      "id": "PSS-0D",
+      "kind": "require_no_repo_i",
+      "cmd_shape": "ruby -e 'require \"igniter_lang\"; ...' from temp cwd",
+      "cmd": "ruby -e 'require \"igniter_lang\"; spec = Gem.loaded_specs.fetch(\"igniter_lang\"); abort \"repo path leak: #{spec.full_gem_path}\" if spec.full_gem_path.include?(\"/Users/alex/dev/projects/igniter/igniter-lang\"); puts \"load OK #{IgniterLang::VERSION} path=#{spec.full_gem_path}\"'",
+      "cwd": "/private/tmp",
+      "env_shape": "GEM_HOME=$GEM_HOME GEM_PATH=$GEM_HOME",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "load OK 0.1.0.pre.stage2 path=/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/gem_home/gems/igniter_lang-0.1.0.pre.stage2",
+      "stderr_excerpt": "",
+      "repo_relative_i_used": false,
+      "repo_path_leak_observed": false,
+      "artifacts": []
+    },
+    {
+      "id": "PSS-2",
+      "kind": "installed_profile_source_success",
+      "cmd_shape": "igc compile SOURCE --out OUT.igapp --compiler-profile-source finalized_profile_source.json",
+      "cmd": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/bin/igc compile /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/source/add_baseline.ig --out /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/out/add_baseline_profiled.igapp --compiler-profile-source /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/fixtures/finalized_profile_source.json",
+      "cwd": "/private/tmp",
+      "env_shape": "GEM_HOME=$GEM_HOME GEM_PATH=$GEM_HOME PATH=$BIN_DIR:...",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/ae6a562f6fe1d466\",\n  \"source_path\": \"/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/source/add_baseline.ig\",\n  \"source_hash\": \"sha256:ae6a562f6fe1d466048fe1a0fba16e7f3e208fec0826069b7faf60765ee193fc\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"parse\": \"ok\",\n    \"classify\": \"ok\",\n    \"typecheck\": \"ok\",\n    \"emit\": \"ok\",\n    \"assemble\": \"ok\"\n  },\n  \"iga",
+      "stderr_excerpt": "",
+      "artifacts": [
+        "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/out/add_baseline_profiled.igapp"
+      ]
+    },
+    {
+      "id": "PSS-3",
+      "kind": "installed_profile_source_preflight_refusal",
+      "cmd_shape": "igc compile SOURCE --out preflight_should_not_exist.igapp --compiler-profile-source malformed_profile_source.json",
+      "cmd": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/bin/igc compile /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/source/add_baseline.ig --out /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/out/preflight_should_not_exist.igapp --compiler-profile-source /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/fixtures/malformed_profile_source.json",
+      "cwd": "/private/tmp",
+      "env_shape": "GEM_HOME=$GEM_HOME GEM_PATH=$GEM_HOME PATH=$BIN_DIR:...",
+      "exit_status": 1,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "",
+      "stderr_excerpt": "compiler profile source file must contain valid JSON",
+      "artifacts": []
+    },
+    {
+      "id": "PSS-4",
+      "kind": "installed_profile_source_semantic_refusal",
+      "cmd_shape": "igc compile SOURCE --out wrong_kind_should_not_exist.igapp --compiler-profile-source semantic_profile_source_wrong_kind.json",
+      "cmd": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/bin/igc compile /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/source/add_baseline.ig --out /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/out/wrong_kind_should_not_exist.igapp --compiler-profile-source /private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/fixtures/semantic_profile_source_wrong_kind.json",
+      "cwd": "/private/tmp",
+      "env_shape": "GEM_HOME=$GEM_HOME GEM_PATH=$GEM_HOME PATH=$BIN_DIR:...",
+      "exit_status": 1,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"assembler_refused\",\n  \"program_id\": null,\n  \"source_path\": \"/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/source/add_baseline.ig\",\n  \"source_hash\": null,\n  \"grammar_version\": \"unknown\",\n  \"stages\": {\n    \"parse\": \"unknown\",\n    \"classify\": \"unknown\",\n    \"typecheck\": \"unknown\",\n    \"emit\": \"unknown\",\n    \"assemble\": \"skipped\"\n  },\n  \"igapp_path\": null,\n  \"contracts\": [\n\n  ],\n  \"compilatio",
+      "stderr_excerpt": "",
+      "artifacts": [
+        "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/out/wrong_kind_should_not_exist.compilation_report.json"
+      ]
+    }
+  ],
+  "profile_source_inputs": [
+    {
+      "name": "finalized_profile_source",
+      "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/fixtures/finalized_profile_source.json",
+      "copied_to_temp": true,
+      "temp_path": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/fixtures/finalized_profile_source.json",
+      "sha256": "sha256:2f8f42bf1fdaf0bc3e52ca19772e75eb9ca947559bb42bac728d6e1858a8c8a5",
+      "input_kind": "valid_finalized",
+      "finalization_performed_by_smoke": false,
+      "discovery_or_defaulting_used": false
+    },
+    {
+      "name": "malformed_profile_source",
+      "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/fixtures/malformed_profile_source.json",
+      "copied_to_temp": true,
+      "temp_path": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/fixtures/malformed_profile_source.json",
+      "sha256": "sha256:95f3884429b3db74050db8e601b9fd3451b66c2e00de7450dd287a7315d7702a",
+      "input_kind": "invalid_json",
+      "finalization_performed_by_smoke": false,
+      "discovery_or_defaulting_used": false
+    },
+    {
+      "name": "semantic_profile_source_wrong_kind",
+      "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/fixtures/semantic_profile_source_wrong_kind.json",
+      "copied_to_temp": true,
+      "temp_path": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z/fixtures/semantic_profile_source_wrong_kind.json",
+      "sha256": "sha256:f939f1caa8b429866cb3c77926390cde8f889661427939e43fb50dcbde6f5a93",
+      "input_kind": "semantic_wrong_kind",
+      "finalization_performed_by_smoke": false,
+      "discovery_or_defaulting_used": false
+    }
+  ],
+  "success_cases": [
+    {
+      "id": "PSS-2",
+      "source": "add_baseline.ig",
+      "profile_source": "finalized_profile_source.json",
+      "cmd_shape": "igc compile SOURCE --out OUT.igapp --compiler-profile-source PATH.json",
+      "exit_status": 0,
+      "result_status": "ok",
+      "igapp_written": true,
+      "manifest_compiler_profile_id": "compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7",
+      "expected_compiler_profile_id": "compiler_profile_unified/sha256:a3829357ff3d34d23a82f5b7",
+      "profile_id_match": true,
+      "pass": true
+    }
+  ],
+  "refusal_cases": [
+    {
+      "id": "PSS-3",
+      "source": "add_baseline.ig",
+      "profile_source": "malformed_profile_source.json",
+      "preflight_variant": "malformed_json",
+      "refusal_kind": "profile_source_preflight",
+      "exit_status": 1,
+      "stdout_shape": "empty",
+      "stderr_shape": "one_line_text",
+      "igapp_written": false,
+      "compilation_report_written": false,
+      "pass": true
+    },
+    {
+      "id": "PSS-4",
+      "source": "add_baseline.ig",
+      "profile_source": "semantic_profile_source_wrong_kind.json",
+      "refusal_kind": "profile_source_semantic_refusal",
+      "exit_status": 1,
+      "stdout_shape": "compiler_result_json",
+      "result_status": "assembler_refused",
+      "stderr_shape": "empty",
+      "qualified_diagnostic_prefix": "compiler_profile_source.",
+      "qualified_diagnostic_observed": "add_baseline: compiler_profile_source.wrong_kind: \"not_a_compiler_profile_id_source\"",
+      "qualified_diagnostic_source": "stdout_compiler_result",
+      "igapp_written": false,
+      "compilation_report_written": true,
+      "pass": true
+    }
+  ],
+  "refusal_kind_hygiene_status": "pass",
+  "refusal_kind_hygiene_notes": [
+    "PSS-3 uses refusal_kind: profile_source_preflight (CLI-owned path/JSON preflight)",
+    "PSS-4 uses refusal_kind: profile_source_semantic_refusal (compiler/assembler path)",
+    "Labels are derived from observed exit/artifact/diagnostic behavior"
+  ],
+  "failed_checks": [],
+  "hold_reasons": [],
+  "non_blocking_notes": [],
+  "non_claims": {
+    "no_release_execution": true,
+    "no_public_release_claim": true,
+    "no_public_demo_claim": true,
+    "no_rubygems_publish": true,
+    "no_public_availability_claim": true,
+    "no_version_change": true,
+    "no_gemspec_metadata_change": true,
+    "no_git_tag": true,
+    "no_push": true,
+    "no_signing": true,
+    "no_deploy": true,
+    "no_profile_finalization": true,
+    "no_profile_discovery": true,
+    "no_profile_defaulting": true,
+    "no_named_profile_lookup": true,
+    "no_inline_json": true,
+    "no_env_config_sidecar_lookup": true,
+    "no_public_api_cli_widening_beyond_profile_source_path": true,
+    "no_loader_report_compatibility_report_claim": true,
+    "no_runtime_ledger_tbackend_bihistory_stream_olap_cache_claim": true,
+    "no_production_runtime": true,
+    "no_spark_integration": true,
+    "no_ruby_framework_compatibility_claim": true,
+    "no_branch_conditional_claim": true
+  },
+  "artifact_policy": {
+    "temp_root": "/private/tmp/igniter_lang_profile_source_install_smoke_S3R176C1I_20260525T101425Z",
+    "retained_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_profile_source_install_smoke_v0/out/S3R176C1I_20260525T101425Z/profile_source_install_smoke_summary.json",
+    "retain_built_gem": false,
+    "retain_isolated_gem_home": false,
+    "positive_igapp_outputs": "temp only; not retained in repo",
+    "profile_source_copies": "temp only; not retained in repo",
+    "cleanup_isolated_gem_home": true,
+    "cleanup_temp_root": "after summary written"
+  }
+}
