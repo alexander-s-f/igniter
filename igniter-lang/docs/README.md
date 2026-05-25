@@ -19,6 +19,15 @@ Bounded CLI profile-source transport
   → ruby-api.md#cli-compiler-profile-source-transport
     only `igc compile SOURCE --out OUT.igapp --compiler-profile-source PATH.json`;
     no production/runtime authority
+Accepted local release evidence (local compiler/package evidence only)
+  → current-status.md
+    repo-local compiler RC evidence: PASS;
+    local package install smoke: PASS;
+    bounded installed profile-source smoke: PASS;
+    not a release, publish, production, or public demo claim;
+    RubyGems publish, release execution, version/tag/push/sign/deploy,
+    profile finalization/discovery/defaulting, branch/conditional if_expr,
+    Spark integration, runtime, and production behavior remain out of scope
 Operating model                → operating-model.md
 Operating scheduler            → operating-scheduler.md
 Documentation metabolism       → dev/documentation-metabolism.md

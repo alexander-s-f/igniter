@@ -3,10 +3,9 @@
 Status: caller-facing API guide
 Last updated: 2026-05-16
 
-This page documents the current public Ruby facade for the proof compiler.
+This page documents the current caller-facing local proof compiler API.
 
-R52 adds one bounded caller-facing CLI exception for transporting an
-already-finalized compiler profile source from a JSON file:
+Currently supported bounded CLI profile-source transport:
 
 ```text
 igc compile SOURCE --out OUT.igapp --compiler-profile-source PATH.json

@@ -32,14 +32,23 @@ boundaries, or premature syntax/runtime commitments.
 3. Use [docs/README.md](docs/README.md) as the research index.
 4. Start with [docs/tracks/observable-contract-language-v0.md](docs/tracks/observable-contract-language-v0.md).
 
-## Current Source Horizon
+## Current Navigation
 
-Read-only context:
+Internal read-only context (local evidence only — not a release, publish, or public demo claim):
 
-- `/docs/guide/igniter-lang-foundation.md`
-- `/docs/research/igniter-lang-convergence-report.md`
-- `/docs/research/project-status-horizon-report.md`
-- `/playgrounds/docs/experts/igniter-lang`
+- [docs/README.md](docs/README.md) — documentation index
+- [docs/current-status.md](docs/current-status.md) — stage scoreboard and accepted local evidence
+- [docs/ruby-api.md](docs/ruby-api.md) — caller-facing local proof compiler API
+
+Accepted local evidence (repo-local; release execution and public release/demo claims remain closed):
+
+- Repo-local compiler RC evidence: PASS
+- Local package install smoke: PASS
+- Bounded installed profile-source smoke: PASS
+
+RubyGems publish, release execution, version/tag/push/sign/deploy, profile
+finalization/discovery/defaulting, branch/conditional `if_expr`, Spark
+integration, runtime, and production behavior remain out of scope.
 
 ## Write Rule
 

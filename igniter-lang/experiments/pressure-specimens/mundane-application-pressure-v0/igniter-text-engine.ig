@@ -1,6 +1,13 @@
 module Igniter.TextEngine
 
 # =============================================================================
+# DISPOSITION: external pressure specimen / non-canonical
+#   Not parser authority. Not runtime authority.
+#   Not production deployment authority. Not public demo/release evidence.
+#   This file is an active pressure specimen used for bounded compiler testing.
+# =============================================================================
+
+# =============================================================================
 # Igniter TextEngine — "Vim for Agents"
 # High-level, observable, ledger-backed text manipulation library
 #
@@ -24,7 +31,7 @@ module Igniter.TextEngine
 #   • Composable (contracts call other contracts)
 #
 # Version: 0.1.0 (Narrative Contracts v2)
-# Status:  production-ready library skeleton
+# Status:  external pressure specimen / non-canonical / not production-ready
 # =============================================================================
 
 # =============================================================================
