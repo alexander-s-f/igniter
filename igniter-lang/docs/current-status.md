@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-24
+Last updated: 2026-05-25
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -304,7 +304,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             installed-gem/package readiness for local smoke scope
                             only; R174 C4-A accepts that marker and selects
                             profile-source smoke extension authorization review
-                            next; version change, tag/push/publish/sign/deploy,
+                            next; R175 authorizes only bounded installed-package
+                            profile-source smoke execution next via installed
+                            `igc compile --compiler-profile-source PATH.json`;
+                            version change, tag/push/publish/sign/deploy,
                             release execution, public claims, runtime, and
                             production remain closed;
                             Spark L3B and Orders P1 remain applied pressure only; root
@@ -960,6 +963,12 @@ Round 174 landed:
   S3-R174-C3-X: installed-gem marker / next-vector pressure               ✅ proceed; 9/9 checks PASS; no blockers
   S3-R174-C4-A: installed-readiness and next-vector decision              ✅ accepts marker; profile-source smoke authorization review next
   S3-R174-C5-S: status curation                                           ✅ done; R175 authorization-review route recorded
+Round 175 landed:
+  S3-R175-C1-P1: profile-source smoke boundary                            ✅ done; bounded installed-package smoke shape defined
+  S3-R175-C2-P1: profile-source smoke criteria                            ✅ done; PSS-0..PSS-8 criteria and summary shape defined
+  S3-R175-C3-X: profile-source smoke authorization pressure               ✅ proceed; 14/14 checks PASS; no blockers
+  S3-R175-C4-A: profile-source smoke authorization review                 ✅ authorizes bounded smoke execution next
+  S3-R175-C5-S: status curation                                           ✅ done; R176 execution route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2778,6 +2787,20 @@ S3-R174 result:      C4-A accepts the installed-gem readiness marker as a bounde
                       conditional `if_expr`, Spark, Ruby Framework compatibility,
                       runtime, and production remain closed. Next route:
                       `compiler-release-profile-source-smoke-extension-boundary-v0`.
+S3-R175 result:      C4-A accepts the profile-source smoke boundary, PSS-0..PSS-8
+                      criteria, and C3-X pressure result (14/14 PASS, no
+                      blockers). It authorizes bounded installed-package
+                      profile-source smoke execution next as `S3-R176-C1-I /
+                      compiler-release-profile-source-install-smoke-v0`, using
+                      installed `$BIN_DIR/igc compile ... --compiler-profile-source
+                      PATH.json`, existing release-harness fixtures, and required
+                      success + preflight-refusal + semantic-refusal cases.
+                      R175 did not run smoke. Public release/demo claims,
+                      release execution, RubyGems publish, version/tag/push/
+                      publish/sign/deploy, profile finalization/discovery/
+                      defaulting, branch/conditional `if_expr`, Spark, runtime,
+                      and production remain closed. Next route:
+                      `compiler-release-profile-source-install-smoke-v0`.
 ```
 
 ### Spec Freshness
