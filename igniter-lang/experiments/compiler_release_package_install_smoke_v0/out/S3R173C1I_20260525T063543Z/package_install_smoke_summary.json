@@ -1,0 +1,327 @@
+{
+  "kind": "compiler_release_package_install_smoke_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R173-C1-I",
+  "track": "compiler-release-package-install-smoke-v0",
+  "status": "PASS",
+  "authorized_by": "S3-R172-C4-A",
+  "run_id": "S3R173C1I_20260525T063543Z",
+  "executed_at_utc": "2026-05-25T06:35:45Z",
+  "release_scope": {
+    "scope": "bounded_local_package_install_smoke",
+    "source_marker": "repo_local_compiler_rc_marker",
+    "source_evidence_scope": "repo_local_compiler_rc",
+    "public_claims_authorized": false,
+    "rubygems_publish_authorized": false,
+    "production_runtime_authorized": false
+  },
+  "package": {
+    "gem_name": "igniter_lang",
+    "version": "0.1.0.pre.stage2",
+    "gemspec_path": "/Users/alex/dev/projects/igniter/igniter-lang/igniter_lang.gemspec",
+    "built_gem_path": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/build/igniter_lang-0.1.0.pre.stage2.gem",
+    "built_gem_sha256": "sha256:dba3f0044535e8c05ad913a02c08ab06bab1602fb085290f225de206505ba46a",
+    "executable_expected": "igc",
+    "executable_observed": "igc"
+  },
+  "environment": {
+    "ruby_version": "ruby 3.2.2 (2023-03-30 revision e51014f9c0) [arm64-darwin25]",
+    "gem_version": "4.0.10",
+    "smoke_root": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z",
+    "gem_home": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/gem_home",
+    "gem_path": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/gem_home",
+    "bin_dir": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/bin",
+    "cwd_for_require": "/private/tmp",
+    "repo_relative_i_used": false,
+    "rubylib_points_to_repo": false
+  },
+  "criteria": {
+    "PKG-1": {
+      "status": "PASS",
+      "summary": "gem built; artifact present at /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/build/igniter_lang-0.1.0.pre.stage2.gem"
+    },
+    "PKG-2": {
+      "status": "PASS",
+      "summary": "gem installed; igc present at /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/bin/igc"
+    },
+    "PKG-3": {
+      "status": "PASS",
+      "summary": "require OK; loaded from isolated gem home; no repo path leak"
+    },
+    "PKG-4": {
+      "status": "PASS",
+      "summary": "5 positive sources; 5 PASS"
+    },
+    "PKG-5": {
+      "status": "PASS",
+      "summary": "3 refusal sources; 3 PASS"
+    }
+  },
+  "command_matrix": [
+    {
+      "id": "PKG-0",
+      "kind": "gemspec_syntax_check",
+      "cmd": "ruby -c /Users/alex/dev/projects/igniter/igniter-lang/igniter_lang.gemspec",
+      "cwd": "/Users/alex/dev/projects/igniter/igniter-lang",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "Syntax OK",
+      "stderr_excerpt": ""
+    },
+    {
+      "id": "PKG-1",
+      "kind": "gem_build",
+      "cmd": "gem build /Users/alex/dev/projects/igniter/igniter-lang/igniter_lang.gemspec --output /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/build/igniter_lang-0.1.0.pre.stage2.gem",
+      "cwd": "/Users/alex/dev/projects/igniter/igniter-lang",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "Successfully built RubyGem\n  Name: igniter_lang\n  Version: 0.1.0.pre.stage2\n  File: igniter_lang-0.1.0.pre.stage2.gem",
+      "stderr_excerpt": "",
+      "artifacts": [
+        "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/build/igniter_lang-0.1.0.pre.stage2.gem"
+      ]
+    },
+    {
+      "id": "PKG-2",
+      "kind": "gem_install_isolated",
+      "cmd": "gem install --local --force --no-document --install-dir /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/gem_home --bindir /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/bin /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/build/igniter_lang-0.1.0.pre.stage2.gem",
+      "cwd": "/Users/alex/dev/projects/igniter/igniter-lang",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "Successfully installed igniter_lang-0.1.0.pre.stage2\n1 gem installed",
+      "stderr_excerpt": "",
+      "igc_executable_present": true
+    },
+    {
+      "id": "PKG-3",
+      "kind": "require_no_repo_i",
+      "cmd": "ruby -e 'require \"igniter_lang\"; spec = Gem.loaded_specs.fetch(\"igniter_lang\"); abort \"repo path leak: #{spec.full_gem_path}\" if spec.full_gem_path.include?(\"/Users/alex/dev/projects/igniter/igniter-lang\"); puts \"load OK #{IgniterLang::VERSION} path=#{spec.full_gem_path}\"'",
+      "cwd": "/private/tmp",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "load OK 0.1.0.pre.stage2 path=/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/gem_home/gems/igniter_lang-0.1.0.pre.stage2",
+      "stderr_excerpt": "",
+      "repo_relative_i_used": false,
+      "repo_path_leak_observed": false
+    },
+    {
+      "id": "PKG-4",
+      "kind": "installed_igc_compile_positive",
+      "cmd": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/bin/igc compile /Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/add_baseline.ig --out /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/out/add_baseline.igapp",
+      "source": "add_baseline.ig",
+      "cwd": "/private/tmp",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/ae6a562f6fe1d466\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/add_baseline.ig\",\n  \"source_hash\": \"sha256:ae6a562f6fe1d466048fe1a0fba16e7f3e208fec0826069b7faf60765ee193fc\",\n  \"grammar_version\": \"0.1.0\",\n  \"s",
+      "stderr_excerpt": "",
+      "igapp_written": true
+    },
+    {
+      "id": "PKG-4",
+      "kind": "installed_igc_compile_positive",
+      "cmd": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/bin/igc compile /Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/boolean_gate.ig --out /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/out/boolean_gate.igapp",
+      "source": "boolean_gate.ig",
+      "cwd": "/private/tmp",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/8148965e841f6323\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/boolean_gate.ig\",\n  \"source_hash\": \"sha256:8148965e841f6323da40d417864532c038aa7a2181cacc70fc1052aa1f02f10b\",\n  \"grammar_version\": \"0.1.0\",\n  \"s",
+      "stderr_excerpt": "",
+      "igapp_written": true
+    },
+    {
+      "id": "PKG-4",
+      "kind": "installed_igc_compile_positive",
+      "cmd": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/bin/igc compile /Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/integer_arithmetic.ig --out /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/out/integer_arithmetic.igapp",
+      "source": "integer_arithmetic.ig",
+      "cwd": "/private/tmp",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/bb7f575fa621878b\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/integer_arithmetic.ig\",\n  \"source_hash\": \"sha256:bb7f575fa621878b6a5a0e8cde3e939a2779456f00d675b46bd3e7cfd8138b63\",\n  \"grammar_version\": \"0.1.0\"",
+      "stderr_excerpt": "",
+      "igapp_written": true
+    },
+    {
+      "id": "PKG-4",
+      "kind": "installed_igc_compile_positive",
+      "cmd": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/bin/igc compile /Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/multi_input_diverse.ig --out /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/out/multi_input_diverse.igapp",
+      "source": "multi_input_diverse.ig",
+      "cwd": "/private/tmp",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/150f0d20d57e1d11\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/multi_input_diverse.ig\",\n  \"source_hash\": \"sha256:150f0d20d57e1d11632580d554d5420036d71e5b3ad10dfc50a5b96567138aed\",\n  \"grammar_version\": \"0.1.0",
+      "stderr_excerpt": "",
+      "igapp_written": true
+    },
+    {
+      "id": "PKG-4",
+      "kind": "installed_igc_compile_positive",
+      "cmd": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/bin/igc compile /Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/poc_derived.ig --out /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/out/poc_derived.igapp",
+      "source": "poc_derived.ig",
+      "cwd": "/private/tmp",
+      "exit_status": 0,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/486403736d2a6ece\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/positive/poc_derived.ig\",\n  \"source_hash\": \"sha256:486403736d2a6ece292dc188eb722e16d11a3ad75e5cef8b1abdc1d3808e3569\",\n  \"grammar_version\": \"0.1.0\",\n  \"st",
+      "stderr_excerpt": "",
+      "igapp_written": true
+    },
+    {
+      "id": "PKG-5",
+      "kind": "installed_igc_compile_refusal",
+      "cmd": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/bin/igc compile /Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/parse_refusal.ig --out /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/out/parse_refusal_should_not_exist.igapp",
+      "source": "parse_refusal.ig",
+      "cwd": "/private/tmp",
+      "exit_status": 1,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"error\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/parse_refusal.ig\",\n  \"source_hash\": null,\n  \"grammar_version\": \"unknown\",\n  \"stages\": {\n    \"parse\": \"unknown\",\n    \"classify\": \"unknown\",\n    \"typecheck\": \"unknown\",",
+      "stderr_excerpt": "",
+      "refusal_observed": true,
+      "igapp_written": false
+    },
+    {
+      "id": "PKG-5",
+      "kind": "installed_igc_compile_refusal",
+      "cmd": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/bin/igc compile /Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/type_mismatch.ig --out /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/out/type_mismatch_should_not_exist.igapp",
+      "source": "type_mismatch.ig",
+      "cwd": "/private/tmp",
+      "exit_status": 1,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"oof\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/type_mismatch.ig\",\n  \"source_hash\": \"sha256:16b24ed06750aead49d0d568541f877ba8372c8244f8596755cdad19fdd91441\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"parse\": ",
+      "stderr_excerpt": "",
+      "refusal_observed": true,
+      "igapp_written": false
+    },
+    {
+      "id": "PKG-5",
+      "kind": "installed_igc_compile_refusal",
+      "cmd": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/bin/igc compile /Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/unresolved_symbol.ig --out /private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z/out/unresolved_symbol_should_not_exist.igapp",
+      "source": "unresolved_symbol.ig",
+      "cwd": "/private/tmp",
+      "exit_status": 1,
+      "pass": true,
+      "hold": false,
+      "stdout_excerpt": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"oof\",\n  \"program_id\": null,\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/corpus/negative/unresolved_symbol.ig\",\n  \"source_hash\": \"sha256:85435f6e97acab605c91791731cd0e4c913bc72a7bd397cc992e0ecf013d7467\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"pars",
+      "stderr_excerpt": "",
+      "refusal_observed": true,
+      "igapp_written": false
+    }
+  ],
+  "positive_corpus": [
+    {
+      "name": "add_baseline",
+      "source": "add_baseline.ig",
+      "cmd_shape": "igc compile SOURCE --out OUT.igapp",
+      "exit_status": 0,
+      "igapp_written": true,
+      "result_status": "ok",
+      "pass": true
+    },
+    {
+      "name": "boolean_gate",
+      "source": "boolean_gate.ig",
+      "cmd_shape": "igc compile SOURCE --out OUT.igapp",
+      "exit_status": 0,
+      "igapp_written": true,
+      "result_status": "ok",
+      "pass": true
+    },
+    {
+      "name": "integer_arithmetic",
+      "source": "integer_arithmetic.ig",
+      "cmd_shape": "igc compile SOURCE --out OUT.igapp",
+      "exit_status": 0,
+      "igapp_written": true,
+      "result_status": "ok",
+      "pass": true
+    },
+    {
+      "name": "multi_input_diverse",
+      "source": "multi_input_diverse.ig",
+      "cmd_shape": "igc compile SOURCE --out OUT.igapp",
+      "exit_status": 0,
+      "igapp_written": true,
+      "result_status": "ok",
+      "pass": true
+    },
+    {
+      "name": "poc_derived",
+      "source": "poc_derived.ig",
+      "cmd_shape": "igc compile SOURCE --out OUT.igapp",
+      "exit_status": 0,
+      "igapp_written": true,
+      "result_status": "ok",
+      "pass": true
+    }
+  ],
+  "refusal_corpus": [
+    {
+      "name": "parse_refusal",
+      "source": "parse_refusal.ig",
+      "cmd_shape": "igc compile SOURCE --out SHOULD_NOT_EXIST.igapp",
+      "exit_status": 1,
+      "igapp_written": false,
+      "refusal_observed": true,
+      "refusal_kind": "parse_error",
+      "pass": true
+    },
+    {
+      "name": "type_mismatch",
+      "source": "type_mismatch.ig",
+      "cmd_shape": "igc compile SOURCE --out SHOULD_NOT_EXIST.igapp",
+      "exit_status": 1,
+      "igapp_written": false,
+      "refusal_observed": true,
+      "refusal_kind": "parse_error",
+      "pass": true
+    },
+    {
+      "name": "unresolved_symbol",
+      "source": "unresolved_symbol.ig",
+      "cmd_shape": "igc compile SOURCE --out SHOULD_NOT_EXIST.igapp",
+      "exit_status": 1,
+      "igapp_written": false,
+      "refusal_observed": true,
+      "refusal_kind": "parse_error",
+      "pass": true
+    }
+  ],
+  "failed_checks": [],
+  "hold_reasons": [],
+  "non_blocking_notes": [],
+  "non_claims": {
+    "no_public_release_claim": true,
+    "no_public_demo_claim": true,
+    "no_rubygems_publish": true,
+    "no_public_availability_claim": true,
+    "no_version_change": true,
+    "no_git_tag": true,
+    "no_push": true,
+    "no_signing": true,
+    "no_deploy": true,
+    "no_release_execution_beyond_smoke": true,
+    "no_production_runtime": true,
+    "no_spark_integration": true,
+    "no_ruby_framework_compatibility_claim": true,
+    "no_branch_conditional_claim": true,
+    "no_runtime_ledger_tbackend_bihistory_stream_olap_cache_claim": true
+  },
+  "artifact_policy": {
+    "temp_root": "/private/tmp/igniter_lang_package_install_smoke_S3R173C1I_20260525T063543Z",
+    "retained_summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_package_install_smoke_v0/out/S3R173C1I_20260525T063543Z/package_install_smoke_summary.json",
+    "retain_command_logs": true,
+    "retain_built_gem": false,
+    "retain_positive_igapp_outputs": "temp only; not retained in repo",
+    "cleanup_isolated_gem_home": true,
+    "cleanup_temp_root": "after summary written"
+  }
+}
