@@ -217,6 +217,9 @@ architecture. They are not production migration authorization.
 | `compiler-release-profile-source-install-smoke-acceptance-decision-v0.md` | done / accepted | R176 C3-A accepts the PASS smoke closure for bounded installed-package profile-source readiness evidence, preserves all release/public/version/profile-discovery/runtime/Spark non-authorizations, and selects profile-source installed readiness marker/status next |
 | `stage3-round176-status-curation-v0.md` | done | R176 status curation records accepted smoke state, run id/status, non-blocking cleanup hygiene, preserved non-authorizations, and next `compiler-release-profile-source-installed-readiness-marker-v0` route |
 | `compiler-release-profile-source-installed-readiness-marker-v0.md` | done | R177 C1-S records the bounded profile-source installed smoke readiness marker from accepted run `S3R176C1I_20260525T101425Z`, allowed/not-allowed wording, PSS-0..PSS-8 PASS, NB-1 cleanup hygiene, and preserved public/release/version/runtime/Spark non-authorizations |
+| `../discussions/compiler-release-profile-source-installed-readiness-marker-pressure-v0.md` | proceed | R177 C2-X pressure passes 14/14 checks with no blockers; verifies marker fields, bounded wording, PSS-0..PSS-8, NB-1 hygiene, and non-claim preservation |
+| `compiler-release-profile-source-installed-readiness-marker-acceptance-decision-v0.md` | done / accepted | R177 C3-A accepts the bounded profile-source installed readiness marker, keeps release execution/public claims/RubyGems/version/profile-discovery/runtime/Spark surfaces closed, and opens public release/docs non-claims planning next |
+| `stage3-round177-status-curation-v0.md` | done | R177 status curation records accepted marker state, next public release/docs non-claims planning route, round receipt, and preserved non-authorizations |
 
 ---
 

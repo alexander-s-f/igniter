@@ -311,7 +311,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             profile-source transport only and routes a
                             profile-source installed readiness marker next;
                             R177 C1-S records that marker without opening
-                            public release/docs readiness;
+                            public release/docs readiness; R177 C3-A accepts
+                            the marker and opens public release/docs non-claims
+                            planning only;
                             version change, tag/push/publish/sign/deploy,
                             release execution, public claims, runtime, and
                             production remain closed;
@@ -981,6 +983,9 @@ Round 176 landed:
   S3-R176-C4-S: status curation                                           ✅ done; R177 marker/status route recorded
 Round 177 landed:
   S3-R177-C1-S: profile-source installed readiness marker                 ✅ done; bounded marker recorded; public release/docs readiness still closed
+  S3-R177-C2-X: profile-source installed readiness marker pressure        ✅ proceed; 14/14 checks PASS; no blockers
+  S3-R177-C3-A: profile-source installed readiness marker decision        ✅ accepts marker; public release/docs non-claims planning next
+  S3-R177-C4-S: status curation                                           ✅ done; R178 planning route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2849,6 +2854,21 @@ S3-R177 C1-S:        Records the accepted bounded installed-package
                       compatibility. Public release/demo claims, release
                       execution, RubyGems publish, version/tag/push/publish/
                       sign/deploy, runtime, and production remain closed.
+S3-R177 result:      C3-A accepts the profile-source installed readiness marker
+                      as an accurate bounded record of R176 accepted smoke
+                      evidence. C2-X pressure passes 14/14 checks with no
+                      blockers. The accepted marker remains
+                      `bounded_profile_source_installed_smoke_readiness` for
+                      run `S3R176C1I_20260525T101425Z`, package
+                      `igniter_lang 0.1.0.pre.stage2`, and the same built gem
+                      SHA256. NB-1 partial temp cleanup remains non-blocking
+                      hygiene and needs no immediate follow-up. Next route is
+                      public release/docs non-claims planning, not release
+                      execution. Public release/demo claims, public release/docs
+                      readiness claims, RubyGems publish, version/tag/push/
+                      publish/sign/deploy, profile finalization/discovery/
+                      defaulting, public API/CLI widening, branch/conditional
+                      `if_expr`, Spark, runtime, and production remain closed.
 ```
 
 ### Spec Freshness
