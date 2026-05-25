@@ -307,6 +307,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             next; R175 authorizes only bounded installed-package
                             profile-source smoke execution next via installed
                             `igc compile --compiler-profile-source PATH.json`;
+                            R176 accepts that smoke PASS for bounded installed
+                            profile-source transport only and routes a
+                            profile-source installed readiness marker next;
                             version change, tag/push/publish/sign/deploy,
                             release execution, public claims, runtime, and
                             production remain closed;
@@ -969,6 +972,11 @@ Round 175 landed:
   S3-R175-C3-X: profile-source smoke authorization pressure               ✅ proceed; 14/14 checks PASS; no blockers
   S3-R175-C4-A: profile-source smoke authorization review                 ✅ authorizes bounded smoke execution next
   S3-R175-C5-S: status curation                                           ✅ done; R176 execution route recorded
+Round 176 landed:
+  S3-R176-C1-I: profile-source install smoke execution                    ✅ PASS; PSS-0..PSS-8 PASS; run S3R176C1I_20260525T101425Z
+  S3-R176-C2-X: profile-source install smoke pressure                     ✅ proceed; 19/19 checks PASS; NB-1 temp cleanup hygiene
+  S3-R176-C3-A: profile-source install smoke acceptance decision          ✅ accepts PASS; marker/status route next
+  S3-R176-C4-S: status curation                                           ✅ done; R177 marker/status route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2801,6 +2809,26 @@ S3-R175 result:      C4-A accepts the profile-source smoke boundary, PSS-0..PSS-
                       defaulting, branch/conditional `if_expr`, Spark, runtime,
                       and production remain closed. Next route:
                       `compiler-release-profile-source-install-smoke-v0`.
+S3-R176 result:      C3-A accepts the bounded installed-package profile-source
+                      install smoke PASS. Run `S3R176C1I_20260525T101425Z`
+                      builds and installs `igniter_lang 0.1.0.pre.stage2`,
+                      reuses built gem SHA256
+                      `sha256:dba3f0044535e8c05ad913a02c08ab06bab1602fb085290f225de206505ba46a`,
+                      proves installed `igc compile --compiler-profile-source
+                      PATH.json`, and passes PSS-0..PSS-8 with failed_checks 0
+                      and hold_reasons 0. Accepted cases: valid finalized
+                      profile source success with matching manifest id,
+                      malformed JSON preflight refusal with no `.igapp` and no
+                      report, and semantic wrong-kind refusal with report and
+                      qualified `compiler_profile_source.*` diagnostic. C2-X
+                      pressure passes 19/19 checks; partial temp `out/` cleanup
+                      is non-blocking hygiene. Public release/demo claims,
+                      release execution, RubyGems publish, version/tag/push/
+                      publish/sign/deploy, profile finalization/discovery/
+                      defaulting, public API/CLI widening, branch/conditional
+                      `if_expr`, Spark, runtime, and production remain closed.
+                      Next route:
+                      `compiler-release-profile-source-installed-readiness-marker-v0`.
 ```
 
 ### Spec Freshness
