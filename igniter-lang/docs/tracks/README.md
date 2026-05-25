@@ -202,6 +202,7 @@ architecture. They are not production migration authorization.
 | `../discussions/compiler-release-package-install-smoke-pressure-v0.md` | proceed | R173 C2-X pressure passes 14/14 checks with no blockers; refusal_kind and PKG-0 criteria placement notes are non-blocking smoke hygiene |
 | `compiler-release-package-install-smoke-acceptance-decision-v0.md` | done / accepted | R173 C3-A accepts smoke PASS and recognizes installed-gem/package readiness only for bounded local smoke scope; public release/demo, RubyGems, production, version/tag/publish/sign/deploy, profile-source smoke, Spark, and Ruby Framework claims remain closed |
 | `stage3-round173-status-curation-v0.md` | done | R173 status curation records accepted smoke PASS, local installed package readiness scope, public/version/tag/publish closure, closed surfaces, and next `compiler-release-installed-gem-readiness-marker-v0` route |
+| `compiler-release-installed-gem-readiness-marker-v0.md` | done | R174 C1-S records the accepted local package/install smoke readiness marker for `igniter_lang` `0.1.0.pre.stage2`, run `S3R173C1I_20260525T063543Z`, built gem SHA256, installed `igc compile` PASS, 5/5 positive and 3/3 refusal corpus; public/RubyGems/version/tag/publish/sign/deploy claims remain closed |
 
 ---
 

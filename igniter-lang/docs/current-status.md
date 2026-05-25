@@ -300,7 +300,7 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             bounded repo-local RC marker execution next; R171
                             accepts that marker with hash PASS; R172 authorizes
                             only bounded local package/install smoke execution
-                            next; R173 accepts that smoke PASS and recognizes
+                            next; R173 accepts that smoke PASS; R174 C1-S records
                             installed-gem/package readiness for local smoke scope
                             only; version change, tag/push/publish/sign/deploy,
                             public claims, profile-source smoke, runtime, and
@@ -952,6 +952,8 @@ Round 173 landed:
   S3-R173-C2-X: package/install smoke pressure                            ✅ proceed; 14/14 checks PASS; no blockers
   S3-R173-C3-A: package/install smoke acceptance decision                 ✅ accepts PASS; local installed package readiness recognized
   S3-R173-C4-S: status curation                                           ✅ done; R174 readiness-marker route recorded
+Round 174 landed:
+  S3-R174-C1-S: installed-gem readiness marker                            ✅ done; bounded local smoke readiness marker recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2746,6 +2748,18 @@ S3-R173 result:     C3-A accepts the bounded local package/install smoke PASS.
                       Spark, runtime, production, and public compatibility claims
                       remain closed. Next route:
                       `compiler-release-installed-gem-readiness-marker-v0`.
+S3-R174 C1-S:        Records the accepted installed-gem/package readiness marker
+                      for local package/install smoke scope only. Marker facts:
+                      package `igniter_lang`, version `0.1.0.pre.stage2`, run id
+                      `S3R173C1I_20260525T063543Z`, built gem SHA256
+                      `sha256:dba3f0044535e8c05ad913a02c08ab06bab1602fb085290f225de206505ba46a`,
+                      installed `igc compile` PASS, positive corpus 5/5 PASS,
+                      refusal corpus 3/3 PASS. Public release/demo claims,
+                      RubyGems publish, version/tag/push/publish/sign/deploy,
+                      profile-source smoke, Spark, Ruby Framework compatibility,
+                      runtime, and production remain closed. Future smoke hygiene:
+                      `type_mismatch.ig` and `unresolved_symbol.ig` refusal kind
+                      should classify as `oof`.
 ```
 
 ### Spec Freshness
