@@ -318,7 +318,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             only; R179 accepts bounded docs polish, closes/
                             fences CR-1 for this release-readiness lane,
                             preserves CR-13 internal-only, and opens only
-                            release-execution authorization review next;
+                            release-execution authorization review next; R180
+                            accepts that planning bundle but redirects before
+                            execution, choosing public prerelease version/
+                            metadata/release notes prep first (Path B);
                             version change, tag/push/publish/sign/deploy,
                             release execution, public claims, runtime, and
                             production remain closed;
@@ -1003,6 +1006,12 @@ Round 179 landed:
   S3-R179-C3-X: docs polish pressure                                      ✅ proceed; 12/12 checks PASS; no blockers
   S3-R179-C4-A: docs polish acceptance decision                           ✅ accepts docs polish; release-execution authorization review next
   S3-R179-C5-S: status curation                                           ✅ done; next authorization-review route recorded
+Round 180 landed:
+  S3-R180-C1-P1: release target/versioning/package boundary               ✅ done; recommends prep first, not immediate execution
+  S3-R180-C2-P1: execution evidence/approval boundary                     ✅ done; evidence chain + approval/credential/abort gates recorded
+  S3-R180-C3-X: release authorization boundary pressure                   ✅ proceed with notes; 12/12 PASS; no blockers
+  S3-R180-C4-A: release execution authorization decision                  ✅ redirects to version/metadata/notes prep; Path B chosen
+  S3-R180-C5-S: status curation                                           ✅ done; R181 prep authorization route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2921,6 +2930,23 @@ S3-R179 result:      C4-A accepts bounded public non-claims docs polish.
                       gemspec edits, profile finalization/discovery/defaulting,
                       branch/conditional `if_expr`, Spark integration/public
                       evidence claims, compiler/runtime behavior, runtime, and
+                      production remain closed.
+S3-R180 result:      C4-A accepts the release-execution planning bundle but
+                      does not authorize release execution. C1-P1 defines the
+                      package/version/tag boundary and recommends prep first.
+                      C2-P1 records the accepted evidence chain, approval/
+                      credential boundary, command traceability checklist,
+                      abort/hold criteria, and surviving non-claims. C3-X
+                      pressure passes 12/12 with non-blocking notes. C4-A
+                      chooses Path B: do not publish `0.1.0.pre.stage2` as-is;
+                      route public prerelease version/package metadata/release
+                      notes prep next. If version or package metadata changes,
+                      fresh package/install smoke and fresh profile-source
+                      installed smoke are required before publish authorization
+                      can be reconsidered. Release execution, RubyGems publish,
+                      version/tag/push/publish/sign/deploy, public release/demo
+                      claims, branch/conditional `if_expr`, profile
+                      finalization/discovery/defaulting, Spark, runtime, and
                       production remain closed.
 ```
 
