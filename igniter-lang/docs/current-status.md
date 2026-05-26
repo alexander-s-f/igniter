@@ -321,7 +321,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             release-execution authorization review next; R180
                             accepts that planning bundle but redirects before
                             execution, choosing public prerelease version/
-                            metadata/release notes prep first (Path B);
+                            metadata/release notes prep first (Path B); R181
+                            conditionally accepts that prep, selects
+                            `0.1.0.alpha.1` as the public prerelease candidate,
+                            and requires RELEASE_NOTES.md bundling before
+                            post-prep smoke;
                             version change, tag/push/publish/sign/deploy,
                             release execution, public claims, runtime, and
                             production remain closed;
@@ -1012,6 +1016,12 @@ Round 180 landed:
   S3-R180-C3-X: release authorization boundary pressure                   ✅ proceed with notes; 12/12 PASS; no blockers
   S3-R180-C4-A: release execution authorization decision                  ✅ redirects to version/metadata/notes prep; Path B chosen
   S3-R180-C5-S: status curation                                           ✅ done; R181 prep authorization route recorded
+Round 181 landed:
+  S3-R181-C1-A: version/metadata/notes prep authorization                 ✅ authorizes bounded prep only
+  S3-R181-C2-I: version/metadata/notes prep                               ✅ done; selects 0.1.0.alpha.1; scan CLEAN
+  S3-R181-C3-X: version/metadata/notes prep pressure                      ✅ proceed with notes; 14/14 PASS; no blockers
+  S3-R181-C4-A: version/metadata/notes prep acceptance                    ✅ conditional accept; RELEASE_NOTES bundling follow-up required
+  S3-R181-C5-S: status curation                                           ✅ done; R182 bundling follow-up route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2948,6 +2958,23 @@ S3-R180 result:      C4-A accepts the release-execution planning bundle but
                       claims, branch/conditional `if_expr`, profile
                       finalization/discovery/defaulting, Spark, runtime, and
                       production remain closed.
+S3-R181 result:      C4-A conditionally accepts version/package metadata/
+                      release notes prep. The selected public prerelease
+                      candidate is `0.1.0.alpha.1`; `0.1.0.pre.stage2` remains
+                      local evidence history only. The tag candidate is
+                      `igniter-lang-v0.1.0.alpha.1`, candidate only. Package
+                      metadata wording and RELEASE_NOTES wording are accepted;
+                      C3-X pressure passes 14/14 with no blockers. Condition:
+                      `RELEASE_NOTES.md` must be bundled in gemspec `spec.files`
+                      before post-prep smoke, because packaged README.md links
+                      to it. Next route is a tiny release-notes bundling
+                      follow-up authorization review, then combined
+                      package/install + profile-source smoke authorization
+                      review after follow-up acceptance. Release execution,
+                      RubyGems publish, tag/push/sign/deploy, public
+                      release/demo claims, branch/conditional `if_expr`,
+                      profile finalization/discovery/defaulting, Spark,
+                      runtime, and production remain closed.
 ```
 
 ### Spec Freshness
