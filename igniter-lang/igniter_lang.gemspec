@@ -5,8 +5,8 @@ require_relative "lib/igniter_lang/version"
 Gem::Specification.new do |spec|
   spec.name = "igniter_lang"
   spec.version = IgniterLang::VERSION
-  spec.summary = "Contract-native language compiler for Igniter"
-  spec.description = "Igniter-Lang provides the packageable compiler facade and CLI for the Igniter contract-native language research workspace."
+  spec.summary = "Igniter-Lang alpha compiler package for the Igniter contract-native language research workspace"
+  spec.description = "Igniter-Lang is an alpha prerelease compiler package providing the igc CLI for bounded contract compilation in the Igniter contract-native language research workspace. Not production-ready. Not stable. Branch/conditional if_expr and profile discovery/defaulting/finalization are excluded from this release."
   spec.authors = ["Alexander"]
   spec.email = ["alexander.s.fokin@gmail.com"]
   spec.homepage = "https://github.com/alexander-s-f/igniter"

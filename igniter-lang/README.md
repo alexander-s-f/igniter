@@ -32,6 +32,16 @@ boundaries, or premature syntax/runtime commitments.
 3. Use [docs/README.md](docs/README.md) as the research index.
 4. Start with [docs/tracks/observable-contract-language-v0.md](docs/tracks/observable-contract-language-v0.md).
 
+## Package Status
+
+`igniter_lang 0.1.0.alpha.1` — alpha prerelease candidate. Not yet published.
+See [RELEASE_NOTES.md](RELEASE_NOTES.md) for scope, accepted local evidence,
+required fresh smoke, and exclusions.
+
+RubyGems publish, release execution, and tag/push/sign/deploy remain closed
+pending fresh package/install smoke and profile-source installed smoke for
+this version.
+
 ## Current Navigation
 
 Internal read-only context (local evidence only — not a release, publish, or public demo claim):
