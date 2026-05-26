@@ -334,8 +334,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R184 authorizes the next bounded release execution
                             card for that alpha only, gated by exact user
                             approval, immediate collision re-checks, artifact
-                            rebuild, and SHA match;
-                            further version change, tag/push/publish/sign/deploy,
+                            rebuild, and SHA match; R185 completes and accepts
+                            that bounded release execution: `igniter_lang
+                            0.1.0.alpha.1` is published on RubyGems and exact
+                            tag `igniter-lang-v0.1.0.alpha.1` is present;
+                            further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
                             production remain closed;
@@ -1050,6 +1053,12 @@ Round 184 landed:
   S3-R184-C3-X: final authorization pressure                              ✅ proceed; 18/18 PASS; no blockers
   S3-R184-C4-A: final release authorization decision                      ✅ authorizes next bounded execution card only
   S3-R184-C5-S: status curation                                           ✅ done; R185 execution-card boundary recorded
+Round 185 landed:
+  S3-R185-C1-I: release execution                                         ✅ published and verified; RubyGems + exact tag push complete
+  S3-R185-C2-X: release execution pressure                                ✅ proceed/accept; 19/19 PASS; no blockers
+  S3-R185-C3-A: release execution acceptance                              ✅ accepts successful alpha release; no incident route
+  S3-R185-post-publish-sync: post-publish verification/status sync        ✅ done; docs/status wording synced
+  S3-R185-C4-S: status curation                                           ✅ done; release route closed for alpha scope
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
