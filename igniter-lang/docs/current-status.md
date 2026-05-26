@@ -338,6 +338,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             that bounded release execution: `igniter_lang
                             0.1.0.alpha.1` is published on RubyGems and exact
                             tag `igniter-lang-v0.1.0.alpha.1` is present;
+                            R186 accepts post-release hygiene, pauses release
+                            work, and selects branch/conditional `if_expr`
+                            scope-and-semantics design/proof planning next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1059,6 +1062,12 @@ Round 185 landed:
   S3-R185-C3-A: release execution acceptance                              ✅ accepts successful alpha release; no incident route
   S3-R185-post-publish-sync: post-publish verification/status sync        ✅ done; docs/status wording synced
   S3-R185-C4-S: status curation                                           ✅ done; release route closed for alpha scope
+Round 186 landed:
+  S3-R186-C1-P1: release hygiene lessons                                  ✅ done; future approval/--pre/docs-sync rules extracted
+  S3-R186-C2-P1: next compiler/language lane options                      ✅ recommends if_expr design/proof lane; release lane pause
+  S3-R186-C3-X: hygiene and next-lane pressure                            ✅ proceed; 15/15 PASS; no blockers
+  S3-R186-C4-A: hygiene and next-lane decision                            ✅ accepts hygiene; pauses release lane; selects if_expr design next
+  S3-R186-C5-S: status curation                                           ✅ done; R187 if_expr design handoff recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3084,6 +3093,22 @@ S3-R185 result:      `igniter_lang 0.1.0.alpha.1` is published on RubyGems as
                       discovery/defaulting, Spark, runtime/Ledger/TBackend/
                       BiHistory, signing, deployment, and production behavior
                       remain closed.
+S3-R186 result:      C4-A accepts post-release hygiene rules and pauses the
+                      release lane after the successful `igniter_lang
+                      0.1.0.alpha.1` alpha. Future release execution cards must
+                      treat `approval_exact_enough: false` as HOLD before
+                      irreversible commands by default; prerelease RubyGems
+                      checks must include `--pre`; post-publish docs sync must
+                      explicitly authorize install commands if they are added.
+                      C3-X pressure passes 15/15 with no blockers. Next lane is
+                      S3-R187-C1-D
+                      `branch-conditional-if-expr-scope-and-semantics-design-v0`
+                      for design/proof planning only. A second release route,
+                      additional publish/tag/push/sign/deploy, `if_expr`
+                      implementation, parser/TypeChecker/SemanticIR/assembler
+                      changes, profile discovery/defaulting, Spark, runtime,
+                      production, stable/public-demo/all-grammar claims, and
+                      public API/CLI widening remain closed.
 ```
 
 ### Spec Freshness
