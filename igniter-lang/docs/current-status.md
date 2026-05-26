@@ -325,7 +325,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             conditionally accepts that prep, selects
                             `0.1.0.alpha.1` as the public prerelease candidate,
                             and requires RELEASE_NOTES.md bundling before
-                            post-prep smoke;
+                            post-prep smoke; R182 accepts that bundling
+                            follow-up and opens only combined post-prep smoke
+                            authorization review next;
                             version change, tag/push/publish/sign/deploy,
                             release execution, public claims, runtime, and
                             production remain closed;
@@ -1022,6 +1024,12 @@ Round 181 landed:
   S3-R181-C3-X: version/metadata/notes prep pressure                      ✅ proceed with notes; 14/14 PASS; no blockers
   S3-R181-C4-A: version/metadata/notes prep acceptance                    ✅ conditional accept; RELEASE_NOTES bundling follow-up required
   S3-R181-C5-S: status curation                                           ✅ done; R182 bundling follow-up route recorded
+Round 182 landed:
+  S3-R182-C1-A: release-notes bundling authorization                      ✅ authorizes tiny packaging follow-up only
+  S3-R182-C2-I: release-notes bundling follow-up                          ✅ done; RELEASE_NOTES in spec.files; README qualifier added
+  S3-R182-C3-X: release-notes bundling pressure                           ✅ proceed; 14/14 PASS; no blockers
+  S3-R182-C4-A: release-notes bundling acceptance                         ✅ accepts follow-up; combined post-prep smoke auth review next
+  S3-R182-C5-S: status curation                                           ✅ done; R183 smoke authorization route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2975,6 +2983,21 @@ S3-R181 result:      C4-A conditionally accepts version/package metadata/
                       release/demo claims, branch/conditional `if_expr`,
                       profile finalization/discovery/defaulting, Spark,
                       runtime, and production remain closed.
+S3-R182 result:      C4-A accepts the release-notes bundling follow-up.
+                      `RELEASE_NOTES.md` is now included in gemspec
+                      `spec.files`, resolving the packaged README -> missing
+                      release notes risk. README prior-evidence wording now
+                      states that accepted local evidence was for
+                      `0.1.0.pre.stage2` and fresh smoke is required for
+                      `0.1.0.alpha.1`. C3-X pressure passes 14/14 with no
+                      blockers or non-blocking notes. Next route is combined
+                      post-prep package/install + profile-source smoke
+                      authorization review for `igniter_lang 0.1.0.alpha.1`.
+                      Smoke execution, release execution, RubyGems publish,
+                      tag/push/sign/deploy, public release/demo claims,
+                      branch/conditional `if_expr`, profile finalization/
+                      discovery/defaulting, Spark, runtime, and production
+                      remain closed.
 ```
 
 ### Spec Freshness
