@@ -19,15 +19,16 @@ Bounded CLI profile-source transport
   → ruby-api.md#cli-compiler-profile-source-transport
     only `igc compile SOURCE --out OUT.igapp --compiler-profile-source PATH.json`;
     no production/runtime authority
-Accepted local release evidence (local compiler/package evidence only)
+Accepted release evidence
   → current-status.md
     repo-local compiler RC evidence: PASS;
-    local package install smoke: PASS;
-    bounded installed profile-source smoke: PASS;
-    not a release, publish, production, or public demo claim;
-    RubyGems publish, release execution, version/tag/push/sign/deploy,
+    combined package/profile-source smoke: PASS;
+    RubyGems publish verification for igniter_lang 0.1.0.alpha.1: PASS;
+    isolated install verification: PASS;
+    not stable, production, or public demo;
     profile finalization/discovery/defaulting, branch/conditional if_expr,
-    Spark integration, runtime, and production behavior remain out of scope
+    Spark integration, runtime, signing, deployment, and production behavior
+    remain out of scope
 Operating model                → operating-model.md
 Operating scheduler            → operating-scheduler.md
 Documentation metabolism       → dev/documentation-metabolism.md

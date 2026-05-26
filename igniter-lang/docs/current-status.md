@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-25
+Last updated: 2026-05-26
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -3057,6 +3057,24 @@ S3-R184 result:      C4-A authorizes a future bounded release execution card
                       demo/stable/production/all-grammar claims, branch/
                       conditional `if_expr`, profile finalization/discovery/
                       defaulting, Spark, runtime, and production remain closed.
+S3-R185 result:      `igniter_lang 0.1.0.alpha.1` is published on RubyGems as
+                      an alpha prerelease and post-publish verification is
+                      accepted. RubyGems API reports version `0.1.0.alpha.1`,
+                      `yanked: false`, project URI
+                      `https://rubygems.org/gems/igniter_lang`, and SHA
+                      `749ee7879cf4b5cb80035e16facdc68dd63e2ebbbec9f13d3d8c23e56e6282d6`,
+                      matching the accepted R183/R184 SHA. Local and remote tag
+                      `igniter-lang-v0.1.0.alpha.1` are present. Isolated
+                      install from RubyGems PASS; isolated `require
+                      "igniter_lang"` reports `0.1.0.alpha.1`; installed `igc`
+                      executable is present and exposes the expected compile
+                      usage surface. Release docs/status sync replaces
+                      pre-publish wording with bounded alpha availability
+                      wording. Stable, production, public demo, all-grammar,
+                      branch/conditional `if_expr`, profile finalization/
+                      discovery/defaulting, Spark, runtime/Ledger/TBackend/
+                      BiHistory, signing, deployment, and production behavior
+                      remain closed.
 ```
 
 ### Spec Freshness

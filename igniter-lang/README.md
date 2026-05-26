@@ -34,31 +34,39 @@ boundaries, or premature syntax/runtime commitments.
 
 ## Package Status
 
-`igniter_lang 0.1.0.alpha.1` — alpha prerelease candidate. Not yet published.
-See [RELEASE_NOTES.md](RELEASE_NOTES.md) for scope, accepted local evidence,
-required fresh smoke, and exclusions.
+`igniter_lang 0.1.0.alpha.1` is available on RubyGems as an alpha prerelease
+compiler package.
 
-RubyGems publish, release execution, and tag/push/sign/deploy remain closed
-pending fresh package/install smoke and profile-source installed smoke for
-this version.
+Install:
+
+```bash
+gem install igniter_lang -v 0.1.0.alpha.1
+```
+
+Scope: bounded `igc` compiler CLI for accepted local corpus and the accepted
+`--compiler-profile-source PATH.json` transport. See
+[RELEASE_NOTES.md](RELEASE_NOTES.md) for evidence, exclusions, and non-claims.
 
 ## Current Navigation
 
-Internal read-only context (local evidence only — not a release, publish, or public demo claim):
+Internal context and release evidence:
 
 - [docs/README.md](docs/README.md) — documentation index
 - [docs/current-status.md](docs/current-status.md) — stage scoreboard and accepted local evidence
 - [docs/ruby-api.md](docs/ruby-api.md) — caller-facing local proof compiler API
 
-Accepted local evidence (for `0.1.0.pre.stage2`; repo-local; fresh smoke required for `0.1.0.alpha.1`; release execution and public release/demo claims remain closed):
+Accepted release evidence for `0.1.0.alpha.1`:
 
 - Repo-local compiler RC evidence: PASS
-- Local package install smoke: PASS
-- Bounded installed profile-source smoke: PASS
+- Combined post-prep package/profile-source smoke: PASS
+- RubyGems publish verification: PASS
+- Isolated install verification: PASS
+- Tag `igniter-lang-v0.1.0.alpha.1`: present
 
-RubyGems publish, release execution, version/tag/push/sign/deploy, profile
-finalization/discovery/defaulting, branch/conditional `if_expr`, Spark
-integration, runtime, and production behavior remain out of scope.
+Still excluded: stable/production/public-demo claims, all grammar support,
+profile finalization/discovery/defaulting, branch/conditional `if_expr`, Spark
+integration, runtime/Ledger/TBackend/BiHistory readiness, signing, and
+deployment.
 
 ## Write Rule
 
