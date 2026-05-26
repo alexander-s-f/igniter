@@ -50,7 +50,7 @@ Internal read-only context (local evidence only — not a release, publish, or p
 - [docs/current-status.md](docs/current-status.md) — stage scoreboard and accepted local evidence
 - [docs/ruby-api.md](docs/ruby-api.md) — caller-facing local proof compiler API
 
-Accepted local evidence (repo-local; release execution and public release/demo claims remain closed):
+Accepted local evidence (for `0.1.0.pre.stage2`; repo-local; fresh smoke required for `0.1.0.alpha.1`; release execution and public release/demo claims remain closed):
 
 - Repo-local compiler RC evidence: PASS
 - Local package install smoke: PASS

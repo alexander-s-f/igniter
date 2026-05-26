@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 3.1.0"
 
   spec.files = Dir.chdir(__dir__) do
-    Dir["lib/**/*.rb", "bin/igc", "README.md"].select { |path| File.file?(path) }
+    Dir["lib/**/*.rb", "bin/igc", "README.md", "RELEASE_NOTES.md"].select { |path| File.file?(path) }
   end
   spec.bindir = "bin"
   spec.executables = ["igc"]
