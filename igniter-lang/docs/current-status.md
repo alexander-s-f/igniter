@@ -327,8 +327,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             and requires RELEASE_NOTES.md bundling before
                             post-prep smoke; R182 accepts that bundling
                             follow-up and opens only combined post-prep smoke
-                            authorization review next;
-                            version change, tag/push/publish/sign/deploy,
+                            authorization review next; R183 accepts combined
+                            post-prep smoke PASS and recognizes bounded local
+                            package/install plus profile-source installed
+                            readiness for `igniter_lang 0.1.0.alpha.1`;
+                            further version change, tag/push/publish/sign/deploy,
                             release execution, public claims, runtime, and
                             production remain closed;
                             Spark L3B and Orders P1 remain applied pressure only; root
@@ -1030,6 +1033,12 @@ Round 182 landed:
   S3-R182-C3-X: release-notes bundling pressure                           ✅ proceed; 14/14 PASS; no blockers
   S3-R182-C4-A: release-notes bundling acceptance                         ✅ accepts follow-up; combined post-prep smoke auth review next
   S3-R182-C5-S: status curation                                           ✅ done; R183 smoke authorization route recorded
+Round 183 landed:
+  S3-R183-C1-A: combined post-prep smoke authorization                    ✅ authorizes bounded combined smoke only
+  S3-R183-C2-I: combined post-prep smoke                                  ✅ PASS; 0.1.0.alpha.1; package/install + profile-source corpora pass
+  S3-R183-C3-X: combined smoke pressure                                   ✅ proceed; 16/16 PASS; no blockers
+  S3-R183-C4-A: combined smoke acceptance                                 ✅ accepts bounded package/install + profile-source readiness for 0.1.0.alpha.1
+  S3-R183-C5-S: status curation                                           ✅ done; release-execution authorization-review horizon recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2995,6 +3004,25 @@ S3-R182 result:      C4-A accepts the release-notes bundling follow-up.
                       authorization review for `igniter_lang 0.1.0.alpha.1`.
                       Smoke execution, release execution, RubyGems publish,
                       tag/push/sign/deploy, public release/demo claims,
+                      branch/conditional `if_expr`, profile finalization/
+                      discovery/defaulting, Spark, runtime, and production
+                      remain closed.
+S3-R183 result:      C4-A accepts the combined post-prep smoke evidence for
+                      `igniter_lang 0.1.0.alpha.1`. C2-I PASS run
+                      `S3R183C2I_20260526T143139Z` built a fresh local gem
+                      artifact with SHA256
+                      `sha256:749ee7879cf4b5cb80035e16facdc68dd63e2ebbbec9f13d3d8c23e56e6282d6`,
+                      confirmed `README.md` and `RELEASE_NOTES.md` packaged,
+                      passed isolated installed `igc` package/install smoke
+                      (`5/5` positive, `3/3` refusal), passed installed
+                      profile-source success/preflight/semantic refusal smoke,
+                      and kept repo path leak scan clean. C3-X pressure passes
+                      16/16 with no blockers. The prior `0.1.0.pre.stage2`
+                      package/profile-source smoke evidence is superseded for
+                      bounded local smoke readiness only. Next route is
+                      `compiler-release-execution-final-authorization-review-v0`;
+                      release execution itself, RubyGems publish, tag/push/
+                      publish/sign/deploy, public release/demo claims,
                       branch/conditional `if_expr`, profile finalization/
                       discovery/defaulting, Spark, runtime, and production
                       remain closed.
