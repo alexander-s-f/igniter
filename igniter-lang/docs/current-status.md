@@ -331,8 +331,13 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             post-prep smoke PASS and recognizes bounded local
                             package/install plus profile-source installed
                             readiness for `igniter_lang 0.1.0.alpha.1`;
+                            R184 authorizes the next bounded release execution
+                            card for that alpha only, gated by exact user
+                            approval, immediate collision re-checks, artifact
+                            rebuild, and SHA match;
                             further version change, tag/push/publish/sign/deploy,
-                            release execution, public claims, runtime, and
+                            public claims beyond exact post-verify alpha
+                            availability wording, signing/deploy, runtime, and
                             production remain closed;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
@@ -1039,6 +1044,12 @@ Round 183 landed:
   S3-R183-C3-X: combined smoke pressure                                   ✅ proceed; 16/16 PASS; no blockers
   S3-R183-C4-A: combined smoke acceptance                                 ✅ accepts bounded package/install + profile-source readiness for 0.1.0.alpha.1
   S3-R183-C5-S: status curation                                           ✅ done; release-execution authorization-review horizon recorded
+Round 184 landed:
+  S3-R184-C1-P1: target collision and git-state preflight                 ✅ no local/remote tag or RubyGems collision found
+  S3-R184-C2-P1: execution boundary and approval plan                     ✅ done; SHA gate, approval wording, abort/verify plan defined
+  S3-R184-C3-X: final authorization pressure                              ✅ proceed; 18/18 PASS; no blockers
+  S3-R184-C4-A: final release authorization decision                      ✅ authorizes next bounded execution card only
+  S3-R184-C5-S: status curation                                           ✅ done; R185 execution-card boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3026,6 +3037,26 @@ S3-R183 result:      C4-A accepts the combined post-prep smoke evidence for
                       branch/conditional `if_expr`, profile finalization/
                       discovery/defaulting, Spark, runtime, and production
                       remain closed.
+S3-R184 result:      C4-A authorizes a future bounded release execution card
+                      for `igniter_lang 0.1.0.alpha.1`, not release execution
+                      inside R184. C1-P1 found no local tag, remote tag, or
+                      RubyGems exact-version collision and no scoped relevant
+                      release-file dirt. C2-P1 defines the binding execution
+                      boundary: rebuild in `/private/tmp`, require rebuilt
+                      SHA256 to match accepted R183 SHA
+                      `sha256:749ee7879cf4b5cb80035e16facdc68dd63e2ebbbec9f13d3d8c23e56e6282d6`,
+                      require exact user approval before irreversible commands,
+                      permit `gem push` only for the matching artifact, and
+                      push only `refs/tags/igniter-lang-v0.1.0.alpha.1` after
+                      publish verification. C3-X pressure passes 18/18 with no
+                      blockers. Next route is S3-R185-C1-I
+                      `compiler-release-execution-igniter-lang-0-1-0-alpha-1-v0`.
+                      RubyGems publish and exact tag creation/push may occur
+                      only inside that execution card under the approved gates;
+                      signing, deployment, broad tag push, gem yank, public
+                      demo/stable/production/all-grammar claims, branch/
+                      conditional `if_expr`, profile finalization/discovery/
+                      defaulting, Spark, runtime, and production remain closed.
 ```
 
 ### Spec Freshness
