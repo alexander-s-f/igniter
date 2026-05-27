@@ -341,6 +341,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R186 accepts post-release hygiene, pauses release
                             work, and selects branch/conditional `if_expr`
                             scope-and-semantics design/proof planning next;
+                            R187 accepts the `if_expr` v0 design/survey as a
+                            semantic proof boundary only, keeps current
+                            `OOF-TY0` refusal accepted pre-implementation, and
+                            opens proof-only
+                            `branch-conditional-if-expr-semantics-proof-v0`
+                            next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1068,6 +1074,12 @@ Round 186 landed:
   S3-R186-C3-X: hygiene and next-lane pressure                            ✅ proceed; 15/15 PASS; no blockers
   S3-R186-C4-A: hygiene and next-lane decision                            ✅ accepts hygiene; pauses release lane; selects if_expr design next
   S3-R186-C5-S: status curation                                           ✅ done; R187 if_expr design handoff recorded
+Round 187 landed:
+  S3-R187-C1-D: if_expr scope and semantics design                        ✅ done; v0 design accepted as proof boundary
+  S3-R187-C2-P1: if_expr current surface/evidence survey                  ✅ done; parser present, TypeChecker OOF-TY0 boundary confirmed
+  S3-R187-C3-X: if_expr design pressure                                   ✅ proceed; 17/17 PASS; no blockers
+  S3-R187-C4-A: if_expr next-route decision                               ✅ accepts design/survey; opens proof-only route; implementation held
+  S3-R187-C5-S: status curation                                           ✅ done; R188 proof-only handoff recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3109,6 +3121,26 @@ S3-R186 result:      C4-A accepts post-release hygiene rules and pauses the
                       changes, profile discovery/defaulting, Spark, runtime,
                       production, stable/public-demo/all-grammar claims, and
                       public API/CLI widening remain closed.
+S3-R187 result:      C4-A accepts branch/conditional `if_expr` v0 scope and
+                      semantics design plus the current surface/evidence survey
+                      as a design/proof boundary only. Accepted v0 shape is
+                      expression-level `if`/`else` only, else required, canonical
+                      Bool condition, exact then/else type match, value-producing
+                      branches, nested only under the same rules, and union
+                      dependency surface without path-sensitive semantics. The
+                      parser already emits `kind: "if_expr"`; TypeChecker
+                      `OOF-TY0 Unsupported expression kind: if_expr` remains the
+                      accepted pre-implementation boundary. C3-X pressure passes
+                      17/17 with no blockers and carries proof gates to drop or
+                      resolve `OOF-IF5`, pin Bool representation from live
+                      TypeChecker evidence, and choose the SemanticIR branch
+                      shape. Next route is S3-R188-C1-P1
+                      `branch-conditional-if-expr-semantics-proof-v0` as
+                      proof-only semantics evidence. Implementation authorization,
+                      parser/TypeChecker/SemanticIR/assembler changes, artifacts,
+                      release execution, public API/CLI widening, public release/
+                      demo/all-grammar claims, Spark, runtime, and production
+                      remain closed; release lane remains paused.
 ```
 
 ### Spec Freshness
