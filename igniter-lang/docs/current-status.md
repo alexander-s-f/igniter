@@ -351,6 +351,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             proof-stable future vocabulary, drops `OOF-IF5`,
                             and opens only an implementation-authorization
                             review next while keeping implementation closed;
+                            R189 authorizes that bounded internal TypeChecker +
+                            SemanticIR emitter slice, C2-I lands it with 28/28
+                            proof checks PASS, and routes implementation
+                            acceptance review next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1089,6 +1093,10 @@ Round 188 landed:
   S3-R188-C2-X: if_expr proof pressure                                    ✅ proceed with notes; 14/15 PASS; no blockers
   S3-R188-C3-A: if_expr proof acceptance                                  ✅ accepts proof; opens implementation-authorization review only
   S3-R188-C4-S: status curation                                           ✅ done; R189 authorization-review handoff recorded
+Round 189 landed:
+  S3-R189-C1-A: if_expr implementation authorization                      ✅ authorizes bounded TypeChecker/SemanticIR implementation slice
+  S3-R189-C2-I: if_expr v0 implementation                                 ✅ landed; proof 28/28 PASS; acceptance review recommended
+  S3-R189-C3-S: status curation                                           ✅ done; R190 acceptance-review handoff recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3172,6 +3180,30 @@ S3-R188 result:      C3-A accepts the proof-only `if_expr` semantics fixture.
                       release execution, public API/CLI widening, public release/
                       demo/all-grammar claims, Spark, runtime, and production
                       remain closed; release lane remains paused.
+S3-R189 result:      C1-A authorizes a bounded first `if_expr` v0
+                      implementation slice and permits C2-I to run in-round,
+                      limited to `typechecker.rb`, `semanticir_emitter.rb`,
+                      the proof-local experiment tree, and the implementation
+                      track doc. C2-I lands TypeChecker `if_expr` inference and
+                      typed SemanticIR `if_expr` lowering; proof summary reports
+                      28/28 PASS, recursive flat SemanticIR lowering, separated
+                      TypeChecker (`cond`/`then`/`else` with branch wrappers)
+                      and SemanticIR (`condition`/`then_branch`/`else_branch`)
+                      shapes, `OOF-IF1..OOF-IF4` diagnostics, `OOF-IF5` out of
+                      scope, release harness and accepted release evidence
+                      untouched, and no runtime support. Implementation status
+                      is landed/proof-passed but still requires Architect
+                      acceptance review. C2-I reports `OOF-TY0` replaced for
+                      `if_expr` paths, while the summary also lists derivative
+                      `OOF-TY0` entries in some negative-case rule arrays; the
+                      acceptance review should decide whether this is expected
+                      secondary drift or needs repair. Next route is S3-R190-C1-A
+                      `branch-conditional-if-expr-v0-implementation-acceptance-decision-v0`.
+                      Runtime/evaluator support, parser/classifier/orchestrator/
+                      assembler/root-require changes, release execution, release
+                      harness mutation, public API/CLI widening, public release/
+                      demo/all-grammar claims, Spark, and production remain
+                      closed; release lane remains paused.
 ```
 
 ### Spec Freshness
