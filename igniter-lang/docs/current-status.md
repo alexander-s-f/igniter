@@ -354,7 +354,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             R189 authorizes that bounded internal TypeChecker +
                             SemanticIR emitter slice, C2-I lands it with 28/28
                             proof checks PASS, and routes implementation
-                            acceptance review next;
+                            acceptance review next; R190 accepts the bounded
+                            `if_expr` v0 implementation closure as internal
+                            TypeChecker/SemanticIR compiler support, closes the
+                            `OOF-TY0` hygiene question as secondary diagnostic
+                            classification, and routes bounded docs/spec sync
+                            next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1097,6 +1102,10 @@ Round 189 landed:
   S3-R189-C1-A: if_expr implementation authorization                      ✅ authorizes bounded TypeChecker/SemanticIR implementation slice
   S3-R189-C2-I: if_expr v0 implementation                                 ✅ landed; proof 28/28 PASS; acceptance review recommended
   S3-R189-C3-S: status curation                                           ✅ done; R190 acceptance-review handoff recorded
+Round 190 landed:
+  S3-R190-C1-A: if_expr implementation acceptance                         ✅ accepts bounded implementation closure
+  S3-R190-C2-X: if_expr acceptance pressure                               ✅ proceed; 8/8 PASS; no blockers
+  S3-R190-C3-S: status curation                                           ✅ done; R191 docs/spec sync handoff recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3204,6 +3213,31 @@ S3-R189 result:      C1-A authorizes a bounded first `if_expr` v0
                       harness mutation, public API/CLI widening, public release/
                       demo/all-grammar claims, Spark, and production remain
                       closed; release lane remains paused.
+S3-R190 result:      C1-A accepts the bounded `if_expr` v0 implementation
+                      closure as internal compiler support, limited to
+                      TypeChecker and typed SemanticIR. The 28/28 implementation
+                      proof matrix is accepted; C2-X pressure passes 8/8 with no
+                      blockers. Accepted behavior includes expression-level
+                      `if_expr` only, required `else`, canonical Bool condition,
+                      exact branch type match, value-producing branches, nested
+                      `if_expr` under the same rules, union dependency policy,
+                      TypeChecker/SemanticIR stage separation, and recursive
+                      flat SemanticIR lowering. `OOF-IF1..OOF-IF4` are accepted
+                      live diagnostics; `OOF-IF5` remains unowned and outside
+                      v0. `OOF-TY0 Unsupported expression kind: if_expr` is
+                      closed/replaced; derivative `OOF-TY0` type-mismatch output
+                      after rejected `if_expr` is accepted as secondary
+                      diagnostic for now. Non-blocking notes: proof-summary
+                      wording should distinguish derivative `OOF-TY0`, and
+                      proof JSON `non_claims` should align with track-doc
+                      `no_spark_claim`. Next route is S3-R191-C1-D
+                      `branch-conditional-if-expr-docs-spec-sync-v0` as
+                      bounded docs/spec sync only. Runtime/evaluator support,
+                      parser/classifier/orchestrator/assembler/root-require
+                      changes, release execution, release harness mutation,
+                      public API/CLI widening, public release/demo/stable/
+                      production/all-grammar claims, Spark, and production
+                      remain closed; release lane remains paused.
 ```
 
 ### Spec Freshness
