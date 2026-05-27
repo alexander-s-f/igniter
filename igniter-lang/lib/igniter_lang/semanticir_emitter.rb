@@ -235,16 +235,36 @@ module IgniterLang
     def semantic_expr(expr)
       case expr
       when Hash
-        expr.each_with_object({}) do |(key, value), result|
-          next if key == "deps"
+        if expr.fetch("kind", nil) == "if_expr"
+          semantic_if_expr(expr)
+        else
+          expr.each_with_object({}) do |(key, value), result|
+            next if key == "deps"
 
-          result[key] = semantic_expr(value)
+            result[key] = semantic_expr(value)
+          end
         end
       when Array
         expr.map { |item| semantic_expr(item) }
       else
         expr
       end
+    end
+
+    # Lower a TypeChecker if_expr (cond/then/else with branch wrappers) to the
+    # flat SemanticIR shape (condition/then_branch/else_branch, no branch wrapper).
+    # Recursive: any nested if_expr in condition, then_branch, or else_branch
+    # is lowered by the same convention via semantic_expr.
+    def semantic_if_expr(expr)
+      then_expr = expr.fetch("then", {}).fetch("expr", nil)
+      else_expr = expr.fetch("else", {}).fetch("expr", nil)
+      {
+        "kind"          => "if_expr",
+        "condition"     => semantic_expr(expr.fetch("cond")),
+        "then_branch"   => semantic_expr(then_expr),
+        "else_branch"   => semantic_expr(else_expr),
+        "resolved_type" => expr.fetch("resolved_type")
+      }
     end
 
     def typed_invariant_coverage(semantic_ir)

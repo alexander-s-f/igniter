@@ -1,0 +1,268 @@
+{
+  "kind": "branch_conditional_if_expr_v0_implementation_proof_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R189-C2-I",
+  "track": "branch-conditional-if-expr-v0-implementation-v0",
+  "status": "PASS",
+  "checks_total": 28,
+  "checks_pass": 28,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "checks": [
+    {
+      "name": "CM-1.positive_minimal_if_else.no_type_errors",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-1.positive_minimal_if_else.semantic_ir_present",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-1.positive_minimal_if_else.typed_if_expr_shape",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-2.positive_nested_if_else.no_type_errors",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-2.positive_nested_if_else.semantic_ir_present",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-2.positive_nested_if_else.resolved_type_integer",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-3.non_bool_condition.oof_if1_present",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-3.non_bool_condition.no_oof_ty0_for_if_expr",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-4.missing_else.oof_if2_present",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-5.branch_type_mismatch.oof_if3_present",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-6.empty_branch.oof_if4_present",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-7.semanticir_minimal_shape.flat_keys",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-7.semanticir_minimal_shape.no_branch_wrapper",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-7.semanticir_minimal_shape.no_deps_key",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-7.semanticir_minimal_shape.resolved_type_preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-8.semanticir_nested_shape.outer_flat_keys",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-8.semanticir_nested_shape.inner_if_expr_flat_keys",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-8.semanticir_nested_shape.inner_no_branch_wrapper",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-9.dependency_union.minimal.union_of_cond_then_else",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-9.dependency_union.nested.full_union",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-9.dependency_union.no_duplicate_deps",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-10.oof_ty0_replaced_for_if_expr",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-11.release_harness_not_mutated",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-11.smoke_summary_not_mutated",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-12.closed_surface_scan.parser_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-12.closed_surface_scan.orchestrator_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-12.closed_surface_scan.release_harness_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "CM-12.closed_surface_scan.release_smoke_not_in_write_scope",
+      "status": "PASS"
+    }
+  ],
+  "implementation_evidence": {
+    "typechecker_if_expr_added": true,
+    "semanticir_if_expr_lowering_added": true,
+    "files_modified": [
+      "igniter-lang/lib/igniter_lang/typechecker.rb",
+      "igniter-lang/lib/igniter_lang/semanticir_emitter.rb"
+    ]
+  },
+  "positive_cases": {
+    "minimal_if_else": {
+      "status": "accepted",
+      "type_errors": [],
+      "resolved_type": {
+        "name": "Integer",
+        "params": []
+      },
+      "deps": [
+        "flag",
+        "a",
+        "b"
+      ],
+      "typed_if_expr_shape": {
+        "kind": "if_expr",
+        "has_cond": true,
+        "then_kind": "branch",
+        "else_kind": "branch",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "semanticir_if_expr_shape": {
+        "kind": "if_expr",
+        "has_condition": true,
+        "has_then_branch": true,
+        "has_else_branch": true,
+        "has_cond": false,
+        "has_then": false,
+        "has_else": false,
+        "has_deps": false,
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      }
+    },
+    "nested_if_else": {
+      "status": "accepted",
+      "type_errors": [],
+      "resolved_type": {
+        "name": "Integer",
+        "params": []
+      },
+      "deps": [
+        "flag",
+        "other",
+        "a",
+        "b",
+        "c"
+      ],
+      "semanticir_outer_keys": [
+        "kind",
+        "condition",
+        "then_branch",
+        "else_branch",
+        "resolved_type"
+      ],
+      "semanticir_inner_kind": "if_expr",
+      "semanticir_inner_keys": [
+        "kind",
+        "condition",
+        "then_branch",
+        "else_branch",
+        "resolved_type"
+      ]
+    }
+  },
+  "negative_cases": {
+    "non_bool_condition": {
+      "status": "blocked",
+      "rules": [
+        "OOF-IF1"
+      ],
+      "oof_if1": true,
+      "oof_ty0_for_if_expr_absent": true
+    },
+    "missing_else": {
+      "status": "blocked",
+      "rules": [
+        "OOF-IF2",
+        "OOF-TY0"
+      ],
+      "oof_if2": true
+    },
+    "branch_type_mismatch": {
+      "status": "blocked",
+      "rules": [
+        "OOF-IF3",
+        "OOF-TY0"
+      ],
+      "oof_if3": true
+    },
+    "empty_branch": {
+      "status": "blocked",
+      "rules": [
+        "OOF-IF4",
+        "OOF-TY0"
+      ],
+      "oof_if4": true
+    }
+  },
+  "release_harness_non_mutation": {
+    "harness_summary_intact": true,
+    "smoke_summary_intact": true
+  },
+  "closed_surface_scan": {
+    "authorized_write_paths": [
+      "igniter-lang/lib/igniter_lang/typechecker.rb",
+      "igniter-lang/lib/igniter_lang/semanticir_emitter.rb",
+      "igniter-lang/experiments/branch_conditional_if_expr_v0_implementation_proof",
+      "igniter-lang/docs/tracks/branch-conditional-if-expr-v0-implementation-v0.md"
+    ],
+    "parser_not_modified": true,
+    "classifier_not_modified": true,
+    "orchestrator_not_modified": true,
+    "assembler_not_modified": true,
+    "release_harness_not_in_write_scope": true,
+    "runtime_not_modified": true,
+    "status": "PASS"
+  },
+  "non_claims": {
+    "no_runtime_evaluator_support": true,
+    "no_parser_changes": true,
+    "no_orchestrator_changes": true,
+    "no_assembler_changes": true,
+    "no_release_harness_mutation": true,
+    "no_release_evidence_mutation": true,
+    "no_public_api_cli_widening": true,
+    "no_public_demo_stable_claims": true,
+    "no_if_expr_in_release_scope": true,
+    "if_expr_proof_local_only": true
+  },
+  "recommendation": "implementation proof PASS — route to acceptance review"
+}

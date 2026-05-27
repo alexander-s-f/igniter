@@ -225,6 +225,8 @@ module IgniterLang
         infer_call(expr, symbol_types, type_errors, type_warnings, node_name)
       when "index_access"
         infer_index_access(expr, symbol_types, type_errors, type_warnings, node_name)
+      when "if_expr"
+        infer_if_expr(expr, symbol_types, type_errors, type_warnings, node_name)
       else
         type_errors << oof("OOF-TY0", "Unsupported expression kind: #{expr.fetch("kind")}", node_name)
         typed_expr("unsupported", type_ir("Unknown"), [], "source_kind" => expr.fetch("kind"))
@@ -437,6 +439,70 @@ module IgniterLang
       inner = history_type.fetch("params", []).first
       inner_name = inner.is_a?(Hash) ? inner.fetch("name", "Unknown") : (inner || "Unknown")
       { "name" => "Option", "params" => [{ "name" => inner_name, "params" => [] }] }
+    end
+
+    def infer_if_expr(expr, symbol_types, type_errors, type_warnings, node_name)
+      cond_raw   = expr.fetch("cond")
+      then_block = expr.fetch("then")
+      else_block = expr.fetch("else")
+
+      # OOF-IF2: else is required
+      if else_block.nil?
+        type_errors << oof("OOF-IF2", "if_expr requires an else branch", node_name)
+        cond_typed = infer_expr(cond_raw, symbol_types, type_errors, type_warnings, node_name)
+        return typed_expr("if_expr", type_ir("Unknown"), cond_typed.fetch("deps"),
+                          "cond" => cond_typed)
+      end
+
+      then_final = then_block.fetch("return_expr", nil)
+      else_final = else_block.fetch("return_expr", nil)
+
+      # OOF-IF4: branches must be value-producing (non-empty final expression)
+      if then_final.nil? || else_final.nil?
+        type_errors << oof("OOF-IF4", "if_expr branches must be value-producing", node_name)
+        cond_typed = infer_expr(cond_raw, symbol_types, type_errors, type_warnings, node_name)
+        return typed_expr("if_expr", type_ir("Unknown"), cond_typed.fetch("deps"),
+                          "cond" => cond_typed)
+      end
+
+      # Infer condition
+      cond_typed = infer_expr(cond_raw, symbol_types, type_errors, type_warnings, node_name)
+      cond_type  = cond_typed.fetch("resolved_type")
+
+      # OOF-IF1: condition must resolve to canonical Bool {"name":"Bool","params":[]}
+      unless type_name(cond_type) == "Bool" || type_name(cond_type) == "Unknown"
+        type_errors << oof("OOF-IF1", "if_expr condition must be Bool, got #{type_name(cond_type)}", node_name)
+      end
+
+      # Infer branch final expressions
+      then_typed = infer_expr(then_final, symbol_types, type_errors, type_warnings, node_name)
+      else_typed = infer_expr(else_final, symbol_types, type_errors, type_warnings, node_name)
+
+      then_type = then_typed.fetch("resolved_type")
+      else_type = else_typed.fetch("resolved_type")
+
+      # OOF-IF3: then/else final value types must exact-match
+      result_type = if !unknown?(then_type) && !unknown?(else_type) && type_name(then_type) != type_name(else_type)
+                      type_errors << oof("OOF-IF3", "if_expr branch types must match: then=#{type_name(then_type)}, else=#{type_name(else_type)}", node_name)
+                      type_ir("Unknown")
+                    elsif unknown?(then_type)
+                      else_type
+                    else
+                      then_type
+                    end
+
+      # Union dependencies: condition + then + else (recursive nested deps included automatically)
+      all_deps = (cond_typed.fetch("deps") + then_typed.fetch("deps") + else_typed.fetch("deps")).uniq
+
+      # TypeChecker shape: cond/then/else with branch wrappers (distinct from SemanticIR shape)
+      typed_expr(
+        "if_expr",
+        result_type,
+        all_deps,
+        "cond" => cond_typed,
+        "then" => { "kind" => "branch", "expr" => then_typed },
+        "else" => { "kind" => "branch", "expr" => else_typed }
+      )
     end
 
     def infer_binary(expr, symbol_types, type_errors, type_warnings, node_name)
