@@ -376,7 +376,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             compiler-only post-alpha delta proof packet for
                             `if_expr_internal_compiler_delta`; R195 accepts
                             that delta proof with D-1..D-13 / 39/39 PASS and
-                            routes only runtime/evaluator design next;
+                            routes only runtime/evaluator design next; R196
+                            accepts lazy runtime/evaluator design and opens
+                            only proof-local implementation authorization
+                            review next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1146,6 +1149,11 @@ Round 195 landed:
   S3-R195-C2-X: if_expr delta proof pressure                              ✅ proceed; 11/11 PASS; no blockers
   S3-R195-C3-A: if_expr delta proof acceptance                            ✅ accepts compiler-only delta proof; runtime/evaluator design-only next
   S3-R195-C4-S: status curation                                           ✅ done; R196 design-only boundary recorded
+Round 196 landed:
+  S3-R196-C1-D: if_expr runtime/evaluator design                          ✅ done; lazy semantics, static deps union, dynamic tracking deferred
+  S3-R196-C2-X: runtime/evaluator design pressure                         ✅ proceed; 9/9 PASS; no blockers
+  S3-R196-C3-A: runtime/evaluator design decision                         ✅ accepts design; proof-local implementation authorization review next
+  S3-R196-C4-S: status curation                                           ✅ done; R197 authorization-review boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3388,6 +3396,29 @@ S3-R195 result:      C3-A accepts the compiler-only `if_expr` delta proof.
                       runtime/evaluator implementation, Spark/API/CLI widening,
                       TypeChecker/SemanticIR/compiler behavior changes, and
                       production remain closed; release lane remains paused.
+S3-R196 result:      C3-A accepts the `if_expr` runtime/evaluator design.
+                      Accepted v0 semantics are lazy: evaluate condition,
+                      require runtime Bool, evaluate only the selected branch,
+                      and return the selected value. Non-selected branch
+                      evaluation is forbidden; non-selected branch failures,
+                      unsupported expression kinds, temporal reads, side
+                      effects, or other observable behavior must not fire.
+                      Static dependency union remains accepted as
+                      condition + then-branch deps + else-branch deps; dynamic
+                      selected-branch dependency tracking and path-sensitive
+                      cache/invalidation semantics are deferred. Runtime
+                      diagnostics remain open: no `OOF-RT-*` vocabulary is
+                      accepted, and provisional `runtime.if_expr_*` codes need
+                      a later proof-local error-surface decision. Exact next
+                      route is S3-R197-C1-A
+                      `branch-conditional-if-expr-runtime-evaluator-proof-local-implementation-authorization-review-v0`.
+                      It may only decide whether to open a proof-local
+                      evaluator experiment. Runtime/evaluator implementation,
+                      live `RuntimeSmoke` / `CompilerOrchestrator` integration,
+                      release execution, public claims, Spark/API/CLI widening,
+                      TypeChecker/SemanticIR/compiler behavior changes, cache
+                      path-sensitive tracking, and production remain closed;
+                      release lane remains paused.
 ```
 
 ### Spec Freshness
