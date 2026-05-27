@@ -374,7 +374,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             release-harness delta authorization review next;
                             R194 authorizes only a future bounded
                             compiler-only post-alpha delta proof packet for
-                            `if_expr_internal_compiler_delta`;
+                            `if_expr_internal_compiler_delta`; R195 accepts
+                            that delta proof with D-1..D-13 / 39/39 PASS and
+                            routes only runtime/evaluator design next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1139,6 +1141,11 @@ Round 193 landed:
 Round 194 landed:
   S3-R194-C1-A: if_expr release-harness delta authorization                ✅ authorizes future bounded compiler-only delta proof; old evidence immutable
   S3-R194-C2-S: status curation                                           ✅ done; R195 proof-card boundary recorded
+Round 195 landed:
+  S3-R195-C1-I: if_expr release-harness delta proof                       ✅ proof-passed; D-1..D-13 / 39/39 PASS; old evidence immutable
+  S3-R195-C2-X: if_expr delta proof pressure                              ✅ proceed; 11/11 PASS; no blockers
+  S3-R195-C3-A: if_expr delta proof acceptance                            ✅ accepts compiler-only delta proof; runtime/evaluator design-only next
+  S3-R195-C4-S: status curation                                           ✅ done; R196 design-only boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3360,6 +3367,27 @@ S3-R194 result:      C1-A authorizes only a future bounded compiler-only
                       runtime/evaluator support, Spark/API/CLI widening,
                       TypeChecker/SemanticIR/compiler behavior changes, or
                       production; release lane remains paused.
+S3-R195 result:      C3-A accepts the compiler-only `if_expr` delta proof.
+                      Accepted evidence label/class are
+                      `if_expr_internal_compiler_delta` /
+                      `post_alpha_compiler_only_delta`; generated outputs may
+                      be called only `if_expr_internal_compiler_delta evidence`.
+                      D-1..D-13 all PASS with `39/39` sub-checks, including
+                      positive minimal/nested `if_expr`, `OOF-IF1..OOF-IF4`,
+                      absent `OOF-IF5`, absent unsupported-`if_expr`
+                      `OOF-TY0`, secondary-labeled derivative `OOF-TY0`,
+                      flat recursive SemanticIR shape, runtime/evaluator
+                      non-invocation, old-evidence immutability, and closed
+                      public/Spark/API/CLI/release surfaces. Accepted alpha /
+                      first-RC / release evidence remains historical,
+                      unchanged, and immutable; the historical
+                      `branch_conditional_if_expr` exclusion remains preserved
+                      and not rewritten. Exact next route is S3-R196-C1-D
+                      `branch-conditional-if-expr-runtime-evaluator-design-v0`
+                      as design-only. Release execution, public claims,
+                      runtime/evaluator implementation, Spark/API/CLI widening,
+                      TypeChecker/SemanticIR/compiler behavior changes, and
+                      production remain closed; release lane remains paused.
 ```
 
 ### Spec Freshness
