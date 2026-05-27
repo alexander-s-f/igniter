@@ -65,6 +65,25 @@ Rule 6 Temporal:       e : Store[T]  Tt : TemporalCtx
                        ⊢  e.at(Tt) : T
 ```
 
+### Rule IF-v0: Expression-Level if_expr (R190 Internal Compiler Support)
+
+```
+Rule IF-v0:
+  Γ ⊢ cond : Bool
+  Γ ⊢ then_expr : T
+  Γ ⊢ else_expr : T
+  --------------------------------------------------
+  Γ ⊢ if cond { then_expr } else { else_expr } : T
+```
+
+The TypeChecker owns this rule. `cond` must resolve to canonical Bool
+`{"name":"Bool","params":[]}`. Both branches must resolve to the same type T.
+Dependencies are the union of condition, then-branch, and else-branch deps.
+Nested `if_expr` is governed by the same rule at every nesting level.
+
+This rule is internal compiler support only. Runtime/lazy branch execution
+is not claimed. See §3.6 for rejection diagnostics.
+
 ---
 
 ## 3.4 Temporal Capability System (PROP-004 §Temporal Capability)
@@ -115,6 +134,28 @@ OOF-TC5  Decimal scale mismatch in add (must be equal)
 OOF-CE4  ConfidenceLabel used as Bool (enforced with full inferred types)
 OOF-DM2  Decimal division by statically-known zero
 ```
+
+### if_expr Diagnostics (R190 Internal Compiler Support)
+
+| Code | Owner | Trigger |
+| --- | --- | --- |
+| `OOF-IF1` | TypeChecker | condition does not resolve to canonical Bool `{"name":"Bool","params":[]}` |
+| `OOF-IF2` | TypeChecker | expression-level `if_expr` has no `else` branch (missing else is not accepted v0 semantics) |
+| `OOF-IF3` | TypeChecker | then/else branch result types do not exact-match |
+| `OOF-IF4` | TypeChecker | branch has no value-producing final expression (empty block body) |
+
+`OOF-IF5` is unowned and outside v0.
+
+`OOF-TY0 Unsupported expression kind: if_expr` is closed and replaced by the
+specific `OOF-IF*` diagnostic for any supported or diagnosed `if_expr` path.
+Other unsupported expression kinds remain owned by `OOF-TY0`.
+
+Derivative `OOF-TY0` type-mismatch diagnostics after rejected `if_expr` remain
+accepted secondary diagnostics for now. These arise because a rejected `if_expr`
+produces an `Unknown` resolved type, which downstream type-mismatch checks
+(`OOF-TY0 Type mismatch: expected ..., got Unknown`) then flag as a secondary
+consequence of the rejected branch. They are not unsupported-expression
+diagnostics and do not indicate an `if_expr` regression.
 
 **Decimal rules**:
 - `Decimal[A] + Decimal[B]`: requires `A == B` → result `Decimal[A]`; else `OOF-TC5`

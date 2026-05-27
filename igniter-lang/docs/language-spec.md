@@ -30,10 +30,14 @@ Last updated: 2026-05-20
 ```
 accepted + PASS   Ch3 (TypeChecker + boundary), Ch4 (classifier), Ch5 (pipeline + assembler),
                   Ch6 (SemanticIR + assembler), Ch7 (RuntimeMachine), Ch8 (stdlib kernel)
-accepted partial  Ch2 (OOF parse gap — non-blocking)
+accepted partial  Ch2 (OOF parse gap — non-blocking; §2.2.3 if_expr v0 source shape R190)
 deferred          Ch9 (Stage 2)
 compiler-profile  PROP-038 strict refusal is accepted only as an internal compiler
                   foundation; public/runtime/production refusal remains closed
+R190 internal     Expression-level if_expr v0: TypeChecker (OOF-IF1..IF4) + typed
+                  SemanticIR lowering (flat condition/then_branch/else_branch). 28/28
+                  proof PASS. Runtime/evaluator closed. Release evidence unchanged.
+                  See Ch2 §2.2.3, Ch3 §3.3 Rule IF-v0, Ch5 §5.6.1, Ch6 §6.10.
 ```
 
 ---

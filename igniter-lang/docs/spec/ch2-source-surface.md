@@ -89,6 +89,10 @@ Op            := "+" | "-" | "*" | "/" | "==" | "!=" | "<" | ">" | "<=" | ">="
                | "&&" | "||" | "++"
 Call          := Name "(" (Expr ("," Expr)*)? ")"
 IfExpr        := "if" Expr "{" Expr "}" ("else" "{" Expr "}")?
+  -- Note: the parser accepts the tolerant shape above. V0 accepted semantics
+  -- require else; a missing else produces OOF-IF2, not a parse error.
+  -- Branch bodies are BlockExpr-shaped (Stmt* + final Expr), not bare Expr.
+  -- See §2.2.3 for the accepted v0 source shape and required-else grammar.
 BlockExpr     := "{" Stmt* Expr "}"
 Lambda        := "(" Params? ")" "->" Expr | Name "->" Expr
 FieldAccess   := Expr "." Name
@@ -130,6 +134,64 @@ Collision risks for a future PROP:
 - Reserving either spelling too early would collide with ordinary identifiers
   without a proven AST shape. Keyword reservation belongs in the future PROP,
   not in this spec sync.
+
+## 2.2.3 Expression-Level if_expr v0 (R190 Internal Compiler Support)
+
+R190 accepts expression-level `if_expr` as internal compiler support
+(TypeChecker + typed SemanticIR lowering). Parser support already existed;
+no new parser syntax is added.
+
+Accepted v0 source shape:
+
+```igniter
+compute result = if condition { then_expr } else { else_expr }
+```
+
+Accepted v0 grammar (required-else form for spec purposes):
+
+```text
+IfExpr   := "if" Expr BlockExpr "else" BlockExpr
+BlockExpr := "{" BlockBody "}"
+BlockBody := Stmt* Expr
+```
+
+Branch bodies are `BlockExpr`-shaped (`Stmt*` followed by a final `Expr`), not
+bare expressions. The tolerant parser BNF in §2.2 uses `BlockExpr := "{" Stmt* Expr "}"`,
+which subsumes this correctly. The `Stmt* Expr` structure means branches may
+contain leading `let` bindings, but the final `Expr` is the value-producing
+expression that the TypeChecker reads as the branch result.
+
+Parsed AST shape:
+
+```json
+{ "kind": "if_expr", "cond": "<condition expr>", "then": "<BlockBody>", "else": "<BlockBody>" }
+```
+
+Where each `BlockBody` is:
+
+```json
+{ "stmts": [], "return_expr": "<final Expr or null>" }
+```
+
+V0 accepted semantics:
+
+- `else` is required; a missing `else` is not accepted source semantics
+  and produces `OOF-IF2` (not a parse error — the parser emits `else: null`
+  to allow TypeChecker rejection).
+- Condition must resolve to canonical Bool `{"name":"Bool","params":[]}`.
+- Then/else branch `return_expr` must both exist (non-null) and resolve to
+  the same type; see Ch3 §3.6.
+- Nested `if_expr` follows the same rules at every nesting level.
+
+Non-claims for this surface:
+
+```text
+runtime/lazy branch execution is not claimed;
+else-if / multi-branch sugar is not supported;
+branch-local declaration scoping beyond BlockExpr is not added;
+statement-level if is not supported;
+public API/CLI is not widened by this surface.
+```
 
 ## 2.2.2 Assumptions Surface (PROP-032 Experiment-Pass)
 

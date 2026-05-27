@@ -236,6 +236,7 @@ History[T] and BiHistory[T] typed temporal access
 stream T with bounded fold_stream
 OLAPPoint point access
 invariant severity declarations
+expression-level if_expr v0 (TypeChecker + typed SemanticIR lowering; else required)
 .igapp/ assembly for CORE / STREAM / TEMPORAL artifact surfaces
 ```
 
@@ -247,6 +248,28 @@ TEMPORAL RuntimeMachine evaluate is guarded/refused without approved support
 production RuntimeMachine temporal cache is not enabled
 Ledger / live TBackend read-write binding is not authorized
 ```
+
+### 5.6.1 Expression-Level if_expr v0 (R190)
+
+R190 accepts expression-level `if_expr` as internal compiler support:
+
+```text
+stage ownership:    TypeChecker (OOF-IF1..OOF-IF4) + typed SemanticIR lowering
+parser shape:       existing; no new parser syntax
+else required:      missing else produces OOF-IF2, not a parse error
+condition:          must resolve to canonical Bool {"name":"Bool","params":[]}
+branch types:       then/else must exact-match; mismatch produces OOF-IF3
+value-producing:    each branch must have a final expression; empty block produces OOF-IF4
+nested if_expr:     same rules apply recursively at every nesting level
+deps policy:        TypeChecker union of condition + then + else deps
+SemanticIR shape:   flat condition/then_branch/else_branch (see Ch6 §6.10)
+runtime/evaluator:  not in scope — lazy branch execution is not claimed
+```
+
+`if_expr` internal compiler support is not release evidence mutation, not public
+demo/stable/all-grammar support, not runtime/evaluator support, and not Spark
+support. The accepted release evidence (alpha 0.1.0.alpha.1) excludes `if_expr`
+and remains unchanged.
 
 ---
 
@@ -267,6 +290,10 @@ C-9  Assembler refuses non-ok reports and writes no loadable `.igapp/`
 C-10 TEMPORAL `.igapp/` loads for inspection but evaluate is guarded/refused
 C-11 PROP-038 internal strict terminal -> non-persisting CompilerResult,
      report.pass_result "ok", no sidecar/report/.igapp/assembler call
+C-12 if_expr with Bool condition and matching branches -> TypeChecker accepted,
+     typed SemanticIR emitted with flat condition/then_branch/else_branch node;
+     non-Bool condition -> OOF-IF1; missing else -> OOF-IF2;
+     branch type mismatch -> OOF-IF3; empty branch -> OOF-IF4
 ```
 
 ---

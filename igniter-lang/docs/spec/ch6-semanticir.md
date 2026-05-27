@@ -635,6 +635,77 @@ Ledger   remains unbound
 
 ---
 
+## 6.10 Expression Nodes
+
+### `if_expr` expression node (R190 Internal Compiler Support)
+
+A typed `if_expr` lowers to a flat expression node in SemanticIR. It is
+embedded as the `expr` field of a `compute` node when the compute declaration
+uses an `if_expr` expression.
+
+```json
+{
+  "kind": "if_expr",
+  "condition":   { "...": "lowered condition expression" },
+  "then_branch": { "...": "lowered then final expression" },
+  "else_branch": { "...": "lowered else final expression" },
+  "resolved_type": { "name": "Integer", "params": [] }
+}
+```
+
+SemanticIR shape conventions:
+
+- Keys are `condition`, `then_branch`, `else_branch` — not the TypeChecker
+  stage names `cond`, `then`, `else` with branch wrappers.
+- `then_branch` and `else_branch` hold the lowered final expression directly,
+  without a `{ "kind": "branch", "expr": ... }` wrapper. The branch wrapper is
+  a TypeChecker internal convention, not a SemanticIR node convention.
+- No `deps` key on the lowered `if_expr` node. Dependency union is a TypeChecker
+  evidence policy recorded at the TypeChecker stage; it is not a SemanticIR
+  node field in v0.
+- `resolved_type` carries the matched branch type (same type for both branches;
+  see Ch3 Rule IF-v0).
+
+Recursive lowering consistency:
+
+```text
+Every nested if_expr — regardless of whether it appears in condition,
+then_branch, or else_branch position — lowers to the same
+condition / then_branch / else_branch SemanticIR key convention.
+```
+
+A nested `if_expr` in the `then_branch` of an outer `if_expr` produces:
+
+```json
+{
+  "kind": "if_expr",
+  "condition":   { "...": "outer condition" },
+  "then_branch": {
+    "kind": "if_expr",
+    "condition":   { "...": "inner condition" },
+    "then_branch": { "...": "inner then" },
+    "else_branch": { "...": "inner else" },
+    "resolved_type": { "name": "Integer", "params": [] }
+  },
+  "else_branch": { "...": "outer else" },
+  "resolved_type": { "name": "Integer", "params": [] }
+}
+```
+
+Evidence: `experiments/branch_conditional_if_expr_v0_implementation_proof/` —
+28/28 PASS, R190 accepted (S3-R190-C1-A).
+
+Non-claims:
+
+```text
+runtime/lazy branch execution is not claimed;
+if_expr assembly into .igapp compute_nodes does not imply runtime evaluate support;
+accepted release evidence (igniter_lang 0.1.0.alpha.1) excludes if_expr
+and remains unchanged by this SemanticIR node definition.
+```
+
+---
+
 ## 6.11 Evidence References
 
 | Evidence | What It Proves |

@@ -71,6 +71,9 @@ Last updated: 2026-05-10
 | Ch9 OLAPPoint[T,Dims] | PROP-024 | experiments/olap_point_proof/ | ✅ proof + grammar spec PASS |
 | Ch9 OLAPPoint parser | PROP-024 | lib/igniter_lang/parser.rb + spec 61 PASS | ✅ revenue_point.ig; olap_points[]; dims_record |
 | Ch9 OLAPPoint TC/SemanticIR | PROP-024 | olap_point_proof/ + typechecker.rb (R8) | ✅ OOF-O2..O5 + olap_access_node lowering PASS |
+| Ch2 §2.2.3 if_expr v0 source shape | R190 | — | ✅ accepted internal compiler support; required-else; BlockExpr branches |
+| Ch3 §3.3 if_expr v0 typing Rule IF-v0 | R190 | experiments/branch_conditional_if_expr_v0_implementation_proof/ (28/28 PASS) | ✅ Bool condition; exact branch type match; OOF-IF1..IF4 |
+| Ch6 §6.10 if_expr SemanticIR lowering | R190 | experiments/branch_conditional_if_expr_v0_implementation_proof/ (28/28 PASS) | ✅ flat condition/then_branch/else_branch; recursive consistency PASS |
 
 ---
 
@@ -79,10 +82,13 @@ Last updated: 2026-05-10
 ```
 accepted + PASS   Ch1–Ch8 (all Stage 1 passes PASS; classifier + typechecker + emitter +
                   assembler + orchestrator modules extracted; 10 libs + facade)
-accepted partial  Ch2 (OOF syntax gap closed PROP-026)
+accepted partial  Ch2 (OOF syntax gap closed PROP-026; §2.2.3 if_expr v0 source shape R190)
 Stage 2 partial   Ch9 (History/BiHistory full proof stack PASS; stream OOF S1..S5 +
                        SemanticIR PASS; OLAP parser+TC+SemanticIR PASS; invariant
                        parser+TC+SemanticIR PASS; production runtime adapter binding open)
+R190 internal     Ch2 §2.2.3 / Ch3 Rule IF-v0 / Ch5 §5.6.1 / Ch6 §6.10: expression-level
+                  if_expr v0 TypeChecker + typed SemanticIR support; 28/28 proof PASS;
+                  runtime/evaluator closed; release evidence unchanged
 ```
 
 ---
