@@ -1,0 +1,380 @@
+{
+  "kind": "branch_conditional_if_expr_release_harness_delta_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R195-C1-I",
+  "track": "branch-conditional-if-expr-release-harness-delta-proof-v0",
+  "authorized_by": "S3-R194-C1-A",
+  "evidence_label": "if_expr_internal_compiler_delta",
+  "evidence_class": "post_alpha_compiler_only_delta",
+  "status": "PASS",
+  "checks_total": 39,
+  "checks_pass": 39,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "release_scope": {
+    "scope": "if_expr_internal_compiler_delta",
+    "claimed_surfaces": [
+      "typechecker_if_expr_v0",
+      "typed_semanticir_if_expr_v0"
+    ],
+    "excluded_surfaces": [
+      "runtime_evaluator",
+      "lazy_branch_execution",
+      "public_api_cli_widening",
+      "spark",
+      "public_demo",
+      "stable",
+      "production",
+      "all_grammar"
+    ],
+    "old_evidence_rewritten": false,
+    "public_claims_authorized": false,
+    "production_runtime_authorized": false
+  },
+  "old_evidence_immutability": {
+    "compiler_release_acceptance_harness_summary_unchanged": true,
+    "official_first_rc_evidence_summary_unchanged": true,
+    "combined_post_prep_smoke_summary_unchanged": true,
+    "harness_summary_sha256_actual": "sha256:bc8d69f65c9267a604cb47e8ce0498a8373a80eaa264a2c53892139552a2618b",
+    "harness_summary_sha256_anchor": "sha256:bc8d69f65c9267a604cb47e8ce0498a8373a80eaa264a2c53892139552a2618b",
+    "harness_summary_sha256_matched": true,
+    "first_rc_evidence_sha256": "sha256:50a15e2123afb1519b8f7941b6e3202b034a0073d1a2250ebb4e0fbef82dafc5",
+    "smoke_summary_sha256": "sha256:670806e9e2b4c5088afcb980ae224d37cd5f8d34882a10c880b2b3b0c99e6fad",
+    "harness_historical_exclusion": [
+      "branch_conditional_if_expr"
+    ],
+    "first_rc_historical_exclusion": [
+      "branch_conditional_if_expr"
+    ],
+    "exclusion_basis": "S3-R164-C4-A Portfolio acceptance of first_rc_excludes_branch_conditional_if_expr"
+  },
+  "non_claims": {
+    "not_official_first_rc_evidence": true,
+    "not_alpha_release_evidence": true,
+    "not_release_execution_evidence": true,
+    "no_release_execution": true,
+    "no_public_demo_claim": true,
+    "no_stable_production_all_grammar_claim": true,
+    "no_runtime_evaluator_support": true,
+    "no_spark_claim": true,
+    "no_public_api_cli_widening": true,
+    "no_typechecker_semanticir_behavior_change": true
+  },
+  "checks": [
+    {
+      "name": "D-1.positive_minimal_if_else.no_type_errors",
+      "status": "PASS"
+    },
+    {
+      "name": "D-1.positive_minimal_if_else.semantic_ir_present",
+      "status": "PASS"
+    },
+    {
+      "name": "D-1.positive_minimal_if_else.typed_if_expr_shape",
+      "status": "PASS"
+    },
+    {
+      "name": "D-2.positive_nested_if_else.no_type_errors",
+      "status": "PASS"
+    },
+    {
+      "name": "D-2.positive_nested_if_else.semantic_ir_present",
+      "status": "PASS"
+    },
+    {
+      "name": "D-2.positive_nested_if_else.resolved_type_integer",
+      "status": "PASS"
+    },
+    {
+      "name": "D-3.non_bool_condition.oof_if1_present",
+      "status": "PASS"
+    },
+    {
+      "name": "D-3.non_bool_condition.no_unsupported_if_expr_oof_ty0",
+      "status": "PASS"
+    },
+    {
+      "name": "D-4.missing_else.oof_if2_present",
+      "status": "PASS"
+    },
+    {
+      "name": "D-4.missing_else.no_unsupported_if_expr_oof_ty0",
+      "status": "PASS"
+    },
+    {
+      "name": "D-5.branch_type_mismatch.oof_if3_present",
+      "status": "PASS"
+    },
+    {
+      "name": "D-5.branch_type_mismatch.no_unsupported_if_expr_oof_ty0",
+      "status": "PASS"
+    },
+    {
+      "name": "D-6.empty_branch.oof_if4_present",
+      "status": "PASS"
+    },
+    {
+      "name": "D-6.empty_branch.no_unsupported_if_expr_oof_ty0",
+      "status": "PASS"
+    },
+    {
+      "name": "D-7.oof_if5_absent_across_all_cases",
+      "status": "PASS"
+    },
+    {
+      "name": "D-8.unsupported_if_expr_oof_ty0_absent_all_cases",
+      "status": "PASS"
+    },
+    {
+      "name": "D-9.derivative_oof_ty0_labeled_secondary_where_present",
+      "status": "PASS"
+    },
+    {
+      "name": "D-10.semanticir_minimal_flat_keys",
+      "status": "PASS"
+    },
+    {
+      "name": "D-10.semanticir_minimal_no_branch_wrapper",
+      "status": "PASS"
+    },
+    {
+      "name": "D-10.semanticir_nested_outer_flat_keys",
+      "status": "PASS"
+    },
+    {
+      "name": "D-10.semanticir_nested_inner_flat_keys",
+      "status": "PASS"
+    },
+    {
+      "name": "D-10.semanticir_resolved_type_preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "D-11.runtime_evaluator_not_required",
+      "status": "PASS"
+    },
+    {
+      "name": "D-11.only_compiler_pipeline_modules_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "D-12.harness_summary_status_pass",
+      "status": "PASS"
+    },
+    {
+      "name": "D-12.harness_summary_excludes_branch_conditional_if_expr",
+      "status": "PASS"
+    },
+    {
+      "name": "D-12.harness_summary_sha256_matches_known_good",
+      "status": "PASS"
+    },
+    {
+      "name": "D-12.first_rc_evidence_status_pass",
+      "status": "PASS"
+    },
+    {
+      "name": "D-12.first_rc_evidence_label_correct",
+      "status": "PASS"
+    },
+    {
+      "name": "D-12.first_rc_evidence_excludes_branch_conditional_if_expr",
+      "status": "PASS"
+    },
+    {
+      "name": "D-12.smoke_summary_status_pass",
+      "status": "PASS"
+    },
+    {
+      "name": "D-12.smoke_summary_no_branch_conditional_claim",
+      "status": "PASS"
+    },
+    {
+      "name": "D-13.parser_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "D-13.release_harness_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "D-13.first_rc_evidence_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "D-13.smoke_summary_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "D-13.typechecker_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "D-13.semanticir_emitter_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "D-13.docs_spec_not_in_write_scope",
+      "status": "PASS"
+    }
+  ],
+  "positive_cases": {
+    "minimal_if_else": {
+      "status": "accepted",
+      "type_errors": [],
+      "resolved_type": {
+        "name": "Integer",
+        "params": []
+      },
+      "deps": [
+        "flag",
+        "a",
+        "b"
+      ],
+      "semanticir_shape": {
+        "kind": "if_expr",
+        "has_condition": true,
+        "has_then_branch": true,
+        "has_else_branch": true,
+        "has_cond": false,
+        "has_then": false,
+        "has_else": false,
+        "has_deps": false,
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      }
+    },
+    "nested_if_else": {
+      "status": "accepted",
+      "type_errors": [],
+      "resolved_type": {
+        "name": "Integer",
+        "params": []
+      },
+      "deps": [
+        "flag",
+        "other",
+        "a",
+        "b",
+        "c"
+      ],
+      "semanticir_outer_keys": [
+        "kind",
+        "condition",
+        "then_branch",
+        "else_branch",
+        "resolved_type"
+      ],
+      "semanticir_inner_kind": "if_expr",
+      "semanticir_inner_keys": [
+        "kind",
+        "condition",
+        "then_branch",
+        "else_branch",
+        "resolved_type"
+      ]
+    }
+  },
+  "negative_cases": {
+    "non_bool_condition": {
+      "status": "blocked",
+      "rules": [
+        "OOF-IF1"
+      ],
+      "primary_rules": [
+        "OOF-IF1"
+      ],
+      "secondary_rules": [],
+      "oof_if1": true,
+      "oof_ty0_for_if_expr_absent": true,
+      "derivative_oof_ty0_present": false,
+      "derivative_oof_ty0_secondary_labeled": true
+    },
+    "missing_else": {
+      "status": "blocked",
+      "rules": [
+        "OOF-IF2",
+        "OOF-TY0"
+      ],
+      "primary_rules": [
+        "OOF-IF2"
+      ],
+      "secondary_rules": [
+        {
+          "rule": "OOF-TY0",
+          "message": "Type mismatch: expected Integer, got Unknown",
+          "classification": "secondary_type_propagation",
+          "secondary_type_propagation": true,
+          "unsupported_if_expr_regression": false
+        }
+      ],
+      "oof_if2": true,
+      "oof_ty0_for_if_expr_absent": true,
+      "derivative_oof_ty0_present": true,
+      "derivative_oof_ty0_secondary_labeled": true
+    },
+    "branch_type_mismatch": {
+      "status": "blocked",
+      "rules": [
+        "OOF-IF3",
+        "OOF-TY0"
+      ],
+      "primary_rules": [
+        "OOF-IF3"
+      ],
+      "secondary_rules": [
+        {
+          "rule": "OOF-TY0",
+          "message": "Type mismatch: expected Integer, got Unknown",
+          "classification": "secondary_type_propagation",
+          "secondary_type_propagation": true,
+          "unsupported_if_expr_regression": false
+        }
+      ],
+      "oof_if3": true,
+      "oof_ty0_for_if_expr_absent": true,
+      "derivative_oof_ty0_present": true,
+      "derivative_oof_ty0_secondary_labeled": true
+    },
+    "empty_branch": {
+      "status": "blocked",
+      "rules": [
+        "OOF-IF4",
+        "OOF-TY0"
+      ],
+      "primary_rules": [
+        "OOF-IF4"
+      ],
+      "secondary_rules": [
+        {
+          "rule": "OOF-TY0",
+          "message": "Type mismatch: expected Integer, got Unknown",
+          "classification": "secondary_type_propagation",
+          "secondary_type_propagation": true,
+          "unsupported_if_expr_regression": false
+        }
+      ],
+      "oof_if4": true,
+      "oof_ty0_for_if_expr_absent": true,
+      "derivative_oof_ty0_present": true,
+      "derivative_oof_ty0_secondary_labeled": true
+    }
+  },
+  "closed_surface_scan": {
+    "authorized_write_paths": [
+      "/Users/alex/dev/projects/igniter/igniter-lang/experiments/branch_conditional_if_expr_release_harness_delta_v0",
+      "/Users/alex/dev/projects/igniter/igniter-lang/experiments/branch_conditional_if_expr_release_harness_delta_v0/out"
+    ],
+    "parser_not_in_write_scope": true,
+    "release_harness_not_in_write_scope": true,
+    "first_rc_evidence_not_in_write_scope": true,
+    "smoke_summary_not_in_write_scope": true,
+    "typechecker_not_in_write_scope": true,
+    "semanticir_emitter_not_in_write_scope": true,
+    "docs_spec_not_in_write_scope": true,
+    "runtime_not_loaded": true,
+    "status": "PASS"
+  }
+}
