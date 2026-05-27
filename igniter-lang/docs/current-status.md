@@ -372,6 +372,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             `OOF-TY0` as secondary, adding
                             `no_spark_claim: true`, and routing only
                             release-harness delta authorization review next;
+                            R194 authorizes only a future bounded
+                            compiler-only post-alpha delta proof packet for
+                            `if_expr_internal_compiler_delta`;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1133,6 +1136,9 @@ Round 193 landed:
   S3-R193-C2-X: proof-summary hygiene pressure                            ✅ proceed; 8/8 PASS; no blockers
   S3-R193-C3-A: proof-summary hygiene acceptance                          ✅ accepts hygiene closure; release-harness delta authorization review next
   S3-R193-C4-S: status curation                                           ✅ done; R194 authorization-review handoff recorded
+Round 194 landed:
+  S3-R194-C1-A: if_expr release-harness delta authorization                ✅ authorizes future bounded compiler-only delta proof; old evidence immutable
+  S3-R194-C2-S: status curation                                           ✅ done; R195 proof-card boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3337,6 +3343,23 @@ S3-R193 result:      C3-A accepts the proof-summary hygiene closure selected
                       support, Spark, API/CLI widening, TypeChecker/SemanticIR
                       behavior changes, and production remain closed; release
                       lane remains paused.
+S3-R194 result:      C1-A authorizes only a future bounded compiler-only
+                      release-harness delta proof as S3-R195-C1-I
+                      `branch-conditional-if-expr-release-harness-delta-proof-v0`.
+                      The required evidence label is
+                      `if_expr_internal_compiler_delta`; the allowed evidence
+                      class is `post_alpha_compiler_only_delta`. The future
+                      proof must create a new packet under
+                      `experiments/branch_conditional_if_expr_release_harness_delta_v0/**`
+                      and must not rewrite accepted alpha / first-RC / release
+                      evidence. Historical release evidence remains historical,
+                      unchanged, and immutable, including the historical
+                      `branch_conditional_if_expr` excluded-feature marker.
+                      R194 itself does not run the proof and does not authorize
+                      release execution, public claims, implementation,
+                      runtime/evaluator support, Spark/API/CLI widening,
+                      TypeChecker/SemanticIR/compiler behavior changes, or
+                      production; release lane remains paused.
 ```
 
 ### Spec Freshness
