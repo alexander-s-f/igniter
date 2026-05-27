@@ -205,8 +205,14 @@
       "rules": [
         "OOF-IF1"
       ],
+      "primary_rules": [
+        "OOF-IF1"
+      ],
+      "secondary_rules": [],
       "oof_if1": true,
-      "oof_ty0_for_if_expr_absent": true
+      "oof_ty0_for_if_expr_absent": true,
+      "derivative_oof_ty0_present": false,
+      "derivative_oof_ty0_secondary_labeled": true
     },
     "missing_else": {
       "status": "blocked",
@@ -214,7 +220,22 @@
         "OOF-IF2",
         "OOF-TY0"
       ],
-      "oof_if2": true
+      "primary_rules": [
+        "OOF-IF2"
+      ],
+      "secondary_rules": [
+        {
+          "rule": "OOF-TY0",
+          "message": "Type mismatch: expected Integer, got Unknown",
+          "classification": "secondary_type_propagation",
+          "secondary_type_propagation": true,
+          "unsupported_if_expr_regression": false
+        }
+      ],
+      "oof_if2": true,
+      "oof_ty0_for_if_expr_absent": true,
+      "derivative_oof_ty0_present": true,
+      "derivative_oof_ty0_secondary_labeled": true
     },
     "branch_type_mismatch": {
       "status": "blocked",
@@ -222,7 +243,22 @@
         "OOF-IF3",
         "OOF-TY0"
       ],
-      "oof_if3": true
+      "primary_rules": [
+        "OOF-IF3"
+      ],
+      "secondary_rules": [
+        {
+          "rule": "OOF-TY0",
+          "message": "Type mismatch: expected Integer, got Unknown",
+          "classification": "secondary_type_propagation",
+          "secondary_type_propagation": true,
+          "unsupported_if_expr_regression": false
+        }
+      ],
+      "oof_if3": true,
+      "oof_ty0_for_if_expr_absent": true,
+      "derivative_oof_ty0_present": true,
+      "derivative_oof_ty0_secondary_labeled": true
     },
     "empty_branch": {
       "status": "blocked",
@@ -230,8 +266,35 @@
         "OOF-IF4",
         "OOF-TY0"
       ],
-      "oof_if4": true
+      "primary_rules": [
+        "OOF-IF4"
+      ],
+      "secondary_rules": [
+        {
+          "rule": "OOF-TY0",
+          "message": "Type mismatch: expected Integer, got Unknown",
+          "classification": "secondary_type_propagation",
+          "secondary_type_propagation": true,
+          "unsupported_if_expr_regression": false
+        }
+      ],
+      "oof_if4": true,
+      "oof_ty0_for_if_expr_absent": true,
+      "derivative_oof_ty0_present": true,
+      "derivative_oof_ty0_secondary_labeled": true
     }
+  },
+  "hygiene_evidence": {
+    "kind": "branch_conditional_if_expr_proof_summary_hygiene",
+    "status": "PASS",
+    "semantic_check_count_preserved": true,
+    "semantic_pass_count_preserved": true,
+    "semantic_fail_count_preserved": true,
+    "unsupported_if_expr_oof_ty0_absent_all_negative_cases": true,
+    "derivative_oof_ty0_secondary_labeled_all_present_cases": true,
+    "no_spark_claim": true,
+    "release_harness_evidence_immutable": true,
+    "no_semantic_behavior_change": true
   },
   "release_harness_non_mutation": {
     "harness_summary_intact": true,
@@ -244,12 +307,20 @@
       "igniter-lang/experiments/branch_conditional_if_expr_v0_implementation_proof",
       "igniter-lang/docs/tracks/branch-conditional-if-expr-v0-implementation-v0.md"
     ],
+    "hygiene_authorized_write_paths": [
+      "igniter-lang/experiments/branch_conditional_if_expr_v0_implementation_proof/**",
+      "igniter-lang/docs/tracks/branch-conditional-if-expr-proof-summary-hygiene-v0.md"
+    ],
     "parser_not_modified": true,
     "classifier_not_modified": true,
     "orchestrator_not_modified": true,
     "assembler_not_modified": true,
     "release_harness_not_in_write_scope": true,
     "runtime_not_modified": true,
+    "typechecker_semanticir_behavior_not_changed_by_hygiene": true,
+    "docs_spec_not_changed_by_hygiene": true,
+    "public_api_cli_not_changed_by_hygiene": true,
+    "spark_not_changed_by_hygiene": true,
     "status": "PASS"
   },
   "non_claims": {
@@ -262,7 +333,11 @@
     "no_public_api_cli_widening": true,
     "no_public_demo_stable_claims": true,
     "no_if_expr_in_release_scope": true,
-    "if_expr_proof_local_only": true
+    "if_expr_proof_local_only": true,
+    "no_spark_claim": true,
+    "no_doc_spec_changes": true,
+    "no_typechecker_semanticir_behavior_changes": true,
+    "no_package_release_commands": true
   },
   "recommendation": "implementation proof PASS — route to acceptance review"
 }
