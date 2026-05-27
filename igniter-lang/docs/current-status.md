@@ -366,7 +366,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             delta review next; R192 selects Option A:
                             accepted release evidence stays historical and
                             unchanged, release-harness delta is held, and
-                            proof-summary hygiene opens next;
+                            proof-summary hygiene opened next; R193 accepts
+                            that proof-summary hygiene closure, preserving
+                            28/28 checks, machine-labeling derivative
+                            `OOF-TY0` as secondary, adding
+                            `no_spark_claim: true`, and routing only
+                            release-harness delta authorization review next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1123,6 +1128,11 @@ Round 192 landed:
   S3-R192-C2-X: release-harness delta pressure                            ✅ proceed; 8/8 PASS; no blockers
   S3-R192-C3-A: release-harness delta decision                            ✅ selects Option A; proof-summary hygiene next
   S3-R192-C4-S: status curation                                           ✅ done; R193 proof-summary hygiene handoff recorded
+Round 193 landed:
+  S3-R193-C1-P1: if_expr proof-summary hygiene                            ✅ done; 28/28 PASS; secondary OOF-TY0 labeled; no_spark_claim true
+  S3-R193-C2-X: proof-summary hygiene pressure                            ✅ proceed; 8/8 PASS; no blockers
+  S3-R193-C3-A: proof-summary hygiene acceptance                          ✅ accepts hygiene closure; release-harness delta authorization review next
+  S3-R193-C4-S: status curation                                           ✅ done; R194 authorization-review handoff recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3306,6 +3316,27 @@ S3-R192 result:      C3-A accepts the R192 release-harness/evidence disposition
                       public claims, Spark, API/CLI widening, TypeChecker/
                       SemanticIR behavior changes in the hygiene route, and
                       production remain closed; release lane remains paused.
+S3-R193 result:      C3-A accepts the proof-summary hygiene closure selected
+                      by R192. C1-P1 updates only proof-owned runner/summary
+                      metadata and the hygiene track: the semantic proof remains
+                      `28/28 PASS`, unsupported-`if_expr` `OOF-TY0` is
+                      machine-readable as absent for all negative cases,
+                      derivative `OOF-TY0` is labeled secondary type-propagation
+                      where present, and `no_spark_claim: true` appears in both
+                      `hygiene_evidence` and `non_claims`. C2-X pressure is
+                      8/8 PASS with no blockers and one cosmetic note about a
+                      vacuously true secondary-label field on
+                      `non_bool_condition`. Accepted release evidence remains
+                      historical, unchanged, and immutable; the historical
+                      first-RC/alpha evidence still excludes
+                      `branch_conditional_if_expr` and is not rewritten. Exact
+                      next route is S3-R194-C1-A
+                      `branch-conditional-if-expr-release-harness-delta-authorization-review-v0`
+                      as authorization review only. Release-harness delta proof,
+                      release execution, public claims, runtime/evaluator
+                      support, Spark, API/CLI widening, TypeChecker/SemanticIR
+                      behavior changes, and production remain closed; release
+                      lane remains paused.
 ```
 
 ### Spec Freshness
