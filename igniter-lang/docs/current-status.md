@@ -346,7 +346,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             `OOF-TY0` refusal accepted pre-implementation, and
                             opens proof-only
                             `branch-conditional-if-expr-semantics-proof-v0`
-                            next;
+                            next; R188 accepts that proof-only fixture
+                            (14/14 PASS), accepts `OOF-IF1..OOF-IF4` as
+                            proof-stable future vocabulary, drops `OOF-IF5`,
+                            and opens only an implementation-authorization
+                            review next while keeping implementation closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1080,6 +1084,11 @@ Round 187 landed:
   S3-R187-C3-X: if_expr design pressure                                   ✅ proceed; 17/17 PASS; no blockers
   S3-R187-C4-A: if_expr next-route decision                               ✅ accepts design/survey; opens proof-only route; implementation held
   S3-R187-C5-S: status curation                                           ✅ done; R188 proof-only handoff recorded
+Round 188 landed:
+  S3-R188-C1-P1: if_expr semantics proof                                  ✅ PASS 14/14; proof-only fixture accepted
+  S3-R188-C2-X: if_expr proof pressure                                    ✅ proceed with notes; 14/15 PASS; no blockers
+  S3-R188-C3-A: if_expr proof acceptance                                  ✅ accepts proof; opens implementation-authorization review only
+  S3-R188-C4-S: status curation                                           ✅ done; R189 authorization-review handoff recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3137,6 +3146,28 @@ S3-R187 result:      C4-A accepts branch/conditional `if_expr` v0 scope and
                       shape. Next route is S3-R188-C1-P1
                       `branch-conditional-if-expr-semantics-proof-v0` as
                       proof-only semantics evidence. Implementation authorization,
+                      parser/TypeChecker/SemanticIR/assembler changes, artifacts,
+                      release execution, public API/CLI widening, public release/
+                      demo/all-grammar claims, Spark, runtime, and production
+                      remain closed; release lane remains paused.
+S3-R188 result:      C3-A accepts the proof-only `if_expr` semantics fixture.
+                      C1-P1 proof PASS is 14/14 with canonical Bool pinned as
+                      `{"name":"Bool","params":[]}`, `OOF-IF5` dropped from
+                      current proof/implementation scope, direct-expression
+                      SemanticIR target selected, union dependencies modeled,
+                      and closed-surface scan PASS. C2-X pressure is 14/15 PASS
+                      with no blockers; the nested SemanticIR shape and stage
+                      labeling issues are binding for the next authorization
+                      review, not proof blockers. Accepted proof vocabulary is
+                      `OOF-IF1` non-Bool condition, `OOF-IF2` missing `else`,
+                      `OOF-IF3` branch type mismatch, and `OOF-IF4` empty or
+                      non-value branch; `OOF-IF5` remains unowned and
+                      unauthorized. Current parser acceptance plus TypeChecker
+                      `OOF-TY0 Unsupported expression kind: if_expr` remains
+                      accepted until implementation is separately authorized and
+                      accepted. Next route is S3-R189-C1-A
+                      `branch-conditional-if-expr-implementation-authorization-review-v0`
+                      as authorization review only. Implementation,
                       parser/TypeChecker/SemanticIR/assembler changes, artifacts,
                       release execution, public API/CLI widening, public release/
                       demo/all-grammar claims, Spark, runtime, and production
