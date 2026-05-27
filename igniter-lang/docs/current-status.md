@@ -363,7 +363,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             cleanly across Ch2/Ch3/Ch5/Ch6 plus spec indexes,
                             preserves release/public/runtime/Spark/API
                             non-claims, and routes design-only release-harness
-                            delta review next;
+                            delta review next; R192 selects Option A:
+                            accepted release evidence stays historical and
+                            unchanged, release-harness delta is held, and
+                            proof-summary hygiene opens next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1115,6 +1118,11 @@ Round 191 landed:
   S3-R191-C2-X: if_expr docs/spec sync pressure                           ✅ proceed; 8/8 PASS; no blockers
   S3-R191-C3-I: if_expr docs/spec sync                                    ✅ done; 8/8 criteria PASS; claim-risk 12/12 CLEAR
   S3-R191-C4-S: status curation                                           ✅ done; R192 release-harness delta design handoff recorded
+Round 192 landed:
+  S3-R192-C1-D: if_expr release-harness delta design                      ✅ done; recommends historical evidence unchanged + hygiene first
+  S3-R192-C2-X: release-harness delta pressure                            ✅ proceed; 8/8 PASS; no blockers
+  S3-R192-C3-A: release-harness delta decision                            ✅ selects Option A; proof-summary hygiene next
+  S3-R192-C4-S: status curation                                           ✅ done; R193 proof-summary hygiene handoff recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3272,6 +3280,32 @@ S3-R191 result:      Bounded internal docs/spec sync for accepted
                       Runtime/evaluator support, release harness mutation,
                       release execution, public claims, Spark, API/CLI widening,
                       and production remain closed; release lane remains paused.
+S3-R192 result:      C3-A accepts the R192 release-harness/evidence disposition
+                      design and C2-X pressure verdict, then selects Option A:
+                      accepted release evidence remains historical, unchanged,
+                      and immutable; release-harness delta does not open now;
+                      proof-summary hygiene opens next. Historical evidence
+                      packets remain unchanged:
+                      `compiler_release_acceptance_harness_summary.json`,
+                      `official_first_rc_evidence_summary.json`, and
+                      `combined_post_prep_smoke_summary.json`. Historical
+                      first-RC/alpha evidence still excludes
+                      `branch_conditional_if_expr` under the S3-R164-C4-A basis;
+                      future wording should distinguish that historical
+                      exclusion from the stale broad phrase `if_expr
+                      unsupported`. R193 next route is S3-R193-C1-P1
+                      `branch-conditional-if-expr-proof-summary-hygiene-v0`,
+                      scoped only to the implementation proof output/doc track:
+                      preserve 28/28 checks, mark derivative `OOF-TY0` as
+                      secondary where present, ensure unsupported-`if_expr`
+                      `OOF-TY0` is absent, and add `no_spark_claim: true`.
+                      Release-harness delta may be considered only after hygiene
+                      lands and a separate authorization review names a new
+                      evidence packet boundary. Runtime/evaluator support,
+                      release harness/evidence mutation, release execution,
+                      public claims, Spark, API/CLI widening, TypeChecker/
+                      SemanticIR behavior changes in the hygiene route, and
+                      production remain closed; release lane remains paused.
 ```
 
 ### Spec Freshness
