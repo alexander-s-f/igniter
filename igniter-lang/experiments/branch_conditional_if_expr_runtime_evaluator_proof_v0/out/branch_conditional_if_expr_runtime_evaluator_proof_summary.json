@@ -1,0 +1,377 @@
+{
+  "kind": "branch_conditional_if_expr_runtime_evaluator_proof_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R197-C2-I",
+  "track": "branch-conditional-if-expr-runtime-evaluator-proof-local-v0",
+  "authorized_by": "S3-R197-C1-A",
+  "status": "PASS",
+  "checks_total": 54,
+  "checks_pass": 54,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "semantics": {
+    "lazy": true,
+    "evaluation_order": "condition → selected_branch_only → value",
+    "non_selected_branch_evaluation": "forbidden",
+    "truthy_falsy_coercion": false,
+    "bool_requirement": "exactly_true_or_false",
+    "malformed_if_expr_policy": "fail_closed",
+    "unknown_selected_kind_policy": "fail_closed",
+    "unknown_non_selected_kind_policy": "no_failure",
+    "nested_if_expr_policy": "same_lazy_rules_recursively"
+  },
+  "dependency_policy": {
+    "static_union": true,
+    "static_union_includes": [
+      "condition",
+      "then_branch",
+      "else_branch"
+    ],
+    "dynamic_selected_branch_tracking": "deferred",
+    "rt_if12_requires_dynamic_touch_tracing": false,
+    "rt_if12_proof_method": "structural_plus_dynamic_non_selection"
+  },
+  "error_surface": {
+    "kind": "proof_local_plain_raise_or_error_object",
+    "structured_runtime_codes_canonized": false,
+    "oof_rt_codes_canonized": false,
+    "proof_local_error_classes": [
+      "ProofLocal::MalformedIfExprError (non-canonical)",
+      "ProofLocal::ConditionNotBoolError (non-canonical)",
+      "ProofLocal::UnsupportedExpressionKindError (non-canonical)"
+    ],
+    "note": "These are proof-local error classes for the experiment only. They are not structured runtime codes, not OOF-RT-* vocabulary, and must not be published or canonized."
+  },
+  "runtime_scope": {
+    "proof_local_only": true,
+    "live_runtime_integration": false,
+    "runtime_smoke_changed": false,
+    "compiler_orchestrator_changed": false,
+    "runtime_machine_memory_proof_changed": false,
+    "lib_changed": false
+  },
+  "non_claims": {
+    "no_release_execution": true,
+    "no_public_demo_claim": true,
+    "no_stable_production_all_grammar_claim": true,
+    "no_spark_claim": true,
+    "no_public_api_cli_widening": true,
+    "no_live_runtime_integration": true,
+    "no_compiler_behavior_change": true
+  },
+  "checks": [
+    {
+      "name": "RT-IF1.condition_true_returns_then_value",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF1.condition_true_value_is_not_else_value",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF1.condition_true_from_ref",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF2.condition_false_returns_else_value",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF2.condition_false_value_is_not_then_value",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF2.condition_false_from_ref",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF3.non_selected_then_would_fail_no_error_when_false",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF3.failing_then_not_in_trace_when_false",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF3.else_branch_evaluated_when_condition_false",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF4.non_selected_else_would_fail_no_error_when_true",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF4.failing_else_not_in_trace_when_true",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF4.then_branch_evaluated_when_condition_true",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF5.condition_failure_propagates",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF5.branches_not_evaluated_on_condition_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF5.then_branch_not_in_trace_on_condition_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF6.selected_then_branch_failure_propagates",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF6.selected_else_branch_failure_propagates",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF7.integer_condition_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF7.string_condition_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF7.nil_condition_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF7.zero_condition_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF7.array_condition_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF7.error_is_not_bool_type",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF8.missing_condition_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF8.missing_then_branch_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF8.missing_else_branch_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF8.error_class_is_malformed_if_expr",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF9.unknown_then_branch_kind_fails_when_selected",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF9.unknown_else_branch_kind_fails_when_selected",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF10.unknown_then_kind_no_failure_when_false",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF10.unknown_then_kind_not_in_trace_when_false",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF10.unknown_else_kind_no_failure_when_true",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF10.unknown_else_kind_not_in_trace_when_true",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF11.nested_outer_true_inner_false_returns_inner_else",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF11.nested_failing_inner_then_not_touched",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF11.nested_outer_else_not_touched",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF11.nested_three_level_lazy",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF12.structural_proof_eval_if_expr_mutually_exclusive_arms",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF12.dynamic_proof_non_selected_then_not_called_when_false",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF12.dynamic_proof_non_selected_else_not_called_when_true",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF12.static_union_deps_preserved_in_compiler_semanticir",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF12.no_dynamic_dependency_tracking_infrastructure",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.live_lib_runtime_not_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.compiler_libs_not_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.runtime_machine_memory_proof_not_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.release_harness_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.first_rc_evidence_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.docs_spec_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.typechecker_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.semanticir_emitter_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.runtime_smoke_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.compiler_orchestrator_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.runtime_machine_memory_proof_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "RT-IF13.no_release_commands_in_script",
+      "status": "PASS"
+    }
+  ],
+  "proof_matrix_summary": {
+    "RT-IF1": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "RT-IF2": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "RT-IF3": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "RT-IF4": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "RT-IF5": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "RT-IF6": {
+      "result": "PASS",
+      "checks": 2
+    },
+    "RT-IF7": {
+      "result": "PASS",
+      "checks": 6
+    },
+    "RT-IF8": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "RT-IF9": {
+      "result": "PASS",
+      "checks": 2
+    },
+    "RT-IF10": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "RT-IF11": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "RT-IF12": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "RT-IF13": {
+      "result": "PASS",
+      "checks": 12
+    }
+  },
+  "call_trace_evidence": {
+    "condition_true": {
+      "trace": [
+        "if_expr",
+        "literal",
+        "literal"
+      ],
+      "result": 42,
+      "semantics": "condition + then_branch only"
+    },
+    "condition_false": {
+      "trace": [
+        "if_expr",
+        "literal",
+        "literal"
+      ],
+      "result": 99,
+      "semantics": "condition + else_branch only"
+    },
+    "nested_rt_if11": {
+      "trace": [
+        "if_expr",
+        "literal",
+        "if_expr",
+        "literal",
+        "literal"
+      ],
+      "result": 42,
+      "semantics": "outer then + inner else; failing inner then untouched"
+    }
+  },
+  "closed_surface_scan": {
+    "authorized_write_paths": [
+      "/Users/alex/dev/projects/igniter/igniter-lang/experiments/branch_conditional_if_expr_runtime_evaluator_proof_v0",
+      "/Users/alex/dev/projects/igniter/igniter-lang/experiments/branch_conditional_if_expr_runtime_evaluator_proof_v0/out"
+    ],
+    "live_lib_runtime_not_loaded": true,
+    "compiler_libs_not_loaded": true,
+    "runtime_machine_memory_proof_not_loaded": true,
+    "release_harness_not_in_write_scope": true,
+    "docs_spec_not_in_write_scope": true,
+    "status": "PASS"
+  }
+}
