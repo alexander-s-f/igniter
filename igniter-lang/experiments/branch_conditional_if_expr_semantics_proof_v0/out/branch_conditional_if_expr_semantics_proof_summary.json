@@ -1,0 +1,615 @@
+{
+  "canonical_bool_evidence": {
+    "canonical_bool_type": {
+      "name": "Bool",
+      "params": []
+    },
+    "ref_resolved_type": {
+      "name": "Bool",
+      "params": []
+    },
+    "source": "live TypeChecker Bool input and ref compute",
+    "type_errors": [],
+    "typed_status": "accepted"
+  },
+  "card": "S3-R188-C1-P1",
+  "checks": [
+    {
+      "name": "parser.minimal_if_else_if_expr_shape",
+      "status": "PASS"
+    },
+    {
+      "name": "typechecker.current_refusal_oof_ty0",
+      "status": "PASS"
+    },
+    {
+      "name": "bool.canonical_representation_pinned",
+      "status": "PASS"
+    },
+    {
+      "name": "model.accepts_bool_condition_same_branch_type",
+      "status": "PASS"
+    },
+    {
+      "name": "model.rejects_non_bool_condition_oof_if1",
+      "status": "PASS"
+    },
+    {
+      "name": "model.rejects_missing_else_oof_if2",
+      "status": "PASS"
+    },
+    {
+      "name": "model.rejects_branch_type_mismatch_oof_if3",
+      "status": "PASS"
+    },
+    {
+      "name": "model.rejects_empty_branch_oof_if4",
+      "status": "PASS"
+    },
+    {
+      "name": "model.drops_oof_if5_from_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "semanticir.direct_expression_shape_chosen",
+      "status": "PASS"
+    },
+    {
+      "name": "semanticir.union_dependencies_modeled",
+      "status": "PASS"
+    },
+    {
+      "name": "model.nested_if_expr_under_same_rules",
+      "status": "PASS"
+    },
+    {
+      "name": "release_harness.remains_out_of_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "closed_surfaces.remain_closed",
+      "status": "PASS"
+    }
+  ],
+  "checks_fail": 0,
+  "checks_pass": 14,
+  "checks_total": 14,
+  "closed_surface_scan": {
+    "optional_readme_hygiene_selected": false,
+    "parser_typechecker_semanticir_assembler_no_proof_token": {
+      "hits": [],
+      "status": "PASS"
+    },
+    "public_api_cli_not_widened_by_proof": {
+      "status": "PASS"
+    },
+    "release_harness_not_mutated_by_proof": {
+      "status": "PASS"
+    },
+    "spark_not_touched_by_proof": {
+      "note": "proof fixtures and outputs contain no Spark input or integration path",
+      "status": "PASS"
+    }
+  },
+  "command_matrix": [
+    {
+      "command": "targeted parser probe",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "command": "targeted TypeChecker refusal probe",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "command": "proof-local semantics model run",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "command": "proof-local SemanticIR-shape model run",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "command": "closed-surface scan",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "command": "summary JSON generation",
+      "expected": "PASS",
+      "observed": "PASS"
+    }
+  ],
+  "current_mainline_refusal": {
+    "canonical_message": "Unsupported expression kind: if_expr",
+    "canonical_rule": "OOF-TY0",
+    "status": "PASS",
+    "type_errors": [
+      {
+        "line": null,
+        "message": "Unsupported expression kind: if_expr",
+        "node": "chosen",
+        "rule": "OOF-TY0"
+      },
+      {
+        "line": null,
+        "message": "Type mismatch: expected Integer, got Unknown",
+        "node": "chosen",
+        "rule": "OOF-TY0"
+      }
+    ],
+    "typed_status": "blocked"
+  },
+  "failed_checks": [],
+  "format_version": "0.1.0",
+  "kind": "branch_conditional_if_expr_semantics_proof_summary",
+  "model_cases": {
+    "branch_type_mismatch": {
+      "deps": [
+        "a",
+        "flag",
+        "title"
+      ],
+      "diagnostic_rules": [
+        "OOF-IF3"
+      ],
+      "resolved_type": {
+        "name": "Unknown",
+        "params": []
+      },
+      "typed_expr": null,
+      "valid": false
+    },
+    "empty_branch": {
+      "deps": [
+        "flag"
+      ],
+      "diagnostic_rules": [
+        "OOF-IF4"
+      ],
+      "resolved_type": {
+        "name": "Unknown",
+        "params": []
+      },
+      "typed_expr": null,
+      "valid": false
+    },
+    "minimal_if_else": {
+      "deps": [
+        "a",
+        "b",
+        "flag"
+      ],
+      "diagnostic_rules": [],
+      "resolved_type": {
+        "name": "Integer",
+        "params": []
+      },
+      "typed_expr": {
+        "cond": {
+          "deps": [
+            "flag"
+          ],
+          "kind": "ref",
+          "name": "flag",
+          "resolved_type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        "deps": [
+          "a",
+          "b",
+          "flag"
+        ],
+        "else": {
+          "expr": {
+            "deps": [
+              "b"
+            ],
+            "kind": "ref",
+            "name": "b",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "kind": "branch"
+        },
+        "kind": "if_expr",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        },
+        "then": {
+          "expr": {
+            "deps": [
+              "a"
+            ],
+            "kind": "ref",
+            "name": "a",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "kind": "branch"
+        }
+      },
+      "valid": true
+    },
+    "missing_else": {
+      "deps": [
+        "flag"
+      ],
+      "diagnostic_rules": [
+        "OOF-IF2"
+      ],
+      "resolved_type": {
+        "name": "Unknown",
+        "params": []
+      },
+      "typed_expr": null,
+      "valid": false
+    },
+    "nested_if_expr": {
+      "deps": [
+        "a",
+        "b",
+        "c",
+        "flag",
+        "other"
+      ],
+      "diagnostic_rules": [],
+      "resolved_type": {
+        "name": "Integer",
+        "params": []
+      },
+      "typed_expr": {
+        "cond": {
+          "deps": [
+            "flag"
+          ],
+          "kind": "ref",
+          "name": "flag",
+          "resolved_type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        "deps": [
+          "a",
+          "b",
+          "c",
+          "flag",
+          "other"
+        ],
+        "else": {
+          "expr": {
+            "deps": [
+              "c"
+            ],
+            "kind": "ref",
+            "name": "c",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "kind": "branch"
+        },
+        "kind": "if_expr",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        },
+        "then": {
+          "expr": {
+            "cond": {
+              "deps": [
+                "other"
+              ],
+              "kind": "ref",
+              "name": "other",
+              "resolved_type": {
+                "name": "Bool",
+                "params": []
+              }
+            },
+            "deps": [
+              "a",
+              "b",
+              "other"
+            ],
+            "else": {
+              "expr": {
+                "deps": [
+                  "b"
+                ],
+                "kind": "ref",
+                "name": "b",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              "kind": "branch"
+            },
+            "kind": "if_expr",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            },
+            "then": {
+              "expr": {
+                "deps": [
+                  "a"
+                ],
+                "kind": "ref",
+                "name": "a",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              "kind": "branch"
+            }
+          },
+          "kind": "branch"
+        }
+      },
+      "valid": true
+    },
+    "non_bool_condition": {
+      "deps": [
+        "a",
+        "b"
+      ],
+      "diagnostic_rules": [
+        "OOF-IF1"
+      ],
+      "resolved_type": {
+        "name": "Unknown",
+        "params": []
+      },
+      "typed_expr": null,
+      "valid": false
+    }
+  },
+  "oof_if5_policy": {
+    "reason": "R187 C4-A requires single owner/trigger before modeling; none selected",
+    "status": "dropped_from_proof_scope"
+  },
+  "parser_probe": {
+    "compute_expr_kind": "if_expr",
+    "contract_name": "MinimalIfElse",
+    "if_expr_shape_keys": [
+      "cond",
+      "else",
+      "kind",
+      "then"
+    ],
+    "module": "Proof.IfExpr",
+    "parse_errors": []
+  },
+  "proof_matrix": [
+    {
+      "assertion": "parser.minimal_if_else_if_expr_shape",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "typechecker.current_refusal_oof_ty0",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "bool.canonical_representation_pinned",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "model.accepts_bool_condition_same_branch_type",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "model.rejects_non_bool_condition_oof_if1",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "model.rejects_missing_else_oof_if2",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "model.rejects_branch_type_mismatch_oof_if3",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "model.rejects_empty_branch_oof_if4",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "model.drops_oof_if5_from_scope",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "semanticir.direct_expression_shape_chosen",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "semanticir.union_dependencies_modeled",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "model.nested_if_expr_under_same_rules",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "release_harness.remains_out_of_scope",
+      "expected": "PASS",
+      "observed": "PASS"
+    },
+    {
+      "assertion": "closed_surfaces.remain_closed",
+      "expected": "PASS",
+      "observed": "PASS"
+    }
+  ],
+  "recommendation": "proceed to pressure review; implementation authorization review may be considered after acceptance",
+  "release_harness_evidence": {
+    "feature_reason": "excluded from first RC scope by Portfolio decision S3-R164-C4-A; post-RC language/compiler design lane; no branch/conditional if_expr implementation authorized by first RC scope",
+    "feature_status": "out_of_scope",
+    "release_scope_excludes_if_expr": true,
+    "summary_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/compiler_release_acceptance_harness_v0/out/compiler_release_acceptance_harness_summary.json"
+  },
+  "semanticir_branch_shape": {
+    "choice": "direct_expression_lowering_no_branch_expr_wrapper",
+    "justification": "current lower_expr returns expression nodes directly; no live branch_expr wrapper pattern found",
+    "minimal_shape": {
+      "condition": {
+        "deps": [
+          "flag"
+        ],
+        "kind": "ref",
+        "name": "flag",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "deps": [
+        "a",
+        "b",
+        "flag"
+      ],
+      "else_branch": {
+        "deps": [
+          "b"
+        ],
+        "kind": "ref",
+        "name": "b",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "kind": "if_expr",
+      "resolved_type": {
+        "name": "Integer",
+        "params": []
+      },
+      "then_branch": {
+        "deps": [
+          "a"
+        ],
+        "kind": "ref",
+        "name": "a",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      }
+    },
+    "nested_shape": {
+      "condition": {
+        "deps": [
+          "flag"
+        ],
+        "kind": "ref",
+        "name": "flag",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "deps": [
+        "a",
+        "b",
+        "c",
+        "flag",
+        "other"
+      ],
+      "else_branch": {
+        "deps": [
+          "c"
+        ],
+        "kind": "ref",
+        "name": "c",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "kind": "if_expr",
+      "resolved_type": {
+        "name": "Integer",
+        "params": []
+      },
+      "then_branch": {
+        "cond": {
+          "deps": [
+            "other"
+          ],
+          "kind": "ref",
+          "name": "other",
+          "resolved_type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        "deps": [
+          "a",
+          "b",
+          "other"
+        ],
+        "else": {
+          "expr": {
+            "deps": [
+              "b"
+            ],
+            "kind": "ref",
+            "name": "b",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "kind": "branch"
+        },
+        "kind": "if_expr",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        },
+        "then": {
+          "expr": {
+            "deps": [
+              "a"
+            ],
+            "kind": "ref",
+            "name": "a",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "kind": "branch"
+        }
+      }
+    }
+  },
+  "status": "PASS",
+  "track": "branch-conditional-if-expr-semantics-proof-v0"
+}

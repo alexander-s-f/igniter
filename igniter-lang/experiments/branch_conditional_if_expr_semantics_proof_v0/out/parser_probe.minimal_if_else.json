@@ -1,0 +1,12 @@
+{
+  "compute_expr_kind": "if_expr",
+  "contract_name": "MinimalIfElse",
+  "if_expr_shape_keys": [
+    "cond",
+    "else",
+    "kind",
+    "then"
+  ],
+  "module": "Proof.IfExpr",
+  "parse_errors": []
+}

@@ -1,0 +1,233 @@
+{
+  "branch_type_mismatch": {
+    "deps": [
+      "a",
+      "flag",
+      "title"
+    ],
+    "diagnostic_rules": [
+      "OOF-IF3"
+    ],
+    "resolved_type": {
+      "name": "Unknown",
+      "params": []
+    },
+    "typed_expr": null,
+    "valid": false
+  },
+  "empty_branch": {
+    "deps": [
+      "flag"
+    ],
+    "diagnostic_rules": [
+      "OOF-IF4"
+    ],
+    "resolved_type": {
+      "name": "Unknown",
+      "params": []
+    },
+    "typed_expr": null,
+    "valid": false
+  },
+  "minimal_if_else": {
+    "deps": [
+      "a",
+      "b",
+      "flag"
+    ],
+    "diagnostic_rules": [],
+    "resolved_type": {
+      "name": "Integer",
+      "params": []
+    },
+    "typed_expr": {
+      "cond": {
+        "deps": [
+          "flag"
+        ],
+        "kind": "ref",
+        "name": "flag",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "deps": [
+        "a",
+        "b",
+        "flag"
+      ],
+      "else": {
+        "expr": {
+          "deps": [
+            "b"
+          ],
+          "kind": "ref",
+          "name": "b",
+          "resolved_type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        "kind": "branch"
+      },
+      "kind": "if_expr",
+      "resolved_type": {
+        "name": "Integer",
+        "params": []
+      },
+      "then": {
+        "expr": {
+          "deps": [
+            "a"
+          ],
+          "kind": "ref",
+          "name": "a",
+          "resolved_type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        "kind": "branch"
+      }
+    },
+    "valid": true
+  },
+  "missing_else": {
+    "deps": [
+      "flag"
+    ],
+    "diagnostic_rules": [
+      "OOF-IF2"
+    ],
+    "resolved_type": {
+      "name": "Unknown",
+      "params": []
+    },
+    "typed_expr": null,
+    "valid": false
+  },
+  "nested_if_expr": {
+    "deps": [
+      "a",
+      "b",
+      "c",
+      "flag",
+      "other"
+    ],
+    "diagnostic_rules": [],
+    "resolved_type": {
+      "name": "Integer",
+      "params": []
+    },
+    "typed_expr": {
+      "cond": {
+        "deps": [
+          "flag"
+        ],
+        "kind": "ref",
+        "name": "flag",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "deps": [
+        "a",
+        "b",
+        "c",
+        "flag",
+        "other"
+      ],
+      "else": {
+        "expr": {
+          "deps": [
+            "c"
+          ],
+          "kind": "ref",
+          "name": "c",
+          "resolved_type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        "kind": "branch"
+      },
+      "kind": "if_expr",
+      "resolved_type": {
+        "name": "Integer",
+        "params": []
+      },
+      "then": {
+        "expr": {
+          "cond": {
+            "deps": [
+              "other"
+            ],
+            "kind": "ref",
+            "name": "other",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "deps": [
+            "a",
+            "b",
+            "other"
+          ],
+          "else": {
+            "expr": {
+              "deps": [
+                "b"
+              ],
+              "kind": "ref",
+              "name": "b",
+              "resolved_type": {
+                "name": "Integer",
+                "params": []
+              }
+            },
+            "kind": "branch"
+          },
+          "kind": "if_expr",
+          "resolved_type": {
+            "name": "Integer",
+            "params": []
+          },
+          "then": {
+            "expr": {
+              "deps": [
+                "a"
+              ],
+              "kind": "ref",
+              "name": "a",
+              "resolved_type": {
+                "name": "Integer",
+                "params": []
+              }
+            },
+            "kind": "branch"
+          }
+        },
+        "kind": "branch"
+      }
+    },
+    "valid": true
+  },
+  "non_bool_condition": {
+    "deps": [
+      "a",
+      "b"
+    ],
+    "diagnostic_rules": [
+      "OOF-IF1"
+    ],
+    "resolved_type": {
+      "name": "Unknown",
+      "params": []
+    },
+    "typed_expr": null,
+    "valid": false
+  }
+}

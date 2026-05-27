@@ -1,0 +1,17 @@
+{
+  "optional_readme_hygiene_selected": false,
+  "parser_typechecker_semanticir_assembler_no_proof_token": {
+    "hits": [],
+    "status": "PASS"
+  },
+  "public_api_cli_not_widened_by_proof": {
+    "status": "PASS"
+  },
+  "release_harness_not_mutated_by_proof": {
+    "status": "PASS"
+  },
+  "spark_not_touched_by_proof": {
+    "note": "proof fixtures and outputs contain no Spark input or integration path",
+    "status": "PASS"
+  }
+}

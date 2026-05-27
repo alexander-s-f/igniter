@@ -1,0 +1,20 @@
+{
+  "canonical_message": "Unsupported expression kind: if_expr",
+  "canonical_rule": "OOF-TY0",
+  "status": "PASS",
+  "type_errors": [
+    {
+      "line": null,
+      "message": "Unsupported expression kind: if_expr",
+      "node": "chosen",
+      "rule": "OOF-TY0"
+    },
+    {
+      "line": null,
+      "message": "Type mismatch: expected Integer, got Unknown",
+      "node": "chosen",
+      "rule": "OOF-TY0"
+    }
+  ],
+  "typed_status": "blocked"
+}
