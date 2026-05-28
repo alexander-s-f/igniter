@@ -379,7 +379,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             routes only runtime/evaluator design next; R196
                             accepts lazy runtime/evaluator design and opens
                             only proof-local implementation authorization
-                            review next;
+                            review next; R197 accepts proof-local
+                            runtime/evaluator closure with RT-IF1..RT-IF13 /
+                            54/54 PASS and routes only live implementation
+                            design next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1154,6 +1157,12 @@ Round 196 landed:
   S3-R196-C2-X: runtime/evaluator design pressure                         ✅ proceed; 9/9 PASS; no blockers
   S3-R196-C3-A: runtime/evaluator design decision                         ✅ accepts design; proof-local implementation authorization review next
   S3-R196-C4-S: status curation                                           ✅ done; R197 authorization-review boundary recorded
+Round 197 landed:
+  S3-R197-C1-A: proof-local runtime/evaluator authorization                ✅ authorizes proof-local experiment only; live runtime closed
+  S3-R197-C2-I: proof-local runtime/evaluator experiment                   ✅ proof-passed; RT-IF1..RT-IF13 / 54/54 PASS
+  S3-R197-C3-X: proof-local runtime/evaluator pressure                     ✅ proceed; 11/11 PASS; no blockers
+  S3-R197-C4-A: proof-local runtime/evaluator acceptance                   ✅ accepts closure; live implementation design-only next
+  S3-R197-C5-S: status curation                                           ✅ done; R198 design-only boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3416,6 +3425,30 @@ S3-R196 result:      C3-A accepts the `if_expr` runtime/evaluator design.
                       evaluator experiment. Runtime/evaluator implementation,
                       live `RuntimeSmoke` / `CompilerOrchestrator` integration,
                       release execution, public claims, Spark/API/CLI widening,
+                      TypeChecker/SemanticIR/compiler behavior changes, cache
+                      path-sensitive tracking, and production remain closed;
+                      release lane remains paused.
+S3-R197 result:      C4-A accepts the proof-local `if_expr`
+                      runtime/evaluator closure. The local
+                      `ProofLocal::IfExprEvaluator` is accepted only as
+                      proof-local instrumentation; RT-IF1..RT-IF13 all PASS
+                      with `54/54` sub-checks. Lazy semantics are proven:
+                      condition first, exact Bool only, selected branch only,
+                      non-selected branch failures and unknown expression kinds
+                      do not fire, selected branch failures propagate, malformed
+                      nodes fail closed, and nested `if_expr` remains lazy.
+                      Static dependency union remains accepted; RT-IF12 proves
+                      selected-branch call path without dynamic dependency
+                      tracking, dependency receipts, path-sensitive cache keys,
+                      or touch-trace infrastructure. Runtime diagnostics remain
+                      local/open: proof-local error classes are non-canonical,
+                      `OOF-RT-*` and public `runtime.if_expr_*` diagnostics are
+                      not accepted. Exact next route is S3-R198-C1-D
+                      `branch-conditional-if-expr-live-runtime-evaluator-implementation-design-v0`
+                      as design-only. Live runtime/evaluator implementation,
+                      `lib/` runtime changes, `RuntimeSmoke` /
+                      `CompilerOrchestrator` behavior changes, release
+                      execution, public claims, Spark/API/CLI widening,
                       TypeChecker/SemanticIR/compiler behavior changes, cache
                       path-sensitive tracking, and production remain closed;
                       release lane remains paused.
