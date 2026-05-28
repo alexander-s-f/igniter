@@ -412,6 +412,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             public/release/Spark/API/CLI, counterfactual audit,
                             cache authority, and production closed, then routes
                             only RuntimeSmoke consumer boundary design next;
+                            R202 accepts that RuntimeSmoke consumer boundary
+                            design as a proof-owned harness route, fixes
+                            transitive evaluator load as not support, preserves
+                            dual-path evaluator shape, keeps RuntimeSmoke
+                            source/result/callback/input shapes unchanged, and
+                            routes only proof-harness authorization review next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1214,6 +1220,11 @@ Round 201 landed:
   S3-R201-C3-X: proof RuntimeMachine consumer pressure                     ✅ proceed; 18/18 PASS; no blockers
   S3-R201-C4-A: proof RuntimeMachine consumer acceptance                   ✅ accepts proof-only if_expr adapter consumer path
   S3-R201-C5-S: status curation                                           ✅ done; R202 RuntimeSmoke design-only boundary recorded
+Round 202 landed:
+  S3-R202-C1-D: RuntimeSmoke consumer boundary design                      ✅ done; proof-owned harness route
+  S3-R202-C2-X: RuntimeSmoke boundary design pressure                      ✅ proceed; 13/13 PASS; no blockers
+  S3-R202-C3-A: RuntimeSmoke boundary design decision                      ✅ accepts design; proof harness authorization review next
+  S3-R202-C4-S: status curation                                           ✅ done; R203 authorization-review boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3613,6 +3624,32 @@ S3-R201 result:      C4-A accepts Slice 2 proof RuntimeMachine consumer
                       S3-R202-C1-D
                       `branch-conditional-if-expr-runtime-smoke-consumer-boundary-design-v0`.
                       No RuntimeSmoke implementation is authorized by R201-C5-S.
+S3-R202 result:      C3-A accepts the RuntimeSmoke consumer boundary design
+                      and authorizes only a later implementation-authorization
+                      review. The accepted route is a proof-owned harness
+                      around existing `RuntimeSmoke.run`, with no
+                      `runtime_smoke.rb` edits, no result-shape changes, no
+                      callback/input behavior changes, no compiler/result/report
+                      coupling, and no public runtime claims. Binding hierarchy:
+                      transitive evaluator load is not RuntimeSmoke support;
+                      RuntimeSmoke proof support is not public runtime support;
+                      public runtime support is not production/runtime claim.
+                      The R201 dual-path evaluator remains accepted and does
+                      not block RuntimeSmoke proof work. Next proof requirements
+                      include `RS-IF5a` for selected `apply`, `RS-IF5b` for
+                      selected `field_access`, programmatic proof-owned
+                      `.igapp` generation under the future experiment `out/`,
+                      `RS-IF2` source/claim scan plus behavioral load-without-
+                      eval assertion, and mandatory `RS-IF16` for existing
+                      RuntimeSmoke blocked failure shape on bad `if_expr`.
+                      Root require, `CompilerOrchestrator`, `CompilerResult`,
+                      `CompilationReport`, Diagnostics, dependency/cache
+                      authority, counterfactual audit, release/public/Spark/
+                      API/CLI, production, and public runtime claims remain
+                      closed. Exact next route is S3-R203-C1-A
+                      `branch-conditional-if-expr-runtime-smoke-consumer-proof-authorization-review-v0`.
+                      No RuntimeSmoke implementation or proof harness is
+                      authorized by R202-C4-S.
 ```
 
 ### Spec Freshness
