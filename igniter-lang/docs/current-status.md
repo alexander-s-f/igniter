@@ -403,7 +403,15 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             temporal ownership, selects per-call
                             `external_evaluator:` for a future review, and
                             routes only implementation authorization review
-                            next;
+                            next; R201 authorizes, implements, and accepts the
+                            Slice 2 proof RuntimeMachine consumer path with
+                            PRT-IF1..PRT-IF15 / 56/56 PASS, a backward-compatible
+                            per-call `external_evaluator:` hook, and proof
+                            RuntimeMachine ownership of `apply`, `field_access`,
+                            and `tbackend_read`, while keeping RuntimeSmoke,
+                            public/release/Spark/API/CLI, counterfactual audit,
+                            cache authority, and production closed, then routes
+                            only RuntimeSmoke consumer boundary design next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1200,6 +1208,12 @@ Round 200 landed:
   S3-R200-C2-X: boundary design pressure                                   ✅ proceed; 13/13 PASS; no blockers
   S3-R200-C3-A: boundary design decision                                   ✅ accepts design; implementation authorization review next
   S3-R200-C4-S: status curation                                           ✅ done; R201 authorization-review boundary recorded
+Round 201 landed:
+  S3-R201-C1-A: proof RuntimeMachine consumer authorization                ✅ authorizes bounded C2-I implementation
+  S3-R201-C2-I: proof RuntimeMachine consumer implementation               ✅ proof-passed; PRT-IF1..PRT-IF15 / 56/56 PASS
+  S3-R201-C3-X: proof RuntimeMachine consumer pressure                     ✅ proceed; 18/18 PASS; no blockers
+  S3-R201-C4-A: proof RuntimeMachine consumer acceptance                   ✅ accepts proof-only if_expr adapter consumer path
+  S3-R201-C5-S: status curation                                           ✅ done; R202 RuntimeSmoke design-only boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3570,6 +3584,35 @@ S3-R200 result:      C3-A accepts the Slice 2 proof RuntimeMachine consumer
                       S3-R201-C1-A
                       `branch-conditional-if-expr-proof-runtime-consumer-implementation-authorization-review-v0`.
                       No implementation is authorized by R200-C4-S.
+S3-R201 result:      C4-A accepts Slice 2 proof RuntimeMachine consumer
+                      implementation closure. Proof RuntimeMachine can now
+                      consume `SemanticIRExpressionEvaluator` through the
+                      accepted proof-only `if_expr` adapter path. Accepted
+                      changed files are the evaluator hook file,
+                      `experiments/runtime_machine_memory_proof/compiled_program.rb`,
+                      the proof harness, proof summary, and implementation
+                      track doc. PRT-IF1..PRT-IF15 all PASS with `56/56`
+                      sub-checks; Slice 1 evaluator regression remains
+                      `68/68` PASS, proof-local runtime/evaluator regression
+                      remains `54/54` PASS, and optional release-harness delta
+                      regression remains `39/39` PASS with old harness SHA
+                      matched. Accepted API is
+                      `evaluate(expr, values = {}, call_trace: nil, external_evaluator: nil)`;
+                      constructor injection remains rejected, external
+                      evaluator exceptions propagate unchanged, and `call_trace`
+                      remains proof/debug only. `literal`/`ref`/`if_expr`
+                      remain evaluator-owned; `apply`, `field_access`, and
+                      `tbackend_read` remain proof RuntimeMachine-local /
+                      temporal-owned. RuntimeSmoke remains closed; its
+                      transitive evaluator load through `compiled_program.rb`
+                      is an accepted known consequence, not RuntimeSmoke
+                      support. Root require, compiler/result/report,
+                      Diagnostics, dependency/cache authority, counterfactual
+                      audit, release/public/Spark/API/CLI, production, and all
+                      public runtime claims remain closed. Exact next route is
+                      S3-R202-C1-D
+                      `branch-conditional-if-expr-runtime-smoke-consumer-boundary-design-v0`.
+                      No RuntimeSmoke implementation is authorized by R201-C5-S.
 ```
 
 ### Spec Freshness
