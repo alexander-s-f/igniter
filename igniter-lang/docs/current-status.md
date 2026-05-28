@@ -395,7 +395,15 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             RuntimeMachine consumer integration, public/API/CLI,
                             release, counterfactual audit, and production
                             closed, then routes only Slice 2 proof RuntimeMachine
-                            consumer boundary design next;
+                            consumer boundary design next; R200 accepts that
+                            proof RuntimeMachine consumer boundary design as
+                            adapter-style, assigns `literal`/`ref`/`if_expr`
+                            to the evaluator and `apply`/`field_access`/
+                            `tbackend_read` to proof RuntimeMachine /
+                            temporal ownership, selects per-call
+                            `external_evaluator:` for a future review, and
+                            routes only implementation authorization review
+                            next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1187,6 +1195,11 @@ Round 199 landed:
   S3-R199-C3-X: Slice 1 implementation pressure                            ✅ proceed; 14/14 PASS; no blockers
   S3-R199-C4-A: Slice 1 implementation acceptance                          ✅ accepts live internal direct-require evaluator; consumer integrations closed
   S3-R199-C5-S: status curation                                           ✅ done; R200 design-only boundary recorded
+Round 200 landed:
+  S3-R200-C1-D: proof RuntimeMachine consumer boundary design              ✅ done; adapter boundary with external_evaluator hook
+  S3-R200-C2-X: boundary design pressure                                   ✅ proceed; 13/13 PASS; no blockers
+  S3-R200-C3-A: boundary design decision                                   ✅ accepts design; implementation authorization review next
+  S3-R200-C4-S: status curation                                           ✅ done; R201 authorization-review boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3534,6 +3547,29 @@ S3-R199 result:      C4-A accepts Slice 1 live `if_expr` runtime/evaluator
                       as design-only for the Slice 2 proof RuntimeMachine
                       consumer boundary; no further implementation is
                       authorized by R199-C5-S. Release lane remains paused.
+S3-R200 result:      C3-A accepts the Slice 2 proof RuntimeMachine consumer
+                      boundary design and authorizes only a later
+                      implementation-authorization review. The accepted shape
+                      is adapter-style: `SemanticIRExpressionEvaluator` owns
+                      lazy `if_expr` selection plus `literal`/`ref`, while
+                      proof RuntimeMachine keeps `apply`, `field_access`,
+                      `tbackend_read`, proof-local operator application, and
+                      backend/as_of temporal reads. `tbackend_read` remains
+                      proof RuntimeMachine / temporal-owned and must not enter
+                      evaluator core without a separate temporal/runtime
+                      authority gate. The future review must use per-call
+                      `external_evaluator:` on `evaluate(...)`, preserve the
+                      existing call shape when omitted, propagate external
+                      evaluator exceptions unchanged, and keep `call_trace`
+                      debug/proof-only. RuntimeSmoke, root require,
+                      `CompilerOrchestrator`, `CompilerResult`,
+                      `CompilationReport`, Diagnostics, parser/TypeChecker/
+                      SemanticIR/compiler behavior, release/public/Spark/API/
+                      CLI, dependency/cache authority, counterfactual audit,
+                      and production remain closed. Exact next route is
+                      S3-R201-C1-A
+                      `branch-conditional-if-expr-proof-runtime-consumer-implementation-authorization-review-v0`.
+                      No implementation is authorized by R200-C4-S.
 ```
 
 ### Spec Freshness
