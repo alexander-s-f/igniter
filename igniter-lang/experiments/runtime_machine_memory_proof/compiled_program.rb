@@ -8,6 +8,11 @@ require "pathname"
 # Load the existing memory proof experiment
 require_relative "../runtime_machine_memory_proof/runtime_machine_memory_proof"
 
+# Slice 2: direct-require SemanticIRExpressionEvaluator for proof RuntimeMachine if_expr consumer.
+# Authorization: S3-R201-C1-A
+# Boundary: direct-require-only; root require lib/igniter_lang.rb remains unchanged.
+require_relative "../../lib/igniter_lang/semanticir_expression_evaluator"
+
 # =============================================================================
 # CompiledProgram: loads a hand-authored .igapp/ artifact
 # Implements the PROP-012 RuntimeMachine.load contract
@@ -376,6 +381,16 @@ module RuntimeMachineMemoryProof
 
     def eval_expr(expr, values, backend:, as_of:)
       case expr.fetch("kind")
+      when "if_expr"
+        # Slice 2 adapter: delegate if_expr lazy selection to SemanticIRExpressionEvaluator.
+        # The external_evaluator callback routes selected branches of unsupported kinds
+        # (apply, field_access, tbackend_read) back to this method, keeping ownership here.
+        # - apply, field_access, tbackend_read remain proof RuntimeMachine-local.
+        # - external_evaluator is never called for the non-selected branch (evaluator guarantee).
+        # - external_evaluator exceptions propagate unchanged (not wrapped).
+        # Authorization: S3-R201-C1-A
+        ext_ev = ->(sub_expr, sub_vals) { eval_expr(sub_expr, sub_vals, backend: backend, as_of: as_of) }
+        if_expr_evaluator.evaluate(expr, values, external_evaluator: ext_ev)
       when "apply"
         operands = expr.fetch("operands").map { |op| eval_expr(op, values, backend: backend, as_of: as_of) }
         apply_operator(expr.fetch("operator"), operands)
@@ -398,6 +413,12 @@ module RuntimeMachineMemoryProof
       else
         raise ArgumentError, "Unknown expression kind: #{expr["kind"]}"
       end
+    end
+
+    # Lazy-initialized SemanticIRExpressionEvaluator instance for if_expr delegation.
+    # Slice 2 adapter — stateless evaluator instance shared across evaluate_contract calls.
+    def if_expr_evaluator
+      @if_expr_evaluator ||= IgniterLang::SemanticIRExpressionEvaluator.new
     end
 
     def build_subject(template, values)

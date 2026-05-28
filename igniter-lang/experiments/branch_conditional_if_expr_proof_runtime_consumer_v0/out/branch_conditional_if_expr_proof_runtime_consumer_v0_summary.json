@@ -1,0 +1,347 @@
+{
+  "kind": "branch_conditional_if_expr_proof_runtime_consumer_v0_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R201-C2-I",
+  "track": "branch-conditional-if-expr-proof-runtime-consumer-v0",
+  "authorized_by": "S3-R201-C1-A",
+  "status": "PASS",
+  "checks_total": 56,
+  "checks_pass": 56,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "implementation": {
+    "evaluator_hook": "external_evaluator: per-call keyword (backward-compatible)",
+    "evaluator_file": "igniter-lang/lib/igniter_lang/semanticir_expression_evaluator.rb",
+    "compiled_program_file": "igniter-lang/experiments/runtime_machine_memory_proof/compiled_program.rb",
+    "evaluator_owned_kinds": [
+      "literal",
+      "ref",
+      "if_expr"
+    ],
+    "proof_runtime_machine_owned_kinds": [
+      "apply",
+      "field_access",
+      "tbackend_read"
+    ],
+    "slice": "Slice 2 proof RuntimeMachine consumer"
+  },
+  "ownership_policy": {
+    "literal": "SemanticIRExpressionEvaluator",
+    "ref": "SemanticIRExpressionEvaluator",
+    "if_expr": "SemanticIRExpressionEvaluator",
+    "apply": "proof RuntimeMachine local",
+    "field_access": "proof RuntimeMachine local",
+    "tbackend_read": "proof RuntimeMachine / temporal-owned"
+  },
+  "semantics": {
+    "lazy": true,
+    "external_evaluator_called_for_non_selected_branch": false,
+    "external_evaluator_called_before_condition": false,
+    "external_evaluator_exceptions_propagate_unchanged": true,
+    "truthy_falsy_coercion": false,
+    "constructor_injection": false
+  },
+  "non_claims": {
+    "no_release_execution": true,
+    "no_public_demo_claim": true,
+    "no_stable_production_all_grammar_claim": true,
+    "no_spark_claim": true,
+    "no_public_api_cli_widening": true,
+    "no_runtime_smoke_integration": true,
+    "no_root_require_change": true,
+    "no_compiler_orchestrator_change": true,
+    "no_compiler_result_change": true,
+    "no_compilation_report_change": true,
+    "no_counterfactual_audit": true,
+    "no_dynamic_dependency_tracking": true,
+    "no_tbackend_read_in_evaluator_core": true
+  },
+  "checks": [
+    {
+      "name": "PRT-IF1.condition_true_returns_then_value",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF1.condition_true_not_else_value",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF1.condition_true_from_ref_input",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF2.condition_false_returns_else_value",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF2.condition_false_not_then_value",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF2.condition_false_from_ref_input",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF3.selected_then_branch_apply_works",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF3.selected_else_branch_apply_works",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF3.apply_operands_from_ref_inputs",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF4.selected_then_branch_field_access_works",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF4.selected_else_branch_field_access_works",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF5.tbackend_read_not_in_evaluator_supported_kinds",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF5.evaluator_raises_for_tbackend_read_without_external_evaluator",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF5.selected_tbackend_read_reaches_external_evaluator_not_evaluator_core",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF5.tbackend_read_handled_by_proof_runtime_machine_in_compiled_program",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF6.non_selected_then_with_apply_does_not_fire_when_false",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF6.non_selected_else_with_apply_does_not_fire_when_true",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF6.non_selected_branch_external_evaluator_never_called_for_non_selected",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF7.non_selected_tbackend_read_in_then_does_not_fire_when_false",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF7.non_selected_tbackend_read_in_else_does_not_fire_when_true",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF8.malformed_condition_fails_before_branches",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF8.condition_failure_via_external_evaluator_propagates",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF9.integer_condition_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF9.nil_condition_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF9.string_condition_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF9.zero_condition_fails_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF9.non_bool_also_in_compiled_program_contract",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF10.missing_condition_raises_malformed",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF10.missing_then_branch_raises_malformed",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF10.missing_else_branch_raises_malformed",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF10.non_hash_expr_raises_malformed",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF11.nested_outer_true_inner_false",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF11.nested_outer_false_does_not_evaluate_inner",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF11.nested_with_apply_in_selected_inner_branch",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF11.three_level_nesting",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF12.apply_still_works_outside_if_expr",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF12.field_access_still_works_outside_if_expr",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF12.literal_still_works_outside_if_expr",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF12.ref_still_works_outside_if_expr",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF12.tbackend_read_raises_when_no_backend_outside_if_expr",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF12.slice1_evaluator_behavior_preserved_without_external_evaluator",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF13.root_require_not_edited",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF13.evaluator_not_auto_loaded_by_root",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF13.compiled_program_uses_require_relative_not_root",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF13.proof_script_uses_require_relative_not_root",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF14.runtime_smoke_not_loaded_by_proof",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF14.runtime_smoke_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF14.runtime_smoke_contains_no_if_expr_dispatch",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF14.no_smoke_result_report_change",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF15.diagnostics_not_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF15.evaluator_has_no_public_api_widening",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF15.spark_not_referenced_in_code",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF15.release_commands_absent_in_proof_script",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF15.compiler_orchestrator_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF15.release_harness_delta_sha_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "PRT-IF15.prior_evaluator_proof_sha_unchanged",
+      "status": "PASS"
+    }
+  ],
+  "proof_matrix_summary": {
+    "PRT-IF1": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "PRT-IF2": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "PRT-IF3": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "PRT-IF4": {
+      "result": "PASS",
+      "checks": 2
+    },
+    "PRT-IF5": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "PRT-IF6": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "PRT-IF7": {
+      "result": "PASS",
+      "checks": 2
+    },
+    "PRT-IF8": {
+      "result": "PASS",
+      "checks": 2
+    },
+    "PRT-IF9": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "PRT-IF10": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "PRT-IF11": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "PRT-IF12": {
+      "result": "PASS",
+      "checks": 6
+    },
+    "PRT-IF13": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "PRT-IF14": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "PRT-IF15": {
+      "result": "PASS",
+      "checks": 7
+    }
+  }
+}
