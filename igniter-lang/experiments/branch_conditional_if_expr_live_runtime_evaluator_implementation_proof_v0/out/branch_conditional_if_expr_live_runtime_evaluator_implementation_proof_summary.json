@@ -1,0 +1,454 @@
+{
+  "kind": "branch_conditional_if_expr_live_runtime_evaluator_implementation_proof_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R199-C2-I",
+  "track": "branch-conditional-if-expr-live-runtime-evaluator-implementation-v0",
+  "authorized_by": "S3-R199-C1-A",
+  "status": "PASS",
+  "checks_total": 68,
+  "checks_pass": 68,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "implementation": {
+    "class": "IgniterLang::SemanticIRExpressionEvaluator",
+    "file": "igniter-lang/lib/igniter_lang/semanticir_expression_evaluator.rb",
+    "boundary": "internal, direct-require-only, not root-required",
+    "supported_expression_kinds": [
+      "literal",
+      "ref",
+      "if_expr"
+    ],
+    "slice": "Slice 1"
+  },
+  "semantics": {
+    "lazy": true,
+    "evaluation_order": "condition -> selected_branch_only -> value",
+    "non_selected_branch_evaluation": "forbidden",
+    "truthy_falsy_coercion": false,
+    "bool_requirement": "exactly_true_or_false",
+    "nested_if_expr_policy": "same_lazy_rules_recursively"
+  },
+  "dependency_policy": {
+    "static_union": true,
+    "dynamic_selected_branch_tracking": "deferred",
+    "rt_lrt_if12_requires_dynamic_touch_tracing": false
+  },
+  "error_surface": {
+    "kind": "internal_exception_classes",
+    "root_class": "IgniterLang::SemanticIRExpressionEvaluator::Error",
+    "internal_classes": [
+      "IgniterLang::SemanticIRExpressionEvaluator::MalformedIfExprError",
+      "IgniterLang::SemanticIRExpressionEvaluator::ConditionNotBoolError",
+      "IgniterLang::SemanticIRExpressionEvaluator::UnsupportedExpressionKindError",
+      "IgniterLang::SemanticIRExpressionEvaluator::MissingReferenceError"
+    ],
+    "oof_rt_codes_canonized": false,
+    "diagnostics_integrated": false,
+    "public_api_exposed": false,
+    "note": "Internal exception classes only. Not OOF-RT-* vocabulary. Not Diagnostics/CompilationReport/CompilerResult integration. Not public API/CLI."
+  },
+  "runtime_scope": {
+    "live_lib_file": "igniter-lang/lib/igniter_lang/semanticir_expression_evaluator.rb",
+    "proof_local_only": false,
+    "direct_require_only": true,
+    "root_require_changed": false,
+    "runtime_smoke_changed": false,
+    "compiler_orchestrator_changed": false,
+    "runtime_machine_memory_proof_changed": false,
+    "compiler_result_changed": false,
+    "compilation_report_changed": false
+  },
+  "non_claims": {
+    "no_release_execution": true,
+    "no_public_demo_claim": true,
+    "no_stable_production_all_grammar_claim": true,
+    "no_spark_claim": true,
+    "no_public_api_cli_widening": true,
+    "no_runtime_smoke_integration": true,
+    "no_compiler_orchestrator_integration": true,
+    "no_counterfactual_audit": true,
+    "no_dynamic_dependency_tracking": true,
+    "no_root_require_change": true
+  },
+  "checks": [
+    {
+      "name": "LRT-IF1.condition_true_returns_then_value",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF1.condition_true_not_else_value",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF1.condition_true_from_ref",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF1.call_trace_shows_then_selected",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF2.condition_false_returns_else_value",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF2.condition_false_not_then_value",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF2.condition_false_from_ref",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF2.call_trace_shows_else_selected",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF3.non_selected_then_no_error_when_false",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF3.failing_then_not_in_trace",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF3.else_branch_was_evaluated",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF4.non_selected_else_no_error_when_true",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF4.failing_else_not_in_trace",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF4.then_branch_was_evaluated",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF5.condition_failure_raises",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF5.branches_not_evaluated_on_condition_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF5.trace_shows_only_condition_attempted",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF6.selected_then_failure_propagates",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF6.selected_else_failure_propagates",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF7.integer_condition_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF7.string_condition_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF7.nil_condition_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF7.zero_condition_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF7.hash_condition_rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF7.error_is_condition_not_bool_class",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF7.error_class_inherits_from_evaluator_error",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF7.internal_reason_in_message",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF8.missing_condition_raises_malformed",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF8.missing_then_branch_raises_malformed",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF8.missing_else_branch_raises_malformed",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF8.malformed_error_contains_internal_reason",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF8.non_hash_expr_raises_malformed",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF9.unknown_then_kind_fails_when_selected",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF9.unknown_else_kind_fails_when_selected",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF9.error_class_is_unsupported_expression_kind",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF10.unknown_then_no_error_when_false",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF10.unknown_then_not_in_trace_when_false",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF10.unknown_else_no_error_when_true",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF10.unknown_else_not_in_trace_when_true",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF11.nested_outer_true_inner_false_returns_42",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF11.nested_failing_inner_then_not_in_trace",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF11.nested_outer_else_not_touched",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF11.three_level_nested_lazy",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF11.nested_ref_values_correctly_threaded",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF12.structural_proof_mutually_exclusive_arms",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF12.dynamic_proof_non_selected_then_not_called",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF12.dynamic_proof_non_selected_else_not_called",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF12.call_trace_is_debug_not_dep_authority",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF12.no_dynamic_dep_tracking_in_evaluator",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF13.error_hierarchy_is_internal",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF13.errors_not_oof_rt_vocabulary",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF13.evaluator_does_not_write_diagnostics",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF13.diagnostics_not_loaded_by_proof",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF14.root_require_not_edited",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF14.evaluator_not_in_root_require",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF14.evaluator_loaded_via_direct_require",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF14.runtime_smoke_not_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF14.compiler_orchestrator_not_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF15.runtime_smoke_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF15.compiler_orchestrator_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF15.root_require_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF15.runtime_machine_proof_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF15.release_harness_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF15.docs_spec_not_in_write_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF15.compiler_pipeline_libs_not_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF15.release_commands_absent",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF15.evaluator_class_namespace_correct",
+      "status": "PASS"
+    },
+    {
+      "name": "LRT-IF15.spark_not_referenced",
+      "status": "PASS"
+    }
+  ],
+  "proof_matrix_summary": {
+    "LRT-IF1": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "LRT-IF2": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "LRT-IF3": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "LRT-IF4": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "LRT-IF5": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "LRT-IF6": {
+      "result": "PASS",
+      "checks": 2
+    },
+    "LRT-IF7": {
+      "result": "PASS",
+      "checks": 8
+    },
+    "LRT-IF8": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "LRT-IF9": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "LRT-IF10": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "LRT-IF11": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "LRT-IF12": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "LRT-IF13": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "LRT-IF14": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "LRT-IF15": {
+      "result": "PASS",
+      "checks": 10
+    }
+  },
+  "call_trace_evidence": {
+    "condition_true": {
+      "trace": [
+        "if_expr",
+        "literal",
+        "literal"
+      ],
+      "result": 42,
+      "interpretation": "if_expr + cond + then_branch; else not touched"
+    },
+    "condition_false": {
+      "trace": [
+        "if_expr",
+        "literal",
+        "literal"
+      ],
+      "result": 99,
+      "interpretation": "if_expr + cond + else_branch; then not touched"
+    },
+    "nested_lrt_if11": {
+      "trace": [
+        "if_expr",
+        "literal",
+        "if_expr",
+        "literal",
+        "literal"
+      ],
+      "result": 42,
+      "interpretation": "outer if_expr + outer cond + inner if_expr + inner cond + inner else; failing inner-then and outer-else not touched"
+    }
+  },
+  "closed_surface_scan": {
+    "authorized_write_paths": [
+      "/Users/alex/dev/projects/igniter/igniter-lang/lib/igniter_lang/semanticir_expression_evaluator.rb",
+      "/Users/alex/dev/projects/igniter/igniter-lang/experiments/branch_conditional_if_expr_live_runtime_evaluator_implementation_proof_v0",
+      "/Users/alex/dev/projects/igniter/igniter-lang/experiments/branch_conditional_if_expr_live_runtime_evaluator_implementation_proof_v0/out"
+    ],
+    "root_require_unchanged": true,
+    "runtime_smoke_unchanged": true,
+    "compiler_orchestrator_unchanged": true,
+    "runtime_machine_memory_proof_unchanged": true,
+    "release_harness_unchanged": true,
+    "docs_spec_unchanged": true,
+    "status": "PASS"
+  }
+}
