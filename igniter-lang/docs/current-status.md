@@ -386,11 +386,20 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             implementation design, selects direct-require-only
                             internal `IgniterLang::SemanticIRExpressionEvaluator`
                             as Slice 1 placement, and routes only Slice 1
-                            implementation authorization review next;
+                            implementation authorization review next; R199
+                            authorizes, implements, and accepts Slice 1 live
+                            internal direct-require-only
+                            `IgniterLang::SemanticIRExpressionEvaluator`
+                            support with LRT-IF1..LRT-IF15 / 68/68 PASS,
+                            while keeping root require, RuntimeSmoke, proof
+                            RuntimeMachine consumer integration, public/API/CLI,
+                            release, counterfactual audit, and production
+                            closed, then routes only Slice 2 proof RuntimeMachine
+                            consumer boundary design next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
-                            availability wording, signing/deploy, runtime, and
-                            production remain closed;
+                            availability wording, signing/deploy, runtime
+                            integration, and production remain closed;
                             Spark L3B and Orders P1 remain applied pressure only; root
                             require/classifier wiring/live dispatch and public/
                             runtime/Spark surfaces closed;
@@ -1172,6 +1181,12 @@ Round 198 landed:
   S3-R198-C2-X: live runtime/evaluator design pressure                     ✅ proceed; 12/12 PASS; no blockers
   S3-R198-C3-A: live runtime/evaluator design decision                     ✅ accepts design; Slice 1 implementation authorization review next
   S3-R198-C4-S: status curation                                           ✅ done; R199 authorization-review boundary recorded
+Round 199 landed:
+  S3-R199-C1-A: Slice 1 live evaluator authorization                       ✅ authorizes bounded C2-I implementation
+  S3-R199-C2-I: Slice 1 live evaluator implementation                      ✅ proof-passed; LRT-IF1..LRT-IF15 / 68/68 PASS
+  S3-R199-C3-X: Slice 1 implementation pressure                            ✅ proceed; 14/14 PASS; no blockers
+  S3-R199-C4-A: Slice 1 implementation acceptance                          ✅ accepts live internal direct-require evaluator; consumer integrations closed
+  S3-R199-C5-S: status curation                                           ✅ done; R200 design-only boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3489,6 +3504,36 @@ S3-R198 result:      C3-A accepts live `if_expr` runtime/evaluator
                       Spark/API/CLI widening, compiler behavior changes,
                       runtime/production, and cache authority remain closed;
                       release lane remains paused.
+S3-R199 result:      C4-A accepts Slice 1 live `if_expr` runtime/evaluator
+                      implementation closure. `IgniterLang::SemanticIRExpressionEvaluator`
+                      is accepted as live internal direct-require-only support
+                      in `igniter-lang/lib/igniter_lang/semanticir_expression_evaluator.rb`,
+                      not root-required and not public API/CLI. C2-I changed
+                      only the accepted evaluator file, proof harness, proof
+                      summary, and implementation track doc. LRT-IF1..LRT-IF15
+                      all PASS with `68/68` sub-checks; proof-local runtime
+                      regression remains `54/54` PASS with unchanged summary
+                      SHA, and release-harness delta regression remains
+                      `39/39` PASS with old harness SHA matched. Supported
+                      Slice 1 expression kinds are only `literal`, `ref`, and
+                      `if_expr`; `apply`, `field_access`, and `tbackend_read`
+                      remain excluded. Root require, `RuntimeSmoke`,
+                      `CompilerOrchestrator`, `CompilerResult`,
+                      `CompilationReport`, Diagnostics, proof RuntimeMachine
+                      consumer implementation, parser/TypeChecker/SemanticIR/
+                      compiler behavior, assembler/artifacts, release,
+                      public claims, Spark/API/CLI, production, and
+                      counterfactual audit remain closed. Runtime diagnostics
+                      remain internal/non-canonical; `runtime.*` strings are
+                      proof-debug / human-readable only. Static dependency
+                      union remains the boundary; dynamic selected-branch
+                      tracking, path-sensitive cache, dependency receipts, and
+                      freshness/report authority remain deferred/closed. Exact
+                      next route is S3-R200-C1-D
+                      `branch-conditional-if-expr-proof-runtime-consumer-boundary-design-v0`
+                      as design-only for the Slice 2 proof RuntimeMachine
+                      consumer boundary; no further implementation is
+                      authorized by R199-C5-S. Release lane remains paused.
 ```
 
 ### Spec Freshness
