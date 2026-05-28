@@ -382,7 +382,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             review next; R197 accepts proof-local
                             runtime/evaluator closure with RT-IF1..RT-IF13 /
                             54/54 PASS and routes only live implementation
-                            design next;
+                            design next; R198 accepts live runtime/evaluator
+                            implementation design, selects direct-require-only
+                            internal `IgniterLang::SemanticIRExpressionEvaluator`
+                            as Slice 1 placement, and routes only Slice 1
+                            implementation authorization review next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime, and
@@ -1163,6 +1167,11 @@ Round 197 landed:
   S3-R197-C3-X: proof-local runtime/evaluator pressure                     ✅ proceed; 11/11 PASS; no blockers
   S3-R197-C4-A: proof-local runtime/evaluator acceptance                   ✅ accepts closure; live implementation design-only next
   S3-R197-C5-S: status curation                                           ✅ done; R198 design-only boundary recorded
+Round 198 landed:
+  S3-R198-C1-D: live runtime/evaluator implementation design               ✅ done; SemanticIRExpressionEvaluator Slice 1 boundary
+  S3-R198-C2-X: live runtime/evaluator design pressure                     ✅ proceed; 12/12 PASS; no blockers
+  S3-R198-C3-A: live runtime/evaluator design decision                     ✅ accepts design; Slice 1 implementation authorization review next
+  S3-R198-C4-S: status curation                                           ✅ done; R199 authorization-review boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3451,6 +3460,34 @@ S3-R197 result:      C4-A accepts the proof-local `if_expr`
                       execution, public claims, Spark/API/CLI widening,
                       TypeChecker/SemanticIR/compiler behavior changes, cache
                       path-sensitive tracking, and production remain closed;
+                      release lane remains paused.
+S3-R198 result:      C3-A accepts live `if_expr` runtime/evaluator
+                      implementation design and authorizes only future
+                      S3-R199-C1-A implementation-authorization review.
+                      Accepted live placement is
+                      `igniter-lang/lib/igniter_lang/semanticir_expression_evaluator.rb`
+                      / `IgniterLang::SemanticIRExpressionEvaluator`, as an
+                      internal direct-require-only Slice 1 boundary, not
+                      root-required and proof-harness consumer only. Split
+                      strategy remains: Slice 1 internal evaluator core;
+                      Slice 2 proof RuntimeMachine consumer deferred; Slice 3
+                      `RuntimeSmoke` consumer deferred. Runtime diagnostics
+                      remain internal/local/open; `runtime.*` reason labels
+                      are proof-debug/human-readable only, not canonized,
+                      public, Diagnostics, CompilationReport, `OOF-RT-*`, or
+                      API/CLI vocabulary. Static dependency union remains the
+                      boundary; dynamic selected-branch tracking,
+                      path-sensitive cache keys, dependency receipts,
+                      freshness/report authority, and `tbackend_read` remain
+                      deferred/closed. Counterfactual audit is future pressure
+                      only; "Runtime is lazy. Audit is aware." is acknowledged
+                      without counterfactual implementation, dry-run, branch
+                      reports, effect sandboxing, API/CLI, or eager latent
+                      branch evaluation. Exact next route is S3-R199-C1-A
+                      `branch-conditional-if-expr-live-runtime-evaluator-slice1-implementation-authorization-review-v0`.
+                      Live implementation, release execution, public claims,
+                      Spark/API/CLI widening, compiler behavior changes,
+                      runtime/production, and cache authority remain closed;
                       release lane remains paused.
 ```
 
