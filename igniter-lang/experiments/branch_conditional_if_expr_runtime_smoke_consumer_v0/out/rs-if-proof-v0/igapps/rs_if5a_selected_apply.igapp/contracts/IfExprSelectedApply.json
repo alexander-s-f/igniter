@@ -1,0 +1,60 @@
+{
+  "contract_id": "IfExprSelectedApply",
+  "name": "IfExprSelectedApply",
+  "fragment_class": "core",
+  "lifecycle": "session",
+  "escape_set": [],
+  "artifact_hash": "sha256:69905a4e273818741009c1a7ec004eb04a13169acae7a0d77776c62aba238eb9",
+  "type_signature": {
+    "inputs": {},
+    "outputs": {
+      "result": "Unknown"
+    }
+  },
+  "input_ports": [],
+  "output_ports": [
+    {
+      "name": "result",
+      "type_tag": "Unknown",
+      "lifecycle": "session"
+    }
+  ],
+  "compute_nodes": [
+    {
+      "name": "result",
+      "node_id": "node_result",
+      "kind": "compute",
+      "type_tag": "Unknown",
+      "lifecycle": "session",
+      "fragment_class": "core",
+      "obs_kind": "value_observation",
+      "dependencies": [],
+      "expression": {
+        "kind": "if_expr",
+        "condition": {
+          "kind": "literal",
+          "value": true
+        },
+        "then_branch": {
+          "kind": "apply",
+          "operator": "stdlib.integer.add",
+          "operands": [
+            {
+              "kind": "literal",
+              "value": 10
+            },
+            {
+              "kind": "literal",
+              "value": 5
+            }
+          ]
+        },
+        "else_branch": {
+          "kind": "literal",
+          "value": 999
+        }
+      }
+    }
+  ],
+  "source_contract_ref": "contract/IfExprSelectedApply/proof"
+}

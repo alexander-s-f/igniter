@@ -1,0 +1,66 @@
+{
+  "contract_id": "ProofApplyRegression",
+  "name": "ProofApplyRegression",
+  "fragment_class": "core",
+  "lifecycle": "session",
+  "escape_set": [],
+  "artifact_hash": "sha256:689b0ab9d7206165e8ca33569a015288e66227850dd8e7b10f0d591a4edb909a",
+  "type_signature": {
+    "inputs": {
+      "x": "Integer",
+      "y": "Integer"
+    },
+    "outputs": {
+      "sum": "Unknown"
+    }
+  },
+  "input_ports": [
+    {
+      "name": "x",
+      "type_tag": "Integer",
+      "lifecycle": "local"
+    },
+    {
+      "name": "y",
+      "type_tag": "Integer",
+      "lifecycle": "local"
+    }
+  ],
+  "output_ports": [
+    {
+      "name": "sum",
+      "type_tag": "Unknown",
+      "lifecycle": "session"
+    }
+  ],
+  "compute_nodes": [
+    {
+      "name": "sum",
+      "node_id": "node_sum",
+      "kind": "compute",
+      "type_tag": "Unknown",
+      "lifecycle": "session",
+      "fragment_class": "core",
+      "obs_kind": "value_observation",
+      "dependencies": [
+        "input:x",
+        "input:y"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operator": "stdlib.integer.add",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "x"
+          },
+          {
+            "kind": "ref",
+            "name": "y"
+          }
+        ]
+      }
+    }
+  ],
+  "source_contract_ref": "contract/ProofApplyRegression/proof"
+}

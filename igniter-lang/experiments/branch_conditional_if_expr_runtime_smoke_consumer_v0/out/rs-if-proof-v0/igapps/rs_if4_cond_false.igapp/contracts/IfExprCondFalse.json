@@ -1,0 +1,50 @@
+{
+  "contract_id": "IfExprCondFalse",
+  "name": "IfExprCondFalse",
+  "fragment_class": "core",
+  "lifecycle": "session",
+  "escape_set": [],
+  "artifact_hash": "sha256:486a76d09b4164dbfa50e4a599282595e1f4409c5dac82e067d160306f30ea0b",
+  "type_signature": {
+    "inputs": {},
+    "outputs": {
+      "result": "Unknown"
+    }
+  },
+  "input_ports": [],
+  "output_ports": [
+    {
+      "name": "result",
+      "type_tag": "Unknown",
+      "lifecycle": "session"
+    }
+  ],
+  "compute_nodes": [
+    {
+      "name": "result",
+      "node_id": "node_result",
+      "kind": "compute",
+      "type_tag": "Unknown",
+      "lifecycle": "session",
+      "fragment_class": "core",
+      "obs_kind": "value_observation",
+      "dependencies": [],
+      "expression": {
+        "kind": "if_expr",
+        "condition": {
+          "kind": "literal",
+          "value": false
+        },
+        "then_branch": {
+          "kind": "literal",
+          "value": 42
+        },
+        "else_branch": {
+          "kind": "literal",
+          "value": 99
+        }
+      }
+    }
+  ],
+  "source_contract_ref": "contract/IfExprCondFalse/proof"
+}

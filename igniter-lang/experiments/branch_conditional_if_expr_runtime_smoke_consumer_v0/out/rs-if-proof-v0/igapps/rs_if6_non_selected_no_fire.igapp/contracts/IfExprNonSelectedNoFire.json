@@ -1,0 +1,60 @@
+{
+  "contract_id": "IfExprNonSelectedNoFire",
+  "name": "IfExprNonSelectedNoFire",
+  "fragment_class": "core",
+  "lifecycle": "session",
+  "escape_set": [],
+  "artifact_hash": "sha256:6be21a8ddc2bb9b05752fe337c91c331fb95513c98135371bc0ac492b1e1e024",
+  "type_signature": {
+    "inputs": {},
+    "outputs": {
+      "result": "Unknown"
+    }
+  },
+  "input_ports": [],
+  "output_ports": [
+    {
+      "name": "result",
+      "type_tag": "Unknown",
+      "lifecycle": "session"
+    }
+  ],
+  "compute_nodes": [
+    {
+      "name": "result",
+      "node_id": "node_result",
+      "kind": "compute",
+      "type_tag": "Unknown",
+      "lifecycle": "session",
+      "fragment_class": "core",
+      "obs_kind": "value_observation",
+      "dependencies": [],
+      "expression": {
+        "kind": "if_expr",
+        "condition": {
+          "kind": "literal",
+          "value": true
+        },
+        "then_branch": {
+          "kind": "literal",
+          "value": 42
+        },
+        "else_branch": {
+          "kind": "apply",
+          "operator": "stdlib.integer.add",
+          "operands": [
+            {
+              "kind": "literal",
+              "value": 1
+            },
+            {
+              "kind": "literal",
+              "value": 2
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "source_contract_ref": "contract/IfExprNonSelectedNoFire/proof"
+}

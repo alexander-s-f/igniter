@@ -1,0 +1,14 @@
+{
+  "program_id": "proof-rs-rs_if16_malformed_if_expr/336b2c40b6b4e2cf",
+  "artifact_hash": "sha256:14193008b0c62343b6f7ae7128a705bfee037287331476cc9afd28654239935b",
+  "language_version": "0.1.0.alpha.1",
+  "format": "igapp_dir",
+  "contracts": [
+    "IfExprMalformed"
+  ],
+  "schema_version": "0.0.0",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "contract_id": "IfExprSelectedFieldAccess",
+  "name": "IfExprSelectedFieldAccess",
+  "fragment_class": "core",
+  "lifecycle": "session",
+  "escape_set": [],
+  "artifact_hash": "sha256:17ecddbe661179c73e24e9cf9db934bfab2e61c45ffa811474d91159e4924f23",
+  "type_signature": {
+    "inputs": {},
+    "outputs": {
+      "result": "Unknown"
+    }
+  },
+  "input_ports": [],
+  "output_ports": [
+    {
+      "name": "result",
+      "type_tag": "Unknown",
+      "lifecycle": "session"
+    }
+  ],
+  "compute_nodes": [
+    {
+      "name": "result",
+      "node_id": "node_result",
+      "kind": "compute",
+      "type_tag": "Unknown",
+      "lifecycle": "session",
+      "fragment_class": "core",
+      "obs_kind": "value_observation",
+      "dependencies": [],
+      "expression": {
+        "kind": "if_expr",
+        "condition": {
+          "kind": "literal",
+          "value": true
+        },
+        "then_branch": {
+          "kind": "field_access",
+          "object": {
+            "kind": "literal",
+            "value": {
+              "x": 77,
+              "y": 88
+            }
+          },
+          "field": "x"
+        },
+        "else_branch": {
+          "kind": "literal",
+          "value": 0
+        }
+      }
+    }
+  ],
+  "source_contract_ref": "contract/IfExprSelectedFieldAccess/proof"
+}

@@ -1,0 +1,14 @@
+{
+  "program_id": "proof-rs-rs_if5b_selected_field_access/1549cf5bab6d0b1b",
+  "artifact_hash": "sha256:17ecddbe661179c73e24e9cf9db934bfab2e61c45ffa811474d91159e4924f23",
+  "language_version": "0.1.0.alpha.1",
+  "format": "igapp_dir",
+  "contracts": [
+    "IfExprSelectedFieldAccess"
+  ],
+  "schema_version": "0.0.0",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  }
+}

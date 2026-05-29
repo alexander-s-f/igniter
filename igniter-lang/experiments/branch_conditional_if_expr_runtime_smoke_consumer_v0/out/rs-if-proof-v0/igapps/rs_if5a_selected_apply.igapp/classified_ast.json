@@ -1,0 +1,8 @@
+{
+  "fragment_class": "core",
+  "oof_count": 0,
+  "generic_templates": [],
+  "loadable_contracts": [
+    "IfExprSelectedApply"
+  ]
+}

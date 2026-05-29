@@ -1,0 +1,14 @@
+{
+  "program_id": "proof-rs-rs_if5a_selected_apply/32357d27d2d1fda8",
+  "artifact_hash": "sha256:69905a4e273818741009c1a7ec004eb04a13169acae7a0d77776c62aba238eb9",
+  "language_version": "0.1.0.alpha.1",
+  "format": "igapp_dir",
+  "contracts": [
+    "IfExprSelectedApply"
+  ],
+  "schema_version": "0.0.0",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  }
+}

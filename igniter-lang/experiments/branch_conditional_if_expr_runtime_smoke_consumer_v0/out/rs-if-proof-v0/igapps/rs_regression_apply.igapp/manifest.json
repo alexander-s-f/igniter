@@ -1,0 +1,14 @@
+{
+  "program_id": "proof-rs-rs_regression_apply/7f5e713db42416a3",
+  "artifact_hash": "sha256:689b0ab9d7206165e8ca33569a015288e66227850dd8e7b10f0d591a4edb909a",
+  "language_version": "0.1.0.alpha.1",
+  "format": "igapp_dir",
+  "contracts": [
+    "ProofApplyRegression"
+  ],
+  "schema_version": "0.0.0",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  }
+}

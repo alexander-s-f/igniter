@@ -1,0 +1,15 @@
+{
+  "capabilities": {
+    "required_caps": [],
+    "effect_kinds": []
+  },
+  "lifecycle": {
+    "has_window": false
+  },
+  "temporal": {
+    "windows": []
+  },
+  "required_tbackend_caps": {
+    "read_as_of": false
+  }
+}

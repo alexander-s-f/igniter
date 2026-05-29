@@ -1,0 +1,46 @@
+{
+  "contract_id": "IfExprMalformed",
+  "name": "IfExprMalformed",
+  "fragment_class": "core",
+  "lifecycle": "session",
+  "escape_set": [],
+  "artifact_hash": "sha256:14193008b0c62343b6f7ae7128a705bfee037287331476cc9afd28654239935b",
+  "type_signature": {
+    "inputs": {},
+    "outputs": {
+      "result": "Unknown"
+    }
+  },
+  "input_ports": [],
+  "output_ports": [
+    {
+      "name": "result",
+      "type_tag": "Unknown",
+      "lifecycle": "session"
+    }
+  ],
+  "compute_nodes": [
+    {
+      "name": "result",
+      "node_id": "node_result",
+      "kind": "compute",
+      "type_tag": "Unknown",
+      "lifecycle": "session",
+      "fragment_class": "core",
+      "obs_kind": "value_observation",
+      "dependencies": [],
+      "expression": {
+        "kind": "if_expr",
+        "then_branch": {
+          "kind": "literal",
+          "value": 1
+        },
+        "else_branch": {
+          "kind": "literal",
+          "value": 2
+        }
+      }
+    }
+  ],
+  "source_contract_ref": "contract/IfExprMalformed/proof"
+}

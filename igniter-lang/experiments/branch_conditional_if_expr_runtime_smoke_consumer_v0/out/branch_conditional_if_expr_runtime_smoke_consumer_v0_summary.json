@@ -1,0 +1,338 @@
+{
+  "kind": "branch_conditional_if_expr_runtime_smoke_consumer_v0_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R203-C2-I",
+  "track": "branch-conditional-if-expr-runtime-smoke-consumer-v0",
+  "authorized_by": "S3-R203-C1-A",
+  "status": "PASS",
+  "checks_total": 53,
+  "checks_pass": 53,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "proof_scope": {
+    "runtime_smoke_file_changed": false,
+    "compiled_program_file_changed": false,
+    "evaluator_file_changed": false,
+    "root_require_changed": false,
+    "igapp_artifacts_location": "experiments/branch_conditional_if_expr_runtime_smoke_consumer_v0/out/rs-if-proof-v0/igapps/",
+    "igapp_artifacts_proof_owned": true
+  },
+  "claim_policy": {
+    "transitive_evaluator_load_equals_runtime_smoke_support": false,
+    "runtime_smoke_proof_support_equals_public_runtime": false,
+    "maximum_allowed_claim": "RuntimeSmoke has proof-context consumer evidence for if_expr through the existing proof RuntimeMachine path."
+  },
+  "runtime_smoke_result_shapes": {
+    "success_keys": [
+      "compatibility_report_status",
+      "contract_id",
+      "evaluate_status",
+      "load_status",
+      "outputs",
+      "trusted"
+    ],
+    "failure_keys": [
+      "error",
+      "load_status",
+      "trusted"
+    ]
+  },
+  "non_claims": {
+    "no_release_execution": true,
+    "no_public_demo_claim": true,
+    "no_stable_production_all_grammar_claim": true,
+    "no_spark_claim": true,
+    "no_public_api_cli_widening": true,
+    "no_runtime_smoke_edit": true,
+    "no_compiler_orchestrator_callback": true,
+    "no_root_require_change": true,
+    "no_compiler_result_change": true,
+    "no_compilation_report_change": true,
+    "no_counterfactual_audit": true,
+    "no_dynamic_dependency_tracking": true
+  },
+  "checks": [
+    {
+      "name": "RS-IF1.runtime_smoke_loads_via_direct_require",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF1.root_require_not_used_by_proof",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF1.runtime_smoke_available",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF2.runtime_smoke_does_not_directly_require_evaluator",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF2.evaluator_loaded_transitively_via_compiled_program",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF2.transitive_load_classified_not_runtime_smoke_support",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF2.load_without_eval_does_not_invoke_evaluator",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF3.runtime_smoke_run_returns_trusted",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF3.output_from_then_branch",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF3.load_status_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF3.evaluate_status_ok",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF4.runtime_smoke_run_returns_trusted",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF4.output_from_else_branch",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF4.not_then_branch_value",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF5a.runtime_smoke_run_returns_trusted",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF5a.output_from_selected_apply_branch",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF5a.adapter_path_works_through_smoke",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF5b.runtime_smoke_run_returns_trusted",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF5b.output_from_selected_field_access_branch",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF6.non_selected_apply_does_not_fire",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF6.output_from_then_branch_not_else",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF7.success_result_has_exact_key_set",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF7.failure_result_has_exact_key_set",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF7.failure_load_status_is_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF7.failure_trusted_is_false",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF8.callback_source_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF8.callback_returns_lambda",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF8.callback_lambda_produces_same_result_as_run",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF9.eval_input_for_returns_sample_input_for_non_add",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF9.eval_input_for_returns_add_default_for_add",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF9.no_if_expr_special_case_in_source",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF10.dual_path_evaluator_has_both_methods",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF10.slice1_path_unchanged_structural_proof_strings",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF10.slice1_and_slice2_both_work",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF11.compiler_orchestrator_not_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF11.compiler_orchestrator_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF11.compiler_result_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF11.compilation_report_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF12.root_require_not_changed",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF12.root_require_not_loaded_by_proof",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF13.no_cache_or_dependency_tracking_in_evaluator",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF13.call_trace_not_authority",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF14.no_counterfactual_in_evaluator",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF14.no_latent_branch_evaluation",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF15.no_release_commands_in_proof_script",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF15.release_harness_sha_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF15.slice1_proof_sha_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF15.no_spark_api_cli_reference_in_evaluator",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF16.malformed_if_expr_returns_blocked_failure_shape",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF16.load_status_blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF16.trusted_is_false",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF16.error_message_mentions_evaluator_class",
+      "status": "PASS"
+    },
+    {
+      "name": "RS-IF16.no_diagnostics_report_widening",
+      "status": "PASS"
+    }
+  ],
+  "proof_matrix_summary": {
+    "RS-IF1": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "RS-IF2": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "RS-IF3": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "RS-IF4": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "RS-IF5a": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "RS-IF5b": {
+      "result": "PASS",
+      "checks": 2
+    },
+    "RS-IF6": {
+      "result": "PASS",
+      "checks": 2
+    },
+    "RS-IF7": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "RS-IF8": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "RS-IF9": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "RS-IF10": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "RS-IF11": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "RS-IF12": {
+      "result": "PASS",
+      "checks": 2
+    },
+    "RS-IF13": {
+      "result": "PASS",
+      "checks": 2
+    },
+    "RS-IF14": {
+      "result": "PASS",
+      "checks": 2
+    },
+    "RS-IF15": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "RS-IF16": {
+      "result": "PASS",
+      "checks": 5
+    }
+  }
+}

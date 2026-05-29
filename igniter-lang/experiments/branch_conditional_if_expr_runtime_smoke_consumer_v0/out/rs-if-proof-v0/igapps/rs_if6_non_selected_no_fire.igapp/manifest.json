@@ -1,0 +1,14 @@
+{
+  "program_id": "proof-rs-rs_if6_non_selected_no_fire/494fa1ef79511bb1",
+  "artifact_hash": "sha256:6be21a8ddc2bb9b05752fe337c91c331fb95513c98135371bc0ac492b1e1e024",
+  "language_version": "0.1.0.alpha.1",
+  "format": "igapp_dir",
+  "contracts": [
+    "IfExprNonSelectedNoFire"
+  ],
+  "schema_version": "0.0.0",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  }
+}

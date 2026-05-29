@@ -1,0 +1,14 @@
+{
+  "program_id": "proof-rs-rs_if4_cond_false/13553c6e142cec37",
+  "artifact_hash": "sha256:486a76d09b4164dbfa50e4a599282595e1f4409c5dac82e067d160306f30ea0b",
+  "language_version": "0.1.0.alpha.1",
+  "format": "igapp_dir",
+  "contracts": [
+    "IfExprCondFalse"
+  ],
+  "schema_version": "0.0.0",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  }
+}
