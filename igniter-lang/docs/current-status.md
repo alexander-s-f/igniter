@@ -424,6 +424,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             and C4-A verification 53/53 + 56/56 + 68/68 PASS,
                             while keeping this proof-context evidence only and
                             routing next to counterfactual-audit design-only;
+                            R204 accepts the Level 1 static branch audit /
+                            branch-intention boundary, keeps "Runtime is lazy.
+                            Audit is aware." as binding, treats assumptions as
+                            a leading candidate premise capsule rather than the
+                            whole branch-intention surface, and routes only
+                            proof-local concept evidence next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1237,6 +1243,12 @@ Round 203 landed:
   S3-R203-C3-X: RuntimeSmoke consumer proof pressure                       ✅ proceed; 20/20 PASS; no blockers
   S3-R203-C4-A: RuntimeSmoke consumer proof acceptance                     ✅ accepts proof-context evidence only
   S3-R203-C5-S: status curation                                           ✅ done; R204 design-only boundary recorded
+Round 204 landed:
+  S3-R204-C1-D: counterfactual audit boundary design                       ✅ done; Level 1 static branch audit
+  S3-R204-C2-P1: assumptions capsule fit analysis                          ✅ done; premise capsule candidate only
+  S3-R204-C3-X: counterfactual boundary pressure                           ✅ proceed; 8/8 PASS; no blockers
+  S3-R204-C4-A: counterfactual boundary decision                           ✅ accepts boundary; proof-local concept route next
+  S3-R204-C5-S: status curation                                           ✅ done; R205 proof-local boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3690,6 +3702,33 @@ S3-R203 result:      C4-A accepts the proof-owned RuntimeSmoke consumer
                       S3-R204-C1-D
                       `branch-conditional-counterfactual-audit-design-boundary-v0`.
                       No further implementation is authorized by R203-C5-S.
+S3-R204 result:      C4-A accepts the `if_expr` counterfactual-audit /
+                      branch-intention boundary as Level 1 static branch audit
+                      and authorizes only a proof-local concept route next.
+                      The accepted principle is: Runtime is lazy; Audit is
+                      aware. Actual branches may carry runtime evidence because
+                      they ran; latent branches may carry static explanatory
+                      metadata because they exist; latent branches must not be
+                      evaluated to explain them. Assumptions are accepted as the
+                      leading candidate capsule for branch premises, not as the
+                      whole branch-intention surface and not as branch-level
+                      syntax. SemanticIR remains the native structural source
+                      for branch shape. C3-X pressure is `8/8` PASS with no
+                      blockers; its notes are binding constraints: proof-local
+                      `assumption_refs` must be disclaimed from PROP-032 receipt
+                      fields, assumptions-shaped metadata is non-canonical
+                      unless a separate PROP/PROP-032 amendment accepts it, and
+                      BIA-6 must derive latent failure facts statically without
+                      evaluating latent branches. Live implementation, parser/
+                      grammar/source syntax changes, TypeChecker/SemanticIR
+                      schema mutation, runtime/evaluator/RuntimeSmoke changes,
+                      proof RuntimeMachine changes, non-selected branch
+                      evaluation, Level 2 dry-run, Level 3 comparison report,
+                      dependency/cache authority, report/result/receipt/
+                      CompatibilityReport shape changes, release/public/Spark/
+                      API/CLI, production, and public counterfactual/runtime
+                      claims remain closed. Exact next route is S3-R205-C1-I
+                      `branch-conditional-counterfactual-audit-concept-proof-v0`.
 ```
 
 ### Spec Freshness
