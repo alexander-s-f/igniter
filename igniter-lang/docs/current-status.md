@@ -495,6 +495,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             proof-local/held pointer, and docs-sync track;
                             vocabulary is discoverable internally but remains
                             non-canonical and no-runtime/no-report/API authority;
+                            R214 accepts the counterfactual audit lane
+                            consolidation boundary: L1/L2a/L2b stay
+                            semantically distinct, future internal lane map is
+                            next, runtime-debt/TTM survey is accepted only as
+                            non-authorizing pressure context, and runtime-debt
+                            review waits until lane-map closure;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1366,6 +1372,12 @@ Round 213 landed:
   S3-R213-C3-X: vocabulary docs-sync pressure                               ✅ PASS; 10/10 PASS; no blockers or notes
   S3-R213-C4-A: vocabulary docs-sync acceptance                             ✅ accepts docs-sync unconditionally
   S3-R213-C5-S: status curation                                           ✅ done; R214 lane-consolidation boundary recorded
+Round 214 landed:
+  S3-R214-C1-D: lane consolidation boundary                                 ✅ done; L1/L2a/L2b distinct; lane map recommended
+  S3-R214-C2-P1: runtime-debt / TTM survey                                  ✅ done; TTM 4/10, execution quality 8/10; non-authorizing context
+  S3-R214-C3-X: lane consolidation pressure                                 ✅ PASS; no blockers; 3 acceptance notes carried to lane map
+  S3-R214-C4-A: lane consolidation decision                                 ✅ accepts boundary; opens internal lane map next
+  S3-R214-C5-S: status curation                                           ✅ done; R215 internal lane map boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -4108,6 +4120,27 @@ S3-R213 result:      C4-A accepts the bounded Option A-min docs-only sync
                       and production remain closed. Exact next route is
                       S3-R214-C1-D
                       `branch-conditional-counterfactual-audit-lane-consolidation-boundary-v0`.
+S3-R214 result:      C4-A accepts the counterfactual audit lane consolidation
+                      boundary and accepts C2-P1 runtime-debt / time-to-market
+                      survey as non-authorizing pressure context. Accepted lane
+                      model: L1 static branch intention, L2a isolated
+                      projection concept, L2b source-backed isolated projection,
+                      L3 route map / artifact home / authority design, and L4
+                      runtime-report-API candidates. L1/L2a/L2b remain
+                      semantically distinct; this is lane consolidation, not
+                      schema consolidation. C2-P1 pressure status: TTM risk
+                      4/10, execution quality 8/10; fastest safe move is route
+                      clarity, not runtime expansion. C3-X PASS releases the
+                      interim HOLD and carries AN-1 internal tool-only question,
+                      AN-2 RuntimeSmoke transitive load framing, and AN-3
+                      "Do not speed up by" fence into the lane map. Runtime-debt
+                      review is queued after lane-map closure, not immediately.
+                      Implementation, runtime/report/API design, public docs or
+                      claims, docs/map sync, body spec edits, PROP-032 mutation,
+                      report/result/receipt/CompatibilityReport fields,
+                      dependency/cache authority, Spark, and production remain
+                      closed. Exact next route is S3-R215-C1-D
+                      `branch-conditional-counterfactual-audit-internal-lane-map-v0`.
 ```
 
 ### Spec Freshness
