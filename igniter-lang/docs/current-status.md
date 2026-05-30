@@ -507,6 +507,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             review opens next as non-authorizing sequencing
                             review, while artifact-home/authority remains the
                             likely next technical L3 route;
+                            R216 accepts runtime-debt / time-to-market review,
+                            accepts the facts packet, and accepts pressure PASS
+                            with no blockers; TTM pressure changes sequencing by
+                            opening L3 artifact-home / authority options next,
+                            while runtime/bridge survey and report/API boundary
+                            survey do not open first;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1390,6 +1396,12 @@ Round 215 landed:
   S3-R215-C3-X: internal lane map pressure                                  ✅ PASS; no blockers; 2 acceptance notes resolved by C4-A
   S3-R215-C4-A: internal lane map decision                                  ✅ accepts map; chooses runtime-debt/TTM review next
   S3-R215-C5-S: status curation                                           ✅ done; R216 runtime-debt/TTM review boundary recorded
+Round 216 landed:
+  S3-R216-C1-D: runtime-debt / TTM review                                  ✅ done; selects artifact-home / authority as best next technical route
+  S3-R216-C2-P1: runtime-debt facts packet                                 ✅ done; facts basis accepted by C4-A
+  S3-R216-C3-X: runtime-debt / TTM pressure                                ✅ PASS; no blockers; artifact-home / authority confirmed as direct L3 blocker
+  S3-R216-C4-A: runtime-debt / TTM decision                                ✅ accepts review; opens artifact-home / authority options next
+  S3-R216-C5-S: status curation                                           ✅ done; R217 artifact-home / authority options boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
