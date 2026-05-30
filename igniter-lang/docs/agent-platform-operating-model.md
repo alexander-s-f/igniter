@@ -162,6 +162,36 @@ First suspect context-window saturation, not subscription exhaustion.
 Archive/restart the thread and provide a compact onboarding card.
 ```
 
+### External Pressure Reviewer Rule
+
+For the `External Pressure Reviewer` role, prefer a fresh Claude instance by
+default.
+
+Reason:
+
+- the role benefits from a fresh outside view;
+- long immersion can carry too much route/history state into a narrow review;
+- saturated context can degrade lifecycle behavior before subscription limits
+  are actually hit;
+- a compact onboarding card plus listed files is usually enough for a strong
+  pressure verdict.
+
+Default pattern:
+
+```text
+External Pressure Reviewer:
+- fresh instance by default
+- one card only
+- read listed files only
+- produce PASS / CONDITIONAL / HOLD
+- no continuation into next card
+- no authority decision
+```
+
+Use a long-immersed reviewer only when the task explicitly requires internal
+archaeology or subtle historical reconstruction. In that case, prefer Codex,
+Meta, or Research roles over a long-running Claude pressure thread.
+
 ---
 
 ## Gemini Profile
