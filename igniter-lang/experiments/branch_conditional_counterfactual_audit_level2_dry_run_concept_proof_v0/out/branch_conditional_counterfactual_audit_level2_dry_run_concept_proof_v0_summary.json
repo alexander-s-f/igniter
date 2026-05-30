@@ -1,0 +1,390 @@
+{
+  "kind": "branch_conditional_counterfactual_audit_level2_dry_run_concept_proof_v0_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R209-C2-I",
+  "track": "branch-conditional-counterfactual-audit-level2-dry-run-concept-proof-v0",
+  "authorized_by": "S3-R209-C1-A",
+  "status": "PASS",
+  "checks_total": 52,
+  "checks_pass": 52,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "design_principle": "Runtime is lazy. Audit is aware. Dry-run, if ever accepted, must be isolated.",
+  "proof_level": "Level 2 / Isolated Dry-Run Projection concept proof only",
+  "disclaimer": {
+    "projected_value_is_not_actual_output": true,
+    "projected_failure_is_not_actual_failure": true,
+    "dry_run_projection_not_public_runtime_support": true,
+    "level2_proof_not_public_counterfactual_support": true,
+    "no_authority_on_any_projection": "projected_value and projected_failure carry no dependency/cache/report/runtime/public authority; they are proof-local concept evidence only",
+    "assumptions_shaped_premise_refs_not_prop032_extension": true,
+    "level2_does_not_invalidate_level1_non_execution_guarantee": true
+  },
+  "proof_scope": {
+    "lib_files_modified": false,
+    "evaluator_loaded": false,
+    "runtime_smoke_loaded": false,
+    "compiled_program_loaded": false,
+    "external_io_performed": false,
+    "tbackend_read_live": false,
+    "ledger_read_live": false,
+    "compiler_result_modified": false,
+    "compilation_report_modified": false,
+    "spec_body_chapters_modified": false,
+    "grammar_parser_modified": false,
+    "l1_branch_intentions_mutated": false
+  },
+  "claim_policy": {
+    "projected_value_equals_actual_output": false,
+    "dry_run_projection_equals_public_runtime": false,
+    "level2_equals_live_non_selected_evaluation": false,
+    "level2_grants_cache_dependency_authority": false,
+    "level2_grants_report_result_authority": false,
+    "maximum_allowed_claim": "Proof-local Level 2 counterfactual dry-run concept evidence: latent branches can be evaluated inside an experiment-local isolated projection envelope with no-authority disclaimers, explicit premise_set, and full isolation block."
+  },
+  "forbidden_vocabulary_scan": {
+    "scan_result": "CLEAR",
+    "terms_checked": [
+      "would_result",
+      "would_output",
+      "would_fail",
+      "counterfactual result",
+      "counterfactual output",
+      "counterfactual failure",
+      "latent runtime value",
+      "latent runtime failure",
+      "latent execution",
+      "latent branch execution",
+      "simulated branch result",
+      "dry-run result",
+      "branch replay",
+      "replayed branch value",
+      "symbolic_execution",
+      "causal_estimate",
+      "alternate_actual_output"
+    ],
+    "result": "no forbidden terms appear as positive projection field names or values"
+  },
+  "projections_summary": [
+    {
+      "source_branch_intention_ref": "if:risk_gate_true/latent_else",
+      "projected_branch": "else",
+      "projected_value": 99,
+      "has_projected_failure": false,
+      "isolation_clean": true,
+      "authority_clean": true
+    },
+    {
+      "source_branch_intention_ref": "if:risk_gate_false/latent_then",
+      "projected_branch": "then",
+      "projected_value": 15,
+      "has_projected_failure": false,
+      "isolation_clean": true,
+      "authority_clean": true
+    },
+    {
+      "source_branch_intention_ref": "if:field_access_latent/latent_then",
+      "projected_branch": "then",
+      "projected_value": 77,
+      "has_projected_failure": false,
+      "isolation_clean": true,
+      "authority_clean": true
+    },
+    {
+      "source_branch_intention_ref": "if:nested_if_expr_latent/latent_then",
+      "projected_branch": "then",
+      "projected_value": 7,
+      "has_projected_failure": false,
+      "isolation_clean": true,
+      "authority_clean": true
+    },
+    {
+      "source_branch_intention_ref": "if:latent_tbackend_read/latent_else",
+      "projected_branch": "else",
+      "projected_value": null,
+      "has_projected_failure": true,
+      "isolation_clean": true,
+      "authority_clean": true
+    },
+    {
+      "source_branch_intention_ref": "if:latent_escape/latent_else",
+      "projected_branch": "else",
+      "projected_value": null,
+      "has_projected_failure": true,
+      "isolation_clean": true,
+      "authority_clean": true
+    }
+  ],
+  "checks": [
+    {
+      "name": "L2-DRY-1.projections_only_exist_after_explicit_build_call",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-1.no_implicit_projection_on_fixture_construction",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-1.projected_branch_matches_explicit_premise",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-2.l1_fixture_a_unchanged_after_projection_a",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-2.l1_fixture_b_unchanged_after_projection_b",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-2.projection_references_l1_via_source_ref_field",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-2.l1_non_execution_guarantee_not_invalidated",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-3.ref_latent_branch_produces_projected_value",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-3.apply_latent_branch_produces_projected_value",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-3.field_access_latent_branch_produces_projected_value",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-4.all_projections_have_projected_value_is_not_actual_output_true",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-5.actual_branch_in_l1_fixture_a_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-5.actual_branch_in_l1_fixture_b_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-5.projected_value_differs_from_hypothetical_actual",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-6.tbackend_read_produces_projected_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-6.projected_value_nil_when_projected_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-6.projected_failure_contains_refusal_kind",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-7.all_projections_have_projected_failure_is_not_actual_failure_true",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-8.escape_expression_produces_projected_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-8.escape_refusal_note_says_dry_run_not_actual_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-8.no_actual_external_io_performed",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-9.tbackend_read_refused_in_projection",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-9.no_tbackend_read_in_loaded_features",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-9.tbackend_read_in_refused_kinds_constant",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-10.nested_if_expr_produces_projected_value",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-10.laziness_trap_else_branch_not_reached",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-10.nested_if_expr_evaluates_only_selected_branch",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-11.all_projections_have_premise_set",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-11.assumed_condition_matches_projected_branch_logic",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-11.assumption_refs_recorded_when_present",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-11.assumption_refs_optional_when_absent",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-12.all_projections_isolation_actual_result_mutated_false",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-12.all_projections_isolation_reports_mutated_false",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-12.all_projections_isolation_receipts_mutated_false",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-12.all_projections_isolation_cache_mutated_false",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-12.all_projections_isolation_external_io_performed_false",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-12.all_projections_isolation_production_authority_false",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-13.all_projections_authority_dependency_false",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-13.all_projections_authority_cache_false",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-13.all_projections_authority_report_false",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-13.all_projections_authority_runtime_readiness_false",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-13.all_projections_authority_public_claim_false",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-13.no_authority_disclaimer_present",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-14.forbidden_vocabulary_absent_from_projection_field_names",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-14.forbidden_vocabulary_absent_from_projection_field_values",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-14.projected_value_key_not_a_forbidden_term",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-15.no_lib_files_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-15.no_runtime_smoke_or_compiled_program_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-15.compiler_result_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-15.compiler_orchestrator_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-15.no_spec_body_chapter_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "L2-DRY-15.no_spark_api_cli_loaded_by_proof",
+      "status": "PASS"
+    }
+  ],
+  "proof_matrix_summary": {
+    "L2-DRY-1": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "L2-DRY-2": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "L2-DRY-3": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "L2-DRY-4": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "L2-DRY-5": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "L2-DRY-6": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "L2-DRY-7": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "L2-DRY-8": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "L2-DRY-9": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "L2-DRY-10": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "L2-DRY-11": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "L2-DRY-12": {
+      "result": "PASS",
+      "checks": 6
+    },
+    "L2-DRY-13": {
+      "result": "PASS",
+      "checks": 6
+    },
+    "L2-DRY-14": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "L2-DRY-15": {
+      "result": "PASS",
+      "checks": 6
+    }
+  }
+}
