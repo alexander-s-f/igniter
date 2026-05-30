@@ -8,6 +8,9 @@ scope, authority, and deliverable context that many competent agents can execute
 it even if the chat was accidentally opened in the wrong role. Prefer the
 default owner, but do not block the round only because the exact title differs.
 
+For platform-specific dispatch guidance across Codex, Claude, and Gemini, see
+`docs/agent-platform-operating-model.md`.
+
 ## Dispatch Table
 
 | Card suffix | Work mode | Default owner | Good substitutes | Typical deliverable |
