@@ -501,6 +501,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             next, runtime-debt/TTM survey is accepted only as
                             non-authorizing pressure context, and runtime-debt
                             review waits until lane-map closure;
+                            R215 accepts the internal Counterfactual Audit Lane
+                            map as controlling route-memory artifact and accepts
+                            runtime/report/API gate survey; runtime-debt/TTM
+                            review opens next as non-authorizing sequencing
+                            review, while artifact-home/authority remains the
+                            likely next technical L3 route;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1378,6 +1384,12 @@ Round 214 landed:
   S3-R214-C3-X: lane consolidation pressure                                 ✅ PASS; no blockers; 3 acceptance notes carried to lane map
   S3-R214-C4-A: lane consolidation decision                                 ✅ accepts boundary; opens internal lane map next
   S3-R214-C5-S: status curation                                           ✅ done; R215 internal lane map boundary recorded
+Round 215 landed:
+  S3-R215-C1-D: internal lane map                                           ✅ done; L1/L2a/L2b/L3/L4 map; no map sync or implementation
+  S3-R215-C2-P1: runtime/report/API gate survey                             ✅ done; G1-G9 + 12 blockers; runtime/report/API design still blocked
+  S3-R215-C3-X: internal lane map pressure                                  ✅ PASS; no blockers; 2 acceptance notes resolved by C4-A
+  S3-R215-C4-A: internal lane map decision                                  ✅ accepts map; chooses runtime-debt/TTM review next
+  S3-R215-C5-S: status curation                                           ✅ done; R216 runtime-debt/TTM review boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -4141,6 +4153,33 @@ S3-R214 result:      C4-A accepts the counterfactual audit lane consolidation
                       dependency/cache authority, Spark, and production remain
                       closed. Exact next route is S3-R215-C1-D
                       `branch-conditional-counterfactual-audit-internal-lane-map-v0`.
+S3-R215 result:      C4-A accepts the internal Counterfactual Audit Lane map as
+                      controlling route-memory artifact and accepts C2-P1
+                      runtime/report/API gate survey. Accepted lane model
+                      remains L1 static branch intention, L2a isolated
+                      projection concept, L2b source-backed isolated projection,
+                      L3 route map / artifact home / authority design, and L4
+                      runtime-report-API candidates. G1-G9 gate structure and
+                      12 exact blockers are accepted; runtime/report/API design
+                      remains blocked until artifact-home, authority,
+                      Runtime/Bridge, report/result/receipt, dependency/cache,
+                      TBackend/effect, public/API/release/Spark, regression,
+                      diagnostics, non-selected-branch, and RuntimeSmoke
+                      support blockers are resolved. C3-X PASS resolves the
+                      sequencing divergence: Portfolio chooses runtime-debt /
+                      time-to-market review first; artifact-home/authority
+                      options remain the likely next technical L3 route after
+                      that review. Internal tool-only use case stays held as a
+                      future design-only question. RuntimeSmoke transitive-load
+                      wording is accepted as known consequence, not feature
+                      support, and the permanent "do not speed up by" fence
+                      remains binding. Docs/map sync, implementation,
+                      runtime/report/API design, public claims, Spark/API/CLI,
+                      production, body spec edits, PROP-032 mutation,
+                      report/result/receipt/CompatibilityReport fields,
+                      dependency/cache authority, and artifact/schema promotion
+                      remain closed. Exact next route is S3-R216-C1-D
+                      `counterfactual-audit-runtime-debt-and-time-to-market-review-v0`.
 ```
 
 ### Spec Freshness
