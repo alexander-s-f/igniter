@@ -467,6 +467,13 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             52/52 PASS and pressure 12/12 PASS, while keeping
                             the projection envelope non-canonical and routing
                             only source/evidence boundary design next;
+                            R210 accepts the Level 2 source/evidence boundary:
+                            Tier 1 SemanticIR/TypeChecker evidence is preferred
+                            as read-only structural citation, Tier 2 execution
+                            summaries are actual-path citation only, all refs
+                            remain proof-local/non-canonical/digest-addressed,
+                            and routes only source-backed proof authorization
+                            review next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1314,6 +1321,12 @@ Round 209 landed:
   S3-R209-C3-X: Level 2 concept proof pressure                             ✅ PASS; 12/12 PASS; no blockers or notes
   S3-R209-C4-A: Level 2 concept proof acceptance                           ✅ accepts proof-local evidence only
   S3-R209-C5-S: status curation                                           ✅ done; R210 source/evidence boundary recorded
+Round 210 landed:
+  S3-R210-C1-D: Level 2 source/evidence boundary design                    ✅ done; tier model + ref policy; no authority opened
+  S3-R210-C2-P1: current source evidence survey                            ✅ done; no current artifact has full source/snapshot/premise chain
+  S3-R210-C3-X: source/evidence boundary pressure                          ✅ PASS; 11/11 PASS; 3 notes resolved by C4-A
+  S3-R210-C4-A: source/evidence boundary decision                          ✅ accepts boundary; only source-backed proof authorization review may open next
+  S3-R210-C5-S: status curation                                           ✅ done; R211 authorization-review boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3942,6 +3955,41 @@ S3-R209 result:      C4-A accepts the proof-local Level 2 counterfactual
                       release, public/Spark/API/CLI, and production behavior
                       remain closed. Exact next route is S3-R210-C1-D
                       `branch-conditional-counterfactual-audit-level2-source-evidence-boundary-design-v0`.
+S3-R210 result:      C4-A accepts the Level 2 source/evidence boundary and
+                      current source evidence surface survey after C3-X reports
+                      `11/11` PASS with no blockers and three non-blocking
+                      notes resolved as binding policy. Tier 0 hand-authored
+                      branch-intention fixtures remain concept-proof legacy
+                      only. Tier 1 compiler/SemanticIR static evidence is the
+                      preferred next source, but only as read-only structural
+                      citation and evidence bootstrapping. Tier 2 execution
+                      summary evidence is allowed narrowly as read-only
+                      actual-path citation. Tier 3 report/result/receipt/
+                      CompatibilityReport evidence and Tier 4 live runtime or
+                      production execution remain closed. Accepted refs
+                      `source_branch_intention_ref`, `input_snapshot_ref`,
+                      `premise_set`, `premise_set_ref`,
+                      `execution_summary_ref`, `semanticir_ref`, and
+                      `compiler_evidence_ref` remain proof-local,
+                      non-canonical, digest-addressed, and no-authority only.
+                      C4-A resolves source-backed proof constraints: primary
+                      source should be proof-owned SemanticIR/TypeChecker output
+                      where available, proof-owned `.igapp` contract JSON is
+                      secondary, all source refs use `sha256:<hex>`, Tier 1
+                      never promotes branch-intention evidence to canonical
+                      compiler output, and `assumed_condition_source` is
+                      required with allowed values `explicit_proof_request` or
+                      `execution_summary_observation`. R210 authorizes no proof
+                      execution or implementation. `lib/**`, parser/grammar/
+                      source syntax, TypeChecker/SemanticIR schema mutation,
+                      runtime/evaluator/RuntimeSmoke/proof RuntimeMachine,
+                      live non-selected branch evaluation, `tbackend_read`
+                      non-refusal behavior, dependency/cache authority,
+                      report/result/receipt/CompatibilityReport mutation,
+                      `.igapp` schema/goldens, spec-body promotion, release,
+                      public/Spark/API/CLI, and production behavior remain
+                      closed. Exact next route is S3-R211-C1-A
+                      `branch-conditional-counterfactual-audit-level2-source-backed-proof-authorization-review-v0`.
 ```
 
 ### Spec Freshness
