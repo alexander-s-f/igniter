@@ -451,7 +451,9 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             if_expr branches without evaluating latent branches;
                             not source syntax, not a SemanticIR schema field,
                             not runtime behavior, not public counterfactual audit
-                            support; spec-body chapter edits remain held;
+                            support; spec-body chapter edits remain held; C3-A
+                            accepts the docs sync after 10/10 pressure PASS and
+                            routes only Level 2 dry-run boundary design next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1284,6 +1286,9 @@ Round 206 landed:
   S3-R206-C5-S: status curation                                           ✅ done; R207 bounded docs-sync boundary recorded
 Round 207 landed:
   S3-R207-C1-I: Level 1 branch-intention vocabulary docs sync              ✅ done; Option A applied; current-status pointer, heat-map row, spec README pointer; wording class confirmed; no code/grammar/runtime/report edits
+  S3-R207-C2-X: docs-sync pressure                                         ✅ PASS; 10/10 PASS; no blockers or notes
+  S3-R207-C3-A: docs-sync acceptance                                       ✅ accepts bounded Option A docs sync unconditionally
+  S3-R207-C4-S: status curation                                           ✅ done; R208 Level 2 dry-run design-only boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3824,6 +3829,32 @@ S3-R206 result:      C4-A accepts the Level 1 branch-intention vocabulary and
                       public/Spark/API/CLI, and production behavior remain
                       closed. Exact next route is S3-R207-C1-I
                       `branch-conditional-counterfactual-audit-vocabulary-docs-sync-v0`.
+S3-R207 result:      C3-A accepts the bounded Option A docs sync
+                      unconditionally after C2-X reports `10/10` PASS with no
+                      blockers and no notes. Accepted changed files from C1-I
+                      commit `11358925` are `current-status.md`,
+                      `docs/dev/semantic-governance-heat-map.md`,
+                      `docs/spec/README.md`, and
+                      `branch-conditional-counterfactual-audit-vocabulary-docs-sync-v0.md`.
+                      `branch_intention` is now discoverable as Level 1
+                      proof-local static audit vocabulary in low-authority
+                      documentation surfaces. `if_expr_branch_intention`
+                      remains proof-local / non-canonical, assumptions remain
+                      premise capsule only, and R207 adds no new proof
+                      evidence beyond the R205 concept proof anchor
+                      `sha256:0fc1b8005833478a22abc816ed3bf74364ef7b21c263ea1a57450676d81a8a9a`.
+                      The docs sync is discoverability and anti-drift only, not
+                      schema or runtime canonization. `language-spec.md`,
+                      Ch2/Ch5/Ch6/Ch7 body chapters, PROP-032, public API/CLI
+                      docs, release docs, runtime/report/receipt/
+                      CompatibilityReport docs, code, and experiments remain
+                      untouched and held. Live implementation, runtime/
+                      evaluator/RuntimeSmoke/proof RuntimeMachine changes,
+                      non-selected branch evaluation in live runtime, Level 2
+                      dry-run implementation/proof, dependency/cache authority,
+                      release, public/Spark/API/CLI, and production behavior
+                      remain closed. Exact next route is S3-R208-C1-D
+                      `branch-conditional-counterfactual-audit-level2-dry-run-boundary-design-v0`.
 ```
 
 ### Spec Freshness
