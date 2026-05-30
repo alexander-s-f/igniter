@@ -1,0 +1,379 @@
+{
+  "kind": "branch_conditional_counterfactual_audit_level2_source_backed_proof_v0_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R211-C2-I",
+  "track": "branch-conditional-counterfactual-audit-level2-source-backed-proof-v0",
+  "authorized_by": "S3-R211-C1-A",
+  "status": "PASS",
+  "checks_total": 61,
+  "checks_pass": 61,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "design_principle": "Runtime is lazy. Audit is aware. Dry-run, if ever accepted, must be isolated. Evidence must be sourced before it can be explained.",
+  "proof_level": "Level 2 / Source-Backed Isolated Dry-Run Projection concept proof only",
+  "disclaimer": {
+    "projected_value_is_not_actual_output": true,
+    "projected_failure_is_not_actual_failure": true,
+    "dry_run_projection_not_public_runtime_support": true,
+    "level2_proof_not_public_counterfactual_support": true,
+    "source_evidence_not_canonical_schema": true,
+    "source_ref_not_compilerresult_or_report_field": true,
+    "tier0_fixture_is_legacy_fallback_only": true,
+    "assumptions_shaped_refs_not_prop032_extension": true
+  },
+  "source_artifact_digests": {
+    "semanticir_risk_gate_v0.json": "sha256:1b163b2e67cd401af0c861b807d6c9b4c9dfaaf5ff3fd01f30546c7f8e32a2ce",
+    "semanticir_nested_if_v0.json": "sha256:7882d992c5f06b32952cc589c6af8d1b124882ab63bfb656b0c2dd2d058fea2e",
+    "semanticir_tbackend_v0.json": "sha256:b28add45d22fba8c5c3d8f2454c9a388b319df98fafbf0ca79d3e5126afd2a9b",
+    "semanticir_escape_v0.json": "sha256:0e6832f7ee17f4c2ff5af3a10690d45d4860706d47cb9ab2f53df7b10347d246",
+    "input_snapshot_risk_gate_v0.json": "sha256:5cb2abf582b3ef817eb0fc9ef19e59e0ea58dc51abad3a786683a3440a9818af",
+    "input_snapshot_empty_v0.json": "sha256:8946dda58df33247104aee916d69b447cc3488ac5368236c00b9a39af3e4cec7"
+  },
+  "projection_digests": {
+    "proj_a_risk_gate_then_branch": "sha256:d586b79e53f3cee91f2cf07fc97c380df9b34dd86aceb55f9ecab79c1daf9c61",
+    "proj_b_unresolved_snapshot": "sha256:1b5c2a1d43452dc0ad5647b7a97ef998b58def8cc51e865a139ed4e9ab721d0b",
+    "proj_c_nested_if_expr": "sha256:e015a96e45d80aa84558f215a12ceddf043649f0bd3a9b5276a76456ab915abd",
+    "proj_d_tbackend_refused": "sha256:e9ed0cf9652d9b13360af39f7e8dcbe0049493e94757770d691f2e501ad331d8",
+    "proj_e_escape_refused": "sha256:0e9817701b3bac80d006e5139f8e79c919a65c1dfbb6ef43a2fb5ac0dac827ce"
+  },
+  "execution_summary_citation": {
+    "kind": "execution_summary_ref",
+    "source_kind": "proof_derived_from_execution_summary",
+    "path": "experiments/branch_conditional_counterfactual_audit_level2_dry_run_concept_proof_v0/out/...",
+    "digest": "sha256:9463d8dc2ecce570423cf4e1385d1d40f0e4e0231b854d93a4db5fd5848ae8ba",
+    "usage": "actual_path_read_only_context",
+    "latent_execution": false,
+    "report_authority": false,
+    "runtime_authority": false,
+    "note": "R209 proof summary cited as actual-path context only; not latent execution evidence"
+  },
+  "tier0_legacy_fallback": {
+    "kind": "tier0_legacy_fallback_fixture",
+    "tier": "tier0_legacy_fallback",
+    "not_sole_proof_authority": true,
+    "label": "Hand-authored fixture from R209 concept proof — legacy only; present for Tier 0 comparison label only; not primary source authority",
+    "if_expr_id": "if:risk_gate_true",
+    "branch_label": "else",
+    "branch_role": "latent",
+    "expr_kind": "ref"
+  },
+  "claim_policy": {
+    "projected_value_equals_actual_output": false,
+    "source_ref_equals_compiler_result_field": false,
+    "level2_proof_equals_public_runtime_support": false,
+    "maximum_allowed_claim": "Proof-local source-backed Level 2 counterfactual dry-run concept evidence: branch-intention evidence derived from proof-owned SemanticIR-shaped source artifacts with SHA-256 digest-addressed refs, frozen input snapshots, and explicit premise_sets, evaluated inside an experiment-local isolated projection envelope with no-authority disclaimers."
+  },
+  "forbidden_vocabulary_scan": {
+    "scan_result": "CLEAR",
+    "terms_checked": 17,
+    "result": "no forbidden terms appear as positive projection field names or values"
+  },
+  "proof_matrix_summary": {
+    "SB-1": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "SB-2": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "SB-3": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "SB-4": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "SB-5": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "SB-6": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "SB-7": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "SB-8": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "SB-9": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "SB-10": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "SB-11": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "SB-12": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "SB-13": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "SB-14": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "SB-15": {
+      "result": "PASS",
+      "checks": 6
+    }
+  },
+  "checks": [
+    {
+      "name": "SB-1.source_artifacts_written_as_proof_owned",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-1.source_artifacts_exist_on_disk",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-1.source_artifacts_readable_and_parseable",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-1.no_compilerresult_compilationreport_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-2.evidence_packet_has_canonical_false",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-2.evidence_packet_has_derivation_proof_local",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-2.evidence_packet_has_explanatory_only_true",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-2.evidence_packet_derived_from_source_artifact_fields",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-2.evidence_packet_has_non_execution_guarantee_for_latent",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-3.source_ref_has_required_kind_field",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-3.source_ref_has_source_digest_with_sha256_prefix",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-3.source_ref_has_all_required_fields",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-3.source_ref_canonical_false",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-3.source_ref_authority_all_false",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-4.snapshot_ref_has_digest_with_sha256_prefix",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-4.snapshot_ref_has_mutable_false",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-4.snapshot_ref_authority_all_false",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-4.empty_snapshot_ref_also_mutable_false",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-5.premise_set_has_assumed_condition",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-5.premise_set_has_required_assumed_condition_source",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-5.premise_set_has_premise_set_digest",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-5.premise_set_authority_all_false",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-5.premise_set_links_to_input_snapshot_ref",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-6.main_projection_produces_projected_value_15",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-6.projected_value_is_not_actual_output_true",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-6.projected_failure_nil_when_success",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-6.all_projections_have_projected_value_not_actual_output_true",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-7.unresolved_snapshot_produces_projected_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-7.unresolved_snapshot_projected_failure_is_refusal",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-7.unresolved_snapshot_projected_value_nil",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-7.projected_failure_is_not_actual_failure_true_on_unresolved",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-8.escape_produces_projected_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-8.escape_refused_not_actual_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-8.no_external_io_performed_on_escape_projection",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-9.tbackend_read_produces_projected_failure",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-9.no_tbackend_loaded_features",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-9.tbackend_read_in_refused_kinds",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-10.nested_if_expr_projects_then_branch_value_7",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-10.laziness_trap_not_reached",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-10.nested_projection_projected_value_not_actual_output",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-11.r209_execution_summary_ref_is_actual_path_only",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-11.r209_execution_summary_ref_has_no_latent_execution",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-11.r209_execution_summary_ref_has_no_report_authority",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-11.execution_summary_ref_digest_present_when_found",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-12.tier0_fixture_labeled_as_legacy_fallback",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-12.primary_projections_use_source_backed_refs",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-12.tier0_not_used_as_projection_source",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-13.forbidden_vocabulary_absent_from_projection_field_names",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-13.forbidden_vocabulary_absent_from_projection_field_values",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-13.source_artifacts_do_not_contain_forbidden_terms",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-14.all_source_ref_digests_have_sha256_prefix",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-14.premise_set_digest_stable_on_recompute",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-14.projection_digest_stable_on_recompute",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-14.source_artifact_on_disk_digest_matches_computed",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-14.snapshot_artifact_on_disk_digest_matches_computed",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-15.no_lib_files_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-15.no_runtime_smoke_or_compiled_program_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-15.compiler_result_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-15.compilation_report_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-15.no_spec_chapter_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "SB-15.no_spark_or_public_api_cli_loaded",
+      "status": "PASS"
+    }
+  ]
+}
