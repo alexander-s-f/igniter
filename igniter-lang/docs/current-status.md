@@ -436,6 +436,13 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             not evaluated, keeps assumptions-shaped metadata
                             non-canonical, and routes next to vocabulary/spec
                             design-only sync;
+                            R206 accepts Level 1 branch-intention vocabulary,
+                            chooses Option A for bounded docs sync
+                            (current-status, semantic-governance heat map, and
+                            optional spec README pointer), keeps
+                            `if_expr_branch_intention` proof-local and
+                            non-canonical, holds spec-body chapter edits for a
+                            later gate, and routes only bounded docs-sync next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1260,6 +1267,12 @@ Round 205 landed:
   S3-R205-C2-X: concept proof pressure                                     ✅ proceed; 16/16 PASS; no blockers
   S3-R205-C3-A: concept proof acceptance                                   ✅ accepts proof-local Level 1 branch-intention evidence
   S3-R205-C4-S: status curation                                           ✅ done; R206 design-only sync boundary recorded
+Round 206 landed:
+  S3-R206-C1-D: vocabulary/spec-sync design                                ✅ done; Level 1 docs vocabulary; descriptor non-canonical
+  S3-R206-C2-P1: docs target survey                                        ✅ done; Option A target set preferred
+  S3-R206-C3-X: vocabulary/spec-sync pressure                              ✅ proceed; 7/8 clean PASS, 1 conditional PASS; no blockers
+  S3-R206-C4-A: vocabulary/spec-sync decision                              ✅ accepts Option A bounded docs sync; spec-body held
+  S3-R206-C5-S: status curation                                           ✅ done; R207 bounded docs-sync boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3773,6 +3786,33 @@ S3-R205 result:      C3-A accepts the proof-local Level 1 counterfactual-audit
                       API/CLI, production, and public counterfactual/runtime
                       claims remain closed. Exact next route is S3-R206-C1-D
                       `branch-conditional-counterfactual-audit-vocabulary-spec-sync-v0`.
+S3-R206 result:      C4-A accepts the Level 1 branch-intention vocabulary and
+                      C2-P1 target-risk survey, accepts C3-X pressure verdict
+                      `proceed` with no blockers, and chooses Option A for the
+                      first bounded docs sync. Accepted docs vocabulary is
+                      `branch_intention`, `actual_branch`, `latent_branch`,
+                      `branch_role`, `branch_label`, `condition_observation`,
+                      `static_branch_metadata`, `intention_source`,
+                      `explanatory_only`, and `non_execution_guarantee`, as
+                      boundary markers only. `if_expr_branch_intention` remains
+                      proof-local / non-canonical and is not a SemanticIR node,
+                      report/result/receipt field, RuntimeSmoke contract,
+                      public API/CLI object, artifact schema, release evidence,
+                      or Spark evidence. The later docs-sync implementation may
+                      touch only `current-status.md`,
+                      `docs/dev/semantic-governance-heat-map.md`,
+                      `docs/spec/README.md`, and a new docs-sync track, with
+                      status/dev-map/spec-index wording only. Spec-body edits
+                      in `language-spec.md`, Ch2/Ch5/Ch6/Ch7, PROP-032, public
+                      API/CLI docs, release docs, and runtime/report/receipt/
+                      CompatibilityReport docs remain held for a later explicit
+                      gate. Live implementation, grammar/source, TypeChecker/
+                      SemanticIR schema, runtime/evaluator/RuntimeSmoke/proof
+                      RuntimeMachine changes, non-selected branch evaluation,
+                      Level 2 dry-run, dependency/cache authority, release,
+                      public/Spark/API/CLI, and production behavior remain
+                      closed. Exact next route is S3-R207-C1-I
+                      `branch-conditional-counterfactual-audit-vocabulary-docs-sync-v0`.
 ```
 
 ### Spec Freshness
