@@ -454,6 +454,13 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             support; spec-body chapter edits remain held; C3-A
                             accepts the docs sync after 10/10 pressure PASS and
                             routes only Level 2 dry-run boundary design next;
+                            R208 accepts Level 2 counterfactual dry-run as a
+                            design boundary only: explicit isolated
+                            proof-local projection under an explicit premise
+                            set; analogy map accepted as internal pressure
+                            only; proof execution and implementation remain
+                            closed; routes only proof-local concept proof
+                            authorization review next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1289,6 +1296,12 @@ Round 207 landed:
   S3-R207-C2-X: docs-sync pressure                                         ✅ PASS; 10/10 PASS; no blockers or notes
   S3-R207-C3-A: docs-sync acceptance                                       ✅ accepts bounded Option A docs sync unconditionally
   S3-R207-C4-S: status curation                                           ✅ done; R208 Level 2 dry-run design-only boundary recorded
+Round 208 landed:
+  S3-R208-C1-D: Level 2 dry-run boundary design                            ✅ done; explicit isolated proof-local projection; no runtime authority
+  S3-R208-C2-P1: adjacent concepts survey                                  ✅ done; internal analogy map only; no analogy grants authority
+  S3-R208-C3-X: Level 2 boundary pressure                                  ✅ PASS; 10/10 PASS; no blockers; 2 notes carried as conditions
+  S3-R208-C4-A: Level 2 boundary decision                                  ✅ accepts boundary; only proof authorization review may open next
+  S3-R208-C5-S: status curation                                           ✅ done; R209 authorization-review boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3855,6 +3868,34 @@ S3-R207 result:      C3-A accepts the bounded Option A docs sync
                       release, public/Spark/API/CLI, and production behavior
                       remain closed. Exact next route is S3-R208-C1-D
                       `branch-conditional-counterfactual-audit-level2-dry-run-boundary-design-v0`.
+S3-R208 result:      C4-A accepts Level 2 counterfactual dry-run boundary
+                      design as conceptually valid only as explicit isolated
+                      proof-local projection under an explicit premise set.
+                      C2-P1's adjacent-concepts survey is accepted as internal
+                      analogy map only: symbolic execution is the closest
+                      tempting analogy but must not become canonical or public
+                      vocabulary; no analogy grants authority. C3-X reports
+                      `10/10` PASS with no blockers and two non-blocking notes
+                      carried as binding conditions for any future proof
+                      authorization review: full 14-term forbidden vocabulary
+                      scan and explicit `projected_value` / `projected_failure`
+                      non-authority disclaimers. Accepted candidate terms are
+                      `counterfactual_dry_run`, `dry_run_projection`,
+                      `dry_run_trace`, `assumed_condition`,
+                      `projected_branch`, `projected_value`,
+                      `projected_failure`, `premise_set`,
+                      `isolation_guarantee`, and `no_authority` as proof-local
+                      design vocabulary only, not public API/report/schema/
+                      runtime fields. R208 authorizes no proof execution, no
+                      implementation, and no code edit. Live runtime remains
+                      lazy; live non-selected branch evaluation, `tbackend_read`
+                      non-refusal behavior, runtime/evaluator/RuntimeSmoke,
+                      proof RuntimeMachine changes, report/result/receipt/
+                      CompatibilityReport mutation, dependency/cache authority,
+                      spec-body promotion, release, public/Spark/API/CLI, and
+                      production behavior remain closed. Exact next route is
+                      S3-R209-C1-A
+                      `branch-conditional-counterfactual-audit-level2-concept-proof-authorization-review-v0`.
 ```
 
 ### Spec Freshness
