@@ -75,6 +75,7 @@ Last updated: 2026-05-10
 | Ch3 §3.3 if_expr v0 typing Rule IF-v0 | R190 | experiments/branch_conditional_if_expr_v0_implementation_proof/ (28/28 PASS) | ✅ Bool condition; exact branch type match; OOF-IF1..IF4 |
 | Ch6 §6.10 if_expr SemanticIR lowering | R190 | experiments/branch_conditional_if_expr_v0_implementation_proof/ (28/28 PASS) | ✅ flat condition/then_branch/else_branch; recursive consistency PASS |
 | — (no spec chapter; Level 1 static audit vocab, held) | — | experiments/branch_conditional_counterfactual_audit_concept_proof_v0/ (46/46 PASS) | ⚙️ proof-local only — `branch_intention` Level 1 static audit vocabulary for explaining actual and latent if_expr branches without evaluating latent branches; `if_expr_branch_intention` non-canonical; not source syntax, not SemanticIR schema field, not runtime behavior; Level 2 dry-run, grammar, runtime, reports/receipts closed |
+| — (no spec chapter; source-backed Level 2 evidence, held) | — | experiments/branch_conditional_counterfactual_audit_level2_source_backed_proof_v0/ (61/61 PASS) | ⚙️ proof-local only — source-backed Level 2 counterfactual dry-run evidence; non-canonical; not source syntax, not SemanticIR schema, not runtime behavior, not report/receipt/CompatibilityReport field; body spec chapters, PROP-032, runtime/report/API, and public claims remain closed |
 
 ---
 

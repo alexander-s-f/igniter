@@ -78,6 +78,7 @@ Supersedes: nothing (new document)
 | `uses constraints NAME` | P25 | Gap-J | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem/gov |
 | PostAudit receipt pattern | P26 | Gap-N | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | gov |
 | `branch_intention` / `if_expr_branch_intention` (Level 1 static audit, proof-local)‡ | — | — | — | 🚫 | 🚫 | 🚫 | 🚫 | 🚫 | ⚙️ | sem |
+| `source_backed_dry_run_projection` / source-backed Level 2 counterfactual dry-run (proof-local)§ | — | — | — | 🚫 | 🚫 | 🚫 | 🚫 | 🚫 | ⚙️ | sem |
 
 > ‡ Accepted as Level 1 docs vocabulary by S3-R206-C4-A. R205 concept proof (BIA-1..BIA-10
 > 46/46 PASS) is the only evidence base. Proof-local and non-canonical: `if_expr_branch_intention`
@@ -86,6 +87,15 @@ Supersedes: nothing (new document)
 > reports/receipts/CompatibilityReport, and public counterfactual claims remain closed.
 > Proof-local branch premise refs may be assumptions-shaped but are not PROP-032 branch syntax
 > and are not PROP-032 receipt assumption_refs.
+
+> § Source-backed proof-local Level 2 evidence (R211 SB-1..SB-15 61/61 PASS; R212 accepted
+> vocabulary/spec boundary; R213 docs-only Option A-min sync). Proof-local and non-canonical:
+> `source_backed_dry_run_projection` is not a SemanticIR node kind or field, not emitted by
+> compiler surfaces, not a spec chapter, not a PROP, not parser/grammar/runtime/schema, not a
+> report/receipt/CompatibilityReport field. All pipeline stages gated (🚫). Assumptions-shaped
+> premise refs in `premise_set` records are proof-local labels only; not PROP-032 branch syntax
+> and not receipt `assumption_refs`. Level 2 projection is not public counterfactual audit support,
+> not runtime behavior, not public API/CLI, and not Spark/production support.
 
 > **GI-1 resolved (S3-R30-C6-P), compiler status updated (S3-R37-C1-P):** PROP-032
 > assigned to `assumptions {}` block (Gap-H); `via profile binding` renumbered to
