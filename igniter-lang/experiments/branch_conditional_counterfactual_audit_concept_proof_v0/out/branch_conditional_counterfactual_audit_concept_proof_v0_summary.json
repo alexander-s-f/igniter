@@ -1,0 +1,434 @@
+{
+  "kind": "branch_conditional_counterfactual_audit_concept_proof_v0_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R205-C1-I",
+  "track": "branch-conditional-counterfactual-audit-concept-proof-v0",
+  "authorized_by": "S3-R204-C5-S",
+  "status": "PASS",
+  "checks_total": 46,
+  "checks_pass": 46,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "design_principle": "Runtime is lazy. Audit is aware.",
+  "proof_level": "Level 1 / Static Branch Audit only",
+  "disclaimer": {
+    "assumption_refs_in_this_proof": "proof-local branch premise labels, not PROP-032 receipt assumption_refs and not a PROP-032 grammar extension",
+    "assumptions_shaped_metadata": "non-canonical unless accepted by a future PROP or PROP-032 amendment decision",
+    "branch_intention_descriptors": "proof-local / explanatory-only; not a compiler report, not a public API, not a CompatibilityReport field, and not a RuntimeSmoke output",
+    "level1_boundary": "Static Branch Audit only; Level 2 counterfactual dry-run remains closed and requires a separate future gate"
+  },
+  "proof_scope": {
+    "lib_files_modified": false,
+    "evaluator_loaded": false,
+    "runtime_smoke_loaded": false,
+    "compiled_program_loaded": false,
+    "latent_branch_evaluated": false,
+    "parser_grammar_changed": false,
+    "compiler_result_changed": false,
+    "compilation_report_changed": false,
+    "compiler_orchestrator_changed": false,
+    "descriptors_location": "experiments/branch_conditional_counterfactual_audit_concept_proof_v0/out/"
+  },
+  "claim_policy": {
+    "explanatory_only_descriptor_equals_runtime_execution": false,
+    "branch_intention_proof_equals_public_counterfactual": false,
+    "assumptions_shaped_metadata_equals_prop032_extension": false,
+    "level1_static_audit_equals_level2_dry_run": false,
+    "maximum_allowed_claim": "Proof-local concept evidence that if_expr branch intentions can be statically described for actual and latent branches without evaluating latent branches, using explanatory-only metadata and optional assumptions-shaped premise refs."
+  },
+  "non_claims": {
+    "no_non_selected_branch_evaluation": true,
+    "no_runtime_failure_for_latent_branch": true,
+    "no_counterfactual_dry_run": true,
+    "no_level2_comparison_report": true,
+    "no_public_runtime_support": true,
+    "no_public_counterfactual_support": true,
+    "no_grammar_parser_mutation": true,
+    "no_branch_level_uses_assumptions_syntax": true,
+    "no_prop032_amendment_implied": true,
+    "no_report_result_receipt_change": true,
+    "no_dependency_cache_authority": true,
+    "no_spark_api_cli_widening": true,
+    "no_release_execution": true
+  },
+  "branch_intention_descriptors": [
+    {
+      "kind": "if_expr_branch_intention",
+      "format_version": "0.1.0",
+      "if_expr_id": "if:risk_gate_true",
+      "intention_source": "semanticir_static",
+      "explanatory_only": true,
+      "condition": {
+        "expr_kind": "literal",
+        "actual_value": true,
+        "actual_value_source": "semanticir_static_literal"
+      },
+      "branches": [
+        {
+          "branch_label": "then",
+          "branch_role": "actual",
+          "evaluated": true,
+          "expr_kind": "literal",
+          "resolved_type": {
+            "name": "Integer",
+            "params": []
+          },
+          "static_refs": [],
+          "assumption_refs": [
+            "risk_threshold_is_valid"
+          ],
+          "non_execution_guarantee": false
+        },
+        {
+          "branch_label": "else",
+          "branch_role": "latent",
+          "evaluated": false,
+          "expr_kind": "ref",
+          "resolved_type": {
+            "name": "Integer",
+            "params": []
+          },
+          "static_refs": [
+            "fallback"
+          ],
+          "assumption_refs": [],
+          "non_execution_guarantee": true,
+          "note": "Latent branch: static metadata only. Not evaluated. No runtime value, no runtime failure, no side effect."
+        }
+      ],
+      "authority": {
+        "dependency_authority": false,
+        "cache_authority": false,
+        "runtime_readiness_authority": false,
+        "public_claim": false
+      }
+    },
+    {
+      "kind": "if_expr_branch_intention",
+      "format_version": "0.1.0",
+      "if_expr_id": "if:risk_gate_false",
+      "intention_source": "semanticir_static",
+      "explanatory_only": true,
+      "condition": {
+        "expr_kind": "literal",
+        "actual_value": false,
+        "actual_value_source": "semanticir_static_literal"
+      },
+      "branches": [
+        {
+          "branch_label": "else",
+          "branch_role": "actual",
+          "evaluated": true,
+          "expr_kind": "literal",
+          "resolved_type": {
+            "name": "Integer",
+            "params": []
+          },
+          "static_refs": [],
+          "assumption_refs": [],
+          "non_execution_guarantee": false
+        },
+        {
+          "branch_label": "then",
+          "branch_role": "latent",
+          "evaluated": false,
+          "expr_kind": "apply",
+          "resolved_type": {
+            "name": "Integer",
+            "params": []
+          },
+          "static_refs": [
+            "a",
+            "b"
+          ],
+          "assumption_refs": [],
+          "non_execution_guarantee": true,
+          "note": "Latent branch: static metadata only. Not evaluated. No runtime value, no runtime failure, no side effect."
+        }
+      ],
+      "authority": {
+        "dependency_authority": false,
+        "cache_authority": false,
+        "runtime_readiness_authority": false,
+        "public_claim": false
+      }
+    },
+    {
+      "kind": "if_expr_branch_intention",
+      "format_version": "0.1.0",
+      "if_expr_id": "if:latent_tbackend_read",
+      "intention_source": "semanticir_static",
+      "explanatory_only": true,
+      "condition": {
+        "expr_kind": "literal",
+        "actual_value": true,
+        "actual_value_source": "semanticir_static_literal"
+      },
+      "branches": [
+        {
+          "branch_label": "then",
+          "branch_role": "actual",
+          "evaluated": true,
+          "expr_kind": "literal",
+          "resolved_type": {
+            "name": "Integer",
+            "params": []
+          },
+          "static_refs": [],
+          "assumption_refs": [],
+          "non_execution_guarantee": false
+        },
+        {
+          "branch_label": "else",
+          "branch_role": "latent",
+          "evaluated": false,
+          "expr_kind": "tbackend_read",
+          "resolved_type": {
+            "name": "Unknown",
+            "params": []
+          },
+          "static_refs": [
+            "tbackend:accounts/active"
+          ],
+          "assumption_refs": [],
+          "non_execution_guarantee": true,
+          "note": "Latent branch: static metadata only. Not evaluated. No runtime value, no runtime failure, no side effect."
+        }
+      ],
+      "authority": {
+        "dependency_authority": false,
+        "cache_authority": false,
+        "runtime_readiness_authority": false,
+        "public_claim": false
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "BIA-1.actual_branch_is_then_when_condition_true",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-1.actual_branch_is_else_when_condition_false",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-1.condition_observation_recorded",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-1.actual_branch_has_evaluated_true",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-2.latent_branch_has_evaluated_false",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-2.latent_branch_has_non_execution_guarantee",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-2.latent_label_is_else_when_condition_true",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-2.latent_label_is_then_when_condition_false",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-2.evaluator_not_loaded_by_proof",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-3.expr_kind_recorded_for_actual_branch",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-3.expr_kind_recorded_for_latent_branch",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-3.resolved_type_present_in_both_branches",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-3.intention_source_is_semanticir_static",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-3.apply_latent_branch_expr_kind_recorded",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-4.dependency_authority_false_on_all_descriptors",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-4.cache_authority_false_on_all_descriptors",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-4.runtime_readiness_authority_false_on_all_descriptors",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-4.static_refs_captured_for_latent_ref_branch",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-4.static_refs_captured_for_latent_apply_branch",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-4.explanatory_only_true_on_all_descriptors",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-5.assumption_refs_present_on_actual_branch_when_declared",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-5.assumption_refs_optional_fixture_b_has_none",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-5.assumption_refs_are_proof_local_labels",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-5.public_claim_false_on_descriptors_with_assumption_refs",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-6.latent_tbackend_read_expr_kind_recorded",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-6.latent_tbackend_read_evaluated_false",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-6.latent_tbackend_read_non_execution_guarantee",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-6.no_runtime_failure_key_in_latent_descriptor",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-6.forbidden_level2_vocabulary_absent_from_all_descriptors",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-6.latent_static_refs_captured_without_execution",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-7.slice1_structural_proof_strings_intact",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-7.slice2_structural_proof_strings_intact",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-7.rs_proof_summary_pass",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-7.if_expr_v0_proof_summary_pass",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-7.no_evaluator_loaded_by_this_proof",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-8.no_release_commands_in_proof_script",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-8.all_descriptors_have_public_claim_false",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-8.no_spark_integration_loaded_by_proof",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-8.no_public_counterfactual_runtime_claim_in_descriptors",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-9.no_branch_level_uses_assumptions_in_lib",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-9.no_grammar_mutation_loaded_by_proof",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-9.proof_writes_no_lib_files",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-10.compiler_result_has_no_branch_intention_key",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-10.compilation_report_has_no_branch_intention_key",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-10.compiler_orchestrator_has_no_branch_intention_key",
+      "status": "PASS"
+    },
+    {
+      "name": "BIA-10.proof_summary_is_concept_only_not_compiler_report",
+      "status": "PASS"
+    }
+  ],
+  "proof_matrix_summary": {
+    "BIA-1": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "BIA-2": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "BIA-3": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "BIA-4": {
+      "result": "PASS",
+      "checks": 6
+    },
+    "BIA-5": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "BIA-6": {
+      "result": "PASS",
+      "checks": 6
+    },
+    "BIA-7": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "BIA-8": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "BIA-9": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "BIA-10": {
+      "result": "PASS",
+      "checks": 4
+    }
+  }
+}
