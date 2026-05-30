@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-26
+Last updated: 2026-05-30
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -474,6 +474,15 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             remain proof-local/non-canonical/digest-addressed,
                             and routes only source-backed proof authorization
                             review next;
+                            R211 authorizes, proves, pressure-checks, and
+                            accepts source-backed proof-local Level 2
+                            counterfactual dry-run evidence with SB-1..SB-15 /
+                            61/61 PASS and pressure 15/15 PASS; evidence is
+                            derived from proof-owned SemanticIR-shaped source
+                            artifacts with SHA-256 refs, frozen input snapshots,
+                            explicit premise sets, and no-authority envelopes;
+                            runtime/report/API/public support remains closed;
+                            next route is design-only vocabulary/spec boundary;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1327,6 +1336,12 @@ Round 210 landed:
   S3-R210-C3-X: source/evidence boundary pressure                          ✅ PASS; 11/11 PASS; 3 notes resolved by C4-A
   S3-R210-C4-A: source/evidence boundary decision                          ✅ accepts boundary; only source-backed proof authorization review may open next
   S3-R210-C5-S: status curation                                           ✅ done; R211 authorization-review boundary recorded
+Round 211 landed:
+  S3-R211-C1-A: source-backed proof authorization                          ✅ authorizes bounded experiment-local proof only
+  S3-R211-C2-I: source-backed Level 2 proof                                 ✅ proof-passed; SB-1..SB-15 / 61/61 PASS
+  S3-R211-C3-X: source-backed proof pressure                                ✅ PASS; 15/15 PASS; no blockers; 1 informational note
+  S3-R211-C4-A: source-backed proof acceptance                              ✅ accepts proof-local evidence only
+  S3-R211-C5-S: status curation                                           ✅ done; R212 vocabulary/spec boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3990,6 +4005,37 @@ S3-R210 result:      C4-A accepts the Level 2 source/evidence boundary and
                       public/Spark/API/CLI, and production behavior remain
                       closed. Exact next route is S3-R211-C1-A
                       `branch-conditional-counterfactual-audit-level2-source-backed-proof-authorization-review-v0`.
+S3-R211 result:      C4-A accepts proof-local source-backed Level 2
+                      counterfactual dry-run evidence. C1-A authorized only an
+                      experiment-local proof; C2-I produced proof-owned
+                      SemanticIR-shaped source artifacts, frozen input
+                      snapshots, SHA-256 `source_branch_intention_ref`,
+                      `input_snapshot_ref`, explicit `premise_set` refs, and
+                      no-authority projection envelopes; C3-X pressure passed
+                      15/15 with no blockers and one informational note accepted
+                      by C4-A. The accepted proof matrix is SB-1..SB-15 /
+                      61/61 PASS. Tier 1 source artifacts are proof-owned
+                      evidence only, Tier 0 remains legacy fallback and not
+                      sole authority, and execution-summary citation remains
+                      actual-path read-only context only. `projected_value` is
+                      not actual output; `projected_failure` is not actual
+                      runtime failure; source-backed evidence is not canonical
+                      SemanticIR schema, not `CompilerResult`, not
+                      `CompilationReport`, and not public/runtime/report/API
+                      support. Citation metadata note fields may name forbidden
+                      terms only in negative disambiguation context, never as
+                      positive projection vocabulary or public claims. Live
+                      runtime remains lazy. `lib/**`, parser/grammar/source
+                      syntax, branch-level `uses assumptions`,
+                      TypeChecker/SemanticIR schema mutation,
+                      runtime/evaluator/RuntimeSmoke/proof RuntimeMachine,
+                      live non-selected branch evaluation, `tbackend_read`
+                      non-refusal behavior, dependency/cache authority,
+                      report/result/receipt/CompatibilityReport mutation,
+                      `.igapp` schema/goldens, spec-body promotion, release,
+                      public/Spark/API/CLI, and production behavior remain
+                      closed. Exact next route is S3-R212-C1-D
+                      `branch-conditional-counterfactual-audit-level2-source-backed-vocabulary-spec-boundary-v0`.
 ```
 
 ### Spec Freshness
