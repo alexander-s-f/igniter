@@ -483,6 +483,13 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             explicit premise sets, and no-authority envelopes;
                             runtime/report/API/public support remains closed;
                             next route is design-only vocabulary/spec boundary;
+                            R212 accepts the source-backed Level 2 vocabulary/
+                            spec boundary and chooses Option A-min for a later
+                            docs-only low-authority sync authorization review:
+                            heat map, spec README, and track doc only; broad
+                            counterfactual support wording, body spec chapters,
+                            PROP-032, public docs, runtime/report/API/Spark,
+                            and implementation remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1342,6 +1349,12 @@ Round 211 landed:
   S3-R211-C3-X: source-backed proof pressure                                ✅ PASS; 15/15 PASS; no blockers; 1 informational note
   S3-R211-C4-A: source-backed proof acceptance                              ✅ accepts proof-local evidence only
   S3-R211-C5-S: status curation                                           ✅ done; R212 vocabulary/spec boundary recorded
+Round 212 landed:
+  S3-R212-C1-D: source-backed vocabulary/spec boundary                      ✅ done; internal proof-local wording only; no docs/spec edits
+  S3-R212-C2-P1: source-backed doc target survey                            ✅ done; recommends A-min or hold; body spec/public docs held
+  S3-R212-C3-X: vocabulary/spec pressure                                    ✅ PASS; 10/10 PASS; no blockers; 2 notes resolved by C4-A
+  S3-R212-C4-A: vocabulary/spec decision                                    ✅ accepts boundary; chooses later A-min docs-sync authorization review
+  S3-R212-C5-S: status curation                                           ✅ done; R213 authorization-review boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -4036,6 +4049,31 @@ S3-R211 result:      C4-A accepts proof-local source-backed Level 2
                       public/Spark/API/CLI, and production behavior remain
                       closed. Exact next route is S3-R212-C1-D
                       `branch-conditional-counterfactual-audit-level2-source-backed-vocabulary-spec-boundary-v0`.
+S3-R212 result:      C4-A accepts the source-backed Level 2 vocabulary/spec
+                      boundary and C2-P1 doc target survey after C3-X pressure
+                      passes 10/10 with no blockers. Accepted internal wording
+                      is `source-backed proof-local Level 2 counterfactual
+                      dry-run evidence`; allowed short form is
+                      `source-backed proof-local Level 2 evidence;
+                      non-canonical; no runtime/report/API authority`.
+                      Over-broad positive claims remain forbidden, including
+                      `counterfactual audit support`, `runtime counterfactual
+                      support`, `public counterfactual support`, and
+                      `counterfactual runtime`. C4-A resolves NB-1 by choosing
+                      Option A-min for a later docs-only low-authority sync
+                      authorization review, limited to semantic-governance heat
+                      map, spec README, and a track doc; current-status is
+                      optional/no-op unless the authorizing card requires tiny
+                      polish. C4-A resolves NB-2 by making negative
+                      disambiguation outside machine-readable authority/result
+                      fields binding for future proof and docs-sync routes.
+                      Body spec chapters, `language-spec.md`, PROP-032, public
+                      docs/API/CLI/release docs, runtime/report/result/receipt/
+                      CompatibilityReport docs, live implementation,
+                      TypeChecker/SemanticIR schema mutation, live non-selected
+                      branch evaluation, Spark, and production remain held or
+                      closed. Exact next route is S3-R213-C1-A
+                      `branch-conditional-counterfactual-audit-level2-source-backed-vocabulary-docs-sync-authorization-review-v0`.
 ```
 
 ### Spec Freshness
