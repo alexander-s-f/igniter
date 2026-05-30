@@ -443,6 +443,15 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             `if_expr_branch_intention` proof-local and
                             non-canonical, holds spec-body chapter edits for a
                             later gate, and routes only bounded docs-sync next;
+                            R207 applies the bounded Option A docs-sync:
+                            current-status pointer, semantic-governance heat-map
+                            row, and spec README index pointer; Level 1
+                            branch-intention vocabulary is proof-local static
+                            audit vocabulary for explaining actual and latent
+                            if_expr branches without evaluating latent branches;
+                            not source syntax, not a SemanticIR schema field,
+                            not runtime behavior, not public counterfactual audit
+                            support; spec-body chapter edits remain held;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1273,6 +1282,8 @@ Round 206 landed:
   S3-R206-C3-X: vocabulary/spec-sync pressure                              ✅ proceed; 7/8 clean PASS, 1 conditional PASS; no blockers
   S3-R206-C4-A: vocabulary/spec-sync decision                              ✅ accepts Option A bounded docs sync; spec-body held
   S3-R206-C5-S: status curation                                           ✅ done; R207 bounded docs-sync boundary recorded
+Round 207 landed:
+  S3-R207-C1-I: Level 1 branch-intention vocabulary docs sync              ✅ done; Option A applied; current-status pointer, heat-map row, spec README pointer; wording class confirmed; no code/grammar/runtime/report edits
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;

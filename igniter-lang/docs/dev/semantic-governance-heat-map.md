@@ -77,6 +77,15 @@ Supersedes: nothing (new document)
 | `constraints {}` block | P25, P27, P28 | Gap-J | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem/gov |
 | `uses constraints NAME` | P25 | Gap-J | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | sem/gov |
 | PostAudit receipt pattern | P26 | Gap-N | TBD | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | gov |
+| `branch_intention` / `if_expr_branch_intention` (Level 1 static audit, proof-local)‡ | — | — | — | 🚫 | 🚫 | 🚫 | 🚫 | 🚫 | ⚙️ | sem |
+
+> ‡ Accepted as Level 1 docs vocabulary by S3-R206-C4-A. R205 concept proof (BIA-1..BIA-10
+> 46/46 PASS) is the only evidence base. Proof-local and non-canonical: `if_expr_branch_intention`
+> is not a SemanticIR node kind or field, not a spec chapter, not a PROP, not parser/grammar/
+> runtime/schema. All pipeline stages gated (🚫). Level 2 dry-run, dependency/cache authority,
+> reports/receipts/CompatibilityReport, and public counterfactual claims remain closed.
+> Proof-local branch premise refs may be assumptions-shaped but are not PROP-032 branch syntax
+> and are not PROP-032 receipt assumption_refs.
 
 > **GI-1 resolved (S3-R30-C6-P), compiler status updated (S3-R37-C1-P):** PROP-032
 > assigned to `assumptions {}` block (Gap-H); `via profile binding` renumbered to

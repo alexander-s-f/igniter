@@ -74,6 +74,7 @@ Last updated: 2026-05-10
 | Ch2 §2.2.3 if_expr v0 source shape | R190 | — | ✅ accepted internal compiler support; required-else; BlockExpr branches |
 | Ch3 §3.3 if_expr v0 typing Rule IF-v0 | R190 | experiments/branch_conditional_if_expr_v0_implementation_proof/ (28/28 PASS) | ✅ Bool condition; exact branch type match; OOF-IF1..IF4 |
 | Ch6 §6.10 if_expr SemanticIR lowering | R190 | experiments/branch_conditional_if_expr_v0_implementation_proof/ (28/28 PASS) | ✅ flat condition/then_branch/else_branch; recursive consistency PASS |
+| — (no spec chapter; Level 1 static audit vocab, held) | — | experiments/branch_conditional_counterfactual_audit_concept_proof_v0/ (46/46 PASS) | ⚙️ proof-local only — `branch_intention` Level 1 static audit vocabulary for explaining actual and latent if_expr branches without evaluating latent branches; `if_expr_branch_intention` non-canonical; not source syntax, not SemanticIR schema field, not runtime behavior; Level 2 dry-run, grammar, runtime, reports/receipts closed |
 
 ---
 
