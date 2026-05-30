@@ -490,6 +490,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             counterfactual support wording, body spec chapters,
                             PROP-032, public docs, runtime/report/API/Spark,
                             and implementation remain closed;
+                            R213 accepts the A-min docs-only low-authority sync:
+                            semantic-governance heat map row, spec README
+                            proof-local/held pointer, and docs-sync track;
+                            vocabulary is discoverable internally but remains
+                            non-canonical and no-runtime/no-report/API authority;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1355,6 +1360,12 @@ Round 212 landed:
   S3-R212-C3-X: vocabulary/spec pressure                                    ✅ PASS; 10/10 PASS; no blockers; 2 notes resolved by C4-A
   S3-R212-C4-A: vocabulary/spec decision                                    ✅ accepts boundary; chooses later A-min docs-sync authorization review
   S3-R212-C5-S: status curation                                           ✅ done; R213 authorization-review boundary recorded
+Round 213 landed:
+  S3-R213-C1-A: vocabulary docs-sync authorization                          ✅ authorizes bounded A-min docs-only sync; current-status closed for C2-I
+  S3-R213-C2-I: vocabulary docs-sync                                        ✅ done; heat map + spec README + track doc only
+  S3-R213-C3-X: vocabulary docs-sync pressure                               ✅ PASS; 10/10 PASS; no blockers or notes
+  S3-R213-C4-A: vocabulary docs-sync acceptance                             ✅ accepts docs-sync unconditionally
+  S3-R213-C5-S: status curation                                           ✅ done; R214 lane-consolidation boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -4074,6 +4085,29 @@ S3-R212 result:      C4-A accepts the source-backed Level 2 vocabulary/spec
                       branch evaluation, Spark, and production remain held or
                       closed. Exact next route is S3-R213-C1-A
                       `branch-conditional-counterfactual-audit-level2-source-backed-vocabulary-docs-sync-authorization-review-v0`.
+S3-R213 result:      C4-A accepts the bounded Option A-min docs-only sync
+                      unconditionally after C3-X pressure passes 10/10 with no
+                      blockers or notes. Exact changed docs are
+                      `docs/dev/semantic-governance-heat-map.md`,
+                      `docs/spec/README.md`, and
+                      `docs/tracks/branch-conditional-counterfactual-audit-level2-source-backed-vocabulary-docs-sync-v0.md`.
+                      `docs/current-status.md` was intentionally untouched by
+                      C2-I per C1-A. Source-backed Level 2 vocabulary is now
+                      discoverable in low-authority internal navigation docs:
+                      heat map row `source_backed_dry_run_projection` has all
+                      pipeline stages gated with a non-claim footnote, and spec
+                      README carries a proof-local/held index pointer. Scan 1
+                      is clear; Scan 2 matches only negative/non-claim footnote
+                      prose, with no machine-readable authority/result-field
+                      drift. This does not create public/runtime/report/API
+                      support. Body spec chapters, `language-spec.md`,
+                      PROP-032, public docs/API/CLI/release docs,
+                      report/result/receipt/CompatibilityReport shape,
+                      runtime/evaluator/RuntimeSmoke/proof RuntimeMachine,
+                      live non-selected branch evaluation, `lib/**`, Spark,
+                      and production remain closed. Exact next route is
+                      S3-R214-C1-D
+                      `branch-conditional-counterfactual-audit-lane-consolidation-boundary-v0`.
 ```
 
 ### Spec Freshness
@@ -4084,7 +4118,7 @@ S3-R212 result:      C4-A accepts the source-backed Level 2 vocabulary/spec
 | Value index | ✅ introduced docs micro-round | `docs/value-index.md`; `docs-value-hoisting-micro-round-v0` | Update sparingly when ideas should remain visible beyond one round |
 | Language Covenant | ✅ R34 placeholder sync | `covenant-accountability-postulates-r29-v0`; `covenant-promise-enforcement-path-rule-v0`; `docs/gates/prop-governance-authority-decision-v0.md`; `docs/language-covenant.md`; `prop036-placeholder-governance-sync-v0` | OQ-P28-1 escape naming remains; managed local recursion / loop-class placeholder moved to PROP-039+ during PROP-038 authoring/index sync |
 | Canonical Semantic Model | ✅ R34 placeholder sync | `canonical-semantic-model-bootstrap-r29-v0`; `docs/dev/canonical-semantic-model.md`; `observed-temporal-precedence-golden-r30-v0`; `prop036-placeholder-governance-sync-v0` | Maintain entity rows when compiler entities are added/removed; add secondary observed+temporal anchor in next CSM touch |
-| Semantic Governance Heat Map | ✅ R37 PROP-032 assumptions sync | `semantic-governance-heat-map-v0`; `r31-governance-map-sync-v0`; `docs/dev/semantic-governance-heat-map.md`; `r32-governance-authority-sync-v0`; `prop036-placeholder-governance-sync-v0`; `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0` | Maintain when new governance issues open/close |
+| Semantic Governance Heat Map | ✅ R213 source-backed Level 2 docs sync | `semantic-governance-heat-map-v0`; `r31-governance-map-sync-v0`; `docs/dev/semantic-governance-heat-map.md`; `r32-governance-authority-sync-v0`; `prop036-placeholder-governance-sync-v0`; `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0`; `branch-conditional-counterfactual-audit-level2-source-backed-vocabulary-docs-sync-v0` | Source-backed Level 2 row is proof-local/non-canonical; all pipeline stages gated; maintain when new governance issues open/close |
 | Ch2 Source Surface | ✅ R191 if_expr v0 sync | `docs/spec/ch2-source-surface.md`; `prop032-assumptions-phase4-parser-proof-v0`; `prop032-assumptions-experiment-pass-decision-v0`; `prop032-assumptions-spec-sync-and-temporal-specimen-disposition-v0`; `branch-conditional-if-expr-docs-spec-sync-v0` | `if_expr` v0 required-else source shape documented; full grammar and runtime/evaluator behavior remain separate |
 | Ch3 Type System | ✅ R191 if_expr typing/diagnostics sync | `docs/spec/ch3-type-system.md`; `branch-conditional-if-expr-v0-implementation-acceptance-decision-v0`; `branch-conditional-if-expr-docs-spec-sync-v0` | `OOF-IF1..OOF-IF4` accepted for `if_expr`; `OOF-IF5` unowned/out; derivative `OOF-TY0` secondary; runtime/evaluator behavior remains closed |
 | Ch4 Fragment Classification | ✅ synced S3-R6 | `spec-ch4-temporal-fragment-sync-v0` | Parser coordinate syntax remains proposal/runtime work, not spec-lag |
