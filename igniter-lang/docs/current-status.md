@@ -461,6 +461,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             only; proof execution and implementation remain
                             closed; routes only proof-local concept proof
                             authorization review next;
+                            R209 authorizes, proves, pressure-checks, and
+                            accepts proof-local Level 2 counterfactual dry-run
+                            concept evidence with L2-DRY-1..L2-DRY-15 /
+                            52/52 PASS and pressure 12/12 PASS, while keeping
+                            the projection envelope non-canonical and routing
+                            only source/evidence boundary design next;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1302,6 +1308,12 @@ Round 208 landed:
   S3-R208-C3-X: Level 2 boundary pressure                                  ✅ PASS; 10/10 PASS; no blockers; 2 notes carried as conditions
   S3-R208-C4-A: Level 2 boundary decision                                  ✅ accepts boundary; only proof authorization review may open next
   S3-R208-C5-S: status curation                                           ✅ done; R209 authorization-review boundary recorded
+Round 209 landed:
+  S3-R209-C1-A: Level 2 concept proof authorization                        ✅ authorizes bounded experiment-local proof only
+  S3-R209-C2-I: Level 2 dry-run concept proof                              ✅ proof-passed; L2-DRY-1..L2-DRY-15 / 52/52 PASS
+  S3-R209-C3-X: Level 2 concept proof pressure                             ✅ PASS; 12/12 PASS; no blockers or notes
+  S3-R209-C4-A: Level 2 concept proof acceptance                           ✅ accepts proof-local evidence only
+  S3-R209-C5-S: status curation                                           ✅ done; R210 source/evidence boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3896,6 +3908,40 @@ S3-R208 result:      C4-A accepts Level 2 counterfactual dry-run boundary
                       production behavior remain closed. Exact next route is
                       S3-R209-C1-A
                       `branch-conditional-counterfactual-audit-level2-concept-proof-authorization-review-v0`.
+S3-R209 result:      C4-A accepts the proof-local Level 2 counterfactual
+                      dry-run concept proof unconditionally. C1-A authorized
+                      only experiment-local proof scope; C2-I produced
+                      L2-DRY-1..L2-DRY-15 / `52/52` PASS; C3-X reported
+                      `12/12` PASS with no blockers and no notes. Accepted
+                      evidence includes the proof track, experiment-local Ruby
+                      harness, and summary JSON
+                      `sha256:9463d8dc2ecce570423cf4e1385d1d40f0e4e0231b854d93a4db5fd5848ae8ba`.
+                      Accepted maximum claim: proof-local Level 2
+                      counterfactual dry-run concept evidence that latent
+                      branches can be evaluated inside an experiment-local
+                      isolated projection envelope with no-authority
+                      disclaimers, explicit `premise_set`, and full isolation
+                      block. `projected_value != actual_output`,
+                      `projected_failure != actual_runtime_failure`,
+                      `dry_run_projection != public_runtime_support`,
+                      `Level2_proof != public_counterfactual_support`, and
+                      `Level2_proof != live_non_selected_evaluation` remain
+                      binding. `tbackend_read` remains refuse-only; any
+                      non-refusal behavior requires a separate temporal/runtime
+                      gate. The projection envelope remains non-canonical and
+                      is not SemanticIR, public API, report/result/receipt,
+                      CompatibilityReport, RuntimeSmoke output, `.igapp`
+                      artifact schema, runtime output contract, or public
+                      counterfactual support. Live implementation, `lib/**`,
+                      parser/grammar/source syntax, TypeChecker/SemanticIR
+                      schema, runtime/evaluator/RuntimeSmoke/proof
+                      RuntimeMachine, live non-selected branch evaluation,
+                      effect/external IO, Ledger/TBackend live reads,
+                      dependency/cache authority, report/result/receipt/
+                      CompatibilityReport mutation, spec-body promotion,
+                      release, public/Spark/API/CLI, and production behavior
+                      remain closed. Exact next route is S3-R210-C1-D
+                      `branch-conditional-counterfactual-audit-level2-source-evidence-boundary-design-v0`.
 ```
 
 ### Spec Freshness
