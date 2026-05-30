@@ -430,6 +430,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             a leading candidate premise capsule rather than the
                             whole branch-intention surface, and routes only
                             proof-local concept evidence next;
+                            R205 accepts the proof-local Level 1 branch-intention
+                            concept proof with BIA-1..BIA-10 / 46/46 PASS and
+                            pressure 16/16 PASS, confirms latent branches were
+                            not evaluated, keeps assumptions-shaped metadata
+                            non-canonical, and routes next to vocabulary/spec
+                            design-only sync;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1249,6 +1255,11 @@ Round 204 landed:
   S3-R204-C3-X: counterfactual boundary pressure                           ✅ proceed; 8/8 PASS; no blockers
   S3-R204-C4-A: counterfactual boundary decision                           ✅ accepts boundary; proof-local concept route next
   S3-R204-C5-S: status curation                                           ✅ done; R205 proof-local boundary recorded
+Round 205 landed:
+  S3-R205-C1-I: counterfactual audit concept proof                         ✅ proof-passed; BIA-1..BIA-10 / 46/46 PASS
+  S3-R205-C2-X: concept proof pressure                                     ✅ proceed; 16/16 PASS; no blockers
+  S3-R205-C3-A: concept proof acceptance                                   ✅ accepts proof-local Level 1 branch-intention evidence
+  S3-R205-C4-S: status curation                                           ✅ done; R206 design-only sync boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -3729,6 +3740,39 @@ S3-R204 result:      C4-A accepts the `if_expr` counterfactual-audit /
                       API/CLI, production, and public counterfactual/runtime
                       claims remain closed. Exact next route is S3-R205-C1-I
                       `branch-conditional-counterfactual-audit-concept-proof-v0`.
+S3-R205 result:      C3-A accepts the proof-local Level 1 counterfactual-audit
+                      concept proof. The proof demonstrates that `if_expr`
+                      branch intentions can be statically described for actual
+                      and latent branches without evaluating latent branches.
+                      Accepted changed files are the concept proof harness, the
+                      proof summary JSON, and the implementation/proof track
+                      doc. BIA-1..BIA-10 all PASS with `46/46` sub-checks;
+                      pressure is `16/16` PASS with no blockers; C3-A local
+                      verification passes the concept proof `46/46`, R203
+                      RuntimeSmoke consumer proof `53/53`, and Slice 1 live
+                      evaluator proof `68/68`. The accepted maximum claim is:
+                      proof-local concept evidence that `if_expr` branch
+                      intentions can be statically described for actual and
+                      latent branches without evaluating latent branches, using
+                      explanatory-only metadata and optional assumptions-shaped
+                      premise refs. Latent branches were not evaluated; no
+                      evaluator, RuntimeSmoke, or proof RuntimeMachine was
+                      loaded by the concept proof. Proof-local `assumption_refs`
+                      remain branch premise labels only; assumptions-shaped
+                      metadata is non-canonical unless a future PROP or
+                      PROP-032 amendment accepts it. This is not public
+                      counterfactual audit support, not Level 2 dry-run, not
+                      public runtime support, and not PROP-032 branch syntax.
+                      Live implementation, parser/grammar/source syntax
+                      changes, TypeChecker/SemanticIR schema mutation,
+                      runtime/evaluator/RuntimeSmoke changes, proof
+                      RuntimeMachine changes, non-selected branch evaluation,
+                      Level 2 dry-run, Level 3 comparison report,
+                      dependency/cache authority, report/result/receipt/
+                      CompatibilityReport shape changes, release/public/Spark/
+                      API/CLI, production, and public counterfactual/runtime
+                      claims remain closed. Exact next route is S3-R206-C1-D
+                      `branch-conditional-counterfactual-audit-vocabulary-spec-sync-v0`.
 ```
 
 ### Spec Freshness
