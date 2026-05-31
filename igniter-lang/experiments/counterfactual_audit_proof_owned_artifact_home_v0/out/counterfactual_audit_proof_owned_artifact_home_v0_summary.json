@@ -1,0 +1,316 @@
+{
+  "kind": "counterfactual_audit_proof_owned_artifact_home_v0_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R218-C2-I",
+  "track": "counterfactual-audit-proof-owned-artifact-home-design-v0",
+  "authorized_by": "S3-R218-C1-A",
+  "status": "PASS",
+  "checks_total": 47,
+  "checks_pass": 47,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "design_principle": "Runtime is lazy. Audit is aware. Dry-run, if ever accepted, must be isolated. Evidence must be sourced before it can be explained. Artifact homes must be explicit, non-canonical, and proof-owned.",
+  "option_implemented": "Option B: proof-owned artifact directory with no compiler/report authority",
+  "artifact_home": {
+    "path": "experiments/counterfactual_audit_proof_owned_artifact_home_v0/out/artifact_home/",
+    "manifest_path": "out/artifact_home/artifact_home_manifest.json",
+    "manifest_digest": "sha256:f61ca7941ff064358eb09a1629e0b382871acb7b8ecddfc51963e770930515d3",
+    "proof_owned": true,
+    "canonical": false
+  },
+  "authority_flags": {
+    "canonical": false,
+    "runtime_authority": false,
+    "report_authority": false,
+    "cache_authority": false,
+    "dependency_authority": false,
+    "public_api_authority": false,
+    "compiler_emitted": false,
+    "spark_authority": false,
+    "production_authority": false
+  },
+  "r211_immutability": {
+    "status": "found",
+    "pass_count": 61,
+    "fail_count": 0,
+    "overall": "PASS",
+    "digest": "sha256:e9474cf0ac5bda39a9af6a748d966722f9c43c5911aeb2fa25ec36e6da0a2178",
+    "immutable": true,
+    "usage": "historical_evidence_citation_only",
+    "note": "R211 source-backed proof evidence is read-only; this C2-I produces a new evidence packet, not a rewrite of R211."
+  },
+  "digest_policy": {
+    "convention": "sha256:<hex>",
+    "scope": "proof-owned outputs only",
+    "stability": "content-addressed; same content => same digest",
+    "authority": "none — digests carry no cache/dependency/compiler authority"
+  },
+  "snapshot_privacy_posture": {
+    "mutable": false,
+    "persistence_authority": false,
+    "privacy_policy_authority": false,
+    "production_data": false,
+    "note": "Proof-local frozen snapshot; no persistence authority; no privacy-policy authority; not actual runtime input"
+  },
+  "projection_disclaimers": {
+    "projected_value_is_not_actual_output": true,
+    "projected_failure_is_not_actual_failure": true,
+    "no_authority_disclaimer": "projected_value and projected_failure carry no dependency/cache/report/runtime/public authority"
+  },
+  "closed_surface_scan": {
+    "lib_files_loaded": false,
+    "runtime_smoke_loaded": false,
+    "compiled_program_loaded": false,
+    "compiler_result_modified": false,
+    "compilation_report_modified": false,
+    "igapp_created_outside_experiment": false,
+    "spark_or_cli_loaded": false,
+    "spec_chapters_modified": false
+  },
+  "non_claims": {
+    "not_canonical_semanticir_schema": true,
+    "not_compiler_result_field": true,
+    "not_compilation_report_field": true,
+    "not_report_result_receipt_compatreport": true,
+    "not_runtime_behavior": true,
+    "not_live_nonselected_branch_evaluation": true,
+    "not_public_counterfactual_audit_support": true,
+    "not_spark_api_cli_support": true,
+    "not_release_evidence": true,
+    "not_production_behavior": true,
+    "projected_value_not_actual_output": true,
+    "projected_failure_not_actual_runtime_failure": true
+  },
+  "proof_matrix_summary": {
+    "AH-1": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "AH-2": {
+      "result": "PASS",
+      "checks": 9
+    },
+    "AH-3": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "AH-4": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "AH-5": {
+      "result": "PASS",
+      "checks": 5
+    },
+    "AH-6": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "AH-7": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "AH-8": {
+      "result": "PASS",
+      "checks": 3
+    },
+    "AH-9": {
+      "result": "PASS",
+      "checks": 4
+    },
+    "AH-10": {
+      "result": "PASS",
+      "checks": 7
+    }
+  },
+  "checks": [
+    {
+      "name": "AH-1.manifest_has_proof_owned_true",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-1.manifest_has_canonical_false",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-1.all_source_artifacts_have_canonical_false",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-1.home_path_is_under_experiments_not_lib",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-2.all_required_authority_flags_present",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-2.all_authority_flags_are_false",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-2.manifest_has_non_claim_block",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-2.manifest_has_snapshot_privacy_posture",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-2.manifest_has_digest_policy",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-2.manifest_has_evidence_index",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-2.manifest_digest_present_and_sha256_prefixed",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-2.projection_authority_all_false",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-2.projection_isolation_all_false",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-3.r211_summary_exists",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-3.r211_summary_is_61_61_pass",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-3.r211_source_artifacts_exist_and_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-3.new_c2i_evidence_packet_does_not_rewrite_r211",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-4.new_if_expr_id_differs_from_r211",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-4.new_projection_produces_different_value_than_r211",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-4.new_source_digest_differs_from_r211_risk_gate_digest",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-5.all_source_ref_digests_have_sha256_prefix",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-5.manifest_digest_stable_on_recompute",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-5.projection_digest_stable_on_recompute",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-5.premise_set_digest_stable_on_recompute",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-5.on_disk_source_artifact_digest_matches_computed",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-6.snapshot_has_mutable_false",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-6.snapshot_has_privacy_note",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-6.snapshot_ref_authority_all_false",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-6.snapshot_authority_has_privacy_policy_authority_false",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-7.premise_set_has_assumed_condition_source",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-7.premise_set_authority_no_prop032_widening",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-7.premise_set_authority_no_cache_dependency",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-7.premise_set_has_premise_set_digest",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-8.trace_has_authority_block_all_false",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-8.trace_has_explanatory_note",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-8.projection_has_no_cache_dependency_runtime_authority",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-9.projected_value_is_not_actual_output_true",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-9.projected_failure_is_not_actual_failure_true",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-9.no_authority_disclaimer_present_in_projection",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-9.projected_value_correct_12",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-10.no_lib_files_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-10.no_runtime_smoke_or_compiled_program_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-10.compiler_result_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-10.compilation_report_not_modified",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-10.no_igapp_outside_experiment_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-10.no_spark_public_api_cli_loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "AH-10.r211_summary_digest_matches_known_pass_content",
+      "status": "PASS"
+    }
+  ]
+}
