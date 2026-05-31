@@ -69,3 +69,10 @@ The system has clear compile-time / runtime boundaries:
 ## Documentation
 
 Docs now split into `docs/guide/` and `docs/dev/`. Internal design reads should start with `docs/dev/README.md`, `docs/dev/architecture.md`, and `docs/dev/module-system.md`; user-facing API/runtime reads should start with `docs/guide/README.md` and `docs/guide/api-and-runtime.md`.
+
+## Agent Protocol
+
+This project uses IDD Agent Protocol.
+
+- Always classify work by lane (fast_lane / standard / formal / cross_project)
+  before writing code or making changes.
