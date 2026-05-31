@@ -533,6 +533,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             the companion as discoverability aid only and opens
                             Runtime/Bridge architecture survey next; Option D
                             held; Options E/F closed;
+                            R220 accepts Runtime/Bridge architecture survey and
+                            authority facts packet; Option B remains
+                            proof-owned/non-canonical/evidence-only, Option C
+                            discoverability-only, Option D held; report/API
+                            boundary survey opens next as read-only/design-only;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1440,6 +1445,12 @@ Round 219 landed:
   S3-R219-C3-X: Option C docs/status index pressure                      ✅ PASS; no blockers or notes; canon-by-repetition risk countered
   S3-R219-C4-A: Option C companion-index acceptance                      ✅ accepts internal discoverability aid only; opens Runtime/Bridge survey next
   S3-R219-C5-S: status curation                                         ✅ done; R220 Runtime/Bridge architecture survey boundary recorded
+Round 220 landed:
+  S3-R220-C1-D: Runtime/Bridge architecture survey                       ✅ done; report/API boundary survey recommended next; Option D held
+  S3-R220-C2-P1: Runtime/Bridge authority facts packet                   ✅ done; facts accepted; RuntimeSmoke/public_result risks mapped
+  S3-R220-C3-X: Runtime/Bridge architecture pressure                     ✅ PASS; no blockers or notes; report/API survey timing accepted
+  S3-R220-C4-A: Runtime/Bridge architecture decision                     ✅ accepts survey/facts; opens report/API boundary survey next
+  S3-R220-C5-S: status curation                                         ✅ done; R221 report/API boundary survey recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
