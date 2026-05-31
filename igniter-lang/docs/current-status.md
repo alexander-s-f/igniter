@@ -553,6 +553,15 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             production/public demo/Spark/release claims remain
                             closed, and Reference Runtime/RuntimeSmoke/report/
                             API surfaces remain closed;
+                            R223 accepts the experimental executable quickstart:
+                            `.ig -> compile -> .igapp -> delegated
+                            experimental runtime -> sum = 42`, EXQ-1..EXQ-14
+                            PASS with AN-1 that EXQ-14 is structural only; the
+                            next route is delegated experimental runtime
+                            boundary/packaging options, while Reference Runtime,
+                            RuntimeSmoke productization, public runtime,
+                            stable/public/production/Spark/release claims remain
+                            closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1478,6 +1487,12 @@ Round 222 landed:
   S3-R222-C3-X: experimental-use productization pressure                 ✅ PASS; no blockers or notes; authorization gate preserved
   S3-R222-C4-A: experimental-use productization route decision           ✅ accepts and sharpens to bounded executable quickstart; implementation not authorized
   S3-R222-C5-S: status curation                                         ✅ done; R223 authorization review boundary recorded
+Round 223 landed:
+  S3-R223-C1-A: executable quickstart authorization                      ✅ authorizes example-local quickstart implementation only
+  S3-R223-C2-I: experimental executable quickstart                       ✅ PASS; `.ig -> compile -> .igapp -> delegated runtime -> sum = 42`; EXQ-1..EXQ-14 PASS
+  S3-R223-C3-X: executable quickstart pressure                           ✅ PASS; no blockers; AN-1 notes EXQ-14 structural declaration
+  S3-R223-C4-A: executable quickstart acceptance                         ✅ accepts delegated experimental runtime evidence; opens runtime boundary/options route next
+  S3-R223-C5-S: status curation                                         ✅ done; R224 runtime-productization boundary/options recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
