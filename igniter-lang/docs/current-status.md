@@ -519,6 +519,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             no-authority fields; Option B is not implemented,
                             Option A remains fallback, Option C companion/index
                             only, Option D held, and Options E/F comparison-only;
+                            R218 accepts the Option B proof-owned artifact-home
+                            design/proof as non-canonical evidence-only with
+                            47/47 PASS, all authority flags false, R211
+                            immutability confirmed, and next route Option C
+                            docs/status index companion authorization review;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1414,6 +1419,12 @@ Round 217 landed:
   S3-R217-C3-X: artifact-home / authority pressure                         ✅ PASS; no blockers; 1 AN resolved by C4-A
   S3-R217-C4-A: artifact-home / authority decision                         ✅ accepts Option B as next design/proof target only; no implementation
   S3-R217-C5-S: status curation                                           ✅ done; R218 authorization-review boundary recorded
+Round 218 landed:
+  S3-R218-C1-A: proof-owned artifact-home authorization                     ✅ authorizes experiments-only Option B design/proof; no live implementation
+  S3-R218-C2-I: proof-owned artifact-home design/proof                      ✅ PASS; AH-1..AH-10 / 47/47; summary digest recorded
+  S3-R218-C3-X: proof-owned artifact-home pressure                          ✅ PASS; no blockers or notes; scope and no-authority flags verified
+  S3-R218-C4-A: proof-owned artifact-home acceptance                        ✅ accepts Option B as non-canonical evidence-only; opens Option C index review next
+  S3-R218-C5-S: status curation                                           ✅ done; R219 Option C companion-index authorization boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
