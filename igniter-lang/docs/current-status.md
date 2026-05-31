@@ -562,6 +562,15 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             RuntimeSmoke productization, public runtime,
                             stable/public/production/Spark/release claims remain
                             closed;
+                            R224 accepts delegated runtime boundary/options and
+                            current-surface facts, accepts IVM only as
+                            sandbox/playground delegated runtime candidate
+                            evidence, and redirects next route from reusable
+                            helper first to playground-only `.igapp -> IVM`
+                            adapter authorization review; `igc run`,
+                            RuntimeSmoke productization, Reference Runtime,
+                            public runtime, stable/public/production/Spark/
+                            release claims remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1493,6 +1502,13 @@ Round 223 landed:
   S3-R223-C3-X: executable quickstart pressure                           ✅ PASS; no blockers; AN-1 notes EXQ-14 structural declaration
   S3-R223-C4-A: executable quickstart acceptance                         ✅ accepts delegated experimental runtime evidence; opens runtime boundary/options route next
   S3-R223-C5-S: status curation                                         ✅ done; R224 runtime-productization boundary/options recorded
+Round 224 landed:
+  S3-R224-C1-D: delegated runtime boundary/options                       ✅ done; reusable helper recommended; CLI run/RuntimeSmoke/Reference Runtime held
+  S3-R224-C2-P1: delegated runtime current-surface facts                 ✅ facts-only; R223 uses proof CompiledProgram directly; adapter fallback unproven
+  S3-R224-C2-P1: IVM candidate intake                                   ✅ done; IVM accepted as sandbox-only delegated runtime candidate evidence
+  S3-R224-C3-X: delegated runtime boundary pressure                      ✅ PASS; no blockers; AN-1 adapter/normalizer fate must be explicit later
+  S3-R224-C4-A: delegated runtime boundary decision                      ✅ accepts with sequencing redirect to playground-only `.igapp -> IVM` adapter review
+  S3-R224-C5-S: status curation                                         ✅ done; R225 compiler-to-IVM adapter authorization boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
