@@ -545,6 +545,14 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             routes and Option D remain held, and
                             counterfactual audit expansion pauses until an
                             explicit new Portfolio card;
+                            R222 accepts experimental-use productization and
+                            sharpens the next route to a bounded experimental
+                            executable quickstart authorization review using a
+                            delegated experimental runtime harness only; no
+                            implementation is authorized yet, stable API/v1/
+                            production/public demo/Spark/release claims remain
+                            closed, and Reference Runtime/RuntimeSmoke/report/
+                            API surfaces remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1464,6 +1472,12 @@ Round 221 landed:
   S3-R221-C3-X: report/API boundary pressure                            ✅ PASS; no blockers or notes; status curation only
   S3-R221-C4-A: report/API boundary decision                            ✅ accepts survey/facts/pressure; holds report/API design and Option D
   S3-R221-C5-S: status curation                                         ✅ done; counterfactual audit expansion paused pending explicit Portfolio card
+Round 222 landed:
+  S3-R222-C1-D: experimental-use productization route options            ✅ done; recommends bounded quickstart/workflow; R221 closures preserved
+  S3-R222-C2-P1: experimental-use current-surface facts                  ✅ complete; alpha package, compile CLI, Ruby facade exist; examples absent
+  S3-R222-C3-X: experimental-use productization pressure                 ✅ PASS; no blockers or notes; authorization gate preserved
+  S3-R222-C4-A: experimental-use productization route decision           ✅ accepts and sharpens to bounded executable quickstart; implementation not authorized
+  S3-R222-C5-S: status curation                                         ✅ done; R223 authorization review boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
