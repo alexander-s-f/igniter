@@ -524,6 +524,13 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             47/47 PASS, all authority flags false, R211
                             immutability confirmed, and next route Option C
                             docs/status index companion authorization review;
+                            R219 applies the bounded Option C docs/status index
+                            companion: internal index track doc and compact
+                            current-status delta; Option B cited as proof-owned,
+                            non-canonical, evidence-only; no Heat Map or Spec
+                            README edits; no canonical, runtime, report, API,
+                            Spark, or production authority created; Option D held;
+                            Options E/F closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1425,6 +1432,9 @@ Round 218 landed:
   S3-R218-C3-X: proof-owned artifact-home pressure                          ✅ PASS; no blockers or notes; scope and no-authority flags verified
   S3-R218-C4-A: proof-owned artifact-home acceptance                        ✅ accepts Option B as non-canonical evidence-only; opens Option C index review next
   S3-R218-C5-S: status curation                                           ✅ done; R219 Option C companion-index authorization boundary recorded
+Round 219 landed:
+  S3-R219-C1-A: Option C companion-index authorization                   ✅ authorizes bounded docs/status sync; Heat Map/Spec README closed; evidence-only
+  S3-R219-C2-I: Option C docs/status index companion                     ✅ done; IDX-1..IDX-10 / 10 criteria PASS; track doc + current-status delta; non-canonical; no-authority
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
