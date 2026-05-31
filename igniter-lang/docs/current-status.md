@@ -571,6 +571,18 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             RuntimeSmoke productization, Reference Runtime,
                             public runtime, stable/public/production/Spark/
                             release claims remain closed;
+                            R225 accepts playground-only compiler-to-IVM adapter
+                            proof as adapter-fit/delegated experimental runtime
+                            evidence only: Add path maps from compiler-emitted
+                            `semantic_ir_program.json` to IVM bytecode and
+                            executes to 42, AIP-1..AIP-12 PASS, lazy branch
+                            evidence verified supplementally, and next route is
+                            adapter hardening for compiler-emitted branch/
+                            comparison coverage; FFI acceleration, reusable
+                            helper extraction, `igc run`, RuntimeSmoke
+                            productization, Reference Runtime, public runtime,
+                            stable/public/production/Spark/release claims remain
+                            closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1509,6 +1521,12 @@ Round 224 landed:
   S3-R224-C3-X: delegated runtime boundary pressure                      ✅ PASS; no blockers; AN-1 adapter/normalizer fate must be explicit later
   S3-R224-C4-A: delegated runtime boundary decision                      ✅ accepts with sequencing redirect to playground-only `.igapp -> IVM` adapter review
   S3-R224-C5-S: status curation                                         ✅ done; R225 compiler-to-IVM adapter authorization boundary recorded
+Round 225 landed:
+  S3-R225-C1-A: compiler-to-IVM adapter authorization                    ✅ authorizes playground-only adapter proof; mainline/runtime/API/CLI surfaces closed
+  S3-R225-C2-I: compiler-to-IVM adapter proof                            ✅ PASS; AIP-1..AIP-12; Add path executes to 42; lazy branch supplemental evidence
+  S3-R225-C3-X: compiler-to-IVM adapter pressure                         ✅ PASS; no blockers; AN-1 digest field clarification; AN-2 next-route sequencing
+  S3-R225-C4-A: compiler-to-IVM adapter acceptance                       ✅ accepts adapter-fit evidence; defers FFI/helper; opens branch/comparison hardening next
+  S3-R225-C5-S: status curation                                         ✅ done; R226 IVM adapter branch-coverage authorization boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
