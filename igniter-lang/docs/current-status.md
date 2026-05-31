@@ -538,6 +538,13 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             proof-owned/non-canonical/evidence-only, Option C
                             discoverability-only, Option D held; report/API
                             boundary survey opens next as read-only/design-only;
+                            R221 accepts report/API boundary survey and exposure
+                            facts packet; CompilerResult and CompilationReport
+                            remain closed, RuntimeSmoke output remains
+                            proof-context only, all report/API field/sidecar
+                            routes and Option D remain held, and
+                            counterfactual audit expansion pauses until an
+                            explicit new Portfolio card;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1451,6 +1458,12 @@ Round 220 landed:
   S3-R220-C3-X: Runtime/Bridge architecture pressure                     ✅ PASS; no blockers or notes; report/API survey timing accepted
   S3-R220-C4-A: Runtime/Bridge architecture decision                     ✅ accepts survey/facts; opens report/API boundary survey next
   S3-R220-C5-S: status curation                                         ✅ done; R221 report/API boundary survey recorded
+Round 221 landed:
+  S3-R221-C1-D: report/API boundary survey                              ✅ done; field/sidecar design routes held; CompilerResult/CompilationReport closed
+  S3-R221-C2-P1: report/API exposure facts packet                       ✅ complete; public_result, CLI, RuntimeSmoke, and report risks mapped
+  S3-R221-C3-X: report/API boundary pressure                            ✅ PASS; no blockers or notes; status curation only
+  S3-R221-C4-A: report/API boundary decision                            ✅ accepts survey/facts/pressure; holds report/API design and Option D
+  S3-R221-C5-S: status curation                                         ✅ done; counterfactual audit expansion paused pending explicit Portfolio card
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
