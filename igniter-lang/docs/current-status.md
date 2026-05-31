@@ -513,6 +513,12 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             opening L3 artifact-home / authority options next,
                             while runtime/bridge survey and report/API boundary
                             survey do not open first;
+                            R217 accepts artifact-home / authority options and
+                            selects Option B as the next bounded design/proof
+                            target: proof-owned artifact directory with explicit
+                            no-authority fields; Option B is not implemented,
+                            Option A remains fallback, Option C companion/index
+                            only, Option D held, and Options E/F comparison-only;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1402,6 +1408,12 @@ Round 216 landed:
   S3-R216-C3-X: runtime-debt / TTM pressure                                ✅ PASS; no blockers; artifact-home / authority confirmed as direct L3 blocker
   S3-R216-C4-A: runtime-debt / TTM decision                                ✅ accepts review; opens artifact-home / authority options next
   S3-R216-C5-S: status curation                                           ✅ done; R217 artifact-home / authority options boundary recorded
+Round 217 landed:
+  S3-R217-C1-D: artifact-home / authority options                          ✅ done; Option B preferred; E/F comparison-only
+  S3-R217-C2-P1: runtime artifact authority facts packet                    ✅ done; Option B ranked best next route; D held; E/F rejected as next
+  S3-R217-C3-X: artifact-home / authority pressure                         ✅ PASS; no blockers; 1 AN resolved by C4-A
+  S3-R217-C4-A: artifact-home / authority decision                         ✅ accepts Option B as next design/proof target only; no implementation
+  S3-R217-C5-S: status curation                                           ✅ done; R218 authorization-review boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
