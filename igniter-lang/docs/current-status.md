@@ -529,8 +529,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             current-status delta; Option B cited as proof-owned,
                             non-canonical, evidence-only; no Heat Map or Spec
                             README edits; no canonical, runtime, report, API,
-                            Spark, or production authority created; Option D held;
-                            Options E/F closed;
+                            Spark, or production authority created; C4-A accepts
+                            the companion as discoverability aid only and opens
+                            Runtime/Bridge architecture survey next; Option D
+                            held; Options E/F closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1435,6 +1437,9 @@ Round 218 landed:
 Round 219 landed:
   S3-R219-C1-A: Option C companion-index authorization                   ✅ authorizes bounded docs/status sync; Heat Map/Spec README closed; evidence-only
   S3-R219-C2-I: Option C docs/status index companion                     ✅ done; IDX-1..IDX-10 / 10 criteria PASS; track doc + current-status delta; non-canonical; no-authority
+  S3-R219-C3-X: Option C docs/status index pressure                      ✅ PASS; no blockers or notes; canon-by-repetition risk countered
+  S3-R219-C4-A: Option C companion-index acceptance                      ✅ accepts internal discoverability aid only; opens Runtime/Bridge survey next
+  S3-R219-C5-S: status curation                                         ✅ done; R220 Runtime/Bridge architecture survey boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
