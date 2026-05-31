@@ -1,0 +1,169 @@
+{
+  "kind": "experimental_executable_quickstart_v0_result",
+  "format_version": "0.1.0",
+  "card": "S3-R223-C2-I",
+  "track": "experimental-executable-quickstart-v0",
+  "authorized_by": "S3-R223-C1-A",
+  "overall": "PASS",
+  "checks_total": 14,
+  "checks_pass": 14,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "disclaimer": {
+    "experimental": true,
+    "pre_v1": true,
+    "no_stable_api_guarantee": true,
+    "subject_to_change": true,
+    "not_production_runtime": true,
+    "not_reference_runtime": true,
+    "not_public_demo": true,
+    "not_spark_integration": true,
+    "delegated_experimental_runtime": true,
+    "non_canonical_runtime_harness": true
+  },
+  "pipeline": {
+    "source": "add_quickstart.ig",
+    "compile_status": "ok",
+    "compile_error": null,
+    "igapp_path": "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+    "igapp_exists": true,
+    "load_status": "loaded",
+    "adapter_used": false,
+    "adapter_note": null,
+    "execution_status": "ok",
+    "execution_error": null
+  },
+  "execution_evidence": {
+    "sample_input": {
+      "a": 19,
+      "b": 23
+    },
+    "expected_sum": 42,
+    "actual_sum": 42,
+    "output_matches": true,
+    "execution_result": {
+      "sum": 42
+    }
+  },
+  "three_runtime_distinction": {
+    "runtime_specification": "canonical/normative target — closed",
+    "reference_runtime": "future canonical candidate — closed",
+    "delegated_experimental_runtime": "non-canonical example-local harness — authorized as learning evidence only"
+  },
+  "proof_matrix_summary": {
+    "EXQ-1": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-2": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-3": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-4": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-5": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-6": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-7": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-8": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-9": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-10": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-11": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-12": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-13": {
+      "result": "PASS",
+      "checks": 1
+    },
+    "EXQ-14": {
+      "result": "PASS",
+      "checks": 1
+    }
+  },
+  "checks": [
+    {
+      "name": "EXQ-1.source_fixture_exists_and_bounded",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-2.compile_produces_igapp",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-3.delegated_runtime_executes_fixture",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-4.output_value_matches_expected",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-5.output_artifacts_confined_to_example_local",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-6.adapter_if_used_is_example_local_and_non_canonical",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-7.adapter_mismatch_recorded_if_applicable",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-8.runtime_smoke_source_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-9.lib_bin_gemspec_readme_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-10.compiler_result_compilation_report_unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-11.forbidden_phrase_scan_passes",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-12.pre_v1_disclaimer_present",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-13.release_public_spark_api_claims_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "EXQ-14.compile_only_would_be_hold_not_pass",
+      "status": "PASS"
+    }
+  ]
+}

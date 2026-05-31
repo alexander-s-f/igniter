@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/d4b79e1278442edc",
+  "semantic_ir_ref": "semanticir/d4b79e1278442edc",
+  "source_hash": "sha256:d4b79e1278442edc0d527395a38d6d8c4f55831a2553b02a262386d8ccca5cea",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/add_quickstart.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}
