@@ -662,6 +662,23 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             release claims, public performance claims,
                             artifact portability, and certification claims
                             remain closed;
+                            R231 accepts the minimum artifact passport
+                            boundary as evidence/compatibility metadata only:
+                            not portability guarantee, certification, runtime
+                            support, or stable API; C2-P1 facts are accepted
+                            as facts input but not canonical wording authority,
+                            C3-X conditional watchpoints carry forward, and
+                            `igbin_aot_binary` is the canonical AOT artifact
+                            kind for the next proof; `execution_substrate`
+                            must be included or explicitly deferred in R232;
+                            `igc run` implementation remains closed and
+                            design-only waits until one proof-local passport
+                            manifest exists; runtime/backend/app-consumer
+                            dimensions stay separate, and public/stable/
+                            production/Spark/release/performance claims,
+                            portability guarantees, certification claims,
+                            compiler passport emission, Reference Runtime, and
+                            RuntimeSmoke productization remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1636,6 +1653,12 @@ Round 230 landed:
   S3-R230-C3-X: resident supervisor intake pressure                      ✅ PASS; no blockers; AN-1 timing prose qualifier note
   S3-R230-C4-A: resident supervisor intake acceptance                    ✅ accepts candidate intake evidence; opens artifact passport boundary next
   S3-R230-C5-S: status curation                                         ✅ done; R231 artifact passport minimum boundary recorded
+Round 231 landed:
+  S3-R231-C1-D: artifact passport minimum boundary design                ✅ accepted; evidence/compatibility metadata boundary defined
+  S3-R231-C2-P1: artifact passport surface facts                         ✅ accepted as facts input; elevated portability wording not canonical
+  S3-R231-C3-X: artifact passport boundary pressure                      ✅ CONDITIONAL; W1/W2/W3 carried into manifest proof scope
+  S3-R231-C4-A: artifact passport boundary decision                      ✅ accepts boundary; opens passport manifest proof authorization review next
+  S3-R231-C5-S: status curation                                         ✅ done; R232 passport manifest proof authorization boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
