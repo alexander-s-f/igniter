@@ -583,6 +583,18 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             productization, Reference Runtime, public runtime,
                             stable/public/production/Spark/release claims remain
                             closed;
+                            R226 accepts playground-only IVM adapter
+                            branch/comparison hardening evidence: fresh
+                            `minimal_if_else.ig` and `minimal_gt.ig` compile to
+                            playground `.igapp`, digest fields are separated,
+                            `stdlib.integer.gt` maps to `OP_GT`, selected branch
+                            executes, non-selected branch stays silent, and
+                            next route is FFI/C/Rust bytecode acceleration
+                            authorization review only; implementation, reusable
+                            helper extraction, `igc run`, RuntimeSmoke
+                            productization, Reference Runtime, public runtime,
+                            stable/public/production/Spark/release claims remain
+                            closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1527,6 +1539,12 @@ Round 225 landed:
   S3-R225-C3-X: compiler-to-IVM adapter pressure                         ✅ PASS; no blockers; AN-1 digest field clarification; AN-2 next-route sequencing
   S3-R225-C4-A: compiler-to-IVM adapter acceptance                       ✅ accepts adapter-fit evidence; defers FFI/helper; opens branch/comparison hardening next
   S3-R225-C5-S: status curation                                         ✅ done; R226 IVM adapter branch-coverage authorization boundary recorded
+Round 226 landed:
+  S3-R226-C1-A: IVM adapter branch-coverage authorization                ✅ authorizes playground-only branch/comparison hardening proof
+  S3-R226-C2-I: IVM adapter branch-coverage proof                        ✅ PASS; BCP-1..BCP-15; fresh branch/gt compile; OP_GT mapped; digest cleanup done
+  S3-R226-C3-X: IVM adapter branch-coverage pressure                     ✅ PASS; no blockers; adapter hardening complete; A/B/C next-route choice required
+  S3-R226-C4-A: IVM adapter branch-coverage acceptance                   ✅ accepts evidence; opens FFI/C/Rust bytecode acceleration authorization review next
+  S3-R226-C5-S: status curation                                         ✅ done; R227 FFI bytecode acceleration authorization boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
