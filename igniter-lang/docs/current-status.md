@@ -626,6 +626,15 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             input, RuntimeSmoke productization, Reference
                             Runtime, public runtime, stable/public/production/
                             Spark/release claims remain closed;
+                            experimental runtime implementation status model
+                            now fixed: Igniter Specification -> Official
+                            Reference Implementation -> Delegated Experimental
+                            Runtimes -> Alternative Certified
+                            Implementations later; playground implementations
+                            are an encouraged implementation arena and evidence
+                            source, not official/runtime/public authority by
+                            themselves; portability/certification remains a
+                            future gate;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
