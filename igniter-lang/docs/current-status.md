@@ -609,6 +609,23 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             input, `igc run`, RuntimeSmoke productization,
                             Reference Runtime, public runtime, stable/public/
                             production/Spark/release claims remain closed;
+                            R228 accepts playground-only IVM AOT bytecode
+                            file-loading research evidence: proof-local
+                            `.igbin` files use a 16-byte `IGB\0` header plus
+                            8-byte instruction records, native file loading
+                            via Ruby Fiddle/C passes AOT-1..AOT-17, Ruby IVM
+                            parity holds for Add, GT true/false, selected and
+                            non-selected branch behavior, unsupported paths
+                            and malformed files fail closed with distinct
+                            errors, and benchmark wording remains informational
+                            only (`rough_speed_ratio` 0.1; file-per-execution
+                            I/O bottleneck captured); next route is
+                            experimental executable runtime surface / `igc run`
+                            boundary design-only; `igc run` implementation,
+                            reusable helper extraction, Runtime Specification
+                            input, RuntimeSmoke productization, Reference
+                            Runtime, public runtime, stable/public/production/
+                            Spark/release claims remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1565,6 +1582,12 @@ Round 227 landed:
   S3-R227-C3-X: IVM FFI bytecode acceleration pressure                   ✅ PASS; no blockers; AN-1 requires explicit next-route choice
   S3-R227-C4-A: IVM FFI bytecode acceleration acceptance                 ✅ accepts research evidence; opens AOT bytecode file loading authorization review next
   S3-R227-C5-S: status curation                                         ✅ done; R228 AOT bytecode file loading authorization boundary recorded
+Round 228 landed:
+  S3-R228-C1-A: IVM AOT bytecode file-loading authorization              ✅ authorizes playground-only `.igbin` file-loading proof
+  S3-R228-C2-I: IVM AOT bytecode file-loading proof                      ✅ PASS; AOT-1..AOT-17; file-backed native runner parity with Ruby IVM
+  S3-R228-C3-X: IVM AOT bytecode file-loading pressure                   ✅ PASS; no blockers; AN-1 JSON-field hygiene; AN-2 direction choice
+  S3-R228-C4-A: IVM AOT bytecode file-loading acceptance                 ✅ accepts research evidence; opens experimental runtime surface / igc-run boundary design next
+  S3-R228-C5-S: status curation                                         ✅ done; R229 design-only runtime surface boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
