@@ -626,15 +626,24 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             input, RuntimeSmoke productization, Reference
                             Runtime, public runtime, stable/public/production/
                             Spark/release claims remain closed;
-                            experimental runtime implementation status model
-                            now fixed: Igniter Specification -> Official
-                            Reference Implementation -> Delegated Experimental
-                            Runtimes -> Alternative Certified
-                            Implementations later; playground implementations
-                            are an encouraged implementation arena and evidence
-                            source, not official/runtime/public authority by
-                            themselves; portability/certification remains a
-                            future gate;
+                            R229 accepts the experimental runtime
+                            implementation arena and portability boundary:
+                            Igniter Specification -> Official Reference
+                            Implementation -> Delegated Experimental Runtimes
+                            -> Alternative Certified Implementations later is
+                            now binding routing vocabulary; delegated runtimes
+                            may be named in experimental evidence only with
+                            runtime id + non-canonical/evidence-only wording;
+                            resident supervisor candidate intake opens next,
+                            while C temporal backend and Rust TBackend require
+                            later separate intakes and ESP32/mesh remains
+                            comparison-only; artifact passport and portability
+                            vocabulary are future design only; `igc run`
+                            implementation, RuntimeSmoke productization,
+                            Reference Runtime, public runtime, stable/public/
+                            production/Spark/release claims, public
+                            performance claims, alternative certification, and
+                            portable artifact claims remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1597,6 +1606,12 @@ Round 228 landed:
   S3-R228-C3-X: IVM AOT bytecode file-loading pressure                   ✅ PASS; no blockers; AN-1 JSON-field hygiene; AN-2 direction choice
   S3-R228-C4-A: IVM AOT bytecode file-loading acceptance                 ✅ accepts research evidence; opens experimental runtime surface / igc-run boundary design next
   S3-R228-C5-S: status curation                                         ✅ done; R229 design-only runtime surface boundary recorded
+Round 229 landed:
+  S3-R229-C1-D: experimental runtime implementation arena design          ✅ accepted; hierarchy, candidate intake, passport, and igc-run gates defined
+  S3-R229-C2-P1: runtime implementation surface/candidate facts          ✅ accepted as facts basis; sandbox performance numbers remain non-claims
+  S3-R229-C3-X: runtime boundary pressure                                ✅ PASS; no blockers; AN-1 performance-claim containment
+  S3-R229-C4-A: runtime boundary decision                                ✅ accepts design; opens resident supervisor candidate intake authorization review next
+  S3-R229-C5-S: status curation                                         ✅ done; R230 resident supervisor intake boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
