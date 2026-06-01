@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-30
+Last updated: 2026-06-01
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -595,6 +595,20 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             productization, Reference Runtime, public runtime,
                             stable/public/production/Spark/release claims remain
                             closed;
+                            R227 accepts playground-only IVM FFI bytecode
+                            acceleration research evidence: C/cc + Ruby Fiddle
+                            load a proof-local native runner, FFI-1..FFI-16
+                            PASS, Ruby IVM parity holds for Add, GT true/false,
+                            selected/non-selected branch behavior, selected
+                            unsupported fail-close, non-selected unsupported
+                            silence, and malformed ABI fail-close; benchmark
+                            wording is informational only (`rough_speedup_x`
+                            1.2, Fiddle overhead named), and next route is
+                            AOT bytecode file loading authorization review only;
+                            reusable helper extraction, Runtime Specification
+                            input, `igc run`, RuntimeSmoke productization,
+                            Reference Runtime, public runtime, stable/public/
+                            production/Spark/release claims remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1545,6 +1559,12 @@ Round 226 landed:
   S3-R226-C3-X: IVM adapter branch-coverage pressure                     ✅ PASS; no blockers; adapter hardening complete; A/B/C next-route choice required
   S3-R226-C4-A: IVM adapter branch-coverage acceptance                   ✅ accepts evidence; opens FFI/C/Rust bytecode acceleration authorization review next
   S3-R226-C5-S: status curation                                         ✅ done; R227 FFI bytecode acceleration authorization boundary recorded
+Round 227 landed:
+  S3-R227-C1-A: IVM FFI bytecode acceleration authorization              ✅ authorizes playground-only native acceleration research proof
+  S3-R227-C2-I: IVM FFI bytecode acceleration proof                      ✅ PASS; FFI-1..FFI-16; C/Fiddle native runner parity with Ruby IVM
+  S3-R227-C3-X: IVM FFI bytecode acceleration pressure                   ✅ PASS; no blockers; AN-1 requires explicit next-route choice
+  S3-R227-C4-A: IVM FFI bytecode acceleration acceptance                 ✅ accepts research evidence; opens AOT bytecode file loading authorization review next
+  S3-R227-C5-S: status curation                                         ✅ done; R228 AOT bytecode file loading authorization boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
