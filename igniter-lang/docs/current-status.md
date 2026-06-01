@@ -644,6 +644,24 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             production/Spark/release claims, public
                             performance claims, alternative certification, and
                             portable artifact claims remain closed;
+                            R230 accepts resident supervisor candidate intake
+                            evidence only: `igniter.delegated.experimental.ivm.c_resident`
+                            is evidence metadata, not stable API/package/
+                            certification/public runtime identity; RSUP-1..16
+                            PASS, capability manifest accepted for intake
+                            comparison, load-once/execute-many and Ruby IVM
+                            parity are accepted for the candidate path,
+                            `free_module` is proof-local lifecycle evidence,
+                            timing remains informational research-signal only,
+                            C temporal backend/Rust TBackend/todolist require
+                            separate later intake and ESP32/mesh remains
+                            comparison-only; next route is artifact passport
+                            minimum boundary design; `igc run` implementation,
+                            RuntimeSmoke productization, Reference Runtime,
+                            public runtime, stable/public/production/Spark/
+                            release claims, public performance claims,
+                            artifact portability, and certification claims
+                            remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1612,6 +1630,12 @@ Round 229 landed:
   S3-R229-C3-X: runtime boundary pressure                                ✅ PASS; no blockers; AN-1 performance-claim containment
   S3-R229-C4-A: runtime boundary decision                                ✅ accepts design; opens resident supervisor candidate intake authorization review next
   S3-R229-C5-S: status curation                                         ✅ done; R230 resident supervisor intake boundary recorded
+Round 230 landed:
+  S3-R230-C1-A: resident supervisor intake authorization                  ✅ authorizes playground-only resident supervisor candidate proof
+  S3-R230-C2-I: resident supervisor candidate intake                      ✅ PASS; RSUP-1..RSUP-16; runtime id + capability manifest emitted
+  S3-R230-C3-X: resident supervisor intake pressure                      ✅ PASS; no blockers; AN-1 timing prose qualifier note
+  S3-R230-C4-A: resident supervisor intake acceptance                    ✅ accepts candidate intake evidence; opens artifact passport boundary next
+  S3-R230-C5-S: status curation                                         ✅ done; R231 artifact passport minimum boundary recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
