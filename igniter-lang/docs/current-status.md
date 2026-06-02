@@ -738,6 +738,22 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             CompilationReport/CompatibilityReport remain
                             closed; next route is quickstart/docs
                             authorization review only, preserving CF-1/CF-2;
+                            R235 authorizes bounded pre-v1 quickstart/docs
+                            sync for accepted experimental `igc run` Slice 0
+                            evidence only; C3-I docs-sync is next and has
+                            not landed yet; root README, docs/ruby-api,
+                            runtime/API/package/code changes, `.igbin`,
+                            compiler passport emission, RuntimeSmoke,
+                            Reference Runtime, public runtime/stable API/
+                            production/Spark/release/public performance
+                            claims remain closed; R235 Rust compiler
+                            playground intake accepts lab candidate evidence
+                            only and carries hardening gaps for
+                            vendor_lead_pipeline empty contracts,
+                            unused `--compiler-profile-source`, hardcoded
+                            `compiled_at`, absolute `source_path`, no Cargo
+                            tests, OOF-M1 disabled, and missing
+                            `runtime_implementation_id`;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1736,6 +1752,10 @@ Round 234 landed:
   S3-R234-C3-X: Slice 0 implementation pressure                          ✅ PASS; accepts unconditionally, CF-1/CF-2 informational
   S3-R234-C4-A: Slice 0 acceptance decision                              ✅ accepts implementation closure; opens quickstart/docs authorization review next
   S3-R234-C5-S: status curation                                         ✅ done; R235 quickstart/docs authorization route recorded
+Round 235 landed:
+  S3-R235-C1-A: Slice 0 quickstart/docs authorization                    ✅ authorizes bounded docs-sync next; public/runtime/release surfaces closed
+  S3-R235-C2-P1: Rust compiler lab candidate intake                     ✅ complete; lab evidence only; hardening gaps carried
+  S3-R235-C5-S: status curation                                         ✅ done; C3-I quickstart/docs sync route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
