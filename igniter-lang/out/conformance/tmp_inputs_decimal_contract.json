@@ -1,0 +1,10 @@
+{
+  "base_bid": {
+    "value": 1050,
+    "scale": 2
+  },
+  "tax_rate": {
+    "value": 500,
+    "scale": 4
+  }
+}

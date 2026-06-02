@@ -1,0 +1,37 @@
+{
+  "artifact_hash": "sha256:f9b5856175f3cfe423ea8c0ed8227dd8a0c066c5aadb61cc186d61ab1bf95a08",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/5f5dfee4e6e57911",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {},
+  "contract_refs": {},
+  "contracts": [],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "mixed",
+  "fragment_summary": {
+    "fragment_classes": [],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "spark-pipeline-v0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/5f5dfee4e6e57911",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/5f5dfee4e6e57911",
+  "source_hash": "sha256:5f5dfee4e6e579119496c1bb6582063749dfd578b46478b8ebe7c6db45d3d911",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/vendor_lead_pipeline.ig",
+  "warnings": []
+}

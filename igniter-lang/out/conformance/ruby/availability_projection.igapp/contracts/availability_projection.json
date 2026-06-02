@@ -1,0 +1,92 @@
+{
+  "artifact_hash": "sha256:737151c076b68765071b358ad2adcfe4466dbc27b04d95830b25dd59fa5e3995",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:geo_signals",
+        "input:schedule"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "geo_signals"
+          },
+          {
+            "kind": "ref",
+            "name": "schedule"
+          }
+        ],
+        "operator": "compute_slots"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "available_slots",
+      "node_id": "node_available_slots",
+      "obs_kind": "value_observation",
+      "type_tag": "Collection[TimeSlot]"
+    }
+  ],
+  "contract_id": "AvailabilityProjection",
+  "escape_set": [],
+  "fragment_class": "escape",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "technician_id",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "date",
+      "required": true,
+      "type_tag": "String"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "AvailabilityProjection",
+  "output_ports": [
+    {
+      "lifecycle": "window",
+      "name": "available_slots",
+      "required": true,
+      "type_tag": "Collection[TimeSlot]"
+    },
+    {
+      "lifecycle": "durable",
+      "name": "snap",
+      "required": true,
+      "type_tag": "AvailabilitySnapshot"
+    }
+  ],
+  "source_contract_ref": "contract/AvailabilityProjection/sha256:88b8a462772f550640d19106",
+  "stream_nodes": [
+    {
+      "bounded": false,
+      "dependencies": [],
+      "fragment_class": "stream",
+      "key": "availability[technician, day]",
+      "kind": "window_decl_node",
+      "lifecycle": "window",
+      "name": "availability[technician, day]",
+      "node_id": "node_availability[technician, day]",
+      "obs_kind": "stream_window_observation",
+      "on_close": "snapshot",
+      "ref": "availability[technician, day]",
+      "window_kind": "calendar"
+    }
+  ],
+  "type_signature": {
+    "inputs": {
+      "date": "String",
+      "technician_id": "String"
+    },
+    "outputs": {
+      "available_slots": "Collection[TimeSlot]",
+      "snap": "AvailabilitySnapshot"
+    }
+  }
+}

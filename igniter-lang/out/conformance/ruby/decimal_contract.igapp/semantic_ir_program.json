@@ -1,0 +1,116 @@
+{
+  "compilation_report_ref": "compilation_report/c553e1b076190bcc",
+  "contracts": [
+    {
+      "contract_name": "BidSummary",
+      "contract_ref": "contract/BidSummary/sha256:e5758db55ff257166aeb898e",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "base_bid",
+          "type": {
+            "kind": "type_ref",
+            "name": "Decimal",
+            "params": [
+              2
+            ]
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "tax_rate",
+          "type": {
+            "kind": "type_ref",
+            "name": "Decimal",
+            "params": [
+              4
+            ]
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "base_bid",
+            "tax_rate"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "base_bid",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Decimal",
+                  "params": [
+                    2
+                  ]
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "tax_rate",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Decimal",
+                  "params": [
+                    4
+                  ]
+                }
+              }
+            ],
+            "fn": "mul",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Decimal",
+              "params": [
+                {
+                  "name": "0",
+                  "params": []
+                }
+              ]
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "gross_bid",
+          "type": {
+            "name": "Decimal",
+            "params": [
+              {
+                "name": "0",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "gross_bid",
+          "type": {
+            "kind": "type_ref",
+            "name": "Decimal",
+            "params": [
+              2
+            ]
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "decimal-v0",
+  "kind": "semantic_ir_program",
+  "module": "SparkCRM.Finance",
+  "program_id": "semanticir/c553e1b076190bcc",
+  "source_hash": "sha256:c553e1b076190bcca7f13bdf7c024022e5fb3f03c22a6235df38e6728f61a4e9",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/decimal_contract.ig"
+}

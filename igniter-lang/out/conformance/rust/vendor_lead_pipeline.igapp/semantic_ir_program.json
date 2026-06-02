@@ -1,0 +1,11 @@
+{
+  "compilation_report_ref": "compilation_report/5f5dfee4e6e57911",
+  "contracts": [],
+  "format_version": "0.1.0",
+  "grammar_version": "spark-pipeline-v0",
+  "kind": "semantic_ir_program",
+  "module": "SparkCRM.Marketing",
+  "program_id": "semanticir/5f5dfee4e6e57911",
+  "source_hash": "sha256:5f5dfee4e6e579119496c1bb6582063749dfd578b46478b8ebe7c6db45d3d911",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/vendor_lead_pipeline.ig"
+}

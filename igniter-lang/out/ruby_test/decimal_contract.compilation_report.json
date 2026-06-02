@@ -1,0 +1,38 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/c553e1b076190bcc",
+  "grammar_version": "decimal-v0",
+  "source_hash": "sha256:c553e1b076190bcca7f13bdf7c024022e5fb3f03c22a6235df38e6728f61a4e9",
+  "source_path": "source/decimal_contract.ig",
+  "pass_result": "oof",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "oof",
+    "emit": "skipped"
+  },
+  "diagnostics": [
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: mul",
+      "node": "gross_bid",
+      "path": "contract:BidSummary/node:gross_bid",
+      "category": "typechecker_oof",
+      "contract": "BidSummary",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Decimal, got Unknown",
+      "node": "gross_bid",
+      "path": "contract:BidSummary/node:gross_bid",
+      "category": "typechecker_oof",
+      "contract": "BidSummary",
+      "span": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

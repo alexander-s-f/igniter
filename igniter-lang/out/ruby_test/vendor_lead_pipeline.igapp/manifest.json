@@ -1,0 +1,37 @@
+{
+  "artifact_hash": "sha256:101c0bb4dd4c3e19b4f1e909a22043bd5591b026399fc3d07df99b538f87df18",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/5f5dfee4e6e57911",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {},
+  "contract_refs": {},
+  "contracts": [],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "mixed",
+  "fragment_summary": {
+    "fragment_classes": [],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "spark-pipeline-v0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/5f5dfee4e6e57911",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/5f5dfee4e6e57911",
+  "source_hash": "sha256:5f5dfee4e6e579119496c1bb6582063749dfd578b46478b8ebe7c6db45d3d911",
+  "source_path": "source/vendor_lead_pipeline.ig",
+  "warnings": []
+}

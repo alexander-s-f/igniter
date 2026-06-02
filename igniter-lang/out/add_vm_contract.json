@@ -1,0 +1,16 @@
+{
+  "contract_id": "Add",
+  "inputs": ["a", "b"],
+  "expression": {
+    "kind": "binary_op",
+    "operator": "+",
+    "left": {
+      "kind": "ref",
+      "name": "a"
+    },
+    "right": {
+      "kind": "ref",
+      "name": "b"
+    }
+  }
+}

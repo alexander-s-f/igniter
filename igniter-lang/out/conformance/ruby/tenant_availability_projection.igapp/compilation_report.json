@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "spark-pipeline-v0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/6a02359fc7e395e5",
+  "semantic_ir_ref": "semanticir/6a02359fc7e395e5",
+  "source_hash": "sha256:6a02359fc7e395e52b53b6e217598442b65d589e2c2485e55dce486b87b4f2ba",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/tenant_availability_projection.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

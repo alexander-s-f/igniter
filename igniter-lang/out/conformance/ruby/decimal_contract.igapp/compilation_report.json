@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "decimal-v0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/c553e1b076190bcc",
+  "semantic_ir_ref": "semanticir/c553e1b076190bcc",
+  "source_hash": "sha256:c553e1b076190bcca7f13bdf7c024022e5fb3f03c22a6235df38e6728f61a4e9",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/decimal_contract.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "artifact_hash": "sha256:4467d4778e3871d3c9ebbfb4a2318295d8eea4bb34fc23a6f8dedbb7a6c40fe6",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:technician",
+        "input:schedules",
+        "input:off_schedules",
+        "input:day_off_config",
+        "input:date"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "technician"
+          },
+          {
+            "kind": "ref",
+            "name": "schedules"
+          },
+          {
+            "kind": "ref",
+            "name": "off_schedules"
+          },
+          {
+            "kind": "ref",
+            "name": "day_off_config"
+          },
+          {
+            "kind": "ref",
+            "name": "date"
+          }
+        ],
+        "operator": "compute_availability"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "available_slots",
+      "node_id": "node_available_slots",
+      "obs_kind": "value_observation",
+      "type_tag": "Collection[TimeSlot]"
+    }
+  ],
+  "contract_id": "TenantAvailabilityProjection",
+  "escape_set": [],
+  "fragment_class": "escape",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "technician_id",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "date",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "company_scope",
+      "required": true,
+      "type_tag": "TenantScope"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "TenantAvailabilityProjection",
+  "output_ports": [
+    {
+      "lifecycle": "window",
+      "name": "available_slots",
+      "required": true,
+      "type_tag": "Collection[TimeSlot]"
+    },
+    {
+      "lifecycle": "durable",
+      "name": "snap",
+      "required": true,
+      "type_tag": "AvailabilitySnapshot"
+    }
+  ],
+  "source_contract_ref": "contract/TenantAvailabilityProjection/sha256:f29f5ba768f45d65af0c8e25",
+  "type_signature": {
+    "inputs": {
+      "company_scope": "TenantScope",
+      "date": "String",
+      "technician_id": "String"
+    },
+    "outputs": {
+      "available_slots": "Collection[TimeSlot]",
+      "snap": "AvailabilitySnapshot"
+    }
+  }
+}

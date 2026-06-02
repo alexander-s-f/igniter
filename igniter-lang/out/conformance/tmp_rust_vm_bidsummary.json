@@ -1,0 +1,19 @@
+{
+  "contract_id": "BidSummary",
+  "inputs": [
+    "base_bid",
+    "tax_rate"
+  ],
+  "expression": {
+    "kind": "binary_op",
+    "operator": "*",
+    "left": {
+      "kind": "ref",
+      "name": "base_bid"
+    },
+    "right": {
+      "kind": "ref",
+      "name": "tax_rate"
+    }
+  }
+}

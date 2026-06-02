@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/c553e1b076190bcc",
+  "contracts": [
+    "BidSummary"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "BidSummary"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/c553e1b076190bcc",
+  "semantic_ir_ref": "semanticir/c553e1b076190bcc",
+  "source_hash": "sha256:c553e1b076190bcca7f13bdf7c024022e5fb3f03c22a6235df38e6728f61a4e9",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/decimal_contract.ig"
+}

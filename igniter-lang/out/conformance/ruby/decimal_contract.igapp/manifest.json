@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:ef3869e80cd72524887c782531a410bc1ee78831864aea0b612ae501ab22db74",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/c553e1b076190bcc",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "BidSummary": {
+      "contract_path": "contracts/bid_summary.json",
+      "contract_ref": "contract/BidSummary/sha256:e5758db55ff257166aeb898e",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "BidSummary": "contract/BidSummary/sha256:e5758db55ff257166aeb898e"
+  },
+  "contracts": [
+    "BidSummary"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "decimal-v0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/c553e1b076190bcc",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/c553e1b076190bcc",
+  "source_hash": "sha256:c553e1b076190bcca7f13bdf7c024022e5fb3f03c22a6235df38e6728f61a4e9",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/decimal_contract.ig",
+  "warnings": []
+}

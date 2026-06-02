@@ -1,0 +1,69 @@
+{
+  "artifact_hash": "sha256:ef3869e80cd72524887c782531a410bc1ee78831864aea0b612ae501ab22db74",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:base_bid",
+        "input:tax_rate"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "base_bid"
+          },
+          {
+            "kind": "ref",
+            "name": "tax_rate"
+          }
+        ],
+        "operator": "mul"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "gross_bid",
+      "node_id": "node_gross_bid",
+      "obs_kind": "value_observation",
+      "type_tag": "Decimal[0]"
+    }
+  ],
+  "contract_id": "BidSummary",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "base_bid",
+      "required": true,
+      "type_tag": "Decimal[2]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "tax_rate",
+      "required": true,
+      "type_tag": "Decimal[4]"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "BidSummary",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "gross_bid",
+      "required": true,
+      "type_tag": "Decimal[2]"
+    }
+  ],
+  "source_contract_ref": "contract/BidSummary/sha256:e5758db55ff257166aeb898e",
+  "type_signature": {
+    "inputs": {
+      "base_bid": "Decimal[2]",
+      "tax_rate": "Decimal[4]"
+    },
+    "outputs": {
+      "gross_bid": "Decimal[2]"
+    }
+  }
+}

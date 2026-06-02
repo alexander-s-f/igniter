@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/9c7bad8036544f8a",
+  "contracts": [
+    "AvailabilityProjection"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "escape",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "AvailabilityProjection"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/9c7bad8036544f8a",
+  "semantic_ir_ref": "semanticir/9c7bad8036544f8a",
+  "source_hash": "sha256:9c7bad8036544f8a35ec4f04cc97430aa8f4f8ecbe4e5cf1a474cc91fa4e22aa",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/availability_projection.ig"
+}

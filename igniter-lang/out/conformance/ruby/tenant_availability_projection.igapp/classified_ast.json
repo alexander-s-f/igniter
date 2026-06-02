@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/6a02359fc7e395e5",
+  "contracts": [
+    "TenantAvailabilityProjection"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "escape",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "TenantAvailabilityProjection"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/6a02359fc7e395e5",
+  "semantic_ir_ref": "semanticir/6a02359fc7e395e5",
+  "source_hash": "sha256:6a02359fc7e395e52b53b6e217598442b65d589e2c2485e55dce486b87b4f2ba",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/tenant_availability_projection.ig"
+}
