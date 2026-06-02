@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-06-01
+Last updated: 2026-06-02
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -679,6 +679,24 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             portability guarantees, certification claims,
                             compiler passport emission, Reference Runtime, and
                             RuntimeSmoke productization remain closed;
+                            R232 accepts proof-local artifact passport
+                            manifest evidence: four generated manifests
+                            (`igapp_dir`, two `igbin_aot_binary`, and one
+                            `evidence_result_packet`) are accepted as
+                            evidence/compatibility metadata only; PPM-1..16
+                            PASS, forbidden wording scan PASS, source
+                            immutability PASS, and `igbin_aot_binary` remains
+                            binding; W-1 carries forward that
+                            `runtime_target_kind` is contextually not
+                            applicable for `surface_dimension=evidence_packet`
+                            and future schema should prefer explicit
+                            not_applicable; R232 meets the precondition for
+                            `igc run` design-only next, but implementation,
+                            compiler passport emission, RuntimeSmoke,
+                            Reference Runtime, public runtime/stable API/
+                            production/Spark/release/performance claims,
+                            portability guarantees, and certification remain
+                            closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1659,6 +1677,12 @@ Round 231 landed:
   S3-R231-C3-X: artifact passport boundary pressure                      ✅ CONDITIONAL; W1/W2/W3 carried into manifest proof scope
   S3-R231-C4-A: artifact passport boundary decision                      ✅ accepts boundary; opens passport manifest proof authorization review next
   S3-R231-C5-S: status curation                                         ✅ done; R232 passport manifest proof authorization boundary recorded
+Round 232 landed:
+  S3-R232-C1-A: passport manifest proof authorization                    ✅ authorizes bounded proof-local manifest proof
+  S3-R232-C2-I: passport manifest proof                                  ✅ PASS; four manifests generated; PPM-1..16 PASS
+  S3-R232-C3-X: passport manifest pressure                               ✅ PASS; no blockers; W-1 evidence_packet runtime_target_kind note
+  S3-R232-C4-A: passport manifest acceptance                             ✅ accepts proof-local evidence; opens igc run design-only boundary next
+  S3-R232-C5-S: status curation                                         ✅ done; R233 design-only route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
