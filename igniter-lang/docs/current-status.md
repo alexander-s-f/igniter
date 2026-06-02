@@ -697,6 +697,26 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             production/Spark/release/performance claims,
                             portability guarantees, and certification remain
                             closed;
+                            R233 accepts the experimental `igc run`
+                            design-only boundary: future Slice 0 may be
+                            reviewed for `.igapp` input with explicit
+                            proof-local passport, explicit sample input JSON,
+                            explicit `delegated-experimental:ivm-proof`
+                            selector, mandatory `--experimental`, and
+                            machine-readable experimental result packet;
+                            implementation remains closed until S3-R234-C1-A
+                            authorizes it; `.igbin` execution stays held
+                            because output_contract is deferred; compiler
+                            passport emission, implicit runtime discovery,
+                            RuntimeSmoke productization, Reference Runtime,
+                            Rust TBackend execution through `igc run`,
+                            benchmark/performance claims, Spark, release,
+                            stable API, production, public runtime/demo
+                            claims, and result conflation with
+                            CompilerResult/CompilationReport/
+                            CompatibilityReport remain closed; S3-R234-C1-A
+                            must resolve `delegated-experimental:ivm-proof`
+                            explicitly and carry AN-1/AN-2/AN-3;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1683,6 +1703,12 @@ Round 232 landed:
   S3-R232-C3-X: passport manifest pressure                               ✅ PASS; no blockers; W-1 evidence_packet runtime_target_kind note
   S3-R232-C4-A: passport manifest acceptance                             ✅ accepts proof-local evidence; opens igc run design-only boundary next
   S3-R232-C5-S: status curation                                         ✅ done; R233 design-only route recorded
+Round 233 landed:
+  S3-R233-C1-D: experimental igc run design boundary                     ✅ accepted; Slice 0 design-ready, implementation still closed
+  S3-R233-C2-P1: current surface/lab signals facts                       ✅ accepted as facts basis; CLI compile-only, no run branch today
+  S3-R233-C3-X: design boundary pressure                                 ✅ PASS; no blockers; AN-1/AN-2/AN-3 carry to R234
+  S3-R233-C4-A: design boundary decision                                 ✅ accepts design; opens bounded implementation-authorization review next
+  S3-R233-C5-S: status curation                                         ✅ done; R234 authorization-review route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
