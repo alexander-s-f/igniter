@@ -19,6 +19,11 @@ Bounded CLI profile-source transport
   → ruby-api.md#cli-compiler-profile-source-transport
     only `igc compile SOURCE --out OUT.igapp --compiler-profile-source PATH.json`;
     no production/runtime authority
+Experimental igc run Slice 0 (pre-v1 / delegated-runtime evidence only)
+  → tracks/experimental-igc-run-slice0-quickstart-docs-v0.md
+    pre-v1 experimental delegated-runtime Slice 0 evidence only;
+    not stable API, not public runtime, not Reference Runtime,
+    not production-ready; subject to change before v1
 Accepted release evidence
   → current-status.md
     repo-local compiler RC evidence: PASS;

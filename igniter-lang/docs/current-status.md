@@ -740,8 +740,11 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             authorization review only, preserving CF-1/CF-2;
                             R235 authorizes bounded pre-v1 quickstart/docs
                             sync for accepted experimental `igc run` Slice 0
-                            evidence only; C3-I docs-sync is next and has
-                            not landed yet; root README, docs/ruby-api,
+                            evidence only; C3-I docs-sync landed:
+                            `docs/tracks/experimental-igc-run-slice0-quickstart-docs-v0.md`
+                            written; `docs/README.md` navigation pointer
+                            added (pre-v1/delegated-runtime label only);
+                            QSD-1..QSD-15 PASS; root README, docs/ruby-api,
                             runtime/API/package/code changes, `.igbin`,
                             compiler passport emission, RuntimeSmoke,
                             Reference Runtime, public runtime/stable API/
