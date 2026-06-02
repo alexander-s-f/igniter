@@ -792,6 +792,27 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             intake, TBackend intake, Spark/release/public
                             performance, official/reference, certification,
                             and portability authority remain closed;
+                            R238 accepts proof-local stdlib candidate proof:
+                            STD-P1..STD-P12 PASS, 30/30 checks PASS,
+                            result packet present with
+                            `runtime_implementation_id` as proof-local metadata
+                            only; Decimal FFI, OOF-TC5, OOF-DM2, verifier
+                            scope, collections internal Rust-only status,
+                            temporal domain-specific status, and `.ig`
+                            design-pressure classification are accepted as
+                            proof-local candidate evidence; VM path dependency
+                            is observed and VM intake may open next by separate
+                            authorization review; adjacent conformance /
+                            polymorphic artifacts from commit `94ace1c1` are
+                            not accepted, rejected, or ratified by R238 and
+                            must not be cited as R238 stdlib proof evidence;
+                            mainline stdlib replacement, public stdlib API,
+                            runtime/API/CLI/package widening, `igc run`
+                            Slice 1, `.igbin`, compiler passport emission,
+                            RuntimeSmoke, Reference Runtime, stable API,
+                            production, Spark/release/public performance,
+                            official/reference, certification, and portability
+                            authority remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1807,6 +1828,12 @@ Round 237 landed:
   S3-R237-C3-X: stdlib candidate pressure                               ✅ CONDITIONAL PASS; C-1/C-2/C-3 scope conditions required
   S3-R237-C4-A: stdlib candidate intake decision                        ✅ conditional accept; opens R238 proof authorization review
   S3-R237-C5-S: status curation                                         ✅ done; R238 exact route recorded
+Round 238 landed:
+  S3-R238-C1-A: stdlib candidate proof authorization                    ✅ authorized bounded proof-local lab stdlib proof only
+  S3-R238-C2-I: stdlib candidate proof                                  ✅ PASS; STD-P1..STD-P12, 30/30 checks, result packet present
+  S3-R238-C3-X: stdlib proof pressure                                   ✅ PASS; C-1/C-2/C-3 satisfied; no authority leakage
+  S3-R238-C4-A: stdlib proof acceptance                                 ✅ accepts proof-local evidence; opens R239 VM intake authorization review
+  S3-R238-C5-S: status curation                                         ✅ done; R239 exact route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
