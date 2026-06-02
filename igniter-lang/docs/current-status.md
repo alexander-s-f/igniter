@@ -140,7 +140,9 @@ Language          ⚙️ partial TEMPORAL through .igapp manifest index + load g
                             descriptor OOF-PR proof PASS for OOF-PR1/2/3/4/5/7/9;
                             CompatibilityReport readiness proof PASS report-only;
                             progression_sources schema ownership and OOF-PR6/8 remain open;
-                            PROP-033 evidence validation/runtime receipts still closed
+                            PROP-033 evidence validation/runtime receipts still closed;
+                            META-EXPERT-014 Frontier Conformance Roadmap active (spec delta, conformance harness, EBNF grammar, .igapp schema)
+
 Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             invariant typed-shape delta accepted/discharged;
                             invariant source metadata preserved;
