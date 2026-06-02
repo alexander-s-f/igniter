@@ -1,0 +1,60 @@
+{
+  "artifact_hash": "sha256:77bc68b7f7db4a949d22b8b03b32bddeff96d637a5119a4eed6ee2a8947b1338",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/49ae94eca6a4b50d",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "Add[Float]": {
+      "contract_path": "contracts/add[float].json",
+      "contract_ref": "contract/Add[Float]/sha256:83f4132a0ba8091e0226dce2",
+      "fragment_class": "core"
+    },
+    "Add[Integer]": {
+      "contract_path": "contracts/add[integer].json",
+      "contract_ref": "contract/Add[Integer]/sha256:7d425b84a512bb3bd7d77992",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "Add[Float]": "contract/Add[Float]/sha256:83f4132a0ba8091e0226dce2",
+    "Add[Integer]": "contract/Add[Integer]/sha256:7d425b84a512bb3bd7d77992"
+  },
+  "contracts": [
+    "Add[Float]",
+    "Add[Integer]"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "polymorphic-v0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "metadata_only_templates": [
+    "Lang.Examples.PolymorphicAdd.Add"
+  ],
+  "program_id": "semanticir/49ae94eca6a4b50d",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/49ae94eca6a4b50d",
+  "source_hash": "sha256:49ae94eca6a4b50da2910af861d204d7a778a6c298dca8948ff60e79c249ee34",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/polymorphic_add.ig",
+  "specialization_manifest_ref": "specialization_manifest.json",
+  "warnings": []
+}

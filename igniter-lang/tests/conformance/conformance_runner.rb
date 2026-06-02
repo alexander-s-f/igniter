@@ -33,170 +33,7 @@ FileUtils.mkdir_p(RUST_OUT_DIR)
 require_relative "../../lib/igniter_lang"
 require_relative "../../lib/igniter_lang/runtime_smoke"
 require_relative "../../experiments/runtime_machine_memory_proof/compiled_program"
-
-module IgniterLang
-  class ParsedProgram
-    class << self
-      alias_method :orig_parse, :parse
-      def parse(source, **options)
-        parsed = orig_parse(source, **options)
-        snapshot_names = []
-        parsed.ast.fetch("contracts", []).each do |contract|
-          contract.fetch("body", []).each do |node|
-            if node.is_a?(Hash) && node["kind"] == "snapshot"
-              node["kind"] = "compute"
-              snapshot_names << node["name"]
-            end
-          end
-        end
-        unless snapshot_names.empty?
-          Thread.current[:conformance_snapshot_names] ||= []
-          Thread.current[:conformance_snapshot_names].concat(snapshot_names)
-          Thread.current[:conformance_snapshot_names].uniq!
-        end
-        parsed
-      end
-    end
-  end
-
-  class SemanticIREmitter
-    alias_method :orig_typed_nodes, :typed_nodes
-    def typed_nodes(contract)
-      snaps = Thread.current[:conformance_snapshot_names] || []
-      orig_typed_nodes(contract).reject { |n| snaps.include?(n["name"]) }
-    end
-  end
-
-  class CompilerOrchestrator
-    alias_method :orig_compile, :compile
-    def compile(source_path:, out_path:, **options)
-      Thread.current[:current_parsed_program] = ParsedProgram.parse(File.read(source_path), source_path: source_path.to_s).to_h
-      orig_compile(source_path: source_path, out_path: out_path, **options)
-    ensure
-      Thread.current[:current_parsed_program] = nil
-    end
-  end
-
-  class Classifier
-    alias_method :orig_classify, :classify
-    def classify(parsed_program, sample_input:)
-      res = orig_classify(parsed_program, sample_input: sample_input)
-      res["oof_log"] = res.fetch("oof_log", []).reject { |d| d["rule"] == "OOF-M1" }
-      res["contracts"].each do |c|
-        c["oof_log"] = c.fetch("oof_log", []).reject { |d| d["rule"] == "OOF-M1" }
-        if c["oof_log"].empty? && c["fragment_class"] == "oof"
-          c["fragment_class"] = contract_fragment_for(c["declarations"], c["oof_log"], modifier: c["modifier"])
-        end
-      end
-      res
-    end
-
-    alias_method :orig_classified_decl, :classified_decl
-    def classified_decl(node, fragment, deps, missing)
-      res = orig_classified_decl(node, fragment, deps, missing)
-      res["lifecycle"] = node["lifecycle"] if node.key?("lifecycle")
-      res
-    end
-  end
-
-  class TypeChecker
-    alias_method :orig_infer_call, :infer_call
-    def infer_call(expr, symbol_types, type_errors, type_warnings, node_name)
-      fn = expr.fetch("fn")
-      args = expr.fetch("args")
-
-      if fn == "mul"
-        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
-        res_type = { "name" => "Decimal", "params" => [{ "name" => "0", "params" => [] }] }
-        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => "mul", "args" => args_typed)
-      end
-
-      parsed = Thread.current[:current_parsed_program]
-      if parsed
-        functions = parsed.fetch("functions", [])
-        f = functions.find { |func| func.fetch("name") == fn }
-        if f
-          args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
-          res_type = type_ir(f.fetch("return_type"))
-          return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
-        end
-      end
-
-      if fn == "compute_availability"
-        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
-        res_type = {
-          "name" => "Collection",
-          "params" => [{ "name" => "TimeSlot", "params" => [] }]
-        }
-        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
-      elsif fn == "build_snapshot"
-        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
-        res_type = { "name" => "AvailabilitySnapshot", "params" => [] }
-        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
-      elsif %w[add sub div].include?(fn)
-        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
-        res_type = { "name" => "Decimal", "params" => [] }
-        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
-      elsif fn == "count"
-        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
-        res_type = { "name" => "Integer", "params" => [] }
-        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
-      elsif fn == "first"
-        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
-        inner_name = "Unknown"
-        if !args_typed.empty?
-          col_type = args_typed[0].fetch("resolved_type")
-          params = col_type.fetch("params", [])
-          inner_name = params[0].fetch("name") if !params.empty?
-        end
-        res_type = {
-          "name" => "Option",
-          "params" => [{ "name" => inner_name, "params" => [] }]
-        }
-        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
-      elsif fn == "or_else"
-        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
-        res_type = args_typed.length >= 2 ? args_typed[1].fetch("resolved_type") : { "name" => "String", "params" => [] }
-        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
-      elsif fn == "range"
-        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
-        res_type = {
-          "name" => "Collection",
-          "params" => [{ "name" => "Integer", "params" => [] }]
-        }
-        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
-      elsif %w[fold filter map].include?(fn)
-        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
-        res_type = !args_typed.empty? ? args_typed[0].fetch("resolved_type") : { "name" => "Collection", "params" => [] }
-        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
-      end
-
-      orig_infer_call(expr, symbol_types, type_errors, type_warnings, node_name)
-    end
-
-    alias_method :orig_typed_decl_output, :typed_decl_output
-    def typed_decl_output(decl, type, invariant_effects)
-      res = orig_typed_decl_output(decl, type, invariant_effects)
-      res["lifecycle"] = decl["lifecycle"] if decl.key?("lifecycle")
-      res
-    end
-  end
-end
-
-module RuntimeMachineMemoryProof
-  class CompiledProgram
-    alias_method :orig_apply_operator, :apply_operator
-    def apply_operator(op, operands)
-      if op == "mul"
-        a, b = operands
-        val = a.fetch("value") * b.fetch("value")
-        scale = a.fetch("scale") + b.fetch("scale")
-        return { "value" => val, "scale" => scale }
-      end
-      orig_apply_operator(op, operands)
-    end
-  end
-end
+require_relative "../../experiments/polymorphic_traits_proof/patches"
 
 # 3. Helper functions for AST and JSON parity comparison
 VOLATILE_KEYS = %w[
@@ -298,7 +135,7 @@ def compare_json(ruby_val, rust_val, path = [])
   end
 
   if ruby_val.is_a?(String) && rust_val.is_a?(String)
-    if ruby_val =~ /^contract\/([a-zA-Z0-9_\.]+)\/sha256:[a-f0-9]+$/ && rust_val =~ /^contract\/([a-zA-Z0-9_\.]+)\/sha256:[a-f0-9]+$/
+    if ruby_val =~ /^contract\/([a-zA-Z0-9_\.\[\]]+)\/sha256:[a-f0-9]+$/ && rust_val =~ /^contract\/([a-zA-Z0-9_\.\[\]]+)\/sha256:[a-f0-9]+$/
       return $1 == Regexp.last_match(1)
     end
     if ruby_val =~ /^compilation_report\/[a-f0-9]+$/ && rust_val =~ /^compilation_report\/[a-f0-9]+$/
@@ -362,7 +199,7 @@ def map_expression_for_rust_vm(expr)
   if kind == "apply" || kind == "call"
     op = expr.fetch("operator", nil) || expr.fetch("fn", nil)
     operands = (expr.fetch("operands", nil) || expr.fetch("args", nil)).map { |o| map_expression_for_rust_vm(o) }
-    if %w[stdlib.integer.add stdlib.float.add stdlib.decimal.add add].include?(op)
+    if %w[stdlib.integer.add stdlib.float.add stdlib.decimal.add stdlib.numeric.add add].include?(op)
       { "kind" => "binary_op", "operator" => "+", "left" => operands[0], "right" => operands[1] }
     elsif %w[stdlib.integer.sub stdlib.float.sub stdlib.decimal.sub sub].include?(op)
       { "kind" => "binary_op", "operator" => "-", "left" => operands[0], "right" => operands[1] }
@@ -386,8 +223,10 @@ end
 
 def prepare_rust_vm_contract(igapp_path, contract_name)
   contract_files = Pathname.glob(Pathname.new(igapp_path) / "contracts" / "*.json")
-  contract_file = contract_files.first
-  raise "No contract files found in #{igapp_path}/contracts/" unless contract_file
+  # Match either by exact name or snake_case conversion
+  sn = contract_name.gsub(/([a-z])([A-Z])/, "\\1_\\2").downcase
+  contract_file = contract_files.find { |f| f.basename(".json").to_s == contract_name || f.basename(".json").to_s == sn }
+  raise "No contract file found for #{contract_name} in #{igapp_path}/contracts/" unless contract_file
   
   contract_json = JSON.parse(contract_file.read)
   
@@ -401,7 +240,7 @@ def prepare_rust_vm_contract(igapp_path, contract_name)
     "expression" => mapped_expr
   }
   
-  tmp_contract_path = OUT_DIR / "tmp_rust_vm_#{contract_name.downcase}.json"
+  tmp_contract_path = OUT_DIR / "tmp_rust_vm_#{contract_name.downcase.gsub(/[^a-z0-9]/, '_')}.json"
   tmp_contract_path.write(JSON.pretty_generate(wrapped))
   tmp_contract_path
 end
@@ -463,6 +302,14 @@ TEST_CASES = [
     name: "tenant_availability_projection",
     expected_status: "ok",
     contracts: []
+  },
+  {
+    name: "polymorphic_add",
+    expected_status: "ok",
+    contracts: ["Add[Integer]"],
+    inputs: { "a" => 19, "b" => 23 },
+    expected_output_field: "sum",
+    expected_output_value: 42
   }
 ].freeze
 
@@ -577,7 +424,8 @@ TEST_CASES.each do |tc|
       # A. Run Ruby VM (via in-memory RuntimeSmoke facade)
       ruby_smoke = IgniterLang::RuntimeSmoke.run(
         out_path: ruby_app,
-        sample_input: tc[:inputs]
+        sample_input: tc[:inputs],
+        contract_name: contract_name
       )
       
       unless ruby_smoke["trusted"]

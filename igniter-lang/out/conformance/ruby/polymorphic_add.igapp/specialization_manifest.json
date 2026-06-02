@@ -1,0 +1,19 @@
+{
+  "kind": "specialization_manifest",
+  "specializations": [
+    {
+      "emitted_contract_id": "Add[Integer]",
+      "template_contract_id": "Add",
+      "type_args": {
+        "T": "Integer"
+      }
+    },
+    {
+      "emitted_contract_id": "Add[Float]",
+      "template_contract_id": "Add",
+      "type_args": {
+        "T": "Float"
+      }
+    }
+  ]
+}

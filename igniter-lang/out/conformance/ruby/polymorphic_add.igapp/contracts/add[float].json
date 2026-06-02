@@ -1,0 +1,85 @@
+{
+  "artifact_hash": "sha256:77bc68b7f7db4a949d22b8b03b32bddeff96d637a5119a4eed6ee2a8947b1338",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:a",
+        "input:b"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "a",
+            "resolved_type": {
+              "name": "Float",
+              "params": []
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "b",
+            "resolved_type": {
+              "name": "Float",
+              "params": []
+            }
+          }
+        ],
+        "operator": "stdlib.float.add",
+        "resolved_impl": "Additive[Float]",
+        "resolved_type": {
+          "name": "Float",
+          "params": []
+        },
+        "type_args": [
+          "Float"
+        ]
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "sum",
+      "node_id": "node_sum",
+      "obs_kind": "value_observation",
+      "type_tag": "Float"
+    }
+  ],
+  "contract_id": "Add[Float]",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "a",
+      "required": true,
+      "type_tag": "Float"
+    },
+    {
+      "lifecycle": "local",
+      "name": "b",
+      "required": true,
+      "type_tag": "Float"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "Add[Float]",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "sum",
+      "required": true,
+      "type_tag": "Float"
+    }
+  ],
+  "source_contract_ref": "contract/Add[Float]/sha256:83f4132a0ba8091e0226dce2",
+  "type_signature": {
+    "inputs": {
+      "a": "Float",
+      "b": "Float"
+    },
+    "outputs": {
+      "sum": "Float"
+    }
+  }
+}

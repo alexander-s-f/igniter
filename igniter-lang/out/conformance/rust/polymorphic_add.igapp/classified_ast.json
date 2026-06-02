@@ -1,0 +1,26 @@
+{
+  "compilation_report_ref": "compilation_report/49ae94eca6a4b50d",
+  "contracts": [
+    "Add[Float]",
+    "Add[Integer]"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "generic_templates": [
+    {
+      "loadable": false,
+      "template_contract_id": "Lang.Examples.PolymorphicAdd.Add"
+    }
+  ],
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "Add[Float]",
+    "Add[Integer]"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/49ae94eca6a4b50d",
+  "semantic_ir_ref": "semanticir/49ae94eca6a4b50d",
+  "source_hash": "sha256:49ae94eca6a4b50da2910af861d204d7a778a6c298dca8948ff60e79c249ee34",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/polymorphic_add.ig"
+}
