@@ -757,6 +757,21 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             `compiled_at`, absolute `source_path`, no Cargo
                             tests, OOF-M1 disabled, and missing
                             `runtime_implementation_id`;
+                            R236 accepts the lab ecosystem pressure map as
+                            the current routing frame after Slice 0 docs:
+                            lab components are evidence/pressure only, not
+                            authority; `igniter-stdlib` is selected as the
+                            next Main Line candidate intake / PROP-013
+                            pressure route; `igniter-vm` is next-after-stdlib
+                            if evidence holds; TBackend intake is held pending
+                            wording hardening for false `zero-dependency`,
+                            production/SparkCRM, and performance overclaims;
+                            `igc run` Slice 1 remains held; implementation,
+                            public stdlib API, runtime/API/package widening,
+                            Reference Runtime, stable API, production, Spark,
+                            release, public docs claims, public performance,
+                            official/reference, certification, and portability
+                            authority remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1760,6 +1775,12 @@ Round 235 landed:
   S3-R235-C2-P1: Rust compiler lab candidate intake                     ✅ complete; lab evidence only; hardening gaps carried
   S3-R235-C3-I: Slice 0 quickstart/docs sync                            ✅ done; quickstart track + docs/README pointer; QSD-1..QSD-15 PASS
   S3-R235-C5-S: status curation                                         ✅ done; refreshed after C3-I landed; R236 route selection recommended
+Round 236 landed:
+  S3-R236-C1-D: lab ecosystem pressure map                              ✅ accepted; recommends stdlib intake next
+  S3-R236-C2-P1: lab ecosystem surface facts                            ✅ accepted; stdlib/vm evidence confirmed; TBackend overclaim risks mapped
+  S3-R236-C3-X: lab ecosystem pressure                                  ✅ PASS; no blockers; ordering note resolved by C4-A
+  S3-R236-C4-A: lab ecosystem next-route decision                       ✅ accepts map; opens R237 stdlib candidate intake / PROP-013 pressure
+  S3-R236-C5-S: status curation                                         ✅ done; R237 exact route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
