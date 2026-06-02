@@ -717,6 +717,27 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             CompatibilityReport remain closed; S3-R234-C1-A
                             must resolve `delegated-experimental:ivm-proof`
                             explicitly and carry AN-1/AN-2/AN-3;
+                            R234 accepts bounded pre-v1 experimental
+                            `igc run` Slice 0 implementation: `.igapp` input
+                            with explicit proof-local passport, explicit
+                            input JSON, explicit `delegated-experimental:ivm-proof`
+                            selector, explicit `--out`, and mandatory
+                            `--experimental`; implementation evidence PASS
+                            20/20 IGR, positive run returns `sum=42`, compile
+                            regression remains PASS with `runtime_smoke: null`,
+                            `bin/igc` unchanged, and result packet is
+                            `experimental_igc_run_v0_result` only; passport
+                            validation is fail-closed and selector resolves
+                            only to the proof runtime
+                            `RuntimeMachineMemoryProof::CompiledProgram`;
+                            RuntimeSmoke, `.igbin` execution, compiler
+                            passport emission, Reference Runtime, public
+                            runtime/stable API/production/Spark/release/
+                            performance claims, public docs/gemspec changes,
+                            and result conflation with CompilerResult/
+                            CompilationReport/CompatibilityReport remain
+                            closed; next route is quickstart/docs
+                            authorization review only, preserving CF-1/CF-2;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1709,6 +1730,12 @@ Round 233 landed:
   S3-R233-C3-X: design boundary pressure                                 ✅ PASS; no blockers; AN-1/AN-2/AN-3 carry to R234
   S3-R233-C4-A: design boundary decision                                 ✅ accepts design; opens bounded implementation-authorization review next
   S3-R233-C5-S: status curation                                         ✅ done; R234 authorization-review route recorded
+Round 234 landed:
+  S3-R234-C1-A: igc run Slice 0 implementation authorization             ✅ authorizes bounded pre-v1 .igapp/passport/input/run-result slice
+  S3-R234-C2-I: igc run Slice 0 implementation                           ✅ PASS; 20/20 IGR, positive sum=42, compile regression intact
+  S3-R234-C3-X: Slice 0 implementation pressure                          ✅ PASS; accepts unconditionally, CF-1/CF-2 informational
+  S3-R234-C4-A: Slice 0 acceptance decision                              ✅ accepts implementation closure; opens quickstart/docs authorization review next
+  S3-R234-C5-S: status curation                                         ✅ done; R235 quickstart/docs authorization route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
