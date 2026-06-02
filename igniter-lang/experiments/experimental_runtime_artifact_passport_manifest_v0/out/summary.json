@@ -1,0 +1,159 @@
+{
+  "kind": "experimental_runtime_artifact_passport_manifest_v0_result",
+  "format_version": "0.1.0",
+  "card": "S3-R232-C2-I",
+  "track": "experimental-runtime-artifact-passport-manifest-proof-v0",
+  "authorized_by": "S3-R232-C1-A",
+  "generated_at": "2026-06-02T10:07:20Z",
+  "overall": "PASS",
+  "checks_total": 16,
+  "checks_pass": 16,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "generated_manifests": {
+    "igapp_dir/Add.igapp": "igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+    "igbin_aot_binary/add.igbin": "igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/add.igbin.aot.passport.json",
+    "igbin_aot_binary/if_module.igbin": "igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/if_module.igbin.resident.passport.json",
+    "evidence_result_packet/quickstart_result.json": "igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/quickstart_result.evidence_packet.passport.json"
+  },
+  "source_artifacts_read": {
+    "igapp_dir": "igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp/",
+    "quickstart_result_json": "igniter-lang/examples/experimental_executable_quickstart_v0/out/quickstart_result.json",
+    "aot_proof_summary_json": "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/summary.json",
+    "aot_igbin_count": 9,
+    "resident_summary_json": "playgrounds/igniter-lab/igniter-runtime/out/resident_supervisor_candidate_intake/summary.json",
+    "resident_igbin_count": 4
+  },
+  "source_artifacts_immutability": {
+    "policy": "read-only / no writes to source paths",
+    "digests": {
+      "igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp/manifest.json": "sha256:c8bc09d5e976896a6c5317dc95547010446de6a60e83d7b013e01374be264bb7",
+      "igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp/semantic_ir_program.json": "sha256:264b0b4043e294a52cc90e99eddd17098481d4e71d09390a357888ceef8aa62b",
+      "igniter-lang/examples/experimental_executable_quickstart_v0/out/quickstart_result.json": "sha256:666952db1cf6018396dd2595690956cdf9337c4ca5f3d333f950f5218756731a",
+      "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/add.igbin": "sha256:40df54615dca6a4cc3162cab2adc07e3261a73034613fbeb76402c153eeb19d0",
+      "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/bad_data.igbin": "sha256:ea7ab8050ce683bca1850bc71e19bd5ae10b81112774ba93a552795762985810",
+      "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/bad_header.igbin": "sha256:2083fcba6989c28cb31a3b7d7ffdf0771e2ab446eab5106b1d9b41e5d5511f54",
+      "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/gt.igbin": "sha256:caf12c88f52a69a6a9b20b9d6d527e5d4612faf627c1886e9e34ef222e66d3dc",
+      "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/if.igbin": "sha256:3b8202581110234660ff1ef34d5ff4291609c809a93a9e44046d326c0a00cf36",
+      "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/timing_if.igbin": "sha256:3b8202581110234660ff1ef34d5ff4291609c809a93a9e44046d326c0a00cf36",
+      "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/timing_warmup.igbin": "sha256:3b8202581110234660ff1ef34d5ff4291609c809a93a9e44046d326c0a00cf36",
+      "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/unsupported_sel.igbin": "sha256:5b8d4c7169eee24c997eeda97107e1c7b1fdf354781fc23542343268ab23e978",
+      "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/unsupported_unsel.igbin": "sha256:5b8d4c7169eee24c997eeda97107e1c7b1fdf354781fc23542343268ab23e978",
+      "playgrounds/igniter-lab/igniter-runtime/out/resident_supervisor_candidate_intake/bad_magic.igbin": "sha256:21a9b6aff4e9b5a84ec4b07ab0fd5fc60ae04718aa6034a240e9b9f19e4bf855",
+      "playgrounds/igniter-lab/igniter-runtime/out/resident_supervisor_candidate_intake/if_module.igbin": "sha256:3b8202581110234660ff1ef34d5ff4291609c809a93a9e44046d326c0a00cf36",
+      "playgrounds/igniter-lab/igniter-runtime/out/resident_supervisor_candidate_intake/truncated.igbin": "sha256:a0c02d0d6a3b6d27663a200d373a9a2b0794be7a98b9f4cfff59276541910e29",
+      "playgrounds/igniter-lab/igniter-runtime/out/resident_supervisor_candidate_intake/unsupported_module.igbin": "sha256:d88fd4223d4eac2c0213569efd77a78cae0fb9efd205f2f22c155d8993ef5dad"
+    },
+    "status": "PASS"
+  },
+  "proof_matrix": {
+    "PPM-1": {
+      "status": "PASS",
+      "description": "manifest schema contains all required minimum field families"
+    },
+    "PPM-2": {
+      "status": "PASS",
+      "description": ".igapp passport uses artifact_kind: igapp_dir"
+    },
+    "PPM-3": {
+      "status": "PASS",
+      "description": ".igbin passports use artifact_kind: igbin_aot_binary when .igbin evidence is present"
+    },
+    "PPM-4": {
+      "status": "PASS",
+      "description": "artifact digest recomputation is deterministic"
+    },
+    "PPM-5": {
+      "status": "PASS",
+      "description": "source digest is recorded when source-backed evidence exists"
+    },
+    "PPM-6": {
+      "status": "PASS",
+      "description": "SemanticIR digest is recorded when SemanticIR exists"
+    },
+    "PPM-7": {
+      "status": "PASS",
+      "description": "missing source/SemanticIR links are explicit, not invented"
+    },
+    "PPM-8": {
+      "status": "PASS",
+      "description": "runtime/backend/app-consumer dimensions remain separated"
+    },
+    "PPM-9": {
+      "status": "PASS",
+      "description": "runtime_implementation_id is evidence metadata only"
+    },
+    "PPM-10": {
+      "status": "PASS",
+      "description": "execution_substrate is included or explicitly deferred"
+    },
+    "PPM-11": {
+      "status": "PASS",
+      "description": "input_contract and failure_policy are present"
+    },
+    "PPM-12": {
+      "status": "PASS",
+      "description": "output_contract is present or explicitly deferred"
+    },
+    "PPM-13": {
+      "status": "PASS",
+      "description": "evidence_class, authority_status, and non_claims are machine-readable"
+    },
+    "PPM-14": {
+      "status": "PASS",
+      "description": "forbidden wording scan passes"
+    },
+    "PPM-15": {
+      "status": "PASS",
+      "description": "source artifact immutability is preserved"
+    },
+    "PPM-16": {
+      "status": "PASS",
+      "description": "closed-surface scan passes"
+    }
+  },
+  "closed_surface_scan": {
+    "status": "PASS",
+    "closed_paths_checked": [
+      "igniter-lang/lib",
+      "igniter-lang/bin/igc",
+      "igniter-lang/igniter_lang.gemspec",
+      "igniter-lang/README.md",
+      "playgrounds/igniter-lab"
+    ],
+    "out_dir_scoped_to": "igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out"
+  },
+  "forbidden_wording_scan": {
+    "status": "PASS",
+    "forbidden_terms": [
+      "formal Artifact Passport Portability Boundary",
+      "PORTABILITY PASSPORT",
+      "cryptographic signature chains",
+      "portable artifact",
+      "certified alternative implementation"
+    ],
+    "hits": []
+  },
+  "non_claims": [
+    "not stable API",
+    "not production ready",
+    "not public runtime support",
+    "not Reference Runtime support",
+    "not Spark integration",
+    "not release evidence",
+    "not public performance claim",
+    "not certified alternative implementation",
+    "not artifact portability guarantee",
+    "not compiler passport emission",
+    "not igc run implementation"
+  ],
+  "next_recommendation": "igc run design-only route may now be considered as one proof-local passport manifest exists. Rust TBackend / acts-as-tbackend / todolist remain separate later intakes. All public/stable/production/Spark/release/performance claims remain closed.",
+  "evidence_boundary": {
+    "passport_kind_used": "artifact_passport",
+    "evidence_only": true,
+    "portability_claim": "none",
+    "certification_claim": "none",
+    "stable_api_claim": "none",
+    "release_claim": "none"
+  }
+}

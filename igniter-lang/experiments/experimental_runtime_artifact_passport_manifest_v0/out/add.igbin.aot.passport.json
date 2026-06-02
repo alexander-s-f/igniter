@@ -1,0 +1,95 @@
+{
+  "passport_kind": "artifact_passport",
+  "passport_schema_version": "0.1.0",
+  "artifact_kind": "igbin_aot_binary",
+  "artifact_format_version": "0.1.0",
+  "artifact_ref": "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/add.igbin",
+  "artifact_digest": "sha256:40df54615dca6a4cc3162cab2adc07e3261a73034613fbeb76402c153eeb19d0",
+  "spec_version": "0.1.0",
+  "semantics_profile": "igniter-lang/core-pure-v0.1",
+  "compiler_id": "deferred / hand-authored proof fixture; no compiler provenance",
+  "compiler_profile_id": "deferred / hand-authored proof fixture; no compiler provenance",
+  "compiled_at": "deferred / hand-authored proof fixture; no compiler provenance",
+  "source_ref": null,
+  "source_digest": null,
+  "source_link_status": "missing / hand-authored .igbin fixture not compiler-emitted — not invented",
+  "semantic_ir_ref": null,
+  "semantic_ir_digest": null,
+  "semantic_ir_link_status": "missing / hand-authored .igbin fixture not compiler-emitted — not invented",
+  "surface_dimension": "executable_runtime",
+  "runtime_target_kind": "delegated_experimental_runtime",
+  "runtime_implementation_id": "igniter.delegated.experimental.ivm.c_resident",
+  "backend_implementation_id": "deferred / not applicable for this igbin_aot_binary passport",
+  "consumer_surface_id": "deferred / not applicable for this igbin_aot_binary passport",
+  "required_capabilities": [
+    "igbin_aot_binary_file_load",
+    "c_native_bytecode_dispatch"
+  ],
+  "feature_set": [
+    "integer_add",
+    "binary_op",
+    "core_pure"
+  ],
+  "required_opcodes": [
+    "0x01",
+    "0x02",
+    "0x05",
+    "0x09",
+    "0x10"
+  ],
+  "execution_substrate": "c_aot_file_loader",
+  "input_contract": {
+    "inputs": [
+      {
+        "name": "a",
+        "type": "Integer"
+      },
+      {
+        "name": "b",
+        "type": "Integer"
+      }
+    ],
+    "contract_name": "add",
+    "note": "derived from AOT proof fixture semantics; not compiler-emitted"
+  },
+  "output_contract": {
+    "deferred_rationale": "hand-authored .igbin fixture; output contract cannot be derived without compiler SemanticIR chain. Required before any future igc run design can claim complete executable contract.",
+    "known_outputs": [
+      {
+        "name": "result",
+        "type": "Integer"
+      }
+    ],
+    "note": "proof-local inference from AOT proof fixture; not certified"
+  },
+  "failure_policy": {
+    "policy": "fail_closed_on_malformed_input",
+    "behavior": "proven: malformed header rejects cleanly"
+  },
+  "evidence_class": "native AOT bytecode file loading research evidence only",
+  "authority_status": "non-canonical / evidence-only",
+  "non_claims": [
+    "not stable API",
+    "not production ready",
+    "not public runtime support",
+    "not Reference Runtime support",
+    "not Spark integration",
+    "not release evidence",
+    "not public performance claim",
+    "not certified alternative implementation",
+    "not artifact portability guarantee",
+    "not compiler passport emission",
+    "not igc run implementation"
+  ],
+  "producer_track": "delegated-experimental-runtime-ivm-aot-bytecode-file-loading-proof-v0 / S3-R228-C2-I",
+  "authorized_by": "S3-R232-C1-A",
+  "proof_card": "S3-R232-C2-I",
+  "generated_at": "2026-06-02T10:07:20Z",
+  "delegated_evidence_ref": {
+    "summary_ref": "playgrounds/igniter-lab/igniter-runtime/out/ivm_aot_bytecode_file_loading_proof/summary.json",
+    "accepted_by": "delegated-experimental-runtime-ivm-aot-bytecode-file-loading-acceptance-decision-v0",
+    "overall_status": "PASS",
+    "native_boundary": "Ruby Fiddle + Native C file loader",
+    "benchmark_note": "rough / informational-only — 0.1 ratio; not a public performance claim"
+  }
+}

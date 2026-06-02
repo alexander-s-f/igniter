@@ -1,0 +1,60 @@
+{
+  "passport_kind": "artifact_passport",
+  "passport_schema_version": "0.1.0",
+  "artifact_kind": "evidence_result_packet",
+  "artifact_format_version": "0.1.0",
+  "artifact_ref": "igniter-lang/examples/experimental_executable_quickstart_v0/out/quickstart_result.json",
+  "artifact_digest": "sha256:666952db1cf6018396dd2595690956cdf9337c4ca5f3d333f950f5218756731a",
+  "spec_version": "0.1.0",
+  "semantics_profile": "not_applicable / evidence_result_packet",
+  "source_ref": "igniter-lang/examples/experimental_executable_quickstart_v0/add_quickstart.ig",
+  "source_digest": "sha256:d4b79e1278442edc0d527395a38d6d8c4f55831a2553b02a262386d8ccca5cea",
+  "source_link_status": "carried / compiler-recorded source_hash from igapp manifest",
+  "semantic_ir_ref": null,
+  "semantic_ir_digest": null,
+  "semantic_ir_link_status": "not_applicable / evidence_result_packet does not embed SemanticIR",
+  "surface_dimension": "evidence_packet",
+  "runtime_implementation_id": "deferred / not_applicable for evidence_result_packet",
+  "backend_implementation_id": "deferred / not_applicable for evidence_result_packet",
+  "consumer_surface_id": "deferred / not_applicable for evidence_result_packet",
+  "required_capabilities": "not_applicable",
+  "feature_set": "not_applicable",
+  "required_opcodes": "not_applicable",
+  "execution_substrate": "none",
+  "input_contract": {
+    "note": "evidence_result_packet records proof pipeline inputs",
+    "source": "add_quickstart.ig"
+  },
+  "output_contract": {
+    "note": "evidence_result_packet records proof pipeline outputs",
+    "outputs": [
+      {
+        "name": "sum",
+        "type": "Integer",
+        "expected": 42
+      }
+    ]
+  },
+  "failure_policy": {
+    "policy": "not_applicable / read-only evidence packet"
+  },
+  "evidence_class": "experimental executable quickstart result evidence only",
+  "authority_status": "non-canonical / evidence-only",
+  "non_claims": [
+    "not stable API",
+    "not production ready",
+    "not public runtime support",
+    "not Reference Runtime support",
+    "not Spark integration",
+    "not release evidence",
+    "not public performance claim",
+    "not certified alternative implementation",
+    "not artifact portability guarantee",
+    "not compiler passport emission",
+    "not igc run implementation"
+  ],
+  "producer_track": "experimental-executable-quickstart-v0 / S3-R223-C2-I",
+  "authorized_by": "S3-R232-C1-A",
+  "proof_card": "S3-R232-C2-I",
+  "generated_at": "2026-06-02T10:07:20Z"
+}

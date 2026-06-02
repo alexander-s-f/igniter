@@ -1,0 +1,107 @@
+{
+  "passport_kind": "artifact_passport",
+  "passport_schema_version": "0.1.0",
+  "artifact_kind": "igbin_aot_binary",
+  "artifact_format_version": "0.1.0",
+  "artifact_ref": "playgrounds/igniter-lab/igniter-runtime/out/resident_supervisor_candidate_intake/if_module.igbin",
+  "artifact_digest": "sha256:3b8202581110234660ff1ef34d5ff4291609c809a93a9e44046d326c0a00cf36",
+  "spec_version": "0.1.0",
+  "semantics_profile": "igniter-lang/core-pure-v0.1",
+  "compiler_id": "deferred / hand-authored proof fixture; no compiler provenance",
+  "compiler_profile_id": "deferred / hand-authored proof fixture; no compiler provenance",
+  "compiled_at": "deferred / hand-authored proof fixture; no compiler provenance",
+  "source_ref": null,
+  "source_digest": null,
+  "source_link_status": "missing / hand-authored .igbin fixture not compiler-emitted — not invented",
+  "semantic_ir_ref": null,
+  "semantic_ir_digest": null,
+  "semantic_ir_link_status": "missing / hand-authored .igbin fixture not compiler-emitted — not invented",
+  "surface_dimension": "executable_runtime",
+  "runtime_target_kind": "delegated_experimental_runtime",
+  "runtime_implementation_id": "igniter.delegated.experimental.ivm.c_resident",
+  "backend_implementation_id": "deferred / not applicable for this igbin_aot_binary passport",
+  "consumer_surface_id": "deferred / not applicable for this igbin_aot_binary passport",
+  "required_capabilities": [
+    "igbin_aot_binary_file_load",
+    "c_native_resident_supervisor",
+    "if_expr_lazy_branching"
+  ],
+  "feature_set": [
+    "if_expr",
+    "lazy_branch",
+    "literal",
+    "ref",
+    "integer_compare",
+    "core_pure"
+  ],
+  "required_opcodes": [
+    "0x01",
+    "0x02",
+    "0x05",
+    "0x09",
+    "0x10",
+    "0x0A",
+    "0x0C",
+    "0x0F",
+    "0x99"
+  ],
+  "execution_substrate": "c_resident_in_memory_module",
+  "input_contract": {
+    "inputs": [
+      {
+        "name": "cond",
+        "type": "Boolean"
+      },
+      {
+        "name": "a",
+        "type": "Integer"
+      },
+      {
+        "name": "b",
+        "type": "Integer"
+      }
+    ],
+    "contract_name": "if_module",
+    "note": "derived from resident supervisor proof fixture semantics; not compiler-emitted"
+  },
+  "output_contract": {
+    "deferred_rationale": "hand-authored .igbin fixture; output contract cannot be derived without compiler SemanticIR chain. Required before any future igc run design can claim complete executable contract.",
+    "known_outputs": [
+      {
+        "name": "result",
+        "type": "Integer"
+      }
+    ],
+    "note": "proof-local inference from resident supervisor proof fixture; not certified"
+  },
+  "failure_policy": {
+    "policy": "fail_closed_on_malformed_input",
+    "behavior": "proven: bad_magic.igbin / truncated.igbin load rejected; malformed module fails closed before resident execution"
+  },
+  "evidence_class": "resident-supervisor candidate intake evidence only",
+  "authority_status": "non-canonical / evidence-only",
+  "non_claims": [
+    "not stable API",
+    "not production ready",
+    "not public runtime support",
+    "not Reference Runtime support",
+    "not Spark integration",
+    "not release evidence",
+    "not public performance claim",
+    "not certified alternative implementation",
+    "not artifact portability guarantee",
+    "not compiler passport emission",
+    "not igc run implementation"
+  ],
+  "producer_track": "delegated-experimental-runtime-resident-supervisor-candidate-intake-v0 / S3-R230-C2-I",
+  "authorized_by": "S3-R232-C1-A",
+  "proof_card": "S3-R232-C2-I",
+  "generated_at": "2026-06-02T10:07:20Z",
+  "delegated_evidence_ref": {
+    "summary_ref": "playgrounds/igniter-lab/igniter-runtime/out/resident_supervisor_candidate_intake/summary.json",
+    "accepted_by": "delegated-experimental-runtime-resident-supervisor-candidate-intake-acceptance-decision-v0",
+    "overall_status": "PASS",
+    "execution_model": "load_once_execute_many",
+    "performance_policy": "informational research-signal / proof-local timing only"
+  }
+}
