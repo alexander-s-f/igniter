@@ -1,0 +1,48 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/9c7bad8036544f8a",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:9c7bad8036544f8a35ec4f04cc97430aa8f4f8ecbe4e5cf1a474cc91fa4e22aa",
+  "source_path": "source/availability_projection.ig",
+  "pass_result": "oof",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "oof",
+    "emit": "skipped"
+  },
+  "diagnostics": [
+    {
+      "rule": "OOF-P1",
+      "severity": "error",
+      "message": "Unresolved output source: snap",
+      "node": "snap",
+      "path": "contract:AvailabilityProjection/node:snap",
+      "category": "typechecker_oof",
+      "contract": "AvailabilityProjection",
+      "span": null
+    },
+    {
+      "rule": "OOF-M1",
+      "severity": "error",
+      "message": "pure contract 'AvailabilityProjection' cannot declare escape capabilities; use 'observed' for read-only external access",
+      "node": "AvailabilityProjection",
+      "path": "contract:AvailabilityProjection/node:AvailabilityProjection",
+      "category": "typechecker_oof",
+      "contract": "AvailabilityProjection",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: compute_slots",
+      "node": "available_slots",
+      "path": "contract:AvailabilityProjection/node:available_slots",
+      "category": "typechecker_oof",
+      "contract": "AvailabilityProjection",
+      "span": null
+    }
+  ],
+  "semantic_ir_ref": null
+}
