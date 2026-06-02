@@ -12,17 +12,22 @@ Date: 2026-06-02
 Depends on:
 - S3-R235-C1-A
 - S3-R235-C2-P1
+- S3-R235-C3-I
 
 ---
 
 ## Executive Summary
 
-R235 closes two bounded status movements:
+R235 closes three bounded status movements:
 
 ```text
 Main Line:
   S3-R235-C1-A authorizes bounded pre-v1 quickstart/docs sync for the
   accepted experimental `igc run` Slice 0 command.
+
+Docs sync:
+  S3-R235-C3-I lands the bounded quickstart track and one docs/README
+  navigation pointer, preserving all non-claims.
 
 Sidecar:
   S3-R235-C2-P1 accepts the Rust `igniter-compiler` playground as lab
@@ -30,12 +35,15 @@ Sidecar:
   authority comparison.
 ```
 
-No quickstart docs have landed in this curation. The next Main Line route is
-the docs-sync implementation card authorized by C1-A:
+No runtime, compiler, package, public API, release, or production authority is
+opened by R235.
+
+Current R235 closure:
 
 ```text
-S3-R235-C3-I
-experimental-igc-run-slice0-quickstart-docs-v0
+quickstart/docs sync: landed
+QSD-1..QSD-15: PASS
+closed surfaces: preserved
 ```
 
 ---
@@ -45,7 +53,9 @@ experimental-igc-run-slice0-quickstart-docs-v0
 - `igniter-lang/docs/cards/S3/S3-R235.md`
 - `igniter-lang/docs/tracks/experimental-igc-run-slice0-quickstart-docs-authorization-review-v0.md`
 - `igniter-lang/docs/tracks/delegated-experimental-compiler-rust-candidate-intake-v0.md`
+- `igniter-lang/docs/tracks/experimental-igc-run-slice0-quickstart-docs-v0.md`
 - `igniter-lang/docs/tracks/stage3-round234-status-curation-v0.md`
+- `igniter-lang/docs/README.md`
 - `igniter-lang/docs/current-status.md`
 
 ---
@@ -56,14 +66,8 @@ experimental-igc-run-slice0-quickstart-docs-v0
 | --- | --- | --- |
 | S3-R235-C1-A | authorized | Bounded quickstart/docs sync may begin for accepted experimental `igc run` Slice 0 evidence only. |
 | S3-R235-C2-P1 | complete | Rust playground compiler accepted as lab candidate evidence only; no authority or public claim created. |
-| S3-R235-C5-S | done | Current status updated with compact R235 delta and exact next route. |
-
-Not landed in this curation:
-
-```text
-S3-R235-C3-I
-experimental-igc-run-slice0-quickstart-docs-v0
-```
+| S3-R235-C3-I | done / PASS | Bounded quickstart docs landed; QSD-1..QSD-15 PASS; root README/ruby-api/code surfaces unchanged. |
+| S3-R235-C5-S | done / refreshed | Current status and closure packet refreshed after C3-I landed. |
 
 ---
 
@@ -72,16 +76,25 @@ experimental-igc-run-slice0-quickstart-docs-v0
 Accepted / conditional / held status:
 
 ```text
-accepted for authorization/intake
-docs-sync authorized next
-docs-sync not yet landed
+accepted for authorization/intake/docs-sync
+docs-sync landed
+no additional authority opened
 ```
 
 What changed in R235:
 
 ```text
 Quickstart/docs exposure moved from "requires authorization" to
-"bounded docs-sync authorized".
+"bounded docs-sync landed".
+
+The docs-sync created the track:
+  igniter-lang/docs/tracks/experimental-igc-run-slice0-quickstart-docs-v0.md
+
+It added one navigation pointer in:
+  igniter-lang/docs/README.md
+
+It refreshed the compact breadcrumb in:
+  igniter-lang/docs/current-status.md
 
 The Rust compiler playground was recorded as lab candidate evidence with
 explicit non-authority classification and hardening gaps.
@@ -119,6 +132,17 @@ requires explicit input JSON
 requires explicit delegated runtime selector delegated-experimental:ivm-proof
 writes experimental_igc_run_v0_result only
 subject to change before v1
+```
+
+Docs-sync proof status:
+
+```text
+QSD-1..QSD-15 PASS
+forbidden wording scan PASS in allowed non-claim/closed-surface context
+R234 evidence citations only
+root README unchanged
+docs/ruby-api.md unchanged
+code/lib/bin/gemspec/experiments/examples/playgrounds unchanged
 ```
 
 Rust candidate sidecar status:
@@ -178,27 +202,29 @@ root README / ruby-api public surface changes
 ```text
 R235 C1-A docs-sync authorization
 R235 C2-P1 Rust lab candidate evidence intake
+R235 C3-I docs-sync landed / QSD-1..QSD-15 PASS
 R235 C5-S status curation
-S3-R235-C3-I exact next Main Line route
 ```
 
 ---
 
 ## Exact Handoff
 
-Next Main Line route:
+No additional R235 implementation route remains open from this closure packet.
+
+Recommended next dispatch:
 
 ```text
-Card: S3-R235-C3-I
+Card: S3-R236-C1-A
 Skill: IDD Agent Protocol
-Agent: [Implementation Agent]
-Role: implementation-agent
-Track: experimental-igc-run-slice0-quickstart-docs-v0
+Agent: [Portfolio Architect Supervisor]
+Role: portfolio-architect-supervisor
+Track: experimental-runtime-next-route-after-slice0-docs-decision-v0
 
 Goal:
-Write bounded pre-v1 quickstart/docs exposure for the accepted experimental
-`igc run` Slice 0 command, using only accepted R234 evidence and preserving
-all C1-A non-claims and closed surfaces.
+Choose the next bounded Main Line route after accepted `igc run` Slice 0
+implementation and bounded quickstart/docs exposure, preserving all R235
+closed surfaces.
 ```
 
 Parallel / future sidecar route, not opened by this curation:

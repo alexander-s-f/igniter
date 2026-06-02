@@ -1758,7 +1758,8 @@ Round 234 landed:
 Round 235 landed:
   S3-R235-C1-A: Slice 0 quickstart/docs authorization                    ✅ authorizes bounded docs-sync next; public/runtime/release surfaces closed
   S3-R235-C2-P1: Rust compiler lab candidate intake                     ✅ complete; lab evidence only; hardening gaps carried
-  S3-R235-C5-S: status curation                                         ✅ done; C3-I quickstart/docs sync route recorded
+  S3-R235-C3-I: Slice 0 quickstart/docs sync                            ✅ done; quickstart track + docs/README pointer; QSD-1..QSD-15 PASS
+  S3-R235-C5-S: status curation                                         ✅ done; refreshed after C3-I landed; R236 route selection recommended
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
