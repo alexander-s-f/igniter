@@ -774,6 +774,24 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             release, public docs claims, public performance,
                             official/reference, certification, and portability
                             authority remain closed;
+                            R237 conditionally accepts `igniter-stdlib` as
+                            stdlib candidate evidence and PROP-013 applied
+                            pressure only: Decimal FFI add/sub/mul/div plus
+                            OOF-TC5/OOF-DM2 behavior are accepted as strongest
+                            candidate signals; collections are internal
+                            Rust-only, temporal is domain-specific slot
+                            scheduling only, and stdlib `.ig` signatures are
+                            design-pressure/non-current syntax only; verifier
+                            PASS is scoped to Decimal FFI correctness plus
+                            signature file presence, not collections/temporal
+                            correctness; next route is proof-local stdlib
+                            candidate proof authorization review; mainline
+                            stdlib replacement, public stdlib API, PROP-013
+                            canonical change, implementation, runtime/API/
+                            CLI/package widening, `igc run` Slice 1, VM
+                            intake, TBackend intake, Spark/release/public
+                            performance, official/reference, certification,
+                            and portability authority remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1783,6 +1801,12 @@ Round 236 landed:
   S3-R236-C3-X: lab ecosystem pressure                                  ✅ PASS; no blockers; ordering note resolved by C4-A
   S3-R236-C4-A: lab ecosystem next-route decision                       ✅ accepts map; opens R237 stdlib candidate intake / PROP-013 pressure
   S3-R236-C5-S: status curation                                         ✅ done; R237 exact route recorded
+Round 237 landed:
+  S3-R237-C1-D: stdlib candidate intake / PROP-013 pressure              ✅ design; recommends proof-local authorization review next
+  S3-R237-C2-P1: stdlib candidate surface facts                         ✅ complete; Decimal FFI PASS; gaps G-1..G-9 recorded
+  S3-R237-C3-X: stdlib candidate pressure                               ✅ CONDITIONAL PASS; C-1/C-2/C-3 scope conditions required
+  S3-R237-C4-A: stdlib candidate intake decision                        ✅ conditional accept; opens R238 proof authorization review
+  S3-R237-C5-S: status curation                                         ✅ done; R238 exact route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
