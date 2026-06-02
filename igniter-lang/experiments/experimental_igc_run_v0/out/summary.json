@@ -1,0 +1,474 @@
+{
+  "kind": "experimental_igc_run_slice0_proof_v0_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R234-C2-I",
+  "track": "experimental-igc-run-slice0-implementation-v0",
+  "overall": "PASS",
+  "checks_total": 20,
+  "checks_pass": 20,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "positive_result_path": "/tmp/igniter_lang_cli_run_slice0/result.json",
+  "proof_result_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/summary.json",
+  "commands": [
+    {
+      "name": "syntax.cli",
+      "command": [
+        "ruby",
+        "-c",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib/igniter_lang/cli.rb"
+      ],
+      "exitstatus": 0,
+      "stdout": "Syntax OK\n",
+      "stderr": ""
+    },
+    {
+      "name": "syntax.experimental_igc_run",
+      "command": [
+        "ruby",
+        "-c",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib/igniter_lang/experimental_igc_run.rb"
+      ],
+      "exitstatus": 0,
+      "stdout": "Syntax OK\n",
+      "stderr": ""
+    },
+    {
+      "name": "compile.regression",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "compile",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/add_quickstart.ig",
+        "--out",
+        "/tmp/igniter_lang_cli_run_slice0/Add.igapp"
+      ],
+      "exitstatus": 0,
+      "stdout": "{\n  \"kind\": \"compiler_result\",\n  \"format_version\": \"0.1.0\",\n  \"status\": \"ok\",\n  \"program_id\": \"semanticir/d4b79e1278442edc\",\n  \"source_path\": \"/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/add_quickstart.ig\",\n  \"source_hash\": \"sha256:d4b79e1278442edc0d527395a38d6d8c4f55831a2553b02a262386d8ccca5cea\",\n  \"grammar_version\": \"0.1.0\",\n  \"stages\": {\n    \"parse\": \"ok\",\n    \"classify\": \"ok\",\n    \"typecheck\": \"ok\",\n    \"emit\": \"ok\",\n    \"assemble\": \"ok\"\n  },\n  \"igapp_path\": \"/tmp/igniter_lang_cli_run_slice0/Add.igapp\",\n  \"compilation_report_ref\": \"compilation_report/d4b79e1278442edc\",\n  \"semantic_ir_ref\": \"semanticir/d4b79e1278442edc\",\n  \"contracts\": [\n    \"Add\"\n  ],\n  \"diagnostics\": [],\n  \"warnings\": [],\n  \"runtime_smoke\": null\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "run.positive",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/tmp/igniter_lang_cli_run_slice0/result.json",
+        "--experimental"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "run.missing_experimental",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/missing_experimental.result.json"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "igc run requires --experimental\n"
+    },
+    {
+      "name": "run.missing_passport",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/missing_passport.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "igc run requires --passport PATH.json\n"
+    },
+    {
+      "name": "run.malformed_passport",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/malformed.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/malformed_passport.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "passport file must contain valid JSON\n"
+    },
+    {
+      "name": "run.artifact_ref_mismatch",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/artifact_ref_mismatch.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/artifact_ref_mismatch.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "passport artifact_ref does not match artifact path\n"
+    },
+    {
+      "name": "run.artifact_digest_mismatch",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/artifact_digest_mismatch.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/artifact_digest_mismatch.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "passport artifact_digest does not match artifact path\n"
+    },
+    {
+      "name": "run.unsupported_igbin",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/unsupported_igbin.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/unsupported_igbin.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "passport artifact_kind must be igapp_dir\n"
+    },
+    {
+      "name": "run.unsupported_path_igbin",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/fake.igbin",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/unsupported_path_igbin.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "igc run Slice 0 accepts .igapp directories only\n"
+    },
+    {
+      "name": "run.deferred_output_contract",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/deferred_output_contract.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/deferred_output_contract.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "passport output_contract must not be deferred\n"
+    },
+    {
+      "name": "run.unsupported_runtime",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "reference",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/unsupported_runtime.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "unsupported runtime selector for igc run Slice 0\n"
+    },
+    {
+      "name": "run.missing_input",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/missing_input.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "igc run requires --input PATH.json\n"
+    },
+    {
+      "name": "run.malformed_input",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/malformed.input.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/malformed_input.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "input file must contain valid JSON\n"
+    },
+    {
+      "name": "run.array_input",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/array.input.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/array_input.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "input JSON must be an object\n"
+    },
+    {
+      "name": "run.missing_out",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "igc run requires --out PATH.json\n"
+    },
+    {
+      "name": "run.missing_contract_name",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/missing_contract_name.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/missing_contract_name.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "passport output_contract.contract_name is required\n"
+    }
+  ],
+  "checks": [
+    {
+      "name": "IGR-1.rejects_without_experimental",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-2.rejects_missing_passport",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-3.rejects_malformed_passport_json",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-4.rejects_passport_artifact_ref_mismatch",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-5.rejects_artifact_digest_mismatch",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-6.rejects_unsupported_artifact_kind",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-7.rejects_deferred_output_contract",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-8.rejects_unsupported_runtime_selector",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-9.executes_add_igapp_sum_42",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-10.result_packet_is_local_experimental_output_only",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-11.no_runtime_smoke_or_production_compiler_cli_in_result",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-12.compiler_passport_emission_remains_absent",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-13.compile_behavior_backward_compatible",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-14.public_docs_remain_unchanged_by_c2_i_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-15.claim_scan_passes",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-16.rejects_missing_input",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-17.rejects_malformed_input_json",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-18.rejects_non_object_input_json",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-19.rejects_missing_out",
+      "status": "PASS"
+    },
+    {
+      "name": "IGR-20.rejects_missing_output_contract_name",
+      "status": "PASS"
+    }
+  ],
+  "next_recommendation": "Route S3-R234-C4-A to accept bounded Slice 0 if command matrix and scope review remain clean."
+}

@@ -1,0 +1,39 @@
+{
+  "kind": "experimental_igc_run_v0_result",
+  "format_version": "0.1.0",
+  "card": "S3-R234-C2-I",
+  "track": "experimental-igc-run-slice0-implementation-v0",
+  "status": "blocked",
+  "experimental": true,
+  "pre_v1": true,
+  "stable_api": false,
+  "artifact_ref": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/out/fake.igbin",
+  "passport_ref": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+  "input_ref": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_v0/inputs/add_19_23.json",
+  "runtime_selector": "delegated-experimental:ivm-proof",
+  "runtime_authority": "non-canonical / delegated experimental",
+  "outputs": {},
+  "diagnostics": [
+    {
+      "code": "unsupported_artifact",
+      "message": "igc run Slice 0 accepts .igapp directories only"
+    }
+  ],
+  "non_claims": [
+    "not stable API",
+    "not production ready",
+    "not public runtime support",
+    "not Reference Runtime support",
+    "not Spark integration",
+    "not release evidence",
+    "not public performance claim",
+    "not compiler passport emission",
+    "not igc run implementation"
+  ],
+  "not_compiler_result": true,
+  "not_compilation_report": true,
+  "not_compatibility_report": true,
+  "not_receipt_sidecar": true,
+  "not_release_evidence": true,
+  "not_public_api_response_contract": true
+}

@@ -1,0 +1,87 @@
+{
+  "passport_kind": "artifact_passport",
+  "passport_schema_version": "0.1.0",
+  "artifact_kind": "igapp_dir",
+  "artifact_format_version": "0.1.0",
+  "artifact_ref": "igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+  "artifact_digest": "sha256:c402b014620fb7c16903861253e362c7b585223b4c26f75a51d3527029d2c5ee",
+  "spec_version": "0.1.0",
+  "semantics_profile": "igniter-lang/core-pure-v0.1",
+  "compiler_id": "igapp-assembler-proof-stage1-v0",
+  "compiler_profile_id": "igapp-assembler-proof-stage1-v0",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "source_ref": "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/add_quickstart.ig",
+  "source_digest": "sha256:d4b79e1278442edc0d527395a38d6d8c4f55831a2553b02a262386d8ccca5cea",
+  "semantic_ir_ref": "semanticir/d4b79e1278442edc",
+  "semantic_ir_digest": "sha256:264b0b4043e294a52cc90e99eddd17098481d4e71d09390a357888ceef8aa62b",
+  "surface_dimension": "executable_runtime",
+  "runtime_target_kind": "delegated_experimental_runtime",
+  "runtime_implementation_id": "igniter.delegated.experimental.ivm.c_resident",
+  "backend_implementation_id": "deferred / not applicable for igapp_dir surface",
+  "consumer_surface_id": "deferred / not applicable for igapp_dir surface",
+  "required_capabilities": [
+    "semantic_ir_program_load",
+    "core_pure_evaluation"
+  ],
+  "feature_set": [
+    "integer_add",
+    "core_pure",
+    "stdlib_integer_add"
+  ],
+  "required_opcodes": "not_applicable / igapp_dir is not bytecode",
+  "execution_substrate": "ruby_delegated_example_local_harness",
+  "input_contract": {
+    "inputs": [
+      {
+        "lifecycle": "local",
+        "name": "a",
+        "type": {
+          "name": "Integer",
+          "params": []
+        }
+      },
+      {
+        "lifecycle": "local",
+        "name": "b",
+        "type": {
+          "name": "Integer",
+          "params": []
+        }
+      }
+    ],
+    "contract_name": "Add",
+    "contract_ref": "contract/Add/sha256:a295317f00612299f676cd02"
+  },
+  "output_contract": {
+    "deferred": true
+  },
+  "failure_policy": {
+    "policy": "fail_closed_on_invalid_input",
+    "behavior": "raise / return error result; no partial output"
+  },
+  "evidence_class": "compiler-emitted igapp_dir / proof-local evidence only",
+  "authority_status": "non-canonical / evidence-only",
+  "non_claims": [
+    "not stable API",
+    "not production ready",
+    "not public runtime support",
+    "not Reference Runtime support",
+    "not Spark integration",
+    "not release evidence",
+    "not public performance claim",
+    "not certified alternative implementation",
+    "not artifact portability guarantee",
+    "not compiler passport emission",
+    "not igc run implementation"
+  ],
+  "producer_track": "experimental-executable-quickstart-v0 / S3-R223-C2-I",
+  "authorized_by": "S3-R232-C1-A",
+  "proof_card": "S3-R232-C2-I",
+  "generated_at": "2026-06-02T10:07:20Z",
+  "provenance_note": [
+    "source_digest carried from compiler-recorded manifest.source_hash",
+    "source file not re-read; compiler provenance preserved read-only",
+    "artifact_digest recomputed deterministically over Add.igapp/ directory tree",
+    "semantic_ir_digest recomputed deterministically over semantic_ir_program.json"
+  ]
+}

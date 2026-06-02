@@ -9,15 +9,21 @@ module IgniterLang
   module CLI
     module_function
 
-    USAGE = "Usage: igc compile SOURCE --out OUT.igapp " \
-            "[--compiler-profile-source PATH.json]"
+    COMPILE_USAGE = "Usage: igc compile SOURCE --out OUT.igapp " \
+                    "[--compiler-profile-source PATH.json]"
+    RUN_USAGE = "Usage: igc run ARTIFACT.igapp --passport PATH.json " \
+                "--input PATH.json --runtime delegated-experimental:ivm-proof " \
+                "--out PATH.json --experimental"
+    USAGE = "#{COMPILE_USAGE}\n#{RUN_USAGE}"
 
     def run(argv)
       command = argv.shift
-      unless command == "compile"
+      unless %w[compile run].include?(command)
         warn USAGE
         return false
       end
+
+      return run_artifact(argv) if command == "run"
 
       source_path, out_path, profile_source_path = parse_compile_args(argv)
       compiler_profile_source = load_profile_source(profile_source_path) if profile_source_path
@@ -33,13 +39,19 @@ module IgniterLang
       false
     end
 
+    def run_artifact(argv)
+      require_relative "experimental_igc_run"
+
+      ExperimentalIgcRun.run(argv)
+    end
+
     def parse_compile_args(argv)
       source = argv.shift
-      raise ArgumentError, USAGE unless source
+      raise ArgumentError, COMPILE_USAGE unless source
 
       out_flag = argv.shift
       out = argv.shift
-      raise ArgumentError, USAGE unless out_flag == "--out" && out
+      raise ArgumentError, COMPILE_USAGE unless out_flag == "--out" && out
 
       profile_source_path = nil
       until argv.empty?
