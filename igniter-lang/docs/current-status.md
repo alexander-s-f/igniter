@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-06-02
+Last updated: 2026-06-03
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -932,8 +932,20 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             conformance authority, runtime authority,
                             portability guarantee, alternative certification,
                             public runtime support, public claim support, or
-                            release evidence; next route is R244 bounded
-                            internal quickstart/docs authorization review;
+                            release evidence; R244 quickstart/docs
+                            authorization and bounded docs sync are closed:
+                            internal Slice 1 docs now expose only the
+                            accepted pre-v1 experimental command shape
+                            `--runtime delegated-experimental:igniter-vm-candidate`,
+                            mandatory `--experimental`, `.igapp` input,
+                            proof-local passport/binding validation,
+                            evidence-facing `runtime_implementation_id`,
+                            Path C fail-closed integer diagnostics
+                            `unsupported_capability_integer_add` and
+                            `unsupported_capability_stdlib_integer_add`,
+                            blocked packet shape, and separate Slice 0
+                            compatibility; positive Add.igapp integer
+                            execution remains unclaimed;
                             public runtime support, Reference Runtime, stable
                             API, production, Spark/release/public demo or
                             performance claims, `.igbin`, RuntimeSmoke,
@@ -1991,6 +2003,9 @@ Round 243 landed:
   S3-R243-C3-X: implementation pressure                                 ✅ PASS; no blockers; claim scan clean
   S3-R243-C4-A: implementation acceptance                               ✅ conditional accept; adjacent artifacts excluded by status curation
   S3-R243-C5-S: status curation                                         ✅ done; R244 quickstart/docs authorization route recorded
+Round 244 landed:
+  S3-R244-C1-A: Slice 1 quickstart/docs authorization                    ✅ authorized bounded internal docs sync
+  S3-R244-C2-I: Slice 1 quickstart/docs sync                             ✅ done; QD-S1 14/14, Path C blocked docs, closed-surface scan clean
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;

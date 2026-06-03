@@ -4,7 +4,7 @@ Stage 1 status: **CLOSED** (2026-05-06) — [META-EXPERT-007](meta-proposals/MET
 Stage 2 status: **CLOSED** (2026-05-07) — [META-EXPERT-009.1](meta-proposals/META-EXPERT-009.1-stage2-close-decision-v0.md)
 Stage 3 status: **OPEN** (2026-05-08) — [META-EXPERT-011](meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md)
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-05-16
+Last updated: 2026-06-03
 
 ---
 
@@ -24,6 +24,16 @@ Experimental igc run Slice 0 (pre-v1 / delegated-runtime evidence only)
     pre-v1 experimental delegated-runtime Slice 0 evidence only;
     not stable API, not public runtime, not Reference Runtime,
     not production-ready; subject to change before v1
+Experimental igc run Slice 1 VM candidate (pre-v1 / Path C fail-closed evidence only)
+  → tracks/experimental-igc-run-slice1-quickstart-docs-v0.md
+    selector `delegated-experimental:igniter-vm-candidate`;
+    requires `--experimental`, `.igapp`, proof-local passport/binding,
+    explicit input and output; integer Add.igapp currently blocks with
+    `unsupported_capability_integer_add` and
+    `unsupported_capability_stdlib_integer_add`;
+    not stable API, not public runtime support, not Reference Runtime support,
+    not production-ready, not release evidence, not Spark integration,
+    not public performance evidence, and not portability authority
 Accepted release evidence
   → current-status.md
     repo-local compiler RC evidence: PASS;
