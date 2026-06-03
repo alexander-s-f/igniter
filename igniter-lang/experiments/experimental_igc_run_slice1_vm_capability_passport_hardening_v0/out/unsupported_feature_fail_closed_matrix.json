@@ -1,0 +1,79 @@
+{
+  "kind": "experimental_igc_run_slice1_unsupported_feature_fail_closed_matrix",
+  "format_version": "0.1.0",
+  "loops_source_ref": "igniter-lang/source/loops_and_recursion.ig",
+  "loops_source_markers": {
+    "loop_keyword": true,
+    "recursion_def": true,
+    "decreases_fuel": true,
+    "clock_every": true,
+    "tick_time": true
+  },
+  "features": [
+    {
+      "feature": ".igbin",
+      "slice1_status": "unsupported",
+      "policy": "fail_closed",
+      "diagnostic_code": "unsupported_artifact_igbin",
+      "reason": ".igbin remains excluded"
+    },
+    {
+      "feature": "loop",
+      "slice1_status": "unsupported",
+      "policy": "fail_closed",
+      "diagnostic_code": "unsupported_feature_loop",
+      "reason": "loops are pressure-only"
+    },
+    {
+      "feature": "recursion",
+      "slice1_status": "unsupported",
+      "policy": "fail_closed",
+      "diagnostic_code": "unsupported_feature_recursion",
+      "reason": "recursion is pressure-only"
+    },
+    {
+      "feature": "service_loop_clock_tick",
+      "slice1_status": "unsupported",
+      "policy": "fail_closed",
+      "diagnostic_code": "unsupported_feature_service_loop",
+      "reason": "tick.time remains pressure-only"
+    },
+    {
+      "feature": "reactive_daemon",
+      "slice1_status": "unsupported",
+      "policy": "fail_closed",
+      "diagnostic_code": "unsupported_feature_reactive_daemon",
+      "reason": "no server/daemon execution"
+    },
+    {
+      "feature": "tbackend_daemon",
+      "slice1_status": "unsupported",
+      "policy": "fail_closed",
+      "diagnostic_code": "unsupported_feature_tbackend_daemon",
+      "reason": "no TBackend daemon execution"
+    },
+    {
+      "feature": "projection_pipeline",
+      "slice1_status": "unsupported",
+      "policy": "fail_closed",
+      "diagnostic_code": "unsupported_feature_projection_pipeline",
+      "reason": "no projection pipeline execution"
+    },
+    {
+      "feature": "compiler_passport_emission",
+      "slice1_status": "unsupported",
+      "policy": "fail_closed",
+      "diagnostic_code": "compiler_passport_emission_closed",
+      "reason": "compiler passport emission remains closed"
+    },
+    {
+      "feature": "RuntimeSmoke",
+      "slice1_status": "unsupported",
+      "policy": "fail_closed",
+      "diagnostic_code": "runtime_smoke_closed",
+      "reason": "RuntimeSmoke remains absent"
+    }
+  ],
+  "default_policy": "fail_closed",
+  "implementation_authorized": false
+}

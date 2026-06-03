@@ -1,0 +1,15 @@
+{
+  "kind": "experimental_igc_run_slice1_selector_runtime_implementation_id_separation_proof",
+  "format_version": "0.1.0",
+  "proof_local_user_typed_selector": "delegated-experimental:igniter-vm-candidate",
+  "runtime_implementation_id": "igniter.delegated.experimental.vm.rust-tokio.v0",
+  "existing_slice0_selector": "delegated-experimental:ivm-proof",
+  "existing_slice0_selector_still_present": true,
+  "runtime_implementation_id_present_in_mainline_run_surface": false,
+  "user_typed_selectors": [
+    "delegated-experimental:ivm-proof",
+    "delegated-experimental:igniter-vm-candidate"
+  ],
+  "runtime_implementation_id_is_user_typed_selector": false,
+  "separation_policy": "selector is user-facing experimental alias; runtime_implementation_id is evidence-facing metadata only"
+}

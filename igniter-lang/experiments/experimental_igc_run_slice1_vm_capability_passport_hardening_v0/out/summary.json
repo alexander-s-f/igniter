@@ -1,0 +1,209 @@
+{
+  "kind": "experimental_igc_run_slice1_vm_capability_passport_hardening_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R242-C2-I",
+  "track": "experimental-igc-run-slice1-vm-capability-passport-hardening-v0",
+  "authorized_by": "S3-R242-C1-A",
+  "status": "PASS",
+  "generated_at": "2026-06-03T00:00:00Z",
+  "artifact_ref": "igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+  "artifact_digest": "sha256:c402b014620fb7c16903861253e362c7b585223b4c26f75a51d3527029d2c5ee",
+  "runtime_selector": "delegated-experimental:igniter-vm-candidate",
+  "runtime_implementation_id": "igniter.delegated.experimental.vm.rust-tokio.v0",
+  "existing_passport_runtime_implementation_id": "igniter.delegated.experimental.ivm.c_resident",
+  "binding_manifest_path": "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/vm_capability_passport_binding_manifest.json",
+  "result_table": [
+    {
+      "id": "S1H-1",
+      "description": "proof-local binding manifest exists",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-2",
+      "description": "artifact_ref / artifact_digest for Add.igapp recompute correctly",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-3",
+      "description": "runtime_implementation_id matches accepted R240 VM id",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-4",
+      "description": "CLI selector remains delegated-experimental:igniter-vm-candidate",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-5",
+      "description": "runtime_implementation_id is not used as a user-typed selector",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-6",
+      "description": "required capabilities map to accepted VMG-1..VMG-15 evidence only",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-7",
+      "description": "loop/recursion are pressure-only and fail-closed",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-8",
+      "description": ".igbin remains excluded",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-9",
+      "description": "compiler passport emission remains absent",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-10",
+      "description": "RuntimeSmoke remains absent",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-11",
+      "description": "unsupported feature matrix is fail-closed",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-12",
+      "description": "result packet shape is evidence-only / pre-v1 / non-stable",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-13",
+      "description": "public/runtime/reference/stable/performance/portability claim scan passes",
+      "status": "PASS",
+      "result": "PASS"
+    },
+    {
+      "id": "S1H-14",
+      "description": "closed-surface scan passes",
+      "status": "PASS",
+      "result": "PASS"
+    }
+  ],
+  "failed_checks": [],
+  "claim_scan": {
+    "kind": "experimental_igc_run_slice1_claim_scan",
+    "format_version": "0.1.0",
+    "forbidden_positive_claim_keys": [
+      "alternative_certification",
+      "compiler_passport_emission",
+      "igc_run_implementation_authorized",
+      "official_reference_status",
+      "portability_guarantee",
+      "production_ready",
+      "public_performance_claim",
+      "public_runtime_support",
+      "reference_runtime_support",
+      "release_evidence",
+      "runtime_smoke_productization",
+      "spark_integration",
+      "stable_api"
+    ],
+    "hits": [],
+    "hit_count": 0,
+    "status": "PASS"
+  },
+  "closed_surface_scan": {
+    "kind": "experimental_igc_run_slice1_closed_surface_scan",
+    "format_version": "0.1.0",
+    "allowed_write_scope": [
+      "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/**",
+      "igniter-lang/docs/tracks/experimental-igc-run-slice1-vm-capability-passport-hardening-v0.md"
+    ],
+    "proof_written_paths": [
+      "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/vm_capability_passport_binding_manifest.json",
+      "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/capability_support_gap_matrix.json",
+      "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/unsupported_feature_fail_closed_matrix.json",
+      "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/selector_runtime_implementation_id_separation_proof.json",
+      "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/non_claims_matrix.json",
+      "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/closed_surface_scan.json",
+      "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/summary.json"
+    ],
+    "written_outside_allowed_scope": [],
+    "closed_surfaces": [
+      {
+        "surface": "igniter-lang/lib/**",
+        "proof_access": "read-only / not written"
+      },
+      {
+        "surface": "igniter-lang/bin/igc",
+        "proof_access": "read-only / not written"
+      },
+      {
+        "surface": "igniter-lang/igniter_lang.gemspec",
+        "proof_access": "read-only / not written"
+      },
+      {
+        "surface": "igniter-lang/README.md",
+        "proof_access": "read-only / not written"
+      },
+      {
+        "surface": "igniter-lang/docs/README.md",
+        "proof_access": "read-only / not written"
+      },
+      {
+        "surface": "igniter-lang/docs/ruby-api.md",
+        "proof_access": "read-only / not written"
+      },
+      {
+        "surface": "igniter-lang/lib/igniter_lang/runtime_smoke.rb",
+        "proof_access": "read-only / not written"
+      },
+      {
+        "surface": "igniter-lang/lib/igniter_lang/compiler_result.rb",
+        "proof_access": "read-only / not written"
+      },
+      {
+        "surface": "igniter-lang/lib/igniter_lang/compilation_report.rb",
+        "proof_access": "read-only / not written"
+      },
+      {
+        "surface": "playgrounds/igniter-lab/**",
+        "proof_access": "read-only / not written"
+      },
+      {
+        "surface": "igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp/**",
+        "proof_access": "read-only / not written"
+      },
+      {
+        "surface": "igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "proof_access": "read-only / not written"
+      }
+    ],
+    "status": "PASS"
+  },
+  "command_matrix": [
+    {
+      "command": "ruby -c igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/experimental_igc_run_slice1_vm_capability_passport_hardening_v0.rb",
+      "result": "PASS"
+    },
+    {
+      "command": "ruby igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/experimental_igc_run_slice1_vm_capability_passport_hardening_v0.rb",
+      "result": "PASS"
+    }
+  ],
+  "c4_a_recommendation": {
+    "verdict": "accept proof-local hardening; keep implementation authorization closed",
+    "next_route": "C3-X pressure review before any C4-A acceptance decision",
+    "implementation_authorization": "closed",
+    "runtime_spec_redirect": "only if C3-X/C4-A finds capability or failure-code blockers"
+  }
+}

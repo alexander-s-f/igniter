@@ -1,0 +1,69 @@
+{
+  "kind": "experimental_igc_run_slice1_closed_surface_scan",
+  "format_version": "0.1.0",
+  "allowed_write_scope": [
+    "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/**",
+    "igniter-lang/docs/tracks/experimental-igc-run-slice1-vm-capability-passport-hardening-v0.md"
+  ],
+  "proof_written_paths": [
+    "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/vm_capability_passport_binding_manifest.json",
+    "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/capability_support_gap_matrix.json",
+    "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/unsupported_feature_fail_closed_matrix.json",
+    "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/selector_runtime_implementation_id_separation_proof.json",
+    "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/non_claims_matrix.json",
+    "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/closed_surface_scan.json",
+    "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0/out/summary.json"
+  ],
+  "written_outside_allowed_scope": [],
+  "closed_surfaces": [
+    {
+      "surface": "igniter-lang/lib/**",
+      "proof_access": "read-only / not written"
+    },
+    {
+      "surface": "igniter-lang/bin/igc",
+      "proof_access": "read-only / not written"
+    },
+    {
+      "surface": "igniter-lang/igniter_lang.gemspec",
+      "proof_access": "read-only / not written"
+    },
+    {
+      "surface": "igniter-lang/README.md",
+      "proof_access": "read-only / not written"
+    },
+    {
+      "surface": "igniter-lang/docs/README.md",
+      "proof_access": "read-only / not written"
+    },
+    {
+      "surface": "igniter-lang/docs/ruby-api.md",
+      "proof_access": "read-only / not written"
+    },
+    {
+      "surface": "igniter-lang/lib/igniter_lang/runtime_smoke.rb",
+      "proof_access": "read-only / not written"
+    },
+    {
+      "surface": "igniter-lang/lib/igniter_lang/compiler_result.rb",
+      "proof_access": "read-only / not written"
+    },
+    {
+      "surface": "igniter-lang/lib/igniter_lang/compilation_report.rb",
+      "proof_access": "read-only / not written"
+    },
+    {
+      "surface": "playgrounds/igniter-lab/**",
+      "proof_access": "read-only / not written"
+    },
+    {
+      "surface": "igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp/**",
+      "proof_access": "read-only / not written"
+    },
+    {
+      "surface": "igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+      "proof_access": "read-only / not written"
+    }
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,154 @@
+{
+  "kind": "experimental_igc_run_slice1_capability_support_gap_matrix",
+  "format_version": "0.1.0",
+  "runtime_implementation_id": "igniter.delegated.experimental.vm.rust-tokio.v0",
+  "vm_summary_overall": "PASS",
+  "accepted_vmg_ids": [
+    "VMG-1",
+    "VMG-2",
+    "VMG-3",
+    "VMG-4",
+    "VMG-5",
+    "VMG-6",
+    "VMG-7",
+    "VMG-8",
+    "VMG-9",
+    "VMG-10",
+    "VMG-11",
+    "VMG-12",
+    "VMG-13",
+    "VMG-14",
+    "VMG-15"
+  ],
+  "capability_source_map": [
+    {
+      "capability": "vm_runtime_identity_binding",
+      "vmg_refs": [
+        "VMG-1"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "evidence_authority_and_non_claims",
+      "vmg_refs": [
+        "VMG-2",
+        "VMG-15"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "scoped_proof_command_matrix",
+      "vmg_refs": [
+        "VMG-3"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "decimal_arithmetic_parity_evidence",
+      "vmg_refs": [
+        "VMG-4"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "aot_semanticir_lowering_candidate",
+      "vmg_refs": [
+        "VMG-5"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "stack_register_execution_candidate",
+      "vmg_refs": [
+        "VMG-6"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "selected_branch_candidate",
+      "vmg_refs": [
+        "VMG-7"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "non_selected_branch_silence_candidate",
+      "vmg_refs": [
+        "VMG-8"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "unsupported_path_fail_closed",
+      "vmg_refs": [
+        "VMG-9"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "malformed_input_fail_closed",
+      "vmg_refs": [
+        "VMG-10"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "temporal_trace_identifier_candidate",
+      "vmg_refs": [
+        "VMG-11"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "map_reduce_aggregate_candidate",
+      "vmg_refs": [
+        "VMG-12"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "reactive_tbackend_classified_skipped",
+      "vmg_refs": [
+        "VMG-13"
+      ],
+      "status": "classified_skipped",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    },
+    {
+      "capability": "closed_surface_preservation",
+      "vmg_refs": [
+        "VMG-14"
+      ],
+      "status": "supported_evidence_only",
+      "authority": "R240 accepted VM candidate proof evidence only"
+    }
+  ],
+  "feature_gap_matrix": [
+    {
+      "feature": "integer_add",
+      "source": "existing Add.igapp feature_set",
+      "artifact_feature_present": true,
+      "slice1_status": "gap_fail_closed_until_runtime_spec_or_vm_integer_parity_evidence",
+      "reason": "R240 accepted VMG arithmetic evidence is decimal parity, not public Integer runtime support."
+    },
+    {
+      "feature": "stdlib_integer_add",
+      "source": "existing Add.igapp feature_set",
+      "artifact_feature_present": true,
+      "slice1_status": "gap_fail_closed_until_runtime_spec_or_vm_integer_parity_evidence",
+      "reason": "Binding is evidence-only and does not authorize Slice 1 execution."
+    }
+  ]
+}
