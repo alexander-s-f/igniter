@@ -813,6 +813,31 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             production, Spark/release/public performance,
                             official/reference, certification, and portability
                             authority remain closed;
+                            R239 accepts `igniter-vm` as delegated
+                            experimental VM candidate intake evidence only:
+                            `vm_tests.rs` baseline is 12/12 PASS, package
+                            metadata is confirmed, and the crate shape,
+                            AOT compiler, stack/register execution,
+                            if_expr lowering, Decimal delegation through the
+                            R238 stdlib dependency, OP_LOAD_AS_OF, observation
+                            sink, map-reduce aggregate evaluator, and
+                            MemoryHistoryBackend test surface are accepted as
+                            lab-local candidate evidence; reactive/tbackend
+                            daemon surfaces are classified but not accepted as
+                            run proof; no crate `runtime_implementation_id`,
+                            no crate-level passport manifest, no lib unit
+                            tests, and local daemon/port dependency remain
+                            known proof gaps; C3-X AN-1 hash-trace wording and
+                            AN-2 non-selected-branch silence are mandatory
+                            next-proof conditions; next route is R240
+                            proof-local VM proof authorization review only;
+                            live implementation, `igc run` widening, `.igbin`,
+                            compiler passport emission, RuntimeSmoke,
+                            public runtime support, Reference Runtime,
+                            stable API, production, Spark/release/public
+                            performance, official/reference, certification,
+                            portability, and adjacent frontier/conformance
+                            authority remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1834,6 +1859,12 @@ Round 238 landed:
   S3-R238-C3-X: stdlib proof pressure                                   ✅ PASS; C-1/C-2/C-3 satisfied; no authority leakage
   S3-R238-C4-A: stdlib proof acceptance                                 ✅ accepts proof-local evidence; opens R239 VM intake authorization review
   S3-R238-C5-S: status curation                                         ✅ done; R239 exact route recorded
+Round 239 landed:
+  S3-R239-C1-A: VM candidate intake authorization                       ✅ authorized bounded read-only / proof-local intake only
+  S3-R239-C2-P1: VM candidate surface facts                             ✅ complete; 12/12 vm_tests PASS; G-1..G-4 carried
+  S3-R239-C3-X: VM candidate intake pressure                            ✅ PASS; AN-1/AN-2 mandatory for next proof route
+  S3-R239-C4-A: VM candidate intake decision                            ✅ accepts candidate evidence only; opens R240 proof authorization review
+  S3-R239-C5-S: status curation                                         ✅ done; R240 exact route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
