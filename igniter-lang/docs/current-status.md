@@ -860,6 +860,31 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             Runtime, stable API, production, Spark/release/
                             public performance, official/reference,
                             certification, and portability remain closed;
+                            R241 accepts the experimental `igc run` Slice 1
+                            VM candidate design boundary while holding
+                            implementation authorization; the user-facing
+                            selector is
+                            `delegated-experimental:igniter-vm-candidate`,
+                            while `runtime_implementation_id`
+                            `igniter.delegated.experimental.vm.rust-tokio.v0`
+                            remains evidence-facing metadata only; current
+                            Add.igapp passport targets
+                            `igniter.delegated.experimental.ivm.c_resident`,
+                            so a proof-local VM capability/passport binding
+                            hardening proof is required before any
+                            implementation authorization; loop/recursion tests
+                            are lab pressure input only, not R240 VMG evidence
+                            and not Slice 1 evidence, and Slice 1 must fail
+                            closed if loop/recursion constructs are
+                            encountered; next route is R242 hardening
+                            authorization review; `igc run` implementation,
+                            runtime/API/CLI/package authority, `.igbin`,
+                            compiler passport emission, RuntimeSmoke,
+                            Reference Runtime, public runtime support,
+                            stable API, production, Spark/release/public demo
+                            or performance claims, official/reference,
+                            certification, portability, and reactive/tbackend
+                            daemon execution remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1893,6 +1918,12 @@ Round 240 landed:
   S3-R240-C3-X: VM proof pressure                                      ✅ PASS unconditional; R239 AN-1/AN-2 resolved
   S3-R240-C4-A: VM proof acceptance                                    ✅ accepts proof-local evidence; opens R241 Slice 1 design-only route
   S3-R240-C5-S: status curation                                       ✅ done; R241 exact route recorded
+Round 241 landed:
+  S3-R241-C1-D: Slice 1 VM candidate design boundary                    ✅ design-ready-with-prerequisite; implementation held
+  S3-R241-C2-P1: Slice 1 surface and VM facts                           ✅ complete; passport mismatch and loop pressure mapped
+  S3-R241-C3-X: Slice 1 design pressure                                 ✅ PASS; AN-1 loop evidence caution, AN-2 selector separation
+  S3-R241-C4-A: Slice 1 design decision                                 ✅ accepts design; opens R242 capability/passport hardening review
+  S3-R241-C5-S: status curation                                         ✅ done; R242 exact route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
