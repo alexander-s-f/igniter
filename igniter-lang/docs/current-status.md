@@ -933,7 +933,8 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             portability guarantee, alternative certification,
                             public runtime support, public claim support, or
                             release evidence; R244 quickstart/docs
-                            authorization and bounded docs sync are closed:
+                            authorization, bounded docs sync, pressure review,
+                            and acceptance are closed:
                             internal Slice 1 docs now expose only the
                             accepted pre-v1 experimental command shape
                             `--runtime delegated-experimental:igniter-vm-candidate`,
@@ -951,7 +952,10 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             performance claims, `.igbin`, RuntimeSmoke,
                             compiler passport emission, portability, and
                             adjacent conformance/source artifact authority
-                            remain closed;
+                            remain closed; next Main Line route is R245
+                            loops/recursion pressure and spec boundary as
+                            design/intake only, not implementation or lab
+                            certification;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -2006,6 +2010,9 @@ Round 243 landed:
 Round 244 landed:
   S3-R244-C1-A: Slice 1 quickstart/docs authorization                    ✅ authorized bounded internal docs sync
   S3-R244-C2-I: Slice 1 quickstart/docs sync                             ✅ done; QD-S1 14/14, Path C blocked docs, closed-surface scan clean
+  S3-R244-C3-X: quickstart/docs pressure                                 ✅ PASS unconditional; forbidden wording scan 0 positive-claim hits
+  S3-R244-C4-A: quickstart/docs acceptance                               ✅ accepted; internal docs exposure only, all public/runtime claims closed
+  S3-R244-C5-S: status curation                                          ✅ done; R245 loops/recursion pressure boundary route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
