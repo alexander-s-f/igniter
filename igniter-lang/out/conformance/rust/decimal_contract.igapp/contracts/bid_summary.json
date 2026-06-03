@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:ec85aecb52185c95ff1f3681972221396d0406b31c41e41ff61abca28cc1a34a",
+  "artifact_hash": "sha256:83a7c3df904084d623c26123a6e08a829dd46c09d57108477acfbbcc6ff44d3c",
   "compute_nodes": [
     {
       "dependencies": [
@@ -47,6 +47,7 @@
     }
   ],
   "lifecycle": "session",
+  "modifier": "pure",
   "name": "BidSummary",
   "output_ports": [
     {

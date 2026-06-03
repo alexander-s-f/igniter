@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:39bb5282518c00e7229a4badf389a084e577cd4ff9f7c421126f3d80cdf346af",
+  "artifact_hash": "sha256:602b213fdccb661f5d22b7377e9f48cb33c4ea1b9251716391872e64b1bd750a",
   "compute_nodes": [
     {
       "dependencies": [
@@ -68,6 +68,7 @@
     }
   ],
   "lifecycle": "session",
+  "modifier": "observed",
   "name": "TenantAvailabilityProjection",
   "output_ports": [
     {

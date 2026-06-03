@@ -329,6 +329,59 @@ module IgniterLang
           "params" => [{ "name" => inner_name, "params" => [] }]
         }
         return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "last"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        inner_name = "Unknown"
+        if !args_typed.empty?
+          col_type = args_typed[0].fetch("resolved_type")
+          params = col_type.fetch("params", [])
+          inner_name = params[0].fetch("name") if !params.empty?
+        end
+        res_type = {
+          "name" => "Option",
+          "params" => [{ "name" => inner_name, "params" => [] }]
+        }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "sum"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        res_type = { "name" => "Decimal", "params" => [] }
+        if args.length >= 2 && !args_typed.empty?
+          field_arg = args[1]
+          if field_arg["kind"] == "symbol"
+            field_name = field_arg["value"]
+            col_type = args_typed[0].fetch("resolved_type")
+            params = col_type.fetch("params", [])
+            if !params.empty?
+              inner_type_name = params[0].fetch("name")
+              fields = @type_shapes[inner_type_name]
+              if fields && fields[field_name]
+                res_type = fields[field_name]
+              end
+            end
+          end
+        end
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "zip"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        inner_a = { "name" => "Unknown", "params" => [] }
+        inner_b = { "name" => "Unknown", "params" => [] }
+        if args_typed.length >= 2
+          col_a = args_typed[0].fetch("resolved_type")
+          col_b = args_typed[1].fetch("resolved_type")
+          params_a = col_a.fetch("params", [])
+          params_b = col_b.fetch("params", [])
+          inner_a = params_a[0] if !params_a.empty?
+          inner_b = params_b[0] if !params_b.empty?
+        end
+        pair_type = {
+          "name" => "Pair",
+          "params" => [inner_a, inner_b]
+        }
+        res_type = {
+          "name" => "Collection",
+          "params" => [pair_type]
+        }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
       elsif fn == "or_else"
         args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
         res_type = args_typed.length >= 2 ? args_typed[1].fetch("resolved_type") : { "name" => "String", "params" => [] }

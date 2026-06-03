@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:c29826221700c4c343d30b950ad57a41b8307df32238427fbe201c0c20949cfd",
+  "artifact_hash": "sha256:0236ec810485669f9b511b6f00a53a2051775558432bd7a0714eb18d2dde773e",
   "compute_nodes": [
     {
       "dependencies": [
@@ -45,6 +45,7 @@
     }
   ],
   "lifecycle": "session",
+  "modifier": "pure",
   "name": "Add",
   "output_ports": [
     {

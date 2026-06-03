@@ -31,6 +31,11 @@ module RuntimeMachineMemoryProof
       "map",
       "filter",
       "count",
+      "first",
+      "last",
+      "sum",
+      "zip",
+      "range",
       "or_else"
     ].freeze
 
@@ -71,6 +76,46 @@ module RuntimeMachineMemoryProof
         Array(collection).select { |item| matches_filter?(item, spec) }
       when "count"
         Array(operands.fetch(0)).length
+      when "first"
+        collection = operands.fetch(0)
+        Array(collection).first
+      when "last"
+        collection = operands.fetch(0)
+        Array(collection).last
+      when "sum"
+        collection, field = operands
+        field_name = field.to_s.delete_prefix(":")
+        sum = nil
+        Array(collection).each do |item|
+          val = item[field_name] || item[field_name.to_sym]
+          next if val.nil?
+          if val.is_a?(Hash) && val.key?("value") && val.key?("scale") # Decimal
+            if sum.nil?
+              sum = { "value" => 0, "scale" => val["scale"] }
+            end
+            if sum["scale"] != val["scale"]
+              raise ArgumentError, "Scale mismatch in sum: #{sum["scale"]} vs #{val["scale"]}"
+            end
+            sum = { "value" => sum["value"] + val["value"], "scale" => sum["scale"] }
+          else
+            if sum.nil?
+              sum = 0
+            end
+            sum += val
+          end
+        end
+        sum || 0
+      when "zip"
+        col_a, col_b = operands
+        arr_a = Array(col_a)
+        arr_b = Array(col_b)
+        len = [arr_a.length, arr_b.length].min
+        (0...len).map do |i|
+          { "first" => arr_a[i], "second" => arr_b[i] }
+        end
+      when "range"
+        start, finish = operands
+        (start...finish).to_a
       when "or_else"
         value, fallback = operands
         value.nil? ? fallback : value

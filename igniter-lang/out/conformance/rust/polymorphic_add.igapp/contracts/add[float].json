@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:c08d36ba0475e4bfad7ceab4d52b1e09d1ece06279d7eea573888bd459b59750",
+  "artifact_hash": "sha256:b497691133cc93004d64c560a26e5afeaabb3e206e21bff83277e8a2a7ffb05e",
   "compute_nodes": [
     {
       "dependencies": [
@@ -51,6 +51,7 @@
     }
   ],
   "lifecycle": "session",
+  "modifier": "pure",
   "name": "Add[Float]",
   "output_ports": [
     {

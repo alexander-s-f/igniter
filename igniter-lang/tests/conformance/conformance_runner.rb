@@ -41,7 +41,7 @@ VOLATILE_KEYS = %w[
   artifact_hash source_hash source_contract_ref contract_ref program_id
   semantic_ir_ref compilation_report_ref compiled_at compiled_by compiled_on
   compilation_time elapsed_ms assembler compiler_version source_path
-  fragment_class fragment resolved_type
+  fragment_class fragment resolved_type modifier
 ].freeze
 
 def type_to_string(type)
