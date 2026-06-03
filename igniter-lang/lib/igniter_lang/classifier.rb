@@ -341,6 +341,10 @@ module IgniterLang
         expr_refs(expr.fetch("left")) + expr_refs(expr.fetch("right"))
       when "call"
         expr.fetch("args", []).flat_map { |arg| expr_refs(arg) }
+      when "lambda"
+        params = expr.fetch("params", [])
+        body_refs = expr_refs(expr.fetch("body"))
+        body_refs - params
       when "literal", "symbol"
         []
       else

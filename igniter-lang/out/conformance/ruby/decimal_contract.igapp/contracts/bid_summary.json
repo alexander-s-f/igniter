@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:ef3869e80cd72524887c782531a410bc1ee78831864aea0b612ae501ab22db74",
+  "artifact_hash": "sha256:a75612ebc7593edde6206786b1a38272fd02e183e0f528497b79439ff73fc9fb",
   "compute_nodes": [
     {
       "dependencies": [
@@ -11,14 +11,37 @@
         "operands": [
           {
             "kind": "ref",
-            "name": "base_bid"
+            "name": "base_bid",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Decimal",
+              "params": [
+                2
+              ]
+            }
           },
           {
             "kind": "ref",
-            "name": "tax_rate"
+            "name": "tax_rate",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Decimal",
+              "params": [
+                4
+              ]
+            }
           }
         ],
-        "operator": "mul"
+        "operator": "mul",
+        "resolved_type": {
+          "name": "Decimal",
+          "params": [
+            {
+              "name": "0",
+              "params": []
+            }
+          ]
+        }
       },
       "fragment_class": "core",
       "kind": "compute",

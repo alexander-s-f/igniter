@@ -439,6 +439,55 @@ module RuntimeMachineMemoryProof
       when "apply"
         operands = expr.fetch("operands").map { |op| eval_expr(op, values, backend: backend, as_of: as_of) }
         apply_operator(expr.fetch("operator"), operands)
+      when "call"
+        fn = expr.fetch("fn")
+        args = expr.fetch("args", []).map { |arg| eval_expr(arg, values, backend: backend, as_of: as_of) }
+        apply_operator(fn, args)
+      when "symbol"
+        expr.fetch("value")
+      when "map_reduce_aggregate"
+        source_val = eval_expr(expr.fetch("source"), values, backend: backend, as_of: as_of)
+        current_val = Array(source_val)
+        expr.fetch("pipeline", []).each do |stage|
+          case stage.fetch("kind")
+          when "filter"
+            param = stage.fetch("param")
+            body = stage.fetch("body")
+            current_val = current_val.select do |item|
+              local_vals = values.merge(param => item)
+              eval_expr(body, local_vals, backend: backend, as_of: as_of) == true
+            end
+          when "map"
+            param = stage.fetch("param")
+            body = stage.fetch("body")
+            current_val = current_val.map do |item|
+              local_vals = values.merge(param => item)
+              eval_expr(body, local_vals, backend: backend, as_of: as_of)
+            end
+          when "count"
+            current_val = current_val.length
+          when "first"
+            current_val = current_val.first
+          when "last"
+            current_val = current_val.last
+          when "sum"
+            field_name = stage.fetch("field").to_s.delete_prefix(":")
+            current_val = CanonicalStdlibRegistry.call("sum", [current_val, field_name])
+          when "fold"
+            param_acc = stage.fetch("param_acc")
+            param_val = stage.fetch("param_val")
+            init_expr = stage.fetch("init")
+            body_expr = stage.fetch("body")
+            init_val = eval_expr(init_expr, values, backend: backend, as_of: as_of)
+            current_val = current_val.reduce(init_val) do |acc, item|
+              local_vals = values.merge(param_acc => acc, param_val => item)
+              eval_expr(body_expr, local_vals, backend: backend, as_of: as_of)
+            end
+          else
+            raise ArgumentError, "Unknown map_reduce_aggregate pipeline kind: #{stage["kind"]}"
+          end
+        end
+        current_val
       when "field_access"
         object = eval_expr(expr.fetch("object"), values, backend: backend, as_of: as_of)
         field = expr.fetch("field")

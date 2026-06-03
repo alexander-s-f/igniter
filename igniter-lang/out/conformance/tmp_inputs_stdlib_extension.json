@@ -1,0 +1,29 @@
+{
+  "leads": [
+    {
+      "lead_id": 1,
+      "bid_amount": 50,
+      "bid_decimal": {
+        "value": 5000,
+        "scale": 2
+      }
+    },
+    {
+      "lead_id": 2,
+      "bid_amount": 150,
+      "bid_decimal": {
+        "value": 15000,
+        "scale": 2
+      }
+    },
+    {
+      "lead_id": 3,
+      "bid_amount": 200,
+      "bid_decimal": {
+        "value": 20000,
+        "scale": 2
+      }
+    }
+  ],
+  "threshold": 100
+}

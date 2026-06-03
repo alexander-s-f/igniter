@@ -478,26 +478,39 @@ module IgniterLang
     end
 
     def compat_expr(expr)
-      case expr.fetch("kind")
+      return expr unless expr.is_a?(Hash)
+
+      kind = expr["kind"]
+      case kind
       when "call"
-        {
-          "kind" => "apply",
-          "operator" => expr.fetch("fn"),
-          "operands" => expr.fetch("args").map { |arg| compat_expr(arg) }
-        }
+        operands = (expr["args"] || []).map { |arg| compat_expr(arg) }
+        res = expr.dup
+        res["kind"] = "apply"
+        res["operator"] = expr["fn"]
+        res["operands"] = operands
+        res.delete("fn")
+        res.delete("args")
+        res
       when "ref"
-        { "kind" => "ref", "name" => expr.fetch("name") }
+        expr.dup
       when "literal"
-        { "kind" => "literal", "value" => expr.fetch("value"), "type_tag" => type_name(expr.fetch("resolved_type")) }
+        res = expr.dup
+        res["type_tag"] = type_name(expr.fetch("resolved_type")) if expr.key?("resolved_type")
+        res
       when "field_access"
-        {
-          "kind" => "field_access",
-          "object" => compat_expr(expr.fetch("object")),
-          "field" => expr.fetch("field"),
-          "type_tag" => type_name(expr.fetch("resolved_type"))
-        }
+        res = expr.dup
+        res["object"] = compat_expr(expr.fetch("object"))
+        res
       else
-        expr
+        res = expr.dup
+        expr.each do |k, v|
+          if v.is_a?(Hash)
+            res[k] = compat_expr(v)
+          elsif v.is_a?(Array)
+            res[k] = v.map { |item| compat_expr(item) }
+          end
+        end
+        res
       end
     end
 

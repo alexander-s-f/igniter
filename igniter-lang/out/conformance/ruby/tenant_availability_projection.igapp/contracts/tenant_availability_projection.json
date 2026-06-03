@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:7f2f9dfbeba6aeed87826ea61e97af2918b6dc7a0e89b0da39503f3893b5eb5c",
+  "artifact_hash": "sha256:a34c57df3c1819772a3f4e870a530162f0958b2c7818381365b761849474d4e2",
   "compute_nodes": [
     {
       "dependencies": [
@@ -14,26 +14,69 @@
         "operands": [
           {
             "kind": "ref",
-            "name": "technician"
+            "name": "technician",
+            "resolved_type": {
+              "name": "TechnicianProfile",
+              "params": []
+            }
           },
           {
             "kind": "ref",
-            "name": "schedules"
+            "name": "schedules",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "ScheduleSlotObservation",
+                  "params": []
+                }
+              ]
+            }
           },
           {
             "kind": "ref",
-            "name": "off_schedules"
+            "name": "off_schedules",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "OffScheduleBlock",
+                  "params": []
+                }
+              ]
+            }
           },
           {
             "kind": "ref",
-            "name": "day_off_config"
+            "name": "day_off_config",
+            "resolved_type": {
+              "name": "DayOffConfigVersion",
+              "params": []
+            }
           },
           {
             "kind": "ref",
-            "name": "date"
+            "name": "date",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
           }
         ],
-        "operator": "compute_availability"
+        "operator": "compute_availability",
+        "resolved_type": {
+          "name": "Collection",
+          "params": [
+            {
+              "name": "TimeSlot",
+              "params": []
+            }
+          ]
+        }
       },
       "fragment_class": "core",
       "kind": "compute",

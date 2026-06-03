@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/e71590990c398a43",
+  "contracts": [
+    "LeadConversionRate"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "LeadConversionRate"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/e71590990c398a43",
+  "semantic_ir_ref": "semanticir/e71590990c398a43",
+  "source_hash": "sha256:e71590990c398a433bbdc5223f19b055c5e986036781a173c27f758959717313",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/stdlib_extension.ig"
+}

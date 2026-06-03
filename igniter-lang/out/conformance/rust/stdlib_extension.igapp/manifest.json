@@ -1,20 +1,20 @@
 {
-  "artifact_hash": "sha256:a75612ebc7593edde6206786b1a38272fd02e183e0f528497b79439ff73fc9fb",
+  "artifact_hash": "sha256:b514b79552b530ea8bd1b811ca310ddc4fdde7feba1c78d07ab4d0958a0bc5ce",
   "assembler": "igapp-assembler-proof-stage1-v0",
-  "compilation_report_ref": "compilation_report/c553e1b076190bcc",
+  "compilation_report_ref": "compilation_report/e71590990c398a43",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
-    "BidSummary": {
-      "contract_path": "contracts/bid_summary.json",
-      "contract_ref": "contract/BidSummary/sha256:e5758db55ff257166aeb898e",
+    "LeadConversionRate": {
+      "contract_path": "contracts/lead_conversion_rate.json",
+      "contract_ref": "contract/LeadConversionRate/sha256:bed76fb475e5cb9bcdda7c8d",
       "fragment_class": "core"
     }
   },
   "contract_refs": {
-    "BidSummary": "contract/BidSummary/sha256:e5758db55ff257166aeb898e"
+    "LeadConversionRate": "contract/LeadConversionRate/sha256:bed76fb475e5cb9bcdda7c8d"
   },
   "contracts": [
-    "BidSummary"
+    "LeadConversionRate"
   ],
   "diagnostics": [],
   "format": "igapp_dir",
@@ -36,14 +36,14 @@
   "grammar_version": "decimal-v0",
   "kind": "igapp_manifest",
   "language_version": "0.1.0",
-  "program_id": "semanticir/c553e1b076190bcc",
+  "program_id": "semanticir/e71590990c398a43",
   "schema_descriptor": {
     "migrations": [],
     "trait_bounds": []
   },
   "schema_version": "0.1.0",
-  "semantic_ir_ref": "semanticir/c553e1b076190bcc",
-  "source_hash": "sha256:c553e1b076190bcca7f13bdf7c024022e5fb3f03c22a6235df38e6728f61a4e9",
-  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/decimal_contract.ig",
+  "semantic_ir_ref": "semanticir/e71590990c398a43",
+  "source_hash": "sha256:e71590990c398a433bbdc5223f19b055c5e986036781a173c27f758959717313",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/stdlib_extension.ig",
   "warnings": []
 }

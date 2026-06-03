@@ -203,6 +203,10 @@ module IgniterLang
       when "ref"
         name = expr.fetch("name")
         type = symbol_types.fetch(name, @olap_env.fetch(name, {}).fetch("type", type_ir("Unknown")))
+        if name == "l" && type_name(type) == "Unknown"
+          puts "DEBUG: unresolved l backtrace:"
+          puts caller
+        end
         type_errors << oof("OOF-P1", "Unresolved symbol: #{name}", node_name) if type_name(type) == "Unknown" && !rule_present?(type_errors, "OOF-P1")
         typed_expr("ref", type, [name], "name" => name)
       when "field_access"

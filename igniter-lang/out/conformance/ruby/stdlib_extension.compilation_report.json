@@ -1,0 +1,28 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/e71590990c398a43",
+  "grammar_version": "decimal-v0",
+  "source_hash": "sha256:e71590990c398a433bbdc5223f19b055c5e986036781a173c27f758959717313",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/stdlib_extension.ig",
+  "pass_result": "oof",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "oof",
+    "emit": "skipped"
+  },
+  "diagnostics": [
+    {
+      "rule": "OOF-P1",
+      "severity": "error",
+      "message": "Unresolved symbol: l",
+      "node": "total_high_value_bids",
+      "path": "contract:LeadConversionRate/node:total_high_value_bids",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

@@ -1,0 +1,664 @@
+{
+  "artifact_hash": "sha256:7a2cca22cbb3efa979560b3786f40dc03e5d7404057b94cd1bb9a76f5eb9f049",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:leads",
+        "input:threshold"
+      ],
+      "expression": {
+        "condition": {
+          "kind": "apply",
+          "operands": [
+            {
+              "kind": "apply",
+              "operands": [
+                {
+                  "kind": "ref",
+                  "name": "leads",
+                  "resolved_type": {
+                    "kind": "type_ref",
+                    "name": "Collection",
+                    "params": [
+                      {
+                        "kind": "type_ref",
+                        "name": "Lead",
+                        "params": []
+                      }
+                    ]
+                  }
+                }
+              ],
+              "operator": "count",
+              "resolved_type": {
+                "name": "Integer",
+                "params": []
+              }
+            },
+            {
+              "kind": "literal",
+              "literal_type": "int",
+              "resolved_type": {
+                "name": "Integer",
+                "params": []
+              },
+              "type_tag": "Integer",
+              "value": 0
+            }
+          ],
+          "operator": "stdlib.integer.gt",
+          "resolved_type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        "else_branch": {
+          "kind": "apply",
+          "operands": [
+            {
+              "kind": "ref",
+              "name": "leads",
+              "resolved_type": {
+                "kind": "type_ref",
+                "name": "Collection",
+                "params": [
+                  {
+                    "kind": "type_ref",
+                    "name": "Lead",
+                    "params": []
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "symbol",
+              "resolved_type": {
+                "name": "Symbol",
+                "params": []
+              },
+              "value": "bid_decimal"
+            }
+          ],
+          "operator": "sum",
+          "resolved_type": {
+            "name": "Decimal",
+            "params": []
+          }
+        },
+        "kind": "if_expr",
+        "resolved_type": {
+          "name": "Decimal",
+          "params": []
+        },
+        "then_branch": {
+          "condition": {
+            "kind": "apply",
+            "operands": [
+              {
+                "kind": "apply",
+                "operands": [
+                  {
+                    "kind": "apply",
+                    "operands": [
+                      {
+                        "kind": "apply",
+                        "operands": [
+                          {
+                            "kind": "literal",
+                            "literal_type": "int",
+                            "resolved_type": {
+                              "name": "Integer",
+                              "params": []
+                            },
+                            "type_tag": "Integer",
+                            "value": 0
+                          },
+                          {
+                            "kind": "apply",
+                            "operands": [
+                              {
+                                "kind": "ref",
+                                "name": "leads",
+                                "resolved_type": {
+                                  "kind": "type_ref",
+                                  "name": "Collection",
+                                  "params": [
+                                    {
+                                      "kind": "type_ref",
+                                      "name": "Lead",
+                                      "params": []
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "operator": "count",
+                            "resolved_type": {
+                              "name": "Integer",
+                              "params": []
+                            }
+                          }
+                        ],
+                        "operator": "range",
+                        "resolved_type": {
+                          "name": "Collection",
+                          "params": [
+                            {
+                              "name": "Integer",
+                              "params": []
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "apply",
+                        "operands": [
+                          {
+                            "kind": "literal",
+                            "literal_type": "int",
+                            "resolved_type": {
+                              "name": "Integer",
+                              "params": []
+                            },
+                            "type_tag": "Integer",
+                            "value": 0
+                          },
+                          {
+                            "kind": "apply",
+                            "operands": [
+                              {
+                                "kind": "ref",
+                                "name": "leads",
+                                "resolved_type": {
+                                  "kind": "type_ref",
+                                  "name": "Collection",
+                                  "params": [
+                                    {
+                                      "kind": "type_ref",
+                                      "name": "Lead",
+                                      "params": []
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "operator": "count",
+                            "resolved_type": {
+                              "name": "Integer",
+                              "params": []
+                            }
+                          }
+                        ],
+                        "operator": "range",
+                        "resolved_type": {
+                          "name": "Collection",
+                          "params": [
+                            {
+                              "name": "Integer",
+                              "params": []
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "operator": "zip",
+                    "resolved_type": {
+                      "name": "Collection",
+                      "params": [
+                        {
+                          "name": "Pair",
+                          "params": [
+                            {
+                              "name": "Integer",
+                              "params": []
+                            },
+                            {
+                              "name": "Integer",
+                              "params": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "operator": "count",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              },
+              {
+                "kind": "literal",
+                "literal_type": "int",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                },
+                "type_tag": "Integer",
+                "value": 0
+              }
+            ],
+            "operator": "stdlib.integer.gt",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "else_branch": {
+            "kind": "apply",
+            "operands": [
+              {
+                "kind": "ref",
+                "name": "leads",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Collection",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Lead",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "symbol",
+                "resolved_type": {
+                  "name": "Symbol",
+                  "params": []
+                },
+                "value": "bid_decimal"
+              }
+            ],
+            "operator": "sum",
+            "resolved_type": {
+              "name": "Decimal",
+              "params": []
+            }
+          },
+          "kind": "if_expr",
+          "resolved_type": {
+            "name": "Decimal",
+            "params": []
+          },
+          "then_branch": {
+            "condition": {
+              "kind": "apply",
+              "operands": [
+                {
+                  "kind": "apply",
+                  "operands": [
+                    {
+                      "kind": "map_reduce_aggregate",
+                      "pipeline": [
+                        {
+                          "body": {
+                            "field": "bid_amount",
+                            "kind": "field_access",
+                            "object": {
+                              "kind": "ref",
+                              "name": "l",
+                              "resolved_type": {
+                                "name": "Integer",
+                                "params": []
+                              }
+                            },
+                            "resolved_type": {
+                              "name": "Unknown",
+                              "params": []
+                            }
+                          },
+                          "kind": "map",
+                          "param": "l"
+                        },
+                        {
+                          "kind": "first"
+                        }
+                      ],
+                      "resolved_type": {
+                        "name": "Option",
+                        "params": [
+                          {
+                            "name": "Lead",
+                            "params": []
+                          }
+                        ]
+                      },
+                      "source": {
+                        "kind": "ref",
+                        "name": "leads",
+                        "resolved_type": {
+                          "kind": "type_ref",
+                          "name": "Collection",
+                          "params": [
+                            {
+                              "kind": "type_ref",
+                              "name": "Lead",
+                              "params": []
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "kind": "literal",
+                      "literal_type": "int",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      },
+                      "type_tag": "Integer",
+                      "value": 0
+                    }
+                  ],
+                  "operator": "or_else",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  }
+                },
+                {
+                  "kind": "literal",
+                  "literal_type": "int",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  },
+                  "type_tag": "Integer",
+                  "value": 0
+                }
+              ],
+              "operator": "stdlib.integer.gt",
+              "resolved_type": {
+                "name": "Bool",
+                "params": []
+              }
+            },
+            "else_branch": {
+              "kind": "apply",
+              "operands": [
+                {
+                  "kind": "ref",
+                  "name": "leads",
+                  "resolved_type": {
+                    "kind": "type_ref",
+                    "name": "Collection",
+                    "params": [
+                      {
+                        "kind": "type_ref",
+                        "name": "Lead",
+                        "params": []
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "symbol",
+                  "resolved_type": {
+                    "name": "Symbol",
+                    "params": []
+                  },
+                  "value": "bid_decimal"
+                }
+              ],
+              "operator": "sum",
+              "resolved_type": {
+                "name": "Decimal",
+                "params": []
+              }
+            },
+            "kind": "if_expr",
+            "resolved_type": {
+              "name": "Decimal",
+              "params": []
+            },
+            "then_branch": {
+              "condition": {
+                "kind": "apply",
+                "operands": [
+                  {
+                    "kind": "apply",
+                    "operands": [
+                      {
+                        "kind": "map_reduce_aggregate",
+                        "pipeline": [
+                          {
+                            "body": {
+                              "field": "bid_amount",
+                              "kind": "field_access",
+                              "object": {
+                                "kind": "ref",
+                                "name": "l",
+                                "resolved_type": {
+                                  "name": "Integer",
+                                  "params": []
+                                }
+                              },
+                              "resolved_type": {
+                                "name": "Unknown",
+                                "params": []
+                              }
+                            },
+                            "kind": "map",
+                            "param": "l"
+                          },
+                          {
+                            "kind": "last"
+                          }
+                        ],
+                        "resolved_type": {
+                          "name": "Option",
+                          "params": [
+                            {
+                              "name": "Lead",
+                              "params": []
+                            }
+                          ]
+                        },
+                        "source": {
+                          "kind": "ref",
+                          "name": "leads",
+                          "resolved_type": {
+                            "kind": "type_ref",
+                            "name": "Collection",
+                            "params": [
+                              {
+                                "kind": "type_ref",
+                                "name": "Lead",
+                                "params": []
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "kind": "literal",
+                        "literal_type": "int",
+                        "resolved_type": {
+                          "name": "Integer",
+                          "params": []
+                        },
+                        "type_tag": "Integer",
+                        "value": 0
+                      }
+                    ],
+                    "operator": "or_else",
+                    "resolved_type": {
+                      "name": "Integer",
+                      "params": []
+                    }
+                  },
+                  {
+                    "kind": "literal",
+                    "literal_type": "int",
+                    "resolved_type": {
+                      "name": "Integer",
+                      "params": []
+                    },
+                    "type_tag": "Integer",
+                    "value": 0
+                  }
+                ],
+                "operator": "stdlib.integer.gt",
+                "resolved_type": {
+                  "name": "Bool",
+                  "params": []
+                }
+              },
+              "else_branch": {
+                "kind": "apply",
+                "operands": [
+                  {
+                    "kind": "ref",
+                    "name": "leads",
+                    "resolved_type": {
+                      "kind": "type_ref",
+                      "name": "Collection",
+                      "params": [
+                        {
+                          "kind": "type_ref",
+                          "name": "Lead",
+                          "params": []
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "symbol",
+                    "resolved_type": {
+                      "name": "Symbol",
+                      "params": []
+                    },
+                    "value": "bid_decimal"
+                  }
+                ],
+                "operator": "sum",
+                "resolved_type": {
+                  "name": "Decimal",
+                  "params": []
+                }
+              },
+              "kind": "if_expr",
+              "resolved_type": {
+                "name": "Decimal",
+                "params": []
+              },
+              "then_branch": {
+                "kind": "map_reduce_aggregate",
+                "pipeline": [
+                  {
+                    "body": {
+                      "kind": "apply",
+                      "operands": [
+                        {
+                          "field": "bid_amount",
+                          "kind": "field_access",
+                          "object": {
+                            "kind": "ref",
+                            "name": "l",
+                            "resolved_type": {
+                              "name": "Integer",
+                              "params": []
+                            }
+                          },
+                          "resolved_type": {
+                            "name": "Unknown",
+                            "params": []
+                          }
+                        },
+                        {
+                          "kind": "ref",
+                          "name": "threshold",
+                          "resolved_type": {
+                            "name": "Integer",
+                            "params": []
+                          }
+                        }
+                      ],
+                      "operator": "stdlib.integer.gt",
+                      "resolved_type": {
+                        "name": "Bool",
+                        "params": []
+                      }
+                    },
+                    "kind": "filter",
+                    "param": "l"
+                  },
+                  {
+                    "field": "bid_decimal",
+                    "kind": "sum"
+                  }
+                ],
+                "resolved_type": {
+                  "name": "Decimal",
+                  "params": []
+                },
+                "source": {
+                  "kind": "ref",
+                  "name": "leads",
+                  "resolved_type": {
+                    "kind": "type_ref",
+                    "name": "Collection",
+                    "params": [
+                      {
+                        "kind": "type_ref",
+                        "name": "Lead",
+                        "params": []
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "total_high_value_bids",
+      "node_id": "node_total_high_value_bids",
+      "obs_kind": "value_observation",
+      "type_tag": "Decimal"
+    }
+  ],
+  "contract_id": "LeadConversionRate",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "leads",
+      "required": true,
+      "type_tag": "Collection[Lead]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "threshold",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "LeadConversionRate",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "total_high_value_bids",
+      "required": true,
+      "type_tag": "Decimal[2]"
+    }
+  ],
+  "source_contract_ref": "contract/LeadConversionRate/sha256:fbc7f6192af13101e302a6c1",
+  "type_signature": {
+    "inputs": {
+      "leads": "Collection[Lead]",
+      "threshold": "Integer"
+    },
+    "outputs": {
+      "total_high_value_bids": "Decimal[2]"
+    }
+  }
+}

@@ -41,7 +41,7 @@ VOLATILE_KEYS = %w[
   artifact_hash source_hash source_contract_ref contract_ref program_id
   semantic_ir_ref compilation_report_ref compiled_at compiled_by compiled_on
   compilation_time elapsed_ms assembler compiler_version source_path
-  fragment_class fragment resolved_type modifier
+  fragment_class fragment resolved_type modifier literal_type
 ].freeze
 
 def type_to_string(type)
@@ -75,7 +75,9 @@ def compare_expression(ruby_expr, rust_expr)
       "stdlib.float.add" => "+",
       "stdlib.integer.sub" => "-",
       "stdlib.integer.mul" => "*",
-      "stdlib.integer.div" => "/"
+      "stdlib.integer.div" => "/",
+      "stdlib.integer.gt" => ">",
+      "stdlib.bool.and" => "&&"
     }
     ruby_op = ruby_expr["operator"] || ruby_expr["fn"]
     rust_op = rust_expr["op"] || rust_expr["operator"]
@@ -102,6 +104,16 @@ def compare_expression(ruby_expr, rust_expr)
     return false unless ruby_ops && rust_ops && ruby_ops.size == rust_ops.size
 
     return ruby_ops.each_with_index.all? { |op, idx| compare_expression(op, rust_ops[idx]) }
+  end
+
+  # Case 3: Literal comparison
+  if ruby_expr["kind"] == "literal" && rust_expr["kind"] == "literal"
+    return ruby_expr["value"] == rust_expr["value"]
+  end
+
+  # Case 4: Symbol comparison
+  if ruby_expr["kind"] == "symbol" && rust_expr["kind"] == "symbol"
+    return ruby_expr["value"] == rust_expr["value"]
   end
 
   compare_json(ruby_expr, rust_expr, ["expression_body"])
@@ -131,7 +143,7 @@ def compare_json(ruby_val, rust_val, path = [])
     end
   end
 
-  if key == "expr" || key == "expression"
+  if %w[expr expression condition then_branch else_branch left right object body].include?(key) && ruby_val.is_a?(Hash) && rust_val.is_a?(Hash)
     return compare_expression(ruby_val, rust_val)
   end
 
@@ -321,6 +333,21 @@ TEST_CASES = [
     inputs: { "item" => 42 },
     expected_output_field: "container",
     expected_output_value: 42
+  },
+  {
+    name: "stdlib_extension",
+    expected_status: "ok",
+    contracts: ["LeadConversionRate"],
+    inputs: {
+      "leads" => [
+        { "lead_id" => 1, "bid_amount" => 50, "bid_decimal" => { "value" => 5000, "scale" => 2 } },
+        { "lead_id" => 2, "bid_amount" => 150, "bid_decimal" => { "value" => 15000, "scale" => 2 } },
+        { "lead_id" => 3, "bid_amount" => 200, "bid_decimal" => { "value" => 20000, "scale" => 2 } }
+      ],
+      "threshold" => 100
+    },
+    expected_output_field: "total_high_value_bids",
+    expected_output_value: { "value" => 35000, "scale" => 2 }
   }
 ].freeze
 

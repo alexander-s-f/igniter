@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:216126700cfe50b69595177baa0afaddd01d05a0a8540bb3d726eec7cbc166c6",
+  "artifact_hash": "sha256:cb7d9960fbaa094c5188a5a4f7ee63ff62d1cff37d948f942acdf4e3d8ffde5b",
   "compute_nodes": [
     {
       "dependencies": [
@@ -11,14 +11,40 @@
         "operands": [
           {
             "kind": "ref",
-            "name": "geo_signals"
+            "name": "geo_signals",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "GeoSignal",
+                  "params": []
+                }
+              ]
+            }
           },
           {
             "kind": "ref",
-            "name": "schedule"
+            "name": "schedule",
+            "resolved_type": {
+              "name": "ScheduleFact",
+              "params": []
+            }
           }
         ],
-        "operator": "compute_slots"
+        "operator": "compute_slots",
+        "resolved_type": {
+          "kind": "type_ref",
+          "name": "Collection",
+          "params": [
+            {
+              "kind": "type_ref",
+              "name": "TimeSlot",
+              "params": []
+            }
+          ]
+        }
       },
       "fragment_class": "core",
       "kind": "compute",

@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:43f944428b29c33c1bba6a62985eceab55ba39c9ee8f255fadb18e2f2d4bac0f",
+  "artifact_hash": "sha256:f20504b097e03039f42058903d500727a32ec78217ee94f78b54b967e7626d42",
   "compute_nodes": [
     {
       "dependencies": [
@@ -11,14 +11,26 @@
         "operands": [
           {
             "kind": "ref",
-            "name": "a"
+            "name": "a",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
           },
           {
             "kind": "ref",
-            "name": "b"
+            "name": "b",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
           }
         ],
-        "operator": "stdlib.integer.add"
+        "operator": "stdlib.integer.add",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
       },
       "fragment_class": "core",
       "kind": "compute",

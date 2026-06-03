@@ -206,26 +206,139 @@ module IgniterLang
 
     alias_method :orig_semantic_expr, :semantic_expr
     def semantic_expr(expr)
-      if expr.is_a?(Hash) && expr["kind"] == "call" && expr["fn"] == "stdlib.numeric.add"
-        resolved_type = expr["resolved_type"] || {}
-        type_name = resolved_type["name"] || "Integer"
-        op_name = case type_name
-                  when "Integer" then "stdlib.integer.add"
-                  when "Float"   then "stdlib.float.add"
-                  else "stdlib.numeric.add"
-                  end
-        args = expr["args"] || []
+      if expr.is_a?(Hash) && expr["kind"] == "call"
+        if expr["fn"] == "stdlib.numeric.add"
+          resolved_type = expr["resolved_type"] || {}
+          type_name = resolved_type["name"] || "Integer"
+          op_name = case type_name
+                    when "Integer" then "stdlib.integer.add"
+                    when "Float"   then "stdlib.float.add"
+                    else "stdlib.numeric.add"
+                    end
+          args = expr["args"] || []
+          return {
+            "kind" => "apply",
+            "operator" => op_name,
+            "resolved_impl" => "Additive[#{type_name}]",
+            "type_args" => [type_name],
+            "operands" => args.map { |arg| semantic_expr(arg) },
+            "resolved_type" => resolved_type
+          }
+        end
+
+        if opt = try_optimize_map_reduce(expr)
+          return opt
+        end
+      end
+
+      orig_semantic_expr(expr)
+    end
+
+    def try_optimize_map_reduce(expr)
+      return nil unless expr.is_a?(Hash)
+      return nil unless expr["kind"] == "call"
+      fn_name = expr["fn"]
+      args = expr["args"] || []
+
+      return nil unless %w[count first last fold sum].include?(fn_name)
+      return nil if args.empty?
+
+      pipeline = []
+      source = nil
+
+      case fn_name
+      when "count"
+        inner_coll = args[0]
+        source = build_pipeline(inner_coll, pipeline)
+        pipeline << { "kind" => "count" }
+      when "first", "last"
+        inner_coll = args[0]
+        source = build_pipeline(inner_coll, pipeline)
+        pipeline << { "kind" => fn_name }
+      when "sum"
+        return nil if args.length < 2
+        inner_coll = args[0]
+        field = args[1]
+        field_name = field["value"] if field.is_a?(Hash) && field["kind"] == "symbol"
+        return nil unless field_name
+        source = build_pipeline(inner_coll, pipeline)
+        pipeline << { "kind" => "sum", "field" => field_name }
+      when "fold"
+        return nil if args.length < 3
+        inner_coll = args[0]
+        init = args[1]
+        lambda = args[2]
+        param_acc = lambda.dig("params", 0) || "acc"
+        param_val = lambda.dig("params", 1) || "x"
+        body = lambda["body"]
+        source = build_pipeline(inner_coll, pipeline)
+        pipeline << {
+          "kind" => "fold",
+          "param_acc" => param_acc,
+          "param_val" => param_val,
+          "init" => semantic_expr(init),
+          "body" => semantic_expr(body)
+        }
+      end
+
+      is_range = source.is_a?(Hash) && source["kind"] == "range"
+      if pipeline.length > 1 || is_range
         {
-          "kind" => "apply",
-          "operator" => op_name,
-          "resolved_impl" => "Additive[#{type_name}]",
-          "type_args" => [type_name],
-          "operands" => args.map { |arg| semantic_expr(arg) },
-          "resolved_type" => resolved_type
+          "kind" => "map_reduce_aggregate",
+          "source" => source,
+          "pipeline" => pipeline,
+          "resolved_type" => expr["resolved_type"]
         }
       else
-        orig_semantic_expr(expr)
+        nil
       end
+    end
+
+    def build_pipeline(current, pipeline)
+      if current.is_a?(Hash) && current["kind"] == "call"
+        fn_name = current["fn"]
+        args = current["args"] || []
+        case fn_name
+        when "filter"
+          if args.length >= 2
+            inner_coll = args[0]
+            lambda = args[1]
+            param = lambda.dig("params", 0) || "x"
+            body = lambda["body"]
+            source = build_pipeline(inner_coll, pipeline)
+            pipeline << {
+              "kind" => "filter",
+              "param" => param,
+              "body" => semantic_expr(body)
+            }
+            return source
+          end
+        when "map"
+          if args.length >= 2
+            inner_coll = args[0]
+            lambda = args[1]
+            param = lambda.dig("params", 0) || "x"
+            body = lambda["body"]
+            source = build_pipeline(inner_coll, pipeline)
+            pipeline << {
+              "kind" => "map",
+              "param" => param,
+              "body" => semantic_expr(body)
+            }
+            return source
+          end
+        when "range"
+          if args.length >= 2
+            return {
+              "kind" => "range",
+              "start" => semantic_expr(args[0]),
+              "end" => semantic_expr(args[1]),
+              "resolved_type" => current["resolved_type"]
+            }
+          end
+        end
+      end
+      semantic_expr(current)
     end
   end
 
@@ -271,6 +384,54 @@ module IgniterLang
   end
 
   class TypeChecker
+    alias_method :orig_infer_expr, :infer_expr
+    def infer_expr(expr, symbol_types, type_errors, type_warnings, node_name)
+      puts "DEBUG: Ruby infer_expr called for kind: #{expr["kind"]}"
+      if expr["kind"] == "lambda"
+        params = expr["params"] || []
+        body = expr["body"]
+        local_symbol_types = symbol_types.dup
+        params.each do |param|
+          local_symbol_types[param] = type_ir("Integer")
+        end
+        temp_errors = []
+        if body.is_a?(Hash) && body["kind"] == "block"
+          block_deps = []
+          stmts_typed = (body["stmts"] || []).map do |stmt|
+            if stmt["kind"] == "let"
+              local_symbol_types[stmt["name"]] = type_ir("Unknown")
+              stmt_typed = infer_expr(stmt["expr"], local_symbol_types, temp_errors, type_warnings, node_name)
+              block_deps.concat(stmt_typed["deps"] || [])
+              stmt.merge("expr" => stmt_typed)
+            elsif stmt["kind"] == "expr_stmt"
+              stmt_typed = infer_expr(stmt["expr"], local_symbol_types, temp_errors, type_warnings, node_name)
+              block_deps.concat(stmt_typed["deps"] || [])
+              stmt.merge("expr" => stmt_typed)
+            else
+              stmt
+            end
+          end
+          re_typed = nil
+          if body["return_expr"]
+            re_typed = infer_expr(body["return_expr"], local_symbol_types, temp_errors, type_warnings, node_name)
+            block_deps.concat(re_typed["deps"] || [])
+          end
+          deps = block_deps - params
+          body_typed = {
+            "kind" => "block",
+            "stmts" => stmts_typed,
+            "return_expr" => re_typed
+          }
+        else
+          body_typed = infer_expr(body, local_symbol_types, temp_errors, type_warnings, node_name)
+          deps = (body_typed["deps"] || []) - params
+        end
+        return typed_expr("lambda", type_ir("Unknown"), deps, "params" => params, "body" => body_typed)
+      end
+
+      orig_infer_expr(expr, symbol_types, type_errors, type_warnings, node_name)
+    end
+
     alias_method :orig_infer_call, :infer_call
     def infer_call(expr, symbol_types, type_errors, type_warnings, node_name)
       fn = expr.fetch("fn")

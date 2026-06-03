@@ -1,0 +1,327 @@
+{
+  "artifact_hash": "sha256:b514b79552b530ea8bd1b811ca310ddc4fdde7feba1c78d07ab4d0958a0bc5ce",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:leads",
+        "input:threshold"
+      ],
+      "expression": {
+        "condition": {
+          "kind": "binary_op",
+          "left": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "leads"
+              }
+            ],
+            "fn": "count",
+            "kind": "call"
+          },
+          "op": ">",
+          "right": {
+            "kind": "literal",
+            "type_tag": "Integer",
+            "value": 0
+          }
+        },
+        "else_branch": {
+          "args": [
+            {
+              "kind": "ref",
+              "name": "leads"
+            },
+            {
+              "kind": "symbol",
+              "value": "bid_decimal"
+            }
+          ],
+          "fn": "sum",
+          "kind": "call"
+        },
+        "kind": "if_expr",
+        "then_branch": {
+          "condition": {
+            "kind": "binary_op",
+            "left": {
+              "args": [
+                {
+                  "args": [
+                    {
+                      "args": [
+                        {
+                          "kind": "literal",
+                          "type_tag": "Integer",
+                          "value": 0
+                        },
+                        {
+                          "args": [
+                            {
+                              "kind": "ref",
+                              "name": "leads"
+                            }
+                          ],
+                          "fn": "count",
+                          "kind": "call"
+                        }
+                      ],
+                      "fn": "range",
+                      "kind": "call"
+                    },
+                    {
+                      "args": [
+                        {
+                          "kind": "literal",
+                          "type_tag": "Integer",
+                          "value": 0
+                        },
+                        {
+                          "args": [
+                            {
+                              "kind": "ref",
+                              "name": "leads"
+                            }
+                          ],
+                          "fn": "count",
+                          "kind": "call"
+                        }
+                      ],
+                      "fn": "range",
+                      "kind": "call"
+                    }
+                  ],
+                  "fn": "zip",
+                  "kind": "call"
+                }
+              ],
+              "fn": "count",
+              "kind": "call"
+            },
+            "op": ">",
+            "right": {
+              "kind": "literal",
+              "type_tag": "Integer",
+              "value": 0
+            }
+          },
+          "else_branch": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "leads"
+              },
+              {
+                "kind": "symbol",
+                "value": "bid_decimal"
+              }
+            ],
+            "fn": "sum",
+            "kind": "call"
+          },
+          "kind": "if_expr",
+          "then_branch": {
+            "condition": {
+              "kind": "binary_op",
+              "left": {
+                "args": [
+                  {
+                    "kind": "map_reduce_aggregate",
+                    "pipeline": [
+                      {
+                        "body": {
+                          "field": "bid_amount",
+                          "kind": "field_access",
+                          "object": {
+                            "kind": "ref",
+                            "name": "l"
+                          }
+                        },
+                        "kind": "map",
+                        "param": "l"
+                      },
+                      {
+                        "kind": "first"
+                      }
+                    ],
+                    "source": {
+                      "kind": "ref",
+                      "name": "leads"
+                    }
+                  },
+                  {
+                    "kind": "literal",
+                    "type_tag": "Integer",
+                    "value": 0
+                  }
+                ],
+                "fn": "or_else",
+                "kind": "call"
+              },
+              "op": ">",
+              "right": {
+                "kind": "literal",
+                "type_tag": "Integer",
+                "value": 0
+              }
+            },
+            "else_branch": {
+              "args": [
+                {
+                  "kind": "ref",
+                  "name": "leads"
+                },
+                {
+                  "kind": "symbol",
+                  "value": "bid_decimal"
+                }
+              ],
+              "fn": "sum",
+              "kind": "call"
+            },
+            "kind": "if_expr",
+            "then_branch": {
+              "condition": {
+                "kind": "binary_op",
+                "left": {
+                  "args": [
+                    {
+                      "kind": "map_reduce_aggregate",
+                      "pipeline": [
+                        {
+                          "body": {
+                            "field": "bid_amount",
+                            "kind": "field_access",
+                            "object": {
+                              "kind": "ref",
+                              "name": "l"
+                            }
+                          },
+                          "kind": "map",
+                          "param": "l"
+                        },
+                        {
+                          "kind": "last"
+                        }
+                      ],
+                      "source": {
+                        "kind": "ref",
+                        "name": "leads"
+                      }
+                    },
+                    {
+                      "kind": "literal",
+                      "type_tag": "Integer",
+                      "value": 0
+                    }
+                  ],
+                  "fn": "or_else",
+                  "kind": "call"
+                },
+                "op": ">",
+                "right": {
+                  "kind": "literal",
+                  "type_tag": "Integer",
+                  "value": 0
+                }
+              },
+              "else_branch": {
+                "args": [
+                  {
+                    "kind": "ref",
+                    "name": "leads"
+                  },
+                  {
+                    "kind": "symbol",
+                    "value": "bid_decimal"
+                  }
+                ],
+                "fn": "sum",
+                "kind": "call"
+              },
+              "kind": "if_expr",
+              "then_branch": {
+                "kind": "map_reduce_aggregate",
+                "pipeline": [
+                  {
+                    "body": {
+                      "kind": "binary_op",
+                      "left": {
+                        "field": "bid_amount",
+                        "kind": "field_access",
+                        "object": {
+                          "kind": "ref",
+                          "name": "l"
+                        }
+                      },
+                      "op": ">",
+                      "right": {
+                        "kind": "ref",
+                        "name": "threshold"
+                      }
+                    },
+                    "kind": "filter",
+                    "param": "l"
+                  },
+                  {
+                    "field": "bid_decimal",
+                    "kind": "sum"
+                  }
+                ],
+                "source": {
+                  "kind": "ref",
+                  "name": "leads"
+                }
+              }
+            }
+          }
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "total_high_value_bids",
+      "node_id": "node_total_high_value_bids",
+      "obs_kind": "value_observation",
+      "type_tag": "Decimal"
+    }
+  ],
+  "contract_id": "LeadConversionRate",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "leads",
+      "required": true,
+      "type_tag": "Collection[Lead]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "threshold",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "LeadConversionRate",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "total_high_value_bids",
+      "required": true,
+      "type_tag": "Decimal[2]"
+    }
+  ],
+  "source_contract_ref": "contract/LeadConversionRate/sha256:bed76fb475e5cb9bcdda7c8d",
+  "type_signature": {
+    "inputs": {
+      "leads": "Collection[Lead]",
+      "threshold": "Integer"
+    },
+    "outputs": {
+      "total_high_value_bids": "Decimal[2]"
+    }
+  }
+}
