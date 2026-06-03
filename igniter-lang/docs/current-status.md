@@ -885,6 +885,34 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             or performance claims, official/reference,
                             certification, portability, and reactive/tbackend
                             daemon execution remain closed;
+                            R242 accepts proof-local VM capability/passport
+                            hardening evidence: S1H-1..S1H-14 PASS,
+                            artifact digest
+                            `sha256:c402b014620fb7c16903861253e362c7b585223b4c26f75a51d3527029d2c5ee`
+                            independently verified, selector
+                            `delegated-experimental:igniter-vm-candidate`
+                            bound separately from evidence-facing
+                            `runtime_implementation_id`
+                            `igniter.delegated.experimental.vm.rust-tokio.v0`,
+                            claim scan has 0 hits, closed-surface scan passes,
+                            and no writes occurred outside allowed proof-local
+                            experiment scope; the R241 passport-binding
+                            prerequisite is closed as evidence only, but
+                            implementation remains unauthorized; `integer_add`
+                            / `stdlib_integer_add` is carried as a recorded
+                            gap (`gap_fail_closed_until_runtime_spec_or_vm_integer_parity_evidence`)
+                            and R243 must choose Path A integer parity proof,
+                            Path B Decimal-only artifact, or Path C explicit
+                            fail-closed diagnostic before any implementation
+                            card may begin; next route is R243 bounded Slice 1
+                            implementation authorization review; direct
+                            implementation, runtime/API/CLI/package authority,
+                            `.igbin`, compiler passport emission, RuntimeSmoke,
+                            public runtime support, Reference Runtime,
+                            stable API, production, Spark/release/public
+                            performance, official/reference, certification,
+                            portability, loop/recursion support, and
+                            reactive/tbackend daemon execution remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1924,6 +1952,12 @@ Round 241 landed:
   S3-R241-C3-X: Slice 1 design pressure                                 ✅ PASS; AN-1 loop evidence caution, AN-2 selector separation
   S3-R241-C4-A: Slice 1 design decision                                 ✅ accepts design; opens R242 capability/passport hardening review
   S3-R241-C5-S: status curation                                         ✅ done; R242 exact route recorded
+Round 242 landed:
+  S3-R242-C1-A: capability/passport hardening authorization              ✅ authorized experiments-only proof-local hardening
+  S3-R242-C2-I: capability/passport hardening proof                      ✅ PASS; S1H-1..S1H-14, binding manifest, summary JSON
+  S3-R242-C3-X: hardening pressure                                      ✅ PASS; integer_add gap carried as AN-1
+  S3-R242-C4-A: hardening decision                                      ✅ accepts evidence; opens R243 implementation authorization review
+  S3-R242-C5-S: status curation                                        ✅ done; R243 exact route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
