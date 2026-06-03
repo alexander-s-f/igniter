@@ -33,7 +33,7 @@ def build_snapshot(slots: Collection[TimeSlot], technician_id: String, date: Str
   }
 }
 
-contract AvailabilityProjection {
+observed contract AvailabilityProjection {
   input technician_id: String
   input date: String
 

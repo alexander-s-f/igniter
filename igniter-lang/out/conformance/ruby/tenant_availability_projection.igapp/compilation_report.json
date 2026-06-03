@@ -4,9 +4,9 @@
   "grammar_version": "spark-pipeline-v0",
   "kind": "compilation_report",
   "pass_result": "ok",
-  "program_id": "compilation_report/6a02359fc7e395e5",
-  "semantic_ir_ref": "semanticir/6a02359fc7e395e5",
-  "source_hash": "sha256:6a02359fc7e395e52b53b6e217598442b65d589e2c2485e55dce486b87b4f2ba",
+  "program_id": "compilation_report/c408dabb0ea13314",
+  "semantic_ir_ref": "semanticir/c408dabb0ea13314",
+  "source_hash": "sha256:c408dabb0ea13314fecd223560c6931ae2b9232682f14e14b0f1d75be806d7c4",
   "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/tenant_availability_projection.ig",
   "stages": {
     "classify": "ok",

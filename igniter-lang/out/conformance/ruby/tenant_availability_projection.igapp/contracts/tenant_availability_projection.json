@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:4467d4778e3871d3c9ebbfb4a2318295d8eea4bb34fc23a6f8dedbb7a6c40fe6",
+  "artifact_hash": "sha256:7f2f9dfbeba6aeed87826ea61e97af2918b6dc7a0e89b0da39503f3893b5eb5c",
   "compute_nodes": [
     {
       "dependencies": [
@@ -83,7 +83,7 @@
       "type_tag": "AvailabilitySnapshot"
     }
   ],
-  "source_contract_ref": "contract/TenantAvailabilityProjection/sha256:f29f5ba768f45d65af0c8e25",
+  "source_contract_ref": "contract/TenantAvailabilityProjection/sha256:bcc641dd1490d89d01b1a92b",
   "type_signature": {
     "inputs": {
       "company_scope": "TenantScope",

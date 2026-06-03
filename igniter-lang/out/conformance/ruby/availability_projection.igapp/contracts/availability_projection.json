@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:737151c076b68765071b358ad2adcfe4466dbc27b04d95830b25dd59fa5e3995",
+  "artifact_hash": "sha256:216126700cfe50b69595177baa0afaddd01d05a0a8540bb3d726eec7cbc166c6",
   "compute_nodes": [
     {
       "dependencies": [
@@ -62,7 +62,7 @@
       "type_tag": "AvailabilitySnapshot"
     }
   ],
-  "source_contract_ref": "contract/AvailabilityProjection/sha256:88b8a462772f550640d19106",
+  "source_contract_ref": "contract/AvailabilityProjection/sha256:3ae2f2835bed20da3c5b5a82",
   "stream_nodes": [
     {
       "bounded": false,

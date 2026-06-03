@@ -10,7 +10,7 @@ import SparkCRM.Types.{
   OffScheduleBlock, DayOffConfigVersion, AvailabilitySnapshot, TimeSlot, TenantScope
 }
 
-contract TenantAvailabilityProjection {
+observed contract TenantAvailabilityProjection {
   input technician_id: String
   input date: String
   input company_scope: TenantScope

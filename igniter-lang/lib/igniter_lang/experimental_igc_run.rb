@@ -14,6 +14,7 @@ module IgniterLang
     FORMAT_VERSION = "0.1.0"
     RESULT_KIND = "experimental_igc_run_v0_result"
     RUNTIME_SELECTOR = "delegated-experimental:ivm-proof"
+    VM_CANDIDATE_SELECTOR = "delegated-experimental:igniter-vm-candidate"
     RUNTIME_AUTHORITY = "non-canonical / delegated experimental"
     REPO_ROOT = Pathname.new(__dir__).join("../../..").expand_path
     PROOF_RUNTIME_PATH = REPO_ROOT.join(
@@ -46,6 +47,18 @@ module IgniterLang
       validate_options!(options)
       passport = load_passport(options.fetch(:passport_path))
       input = load_input(options.fetch(:input_path))
+      if vm_candidate?(options)
+        require_relative "experimental_igc_run_vm_candidate"
+
+        packet = ExperimentalIgcRunVmCandidate.run(
+          options: options,
+          passport: passport,
+          input: input
+        )
+        write_packet_object(options.fetch(:out_path), packet)
+        return packet.fetch("status") == "ok"
+      end
+
       validate_passport!(passport, options.fetch(:artifact_path))
       outputs = execute_with_delegated_runtime(
         options.fetch(:artifact_path),
@@ -112,8 +125,8 @@ module IgniterLang
       unless options.fetch(:artifact_path).to_s.end_with?(".igapp") && options.fetch(:artifact_path).directory?
         raise RunFailure.new("unsupported_artifact", "igc run Slice 0 accepts .igapp directories only")
       end
-      unless options.fetch(:runtime_selector) == RUNTIME_SELECTOR
-        raise RunFailure.new("unsupported_runtime", "unsupported runtime selector for igc run Slice 0")
+      unless [RUNTIME_SELECTOR, VM_CANDIDATE_SELECTOR].include?(options.fetch(:runtime_selector))
+        raise RunFailure.new("unsupported_runtime", "unsupported runtime selector for experimental igc run")
       end
       raise RunFailure.new("passport_not_found", "passport path not found") unless options.fetch(:passport_path).file?
       raise RunFailure.new("input_not_found", "input path not found") unless options.fetch(:input_path).file?
@@ -237,7 +250,15 @@ module IgniterLang
 
     def write_packet(options, status, outputs, diagnostics)
       packet = result_packet(options, status, outputs, diagnostics)
-      path = options.fetch(:out_path)
+      if vm_candidate?(options)
+        require_relative "experimental_igc_run_vm_candidate"
+
+        packet = ExperimentalIgcRunVmCandidate.failure_packet(options, status, diagnostics)
+      end
+      write_packet_object(options.fetch(:out_path), packet)
+    end
+
+    def write_packet_object(path, packet)
       FileUtils.mkdir_p(path.dirname)
       path.write(JSON.pretty_generate(packet))
     end
@@ -271,6 +292,10 @@ module IgniterLang
 
     def diagnostic_for(error)
       [{ "code" => error.code, "message" => error.message }]
+    end
+
+    def vm_candidate?(options)
+      options && options[:runtime_selector] == VM_CANDIDATE_SELECTOR
     end
   end
 end

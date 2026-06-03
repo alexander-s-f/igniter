@@ -1,0 +1,543 @@
+{
+  "kind": "experimental_igc_run_slice1_vm_candidate_summary",
+  "format_version": "0.1.0",
+  "card": "S3-R243-C2-I",
+  "track": "experimental-igc-run-slice1-vm-candidate-implementation-v0",
+  "status": "PASS",
+  "checks_total": 18,
+  "checks_pass": 18,
+  "checks_fail": 0,
+  "failed_checks": [],
+  "result_table": [
+    {
+      "id": "IGR-S1-1",
+      "description": "selector accepted only with --experimental",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-2",
+      "description": "delegated-experimental:igniter-vm-candidate resolves to Slice 1 VM candidate boundary",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-3",
+      "description": "runtime_implementation_id remains evidence-facing metadata",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-4",
+      "description": "proof-local binding manifest validates",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-5",
+      "description": "artifact digest validates",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-6",
+      "description": "existing Add.igapp passport mismatch is not silently reinterpreted",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-7",
+      "description": "integer_add / stdlib_integer_add follows Path C",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-8",
+      "description": "Path C blocked result is explicit and machine-readable",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-9",
+      "description": "unsupported loop/recursion markers fail closed",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-10",
+      "description": ".igbin fails closed",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-11",
+      "description": "RuntimeSmoke is not invoked",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-12",
+      "description": "compiler passport emission is not invoked",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-13",
+      "description": "Slice 0 delegated-experimental:ivm-proof behavior remains compatible",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-14",
+      "description": "result packet keeps pre-v1 / no-stable-API / non-public claims",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-15",
+      "description": "forbidden phrase scan passes",
+      "status": "PASS",
+      "detail": {
+        "status": "PASS",
+        "hits": []
+      }
+    },
+    {
+      "id": "IGR-S1-16",
+      "description": "closed-surface scan passes",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "id": "IGR-S1-17",
+      "description": "command matrix passes",
+      "status": "PASS"
+    },
+    {
+      "id": "IGR-S1-18",
+      "description": "git diff stays within authorized write scope",
+      "status": "PASS",
+      "detail": {
+        "authorized_scope_diff": [
+          "igniter-lang/lib/igniter_lang/cli.rb",
+          "igniter-lang/lib/igniter_lang/experimental_igc_run.rb"
+        ],
+        "workspace_diff_observation": [
+          "igniter-lang/lib/igniter_lang/cli.rb",
+          "igniter-lang/lib/igniter_lang/experimental_igc_run.rb",
+          "igniter-lang/source/availability_projection.ig",
+          "igniter-lang/source/tenant_availability_projection.ig"
+        ],
+        "workspace_diff_note": "workspace observation may include unrelated pre-existing user changes"
+      }
+    }
+  ],
+  "commands": [
+    {
+      "name": "syntax.experimental_igc_run",
+      "command": [
+        "ruby",
+        "-c",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib/igniter_lang/experimental_igc_run.rb"
+      ],
+      "exitstatus": 0,
+      "stdout": "Syntax OK\n",
+      "stderr": ""
+    },
+    {
+      "name": "syntax.experimental_igc_run_vm_candidate",
+      "command": [
+        "ruby",
+        "-c",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib/igniter_lang/experimental_igc_run_vm_candidate.rb"
+      ],
+      "exitstatus": 0,
+      "stdout": "Syntax OK\n",
+      "stderr": ""
+    },
+    {
+      "name": "syntax.cli",
+      "command": [
+        "ruby",
+        "-c",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib/igniter_lang/cli.rb"
+      ],
+      "exitstatus": 0,
+      "stdout": "Syntax OK\n",
+      "stderr": ""
+    },
+    {
+      "name": "run.slice1_integer_add_blocked",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:igniter-vm-candidate",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/slice1_integer_add_blocked.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "run.slice1_missing_experimental",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:igniter-vm-candidate",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/slice1_missing_experimental.result.json"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "igc run requires --experimental\n"
+    },
+    {
+      "name": "run.unsupported_runtime",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:unknown",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/unsupported_runtime.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "unsupported runtime selector for experimental igc run\n"
+    },
+    {
+      "name": "run.unsupported_igbin_path",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/fake.igbin",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:igniter-vm-candidate",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/unsupported_igbin_path.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "igc run Slice 0 accepts .igapp directories only\n"
+    },
+    {
+      "name": "run.malformed_passport",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/malformed.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:igniter-vm-candidate",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/malformed_passport.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "passport file must contain valid JSON\n"
+    },
+    {
+      "name": "run.malformed_input",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/malformed.input.json",
+        "--runtime",
+        "delegated-experimental:igniter-vm-candidate",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/malformed_input.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 1,
+      "stdout": "",
+      "stderr": "input file must contain valid JSON\n"
+    },
+    {
+      "name": "run.slice0_compat",
+      "command": [
+        "ruby",
+        "-I",
+        "/Users/alex/dev/projects/igniter/igniter-lang/lib",
+        "/Users/alex/dev/projects/igniter/igniter-lang/bin/igc",
+        "run",
+        "/Users/alex/dev/projects/igniter/igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp",
+        "--passport",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json",
+        "--input",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/inputs/add_19_23.json",
+        "--runtime",
+        "delegated-experimental:ivm-proof",
+        "--out",
+        "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/slice0_compat.result.json",
+        "--experimental"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.diff_name_only.authorized_scope",
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "--",
+        "igniter-lang/lib/igniter_lang/experimental_igc_run.rb",
+        "igniter-lang/lib/igniter_lang/experimental_igc_run_vm_candidate.rb",
+        "igniter-lang/lib/igniter_lang/cli.rb",
+        "igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/",
+        "igniter-lang/docs/tracks/experimental-igc-run-slice1-vm-candidate-implementation-v0.md"
+      ],
+      "exitstatus": 0,
+      "stdout": "igniter-lang/lib/igniter_lang/cli.rb\nigniter-lang/lib/igniter_lang/experimental_igc_run.rb\n",
+      "stderr": ""
+    },
+    {
+      "name": "git.diff_name_only.workspace_observation",
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "--",
+        "igniter-lang"
+      ],
+      "exitstatus": 0,
+      "stdout": "igniter-lang/lib/igniter_lang/cli.rb\nigniter-lang/lib/igniter_lang/experimental_igc_run.rb\nigniter-lang/source/availability_projection.ig\nigniter-lang/source/tenant_availability_projection.ig\n",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.igniter_lang_bin_igc",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "igniter-lang/bin/igc"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.igniter_lang_igniter_lang_gemspec",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "igniter-lang/igniter_lang.gemspec"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.igniter_lang_README_md",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "igniter-lang/README.md"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.igniter_lang_docs_README_md",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "igniter-lang/docs/README.md"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.igniter_lang_docs_ruby_api_md",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "igniter-lang/docs/ruby-api.md"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.igniter_lang_lib_igniter_lang_runtime_smoke_rb",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "igniter-lang/lib/igniter_lang/runtime_smoke.rb"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.igniter_lang_lib_igniter_lang_compiler_result_rb",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "igniter-lang/lib/igniter_lang/compiler_result.rb"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.igniter_lang_lib_igniter_lang_compilation_report_rb",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "igniter-lang/lib/igniter_lang/compilation_report.rb"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.playgrounds_igniter_lab",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "playgrounds/igniter-lab"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.igniter_lang_examples_experimental_executable_quickstart_v0_out_Add_igapp",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.igniter_lang_experiments_experimental_runtime_artifact_passport_manifest_v0_out_Add_igapp_passport_json",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "git.status.closed.igniter_lang_experiments_experimental_igc_run_slice1_vm_capability_passport_hardening_v0",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--",
+        "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0"
+      ],
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "slice1_blocked_result_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/slice1_integer_add_blocked.result.json",
+  "slice0_compat_result_path": "/Users/alex/dev/projects/igniter/igniter-lang/experiments/experimental_igc_run_slice1_vm_candidate_v0/out/slice0_compat.result.json",
+  "runtime_selector": "delegated-experimental:igniter-vm-candidate",
+  "runtime_implementation_id": "igniter.delegated.experimental.vm.rust-tokio.v0",
+  "selected_an1_path": "Path C fail-closed",
+  "claim_scan": {
+    "status": "PASS",
+    "hits": []
+  },
+  "closed_surface_scan": {
+    "closed_statuses": {
+      "igniter-lang/bin/igc": "",
+      "igniter-lang/igniter_lang.gemspec": "",
+      "igniter-lang/README.md": "",
+      "igniter-lang/docs/README.md": "",
+      "igniter-lang/docs/ruby-api.md": "",
+      "igniter-lang/lib/igniter_lang/runtime_smoke.rb": "",
+      "igniter-lang/lib/igniter_lang/compiler_result.rb": "",
+      "igniter-lang/lib/igniter_lang/compilation_report.rb": "",
+      "playgrounds/igniter-lab": "",
+      "igniter-lang/examples/experimental_executable_quickstart_v0/out/Add.igapp": "",
+      "igniter-lang/experiments/experimental_runtime_artifact_passport_manifest_v0/out/Add.igapp.passport.json": "",
+      "igniter-lang/experiments/experimental_igc_run_slice1_vm_capability_passport_hardening_v0": ""
+    },
+    "status": "PASS"
+  },
+  "git_diff_name_only": [
+    "igniter-lang/lib/igniter_lang/cli.rb",
+    "igniter-lang/lib/igniter_lang/experimental_igc_run.rb"
+  ],
+  "workspace_diff_observation": [
+    "igniter-lang/lib/igniter_lang/cli.rb",
+    "igniter-lang/lib/igniter_lang/experimental_igc_run.rb",
+    "igniter-lang/source/availability_projection.ig",
+    "igniter-lang/source/tenant_availability_projection.ig"
+  ],
+  "c4_a_recommendation": {
+    "verdict": "accept bounded Slice 1 Path C implementation",
+    "implementation_authorization": "do not widen beyond Path C",
+    "positive_runtime_evidence": "still blocked for Add.igapp integer capability gap"
+  }
+}

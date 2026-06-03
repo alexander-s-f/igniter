@@ -1,17 +1,17 @@
 {
-  "artifact_hash": "sha256:b63192650875ea19413ebf1870ea6189c4d291a82d8d95061d47e528d6ddf06e",
+  "artifact_hash": "sha256:39bb5282518c00e7229a4badf389a084e577cd4ff9f7c421126f3d80cdf346af",
   "assembler": "igapp-assembler-proof-stage1-v0",
-  "compilation_report_ref": "compilation_report/6a02359fc7e395e5",
+  "compilation_report_ref": "compilation_report/c408dabb0ea13314",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
     "TenantAvailabilityProjection": {
       "contract_path": "contracts/tenant_availability_projection.json",
-      "contract_ref": "contract/TenantAvailabilityProjection/sha256:87dfa4c2014bda250b580b8c",
+      "contract_ref": "contract/TenantAvailabilityProjection/sha256:77465b688ff5be39e1f5780d",
       "fragment_class": "escape"
     }
   },
   "contract_refs": {
-    "TenantAvailabilityProjection": "contract/TenantAvailabilityProjection/sha256:87dfa4c2014bda250b580b8c"
+    "TenantAvailabilityProjection": "contract/TenantAvailabilityProjection/sha256:77465b688ff5be39e1f5780d"
   },
   "contracts": [
     "TenantAvailabilityProjection"
@@ -36,14 +36,14 @@
   "grammar_version": "spark-pipeline-v0",
   "kind": "igapp_manifest",
   "language_version": "0.1.0",
-  "program_id": "semanticir/6a02359fc7e395e5",
+  "program_id": "semanticir/c408dabb0ea13314",
   "schema_descriptor": {
     "migrations": [],
     "trait_bounds": []
   },
   "schema_version": "0.1.0",
-  "semantic_ir_ref": "semanticir/6a02359fc7e395e5",
-  "source_hash": "sha256:6a02359fc7e395e52b53b6e217598442b65d589e2c2485e55dce486b87b4f2ba",
+  "semantic_ir_ref": "semanticir/c408dabb0ea13314",
+  "source_hash": "sha256:c408dabb0ea13314fecd223560c6931ae2b9232682f14e14b0f1d75be806d7c4",
   "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/tenant_availability_projection.ig",
   "warnings": []
 }

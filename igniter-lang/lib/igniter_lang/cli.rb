@@ -12,7 +12,7 @@ module IgniterLang
     COMPILE_USAGE = "Usage: igc compile SOURCE --out OUT.igapp " \
                     "[--compiler-profile-source PATH.json]"
     RUN_USAGE = "Usage: igc run ARTIFACT.igapp --passport PATH.json " \
-                "--input PATH.json --runtime delegated-experimental:ivm-proof " \
+                "--input PATH.json --runtime SELECTOR " \
                 "--out PATH.json --experimental"
     USAGE = "#{COMPILE_USAGE}\n#{RUN_USAGE}"
 

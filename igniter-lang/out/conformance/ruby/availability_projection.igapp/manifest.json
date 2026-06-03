@@ -1,17 +1,17 @@
 {
-  "artifact_hash": "sha256:737151c076b68765071b358ad2adcfe4466dbc27b04d95830b25dd59fa5e3995",
+  "artifact_hash": "sha256:216126700cfe50b69595177baa0afaddd01d05a0a8540bb3d726eec7cbc166c6",
   "assembler": "igapp-assembler-proof-stage1-v0",
-  "compilation_report_ref": "compilation_report/9c7bad8036544f8a",
+  "compilation_report_ref": "compilation_report/8d380232c26184a7",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
     "AvailabilityProjection": {
       "contract_path": "contracts/availability_projection.json",
-      "contract_ref": "contract/AvailabilityProjection/sha256:88b8a462772f550640d19106",
+      "contract_ref": "contract/AvailabilityProjection/sha256:3ae2f2835bed20da3c5b5a82",
       "fragment_class": "escape"
     }
   },
   "contract_refs": {
-    "AvailabilityProjection": "contract/AvailabilityProjection/sha256:88b8a462772f550640d19106"
+    "AvailabilityProjection": "contract/AvailabilityProjection/sha256:3ae2f2835bed20da3c5b5a82"
   },
   "contracts": [
     "AvailabilityProjection"
@@ -36,14 +36,14 @@
   "grammar_version": "0.1.0",
   "kind": "igapp_manifest",
   "language_version": "0.1.0",
-  "program_id": "semanticir/9c7bad8036544f8a",
+  "program_id": "semanticir/8d380232c26184a7",
   "schema_descriptor": {
     "migrations": [],
     "trait_bounds": []
   },
   "schema_version": "0.1.0",
-  "semantic_ir_ref": "semanticir/9c7bad8036544f8a",
-  "source_hash": "sha256:9c7bad8036544f8a35ec4f04cc97430aa8f4f8ecbe4e5cf1a474cc91fa4e22aa",
+  "semantic_ir_ref": "semanticir/8d380232c26184a7",
+  "source_hash": "sha256:8d380232c26184a7983711a5716e853b475272b55788c48e932e5cf331097686",
   "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/availability_projection.ig",
   "warnings": []
 }
