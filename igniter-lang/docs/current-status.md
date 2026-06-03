@@ -913,6 +913,33 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             performance, official/reference, certification,
                             portability, loop/recursion support, and
                             reactive/tbackend daemon execution remain closed;
+                            R243 conditionally accepts bounded experimental
+                            `igc run` Slice 1 VM candidate implementation
+                            evidence under Path C fail-closed: selector
+                            `delegated-experimental:igniter-vm-candidate`,
+                            evidence-facing `runtime_implementation_id`
+                            `igniter.delegated.experimental.vm.rust-tokio.v0`,
+                            IGR-S1 18/18 PASS, machine-readable blocked
+                            diagnostics for `integer_add` and
+                            `stdlib_integer_add`, Slice 0 compatibility
+                            preserved with `delegated-experimental:ivm-proof`
+                            returning `sum=42`, `.igbin` failing closed, and
+                            no RuntimeSmoke or compiler passport emission;
+                            positive Add.igapp integer_add execution is not
+                            accepted; adjacent source/conformance artifacts in
+                            the C2-I commit are explicitly excluded from R243
+                            authority and create no implementation evidence,
+                            conformance authority, runtime authority,
+                            portability guarantee, alternative certification,
+                            public runtime support, public claim support, or
+                            release evidence; next route is R244 bounded
+                            internal quickstart/docs authorization review;
+                            public runtime support, Reference Runtime, stable
+                            API, production, Spark/release/public demo or
+                            performance claims, `.igbin`, RuntimeSmoke,
+                            compiler passport emission, portability, and
+                            adjacent conformance/source artifact authority
+                            remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1958,6 +1985,12 @@ Round 242 landed:
   S3-R242-C3-X: hardening pressure                                      ✅ PASS; integer_add gap carried as AN-1
   S3-R242-C4-A: hardening decision                                      ✅ accepts evidence; opens R243 implementation authorization review
   S3-R242-C5-S: status curation                                        ✅ done; R243 exact route recorded
+Round 243 landed:
+  S3-R243-C1-A: Slice 1 implementation authorization                    ✅ authorized Path C fail-closed boundary
+  S3-R243-C2-I: Slice 1 VM candidate implementation                     ✅ PASS; IGR-S1 18/18, integer_add blocked, Slice 0 compat
+  S3-R243-C3-X: implementation pressure                                 ✅ PASS; no blockers; claim scan clean
+  S3-R243-C4-A: implementation acceptance                               ✅ conditional accept; adjacent artifacts excluded by status curation
+  S3-R243-C5-S: status curation                                         ✅ done; R244 quickstart/docs authorization route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
