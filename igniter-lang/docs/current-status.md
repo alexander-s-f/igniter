@@ -838,6 +838,28 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             performance, official/reference, certification,
                             portability, and adjacent frontier/conformance
                             authority remain closed;
+                            R240 accepts the proof-local `igniter-vm`
+                            candidate proof: VMG-1..VMG-15 are accepted,
+                            VMG-13 is classified/skipped rather than run,
+                            result packet reports 15/15 PASS with 0 failures,
+                            `runtime_implementation_id`
+                            `igniter.delegated.experimental.vm.rust-tokio.v0`,
+                            `evidence_class`
+                            `proof_local_vm_candidate_evidence`, authority
+                            status, and 13/13 non-claims present; R239 AN-1
+                            observation wording is resolved with hash-based
+                            trace identifiers only, and AN-2 non-selected
+                            branch silence is resolved with zero observations;
+                            Decimal parity cites R238 stdlib evidence as
+                            dependency context only; reactive/tbackend daemon
+                            surfaces remain classified/skipped; next route is
+                            R241 design-only `igc run` Slice 1 VM candidate
+                            boundary; implementation, runtime/API/CLI/package
+                            authority, `.igbin`, compiler passport emission,
+                            RuntimeSmoke, public runtime support, Reference
+                            Runtime, stable API, production, Spark/release/
+                            public performance, official/reference,
+                            certification, and portability remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -1865,6 +1887,12 @@ Round 239 landed:
   S3-R239-C3-X: VM candidate intake pressure                            ✅ PASS; AN-1/AN-2 mandatory for next proof route
   S3-R239-C4-A: VM candidate intake decision                            ✅ accepts candidate evidence only; opens R240 proof authorization review
   S3-R239-C5-S: status curation                                         ✅ done; R240 exact route recorded
+Round 240 landed:
+  S3-R240-C1-A: VM candidate proof authorization                        ✅ authorized bounded lab-local proof only
+  S3-R240-C2-I: VM candidate proof                                      ✅ PASS; VMG-1..VMG-15 accepted, summary packet present
+  S3-R240-C3-X: VM proof pressure                                      ✅ PASS unconditional; R239 AN-1/AN-2 resolved
+  S3-R240-C4-A: VM proof acceptance                                    ✅ accepts proof-local evidence; opens R241 Slice 1 design-only route
+  S3-R240-C5-S: status curation                                       ✅ done; R241 exact route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
