@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "polymorphic-v0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/e83810a56d9e0c5f",
+  "semantic_ir_ref": "semanticir/e83810a56d9e0c5f",
+  "source_hash": "sha256:e83810a56d9e0c5fbc21786d3f80fa60cf9bca55d93a86ea551fb039e2b83113",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/nested_associated.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

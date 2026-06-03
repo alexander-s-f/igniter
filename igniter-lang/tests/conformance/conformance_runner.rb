@@ -34,6 +34,7 @@ require_relative "../../lib/igniter_lang"
 require_relative "../../lib/igniter_lang/runtime_smoke"
 require_relative "../../experiments/runtime_machine_memory_proof/compiled_program"
 require_relative "../../experiments/polymorphic_traits_proof/patches"
+require_relative "../../experiments/nested_associated_types_proof/patches"
 
 # 3. Helper functions for AST and JSON parity comparison
 VOLATILE_KEYS = %w[
@@ -211,6 +212,8 @@ def map_expression_for_rust_vm(expr)
       { "kind" => "binary_op", "operator" => ">", "left" => operands[0], "right" => operands[1] }
     elsif op == "stdlib.bool.and"
       { "kind" => "binary_op", "operator" => "&&", "left" => operands[0], "right" => operands[1] }
+    elsif op == "stdlib.option.wrap"
+      operands[0]
     else
       { "kind" => "apply", "operator" => op, "operands" => operands }
     end
@@ -309,6 +312,14 @@ TEST_CASES = [
     contracts: ["Add[Integer]"],
     inputs: { "a" => 19, "b" => 23 },
     expected_output_field: "sum",
+    expected_output_value: 42
+  },
+  {
+    name: "nested_associated",
+    expected_status: "ok",
+    contracts: ["Wrap[Option[Integer]]"],
+    inputs: { "item" => 42 },
+    expected_output_field: "container",
     expected_output_value: 42
   }
 ].freeze

@@ -1,0 +1,144 @@
+{
+  "compilation_report_ref": "compilation_report/e83810a56d9e0c5f",
+  "contracts": [
+    {
+      "contract_name": "Wrap[Option[Integer]]",
+      "contract_ref": "contract/Wrap[Option[Integer]]/sha256:3165870c6aaf8c19ae396e0b",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "implements": [
+        {
+          "check": "passed",
+          "shape": "WrapShape[Integer,Option[Integer]]"
+        }
+      ],
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "item",
+          "type": {
+            "name": "T",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "item"
+          ],
+          "expr": {
+            "kind": "apply",
+            "operands": [
+              {
+                "kind": "ref",
+                "name": "item",
+                "resolved_type": {
+                  "name": "T",
+                  "params": []
+                }
+              }
+            ],
+            "operator": "stdlib.option.wrap",
+            "resolved_impl": "Container[{\"name\"=>\"Option\", \"params\"=>[{\"name\"=>\"T\", \"params\"=>[]}]}]",
+            "resolved_type": {
+              "name": "Option",
+              "params": [
+                {
+                  "name": "T",
+                  "params": []
+                }
+              ]
+            },
+            "type_args": [
+              {
+                "name": "T",
+                "params": []
+              }
+            ]
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "container",
+          "type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "T",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "container",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "shapes": {
+        "WrapShape[Integer,Option[Integer]]": {
+          "input_ports": [
+            {
+              "name": "item",
+              "type_tag": "T"
+            }
+          ],
+          "output_ports": [
+            {
+              "name": "container",
+              "type_tag": "Option"
+            }
+          ]
+        }
+      },
+      "specialization_of": "Wrap",
+      "type_args": {
+        "C": "Option[Integer]"
+      }
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "polymorphic-v0",
+  "kind": "semantic_ir_program",
+  "lowering_invariants": [
+    "SIR-1:no_type_variables",
+    "SIR-2:no_unresolved_trait_method_calls",
+    "SIR-3:no_generic_contractir",
+    "SIR-4:concrete_resolved_impl"
+  ],
+  "module": "Lang.Examples.NestedAssociated",
+  "program_id": "semanticir/e83810a56d9e0c5f",
+  "shape_descriptors": {
+    "WrapShape[Integer,Option[Integer]]": {
+      "input_ports": [
+        {
+          "name": "item",
+          "type_tag": "T"
+        }
+      ],
+      "output_ports": [
+        {
+          "name": "container",
+          "type_tag": "Option"
+        }
+      ]
+    }
+  },
+  "source_hash": "sha256:e83810a56d9e0c5fbc21786d3f80fa60cf9bca55d93a86ea551fb039e2b83113",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/nested_associated.ig"
+}

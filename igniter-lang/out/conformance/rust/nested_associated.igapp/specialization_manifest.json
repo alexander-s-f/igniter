@@ -1,0 +1,12 @@
+{
+  "kind": "specialization_manifest",
+  "specializations": [
+    {
+      "emitted_contract_id": "Wrap[Option[Integer]]",
+      "template_contract_id": "Lang.Examples.NestedAssociated.Wrap",
+      "type_args": {
+        "C": "Option[Integer]"
+      }
+    }
+  ]
+}

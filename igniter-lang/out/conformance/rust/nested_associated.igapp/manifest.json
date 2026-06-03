@@ -1,0 +1,53 @@
+{
+  "artifact_hash": "sha256:5ca3328c6996830f8e877f3d2eb18355faf99dfe2672cb090232127c265567cd",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/e83810a56d9e0c5f",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "Wrap[Option[Integer]]": {
+      "contract_path": "contracts/wrap[option[integer]].json",
+      "contract_ref": "contract/Wrap[Option[Integer]]/sha256:3cae870e6d188a670d985004",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "Wrap[Option[Integer]]": "contract/Wrap[Option[Integer]]/sha256:3cae870e6d188a670d985004"
+  },
+  "contracts": [
+    "Wrap[Option[Integer]]"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "polymorphic-v0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "metadata_only_templates": [
+    "Lang.Examples.NestedAssociated.Wrap"
+  ],
+  "program_id": "semanticir/e83810a56d9e0c5f",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/e83810a56d9e0c5f",
+  "source_hash": "sha256:e83810a56d9e0c5fbc21786d3f80fa60cf9bca55d93a86ea551fb039e2b83113",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/nested_associated.ig",
+  "specialization_manifest_ref": "specialization_manifest.json",
+  "warnings": []
+}

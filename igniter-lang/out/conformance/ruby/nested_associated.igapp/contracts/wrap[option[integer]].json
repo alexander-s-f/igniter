@@ -1,0 +1,77 @@
+{
+  "artifact_hash": "sha256:5df116da4a53663a48bdcdff3f54cd569654aa63b7e312d8bbeca9d7911061b7",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:item"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "item",
+            "resolved_type": {
+              "name": "T",
+              "params": []
+            }
+          }
+        ],
+        "operator": "stdlib.option.wrap",
+        "resolved_impl": "Container[{\"name\"=>\"Option\", \"params\"=>[{\"name\"=>\"T\", \"params\"=>[]}]}]",
+        "resolved_type": {
+          "name": "Option",
+          "params": [
+            {
+              "name": "T",
+              "params": []
+            }
+          ]
+        },
+        "type_args": [
+          {
+            "name": "T",
+            "params": []
+          }
+        ]
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "container",
+      "node_id": "node_container",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[T]"
+    }
+  ],
+  "contract_id": "Wrap[Option[Integer]]",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "item",
+      "required": true,
+      "type_tag": "T"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "Wrap[Option[Integer]]",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "container",
+      "required": true,
+      "type_tag": "Option[Integer]"
+    }
+  ],
+  "source_contract_ref": "contract/Wrap[Option[Integer]]/sha256:3165870c6aaf8c19ae396e0b",
+  "type_signature": {
+    "inputs": {
+      "item": "T"
+    },
+    "outputs": {
+      "container": "Option[Integer]"
+    }
+  }
+}

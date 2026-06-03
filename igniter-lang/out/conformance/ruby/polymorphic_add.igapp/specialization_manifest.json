@@ -3,14 +3,14 @@
   "specializations": [
     {
       "emitted_contract_id": "Add[Integer]",
-      "template_contract_id": "Add",
+      "template_contract_id": "Lang.Examples.PolymorphicAdd.Add",
       "type_args": {
         "T": "Integer"
       }
     },
     {
       "emitted_contract_id": "Add[Float]",
-      "template_contract_id": "Add",
+      "template_contract_id": "Lang.Examples.PolymorphicAdd.Add",
       "type_args": {
         "T": "Float"
       }

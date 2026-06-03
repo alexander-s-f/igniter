@@ -374,9 +374,12 @@ module IgniterLang
       semantic_ir = artifact.fetch("semantic_ir_program")
       specs = semantic_ir.fetch("contracts", []).select { |c| c["specialization_of"] }
       unless specs.empty?
+        module_name = semantic_ir["module"]
         specializations = specs.map do |c|
+          template_id = c["specialization_of"]
+          qualified_template_id = module_name && !module_name.empty? ? "#{module_name}.#{template_id}" : template_id
           {
-            "template_contract_id" => c["specialization_of"],
+            "template_contract_id" => qualified_template_id,
             "type_args" => c["type_args"],
             "emitted_contract_id" => c["contract_name"]
           }

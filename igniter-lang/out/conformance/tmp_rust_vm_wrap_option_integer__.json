@@ -1,0 +1,10 @@
+{
+  "contract_id": "Wrap[Option[Integer]]",
+  "inputs": [
+    "item"
+  ],
+  "expression": {
+    "kind": "ref",
+    "name": "item"
+  }
+}

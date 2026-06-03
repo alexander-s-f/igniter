@@ -1,0 +1,24 @@
+{
+  "compilation_report_ref": "compilation_report/e83810a56d9e0c5f",
+  "contracts": [
+    "Wrap[Option[Integer]]"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "generic_templates": [
+    {
+      "loadable": false,
+      "template_contract_id": "Lang.Examples.NestedAssociated.Wrap"
+    }
+  ],
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "Wrap[Option[Integer]]"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/e83810a56d9e0c5f",
+  "semantic_ir_ref": "semanticir/e83810a56d9e0c5f",
+  "source_hash": "sha256:e83810a56d9e0c5fbc21786d3f80fa60cf9bca55d93a86ea551fb039e2b83113",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/nested_associated.ig"
+}
