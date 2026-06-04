@@ -1,0 +1,426 @@
+{
+  "artifact_hash": "sha256:4098f0feae2d26429d4818f9e2bbe8eb076f92f8c16e20a57bc0023ba3f0b38d",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:res_err"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_err",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Result",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Integer",
+                  "params": []
+                },
+                {
+                  "kind": "type_ref",
+                  "name": "String",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "body": {
+              "kind": "literal",
+              "literal_type": "int",
+              "resolved_type": {
+                "name": "Integer",
+                "params": []
+              },
+              "type_tag": "Integer",
+              "value": 0
+            },
+            "kind": "lambda",
+            "params": [
+              "e"
+            ],
+            "resolved_type": {
+              "name": "Unknown",
+              "params": []
+            }
+          }
+        ],
+        "operator": "try_catch",
+        "resolved_type": {
+          "kind": "type_ref",
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "recovered",
+      "node_id": "node_recovered",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:res_ok"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_ok",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Result",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Integer",
+                  "params": []
+                },
+                {
+                  "kind": "type_ref",
+                  "name": "String",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "body": {
+              "kind": "literal",
+              "literal_type": "int",
+              "resolved_type": {
+                "name": "Integer",
+                "params": []
+              },
+              "type_tag": "Integer",
+              "value": 0
+            },
+            "kind": "lambda",
+            "params": [
+              "e"
+            ],
+            "resolved_type": {
+              "name": "Unknown",
+              "params": []
+            }
+          }
+        ],
+        "operator": "try_catch",
+        "resolved_type": {
+          "kind": "type_ref",
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "ok_passthrough",
+      "node_id": "node_ok_passthrough",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:res_ok"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_ok",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Result",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Integer",
+                  "params": []
+                },
+                {
+                  "kind": "type_ref",
+                  "name": "String",
+                  "params": []
+                }
+              ]
+            }
+          }
+        ],
+        "operator": "propagate",
+        "resolved_type": {
+          "kind": "type_ref",
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "propagated",
+      "node_id": "node_propagated",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:raw_val",
+        "input:threshold"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "raw_val",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          {
+            "body": {
+              "kind": "apply",
+              "operands": [
+                {
+                  "kind": "ref",
+                  "name": "v",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  }
+                },
+                {
+                  "kind": "ref",
+                  "name": "threshold",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  }
+                }
+              ],
+              "operator": "stdlib.integer.gt",
+              "resolved_type": {
+                "name": "Bool",
+                "params": []
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "v"
+            ],
+            "resolved_type": {
+              "name": "Unknown",
+              "params": []
+            }
+          },
+          {
+            "kind": "literal",
+            "literal_type": "string",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            },
+            "type_tag": "String",
+            "value": "too_small"
+          }
+        ],
+        "operator": "validate",
+        "resolved_type": {
+          "name": "Result",
+          "params": [
+            {
+              "name": "Integer",
+              "params": []
+            },
+            {
+              "name": "String",
+              "params": []
+            }
+          ]
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "validated",
+      "node_id": "node_validated",
+      "obs_kind": "value_observation",
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "dependencies": [
+        "input:threshold"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "literal",
+            "literal_type": "int",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            },
+            "type_tag": "Integer",
+            "value": 3
+          },
+          {
+            "body": {
+              "kind": "apply",
+              "operands": [
+                {
+                  "kind": "ref",
+                  "name": "v",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  }
+                },
+                {
+                  "kind": "ref",
+                  "name": "threshold",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  }
+                }
+              ],
+              "operator": "stdlib.integer.gt",
+              "resolved_type": {
+                "name": "Bool",
+                "params": []
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "v"
+            ],
+            "resolved_type": {
+              "name": "Unknown",
+              "params": []
+            }
+          },
+          {
+            "kind": "literal",
+            "literal_type": "string",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            },
+            "type_tag": "String",
+            "value": "too_small"
+          }
+        ],
+        "operator": "validate",
+        "resolved_type": {
+          "name": "Result",
+          "params": [
+            {
+              "name": "Integer",
+              "params": []
+            },
+            {
+              "name": "String",
+              "params": []
+            }
+          ]
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "invalid",
+      "node_id": "node_invalid",
+      "obs_kind": "value_observation",
+      "type_tag": "Result[Integer,String]"
+    }
+  ],
+  "contract_id": "ErrorHandlingWorkflow",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "res_ok",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "res_err",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "raw_val",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "threshold",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "ErrorHandlingWorkflow",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "recovered",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "ok_passthrough",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "propagated",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "validated",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "invalid",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    }
+  ],
+  "source_contract_ref": "contract/ErrorHandlingWorkflow/sha256:211059265893ae71382eb143",
+  "type_signature": {
+    "inputs": {
+      "raw_val": "Integer",
+      "res_err": "Result[Integer,String]",
+      "res_ok": "Result[Integer,String]",
+      "threshold": "Integer"
+    },
+    "outputs": {
+      "invalid": "Result[Integer,String]",
+      "ok_passthrough": "Integer",
+      "propagated": "Integer",
+      "recovered": "Integer",
+      "validated": "Result[Integer,String]"
+    }
+  }
+}

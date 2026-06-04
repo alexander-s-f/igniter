@@ -1,0 +1,10 @@
+{
+  "res_ok": {
+    "ok": 42
+  },
+  "res_err": {
+    "err": "oops"
+  },
+  "raw_val": 7,
+  "threshold": 5
+}

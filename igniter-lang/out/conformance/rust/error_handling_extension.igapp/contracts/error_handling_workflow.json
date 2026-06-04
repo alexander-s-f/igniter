@@ -1,0 +1,265 @@
+{
+  "artifact_hash": "sha256:3f8b36ada241fcee93133ba8d4346b031fdf211cd7e7af3bf64657ca5f27b71f",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:res_err"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_err"
+          },
+          {
+            "body": {
+              "kind": "literal",
+              "type_tag": "Integer",
+              "value": 0
+            },
+            "kind": "lambda",
+            "params": [
+              "e"
+            ]
+          }
+        ],
+        "operator": "try_catch"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "recovered",
+      "node_id": "node_recovered",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:res_ok"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_ok"
+          },
+          {
+            "body": {
+              "kind": "literal",
+              "type_tag": "Integer",
+              "value": 0
+            },
+            "kind": "lambda",
+            "params": [
+              "e"
+            ]
+          }
+        ],
+        "operator": "try_catch"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "ok_passthrough",
+      "node_id": "node_ok_passthrough",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:res_ok"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_ok"
+          }
+        ],
+        "operator": "propagate"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "propagated",
+      "node_id": "node_propagated",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:raw_val",
+        "input:threshold"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "raw_val"
+          },
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "kind": "ref",
+                "name": "v"
+              },
+              "op": ">",
+              "right": {
+                "kind": "ref",
+                "name": "threshold"
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "v"
+            ]
+          },
+          {
+            "kind": "literal",
+            "type_tag": "String",
+            "value": "too_small"
+          }
+        ],
+        "operator": "validate"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "validated",
+      "node_id": "node_validated",
+      "obs_kind": "value_observation",
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "dependencies": [
+        "input:threshold"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "literal",
+            "type_tag": "Integer",
+            "value": 3
+          },
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "kind": "ref",
+                "name": "v"
+              },
+              "op": ">",
+              "right": {
+                "kind": "ref",
+                "name": "threshold"
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "v"
+            ]
+          },
+          {
+            "kind": "literal",
+            "type_tag": "String",
+            "value": "too_small"
+          }
+        ],
+        "operator": "validate"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "invalid",
+      "node_id": "node_invalid",
+      "obs_kind": "value_observation",
+      "type_tag": "Result[Integer,String]"
+    }
+  ],
+  "contract_id": "ErrorHandlingWorkflow",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "res_ok",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "res_err",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "raw_val",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "threshold",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "ErrorHandlingWorkflow",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "recovered",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "ok_passthrough",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "propagated",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "validated",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "invalid",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    }
+  ],
+  "source_contract_ref": "contract/ErrorHandlingWorkflow/sha256:fed628412383c07d6240ec96",
+  "type_signature": {
+    "inputs": {
+      "raw_val": "Integer",
+      "res_err": "Result[Integer,String]",
+      "res_ok": "Result[Integer,String]",
+      "threshold": "Integer"
+    },
+    "outputs": {
+      "invalid": "Result[Integer,String]",
+      "ok_passthrough": "Integer",
+      "propagated": "Integer",
+      "recovered": "Integer",
+      "validated": "Result[Integer,String]"
+    }
+  }
+}

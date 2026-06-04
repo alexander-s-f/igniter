@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/40eaf0e7994fd28f",
+  "semantic_ir_ref": "semanticir/40eaf0e7994fd28f",
+  "source_hash": "sha256:40eaf0e7994fd28fccb4ec0f6a92a744c015a36d5e6359c63c6642d8561caef1",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/error_handling_extension.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

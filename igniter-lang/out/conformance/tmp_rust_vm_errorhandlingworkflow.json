@@ -1,0 +1,44 @@
+{
+  "contract_id": "ErrorHandlingWorkflow",
+  "inputs": [
+    "res_ok",
+    "res_err",
+    "raw_val",
+    "threshold"
+  ],
+  "expression": {
+    "kind": "apply",
+    "operator": "validate",
+    "operands": [
+      {
+        "kind": "literal",
+        "type_tag": "Integer",
+        "value": 3
+      },
+      {
+        "body": {
+          "kind": "binary_op",
+          "left": {
+            "kind": "ref",
+            "name": "v"
+          },
+          "op": ">",
+          "right": {
+            "kind": "ref",
+            "name": "threshold"
+          },
+          "operator": ">"
+        },
+        "kind": "lambda",
+        "params": [
+          "v"
+        ]
+      },
+      {
+        "kind": "literal",
+        "type_tag": "String",
+        "value": "too_small"
+      }
+    ]
+  }
+}

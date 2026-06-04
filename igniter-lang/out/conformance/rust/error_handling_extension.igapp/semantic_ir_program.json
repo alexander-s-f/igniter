@@ -1,0 +1,314 @@
+{
+  "compilation_report_ref": "compilation_report/40eaf0e7994fd28f",
+  "contracts": [
+    {
+      "contract_name": "ErrorHandlingWorkflow",
+      "contract_ref": "contract/ErrorHandlingWorkflow/sha256:fed628412383c07d6240ec96",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "res_ok",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              "Integer",
+              "String"
+            ]
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "res_err",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              "Integer",
+              "String"
+            ]
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "raw_val",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "threshold",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "res_err"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_err"
+              },
+              {
+                "body": {
+                  "kind": "literal",
+                  "type_tag": "Integer",
+                  "value": 0
+                },
+                "kind": "lambda",
+                "params": [
+                  "e"
+                ]
+              }
+            ],
+            "fn": "try_catch",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "recovered",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "res_ok"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_ok"
+              },
+              {
+                "body": {
+                  "kind": "literal",
+                  "type_tag": "Integer",
+                  "value": 0
+                },
+                "kind": "lambda",
+                "params": [
+                  "e"
+                ]
+              }
+            ],
+            "fn": "try_catch",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "ok_passthrough",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "res_ok"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_ok"
+              }
+            ],
+            "fn": "propagate",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "propagated",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "raw_val",
+            "threshold"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "raw_val"
+              },
+              {
+                "body": {
+                  "kind": "binary_op",
+                  "left": {
+                    "kind": "ref",
+                    "name": "v"
+                  },
+                  "op": ">",
+                  "right": {
+                    "kind": "ref",
+                    "name": "threshold"
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "v"
+                ]
+              },
+              {
+                "kind": "literal",
+                "type_tag": "String",
+                "value": "too_small"
+              }
+            ],
+            "fn": "validate",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "validated",
+          "type": {
+            "name": "Result",
+            "params": [
+              {
+                "name": "Integer",
+                "params": []
+              },
+              {
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "threshold"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "literal",
+                "type_tag": "Integer",
+                "value": 3
+              },
+              {
+                "body": {
+                  "kind": "binary_op",
+                  "left": {
+                    "kind": "ref",
+                    "name": "v"
+                  },
+                  "op": ">",
+                  "right": {
+                    "kind": "ref",
+                    "name": "threshold"
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "v"
+                ]
+              },
+              {
+                "kind": "literal",
+                "type_tag": "String",
+                "value": "too_small"
+              }
+            ],
+            "fn": "validate",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "invalid",
+          "type": {
+            "name": "Result",
+            "params": [
+              {
+                "name": "Integer",
+                "params": []
+              },
+              {
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "recovered",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "ok_passthrough",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "propagated",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "validated",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              "Integer",
+              "String"
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "invalid",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              "Integer",
+              "String"
+            ]
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "SparkCRM.ErrorHandling",
+  "program_id": "semanticir/40eaf0e7994fd28f",
+  "source_hash": "sha256:40eaf0e7994fd28fccb4ec0f6a92a744c015a36d5e6359c63c6642d8561caef1",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/error_handling_extension.ig"
+}
