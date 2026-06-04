@@ -1,0 +1,275 @@
+{
+  "artifact_hash": "sha256:e8f257bbf655f99c162bbd92feb0cf8d4d7ff614f4ffe6dc81de5ad618acacf7",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:dt1",
+        "input:dt2"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "dt1"
+          },
+          {
+            "kind": "ref",
+            "name": "dt2"
+          }
+        ],
+        "operator": "diff_seconds"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "diff",
+      "node_id": "node_diff",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:dt_add",
+        "input:sec_add"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "dt_add"
+          },
+          {
+            "kind": "ref",
+            "name": "sec_add"
+          }
+        ],
+        "operator": "add_seconds"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "added",
+      "node_id": "node_added",
+      "obs_kind": "value_observation",
+      "type_tag": "DateTime"
+    },
+    {
+      "dependencies": [
+        "input:fmt_parse",
+        "input:str_parse"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "str_parse"
+          },
+          {
+            "kind": "ref",
+            "name": "fmt_parse"
+          }
+        ],
+        "operator": "parse_datetime"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "parsed",
+      "node_id": "node_parsed",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[DateTime]"
+    },
+    {
+      "dependencies": [
+        "input:dt1",
+        "input:fmt_format"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "dt1"
+          },
+          {
+            "kind": "ref",
+            "name": "fmt_format"
+          }
+        ],
+        "operator": "format_datetime"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "formatted",
+      "node_id": "node_formatted",
+      "obs_kind": "value_observation",
+      "type_tag": "String"
+    },
+    {
+      "dependencies": [
+        "input:dt1",
+        "input:dt2"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "dt1"
+          },
+          {
+            "kind": "ref",
+            "name": "dt2"
+          }
+        ],
+        "operator": "is_before"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "before",
+      "node_id": "node_before",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:dt1",
+        "input:dt2"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "dt1"
+          },
+          {
+            "kind": "ref",
+            "name": "dt2"
+          }
+        ],
+        "operator": "is_after"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "after",
+      "node_id": "node_after",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    }
+  ],
+  "contract_id": "DateTimeWorkflow",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "dt1",
+      "required": true,
+      "type_tag": "DateTime"
+    },
+    {
+      "lifecycle": "local",
+      "name": "dt2",
+      "required": true,
+      "type_tag": "DateTime"
+    },
+    {
+      "lifecycle": "local",
+      "name": "dt_add",
+      "required": true,
+      "type_tag": "DateTime"
+    },
+    {
+      "lifecycle": "local",
+      "name": "sec_add",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "str_parse",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "fmt_parse",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "fmt_format",
+      "required": true,
+      "type_tag": "String"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "DateTimeWorkflow",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "diff",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "added",
+      "required": true,
+      "type_tag": "DateTime"
+    },
+    {
+      "lifecycle": "session",
+      "name": "parsed",
+      "required": true,
+      "type_tag": "Option[DateTime]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "formatted",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "session",
+      "name": "before",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "after",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "source_contract_ref": "contract/DateTimeWorkflow/sha256:62094dec5031c54584ab4c71",
+  "type_signature": {
+    "inputs": {
+      "dt1": "DateTime",
+      "dt2": "DateTime",
+      "dt_add": "DateTime",
+      "fmt_format": "String",
+      "fmt_parse": "String",
+      "sec_add": "Integer",
+      "str_parse": "String"
+    },
+    "outputs": {
+      "added": "DateTime",
+      "after": "Bool",
+      "before": "Bool",
+      "diff": "Integer",
+      "formatted": "String",
+      "parsed": "Option[DateTime]"
+    }
+  }
+}

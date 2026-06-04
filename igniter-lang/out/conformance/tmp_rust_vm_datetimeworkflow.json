@@ -1,0 +1,26 @@
+{
+  "contract_id": "DateTimeWorkflow",
+  "inputs": [
+    "dt1",
+    "dt2",
+    "dt_add",
+    "sec_add",
+    "str_parse",
+    "fmt_parse",
+    "fmt_format"
+  ],
+  "expression": {
+    "kind": "apply",
+    "operator": "is_after",
+    "operands": [
+      {
+        "kind": "ref",
+        "name": "dt1"
+      },
+      {
+        "kind": "ref",
+        "name": "dt2"
+      }
+    ]
+  }
+}

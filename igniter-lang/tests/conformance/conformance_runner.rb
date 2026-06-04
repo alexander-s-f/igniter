@@ -465,6 +465,27 @@ TEST_CASES = [
       "prefix" => " he",
       "sub" => "ll"
     }
+  },
+  {
+    name: "datetime_extension",
+    expected_status: "ok",
+    contracts: [
+      { name: "DateTimeWorkflow", expected_output_field: "diff", expected_output_value: 3600 },
+      { name: "DateTimeWorkflow", expected_output_field: "added", expected_output_value: "2026-06-04T13:00:00Z" },
+      { name: "DateTimeWorkflow", expected_output_field: "parsed", expected_output_value: "2026-06-04T15:30:45Z" },
+      { name: "DateTimeWorkflow", expected_output_field: "formatted", expected_output_value: "2026/06/04 12:00:00" },
+      { name: "DateTimeWorkflow", expected_output_field: "before", expected_output_value: false },
+      { name: "DateTimeWorkflow", expected_output_field: "after", expected_output_value: true }
+    ],
+    inputs: {
+      "dt1" => "2026-06-04T12:00:00Z",
+      "dt2" => "2026-06-04T11:00:00Z",
+      "dt_add" => "2026-06-04T12:00:00Z",
+      "sec_add" => 3600,
+      "str_parse" => "2026-06-04 15:30:45",
+      "fmt_parse" => "%Y-%m-%d %H:%M:%S",
+      "fmt_format" => "%Y/%m/%d %H:%M:%S"
+    }
   }
 ].freeze
 

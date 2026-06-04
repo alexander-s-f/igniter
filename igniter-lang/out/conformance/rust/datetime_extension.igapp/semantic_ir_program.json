@@ -1,0 +1,302 @@
+{
+  "compilation_report_ref": "compilation_report/d13eeda82f209833",
+  "contracts": [
+    {
+      "contract_name": "DateTimeWorkflow",
+      "contract_ref": "contract/DateTimeWorkflow/sha256:62094dec5031c54584ab4c71",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "dt1",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "dt2",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "dt_add",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "sec_add",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "str_parse",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "fmt_parse",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "fmt_format",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "dt1",
+            "dt2"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "dt1"
+              },
+              {
+                "kind": "ref",
+                "name": "dt2"
+              }
+            ],
+            "fn": "diff_seconds",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "diff",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "dt_add",
+            "sec_add"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "dt_add"
+              },
+              {
+                "kind": "ref",
+                "name": "sec_add"
+              }
+            ],
+            "fn": "add_seconds",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "added",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "fmt_parse",
+            "str_parse"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "str_parse"
+              },
+              {
+                "kind": "ref",
+                "name": "fmt_parse"
+              }
+            ],
+            "fn": "parse_datetime",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "parsed",
+          "type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "DateTime",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "dt1",
+            "fmt_format"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "dt1"
+              },
+              {
+                "kind": "ref",
+                "name": "fmt_format"
+              }
+            ],
+            "fn": "format_datetime",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "formatted",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "dt1",
+            "dt2"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "dt1"
+              },
+              {
+                "kind": "ref",
+                "name": "dt2"
+              }
+            ],
+            "fn": "is_before",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "before",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "dt1",
+            "dt2"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "dt1"
+              },
+              {
+                "kind": "ref",
+                "name": "dt2"
+              }
+            ],
+            "fn": "is_after",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "after",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "diff",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "added",
+          "type": {
+            "name": "DateTime",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "parsed",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              "DateTime"
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "formatted",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "before",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "after",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "SparkCRM.DateTimeExtensions",
+  "program_id": "semanticir/d13eeda82f209833",
+  "source_hash": "sha256:d13eeda82f20983331a6213a83a4ea17ca658bf41aaa4e342ef8004f8c870755",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/datetime_extension.ig"
+}

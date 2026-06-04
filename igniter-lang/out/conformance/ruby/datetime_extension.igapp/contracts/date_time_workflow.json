@@ -1,0 +1,351 @@
+{
+  "artifact_hash": "sha256:f4a1a1d98907acb0884980dbd90bab5be5d8059697ddf41fc1bc76652ffcb416",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:dt1",
+        "input:dt2"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "dt1",
+            "resolved_type": {
+              "name": "DateTime",
+              "params": []
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "dt2",
+            "resolved_type": {
+              "name": "DateTime",
+              "params": []
+            }
+          }
+        ],
+        "operator": "diff_seconds",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "diff",
+      "node_id": "node_diff",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:dt_add",
+        "input:sec_add"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "dt_add",
+            "resolved_type": {
+              "name": "DateTime",
+              "params": []
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "sec_add",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          }
+        ],
+        "operator": "add_seconds",
+        "resolved_type": {
+          "name": "DateTime",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "added",
+      "node_id": "node_added",
+      "obs_kind": "value_observation",
+      "type_tag": "DateTime"
+    },
+    {
+      "dependencies": [
+        "input:str_parse",
+        "input:fmt_parse"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "str_parse",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "fmt_parse",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          }
+        ],
+        "operator": "parse_datetime",
+        "resolved_type": {
+          "name": "Option",
+          "params": [
+            {
+              "name": "DateTime",
+              "params": []
+            }
+          ]
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "parsed",
+      "node_id": "node_parsed",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[DateTime]"
+    },
+    {
+      "dependencies": [
+        "input:dt1",
+        "input:fmt_format"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "dt1",
+            "resolved_type": {
+              "name": "DateTime",
+              "params": []
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "fmt_format",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          }
+        ],
+        "operator": "format_datetime",
+        "resolved_type": {
+          "name": "String",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "formatted",
+      "node_id": "node_formatted",
+      "obs_kind": "value_observation",
+      "type_tag": "String"
+    },
+    {
+      "dependencies": [
+        "input:dt1",
+        "input:dt2"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "dt1",
+            "resolved_type": {
+              "name": "DateTime",
+              "params": []
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "dt2",
+            "resolved_type": {
+              "name": "DateTime",
+              "params": []
+            }
+          }
+        ],
+        "operator": "is_before",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "before",
+      "node_id": "node_before",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:dt1",
+        "input:dt2"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "dt1",
+            "resolved_type": {
+              "name": "DateTime",
+              "params": []
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "dt2",
+            "resolved_type": {
+              "name": "DateTime",
+              "params": []
+            }
+          }
+        ],
+        "operator": "is_after",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "after",
+      "node_id": "node_after",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    }
+  ],
+  "contract_id": "DateTimeWorkflow",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "dt1",
+      "required": true,
+      "type_tag": "DateTime"
+    },
+    {
+      "lifecycle": "local",
+      "name": "dt2",
+      "required": true,
+      "type_tag": "DateTime"
+    },
+    {
+      "lifecycle": "local",
+      "name": "dt_add",
+      "required": true,
+      "type_tag": "DateTime"
+    },
+    {
+      "lifecycle": "local",
+      "name": "sec_add",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "str_parse",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "fmt_parse",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "fmt_format",
+      "required": true,
+      "type_tag": "String"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "DateTimeWorkflow",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "diff",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "added",
+      "required": true,
+      "type_tag": "DateTime"
+    },
+    {
+      "lifecycle": "session",
+      "name": "parsed",
+      "required": true,
+      "type_tag": "Option[DateTime]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "formatted",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "session",
+      "name": "before",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "after",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "source_contract_ref": "contract/DateTimeWorkflow/sha256:9e8c0cdc3e7ee9bfda5d41b3",
+  "type_signature": {
+    "inputs": {
+      "dt1": "DateTime",
+      "dt2": "DateTime",
+      "dt_add": "DateTime",
+      "fmt_format": "String",
+      "fmt_parse": "String",
+      "sec_add": "Integer",
+      "str_parse": "String"
+    },
+    "outputs": {
+      "added": "DateTime",
+      "after": "Bool",
+      "before": "Bool",
+      "diff": "Integer",
+      "formatted": "String",
+      "parsed": "Option[DateTime]"
+    }
+  }
+}

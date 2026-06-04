@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:e8f257bbf655f99c162bbd92feb0cf8d4d7ff614f4ffe6dc81de5ad618acacf7",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/d13eeda82f209833",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "DateTimeWorkflow": {
+      "contract_path": "contracts/date_time_workflow.json",
+      "contract_ref": "contract/DateTimeWorkflow/sha256:62094dec5031c54584ab4c71",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "DateTimeWorkflow": "contract/DateTimeWorkflow/sha256:62094dec5031c54584ab4c71"
+  },
+  "contracts": [
+    "DateTimeWorkflow"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/d13eeda82f209833",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/d13eeda82f209833",
+  "source_hash": "sha256:d13eeda82f20983331a6213a83a4ea17ca658bf41aaa4e342ef8004f8c870755",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/datetime_extension.ig",
+  "warnings": []
+}

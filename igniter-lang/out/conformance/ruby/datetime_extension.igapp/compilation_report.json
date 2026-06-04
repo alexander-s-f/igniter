@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/d13eeda82f209833",
+  "semantic_ir_ref": "semanticir/d13eeda82f209833",
+  "source_hash": "sha256:d13eeda82f20983331a6213a83a4ea17ca658bf41aaa4e342ef8004f8c870755",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/datetime_extension.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

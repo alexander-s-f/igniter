@@ -733,6 +733,76 @@ module IgniterLang
           end
         end
         return typed_expr("call", type_ir("Bool"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "diff_seconds"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 2
+          type_errors << oof("OOF-TM1", "diff_seconds expects exactly 2 arguments, got #{args_typed.size}", node_name)
+        else
+          args_typed.each do |arg_typed|
+            arg_type = arg_typed.fetch("resolved_type")
+            if !unknown?(arg_type) && type_name(arg_type) != "DateTime"
+              type_errors << type_mismatch(type_ir("DateTime"), arg_type, node_name)
+            end
+          end
+        end
+        return typed_expr("call", type_ir("Integer"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "add_seconds"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 2
+          type_errors << oof("OOF-TM1", "add_seconds expects exactly 2 arguments, got #{args_typed.size}", node_name)
+        else
+          arg0_type = args_typed[0].fetch("resolved_type")
+          if !unknown?(arg0_type) && type_name(arg0_type) != "DateTime"
+            type_errors << type_mismatch(type_ir("DateTime"), arg0_type, node_name)
+          end
+          arg1_type = args_typed[1].fetch("resolved_type")
+          if !unknown?(arg1_type) && type_name(arg1_type) != "Integer"
+            type_errors << type_mismatch(type_ir("Integer"), arg1_type, node_name)
+          end
+        end
+        return typed_expr("call", type_ir("DateTime"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "parse_datetime"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 2
+          type_errors << oof("OOF-TM1", "parse_datetime expects exactly 2 arguments, got #{args_typed.size}", node_name)
+        else
+          args_typed.each do |arg_typed|
+            arg_type = arg_typed.fetch("resolved_type")
+            if !unknown?(arg_type) && type_name(arg_type) != "String"
+              type_errors << type_mismatch(type_ir("String"), arg_type, node_name)
+            end
+          end
+        end
+        res_type = { "name" => "Option", "params" => [type_ir("DateTime")] }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "format_datetime"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 2
+          type_errors << oof("OOF-TM1", "format_datetime expects exactly 2 arguments, got #{args_typed.size}", node_name)
+        else
+          arg0_type = args_typed[0].fetch("resolved_type")
+          if !unknown?(arg0_type) && type_name(arg0_type) != "DateTime"
+            type_errors << type_mismatch(type_ir("DateTime"), arg0_type, node_name)
+          end
+          arg1_type = args_typed[1].fetch("resolved_type")
+          if !unknown?(arg1_type) && type_name(arg1_type) != "String"
+            type_errors << type_mismatch(type_ir("String"), arg1_type, node_name)
+          end
+        end
+        return typed_expr("call", type_ir("String"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif %w[is_before is_after].include?(fn)
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 2
+          type_errors << oof("OOF-TM1", "#{fn} expects exactly 2 arguments, got #{args_typed.size}", node_name)
+        else
+          args_typed.each do |arg_typed|
+            arg_type = arg_typed.fetch("resolved_type")
+            if !unknown?(arg_type) && type_name(arg_type) != "DateTime"
+              type_errors << type_mismatch(type_ir("DateTime"), arg_type, node_name)
+            end
+          end
+        end
+        return typed_expr("call", type_ir("Bool"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
       end
 
       orig_infer_call(expr, symbol_types, type_errors, type_warnings, node_name)
@@ -888,7 +958,7 @@ module RuntimeMachineMemoryProof
         expr
       when "apply"
         op = expr.fetch("operator")
-        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with"].include?(op)
+        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with", "diff_seconds", "add_seconds", "parse_datetime", "format_datetime", "is_before", "is_after"].include?(op)
           operands = expr.fetch("operands").map { |op_expr| eval_expr(op_expr, values, backend: backend, as_of: as_of) }
           eval_standalone_stdlib(op, operands, values, backend: backend, as_of: as_of)
         else
@@ -896,7 +966,7 @@ module RuntimeMachineMemoryProof
         end
       when "call"
         fn = expr.fetch("fn")
-        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with"].include?(fn)
+        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with", "diff_seconds", "add_seconds", "parse_datetime", "format_datetime", "is_before", "is_after"].include?(fn)
           args = expr.fetch("args", []).map { |arg_expr| eval_expr(arg_expr, values, backend: backend, as_of: as_of) }
           eval_standalone_stdlib(fn, args, values, backend: backend, as_of: as_of)
         else
@@ -1167,6 +1237,38 @@ module RuntimeMachineMemoryProof
         (operands[0] || "").to_s.include?((operands[1] || "").to_s)
       when "starts_with"
         (operands[0] || "").to_s.start_with?((operands[1] || "").to_s)
+      when "diff_seconds"
+        require 'time'
+        t1 = Time.parse(operands[0].to_s)
+        t2 = Time.parse(operands[1].to_s)
+        (t1 - t2).to_i
+      when "add_seconds"
+        require 'time'
+        t = Time.parse(operands[0].to_s)
+        (t + operands[1].to_i).utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+      when "parse_datetime"
+        require 'date'
+        require 'time'
+        begin
+          dt = DateTime.strptime(operands[0].to_s, operands[1].to_s)
+          dt.to_time.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+        rescue => e
+          nil
+        end
+      when "format_datetime"
+        require 'time'
+        t = Time.parse(operands[0].to_s)
+        t.utc.strftime(operands[1].to_s)
+      when "is_before"
+        require 'time'
+        t1 = Time.parse(operands[0].to_s)
+        t2 = Time.parse(operands[1].to_s)
+        t1 < t2
+      when "is_after"
+        require 'time'
+        t1 = Time.parse(operands[0].to_s)
+        t2 = Time.parse(operands[1].to_s)
+        t1 > t2
       else
         raise ArgumentError, "Unsupported standalone stdlib operator: #{op}"
       end
