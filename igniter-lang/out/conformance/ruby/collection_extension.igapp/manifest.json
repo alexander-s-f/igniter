@@ -1,0 +1,49 @@
+{
+  "artifact_hash": "sha256:6cb117c3d326f184a0cf6a1503c712ce61e1963faba56f8e3eaa6e58c832f034",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/d9d2ec72557bd512",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "CollectionWorkflow": {
+      "contract_path": "contracts/collection_workflow.json",
+      "contract_ref": "contract/CollectionWorkflow/sha256:1a114a513e361b1ee1dc3b50",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "CollectionWorkflow": "contract/CollectionWorkflow/sha256:1a114a513e361b1ee1dc3b50"
+  },
+  "contracts": [
+    "CollectionWorkflow"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/d9d2ec72557bd512",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/d9d2ec72557bd512",
+  "source_hash": "sha256:d9d2ec72557bd512b7c6d6f608daf50db9ce78ac602ba28c74638e92430869de",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/collection_extension.ig",
+  "warnings": []
+}

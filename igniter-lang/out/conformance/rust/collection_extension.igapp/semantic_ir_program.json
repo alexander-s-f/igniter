@@ -1,0 +1,287 @@
+{
+  "compilation_report_ref": "compilation_report/d9d2ec72557bd512",
+  "contracts": [
+    {
+      "contract_name": "CollectionWorkflow",
+      "contract_ref": "contract/CollectionWorkflow/sha256:20453e4f80682e59ac650441",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "items",
+          "type": {
+            "kind": "type_ref",
+            "name": "Collection",
+            "params": [
+              "Item"
+            ]
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "threshold",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "extra",
+          "type": {
+            "kind": "type_ref",
+            "name": "Collection",
+            "params": [
+              "Item"
+            ]
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "items",
+            "threshold"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "items"
+              },
+              {
+                "body": {
+                  "kind": "binary_op",
+                  "left": {
+                    "field": "value",
+                    "kind": "field_access",
+                    "object": {
+                      "kind": "ref",
+                      "name": "i"
+                    }
+                  },
+                  "op": ">",
+                  "right": {
+                    "kind": "ref",
+                    "name": "threshold"
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "i"
+                ]
+              }
+            ],
+            "fn": "find",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "found",
+          "type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "Item",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "items",
+            "threshold"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "items"
+              },
+              {
+                "body": {
+                  "kind": "binary_op",
+                  "left": {
+                    "field": "value",
+                    "kind": "field_access",
+                    "object": {
+                      "kind": "ref",
+                      "name": "i"
+                    }
+                  },
+                  "op": ">",
+                  "right": {
+                    "kind": "ref",
+                    "name": "threshold"
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "i"
+                ]
+              }
+            ],
+            "fn": "any",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "has_any",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "items"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "items"
+              },
+              {
+                "body": {
+                  "kind": "binary_op",
+                  "left": {
+                    "field": "value",
+                    "kind": "field_access",
+                    "object": {
+                      "kind": "ref",
+                      "name": "i"
+                    }
+                  },
+                  "op": ">",
+                  "right": {
+                    "kind": "literal",
+                    "type_tag": "Integer",
+                    "value": 0
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "i"
+                ]
+              }
+            ],
+            "fn": "all",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "all_pos",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "extra",
+            "items"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "items"
+              },
+              {
+                "kind": "ref",
+                "name": "extra"
+              }
+            ],
+            "fn": "concat",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "merged",
+          "type": {
+            "name": "Collection",
+            "params": [
+              {
+                "name": "Item",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "merged"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "merged"
+              }
+            ],
+            "fn": "count",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "merged_count",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "found",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              "Item"
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "has_any",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "all_pos",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "merged_count",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "SparkCRM.CollectionExtensions",
+  "program_id": "semanticir/d9d2ec72557bd512",
+  "source_hash": "sha256:d9d2ec72557bd512b7c6d6f608daf50db9ce78ac602ba28c74638e92430869de",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/collection_extension.ig"
+}

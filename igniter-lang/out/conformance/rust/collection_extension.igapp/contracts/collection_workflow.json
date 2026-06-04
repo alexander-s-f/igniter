@@ -1,0 +1,255 @@
+{
+  "artifact_hash": "sha256:6e60c8af3eb277efbf8c2a741d49f3add24fcfddabc52f06ff3dde04b48017aa",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:items",
+        "input:threshold"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "items"
+          },
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "field": "value",
+                "kind": "field_access",
+                "object": {
+                  "kind": "ref",
+                  "name": "i"
+                }
+              },
+              "op": ">",
+              "right": {
+                "kind": "ref",
+                "name": "threshold"
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "i"
+            ]
+          }
+        ],
+        "operator": "find"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "found",
+      "node_id": "node_found",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[Item]"
+    },
+    {
+      "dependencies": [
+        "input:items",
+        "input:threshold"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "items"
+          },
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "field": "value",
+                "kind": "field_access",
+                "object": {
+                  "kind": "ref",
+                  "name": "i"
+                }
+              },
+              "op": ">",
+              "right": {
+                "kind": "ref",
+                "name": "threshold"
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "i"
+            ]
+          }
+        ],
+        "operator": "any"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "has_any",
+      "node_id": "node_has_any",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:items"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "items"
+          },
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "field": "value",
+                "kind": "field_access",
+                "object": {
+                  "kind": "ref",
+                  "name": "i"
+                }
+              },
+              "op": ">",
+              "right": {
+                "kind": "literal",
+                "type_tag": "Integer",
+                "value": 0
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "i"
+            ]
+          }
+        ],
+        "operator": "all"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "all_pos",
+      "node_id": "node_all_pos",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:extra",
+        "input:items"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "items"
+          },
+          {
+            "kind": "ref",
+            "name": "extra"
+          }
+        ],
+        "operator": "concat"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "merged",
+      "node_id": "node_merged",
+      "obs_kind": "value_observation",
+      "type_tag": "Collection[Item]"
+    },
+    {
+      "dependencies": [
+        "input:merged"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "merged"
+          }
+        ],
+        "operator": "count"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "merged_count",
+      "node_id": "node_merged_count",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "CollectionWorkflow",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "items",
+      "required": true,
+      "type_tag": "Collection[Item]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "threshold",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "extra",
+      "required": true,
+      "type_tag": "Collection[Item]"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "CollectionWorkflow",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "found",
+      "required": true,
+      "type_tag": "Option[Item]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "has_any",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "all_pos",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "merged_count",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/CollectionWorkflow/sha256:20453e4f80682e59ac650441",
+  "type_signature": {
+    "inputs": {
+      "extra": "Collection[Item]",
+      "items": "Collection[Item]",
+      "threshold": "Integer"
+    },
+    "outputs": {
+      "all_pos": "Bool",
+      "found": "Option[Item]",
+      "has_any": "Bool",
+      "merged_count": "Integer"
+    }
+  }
+}

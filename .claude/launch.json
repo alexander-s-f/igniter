@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "igniter-ide",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "playgrounds/igniter-lab/igniter-ide", "run", "dev", "--", "--port", "1420"],
+      "port": 1420
+    }
+  ]
+}

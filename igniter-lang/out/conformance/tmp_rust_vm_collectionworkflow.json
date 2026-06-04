@@ -1,0 +1,28 @@
+{
+  "contract_id": "CollectionWorkflow",
+  "inputs": [
+    "items",
+    "threshold",
+    "extra"
+  ],
+  "expression": {
+    "kind": "apply",
+    "operator": "count",
+    "operands": [
+      {
+        "kind": "apply",
+        "operator": "concat",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "items"
+          },
+          {
+            "kind": "ref",
+            "name": "extra"
+          }
+        ]
+      }
+    ]
+  }
+}

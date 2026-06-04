@@ -697,15 +697,26 @@ module IgniterLang
         args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
         if args_typed.size != 2
           type_errors << oof("OOF-TM1", "concat expects exactly 2 arguments, got #{args_typed.size}", node_name)
+          res_type = type_ir("Unknown")
         else
-          args_typed.each do |arg_typed|
-            arg_type = arg_typed.fetch("resolved_type")
-            if !unknown?(arg_type) && type_name(arg_type) != "String"
-              type_errors << type_mismatch(type_ir("String"), arg_type, node_name)
+          first_arg_type = args_typed[0].fetch("resolved_type")
+          first_name = type_name(first_arg_type)
+          if first_name == "Collection" || first_name == "Unknown"
+            # Collection concat: preserve element type from first arg
+            inner_ty = first_arg_type.fetch("params", []).first || type_ir("Unknown")
+            res_type = { "name" => "Collection", "params" => [inner_ty] }
+          else
+            # String concat (or fallback)
+            args_typed.each do |arg_typed|
+              arg_type = arg_typed.fetch("resolved_type")
+              if !unknown?(arg_type) && type_name(arg_type) != "String"
+                type_errors << type_mismatch(type_ir("String"), arg_type, node_name)
+              end
             end
+            res_type = type_ir("String")
           end
         end
-        return typed_expr("call", type_ir("String"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
       elsif fn == "split"
         args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
         if args_typed.size != 2
@@ -731,6 +742,25 @@ module IgniterLang
               type_errors << type_mismatch(type_ir("String"), arg_type, node_name)
             end
           end
+        end
+        return typed_expr("call", type_ir("Bool"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "find"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 2
+          type_errors << oof("OOF-TM1", "find expects exactly 2 arguments, got #{args_typed.size}", node_name)
+        end
+        inner_ty = type_ir("Unknown")
+        if !args_typed.empty?
+          col_type = args_typed[0].fetch("resolved_type")
+          params = col_type.fetch("params", [])
+          inner_ty = params[0] if !params.empty?
+        end
+        res_type = { "name" => "Option", "params" => [inner_ty] }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif %w[any all].include?(fn)
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 2
+          type_errors << oof("OOF-TM1", "#{fn} expects exactly 2 arguments, got #{args_typed.size}", node_name)
         end
         return typed_expr("call", type_ir("Bool"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
       elsif fn == "diff_seconds"
@@ -958,7 +988,7 @@ module RuntimeMachineMemoryProof
         expr
       when "apply"
         op = expr.fetch("operator")
-        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with", "diff_seconds", "add_seconds", "parse_datetime", "format_datetime", "is_before", "is_after"].include?(op)
+        if ["map", "filter", "fold", "take", "find", "any", "all", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with", "diff_seconds", "add_seconds", "parse_datetime", "format_datetime", "is_before", "is_after"].include?(op)
           operands = expr.fetch("operands").map { |op_expr| eval_expr(op_expr, values, backend: backend, as_of: as_of) }
           eval_standalone_stdlib(op, operands, values, backend: backend, as_of: as_of)
         else
@@ -966,7 +996,7 @@ module RuntimeMachineMemoryProof
         end
       when "call"
         fn = expr.fetch("fn")
-        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with", "diff_seconds", "add_seconds", "parse_datetime", "format_datetime", "is_before", "is_after"].include?(fn)
+        if ["map", "filter", "fold", "take", "find", "any", "all", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with", "diff_seconds", "add_seconds", "parse_datetime", "format_datetime", "is_before", "is_after"].include?(fn)
           args = expr.fetch("args", []).map { |arg_expr| eval_expr(arg_expr, values, backend: backend, as_of: as_of) }
           eval_standalone_stdlib(fn, args, values, backend: backend, as_of: as_of)
         else
@@ -1170,6 +1200,38 @@ module RuntimeMachineMemoryProof
         coll = operands[0] || []
         n = operands[1].to_i
         n <= 0 ? [] : coll.take(n)
+      when "find"
+        coll = operands[0] || []
+        lam = operands[1]
+        param = lam.dig("params", 0) || "x"
+        body = lam["body"]
+        coll.find do |item|
+          eval_expr(body, values.merge(param => item), backend: backend, as_of: as_of) == true
+        end
+      when "any"
+        coll = operands[0] || []
+        lam = operands[1]
+        param = lam.dig("params", 0) || "x"
+        body = lam["body"]
+        coll.any? do |item|
+          eval_expr(body, values.merge(param => item), backend: backend, as_of: as_of) == true
+        end
+      when "all"
+        coll = operands[0] || []
+        lam = operands[1]
+        param = lam.dig("params", 0) || "x"
+        body = lam["body"]
+        coll.all? do |item|
+          eval_expr(body, values.merge(param => item), backend: backend, as_of: as_of) == true
+        end
+      when "concat"
+        a = operands[0]
+        b = operands[1]
+        if a.is_a?(Array) || b.is_a?(Array)
+          (a || []) + (b || [])
+        else
+          (a || "").to_s + (b || "").to_s
+        end
       when "avg"
         coll = operands[0] || []
         field = operands[1]

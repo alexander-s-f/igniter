@@ -236,6 +236,28 @@ def map_expression_for_rust_vm(expr)
   end
 end
 
+def inline_compute_refs(expr, compute_nodes_by_name, input_names)
+  return expr unless expr.is_a?(Hash)
+
+  if expr["kind"] == "ref"
+    ref_name = expr["name"]
+    # If this ref points to a compute node (not an external input), inline it
+    if !input_names.include?(ref_name) && compute_nodes_by_name.key?(ref_name)
+      return inline_compute_refs(compute_nodes_by_name[ref_name]["expression"], compute_nodes_by_name, input_names)
+    end
+  end
+
+  expr.each_with_object({}) do |(k, v), res|
+    if v.is_a?(Hash)
+      res[k] = inline_compute_refs(v, compute_nodes_by_name, input_names)
+    elsif v.is_a?(Array)
+      res[k] = v.map { |item| item.is_a?(Hash) ? inline_compute_refs(item, compute_nodes_by_name, input_names) : item }
+    else
+      res[k] = v
+    end
+  end
+end
+
 def prepare_rust_vm_contract(igapp_path, contract_name, expected_field, suffix = "")
   contract_files = Pathname.glob(Pathname.new(igapp_path) / "contracts" / "*.json")
   # Match either by exact name or snake_case conversion
@@ -244,15 +266,21 @@ def prepare_rust_vm_contract(igapp_path, contract_name, expected_field, suffix =
   raise "No contract file found for #{contract_name} in #{igapp_path}/contracts/" unless contract_file
   
   contract_json = JSON.parse(contract_file.read)
-  
-  compute_node = contract_json.fetch("compute_nodes").find { |n| n.fetch("kind") == "compute" && n.fetch("name") == expected_field }
+  input_names = contract_json.fetch("input_ports").map { |p| p.fetch("name") }
+  compute_nodes_by_name = contract_json.fetch("compute_nodes").each_with_object({}) do |n, h|
+    h[n.fetch("name")] = n if n.fetch("kind") == "compute"
+  end
+
+  compute_node = compute_nodes_by_name[expected_field]
   compute_node ||= contract_json.fetch("compute_nodes").find { |n| n.fetch("kind") == "compute" }
   expression = compute_node.fetch("expression")
-  mapped_expr = map_expression_for_rust_vm(expression)
+  # Inline any compute-node refs in the expression
+  inlined = inline_compute_refs(expression, compute_nodes_by_name, input_names)
+  mapped_expr = map_expression_for_rust_vm(inlined)
   
   wrapped = {
     "contract_id" => contract_name,
-    "inputs" => contract_json.fetch("input_ports").map { |p| p.fetch("name") },
+    "inputs" => input_names,
     "expression" => mapped_expr
   }
   
@@ -269,6 +297,69 @@ def run_rust_vm(contract_path, inputs_path)
   output
 end
 
+# Extracts one Rust Value token from the beginning of `str`.
+# Returns [token_str, remainder].
+def extract_rust_val_token(str)
+  str = str.strip
+  if str.start_with?("Integer(")
+    # Integer(-123) or Integer(456)
+    if str =~ /\AInteger\((-?\d+)\)/
+      return [$&, str[$&.length..-1]]
+    end
+  elsif str.start_with?("Bool(")
+    if str =~ /\ABool\((true|false)\)/
+      return [$&, str[$&.length..-1]]
+    end
+  elsif str.start_with?("Float(")
+    if str =~ /\AFloat\((-?[\d\.]+)\)/
+      return [$&, str[$&.length..-1]]
+    end
+  elsif str.start_with?("Nil")
+    return ["Nil", str[3..-1]]
+  elsif str.start_with?("String(")
+    if str =~ /\AString\("([^"]*)"\)/
+      return [$&, str[$&.length..-1]]
+    end
+  elsif str.start_with?("Decimal")
+    if str =~ /\ADecimal\s*\{\s*value:\s*(-?\d+),\s*scale:\s*(\d+)\s*\}/
+      return [$&, str[$&.length..-1]]
+    end
+  elsif str.start_with?("Record(")
+    # balanced brace matching
+    depth = 0
+    i = "Record(".length
+    started = false
+    while i < str.length
+      c = str[i]
+      if c == "{" then depth += 1; started = true
+      elsif c == "}" then depth -= 1; return [str[0..i], str[i+1..-1]] if depth == 0 && started
+      end
+      i += 1
+    end
+    return [str, ""]
+  elsif str.start_with?("Array(")
+    depth = 0
+    i = "Array(".length
+    started = false
+    while i < str.length
+      c = str[i]
+      if c == "[" then depth += 1; started = true
+      elsif c == "]" then depth -= 1
+        if depth == 0 && started
+          # also consume closing )
+          j = i + 1
+          j += 1 while j < str.length && str[j] == ")"
+          return [str[0..j-1], str[j..-1]]
+        end
+      end
+      i += 1
+    end
+    return [str, ""]
+  end
+  # fallback: return everything
+  [str, ""]
+end
+
 def parse_rust_val_from_str(str)
   str = str.strip
   if str == "Nil"
@@ -283,13 +374,25 @@ def parse_rust_val_from_str(str)
     $1
   elsif str =~ /^Decimal\s*\{\s*value:\s*(-?\d+),\s*scale:\s*(\d+)\s*\}$/
     { "value" => $1.to_i, "scale" => $2.to_i }
-  elsif str =~ /^Record\(\{(.*)\}\)$/
+  elsif str =~ /^Record\(\{(.*)\}\)$/m
     inner = $1
     res = {}
-    if inner =~ /"ok":\s*(.*)/
-      res["ok"] = parse_rust_val_from_str($1)
-    elsif inner =~ /"err":\s*(.*)/
-      res["err"] = parse_rust_val_from_str($1)
+    # parse each key-value pair: "key": Value(...)
+    remaining = inner.strip
+    while remaining.length > 0
+      # Match: "key": RestOfValue
+      if remaining =~ /\A"([^"]+)":\s*/
+        key = $1
+        remaining = remaining[$&.length..-1].strip
+        # Find end of value — look for the next , "key": pattern or end
+        # Try to greedily extract one value token
+        val_str, remaining = extract_rust_val_token(remaining)
+        res[key] = parse_rust_val_from_str(val_str)
+        remaining = remaining.strip
+        remaining = remaining[1..-1].strip if remaining.start_with?(",") # consume comma
+      else
+        break
+      end
     end
     res
   elsif str =~ /^Array\(\[(.*)\]\)$/m
@@ -485,6 +588,44 @@ TEST_CASES = [
       "str_parse" => "2026-06-04 15:30:45",
       "fmt_parse" => "%Y-%m-%d %H:%M:%S",
       "fmt_format" => "%Y/%m/%d %H:%M:%S"
+    }
+  },
+  {
+    name: "collection_extension",
+    expected_status: "ok",
+    contracts: [
+      {
+        name: "CollectionWorkflow",
+        expected_output_field: "found",
+        expected_output_value: { "id" => 2, "value" => 30 }
+      },
+      {
+        name: "CollectionWorkflow",
+        expected_output_field: "has_any",
+        expected_output_value: true
+      },
+      {
+        name: "CollectionWorkflow",
+        expected_output_field: "all_pos",
+        expected_output_value: true
+      },
+      {
+        name: "CollectionWorkflow",
+        expected_output_field: "merged_count",
+        expected_output_value: 5
+      }
+    ],
+    inputs: {
+      "items" => [
+        { "id" => 1, "value" => 10 },
+        { "id" => 2, "value" => 30 },
+        { "id" => 3, "value" => 5 }
+      ],
+      "threshold" => 20,
+      "extra" => [
+        { "id" => 4, "value" => 7 },
+        { "id" => 5, "value" => 15 }
+      ]
     }
   }
 ].freeze

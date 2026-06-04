@@ -1,0 +1,67 @@
+{
+  "diagnostics": [
+    {
+      "line": null,
+      "message": "Unknown function: find",
+      "node": "found",
+      "rule": "OOF-TY0",
+      "severity": "error"
+    },
+    {
+      "line": null,
+      "message": "Unknown function: any",
+      "node": "has_any",
+      "rule": "OOF-TY0",
+      "severity": "error"
+    },
+    {
+      "line": null,
+      "message": "Unknown function: all",
+      "node": "all_pos",
+      "rule": "OOF-TY0",
+      "severity": "error"
+    },
+    {
+      "line": null,
+      "message": "Type mismatch: expected String, got Collection",
+      "node": "merged",
+      "rule": "OOF-TY0",
+      "severity": "error"
+    },
+    {
+      "line": null,
+      "message": "Type mismatch: expected Option, got Unknown",
+      "node": "found",
+      "rule": "OOF-TY0",
+      "severity": "error"
+    },
+    {
+      "line": null,
+      "message": "Type mismatch: expected Bool, got Unknown",
+      "node": "has_any",
+      "rule": "OOF-TY0",
+      "severity": "error"
+    },
+    {
+      "line": null,
+      "message": "Type mismatch: expected Bool, got Unknown",
+      "node": "all_pos",
+      "rule": "OOF-TY0",
+      "severity": "error"
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "program_id": "compilation_report/d9d2ec72557bd512",
+  "semantic_ir_ref": null,
+  "source_hash": "sha256:d9d2ec72557bd512b7c6d6f608daf50db9ce78ac602ba28c74638e92430869de",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/collection_extension.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "skipped",
+    "parse": "ok",
+    "typecheck": "oof"
+  }
+}

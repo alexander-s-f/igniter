@@ -1,0 +1,418 @@
+{
+  "artifact_hash": "sha256:6cb117c3d326f184a0cf6a1503c712ce61e1963faba56f8e3eaa6e58c832f034",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:items",
+        "input:threshold"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "items",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Item",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "body": {
+              "kind": "apply",
+              "operands": [
+                {
+                  "field": "value",
+                  "kind": "field_access",
+                  "object": {
+                    "kind": "ref",
+                    "name": "i",
+                    "resolved_type": {
+                      "name": "Integer",
+                      "params": []
+                    }
+                  },
+                  "resolved_type": {
+                    "name": "Unknown",
+                    "params": []
+                  }
+                },
+                {
+                  "kind": "ref",
+                  "name": "threshold",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  }
+                }
+              ],
+              "operator": "stdlib.integer.gt",
+              "resolved_type": {
+                "name": "Bool",
+                "params": []
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "i"
+            ],
+            "resolved_type": {
+              "name": "Unknown",
+              "params": []
+            }
+          }
+        ],
+        "operator": "find",
+        "resolved_type": {
+          "name": "Option",
+          "params": [
+            {
+              "kind": "type_ref",
+              "name": "Item",
+              "params": []
+            }
+          ]
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "found",
+      "node_id": "node_found",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[Item]"
+    },
+    {
+      "dependencies": [
+        "input:items",
+        "input:threshold"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "items",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Item",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "body": {
+              "kind": "apply",
+              "operands": [
+                {
+                  "field": "value",
+                  "kind": "field_access",
+                  "object": {
+                    "kind": "ref",
+                    "name": "i",
+                    "resolved_type": {
+                      "name": "Integer",
+                      "params": []
+                    }
+                  },
+                  "resolved_type": {
+                    "name": "Unknown",
+                    "params": []
+                  }
+                },
+                {
+                  "kind": "ref",
+                  "name": "threshold",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  }
+                }
+              ],
+              "operator": "stdlib.integer.gt",
+              "resolved_type": {
+                "name": "Bool",
+                "params": []
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "i"
+            ],
+            "resolved_type": {
+              "name": "Unknown",
+              "params": []
+            }
+          }
+        ],
+        "operator": "any",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "has_any",
+      "node_id": "node_has_any",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:items"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "items",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Item",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "body": {
+              "kind": "apply",
+              "operands": [
+                {
+                  "field": "value",
+                  "kind": "field_access",
+                  "object": {
+                    "kind": "ref",
+                    "name": "i",
+                    "resolved_type": {
+                      "name": "Integer",
+                      "params": []
+                    }
+                  },
+                  "resolved_type": {
+                    "name": "Unknown",
+                    "params": []
+                  }
+                },
+                {
+                  "kind": "literal",
+                  "literal_type": "int",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  },
+                  "type_tag": "Integer",
+                  "value": 0
+                }
+              ],
+              "operator": "stdlib.integer.gt",
+              "resolved_type": {
+                "name": "Bool",
+                "params": []
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "i"
+            ],
+            "resolved_type": {
+              "name": "Unknown",
+              "params": []
+            }
+          }
+        ],
+        "operator": "all",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "all_pos",
+      "node_id": "node_all_pos",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:items",
+        "input:extra"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "items",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Item",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "extra",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Item",
+                  "params": []
+                }
+              ]
+            }
+          }
+        ],
+        "operator": "concat",
+        "resolved_type": {
+          "name": "Collection",
+          "params": [
+            {
+              "kind": "type_ref",
+              "name": "Item",
+              "params": []
+            }
+          ]
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "merged",
+      "node_id": "node_merged",
+      "obs_kind": "value_observation",
+      "type_tag": "Collection[Item]"
+    },
+    {
+      "dependencies": [
+        "input:merged"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "merged",
+            "resolved_type": {
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Item",
+                  "params": []
+                }
+              ]
+            }
+          }
+        ],
+        "operator": "count",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "merged_count",
+      "node_id": "node_merged_count",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "CollectionWorkflow",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "items",
+      "required": true,
+      "type_tag": "Collection[Item]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "threshold",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "local",
+      "name": "extra",
+      "required": true,
+      "type_tag": "Collection[Item]"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "CollectionWorkflow",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "found",
+      "required": true,
+      "type_tag": "Option[Item]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "has_any",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "all_pos",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "merged_count",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/CollectionWorkflow/sha256:1a114a513e361b1ee1dc3b50",
+  "type_signature": {
+    "inputs": {
+      "extra": "Collection[Item]",
+      "items": "Collection[Item]",
+      "threshold": "Integer"
+    },
+    "outputs": {
+      "all_pos": "Bool",
+      "found": "Option[Item]",
+      "has_any": "Bool",
+      "merged_count": "Integer"
+    }
+  }
+}

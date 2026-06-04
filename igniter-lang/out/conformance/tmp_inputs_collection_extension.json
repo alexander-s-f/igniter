@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "value": 10
+    },
+    {
+      "id": 2,
+      "value": 30
+    },
+    {
+      "id": 3,
+      "value": 5
+    }
+  ],
+  "threshold": 20,
+  "extra": [
+    {
+      "id": 4,
+      "value": 7
+    },
+    {
+      "id": 5,
+      "value": 15
+    }
+  ]
+}

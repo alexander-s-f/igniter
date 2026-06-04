@@ -1,0 +1,464 @@
+{
+  "compilation_report_ref": "compilation_report/d9d2ec72557bd512",
+  "contracts": [
+    {
+      "contract_name": "CollectionWorkflow",
+      "contract_ref": "contract/CollectionWorkflow/sha256:1a114a513e361b1ee1dc3b50",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "items",
+          "type": {
+            "kind": "type_ref",
+            "name": "Collection",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Item",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "threshold",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "extra",
+          "type": {
+            "kind": "type_ref",
+            "name": "Collection",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Item",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "items",
+            "threshold"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "items",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Collection",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Item",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "body": {
+                  "args": [
+                    {
+                      "field": "value",
+                      "kind": "field_access",
+                      "object": {
+                        "kind": "ref",
+                        "name": "i",
+                        "resolved_type": {
+                          "name": "Integer",
+                          "params": []
+                        }
+                      },
+                      "resolved_type": {
+                        "name": "Unknown",
+                        "params": []
+                      }
+                    },
+                    {
+                      "kind": "ref",
+                      "name": "threshold",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      }
+                    }
+                  ],
+                  "fn": "stdlib.integer.gt",
+                  "kind": "call",
+                  "resolved_type": {
+                    "name": "Bool",
+                    "params": []
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "i"
+                ],
+                "resolved_type": {
+                  "name": "Unknown",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "find",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Option",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Item",
+                  "params": []
+                }
+              ]
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "found",
+          "type": {
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Item",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "items",
+            "threshold"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "items",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Collection",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Item",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "body": {
+                  "args": [
+                    {
+                      "field": "value",
+                      "kind": "field_access",
+                      "object": {
+                        "kind": "ref",
+                        "name": "i",
+                        "resolved_type": {
+                          "name": "Integer",
+                          "params": []
+                        }
+                      },
+                      "resolved_type": {
+                        "name": "Unknown",
+                        "params": []
+                      }
+                    },
+                    {
+                      "kind": "ref",
+                      "name": "threshold",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      }
+                    }
+                  ],
+                  "fn": "stdlib.integer.gt",
+                  "kind": "call",
+                  "resolved_type": {
+                    "name": "Bool",
+                    "params": []
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "i"
+                ],
+                "resolved_type": {
+                  "name": "Unknown",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "any",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "has_any",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "items"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "items",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Collection",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Item",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "body": {
+                  "args": [
+                    {
+                      "field": "value",
+                      "kind": "field_access",
+                      "object": {
+                        "kind": "ref",
+                        "name": "i",
+                        "resolved_type": {
+                          "name": "Integer",
+                          "params": []
+                        }
+                      },
+                      "resolved_type": {
+                        "name": "Unknown",
+                        "params": []
+                      }
+                    },
+                    {
+                      "kind": "literal",
+                      "literal_type": "int",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      },
+                      "value": 0
+                    }
+                  ],
+                  "fn": "stdlib.integer.gt",
+                  "kind": "call",
+                  "resolved_type": {
+                    "name": "Bool",
+                    "params": []
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "i"
+                ],
+                "resolved_type": {
+                  "name": "Unknown",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "all",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "all_pos",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "items",
+            "extra"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "items",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Collection",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Item",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "extra",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Collection",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Item",
+                      "params": []
+                    }
+                  ]
+                }
+              }
+            ],
+            "fn": "concat",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Item",
+                  "params": []
+                }
+              ]
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "merged",
+          "type": {
+            "name": "Collection",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Item",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "merged"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "merged",
+                "resolved_type": {
+                  "name": "Collection",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Item",
+                      "params": []
+                    }
+                  ]
+                }
+              }
+            ],
+            "fn": "count",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "merged_count",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "found",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Item",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "has_any",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "all_pos",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "merged_count",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "SparkCRM.CollectionExtensions",
+  "program_id": "semanticir/d9d2ec72557bd512",
+  "source_hash": "sha256:d9d2ec72557bd512b7c6d6f608daf50db9ce78ac602ba28c74638e92430869de",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/collection_extension.ig"
+}
