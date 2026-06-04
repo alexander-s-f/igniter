@@ -955,7 +955,27 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             remain closed; next Main Line route is R245
                             loops/recursion pressure and spec boundary as
                             design/intake only, not implementation or lab
-                            certification;
+                            certification; R245 accepts loops/recursion
+                            pressure as canonical design input,
+                            specification pressure, and frontier lab evidence
+                            input only: bounded loops, recursion with
+                            `decreases fuel`, service-loop/progression
+                            separation, `tick.time`, `now()` prohibition,
+                            Postulate 28 loop naming, and draft OOF-L/OOF-SL
+                            vocabulary may move to Runtime Specification /
+                            PROP-037+ input; lab behavior is not canon, service
+                            loop ESCAPE classification remains draft, stale
+                            pressure-return wording is superseded by C2-P1,
+                            conflicting generated outputs are pressure facts
+                            only, OOF-M1/M2 vs OOF-L2 naming and OOF-L3
+                            robustness remain next-route work; implementation,
+                            `igc run` widening, `.igbin`, compiler passport
+                            emission, RuntimeSmoke, public runtime, Reference
+                            Runtime, stable API, production, Spark/release,
+                            public demo/performance, certification, and
+                            portability remain closed; next Main Line route is
+                            R246 Runtime Specification / PROP-037+ input slice
+                            as design/specification-input only;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -2013,6 +2033,12 @@ Round 244 landed:
   S3-R244-C3-X: quickstart/docs pressure                                 ✅ PASS unconditional; forbidden wording scan 0 positive-claim hits
   S3-R244-C4-A: quickstart/docs acceptance                               ✅ accepted; internal docs exposure only, all public/runtime claims closed
   S3-R244-C5-S: status curation                                          ✅ done; R245 loops/recursion pressure boundary route recorded
+Round 245 landed:
+  S3-R245-C1-D: loops/recursion pressure boundary                        ✅ done; recommends Runtime Spec / PROP-037+ input next
+  S3-R245-C2-P1: current surface facts                                   ✅ done; lab facts pressure-only; generated outputs non-conformance
+  S3-R245-C3-X: boundary pressure                                        ✅ CONDITIONAL PASS; 5 record items, no blockers
+  S3-R245-C4-A: boundary decision                                        ✅ accepted; design/spec input only, implementation held
+  S3-R245-C5-S: status curation                                          ✅ done; R246 Runtime Spec / PROP-037+ input route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
