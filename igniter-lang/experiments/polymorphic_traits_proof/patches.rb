@@ -671,6 +671,25 @@ module IgniterLang
           res_type = params[0] if !params.empty?
         end
         return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "try_catch" || fn == "propagate"
+        # try_catch(res, handler) -> T   propagate(res) -> T
+        # Both extract the inner ok-type T from Result[T, E]
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        res_type = type_ir("Unknown")
+        if !args_typed.empty?
+          arg_type = args_typed[0].fetch("resolved_type")
+          params = arg_type.fetch("params", [])
+          res_type = params[0] if !params.empty?
+        end
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "validate"
+        # validate(val, predicate, error) -> Result[T, E]
+        # T from arg 0, E from arg 2
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        t_type = args_typed[0] ? args_typed[0].fetch("resolved_type") : type_ir("Unknown")
+        e_type = args_typed[2] ? args_typed[2].fetch("resolved_type") : type_ir("Unknown")
+        res_type = { "name" => "Result", "params" => [t_type, e_type] }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
       elsif fn == "length"
         args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
         if args_typed.size != 1
@@ -988,7 +1007,7 @@ module RuntimeMachineMemoryProof
         expr
       when "apply"
         op = expr.fetch("operator")
-        if ["map", "filter", "fold", "take", "find", "any", "all", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with", "diff_seconds", "add_seconds", "parse_datetime", "format_datetime", "is_before", "is_after"].include?(op)
+        if ["map", "filter", "fold", "take", "find", "any", "all", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "try_catch", "propagate", "validate", "length", "concat", "trim", "split", "contains", "starts_with", "diff_seconds", "add_seconds", "parse_datetime", "format_datetime", "is_before", "is_after"].include?(op)
           operands = expr.fetch("operands").map { |op_expr| eval_expr(op_expr, values, backend: backend, as_of: as_of) }
           eval_standalone_stdlib(op, operands, values, backend: backend, as_of: as_of)
         else
@@ -996,7 +1015,7 @@ module RuntimeMachineMemoryProof
         end
       when "call"
         fn = expr.fetch("fn")
-        if ["map", "filter", "fold", "take", "find", "any", "all", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with", "diff_seconds", "add_seconds", "parse_datetime", "format_datetime", "is_before", "is_after"].include?(fn)
+        if ["map", "filter", "fold", "take", "find", "any", "all", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "try_catch", "propagate", "validate", "length", "concat", "trim", "split", "contains", "starts_with", "diff_seconds", "add_seconds", "parse_datetime", "format_datetime", "is_before", "is_after"].include?(fn)
           args = expr.fetch("args", []).map { |arg_expr| eval_expr(arg_expr, values, backend: backend, as_of: as_of) }
           eval_standalone_stdlib(fn, args, values, backend: backend, as_of: as_of)
         else
@@ -1178,6 +1197,39 @@ module RuntimeMachineMemoryProof
         else
           val
         end
+      when "try_catch"
+        # try_catch(res, handler) -> T
+        # handler is a lambda that receives the err value and returns T
+        res = operands[0]
+        handler = operands[1]
+        if res.is_a?(Hash) && res.key?("err")
+          param = handler.dig("params", 0) || "e"
+          body  = handler["body"]
+          eval_expr(body, values.merge(param => res["err"]), backend: backend, as_of: as_of)
+        elsif res.is_a?(Hash) && res.key?("ok")
+          res["ok"]
+        else
+          res
+        end
+      when "propagate"
+        # propagate(res) -> T  (raises / returns err record on Err branch)
+        res = operands[0]
+        if res.is_a?(Hash) && res.key?("ok")
+          res["ok"]
+        elsif res.is_a?(Hash) && res.key?("err")
+          res  # return the err record — caller can introspect
+        else
+          res
+        end
+      when "validate"
+        # validate(val, predicate, error) -> Result[T, E]
+        val      = operands[0]
+        pred_lam = operands[1]
+        err_val  = operands[2]
+        param = pred_lam.dig("params", 0) || "v"
+        body  = pred_lam["body"]
+        result = eval_expr(body, values.merge(param => val), backend: backend, as_of: as_of)
+        result == true ? { "ok" => val } : { "err" => err_val }
       when "filter"
         coll = operands[0] || []
         lam = operands[1]
