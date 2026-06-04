@@ -993,13 +993,19 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             authoring boundary as design-ready and routes the
                             next available Main Line step after reserved S3-R250
                             forms work to S3-R251-C1-A proposal-authoring
-                            authorization review; proposal authoring itself,
-                            implementation, `igc run` widening, `.igbin`,
-                            `.igapp`, compiler passport emission, RuntimeSmoke,
-                            public runtime, Reference Runtime, stable API,
-                            production, Spark/release, public performance,
-                            certification, portability, and lab behavior as
-                            canon remain closed;
+                            authorization review; R250 accepts contract
+                            invocation forms lowering as a design-only boundary,
+                            accepts LAB-FORMS-P4 as lab-frontier preflight
+                            evidence only, and routes the forms lane to
+                            S3-R252-C1-A type-directed dispatch proof
+                            authorization review; PROP-039 proposal authoring,
+                            forms implementation, stable grammar, `form:`
+                            canon, `igc run` widening, `.igbin`, `.igapp`,
+                            compiler passport emission, RuntimeSmoke, public
+                            runtime, Reference Runtime, stable API, production,
+                            Spark/release, public performance, certification,
+                            portability, and lab behavior as canon remain
+                            closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -2087,6 +2093,12 @@ Round 249 landed:
   S3-R249-C3-X: boundary pressure                                        ✅ ACCEPT; no blocking claim drift
   S3-R249-C4-A: boundary decision                                        ✅ accepted; opens S3-R251-C1-A after reserved S3-R250 forms round
   S3-R249-C5-S: status curation                                          ✅ done; S3-R251 exact route recorded
+Round 250 landed:
+  S3-R250-C1-D: forms lowering boundary                                  ✅ design-ready; implementation held, LAB-FORMS-P4 evidence only
+  S3-R250-C2-P1: forms current surface facts                             ✅ facts-only; lab sidecar-only and mainline gaps mapped
+  S3-R250-C3-X: forms boundary pressure                                  ✅ ACCEPT; no blocking authority drift
+  S3-R250-C4-A: forms boundary decision                                  ✅ accepted; opens S3-R252-C1-A type-dispatch proof authorization review
+  S3-R250-C5-S: status curation                                          ✅ done; S3-R252 forms route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2183,7 +2195,10 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   PROP-039+ managed local recursion / loop-class authoring boundary
                   accepted by R249; proposal authoring not yet authorized,
                   next route is S3-R251-C1-A after reserved S3-R250 forms round;
-                  other syntax candidates require proposal tracks
+                  contract invocation forms lowering boundary accepted by R250
+                  as design-only, next forms route is S3-R252-C1-A proof-local
+                  type-directed dispatch authorization review; other syntax
+                  candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
                             operational implementation or rollout beyond R39 design-only readiness plan,
                             concrete HSM/KMS,
