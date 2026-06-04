@@ -975,7 +975,25 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             public demo/performance, certification, and
                             portability remain closed; next Main Line route is
                             R246 Runtime Specification / PROP-037+ input slice
-                            as design/specification-input only;
+                            as design/specification-input only; R246 accepts
+                            that input slice with scope corrections and routes
+                            R247-C1-A authorization review for bounded Runtime
+                            Spec + PROP-037+ wording sync: R247 must decide
+                            whether narrow Ch8 stdlib and Language Covenant
+                            edits are allowed for `now()` / OOF
+                            reconciliation, preserve PROP-039+ or later as the
+                            managed local recursion / loop-class slot, correct
+                            Chapter 13 §13.5 so `clock.every` is progression
+                            `source_kind` rather than `Stream[DateTime]`,
+                            keep Chapter 13 / PROP-039+ local loop ownership
+                            separate from PROP-037 service-loop/progression
+                            companion ownership, keep `break` and proof
+                            fixtures deferred, and keep implementation,
+                            `igc run` widening, `.igbin`, compiler passport
+                            emission, RuntimeSmoke, public runtime, Reference
+                            Runtime, stable API, production, Spark/release,
+                            public performance, certification, portability,
+                            and lab behavior as canon closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -2039,6 +2057,12 @@ Round 245 landed:
   S3-R245-C3-X: boundary pressure                                        ✅ CONDITIONAL PASS; 5 record items, no blockers
   S3-R245-C4-A: boundary decision                                        ✅ accepted; design/spec input only, implementation held
   S3-R245-C5-S: status curation                                          ✅ done; R246 Runtime Spec / PROP-037+ input route recorded
+Round 246 landed:
+  S3-R246-C1-D: Runtime Spec / PROP-037+ input slice                     ✅ done; recommends combined wording-sync authorization review
+  S3-R246-C2-P1: current spec/proposal surface facts                     ✅ done; facts-only, Ch13/PROP-037/OOF gaps mapped
+  S3-R246-C3-X: input-slice pressure                                     ✅ CONDITIONAL PASS; OOF write-scope gap routed to C4-A
+  S3-R246-C4-A: input-slice decision                                     ✅ accepted-with-scope-corrections; opens R247-C1-A only
+  S3-R246-C5-S: status curation                                          ✅ done; R247 wording-sync authorization review recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
