@@ -988,15 +988,18 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             required fidelity notes for unaccepted
                             `tick.event_id`, ambiguous `recursive contract` +
                             fuel modifiers, and unresolved `for ... max_steps`
-                            / static-vs-dynamic policy; next Main Line route is
-                            R249 PROP-039+ managed local recursion /
-                            loop-class authoring boundary design; implementation,
-                            `igc run` widening, `.igbin`, `.igapp`, compiler
-                            passport emission, RuntimeSmoke, public runtime,
-                            Reference Runtime, stable API, production,
-                            Spark/release, public performance, certification,
-                            portability, and lab behavior as canon remain
-                            closed;
+                            / static-vs-dynamic policy; R249 accepts the
+                            PROP-039+ managed local recursion / loop-class
+                            authoring boundary as design-ready and routes the
+                            next available Main Line step after reserved S3-R250
+                            forms work to S3-R251-C1-A proposal-authoring
+                            authorization review; proposal authoring itself,
+                            implementation, `igc run` widening, `.igbin`,
+                            `.igapp`, compiler passport emission, RuntimeSmoke,
+                            public runtime, Reference Runtime, stable API,
+                            production, Spark/release, public performance,
+                            certification, portability, and lab behavior as
+                            canon remain closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -2078,6 +2081,12 @@ Round 248 landed:
   S3-R248-C3-X: proof fixture pressure                                   ✅ CONDITIONAL PASS; 3 semantic fidelity notes
   S3-R248-C4-A: proof fixture decision                                   ✅ conditional accept; opens R249 PROP-039+ authoring boundary design
   S3-R248-C5-S: status curation                                          ✅ done; R249 exact route recorded
+Round 249 landed:
+  S3-R249-C1-D: PROP-039 authoring boundary                              ✅ design-ready; proposal-authoring authorization review next
+  S3-R249-C2-P1: current surface facts                                   ✅ facts-only; Ch13/PROP-037/R248/OOF/lab surfaces mapped
+  S3-R249-C3-X: boundary pressure                                        ✅ ACCEPT; no blocking claim drift
+  S3-R249-C4-A: boundary decision                                        ✅ accepted; opens S3-R251-C1-A after reserved S3-R250 forms round
+  S3-R249-C5-S: status curation                                          ✅ done; S3-R251 exact route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2172,7 +2181,8 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
                   PROP-039+ managed local recursion / loop-class authoring boundary
-                  is the next Main Line route after R248; not canon yet;
+                  accepted by R249; proposal authoring not yet authorized,
+                  next route is S3-R251-C1-A after reserved S3-R250 forms round;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
                             operational implementation or rollout beyond R39 design-only readiness plan,
@@ -5418,7 +5428,8 @@ PROP-038   compiler_profile_contract     accepted proposal-only by S3-R61-C3-A;
                                          public API/CLI,
                                          persisted reports, sidecars, loader/report,
                                          CompatibilityReport, and production/runtime authority remain closed
-PROP-039+  managed local recursion       next Main Line authoring boundary after R248;
+PROP-039+  managed local recursion       authoring boundary accepted by R249;
+                                         proposal authoring not yet authorized;
                                          not canon without accepted proposal/proof
 ```
 
