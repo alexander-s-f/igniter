@@ -1,0 +1,89 @@
+{
+  "kind": "experimental_loops_recursion_spec_fixtures_v0",
+  "version": "0.1.0",
+  "evidence_class": "proof-local specification fixture",
+  "authority_status": "evidence-only",
+  "source_of_truth": [
+    "igniter-lang/docs/tracks/experimental-loops-recursion-spec-prop037-wording-sync-acceptance-decision-v0.md",
+    "igniter-lang/docs/spec/ch13-managed-recursion.md",
+    "igniter-lang/docs/spec/ch8-stdlib.md",
+    "igniter-lang/docs/language-covenant.md",
+    "igniter-lang/docs/proposals/PROP-037-external-progression-service-liveness-v0.md"
+  ],
+  "read_only_pressure_inputs": [
+    "igniter-lang/source/loops_and_recursion.ig",
+    "playgrounds/igniter-lab/lab-docs/loops-and-recursion-pressure-package.md",
+    "playgrounds/igniter-lab/lab-docs/loops-and-recursion-pressure-package-return.md"
+  ],
+  "claims": {
+    "compiler_support": "not_claimed",
+    "parser_support": "not_claimed",
+    "typechecker_support": "not_claimed",
+    "runtime_support": "not_claimed",
+    "public_runtime_support": "not_claimed",
+    "reference_runtime_support": "not_claimed",
+    "stable_api": "not_claimed",
+    "production": "not_claimed",
+    "performance": "not_claimed",
+    "certification": "not_claimed",
+    "portability": "not_claimed",
+    "lab_behavior_as_canon": "not_claimed"
+  },
+  "generated_artifacts": {
+    "igapp": false,
+    "igbin": false,
+    "compiler_passport": false,
+    "runtime_smoke": false
+  },
+  "fixtures": [
+    {
+      "id": "bounded_local_collection_loop",
+      "path": "fixtures/bounded_local_collection_loop.ig",
+      "class": "bounded_local_collection_loop",
+      "maps_to": "Ch13 / future PROP-039+ input only",
+      "separation": "not fold_stream"
+    },
+    {
+      "id": "recursion_decreases_fuel",
+      "path": "fixtures/recursion_decreases_fuel.ig",
+      "class": "recursion_decreases_fuel",
+      "maps_to": "Ch13 / future PROP-039+ input only",
+      "diagnostic_authority": "future design only"
+    },
+    {
+      "id": "service_loop_clock_tick_time",
+      "path": "fixtures/service_loop_clock_tick_time.ig",
+      "class": "service_loop_clock_every_tick_time",
+      "maps_to": "PROP-037 progression descriptor input only",
+      "tick_time": "explicit event-time binding"
+    },
+    {
+      "id": "source_level_now_prohibited",
+      "path": "fixtures/source_level_now_prohibited.ig",
+      "class": "source_level_now_prohibition",
+      "maps_to": "Ch8 OOF-L6 wording anchor",
+      "registry_authority": "not_claimed"
+    },
+    {
+      "id": "unnamed_loop_robustness",
+      "path": "fixtures/unnamed_loop_robustness.ig",
+      "class": "postulate_28_unnamed_loop_pressure",
+      "maps_to": "future diagnostic pressure only",
+      "enforcement": "not_claimed"
+    },
+    {
+      "id": "break_deferred_unsupported",
+      "path": "fixtures/break_deferred_unsupported.ig",
+      "class": "break_deferred",
+      "maps_to": "deferred source pressure only",
+      "support": "not_claimed"
+    },
+    {
+      "id": "clock_every_not_stream_evidence",
+      "path": "fixtures/clock_every_not_stream_evidence.md",
+      "class": "clock_every_non_stream_evidence_note",
+      "maps_to": "PROP-037 source_kind boundary",
+      "stream_equivalence": false
+    }
+  ]
+}

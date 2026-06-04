@@ -1,0 +1,109 @@
+{
+  "kind": "experimental_loops_recursion_spec_fixtures_v0_summary",
+  "status": "PASS",
+  "evidence_class": "proof-local specification fixture",
+  "authority_status": "evidence-only",
+  "checks_total": 16,
+  "checks_pass": 16,
+  "checks_fail": 0,
+  "proof_matrix": {
+    "LRF-1": {
+      "status": "PASS",
+      "evidence": "Changed files limited to the experiment packet and track doc."
+    },
+    "LRF-2": {
+      "status": "PASS",
+      "evidence": "Fixtures are under experiments/experimental_loops_recursion_spec_fixtures_v0, not source/."
+    },
+    "LRF-3": {
+      "status": "PASS",
+      "evidence": "bounded_local_collection_loop maps to Ch13 / PROP-039+ input only and is not fold_stream."
+    },
+    "LRF-4": {
+      "status": "PASS",
+      "evidence": "recursion_decreases_fuel maps to Ch13 / PROP-039+ input only."
+    },
+    "LRF-5": {
+      "status": "PASS",
+      "evidence": "service_loop_clock_tick_time maps to PROP-037 progression descriptor input only."
+    },
+    "LRF-6": {
+      "status": "PASS",
+      "evidence": "tick.time is represented as explicit event-time binding."
+    },
+    "LRF-7": {
+      "status": "PASS",
+      "evidence": "source_level_now_prohibited maps now() refusal to Ch8 OOF-L6 wording anchor."
+    },
+    "LRF-8": {
+      "status": "PASS",
+      "evidence": "clock_every_not_stream_evidence states clock.every is not Stream[DateTime]."
+    },
+    "LRF-9": {
+      "status": "PASS",
+      "evidence": "unnamed_loop_robustness captures Postulate 28 pressure as future diagnostic only."
+    },
+    "LRF-10": {
+      "status": "PASS",
+      "evidence": "break_deferred_unsupported records break as deferred and unsupported."
+    },
+    "LRF-11": {
+      "status": "PASS",
+      "evidence": "OOF-L / OOF-R wording remains design pressure and is not promoted to registry authority."
+    },
+    "LRF-12": {
+      "status": "PASS",
+      "evidence": "Lab behavior is cited as frontier evidence only."
+    },
+    "LRF-13": {
+      "status": "PASS",
+      "evidence": "No parser, typechecker, runtime, API, CLI, package, RuntimeSmoke, CompilerResult, or CompilationReport files changed."
+    },
+    "LRF-14": {
+      "status": "PASS",
+      "evidence": "No igc run, .igbin, .igapp, compiler passport, or RuntimeSmoke path is touched."
+    },
+    "LRF-15": {
+      "status": "PASS",
+      "evidence": "Forbidden wording appears only in negative/non-claim contexts."
+    },
+    "LRF-16": {
+      "status": "PASS",
+      "evidence": "Result packet states no implementation, public, reference, stable, production, performance, certification, or portability claims."
+    }
+  },
+  "non_claims": {
+    "implementation": "not_claimed",
+    "parser_support": "not_claimed",
+    "typechecker_support": "not_claimed",
+    "runtime_support": "not_claimed",
+    "public_runtime_support": "not_claimed",
+    "reference_runtime_support": "not_claimed",
+    "stable_api": "not_claimed",
+    "production": "not_claimed",
+    "spark": "not_claimed",
+    "release": "not_claimed",
+    "performance": "not_claimed",
+    "official_reference_status": "not_claimed",
+    "alternative_certification": "not_claimed",
+    "portability": "not_claimed",
+    "lab_behavior_as_canon": "not_claimed"
+  },
+  "fixture_files": [
+    "fixtures/bounded_local_collection_loop.ig",
+    "fixtures/recursion_decreases_fuel.ig",
+    "fixtures/service_loop_clock_tick_time.ig",
+    "fixtures/source_level_now_prohibited.ig",
+    "fixtures/unnamed_loop_robustness.ig",
+    "fixtures/break_deferred_unsupported.ig",
+    "fixtures/clock_every_not_stream_evidence.md",
+    "manifest.json"
+  ],
+  "generated_forbidden_artifacts": {
+    "igapp": false,
+    "igbin": false,
+    "compiler_passport": false,
+    "runtime_smoke": false
+  },
+  "c4a_recommendation": "accept proof-local fixture packet; keep implementation, parser, typechecker, runtime, API, CLI, package, public, Reference Runtime, stable, production, Spark, release, performance, certification, portability, and lab-canon claims closed"
+}
