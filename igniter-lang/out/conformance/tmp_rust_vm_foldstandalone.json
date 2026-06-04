@@ -1,0 +1,45 @@
+{
+  "contract_id": "FoldStandalone",
+  "inputs": [
+    "leads"
+  ],
+  "expression": {
+    "kind": "apply",
+    "operator": "fold",
+    "operands": [
+      {
+        "kind": "ref",
+        "name": "leads"
+      },
+      {
+        "kind": "literal",
+        "type_tag": "Integer",
+        "value": 0
+      },
+      {
+        "body": {
+          "kind": "binary_op",
+          "left": {
+            "kind": "ref",
+            "name": "acc"
+          },
+          "op": "+",
+          "right": {
+            "field": "bid_amount",
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "l"
+            }
+          },
+          "operator": "+"
+        },
+        "kind": "lambda",
+        "params": [
+          "acc",
+          "l"
+        ]
+      }
+    ]
+  }
+}

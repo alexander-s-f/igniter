@@ -1,0 +1,20 @@
+{
+  "contract_id": "MinStandalone",
+  "inputs": [
+    "leads"
+  ],
+  "expression": {
+    "kind": "apply",
+    "operator": "min",
+    "operands": [
+      {
+        "kind": "ref",
+        "name": "leads"
+      },
+      {
+        "kind": "symbol",
+        "value": "bid_decimal"
+      }
+    ]
+  }
+}

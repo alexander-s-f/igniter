@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:83a7c3df904084d623c26123a6e08a829dd46c09d57108477acfbbcc6ff44d3c",
+  "artifact_hash": "sha256:9101ced87474201fb9e9d99023d75e4e4e61d3f7178406650f8fa231b8b23429",
   "compute_nodes": [
     {
       "dependencies": [
@@ -26,7 +26,7 @@
       "name": "gross_bid",
       "node_id": "node_gross_bid",
       "obs_kind": "value_observation",
-      "type_tag": "Decimal[0]"
+      "type_tag": "Decimal[6]"
     }
   ],
   "contract_id": "BidSummary",
@@ -57,7 +57,7 @@
       "type_tag": "Decimal[2]"
     }
   ],
-  "source_contract_ref": "contract/BidSummary/sha256:02e7a5c582b13de5d7aa3c03",
+  "source_contract_ref": "contract/BidSummary/sha256:bfc5c24154a34a47929c6088",
   "type_signature": {
     "inputs": {
       "base_bid": "Decimal[2]",

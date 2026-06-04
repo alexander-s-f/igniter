@@ -1,0 +1,47 @@
+{
+  "contract_id": "OptionWorkflow",
+  "inputs": [
+    "opt_in",
+    "fallback"
+  ],
+  "expression": {
+    "kind": "apply",
+    "operator": "unwrap_or",
+    "operands": [
+      {
+        "kind": "apply",
+        "operator": "map",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "opt_in"
+          },
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "kind": "ref",
+                "name": "x"
+              },
+              "op": "*",
+              "right": {
+                "kind": "literal",
+                "type_tag": "Integer",
+                "value": 3
+              },
+              "operator": "*"
+            },
+            "kind": "lambda",
+            "params": [
+              "x"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "ref",
+        "name": "fallback"
+      }
+    ]
+  }
+}

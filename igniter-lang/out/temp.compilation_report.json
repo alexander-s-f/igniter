@@ -1,0 +1,238 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/0dc6c90c0bcea929",
+  "grammar_version": "decimal-v0",
+  "source_hash": "sha256:0dc6c90c0bcea9293acad04ddc37ffd2f909f7331cae0a43daa9f8c36ebb7b4a",
+  "source_path": "source/stdlib_extension.ig",
+  "pass_result": "oof",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "oof",
+    "emit": "skipped"
+  },
+  "diagnostics": [
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: count",
+      "node": "total_high_value_bids",
+      "path": "contract:LeadConversionRate/node:total_high_value_bids",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: or_else",
+      "node": "total_high_value_bids",
+      "path": "contract:LeadConversionRate/node:total_high_value_bids",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: sum",
+      "node": "total_high_value_bids",
+      "path": "contract:LeadConversionRate/node:total_high_value_bids",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Decimal, got Unknown",
+      "node": "total_high_value_bids",
+      "path": "contract:LeadConversionRate/node:total_high_value_bids",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: avg",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Option, got Unknown",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: avg",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Option, got Unknown",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: min",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Option, got Unknown",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: min",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Option, got Unknown",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: max",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Option, got Unknown",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: max",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Option, got Unknown",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: count",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Integer, got Unknown",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: fold",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Integer, got Unknown",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: fold",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Integer, got Unknown",
+      "node": "val",
+      "path": "contract:LeadConversionRate/node:val",
+      "category": "typechecker_oof",
+      "contract": "LeadConversionRate",
+      "span": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

@@ -1,0 +1,289 @@
+{
+  "artifact_hash": "sha256:e4482aad8f81a9b068add5e1e9cb562fff17c575abf7459d5f24161ea755ef54",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:opt_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "opt_in"
+          }
+        ],
+        "operator": "is_some"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "is_some_val",
+      "node_id": "node_is_some_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:opt_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "opt_in"
+          }
+        ],
+        "operator": "is_none"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "is_none_val",
+      "node_id": "node_is_none_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:opt_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "opt_in"
+          },
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "kind": "ref",
+                "name": "x"
+              },
+              "op": "*",
+              "right": {
+                "kind": "literal",
+                "type_tag": "Integer",
+                "value": 2
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "x"
+            ]
+          }
+        ],
+        "operator": "map"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "mapped",
+      "node_id": "node_mapped",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[Integer]"
+    },
+    {
+      "dependencies": [
+        "input:opt_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "opt_in"
+          },
+          {
+            "body": {
+              "args": [
+                {
+                  "kind": "binary_op",
+                  "left": {
+                    "kind": "ref",
+                    "name": "x"
+                  },
+                  "op": "+",
+                  "right": {
+                    "kind": "literal",
+                    "type_tag": "Integer",
+                    "value": 10
+                  }
+                }
+              ],
+              "fn": "some",
+              "kind": "call"
+            },
+            "kind": "lambda",
+            "params": [
+              "x"
+            ]
+          }
+        ],
+        "operator": "flat_map"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "flat_mapped",
+      "node_id": "node_flat_mapped",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[Integer]"
+    },
+    {
+      "dependencies": [
+        "input:fallback",
+        "input:opt_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "opt_in"
+          },
+          {
+            "kind": "ref",
+            "name": "fallback"
+          }
+        ],
+        "operator": "unwrap_or"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "unwrapped",
+      "node_id": "node_unwrapped",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:fallback",
+        "input:opt_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "apply",
+            "operands": [
+              {
+                "kind": "ref",
+                "name": "opt_in"
+              },
+              {
+                "body": {
+                  "kind": "binary_op",
+                  "left": {
+                    "kind": "ref",
+                    "name": "x"
+                  },
+                  "op": "*",
+                  "right": {
+                    "kind": "literal",
+                    "type_tag": "Integer",
+                    "value": 3
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "x"
+                ]
+              }
+            ],
+            "operator": "map"
+          },
+          {
+            "kind": "ref",
+            "name": "fallback"
+          }
+        ],
+        "operator": "unwrap_or"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "unwrapped_mapped",
+      "node_id": "node_unwrapped_mapped",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "OptionWorkflow",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "opt_in",
+      "required": true,
+      "type_tag": "Option[Integer]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "fallback",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "OptionWorkflow",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "is_some_val",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "is_none_val",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "mapped",
+      "required": true,
+      "type_tag": "Option[Integer]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "flat_mapped",
+      "required": true,
+      "type_tag": "Option[Integer]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "unwrapped",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "unwrapped_mapped",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/OptionWorkflow/sha256:49fd0db9d03ff7ecdade1d48",
+  "type_signature": {
+    "inputs": {
+      "fallback": "Integer",
+      "opt_in": "Option[Integer]"
+    },
+    "outputs": {
+      "flat_mapped": "Option[Integer]",
+      "is_none_val": "Bool",
+      "is_some_val": "Bool",
+      "mapped": "Option[Integer]",
+      "unwrapped": "Integer",
+      "unwrapped_mapped": "Integer"
+    }
+  }
+}

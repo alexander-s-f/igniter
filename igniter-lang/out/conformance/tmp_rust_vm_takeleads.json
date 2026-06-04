@@ -1,0 +1,27 @@
+{
+  "contract_id": "TakeLeads",
+  "inputs": [
+    "leads"
+  ],
+  "expression": {
+    "kind": "apply",
+    "operator": "count",
+    "operands": [
+      {
+        "kind": "apply",
+        "operator": "take",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "leads"
+          },
+          {
+            "kind": "literal",
+            "type_tag": "Integer",
+            "value": 2
+          }
+        ]
+      }
+    ]
+  }
+}

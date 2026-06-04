@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:7a2cca22cbb3efa979560b3786f40dc03e5d7404057b94cd1bb9a76f5eb9f049",
+  "artifact_hash": "sha256:c20d59d6ad5bbba2577d4c82d80ae28034b1b4d2782c7c8ead13de1d0a0eb713",
   "compute_nodes": [
     {
       "dependencies": [
@@ -321,7 +321,7 @@
                         "name": "Option",
                         "params": [
                           {
-                            "name": "Lead",
+                            "name": "Unknown",
                             "params": []
                           }
                         ]
@@ -452,7 +452,7 @@
                           "name": "Option",
                           "params": [
                             {
-                              "name": "Lead",
+                              "name": "Unknown",
                               "params": []
                             }
                           ]
@@ -651,7 +651,7 @@
       "type_tag": "Decimal[2]"
     }
   ],
-  "source_contract_ref": "contract/LeadConversionRate/sha256:fbc7f6192af13101e302a6c1",
+  "source_contract_ref": "contract/LeadConversionRate/sha256:41971523c5f20a49808aa299",
   "type_signature": {
     "inputs": {
       "leads": "Collection[Lead]",

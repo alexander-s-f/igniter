@@ -1,0 +1,112 @@
+{
+  "artifact_hash": "sha256:a7a2fd9cec9360c73a4707c22536bdebc6616c48ac0752ac6180ce552d3fe4f1",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/0dc6c90c0bcea929",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "AvgOptimized": {
+      "contract_path": "contracts/avg_optimized.json",
+      "contract_ref": "contract/AvgOptimized/sha256:0c56ecb727b331acc84bafa5",
+      "fragment_class": "core"
+    },
+    "AvgStandalone": {
+      "contract_path": "contracts/avg_standalone.json",
+      "contract_ref": "contract/AvgStandalone/sha256:365d9d1bb309b98ab4a75684",
+      "fragment_class": "core"
+    },
+    "FoldOptimized": {
+      "contract_path": "contracts/fold_optimized.json",
+      "contract_ref": "contract/FoldOptimized/sha256:0677d87c59dd6bb5a28ad769",
+      "fragment_class": "core"
+    },
+    "FoldStandalone": {
+      "contract_path": "contracts/fold_standalone.json",
+      "contract_ref": "contract/FoldStandalone/sha256:2b570a399971fa0c7a7f7c16",
+      "fragment_class": "core"
+    },
+    "LeadConversionRate": {
+      "contract_path": "contracts/lead_conversion_rate.json",
+      "contract_ref": "contract/LeadConversionRate/sha256:fbc7f6192af13101e302a6c1",
+      "fragment_class": "core"
+    },
+    "MaxOptimized": {
+      "contract_path": "contracts/max_optimized.json",
+      "contract_ref": "contract/MaxOptimized/sha256:898490381408f6b8564244d9",
+      "fragment_class": "core"
+    },
+    "MaxStandalone": {
+      "contract_path": "contracts/max_standalone.json",
+      "contract_ref": "contract/MaxStandalone/sha256:c1043ae804a0a18e175b1d51",
+      "fragment_class": "core"
+    },
+    "MinOptimized": {
+      "contract_path": "contracts/min_optimized.json",
+      "contract_ref": "contract/MinOptimized/sha256:0d0136d7492bbbf5d1692317",
+      "fragment_class": "core"
+    },
+    "MinStandalone": {
+      "contract_path": "contracts/min_standalone.json",
+      "contract_ref": "contract/MinStandalone/sha256:6611d38b74db9db230081407",
+      "fragment_class": "core"
+    },
+    "TakeLeads": {
+      "contract_path": "contracts/take_leads.json",
+      "contract_ref": "contract/TakeLeads/sha256:57d3de6943b462158586ce47",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "AvgOptimized": "contract/AvgOptimized/sha256:0c56ecb727b331acc84bafa5",
+    "AvgStandalone": "contract/AvgStandalone/sha256:365d9d1bb309b98ab4a75684",
+    "FoldOptimized": "contract/FoldOptimized/sha256:0677d87c59dd6bb5a28ad769",
+    "FoldStandalone": "contract/FoldStandalone/sha256:2b570a399971fa0c7a7f7c16",
+    "LeadConversionRate": "contract/LeadConversionRate/sha256:fbc7f6192af13101e302a6c1",
+    "MaxOptimized": "contract/MaxOptimized/sha256:898490381408f6b8564244d9",
+    "MaxStandalone": "contract/MaxStandalone/sha256:c1043ae804a0a18e175b1d51",
+    "MinOptimized": "contract/MinOptimized/sha256:0d0136d7492bbbf5d1692317",
+    "MinStandalone": "contract/MinStandalone/sha256:6611d38b74db9db230081407",
+    "TakeLeads": "contract/TakeLeads/sha256:57d3de6943b462158586ce47"
+  },
+  "contracts": [
+    "AvgOptimized",
+    "AvgStandalone",
+    "FoldOptimized",
+    "FoldStandalone",
+    "LeadConversionRate",
+    "MaxOptimized",
+    "MaxStandalone",
+    "MinOptimized",
+    "MinStandalone",
+    "TakeLeads"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "decimal-v0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/0dc6c90c0bcea929",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/0dc6c90c0bcea929",
+  "source_hash": "sha256:0dc6c90c0bcea9293acad04ddc37ffd2f909f7331cae0a43daa9f8c36ebb7b4a",
+  "source_path": "source/stdlib_extension.ig",
+  "warnings": []
+}

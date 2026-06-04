@@ -1,0 +1,58 @@
+{
+  "artifact_hash": "sha256:e4482aad8f81a9b068add5e1e9cb562fff17c575abf7459d5f24161ea755ef54",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:res_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_in"
+          }
+        ],
+        "operator": "unwrap"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "val",
+      "node_id": "node_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "ResultUnwrap",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "res_in",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "ResultUnwrap",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "val",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/ResultUnwrap/sha256:ee094ed7bd3ca44de7e93660",
+  "type_signature": {
+    "inputs": {
+      "res_in": "Result[Integer,String]"
+    },
+    "outputs": {
+      "val": "Integer"
+    }
+  }
+}

@@ -1,0 +1,258 @@
+{
+  "kind": "compilation_report",
+  "format_version": "0.1.0",
+  "program_id": "compilation_report/793c7e03fe536c91",
+  "grammar_version": "0.1.0",
+  "source_hash": "sha256:793c7e03fe536c91d7c8574a36c6596b173596a9df3ee33b63b4eaba7c5704c8",
+  "source_path": "source/monadic_extension.ig",
+  "pass_result": "oof",
+  "stages": {
+    "parse": "ok",
+    "classify": "ok",
+    "typecheck": "oof",
+    "emit": "skipped"
+  },
+  "diagnostics": [
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: is_some",
+      "node": "is_some_val",
+      "path": "contract:OptionWorkflow/node:is_some_val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: is_none",
+      "node": "is_none_val",
+      "path": "contract:OptionWorkflow/node:is_none_val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: map",
+      "node": "mapped",
+      "path": "contract:OptionWorkflow/node:mapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: flat_map",
+      "node": "flat_mapped",
+      "path": "contract:OptionWorkflow/node:flat_mapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: unwrap_or",
+      "node": "unwrapped",
+      "path": "contract:OptionWorkflow/node:unwrapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: unwrap_or",
+      "node": "unwrapped_mapped",
+      "path": "contract:OptionWorkflow/node:unwrapped_mapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Bool, got Unknown",
+      "node": "is_some_val",
+      "path": "contract:OptionWorkflow/node:is_some_val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Bool, got Unknown",
+      "node": "is_none_val",
+      "path": "contract:OptionWorkflow/node:is_none_val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Option, got Unknown",
+      "node": "mapped",
+      "path": "contract:OptionWorkflow/node:mapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Option, got Unknown",
+      "node": "flat_mapped",
+      "path": "contract:OptionWorkflow/node:flat_mapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Integer, got Unknown",
+      "node": "unwrapped",
+      "path": "contract:OptionWorkflow/node:unwrapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Integer, got Unknown",
+      "node": "unwrapped_mapped",
+      "path": "contract:OptionWorkflow/node:unwrapped_mapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: is_ok",
+      "node": "is_ok_val",
+      "path": "contract:OptionWorkflow/node:is_ok_val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: is_err",
+      "node": "is_err_val",
+      "path": "contract:OptionWorkflow/node:is_err_val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: map",
+      "node": "mapped",
+      "path": "contract:OptionWorkflow/node:mapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: and_then",
+      "node": "flat_mapped",
+      "path": "contract:OptionWorkflow/node:flat_mapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: unwrap_or",
+      "node": "unwrapped_or_val",
+      "path": "contract:OptionWorkflow/node:unwrapped_or_val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Bool, got Unknown",
+      "node": "is_ok_val",
+      "path": "contract:OptionWorkflow/node:is_ok_val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Bool, got Unknown",
+      "node": "is_err_val",
+      "path": "contract:OptionWorkflow/node:is_err_val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Result, got Unknown",
+      "node": "mapped",
+      "path": "contract:OptionWorkflow/node:mapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Result, got Unknown",
+      "node": "flat_mapped",
+      "path": "contract:OptionWorkflow/node:flat_mapped",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Integer, got Unknown",
+      "node": "unwrapped_or_val",
+      "path": "contract:OptionWorkflow/node:unwrapped_or_val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Unknown function: unwrap",
+      "node": "val",
+      "path": "contract:OptionWorkflow/node:val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    },
+    {
+      "rule": "OOF-TY0",
+      "severity": "error",
+      "message": "Type mismatch: expected Integer, got Unknown",
+      "node": "val",
+      "path": "contract:OptionWorkflow/node:val",
+      "category": "typechecker_oof",
+      "contract": "OptionWorkflow",
+      "span": null
+    }
+  ],
+  "semantic_ir_ref": null
+}

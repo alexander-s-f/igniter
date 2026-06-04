@@ -240,7 +240,7 @@ module IgniterLang
       fn_name = expr["fn"]
       args = expr["args"] || []
 
-      return nil unless %w[count first last fold sum].include?(fn_name)
+      return nil unless %w[count first last fold sum avg min max].include?(fn_name)
       return nil if args.empty?
 
       pipeline = []
@@ -255,14 +255,14 @@ module IgniterLang
         inner_coll = args[0]
         source = build_pipeline(inner_coll, pipeline)
         pipeline << { "kind" => fn_name }
-      when "sum"
+      when "sum", "avg", "min", "max"
         return nil if args.length < 2
         inner_coll = args[0]
         field = args[1]
         field_name = field["value"] if field.is_a?(Hash) && field["kind"] == "symbol"
         return nil unless field_name
         source = build_pipeline(inner_coll, pipeline)
-        pipeline << { "kind" => "sum", "field" => field_name }
+        pipeline << { "kind" => fn_name, "field" => field_name }
       when "fold"
         return nil if args.length < 3
         inner_coll = args[0]
@@ -543,9 +543,9 @@ module IgniterLang
           "params" => [pair_type]
         }
         return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
-      elsif fn == "or_else"
+      elsif fn == "or_else" || fn == "unwrap_or"
         args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
-        res_type = args_typed.length >= 2 ? args_typed[1].fetch("resolved_type") : { "name" => "String", "params" => [] }
+        res_type = args_typed.length >= 2 ? args_typed[1].fetch("resolved_type") : type_ir("Unknown")
         return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
       elsif fn == "range"
         args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
@@ -554,9 +554,122 @@ module IgniterLang
           "params" => [{ "name" => "Integer", "params" => [] }]
         }
         return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
-      elsif %w[fold filter map].include?(fn)
+      elsif %w[filter take].include?(fn)
         args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
         res_type = !args_typed.empty? ? args_typed[0].fetch("resolved_type") : { "name" => "Collection", "params" => [] }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "map"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        first_arg_type = args_typed[0] ? args_typed[0].fetch("resolved_type") : { "name" => "Unknown", "params" => [] }
+        first_arg_name = first_arg_type["name"]
+        
+        lambda_arg = args_typed[1]
+        lambda_return_type = if lambda_arg
+                               if lambda_arg["body"]
+                                 lambda_arg.dig("body", "resolved_type")
+                               elsif lambda_arg.dig("body_typed")
+                                 lambda_arg.dig("body_typed", "resolved_type")
+                               else
+                                 type_ir("Unknown")
+                               end
+                             else
+                               type_ir("Unknown")
+                             end
+        
+        if first_arg_name == "Option"
+          res_type = { "name" => "Option", "params" => [lambda_return_type] }
+        elsif first_arg_name == "Result"
+          err_type = first_arg_type.fetch("params", [])[1] || type_ir("Unknown")
+          res_type = { "name" => "Result", "params" => [lambda_return_type, err_type] }
+        else
+          # default to Collection
+          res_type = { "name" => "Collection", "params" => [lambda_return_type] }
+        end
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif %w[flat_map and_then].include?(fn)
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        first_arg_type = args_typed[0] ? args_typed[0].fetch("resolved_type") : { "name" => "Unknown", "params" => [] }
+        first_arg_name = first_arg_type["name"]
+        
+        lambda_arg = args_typed[1]
+        lambda_return_type = if lambda_arg
+                               if lambda_arg["body"]
+                                 lambda_arg.dig("body", "resolved_type")
+                               elsif lambda_arg.dig("body_typed")
+                                 lambda_arg.dig("body_typed", "resolved_type")
+                               else
+                                 type_ir("Unknown")
+                               end
+                             else
+                               type_ir("Unknown")
+                             end
+        
+        inner_u = lambda_return_type.is_a?(Hash) && lambda_return_type.fetch("params", [])[0] ? lambda_return_type.fetch("params", [])[0] : type_ir("Unknown")
+        if first_arg_name == "Option"
+          res_type = { "name" => "Option", "params" => [inner_u] }
+        elsif first_arg_name == "Result"
+          err_type = lambda_return_type.is_a?(Hash) && lambda_return_type.fetch("params", [])[1] ? lambda_return_type.fetch("params", [])[1] : (first_arg_type.fetch("params", [])[1] || type_ir("Unknown"))
+          res_type = { "name" => "Result", "params" => [inner_u, err_type] }
+        else
+          # default to Collection
+          res_type = { "name" => "Collection", "params" => [inner_u] }
+        end
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "fold"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        res_type = args_typed.length >= 2 ? args_typed[1].fetch("resolved_type") : { "name" => "Unknown", "params" => [] }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif %w[avg min max].include?(fn)
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        resolved = { "name" => "Decimal", "params" => [] }
+        if args.length >= 2 && !args_typed.empty?
+          field_arg = args[1]
+          if field_arg["kind"] == "symbol"
+            field_name = field_arg["value"]
+            col_type = args_typed[0].fetch("resolved_type")
+            params = col_type.fetch("params", [])
+            if !params.empty?
+              inner_type_name = params[0].fetch("name")
+              fields = @type_shapes[inner_type_name]
+              if fields && fields[field_name]
+                resolved = fields[field_name]
+              end
+            end
+          end
+        end
+        res_type = { "name" => "Option", "params" => [resolved] }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "some"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        inner_ty = args_typed[0] ? args_typed[0].fetch("resolved_type") : type_ir("Unknown")
+        res_type = { "name" => "Option", "params" => [inner_ty] }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "none"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        res_type = { "name" => "Option", "params" => [type_ir("Unknown")] }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "ok"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        inner_ty = args_typed[0] ? args_typed[0].fetch("resolved_type") : type_ir("Unknown")
+        res_type = { "name" => "Result", "params" => [inner_ty, type_ir("Unknown")] }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "err"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        inner_ty = args_typed[0] ? args_typed[0].fetch("resolved_type") : type_ir("Unknown")
+        res_type = { "name" => "Result", "params" => [type_ir("Unknown"), inner_ty] }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif %w[is_some is_none some? none? is_ok is_err ok? err?].include?(fn)
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        res_type = type_ir("Bool")
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "unwrap"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        res_type = type_ir("Unknown")
+        if !args_typed.empty?
+          arg_type = args_typed[0].fetch("resolved_type")
+          params = arg_type.fetch("params", [])
+          res_type = params[0] if !params.empty?
+        end
         return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
       end
 
@@ -681,6 +794,308 @@ module RuntimeMachineMemoryProof
         return { "value" => val, "scale" => scale }
       end
       orig_apply_operator(op, operands)
+    end
+  end
+
+  module CanonicalStdlibRegistry
+    class << self
+      alias_method :orig_call, :call
+      def call(operator, operands)
+        case operator
+        when "stdlib.integer.mul"
+          require_all!(operator, operands, ::Integer)
+          operands[0] * operands[1]
+        when "stdlib.integer.sub"
+          require_all!(operator, operands, ::Integer)
+          operands[0] - operands[1]
+        when "stdlib.integer.div"
+          require_all!(operator, operands, ::Integer)
+          operands[0] / operands[1]
+        else
+          orig_call(operator, operands)
+        end
+      end
+    end
+  end
+
+  class CompiledProgram
+    alias_method :orig_eval_expr, :eval_expr
+    def eval_expr(expr, values, backend:, as_of:)
+      case expr.fetch("kind")
+      when "lambda"
+        expr
+      when "apply"
+        op = expr.fetch("operator")
+        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then"].include?(op)
+          operands = expr.fetch("operands").map { |op_expr| eval_expr(op_expr, values, backend: backend, as_of: as_of) }
+          eval_standalone_stdlib(op, operands, values, backend: backend, as_of: as_of)
+        else
+          orig_eval_expr(expr, values, backend: backend, as_of: as_of)
+        end
+      when "call"
+        fn = expr.fetch("fn")
+        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then"].include?(fn)
+          args = expr.fetch("args", []).map { |arg_expr| eval_expr(arg_expr, values, backend: backend, as_of: as_of) }
+          eval_standalone_stdlib(fn, args, values, backend: backend, as_of: as_of)
+        else
+          orig_eval_expr(expr, values, backend: backend, as_of: as_of)
+        end
+      when "map_reduce_aggregate"
+        source_val = eval_expr(expr.fetch("source"), values, backend: backend, as_of: as_of)
+        current_val = Array(source_val)
+        expr.fetch("pipeline", []).each do |stage|
+          case stage.fetch("kind")
+          when "filter"
+            param = stage.fetch("param")
+            body = stage.fetch("body")
+            current_val = current_val.select do |item|
+              local_vals = values.merge(param => item)
+              eval_expr(body, local_vals, backend: backend, as_of: as_of) == true
+            end
+          when "map"
+            param = stage.fetch("param")
+            body = stage.fetch("body")
+            current_val = current_val.map do |item|
+              local_vals = values.merge(param => item)
+              eval_expr(body, local_vals, backend: backend, as_of: as_of)
+            end
+          when "count"
+            current_val = current_val.length
+          when "first"
+            current_val = current_val.first
+          when "last"
+            current_val = current_val.last
+          when "sum"
+            field_name = stage.fetch("field").to_s.delete_prefix(":")
+            current_val = CanonicalStdlibRegistry.call("sum", [current_val, field_name])
+          when "avg"
+            field_name = stage.fetch("field").to_s.delete_prefix(":")
+            vals = current_val.map { |item| item[field_name] || item[field_name.to_sym] }.compact
+            if vals.empty?
+              current_val = nil
+            else
+              has_decimal = vals.any? { |v| v.is_a?(Hash) && v.key?("value") && v.key?("scale") }
+              if has_decimal
+                first_dec = vals.find { |v| v.is_a?(Hash) && v.key?("value") && v.key?("scale") }
+                scale = first_dec["scale"]
+                sum_val = 0
+                vals.each do |v|
+                  if v.is_a?(Hash) && v.key?("value")
+                    sum_val += v["value"]
+                  else
+                    sum_val += v * (10**scale)
+                  end
+                end
+                avg_val = sum_val / vals.length
+                current_val = { "value" => avg_val, "scale" => scale }
+              else
+                current_val = vals.sum / vals.length
+              end
+            end
+          when "min"
+            field_name = stage.fetch("field").to_s.delete_prefix(":")
+            vals = current_val.map { |item| item[field_name] || item[field_name.to_sym] }.compact
+            current_val = if vals.empty?
+              nil
+            else
+              vals.min_by do |v|
+                if v.is_a?(Hash) && v.key?("value") && v.key?("scale")
+                  v["value"] / (10.0 ** v["scale"])
+                else
+                  v
+                end
+              end
+            end
+          when "max"
+            field_name = stage.fetch("field").to_s.delete_prefix(":")
+            vals = current_val.map { |item| item[field_name] || item[field_name.to_sym] }.compact
+            current_val = if vals.empty?
+              nil
+            else
+              vals.max_by do |v|
+                if v.is_a?(Hash) && v.key?("value") && v.key?("scale")
+                  v["value"] / (10.0 ** v["scale"])
+                else
+                  v
+                end
+              end
+            end
+          when "fold"
+            param_acc = stage.fetch("param_acc")
+            param_val = stage.fetch("param_val")
+            init_expr = stage.fetch("init")
+            body_expr = stage.fetch("body")
+            init_val = eval_expr(init_expr, values, backend: backend, as_of: as_of)
+            current_val = current_val.reduce(init_val) do |acc, item|
+              local_vals = values.merge(param_acc => acc, param_val => item)
+              eval_expr(body_expr, local_vals, backend: backend, as_of: as_of)
+            end
+          else
+            raise ArgumentError, "Unknown map_reduce_aggregate pipeline kind: #{stage["kind"]}"
+          end
+        end
+        current_val
+      else
+        orig_eval_expr(expr, values, backend: backend, as_of: as_of)
+      end
+    end
+
+    def eval_standalone_stdlib(op, operands, values, backend:, as_of:)
+      case op
+      when "map"
+        coll = operands[0]
+        lam = operands[1]
+        param = lam.dig("params", 0) || "x"
+        body = lam["body"]
+        if coll.is_a?(Array)
+          coll.map do |item|
+            eval_expr(body, values.merge(param => item), backend: backend, as_of: as_of)
+          end
+        elsif coll.nil?
+          nil
+        elsif coll.is_a?(Hash) && coll.key?("ok")
+          res = eval_expr(body, values.merge(param => coll["ok"]), backend: backend, as_of: as_of)
+          { "ok" => res }
+        elsif coll.is_a?(Hash) && coll.key?("err")
+          coll
+        else
+          # Some(coll)
+          eval_expr(body, values.merge(param => coll), backend: backend, as_of: as_of)
+        end
+      when "flat_map", "and_then"
+        coll = operands[0]
+        lam = operands[1]
+        param = lam.dig("params", 0) || "x"
+        body = lam["body"]
+        if coll.is_a?(Array)
+          coll.flat_map do |item|
+            eval_expr(body, values.merge(param => item), backend: backend, as_of: as_of)
+          end
+        elsif coll.nil?
+          nil
+        elsif coll.is_a?(Hash) && coll.key?("ok")
+          eval_expr(body, values.merge(param => coll["ok"]), backend: backend, as_of: as_of)
+        elsif coll.is_a?(Hash) && coll.key?("err")
+          coll
+        else
+          # Some(coll)
+          eval_expr(body, values.merge(param => coll), backend: backend, as_of: as_of)
+        end
+      when "some"
+        operands[0]
+      when "none"
+        nil
+      when "is_some", "some?"
+        !operands[0].nil?
+      when "is_none", "none?"
+        operands[0].nil?
+      when "ok"
+        { "ok" => operands[0] }
+      when "err"
+        { "err" => operands[0] }
+      when "is_ok", "ok?"
+        operands[0].is_a?(Hash) && operands[0].key?("ok")
+      when "is_err", "err?"
+        operands[0].is_a?(Hash) && operands[0].key?("err")
+      when "unwrap"
+        val = operands[0]
+        if val.is_a?(Hash) && val.key?("ok")
+          val["ok"]
+        else
+          raise "Unwrapped Err: #{val.inspect}"
+        end
+      when "unwrap_or", "or_else"
+        val = operands[0]
+        fallback = operands[1]
+        if val.nil?
+          fallback
+        elsif val.is_a?(Hash) && val.key?("ok")
+          val["ok"]
+        elsif val.is_a?(Hash) && val.key?("err")
+          fallback
+        else
+          val
+        end
+      when "filter"
+        coll = operands[0] || []
+        lam = operands[1]
+        param = lam.dig("params", 0) || "x"
+        body = lam["body"]
+        coll.select do |item|
+          eval_expr(body, values.merge(param => item), backend: backend, as_of: as_of) == true
+        end
+      when "fold"
+        coll = operands[0] || []
+        init = operands[1]
+        lam = operands[2]
+        param_acc = lam.dig("params", 0) || "acc"
+        param_val = lam.dig("params", 1) || "x"
+        body = lam["body"]
+        coll.reduce(init) do |acc, item|
+          eval_expr(body, values.merge(param_acc => acc, param_val => item), backend: backend, as_of: as_of)
+        end
+      when "take"
+        coll = operands[0] || []
+        n = operands[1].to_i
+        n <= 0 ? [] : coll.take(n)
+      when "avg"
+        coll = operands[0] || []
+        field = operands[1]
+        field_str = field.to_s.delete_prefix(":")
+        field_sym = field_str.to_sym
+        vals = coll.map { |item| item[field_str] || item[field_sym] }.compact
+        return nil if vals.empty?
+        
+        has_decimal = vals.any? { |v| v.is_a?(Hash) && v.key?("value") && v.key?("scale") }
+        if has_decimal
+          first_dec = vals.find { |v| v.is_a?(Hash) && v.key?("value") && v.key?("scale") }
+          scale = first_dec["scale"]
+          sum_val = 0
+          vals.each do |v|
+            if v.is_a?(Hash) && v.key?("value")
+              sum_val += v["value"]
+            else
+              sum_val += v * (10**scale)
+            end
+          end
+          avg_val = sum_val / vals.length
+          { "value" => avg_val, "scale" => scale }
+        else
+          vals.sum / vals.length
+        end
+      when "min"
+        coll = operands[0] || []
+        field = operands[1]
+        field_str = field.to_s.delete_prefix(":")
+        field_sym = field_str.to_sym
+        vals = coll.map { |item| item[field_str] || item[field_sym] }.compact
+        return nil if vals.empty?
+        
+        vals.min_by do |v|
+          if v.is_a?(Hash) && v.key?("value") && v.key?("scale")
+            v["value"] / (10.0 ** v["scale"])
+          else
+            v
+          end
+        end
+      when "max"
+        coll = operands[0] || []
+        field = operands[1]
+        field_str = field.to_s.delete_prefix(":")
+        field_sym = field_str.to_sym
+        vals = coll.map { |item| item[field_str] || item[field_sym] }.compact
+        return nil if vals.empty?
+        
+        vals.max_by do |v|
+          if v.is_a?(Hash) && v.key?("value") && v.key?("scale")
+            v["value"] / (10.0 ** v["scale"])
+          else
+            v
+          end
+        end
+      else
+        raise ArgumentError, "Unsupported standalone stdlib operator: #{op}"
+      end
     end
 
     alias_method :orig_validate_specialization_manifest, :validate_specialization_manifest

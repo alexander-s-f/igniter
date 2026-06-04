@@ -1,0 +1,86 @@
+{
+  "artifact_hash": "sha256:5ac499bf113b6849030c9c3b884352e409f0258416fb534a9a4a8b623dad1f24",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:leads"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "leads"
+          },
+          {
+            "kind": "literal",
+            "type_tag": "Integer",
+            "value": 0
+          },
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "kind": "ref",
+                "name": "acc"
+              },
+              "op": "+",
+              "right": {
+                "field": "bid_amount",
+                "kind": "field_access",
+                "object": {
+                  "kind": "ref",
+                  "name": "l"
+                }
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "acc",
+              "l"
+            ]
+          }
+        ],
+        "operator": "fold"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "val",
+      "node_id": "node_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "FoldStandalone",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "leads",
+      "required": true,
+      "type_tag": "Collection[Lead]"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "FoldStandalone",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "val",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/FoldStandalone/sha256:12e14bf9d5d61f3ff152d7cc",
+  "type_signature": {
+    "inputs": {
+      "leads": "Collection[Lead]"
+    },
+    "outputs": {
+      "val": "Integer"
+    }
+  }
+}

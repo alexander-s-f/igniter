@@ -1,0 +1,37 @@
+{
+  "contract_id": "ResultWorkflow",
+  "inputs": [
+    "res_in",
+    "fallback"
+  ],
+  "expression": {
+    "kind": "apply",
+    "operator": "map",
+    "operands": [
+      {
+        "kind": "ref",
+        "name": "res_in"
+      },
+      {
+        "body": {
+          "kind": "binary_op",
+          "left": {
+            "kind": "ref",
+            "name": "x"
+          },
+          "op": "*",
+          "right": {
+            "kind": "literal",
+            "type_tag": "Integer",
+            "value": 5
+          },
+          "operator": "*"
+        },
+        "kind": "lambda",
+        "params": [
+          "x"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "artifact_hash": "sha256:c20d59d6ad5bbba2577d4c82d80ae28034b1b4d2782c7c8ead13de1d0a0eb713",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:leads"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "leads",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Lead",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "kind": "symbol",
+            "resolved_type": {
+              "name": "Symbol",
+              "params": []
+            },
+            "value": "bid_decimal"
+          }
+        ],
+        "operator": "max",
+        "resolved_type": {
+          "name": "Option",
+          "params": [
+            {
+              "name": "Decimal",
+              "params": []
+            }
+          ]
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "val",
+      "node_id": "node_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[Decimal]"
+    }
+  ],
+  "contract_id": "MaxStandalone",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "leads",
+      "required": true,
+      "type_tag": "Collection[Lead]"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "MaxStandalone",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "val",
+      "required": true,
+      "type_tag": "Option[Decimal[2]]"
+    }
+  ],
+  "source_contract_ref": "contract/MaxStandalone/sha256:c1043ae804a0a18e175b1d51",
+  "type_signature": {
+    "inputs": {
+      "leads": "Collection[Lead]"
+    },
+    "outputs": {
+      "val": "Option[Decimal[2]]"
+    }
+  }
+}

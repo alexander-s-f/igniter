@@ -1,0 +1,62 @@
+{
+  "artifact_hash": "sha256:5ac499bf113b6849030c9c3b884352e409f0258416fb534a9a4a8b623dad1f24",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:leads"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "leads"
+          },
+          {
+            "kind": "symbol",
+            "value": "bid_decimal"
+          }
+        ],
+        "operator": "min"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "val",
+      "node_id": "node_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[Decimal[2]]"
+    }
+  ],
+  "contract_id": "MinStandalone",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "leads",
+      "required": true,
+      "type_tag": "Collection[Lead]"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "MinStandalone",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "val",
+      "required": true,
+      "type_tag": "Option[Decimal[2]]"
+    }
+  ],
+  "source_contract_ref": "contract/MinStandalone/sha256:4150595efdcb5cf153ea935b",
+  "type_signature": {
+    "inputs": {
+      "leads": "Collection[Lead]"
+    },
+    "outputs": {
+      "val": "Option[Decimal[2]]"
+    }
+  }
+}

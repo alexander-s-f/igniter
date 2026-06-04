@@ -1,0 +1,63 @@
+{
+  "artifact_hash": "sha256:e6cd1c5cc5ccb949f4fd72f7a46bef04db95d1b2a646a860178ed2d24166d77b",
+  "assembler": "igapp-assembler-proof-stage1-v0",
+  "compilation_report_ref": "compilation_report/793c7e03fe536c91",
+  "compiled_at": "2026-05-06T00:00:00Z",
+  "contract_index": {
+    "OptionWorkflow": {
+      "contract_path": "contracts/option_workflow.json",
+      "contract_ref": "contract/OptionWorkflow/sha256:7716918400c1faff94064b4c",
+      "fragment_class": "core"
+    },
+    "ResultUnwrap": {
+      "contract_path": "contracts/result_unwrap.json",
+      "contract_ref": "contract/ResultUnwrap/sha256:5b20f5833394f386852a59ae",
+      "fragment_class": "core"
+    },
+    "ResultWorkflow": {
+      "contract_path": "contracts/result_workflow.json",
+      "contract_ref": "contract/ResultWorkflow/sha256:745475200ea9380e6d73f8d4",
+      "fragment_class": "core"
+    }
+  },
+  "contract_refs": {
+    "OptionWorkflow": "contract/OptionWorkflow/sha256:7716918400c1faff94064b4c",
+    "ResultUnwrap": "contract/ResultUnwrap/sha256:5b20f5833394f386852a59ae",
+    "ResultWorkflow": "contract/ResultWorkflow/sha256:745475200ea9380e6d73f8d4"
+  },
+  "contracts": [
+    "OptionWorkflow",
+    "ResultUnwrap",
+    "ResultWorkflow"
+  ],
+  "diagnostics": [],
+  "format": "igapp_dir",
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "fragment_summary": {
+    "fragment_classes": [
+      "core"
+    ],
+    "max_fragment_class": "core",
+    "precedence_high_to_low": [
+      "oof",
+      "temporal",
+      "stream",
+      "escape",
+      "core"
+    ]
+  },
+  "grammar_version": "0.1.0",
+  "kind": "igapp_manifest",
+  "language_version": "0.1.0",
+  "program_id": "semanticir/793c7e03fe536c91",
+  "schema_descriptor": {
+    "migrations": [],
+    "trait_bounds": []
+  },
+  "schema_version": "0.1.0",
+  "semantic_ir_ref": "semanticir/793c7e03fe536c91",
+  "source_hash": "sha256:793c7e03fe536c91d7c8574a36c6596b173596a9df3ee33b63b4eaba7c5704c8",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/monadic_extension.ig",
+  "warnings": []
+}

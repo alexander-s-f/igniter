@@ -1,0 +1,21 @@
+{
+  "contract_id": "ResultWorkflow",
+  "inputs": [
+    "res_in",
+    "fallback"
+  ],
+  "expression": {
+    "kind": "apply",
+    "operator": "unwrap_or",
+    "operands": [
+      {
+        "kind": "ref",
+        "name": "res_in"
+      },
+      {
+        "kind": "ref",
+        "name": "fallback"
+      }
+    ]
+  }
+}

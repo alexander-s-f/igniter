@@ -1,5 +1,5 @@
 {
-  "artifact_hash": "sha256:b514b79552b530ea8bd1b811ca310ddc4fdde7feba1c78d07ab4d0958a0bc5ce",
+  "artifact_hash": "sha256:5ac499bf113b6849030c9c3b884352e409f0258416fb534a9a4a8b623dad1f24",
   "compute_nodes": [
     {
       "dependencies": [
@@ -283,7 +283,7 @@
       "name": "total_high_value_bids",
       "node_id": "node_total_high_value_bids",
       "obs_kind": "value_observation",
-      "type_tag": "Decimal"
+      "type_tag": "Decimal[2]"
     }
   ],
   "contract_id": "LeadConversionRate",
@@ -314,7 +314,7 @@
       "type_tag": "Decimal[2]"
     }
   ],
-  "source_contract_ref": "contract/LeadConversionRate/sha256:bed76fb475e5cb9bcdda7c8d",
+  "source_contract_ref": "contract/LeadConversionRate/sha256:9c12724b3faf609efce4cb14",
   "type_signature": {
     "inputs": {
       "leads": "Collection[Lead]",

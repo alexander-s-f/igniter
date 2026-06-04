@@ -1,0 +1,16 @@
+{
+  "contract_id": "ResultUnwrap",
+  "inputs": [
+    "res_in"
+  ],
+  "expression": {
+    "kind": "apply",
+    "operator": "unwrap",
+    "operands": [
+      {
+        "kind": "ref",
+        "name": "res_in"
+      }
+    ]
+  }
+}

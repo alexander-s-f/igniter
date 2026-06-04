@@ -529,6 +529,15 @@ module IgniterLang
       when "+"
         type_errors << type_mismatch(type_ir("Integer"), type_ir("#{left_name}+#{right_name}"), node_name) unless unknown?(left, right) || left_name == "Integer" && right_name == "Integer"
         ["stdlib.integer.add", type_ir("Integer")]
+      when "-"
+        type_errors << type_mismatch(type_ir("Integer"), type_ir("#{left_name}-#{right_name}"), node_name) unless unknown?(left, right) || left_name == "Integer" && right_name == "Integer"
+        ["stdlib.integer.sub", type_ir("Integer")]
+      when "*"
+        type_errors << type_mismatch(type_ir("Integer"), type_ir("#{left_name}*#{right_name}"), node_name) unless unknown?(left, right) || left_name == "Integer" && right_name == "Integer"
+        ["stdlib.integer.mul", type_ir("Integer")]
+      when "/"
+        type_errors << type_mismatch(type_ir("Integer"), type_ir("#{left_name}/#{right_name}"), node_name) unless unknown?(left, right) || left_name == "Integer" && right_name == "Integer"
+        ["stdlib.integer.div", type_ir("Integer")]
       when ">"
         type_errors << type_mismatch(type_ir("Integer"), type_ir("#{left_name}+#{right_name}"), node_name) unless unknown?(left, right) || left_name == "Integer" && right_name == "Integer"
         ["stdlib.integer.gt", type_ir("Bool")]

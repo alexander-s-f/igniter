@@ -1,0 +1,22 @@
+{
+  "compilation_report_ref": "compilation_report/793c7e03fe536c91",
+  "contracts": [
+    "OptionWorkflow",
+    "ResultUnwrap",
+    "ResultWorkflow"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "OptionWorkflow",
+    "ResultUnwrap",
+    "ResultWorkflow"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/793c7e03fe536c91",
+  "semantic_ir_ref": "semanticir/793c7e03fe536c91",
+  "source_hash": "sha256:793c7e03fe536c91d7c8574a36c6596b173596a9df3ee33b63b4eaba7c5704c8",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/monadic_extension.ig"
+}

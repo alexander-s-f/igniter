@@ -1,0 +1,25 @@
+{
+  "diagnostics": [
+    {
+      "line": null,
+      "message": "Type mismatch: expected Integer, got Unknown",
+      "node": "val",
+      "rule": "OOF-TY0",
+      "severity": "error"
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "oof",
+  "program_id": "compilation_report/793c7e03fe536c91",
+  "semantic_ir_ref": null,
+  "source_hash": "sha256:793c7e03fe536c91d7c8574a36c6596b173596a9df3ee33b63b4eaba7c5704c8",
+  "source_path": "source/monadic_extension.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "skipped",
+    "parse": "ok",
+    "typecheck": "oof"
+  }
+}

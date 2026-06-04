@@ -1,17 +1,17 @@
 {
-  "artifact_hash": "sha256:83a7c3df904084d623c26123a6e08a829dd46c09d57108477acfbbcc6ff44d3c",
+  "artifact_hash": "sha256:9101ced87474201fb9e9d99023d75e4e4e61d3f7178406650f8fa231b8b23429",
   "assembler": "igapp-assembler-proof-stage1-v0",
   "compilation_report_ref": "compilation_report/c553e1b076190bcc",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
     "BidSummary": {
       "contract_path": "contracts/bid_summary.json",
-      "contract_ref": "contract/BidSummary/sha256:02e7a5c582b13de5d7aa3c03",
+      "contract_ref": "contract/BidSummary/sha256:bfc5c24154a34a47929c6088",
       "fragment_class": "core"
     }
   },
   "contract_refs": {
-    "BidSummary": "contract/BidSummary/sha256:02e7a5c582b13de5d7aa3c03"
+    "BidSummary": "contract/BidSummary/sha256:bfc5c24154a34a47929c6088"
   },
   "contracts": [
     "BidSummary"

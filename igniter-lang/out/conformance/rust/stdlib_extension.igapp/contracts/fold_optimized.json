@@ -1,0 +1,111 @@
+{
+  "artifact_hash": "sha256:5ac499bf113b6849030c9c3b884352e409f0258416fb534a9a4a8b623dad1f24",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:leads",
+        "input:threshold"
+      ],
+      "expression": {
+        "kind": "map_reduce_aggregate",
+        "pipeline": [
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "field": "bid_amount",
+                "kind": "field_access",
+                "object": {
+                  "kind": "ref",
+                  "name": "l"
+                }
+              },
+              "op": ">",
+              "right": {
+                "kind": "ref",
+                "name": "threshold"
+              }
+            },
+            "kind": "filter",
+            "param": "l"
+          },
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "kind": "ref",
+                "name": "acc"
+              },
+              "op": "+",
+              "right": {
+                "field": "bid_amount",
+                "kind": "field_access",
+                "object": {
+                  "kind": "ref",
+                  "name": "l"
+                }
+              }
+            },
+            "init": {
+              "kind": "literal",
+              "type_tag": "Integer",
+              "value": 0
+            },
+            "kind": "fold",
+            "param_acc": "acc",
+            "param_val": "l"
+          }
+        ],
+        "source": {
+          "kind": "ref",
+          "name": "leads"
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "val",
+      "node_id": "node_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "FoldOptimized",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "leads",
+      "required": true,
+      "type_tag": "Collection[Lead]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "threshold",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "FoldOptimized",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "val",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/FoldOptimized/sha256:c823acd93074f591d3347871",
+  "type_signature": {
+    "inputs": {
+      "leads": "Collection[Lead]",
+      "threshold": "Integer"
+    },
+    "outputs": {
+      "val": "Integer"
+    }
+  }
+}

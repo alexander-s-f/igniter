@@ -1,0 +1,471 @@
+{
+  "artifact_hash": "sha256:e14427bb9b70d3a11cc24dc5a5e3df31b88949140e1e26b0d456a13936093403",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:opt_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "opt_in",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Option",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Integer",
+                  "params": []
+                }
+              ]
+            }
+          }
+        ],
+        "operator": "is_some",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "is_some_val",
+      "node_id": "node_is_some_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:opt_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "opt_in",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Option",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Integer",
+                  "params": []
+                }
+              ]
+            }
+          }
+        ],
+        "operator": "is_none",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "is_none_val",
+      "node_id": "node_is_none_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:opt_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "opt_in",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Option",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Integer",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "body": {
+              "kind": "apply",
+              "operands": [
+                {
+                  "kind": "ref",
+                  "name": "x",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  }
+                },
+                {
+                  "kind": "literal",
+                  "literal_type": "int",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  },
+                  "type_tag": "Integer",
+                  "value": 2
+                }
+              ],
+              "operator": "stdlib.unsupported.*",
+              "resolved_type": {
+                "name": "Unknown",
+                "params": []
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "x"
+            ],
+            "resolved_type": {
+              "name": "Unknown",
+              "params": []
+            }
+          }
+        ],
+        "operator": "map",
+        "resolved_type": {
+          "name": "Option",
+          "params": [
+            {
+              "name": "Unknown",
+              "params": []
+            }
+          ]
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "mapped",
+      "node_id": "node_mapped",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[Unknown]"
+    },
+    {
+      "dependencies": [
+        "input:opt_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "opt_in",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Option",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Integer",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "body": {
+              "kind": "apply",
+              "operands": [
+                {
+                  "kind": "apply",
+                  "operands": [
+                    {
+                      "kind": "ref",
+                      "name": "x",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      }
+                    },
+                    {
+                      "kind": "literal",
+                      "literal_type": "int",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      },
+                      "type_tag": "Integer",
+                      "value": 10
+                    }
+                  ],
+                  "operator": "stdlib.integer.add",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  }
+                }
+              ],
+              "operator": "some",
+              "resolved_type": {
+                "name": "Option",
+                "params": [
+                  {
+                    "name": "Integer",
+                    "params": []
+                  }
+                ]
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "x"
+            ],
+            "resolved_type": {
+              "name": "Unknown",
+              "params": []
+            }
+          }
+        ],
+        "operator": "flat_map",
+        "resolved_type": {
+          "name": "Option",
+          "params": [
+            {
+              "name": "Integer",
+              "params": []
+            }
+          ]
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "flat_mapped",
+      "node_id": "node_flat_mapped",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[Integer]"
+    },
+    {
+      "dependencies": [
+        "input:opt_in",
+        "input:fallback"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "opt_in",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Option",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Integer",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "fallback",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          }
+        ],
+        "operator": "unwrap_or",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "unwrapped",
+      "node_id": "node_unwrapped",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:opt_in",
+        "input:fallback"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "apply",
+            "operands": [
+              {
+                "kind": "ref",
+                "name": "opt_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Option",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "body": {
+                  "kind": "apply",
+                  "operands": [
+                    {
+                      "kind": "ref",
+                      "name": "x",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      }
+                    },
+                    {
+                      "kind": "literal",
+                      "literal_type": "int",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      },
+                      "type_tag": "Integer",
+                      "value": 3
+                    }
+                  ],
+                  "operator": "stdlib.unsupported.*",
+                  "resolved_type": {
+                    "name": "Unknown",
+                    "params": []
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "x"
+                ],
+                "resolved_type": {
+                  "name": "Unknown",
+                  "params": []
+                }
+              }
+            ],
+            "operator": "map",
+            "resolved_type": {
+              "name": "Option",
+              "params": [
+                {
+                  "name": "Unknown",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "fallback",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          }
+        ],
+        "operator": "unwrap_or",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "unwrapped_mapped",
+      "node_id": "node_unwrapped_mapped",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "OptionWorkflow",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "opt_in",
+      "required": true,
+      "type_tag": "Option[Integer]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "fallback",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "OptionWorkflow",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "is_some_val",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "is_none_val",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "mapped",
+      "required": true,
+      "type_tag": "Option[Integer]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "flat_mapped",
+      "required": true,
+      "type_tag": "Option[Integer]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "unwrapped",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "unwrapped_mapped",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/OptionWorkflow/sha256:57c7c531c7c96cd6ff3840ca",
+  "type_signature": {
+    "inputs": {
+      "fallback": "Integer",
+      "opt_in": "Option[Integer]"
+    },
+    "outputs": {
+      "flat_mapped": "Option[Integer]",
+      "is_none_val": "Bool",
+      "is_some_val": "Bool",
+      "mapped": "Option[Integer]",
+      "unwrapped": "Integer",
+      "unwrapped_mapped": "Integer"
+    }
+  }
+}

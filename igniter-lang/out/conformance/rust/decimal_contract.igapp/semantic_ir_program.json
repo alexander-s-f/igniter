@@ -3,7 +3,7 @@
   "contracts": [
     {
       "contract_name": "BidSummary",
-      "contract_ref": "contract/BidSummary/sha256:02e7a5c582b13de5d7aa3c03",
+      "contract_ref": "contract/BidSummary/sha256:bfc5c24154a34a47929c6088",
       "escape_boundaries": [],
       "fragment_class": "core",
       "inputs": [
@@ -59,7 +59,7 @@
             "name": "Decimal",
             "params": [
               {
-                "name": "0",
+                "name": "6",
                 "params": []
               }
             ]

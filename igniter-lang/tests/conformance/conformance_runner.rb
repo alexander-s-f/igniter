@@ -143,7 +143,7 @@ def compare_json(ruby_val, rust_val, path = [])
     end
   end
 
-  if %w[expr expression condition then_branch else_branch left right object body].include?(key) && ruby_val.is_a?(Hash) && rust_val.is_a?(Hash)
+  if %w[expr expression condition then_branch else_branch left right object body init].include?(key) && ruby_val.is_a?(Hash) && rust_val.is_a?(Hash)
     return compare_expression(ruby_val, rust_val)
   end
 
@@ -236,7 +236,7 @@ def map_expression_for_rust_vm(expr)
   end
 end
 
-def prepare_rust_vm_contract(igapp_path, contract_name)
+def prepare_rust_vm_contract(igapp_path, contract_name, expected_field, suffix = "")
   contract_files = Pathname.glob(Pathname.new(igapp_path) / "contracts" / "*.json")
   # Match either by exact name or snake_case conversion
   sn = contract_name.gsub(/([a-z])([A-Z])/, "\\1_\\2").downcase
@@ -245,7 +245,8 @@ def prepare_rust_vm_contract(igapp_path, contract_name)
   
   contract_json = JSON.parse(contract_file.read)
   
-  compute_node = contract_json.fetch("compute_nodes").find { |n| n.fetch("kind") == "compute" }
+  compute_node = contract_json.fetch("compute_nodes").find { |n| n.fetch("kind") == "compute" && n.fetch("name") == expected_field }
+  compute_node ||= contract_json.fetch("compute_nodes").find { |n| n.fetch("kind") == "compute" }
   expression = compute_node.fetch("expression")
   mapped_expr = map_expression_for_rust_vm(expression)
   
@@ -255,7 +256,7 @@ def prepare_rust_vm_contract(igapp_path, contract_name)
     "expression" => mapped_expr
   }
   
-  tmp_contract_path = OUT_DIR / "tmp_rust_vm_#{contract_name.downcase.gsub(/[^a-z0-9]/, '_')}.json"
+  tmp_contract_path = OUT_DIR / "tmp_rust_vm_#{contract_name.downcase.gsub(/[^a-z0-9]/, '_')}#{suffix}.json"
   tmp_contract_path.write(JSON.pretty_generate(wrapped))
   tmp_contract_path
 end
@@ -268,15 +269,37 @@ def run_rust_vm(contract_path, inputs_path)
   output
 end
 
-def parse_rust_vm_result(output)
-  if output =~ /Resulting Output: Integer\((\d+)\)/
-    $1.to_i
-  elsif output =~ /Resulting Output: Decimal \{ value: (\d+), scale: (\d+) \}/
-    { "value" => $1.to_i, "scale" => $2.to_i }
-  elsif output =~ /Resulting Output: Float\(([\d\.]+)\)/
-    $1.to_f
-  elsif output =~ /Resulting Output: Bool\((true|false)\)/
+def parse_rust_val_from_str(str)
+  str = str.strip
+  if str == "Nil"
+    nil
+  elsif str =~ /^Bool\((true|false)\)$/
     $1 == "true"
+  elsif str =~ /^Integer\((-?\d+)\)$/
+    $1.to_i
+  elsif str =~ /^Float\((-?[\d\.]+)\)$/
+    $1.to_f
+  elsif str =~ /^String\("([^"]*)"\)$/
+    $1
+  elsif str =~ /^Decimal\s*\{\s*value:\s*(-?\d+),\s*scale:\s*(\d+)\s*\}$/
+    { "value" => $1.to_i, "scale" => $2.to_i }
+  elsif str =~ /^Record\(\{(.*)\}\)$/
+    inner = $1
+    res = {}
+    if inner =~ /"ok":\s*(.*)/
+      res["ok"] = parse_rust_val_from_str($1)
+    elsif inner =~ /"err":\s*(.*)/
+      res["err"] = parse_rust_val_from_str($1)
+    end
+    res
+  else
+    nil
+  end
+end
+
+def parse_rust_vm_result(output)
+  if output =~ /Resulting Output: (.*)/
+    parse_rust_val_from_str($1)
   else
     nil
   end
@@ -337,7 +360,18 @@ TEST_CASES = [
   {
     name: "stdlib_extension",
     expected_status: "ok",
-    contracts: ["LeadConversionRate"],
+    contracts: [
+      { name: "LeadConversionRate", expected_output_field: "total_high_value_bids", expected_output_value: { "value" => 35000, "scale" => 2 } },
+      { name: "AvgStandalone", expected_output_field: "val", expected_output_value: { "value" => 13333, "scale" => 2 } },
+      { name: "AvgOptimized", expected_output_field: "val", expected_output_value: { "value" => 17500, "scale" => 2 } },
+      { name: "MinStandalone", expected_output_field: "val", expected_output_value: { "value" => 5000, "scale" => 2 } },
+      { name: "MinOptimized", expected_output_field: "val", expected_output_value: { "value" => 15000, "scale" => 2 } },
+      { name: "MaxStandalone", expected_output_field: "val", expected_output_value: { "value" => 20000, "scale" => 2 } },
+      { name: "MaxOptimized", expected_output_field: "val", expected_output_value: { "value" => 20000, "scale" => 2 } },
+      { name: "TakeLeads", expected_output_field: "val", expected_output_value: 2 },
+      { name: "FoldStandalone", expected_output_field: "val", expected_output_value: 400 },
+      { name: "FoldOptimized", expected_output_field: "val", expected_output_value: 350 }
+    ],
     inputs: {
       "leads" => [
         { "lead_id" => 1, "bid_amount" => 50, "bid_decimal" => { "value" => 5000, "scale" => 2 } },
@@ -345,9 +379,36 @@ TEST_CASES = [
         { "lead_id" => 3, "bid_amount" => 200, "bid_decimal" => { "value" => 20000, "scale" => 2 } }
       ],
       "threshold" => 100
-    },
-    expected_output_field: "total_high_value_bids",
-    expected_output_value: { "value" => 35000, "scale" => 2 }
+    }
+  },
+  {
+    name: "monadic_extension",
+    expected_status: "ok",
+    contracts: [
+      { name: "OptionWorkflow", expected_output_field: "unwrapped_mapped", expected_output_value: 30 },
+      { name: "ResultWorkflow", expected_output_field: "mapped", expected_output_value: { "ok" => 50 } },
+      { name: "ResultUnwrap", expected_output_field: "val", expected_output_value: 10 }
+    ],
+    inputs: {
+      "opt_in" => 10,
+      "res_in" => { "ok" => 10 },
+      "fallback" => 999
+    }
+  },
+  {
+    name: "monadic_extension",
+    expected_status: "ok",
+    suffix: "_fallback",
+    contracts: [
+      { name: "OptionWorkflow", expected_output_field: "unwrapped_mapped", expected_output_value: 999 },
+      { name: "ResultWorkflow", expected_output_field: "mapped", expected_output_value: { "err" => "fail" } },
+      { name: "ResultWorkflow", expected_output_field: "unwrapped_or_val", expected_output_value: 999 }
+    ],
+    inputs: {
+      "opt_in" => nil,
+      "res_in" => { "err" => "fail" },
+      "fallback" => 999
+    }
   }
 ].freeze
 
@@ -358,13 +419,16 @@ puts "#{BOLD}#{CYAN}==================================================#{RESET}\n
 
 suite_success = true
 
+filter = ENV["FOCUS"]
 TEST_CASES.each do |tc|
   case_name = tc[:name]
+  case_suffix = tc[:suffix] || ""
+  next if filter && !case_name.include?(filter) && !"#{case_name}#{case_suffix}".include?(filter)
   src_file = SOURCE_DIR / "#{case_name}.ig"
-  ruby_app = RUBY_OUT_DIR / "#{case_name}.igapp"
-  rust_app = RUST_OUT_DIR / "#{case_name}.igapp"
+  ruby_app = RUBY_OUT_DIR / "#{case_name}#{case_suffix}.igapp"
+  rust_app = RUST_OUT_DIR / "#{case_name}#{case_suffix}.igapp"
 
-  puts "#{BOLD}Case: #{case_name}#{RESET}"
+  puts "#{BOLD}Case: #{case_name}#{case_suffix}#{RESET}"
 
   # --- Compilation Phase ---
   # A. Ruby Compile
@@ -456,7 +520,11 @@ TEST_CASES.each do |tc|
     end
 
     # --- VM Parity Execution Phase ---
-    tc[:contracts].each do |contract_name|
+    tc[:contracts].each do |contract_spec|
+      contract_name = contract_spec.is_a?(Hash) ? contract_spec[:name] : contract_spec
+      expected_field = contract_spec.is_a?(Hash) ? contract_spec[:expected_output_field] : tc[:expected_output_field]
+      expected_value = contract_spec.is_a?(Hash) ? contract_spec[:expected_output_value] : tc[:expected_output_value]
+
       puts "  [*] Running VM Execution Parity for contract: #{contract_name}"
       
       # A. Run Ruby VM (via in-memory RuntimeSmoke facade)
@@ -472,23 +540,23 @@ TEST_CASES.each do |tc|
         next
       end
       
-      ruby_val = ruby_smoke.fetch("outputs").fetch(tc[:expected_output_field])
+      ruby_val = ruby_smoke.fetch("outputs").fetch(expected_field)
       puts "      Ruby VM output value: #{ruby_val.inspect}"
 
       # B. Run Rust VM
       begin
-        wrapped_contract_path = prepare_rust_vm_contract(rust_app, contract_name)
-        inputs_path = OUT_DIR / "tmp_inputs_#{case_name}.json"
+        wrapped_contract_path = prepare_rust_vm_contract(rust_app, contract_name, expected_field, case_suffix)
+        inputs_path = OUT_DIR / "tmp_inputs_#{case_name}#{case_suffix}.json"
         inputs_path.write(JSON.pretty_generate(tc[:inputs]))
         
         rust_vm_out = run_rust_vm(wrapped_contract_path, inputs_path)
         rust_val = parse_rust_vm_result(rust_vm_out)
         puts "      Rust VM output value: #{rust_val.inspect}"
         
-        if ruby_val == rust_val
+        if ruby_val == rust_val && ruby_val == expected_value
           puts "      #{GREEN}✔ VM Parity verified! Output value is: #{rust_val.inspect}#{RESET}"
         else
-          puts "      #{RED}✘ VM Output mismatch! Ruby: #{ruby_val.inspect} vs Rust: #{rust_val.inspect}#{RESET}"
+          puts "      #{RED}✘ VM Output mismatch! Expected: #{expected_value.inspect}, Ruby: #{ruby_val.inspect}, Rust: #{rust_val.inspect}#{RESET}"
           suite_success = false
         end
       rescue => e
@@ -500,8 +568,8 @@ TEST_CASES.each do |tc|
   else # expected_status == "oof"
     puts "  [*] Comparing error diagnostics and validation parity..."
     
-    ruby_report_file = RUBY_OUT_DIR / "#{case_name}.compilation_report.json"
-    rust_report_file = RUST_OUT_DIR / "#{case_name}.compilation_report.json"
+    ruby_report_file = RUBY_OUT_DIR / "#{case_name}#{case_suffix}.compilation_report.json"
+    rust_report_file = RUST_OUT_DIR / "#{case_name}#{case_suffix}.compilation_report.json"
     
     # Save Rust report since compile stdout wrote it, but let's write to file for standard verification
     rust_report_file.write(JSON.pretty_generate(rust_result))

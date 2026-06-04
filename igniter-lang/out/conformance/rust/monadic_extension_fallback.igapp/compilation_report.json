@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/793c7e03fe536c91",
+  "semantic_ir_ref": "semanticir/793c7e03fe536c91",
+  "source_hash": "sha256:793c7e03fe536c91d7c8574a36c6596b173596a9df3ee33b63b4eaba7c5704c8",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/monadic_extension.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

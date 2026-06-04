@@ -1,0 +1,1060 @@
+{
+  "compilation_report_ref": "compilation_report/793c7e03fe536c91",
+  "contracts": [
+    {
+      "contract_name": "OptionWorkflow",
+      "contract_ref": "contract/OptionWorkflow/sha256:57c7c531c7c96cd6ff3840ca",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "opt_in",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "fallback",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "opt_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "opt_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Option",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    }
+                  ]
+                }
+              }
+            ],
+            "fn": "is_some",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "is_some_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "opt_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "opt_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Option",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    }
+                  ]
+                }
+              }
+            ],
+            "fn": "is_none",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "is_none_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "opt_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "opt_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Option",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "body": {
+                  "args": [
+                    {
+                      "kind": "ref",
+                      "name": "x",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      }
+                    },
+                    {
+                      "kind": "literal",
+                      "literal_type": "int",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      },
+                      "value": 2
+                    }
+                  ],
+                  "fn": "stdlib.unsupported.*",
+                  "kind": "call",
+                  "resolved_type": {
+                    "name": "Unknown",
+                    "params": []
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "x"
+                ],
+                "resolved_type": {
+                  "name": "Unknown",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "map",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Option",
+              "params": [
+                {
+                  "name": "Unknown",
+                  "params": []
+                }
+              ]
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "mapped",
+          "type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "Unknown",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "opt_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "opt_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Option",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "body": {
+                  "args": [
+                    {
+                      "args": [
+                        {
+                          "kind": "ref",
+                          "name": "x",
+                          "resolved_type": {
+                            "name": "Integer",
+                            "params": []
+                          }
+                        },
+                        {
+                          "kind": "literal",
+                          "literal_type": "int",
+                          "resolved_type": {
+                            "name": "Integer",
+                            "params": []
+                          },
+                          "value": 10
+                        }
+                      ],
+                      "fn": "stdlib.integer.add",
+                      "kind": "call",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      }
+                    }
+                  ],
+                  "fn": "some",
+                  "kind": "call",
+                  "resolved_type": {
+                    "name": "Option",
+                    "params": [
+                      {
+                        "name": "Integer",
+                        "params": []
+                      }
+                    ]
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "x"
+                ],
+                "resolved_type": {
+                  "name": "Unknown",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "flat_map",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Option",
+              "params": [
+                {
+                  "name": "Integer",
+                  "params": []
+                }
+              ]
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "flat_mapped",
+          "type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "opt_in",
+            "fallback"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "opt_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Option",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "fallback",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "unwrap_or",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "unwrapped",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "opt_in",
+            "fallback"
+          ],
+          "expr": {
+            "args": [
+              {
+                "args": [
+                  {
+                    "kind": "ref",
+                    "name": "opt_in",
+                    "resolved_type": {
+                      "kind": "type_ref",
+                      "name": "Option",
+                      "params": [
+                        {
+                          "kind": "type_ref",
+                          "name": "Integer",
+                          "params": []
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "body": {
+                      "args": [
+                        {
+                          "kind": "ref",
+                          "name": "x",
+                          "resolved_type": {
+                            "name": "Integer",
+                            "params": []
+                          }
+                        },
+                        {
+                          "kind": "literal",
+                          "literal_type": "int",
+                          "resolved_type": {
+                            "name": "Integer",
+                            "params": []
+                          },
+                          "value": 3
+                        }
+                      ],
+                      "fn": "stdlib.unsupported.*",
+                      "kind": "call",
+                      "resolved_type": {
+                        "name": "Unknown",
+                        "params": []
+                      }
+                    },
+                    "kind": "lambda",
+                    "params": [
+                      "x"
+                    ],
+                    "resolved_type": {
+                      "name": "Unknown",
+                      "params": []
+                    }
+                  }
+                ],
+                "fn": "map",
+                "kind": "call",
+                "resolved_type": {
+                  "name": "Option",
+                  "params": [
+                    {
+                      "name": "Unknown",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "fallback",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "unwrap_or",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "unwrapped_mapped",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "is_some_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "is_none_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "mapped",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "flat_mapped",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "unwrapped",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "unwrapped_mapped",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    },
+    {
+      "contract_name": "ResultWorkflow",
+      "contract_ref": "contract/ResultWorkflow/sha256:a31519367fdcb826752585a9",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "res_in",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              },
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "fallback",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "res_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Result",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    },
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                }
+              }
+            ],
+            "fn": "is_ok",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "is_ok_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "res_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Result",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    },
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                }
+              }
+            ],
+            "fn": "is_err",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "is_err_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "res_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Result",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    },
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "body": {
+                  "args": [
+                    {
+                      "kind": "ref",
+                      "name": "x",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      }
+                    },
+                    {
+                      "kind": "literal",
+                      "literal_type": "int",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      },
+                      "value": 5
+                    }
+                  ],
+                  "fn": "stdlib.unsupported.*",
+                  "kind": "call",
+                  "resolved_type": {
+                    "name": "Unknown",
+                    "params": []
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "x"
+                ],
+                "resolved_type": {
+                  "name": "Unknown",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "map",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Result",
+              "params": [
+                {
+                  "name": "Unknown",
+                  "params": []
+                },
+                {
+                  "kind": "type_ref",
+                  "name": "String",
+                  "params": []
+                }
+              ]
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "mapped",
+          "type": {
+            "name": "Result",
+            "params": [
+              {
+                "name": "Unknown",
+                "params": []
+              },
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "res_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Result",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    },
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "body": {
+                  "args": [
+                    {
+                      "args": [
+                        {
+                          "kind": "ref",
+                          "name": "x",
+                          "resolved_type": {
+                            "name": "Integer",
+                            "params": []
+                          }
+                        },
+                        {
+                          "kind": "literal",
+                          "literal_type": "int",
+                          "resolved_type": {
+                            "name": "Integer",
+                            "params": []
+                          },
+                          "value": 100
+                        }
+                      ],
+                      "fn": "stdlib.integer.add",
+                      "kind": "call",
+                      "resolved_type": {
+                        "name": "Integer",
+                        "params": []
+                      }
+                    }
+                  ],
+                  "fn": "ok",
+                  "kind": "call",
+                  "resolved_type": {
+                    "name": "Result",
+                    "params": [
+                      {
+                        "name": "Integer",
+                        "params": []
+                      },
+                      {
+                        "name": "Unknown",
+                        "params": []
+                      }
+                    ]
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "x"
+                ],
+                "resolved_type": {
+                  "name": "Unknown",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "and_then",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Result",
+              "params": [
+                {
+                  "name": "Integer",
+                  "params": []
+                },
+                {
+                  "name": "Unknown",
+                  "params": []
+                }
+              ]
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "flat_mapped",
+          "type": {
+            "name": "Result",
+            "params": [
+              {
+                "name": "Integer",
+                "params": []
+              },
+              {
+                "name": "Unknown",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "res_in",
+            "fallback"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Result",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    },
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "fallback",
+                "resolved_type": {
+                  "name": "Integer",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "unwrap_or",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "unwrapped_or_val",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "is_ok_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "is_err_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "mapped",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              },
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "flat_mapped",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              },
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "unwrapped_or_val",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    },
+    {
+      "contract_name": "ResultUnwrap",
+      "contract_ref": "contract/ResultUnwrap/sha256:5b20f5833394f386852a59ae",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "res_in",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Integer",
+                "params": []
+              },
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "res_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in",
+                "resolved_type": {
+                  "kind": "type_ref",
+                  "name": "Result",
+                  "params": [
+                    {
+                      "kind": "type_ref",
+                      "name": "Integer",
+                      "params": []
+                    },
+                    {
+                      "kind": "type_ref",
+                      "name": "String",
+                      "params": []
+                    }
+                  ]
+                }
+              }
+            ],
+            "fn": "unwrap",
+            "kind": "call",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "val",
+          "type": {
+            "kind": "type_ref",
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "val",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "SparkCRM.Monadic",
+  "program_id": "semanticir/793c7e03fe536c91",
+  "source_hash": "sha256:793c7e03fe536c91d7c8574a36c6596b173596a9df3ee33b63b4eaba7c5704c8",
+  "source_path": "source/monadic_extension.ig"
+}

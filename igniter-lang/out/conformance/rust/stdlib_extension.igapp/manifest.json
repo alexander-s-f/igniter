@@ -1,20 +1,83 @@
 {
-  "artifact_hash": "sha256:b514b79552b530ea8bd1b811ca310ddc4fdde7feba1c78d07ab4d0958a0bc5ce",
+  "artifact_hash": "sha256:5ac499bf113b6849030c9c3b884352e409f0258416fb534a9a4a8b623dad1f24",
   "assembler": "igapp-assembler-proof-stage1-v0",
-  "compilation_report_ref": "compilation_report/e71590990c398a43",
+  "compilation_report_ref": "compilation_report/0dc6c90c0bcea929",
   "compiled_at": "2026-05-06T00:00:00Z",
   "contract_index": {
+    "AvgOptimized": {
+      "contract_path": "contracts/avg_optimized.json",
+      "contract_ref": "contract/AvgOptimized/sha256:1c02bed4258ceaebe7128c85",
+      "fragment_class": "core"
+    },
+    "AvgStandalone": {
+      "contract_path": "contracts/avg_standalone.json",
+      "contract_ref": "contract/AvgStandalone/sha256:de3d436ffecb6be51c0bb467",
+      "fragment_class": "core"
+    },
+    "FoldOptimized": {
+      "contract_path": "contracts/fold_optimized.json",
+      "contract_ref": "contract/FoldOptimized/sha256:c823acd93074f591d3347871",
+      "fragment_class": "core"
+    },
+    "FoldStandalone": {
+      "contract_path": "contracts/fold_standalone.json",
+      "contract_ref": "contract/FoldStandalone/sha256:12e14bf9d5d61f3ff152d7cc",
+      "fragment_class": "core"
+    },
     "LeadConversionRate": {
       "contract_path": "contracts/lead_conversion_rate.json",
-      "contract_ref": "contract/LeadConversionRate/sha256:bed76fb475e5cb9bcdda7c8d",
+      "contract_ref": "contract/LeadConversionRate/sha256:9c12724b3faf609efce4cb14",
+      "fragment_class": "core"
+    },
+    "MaxOptimized": {
+      "contract_path": "contracts/max_optimized.json",
+      "contract_ref": "contract/MaxOptimized/sha256:7f1d9b1c6efd8f90051720f3",
+      "fragment_class": "core"
+    },
+    "MaxStandalone": {
+      "contract_path": "contracts/max_standalone.json",
+      "contract_ref": "contract/MaxStandalone/sha256:97075b3e7830cf1339ef3060",
+      "fragment_class": "core"
+    },
+    "MinOptimized": {
+      "contract_path": "contracts/min_optimized.json",
+      "contract_ref": "contract/MinOptimized/sha256:c710525603f8afcb4f73172a",
+      "fragment_class": "core"
+    },
+    "MinStandalone": {
+      "contract_path": "contracts/min_standalone.json",
+      "contract_ref": "contract/MinStandalone/sha256:4150595efdcb5cf153ea935b",
+      "fragment_class": "core"
+    },
+    "TakeLeads": {
+      "contract_path": "contracts/take_leads.json",
+      "contract_ref": "contract/TakeLeads/sha256:f55b4995c1447bc64ce1aded",
       "fragment_class": "core"
     }
   },
   "contract_refs": {
-    "LeadConversionRate": "contract/LeadConversionRate/sha256:bed76fb475e5cb9bcdda7c8d"
+    "AvgOptimized": "contract/AvgOptimized/sha256:1c02bed4258ceaebe7128c85",
+    "AvgStandalone": "contract/AvgStandalone/sha256:de3d436ffecb6be51c0bb467",
+    "FoldOptimized": "contract/FoldOptimized/sha256:c823acd93074f591d3347871",
+    "FoldStandalone": "contract/FoldStandalone/sha256:12e14bf9d5d61f3ff152d7cc",
+    "LeadConversionRate": "contract/LeadConversionRate/sha256:9c12724b3faf609efce4cb14",
+    "MaxOptimized": "contract/MaxOptimized/sha256:7f1d9b1c6efd8f90051720f3",
+    "MaxStandalone": "contract/MaxStandalone/sha256:97075b3e7830cf1339ef3060",
+    "MinOptimized": "contract/MinOptimized/sha256:c710525603f8afcb4f73172a",
+    "MinStandalone": "contract/MinStandalone/sha256:4150595efdcb5cf153ea935b",
+    "TakeLeads": "contract/TakeLeads/sha256:f55b4995c1447bc64ce1aded"
   },
   "contracts": [
-    "LeadConversionRate"
+    "AvgOptimized",
+    "AvgStandalone",
+    "FoldOptimized",
+    "FoldStandalone",
+    "LeadConversionRate",
+    "MaxOptimized",
+    "MaxStandalone",
+    "MinOptimized",
+    "MinStandalone",
+    "TakeLeads"
   ],
   "diagnostics": [],
   "format": "igapp_dir",
@@ -36,14 +99,14 @@
   "grammar_version": "decimal-v0",
   "kind": "igapp_manifest",
   "language_version": "0.1.0",
-  "program_id": "semanticir/e71590990c398a43",
+  "program_id": "semanticir/0dc6c90c0bcea929",
   "schema_descriptor": {
     "migrations": [],
     "trait_bounds": []
   },
   "schema_version": "0.1.0",
-  "semantic_ir_ref": "semanticir/e71590990c398a43",
-  "source_hash": "sha256:e71590990c398a433bbdc5223f19b055c5e986036781a173c27f758959717313",
+  "semantic_ir_ref": "semanticir/0dc6c90c0bcea929",
+  "source_hash": "sha256:0dc6c90c0bcea9293acad04ddc37ffd2f909f7331cae0a43daa9f8c36ebb7b4a",
   "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/stdlib_extension.ig",
   "warnings": []
 }

@@ -1,0 +1,230 @@
+{
+  "artifact_hash": "sha256:e4482aad8f81a9b068add5e1e9cb562fff17c575abf7459d5f24161ea755ef54",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:res_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_in"
+          }
+        ],
+        "operator": "is_ok"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "is_ok_val",
+      "node_id": "node_is_ok_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:res_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_in"
+          }
+        ],
+        "operator": "is_err"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "is_err_val",
+      "node_id": "node_is_err_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:res_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_in"
+          },
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "kind": "ref",
+                "name": "x"
+              },
+              "op": "*",
+              "right": {
+                "kind": "literal",
+                "type_tag": "Integer",
+                "value": 5
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "x"
+            ]
+          }
+        ],
+        "operator": "map"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "mapped",
+      "node_id": "node_mapped",
+      "obs_kind": "value_observation",
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "dependencies": [
+        "input:res_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_in"
+          },
+          {
+            "body": {
+              "args": [
+                {
+                  "kind": "binary_op",
+                  "left": {
+                    "kind": "ref",
+                    "name": "x"
+                  },
+                  "op": "+",
+                  "right": {
+                    "kind": "literal",
+                    "type_tag": "Integer",
+                    "value": 100
+                  }
+                }
+              ],
+              "fn": "ok",
+              "kind": "call"
+            },
+            "kind": "lambda",
+            "params": [
+              "x"
+            ]
+          }
+        ],
+        "operator": "and_then"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "flat_mapped",
+      "node_id": "node_flat_mapped",
+      "obs_kind": "value_observation",
+      "type_tag": "Result[Integer,Unknown]"
+    },
+    {
+      "dependencies": [
+        "input:fallback",
+        "input:res_in"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "res_in"
+          },
+          {
+            "kind": "ref",
+            "name": "fallback"
+          }
+        ],
+        "operator": "unwrap_or"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "unwrapped_or_val",
+      "node_id": "node_unwrapped_or_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "ResultWorkflow",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "res_in",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "fallback",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "ResultWorkflow",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "is_ok_val",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "is_err_val",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "mapped",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "flat_mapped",
+      "required": true,
+      "type_tag": "Result[Integer,String]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "unwrapped_or_val",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/ResultWorkflow/sha256:f7553197a6f63f00b9ac4de6",
+  "type_signature": {
+    "inputs": {
+      "fallback": "Integer",
+      "res_in": "Result[Integer,String]"
+    },
+    "outputs": {
+      "flat_mapped": "Result[Integer,String]",
+      "is_err_val": "Bool",
+      "is_ok_val": "Bool",
+      "mapped": "Result[Integer,String]",
+      "unwrapped_or_val": "Integer"
+    }
+  }
+}

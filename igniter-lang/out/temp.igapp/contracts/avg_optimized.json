@@ -1,0 +1,126 @@
+{
+  "artifact_hash": "sha256:a7a2fd9cec9360c73a4707c22536bdebc6616c48ac0752ac6180ce552d3fe4f1",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:leads",
+        "input:threshold"
+      ],
+      "expression": {
+        "kind": "map_reduce_aggregate",
+        "pipeline": [
+          {
+            "body": {
+              "kind": "apply",
+              "operands": [
+                {
+                  "field": "bid_amount",
+                  "kind": "field_access",
+                  "object": {
+                    "kind": "ref",
+                    "name": "l",
+                    "resolved_type": {
+                      "name": "Integer",
+                      "params": []
+                    }
+                  },
+                  "resolved_type": {
+                    "name": "Unknown",
+                    "params": []
+                  }
+                },
+                {
+                  "kind": "ref",
+                  "name": "threshold",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  }
+                }
+              ],
+              "operator": "stdlib.integer.gt",
+              "resolved_type": {
+                "name": "Bool",
+                "params": []
+              }
+            },
+            "kind": "filter",
+            "param": "l"
+          },
+          {
+            "field": "bid_decimal",
+            "kind": "avg"
+          }
+        ],
+        "resolved_type": {
+          "name": "Option",
+          "params": [
+            {
+              "name": "Decimal",
+              "params": []
+            }
+          ]
+        },
+        "source": {
+          "kind": "ref",
+          "name": "leads",
+          "resolved_type": {
+            "kind": "type_ref",
+            "name": "Collection",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "Lead",
+                "params": []
+              }
+            ]
+          }
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "val",
+      "node_id": "node_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[Decimal]"
+    }
+  ],
+  "contract_id": "AvgOptimized",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "leads",
+      "required": true,
+      "type_tag": "Collection[Lead]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "threshold",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "AvgOptimized",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "val",
+      "required": true,
+      "type_tag": "Option[Decimal[2]]"
+    }
+  ],
+  "source_contract_ref": "contract/AvgOptimized/sha256:0c56ecb727b331acc84bafa5",
+  "type_signature": {
+    "inputs": {
+      "leads": "Collection[Lead]",
+      "threshold": "Integer"
+    },
+    "outputs": {
+      "val": "Option[Decimal[2]]"
+    }
+  }
+}

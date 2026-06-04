@@ -39,3 +39,61 @@ contract LeadConversionRate {
 
   output total_high_value_bids: Decimal[2]
 }
+
+contract AvgStandalone {
+  input leads: Collection[Lead]
+  compute val = avg(leads, :bid_decimal)
+  output val: Option[Decimal[2]]
+}
+
+contract AvgOptimized {
+  input leads: Collection[Lead]
+  input threshold: Integer
+  compute val = avg(filter(leads, l -> l.bid_amount > threshold), :bid_decimal)
+  output val: Option[Decimal[2]]
+}
+
+contract MinStandalone {
+  input leads: Collection[Lead]
+  compute val = min(leads, :bid_decimal)
+  output val: Option[Decimal[2]]
+}
+
+contract MinOptimized {
+  input leads: Collection[Lead]
+  input threshold: Integer
+  compute val = min(filter(leads, l -> l.bid_amount > threshold), :bid_decimal)
+  output val: Option[Decimal[2]]
+}
+
+contract MaxStandalone {
+  input leads: Collection[Lead]
+  compute val = max(leads, :bid_decimal)
+  output val: Option[Decimal[2]]
+}
+
+contract MaxOptimized {
+  input leads: Collection[Lead]
+  input threshold: Integer
+  compute val = max(filter(leads, l -> l.bid_amount > threshold), :bid_decimal)
+  output val: Option[Decimal[2]]
+}
+
+contract TakeLeads {
+  input leads: Collection[Lead]
+  compute val = count(take(leads, 2))
+  output val: Integer
+}
+
+contract FoldStandalone {
+  input leads: Collection[Lead]
+  compute val = fold(leads, 0, (acc, l) -> acc + l.bid_amount)
+  output val: Integer
+}
+
+contract FoldOptimized {
+  input leads: Collection[Lead]
+  input threshold: Integer
+  compute val = fold(filter(leads, l -> l.bid_amount > threshold), 0, (acc, l) -> acc + l.bid_amount)
+  output val: Integer
+}

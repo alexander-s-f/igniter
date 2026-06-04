@@ -1,0 +1,428 @@
+
+[1m[36m==================================================[0m
+[1m[36m         IGNITER-LANG CONFORMANCE SUITE           [0m
+[1m[36m==================================================[0m
+[1mCase: add[0m
+  [*] Compiling with Ruby compiler...
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+      Ruby compile status: [32mok[0m
+  [*] Compiling with Rust compiler...
+      Rust compile status: [32mok[0m
+  [*] Comparing generated `.igapp` structure and file contents...
+      [32m✔ AST & Manifest Parity Verified![0m
+  [*] Running VM Execution Parity for contract: Add
+      Ruby VM output value: 42
+      Rust VM output value: 42
+      [32m✔ VM Parity verified! Output value is: 42[0m
+--------------------------------------------------
+[1mCase: decimal_contract[0m
+  [*] Compiling with Ruby compiler...
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+      Ruby compile status: [32mok[0m
+  [*] Compiling with Rust compiler...
+      Rust compile status: [32mok[0m
+  [*] Comparing generated `.igapp` structure and file contents...
+      [31m✘ AST or Manifest Structural Parity Failed![0m
+  [*] Running VM Execution Parity for contract: BidSummary
+      Ruby VM output value: {"value"=>525000, "scale"=>6}
+      Rust VM output value: {"value"=>525000, "scale"=>6}
+      [32m✔ VM Parity verified! Output value is: {"value"=>525000, "scale"=>6}[0m
+--------------------------------------------------
+[1mCase: vendor_lead_pipeline[0m
+  [*] Compiling with Ruby compiler...
+      Ruby compile status: [32mok[0m
+  [*] Compiling with Rust compiler...
+      Rust compile status: [32mok[0m
+  [*] Comparing generated `.igapp` structure and file contents...
+      [32m✔ AST & Manifest Parity Verified![0m
+--------------------------------------------------
+[1mCase: availability_projection[0m
+  [*] Compiling with Ruby compiler...
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+      Ruby compile status: [32mok[0m
+  [*] Compiling with Rust compiler...
+      Rust compile status: [32mok[0m
+  [*] Comparing generated `.igapp` structure and file contents...
+      [32m✔ AST & Manifest Parity Verified![0m
+--------------------------------------------------
+[1mCase: tenant_availability_projection[0m
+  [*] Compiling with Ruby compiler...
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+      Ruby compile status: [32mok[0m
+  [*] Compiling with Rust compiler...
+      Rust compile status: [32mok[0m
+  [*] Comparing generated `.igapp` structure and file contents...
+      [32m✔ AST & Manifest Parity Verified![0m
+--------------------------------------------------
+[1mCase: polymorphic_add[0m
+  [*] Compiling with Ruby compiler...
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+      Ruby compile status: [32mok[0m
+  [*] Compiling with Rust compiler...
+      Rust compile status: [32mok[0m
+  [*] Comparing generated `.igapp` structure and file contents...
+      [32m✔ AST & Manifest Parity Verified![0m
+  [*] Running VM Execution Parity for contract: Add[Integer]
+DEBUG: emitted_contract_ids = ["Add[Float]", "Add[Integer]"]
+DEBUG: loadable_contracts = ["Add[Float]", "Add[Integer]"]
+DEBUG: emitted_contract_ids = ["Add[Float]", "Add[Integer]"]
+DEBUG: loadable_contracts = ["Add[Float]", "Add[Integer]"]
+      Ruby VM output value: 42
+      Rust VM output value: 42
+      [32m✔ VM Parity verified! Output value is: 42[0m
+--------------------------------------------------
+[1mCase: nested_associated[0m
+  [*] Compiling with Ruby compiler...
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+      Ruby compile status: [32mok[0m
+  [*] Compiling with Rust compiler...
+      Rust compile status: [32mok[0m
+  [*] Comparing generated `.igapp` structure and file contents...
+      [32m✔ AST & Manifest Parity Verified![0m
+  [*] Running VM Execution Parity for contract: Wrap[Option[Integer]]
+DEBUG: emitted_contract_ids = ["Wrap[Option[Integer]]"]
+DEBUG: loadable_contracts = ["Wrap[Option[Integer]]"]
+DEBUG: emitted_contract_ids = ["Wrap[Option[Integer]]"]
+DEBUG: loadable_contracts = ["Wrap[Option[Integer]]"]
+      Ruby VM output value: 42
+      Rust VM output value: 42
+      [32m✔ VM Parity verified! Output value is: 42[0m
+--------------------------------------------------
+[1mCase: stdlib_extension[0m
+  [*] Compiling with Ruby compiler...
+DEBUG: Ruby infer_expr called for kind: if_expr
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: if_expr
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: if_expr
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: field_access
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: if_expr
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: field_access
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: field_access
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: symbol
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: symbol
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: symbol
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: symbol
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: symbol
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: symbol
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: field_access
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: symbol
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: symbol
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: field_access
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: symbol
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: symbol
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: field_access
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: symbol
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: field_access
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: field_access
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: field_access
+DEBUG: Ruby infer_expr called for kind: ref
+      Ruby compile status: [32mok[0m
+  [*] Compiling with Rust compiler...
+      Rust compile status: [32mok[0m
+  [*] Comparing generated `.igapp` structure and file contents...
+      [31m✘ AST or Manifest Structural Parity Failed![0m
+  [*] Running VM Execution Parity for contract: LeadConversionRate
+      Ruby VM output value: {"value"=>35000, "scale"=>2}
+      Rust VM output value: {"value"=>35000, "scale"=>2}
+      [32m✔ VM Parity verified! Output value is: {"value"=>35000, "scale"=>2}[0m
+  [*] Running VM Execution Parity for contract: AvgStandalone
+      Ruby VM output value: {"value"=>13333, "scale"=>2}
+      Rust VM output value: {"value"=>13333, "scale"=>2}
+      [32m✔ VM Parity verified! Output value is: {"value"=>13333, "scale"=>2}[0m
+  [*] Running VM Execution Parity for contract: AvgOptimized
+      Ruby VM output value: {"value"=>17500, "scale"=>2}
+      Rust VM output value: {"value"=>17500, "scale"=>2}
+      [32m✔ VM Parity verified! Output value is: {"value"=>17500, "scale"=>2}[0m
+  [*] Running VM Execution Parity for contract: MinStandalone
+      Ruby VM output value: {"value"=>5000, "scale"=>2}
+      Rust VM output value: {"value"=>5000, "scale"=>2}
+      [32m✔ VM Parity verified! Output value is: {"value"=>5000, "scale"=>2}[0m
+  [*] Running VM Execution Parity for contract: MinOptimized
+      Ruby VM output value: {"value"=>15000, "scale"=>2}
+      Rust VM output value: {"value"=>15000, "scale"=>2}
+      [32m✔ VM Parity verified! Output value is: {"value"=>15000, "scale"=>2}[0m
+  [*] Running VM Execution Parity for contract: MaxStandalone
+      Ruby VM output value: {"value"=>20000, "scale"=>2}
+      Rust VM output value: {"value"=>20000, "scale"=>2}
+      [32m✔ VM Parity verified! Output value is: {"value"=>20000, "scale"=>2}[0m
+  [*] Running VM Execution Parity for contract: MaxOptimized
+      Ruby VM output value: {"value"=>20000, "scale"=>2}
+      Rust VM output value: {"value"=>20000, "scale"=>2}
+      [32m✔ VM Parity verified! Output value is: {"value"=>20000, "scale"=>2}[0m
+  [*] Running VM Execution Parity for contract: TakeLeads
+      Ruby VM output value: 2
+      Rust VM output value: 2
+      [32m✔ VM Parity verified! Output value is: 2[0m
+  [*] Running VM Execution Parity for contract: FoldStandalone
+      Ruby VM output value: 400
+      Rust VM output value: 400
+      [32m✔ VM Parity verified! Output value is: 400[0m
+  [*] Running VM Execution Parity for contract: FoldOptimized
+      Ruby VM output value: 350
+      Rust VM output value: 350
+      [32m✔ VM Parity verified! Output value is: 350[0m
+--------------------------------------------------
+[1mCase: monadic_extension[0m
+  [*] Compiling with Ruby compiler...
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+      Ruby compile status: [32mok[0m
+  [*] Compiling with Rust compiler...
+      Rust compile status: [32mok[0m
+  [*] Comparing generated `.igapp` structure and file contents...
+      [32m✔ AST & Manifest Parity Verified![0m
+  [*] Running VM Execution Parity for contract: OptionWorkflow
+      Ruby VM output value: 30
+      Rust VM output value: 30
+      [32m✔ VM Parity verified! Output value is: 30[0m
+  [*] Running VM Execution Parity for contract: ResultWorkflow
+      Ruby VM output value: {"ok"=>50}
+      Rust VM output value: {"ok"=>50}
+      [32m✔ VM Parity verified! Output value is: {"ok"=>50}[0m
+  [*] Running VM Execution Parity for contract: ResultUnwrap
+      Ruby VM output value: 10
+      Rust VM output value: 10
+      [32m✔ VM Parity verified! Output value is: 10[0m
+--------------------------------------------------
+[1mCase: monadic_extension_fallback[0m
+  [*] Compiling with Ruby compiler...
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: lambda
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: binary_op
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: literal
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: ref
+DEBUG: Ruby infer_expr called for kind: call
+DEBUG: Ruby infer_expr called for kind: ref
+      Ruby compile status: [32mok[0m
+  [*] Compiling with Rust compiler...
+      Rust compile status: [32mok[0m
+  [*] Comparing generated `.igapp` structure and file contents...
+      [32m✔ AST & Manifest Parity Verified![0m
+  [*] Running VM Execution Parity for contract: OptionWorkflow
+      Ruby VM output value: 999
+      Rust VM output value: 999
+      [32m✔ VM Parity verified! Output value is: 999[0m
+  [*] Running VM Execution Parity for contract: ResultWorkflow
+      Ruby VM output value: {"err"=>"fail"}
+      Rust VM output value: {"err"=>"fail"}
+      [32m✔ VM Parity verified! Output value is: {"err"=>"fail"}[0m
+  [*] Running VM Execution Parity for contract: ResultWorkflow
+      Ruby VM output value: 999
+      Rust VM output value: 999
+      [32m✔ VM Parity verified! Output value is: 999[0m
+--------------------------------------------------
+[1m[31m✘ SOME CONFORMANCE TESTS FAILED![0m
+

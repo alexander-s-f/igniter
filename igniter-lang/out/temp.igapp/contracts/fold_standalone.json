@@ -1,0 +1,127 @@
+{
+  "artifact_hash": "sha256:a7a2fd9cec9360c73a4707c22536bdebc6616c48ac0752ac6180ce552d3fe4f1",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:leads"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "leads",
+            "resolved_type": {
+              "kind": "type_ref",
+              "name": "Collection",
+              "params": [
+                {
+                  "kind": "type_ref",
+                  "name": "Lead",
+                  "params": []
+                }
+              ]
+            }
+          },
+          {
+            "kind": "literal",
+            "literal_type": "int",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            },
+            "type_tag": "Integer",
+            "value": 0
+          },
+          {
+            "body": {
+              "kind": "apply",
+              "operands": [
+                {
+                  "kind": "ref",
+                  "name": "acc",
+                  "resolved_type": {
+                    "name": "Integer",
+                    "params": []
+                  }
+                },
+                {
+                  "field": "bid_amount",
+                  "kind": "field_access",
+                  "object": {
+                    "kind": "ref",
+                    "name": "l",
+                    "resolved_type": {
+                      "name": "Integer",
+                      "params": []
+                    }
+                  },
+                  "resolved_type": {
+                    "name": "Unknown",
+                    "params": []
+                  }
+                }
+              ],
+              "operator": "stdlib.integer.add",
+              "resolved_type": {
+                "name": "Integer",
+                "params": []
+              }
+            },
+            "kind": "lambda",
+            "params": [
+              "acc",
+              "l"
+            ],
+            "resolved_type": {
+              "name": "Unknown",
+              "params": []
+            }
+          }
+        ],
+        "operator": "fold",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "val",
+      "node_id": "node_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    }
+  ],
+  "contract_id": "FoldStandalone",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "leads",
+      "required": true,
+      "type_tag": "Collection[Lead]"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "FoldStandalone",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "val",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "source_contract_ref": "contract/FoldStandalone/sha256:2b570a399971fa0c7a7f7c16",
+  "type_signature": {
+    "inputs": {
+      "leads": "Collection[Lead]"
+    },
+    "outputs": {
+      "val": "Integer"
+    }
+  }
+}

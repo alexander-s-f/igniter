@@ -1,0 +1,89 @@
+{
+  "artifact_hash": "sha256:5ac499bf113b6849030c9c3b884352e409f0258416fb534a9a4a8b623dad1f24",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:leads",
+        "input:threshold"
+      ],
+      "expression": {
+        "kind": "map_reduce_aggregate",
+        "pipeline": [
+          {
+            "body": {
+              "kind": "binary_op",
+              "left": {
+                "field": "bid_amount",
+                "kind": "field_access",
+                "object": {
+                  "kind": "ref",
+                  "name": "l"
+                }
+              },
+              "op": ">",
+              "right": {
+                "kind": "ref",
+                "name": "threshold"
+              }
+            },
+            "kind": "filter",
+            "param": "l"
+          },
+          {
+            "field": "bid_decimal",
+            "kind": "avg"
+          }
+        ],
+        "source": {
+          "kind": "ref",
+          "name": "leads"
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "val",
+      "node_id": "node_val",
+      "obs_kind": "value_observation",
+      "type_tag": "Option[Decimal[2]]"
+    }
+  ],
+  "contract_id": "AvgOptimized",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "leads",
+      "required": true,
+      "type_tag": "Collection[Lead]"
+    },
+    {
+      "lifecycle": "local",
+      "name": "threshold",
+      "required": true,
+      "type_tag": "Integer"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "AvgOptimized",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "val",
+      "required": true,
+      "type_tag": "Option[Decimal[2]]"
+    }
+  ],
+  "source_contract_ref": "contract/AvgOptimized/sha256:1c02bed4258ceaebe7128c85",
+  "type_signature": {
+    "inputs": {
+      "leads": "Collection[Lead]",
+      "threshold": "Integer"
+    },
+    "outputs": {
+      "val": "Option[Decimal[2]]"
+    }
+  }
+}

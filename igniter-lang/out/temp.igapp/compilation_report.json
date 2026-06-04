@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "decimal-v0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/0dc6c90c0bcea929",
+  "semantic_ir_ref": "semanticir/0dc6c90c0bcea929",
+  "source_hash": "sha256:0dc6c90c0bcea9293acad04ddc37ffd2f909f7331cae0a43daa9f8c36ebb7b4a",
+  "source_path": "source/stdlib_extension.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

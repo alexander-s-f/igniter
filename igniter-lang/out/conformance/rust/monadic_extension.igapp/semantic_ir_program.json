@@ -1,0 +1,641 @@
+{
+  "compilation_report_ref": "compilation_report/793c7e03fe536c91",
+  "contracts": [
+    {
+      "contract_name": "OptionWorkflow",
+      "contract_ref": "contract/OptionWorkflow/sha256:49fd0db9d03ff7ecdade1d48",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "opt_in",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              "Integer"
+            ]
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "fallback",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "opt_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "opt_in"
+              }
+            ],
+            "fn": "is_some",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "is_some_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "opt_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "opt_in"
+              }
+            ],
+            "fn": "is_none",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "is_none_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "opt_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "opt_in"
+              },
+              {
+                "body": {
+                  "kind": "binary_op",
+                  "left": {
+                    "kind": "ref",
+                    "name": "x"
+                  },
+                  "op": "*",
+                  "right": {
+                    "kind": "literal",
+                    "type_tag": "Integer",
+                    "value": 2
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "x"
+                ]
+              }
+            ],
+            "fn": "map",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "mapped",
+          "type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "opt_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "opt_in"
+              },
+              {
+                "body": {
+                  "args": [
+                    {
+                      "kind": "binary_op",
+                      "left": {
+                        "kind": "ref",
+                        "name": "x"
+                      },
+                      "op": "+",
+                      "right": {
+                        "kind": "literal",
+                        "type_tag": "Integer",
+                        "value": 10
+                      }
+                    }
+                  ],
+                  "fn": "some",
+                  "kind": "call"
+                },
+                "kind": "lambda",
+                "params": [
+                  "x"
+                ]
+              }
+            ],
+            "fn": "flat_map",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "flat_mapped",
+          "type": {
+            "name": "Option",
+            "params": [
+              {
+                "name": "Integer",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "fallback",
+            "opt_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "opt_in"
+              },
+              {
+                "kind": "ref",
+                "name": "fallback"
+              }
+            ],
+            "fn": "unwrap_or",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "unwrapped",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "fallback",
+            "opt_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "args": [
+                  {
+                    "kind": "ref",
+                    "name": "opt_in"
+                  },
+                  {
+                    "body": {
+                      "kind": "binary_op",
+                      "left": {
+                        "kind": "ref",
+                        "name": "x"
+                      },
+                      "op": "*",
+                      "right": {
+                        "kind": "literal",
+                        "type_tag": "Integer",
+                        "value": 3
+                      }
+                    },
+                    "kind": "lambda",
+                    "params": [
+                      "x"
+                    ]
+                  }
+                ],
+                "fn": "map",
+                "kind": "call"
+              },
+              {
+                "kind": "ref",
+                "name": "fallback"
+              }
+            ],
+            "fn": "unwrap_or",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "unwrapped_mapped",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "is_some_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "is_none_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "mapped",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              "Integer"
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "flat_mapped",
+          "type": {
+            "kind": "type_ref",
+            "name": "Option",
+            "params": [
+              "Integer"
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "unwrapped",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "unwrapped_mapped",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    },
+    {
+      "contract_name": "ResultWorkflow",
+      "contract_ref": "contract/ResultWorkflow/sha256:f7553197a6f63f00b9ac4de6",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "res_in",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              "Integer",
+              "String"
+            ]
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "fallback",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "res_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in"
+              }
+            ],
+            "fn": "is_ok",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "is_ok_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "res_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in"
+              }
+            ],
+            "fn": "is_err",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "is_err_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "res_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in"
+              },
+              {
+                "body": {
+                  "kind": "binary_op",
+                  "left": {
+                    "kind": "ref",
+                    "name": "x"
+                  },
+                  "op": "*",
+                  "right": {
+                    "kind": "literal",
+                    "type_tag": "Integer",
+                    "value": 5
+                  }
+                },
+                "kind": "lambda",
+                "params": [
+                  "x"
+                ]
+              }
+            ],
+            "fn": "map",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "mapped",
+          "type": {
+            "name": "Result",
+            "params": [
+              {
+                "name": "Integer",
+                "params": []
+              },
+              {
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "res_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in"
+              },
+              {
+                "body": {
+                  "args": [
+                    {
+                      "kind": "binary_op",
+                      "left": {
+                        "kind": "ref",
+                        "name": "x"
+                      },
+                      "op": "+",
+                      "right": {
+                        "kind": "literal",
+                        "type_tag": "Integer",
+                        "value": 100
+                      }
+                    }
+                  ],
+                  "fn": "ok",
+                  "kind": "call"
+                },
+                "kind": "lambda",
+                "params": [
+                  "x"
+                ]
+              }
+            ],
+            "fn": "and_then",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "flat_mapped",
+          "type": {
+            "name": "Result",
+            "params": [
+              {
+                "name": "Integer",
+                "params": []
+              },
+              {
+                "name": "Unknown",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "fallback",
+            "res_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in"
+              },
+              {
+                "kind": "ref",
+                "name": "fallback"
+              }
+            ],
+            "fn": "unwrap_or",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "unwrapped_or_val",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "is_ok_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "is_err_val",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "mapped",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              "Integer",
+              "String"
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "flat_mapped",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              "Integer",
+              "String"
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "unwrapped_or_val",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    },
+    {
+      "contract_name": "ResultUnwrap",
+      "contract_ref": "contract/ResultUnwrap/sha256:ee094ed7bd3ca44de7e93660",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "res_in",
+          "type": {
+            "kind": "type_ref",
+            "name": "Result",
+            "params": [
+              "Integer",
+              "String"
+            ]
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "res_in"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "res_in"
+              }
+            ],
+            "fn": "unwrap",
+            "kind": "call"
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "val",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "val",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "SparkCRM.Monadic",
+  "program_id": "semanticir/793c7e03fe536c91",
+  "source_hash": "sha256:793c7e03fe536c91d7c8574a36c6596b173596a9df3ee33b63b4eaba7c5704c8",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/monadic_extension.ig"
+}

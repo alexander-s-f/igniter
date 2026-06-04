@@ -1,0 +1,40 @@
+{
+  "contract_id": "MaxOptimized",
+  "inputs": [
+    "leads",
+    "threshold"
+  ],
+  "expression": {
+    "kind": "map_reduce_aggregate",
+    "pipeline": [
+      {
+        "body": {
+          "kind": "binary_op",
+          "left": {
+            "field": "bid_amount",
+            "kind": "field_access",
+            "object": {
+              "kind": "ref",
+              "name": "l"
+            }
+          },
+          "op": ">",
+          "right": {
+            "kind": "ref",
+            "name": "threshold"
+          }
+        },
+        "kind": "filter",
+        "param": "l"
+      },
+      {
+        "field": "bid_decimal",
+        "kind": "max"
+      }
+    ],
+    "source": {
+      "kind": "ref",
+      "name": "leads"
+    }
+  }
+}
