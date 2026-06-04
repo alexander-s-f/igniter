@@ -137,6 +137,11 @@ finite by collection size, finite by structural variant, finite by fuel,
 convergent by metric, or alive by liveness (service loop). There is no general
 recursion and no unbounded loop.
 
+Managed local loop and recursion language belongs to a future PROP-039+ or later
+proposal. Service-loop liveness maps through PROP-037 progression descriptors.
+No source-level loop/recursion implementation or proof fixture is implied by
+this Covenant wording.
+
 ### Postulate 15 — Timeout Is Not Failure
 
 A timeout waiting for an external system is `UnknownExternalOutcome`, not
@@ -489,7 +494,8 @@ compensation path, and with a complete receipt trail. It does not fail silently.
 - Hidden effects (all must be declared in modifier + Effect Surface)
 - Silent type erasure (`Any` at boundaries)
 - Implicit side effects in pure contracts
-- `now()` anywhere — time must enter as explicit input or tick binding (OOF-M1; see CL-4)
+- `now()` anywhere — time must enter as explicit input or tick binding (see Ch8
+  `OOF-L6`; this Covenant cross-reference does not mint a new OOF registry code)
 - Non-idempotent operations under automatic retry
 - Unbounded loops (every repetition has a class)
 - Simulated receipts masquerading as real (separate types)
@@ -517,7 +523,7 @@ compensation path, and with a complete receipt trail. It does not fail silently.
 | 11 | ch10 (observed modifier) | PROP-031 | ✅ | `planned PROP` (PROP-035 required-field enforcement) |
 | 12 | ch10 (observed modifier) | PROP-031 | ✅ | `planned PROP` (PROP-035 receipt type enforcement) |
 | 13 | ch10 (observed modifier) | PROP-031 | ✅ | `enforced` (classifier fragment class) |
-| 14 | ch13 (Managed Recursion) | PROP-037+ | pending | `planned PROP` |
+| 14 | ch13 (Managed Recursion) | PROP-039+ or later; PROP-037 for service liveness | pending | `planned PROP` |
 | 15 | ch12 (failure taxonomy) | PROP-035 | pending | `planned PROP` |
 | 18 | ch10 (pure/irreversible separation) | PROP-031 | ✅ | `enforced` |
 | 21 | ch12 (Effect Surface, all fields) | PROP-035 | pending | `planned PROP` |
@@ -527,7 +533,7 @@ compensation path, and with a complete receipt trail. It does not fail silently.
 | 25 | Gap-J (constraints block) | TBD | open | `spec_candidate` |
 | 26 | Gap-N (audit contract/pattern) | TBD | open | `spec_candidate` |
 | 27 | Axiom 2 (Accountability) — all surfaces | — | Covenant governing | `doctrine-only` |
-| 28 | Governance: unnamed block rule | PROP-035 + PROP-037+ | partial | `partial` — see enforcement registry |
+| 28 | Governance: unnamed block rule | PROP-035 + PROP-039+ loop-class routing | partial | `partial` — see enforcement registry |
 
 ---
 
@@ -567,7 +573,7 @@ a formal status to every postulate and defines the rule for new additions.
 |-----------|----------------|-------------------|-----------------|
 | P1 | Contracts are dependency graphs, not sequences | `enforced` | GraphCompiler validates DAG; DSL rejects imperative sequences |
 | P2 | Every computation declares its dependencies | `enforced` | Compiler requires explicit `depends_on:`/`with:` on all compute nodes |
-| P3 | Time is an explicit parameter (`as_of: DateTime`) | `enforced` | TEMPORAL fragment (PROP-022 ✅); History[T] requires `as_of` input; `now()` forbidden (OOF-M1) |
+| P3 | Time is an explicit parameter (`as_of: DateTime`) | `enforced` | TEMPORAL fragment (PROP-022 ✅); History[T] requires `as_of` input; source-level `now()` forbidden (Ch8 `OOF-L6` wording anchor) |
 | P4 | Every side effect is named (`escape` modifier) | `planned PROP` | PROP-035 (Effect Surface); effect declaration not yet enforced as required field on all I/O |
 | P5 | Contract outputs are immutable values | `enforced` | Frozen CompiledGraph; append-only history type; no mutation API at runtime |
 | P6 | Every output carries a provenance chain (`evidence []`) | `planned PROP` | PROP-033 — evidence chains at composition boundaries; not yet enforced at output declaration |
@@ -578,7 +584,7 @@ a formal status to every postulate and defines the rule for new additions.
 | P11 | Uncertainty is a required typed field, not silently dropped | `planned PROP` | PROP-035 — required-field enforcement on observation types; PROP-031 ✅ classifies modifier |
 | P12 | Simulated receipts are a different type from real receipts | `planned PROP` | PROP-031 ✅ classifies fragment; PROP-035 enforces type incompatibility at contract boundaries |
 | P13 | Real / model / human observations are distinct types | `enforced` | PROP-031 ✅ — classifier assigns fragment class; modifier system enforces distinction at classification |
-| P14 | Every repetition belongs to a loop class with a compiler-verified contract | `planned PROP` | PROP-037+ (Managed Recursion placeholder; PROP-036 is reserved for `compiler_profile_id`) |
+| P14 | Every repetition belongs to a loop class with a compiler-verified contract | `planned PROP` | PROP-039+ or later for managed local recursion / loop classes; PROP-037 owns service-liveness progression descriptors |
 | P15 | Timeout is `UnknownExternalOutcome`, not `ObservedFailure` | `planned PROP` | PROP-035 — failure taxonomy with distinct types |
 | P16 | Non-idempotent operations under retry are a compile error | `planned PROP` | PROP-035 — idempotency key requirement on retry-enabled profiles |
 | P17 | Irreversible contracts name their compensation or declare `no_compensation` | `planned PROP` | PROP-035 — `compensation:` required field on irreversible contracts |
@@ -605,7 +611,7 @@ surfaces because some have no compiler implementation yet.
 |------------|-------------------|---------------------|-----------------|
 | `invariant` block | Must have a name; referenced in violation observation receipts | **`enforced`** — parser requires name; unnamed `invariant` is a parse error today | Already enforced; anchor: parser spec |
 | `escape` declaration | Must be named; referenced in `escape_boundaries` of receipts | **Unknown** — Compiler/Grammar Expert must verify (OQ-P28-1 below) | `planned PROP` — PROP-035 (Effect Surface) should formalize naming requirement |
-| Loop class declaration | Must be named; referenced in managed loop contract | **N/A** — loop classes not yet implemented | `planned PROP` — PROP-037+ (Managed Recursion placeholder); naming requirement must be explicit in the eventual PROP draft |
+| Loop class declaration | Must be named; referenced in managed loop contract | **N/A** — loop classes not yet implemented | `planned PROP` — PROP-039+ or later; naming requirement must be explicit in the eventual managed local recursion / loop-class PROP draft |
 | `assumptions {}` block | Must be named; carried through `evidence []` chain | **N/A** — Gap-H not yet implemented | `planned PROP` — PROP-032 (Gap-H); `uses assumptions NAME` syntax enforces naming |
 | `constraints {}` block | Must be named; carried through `constraint_hash` | **N/A** — Gap-J not yet implemented | `spec_candidate` → `planned PROP` when Gap-J PROP is queued |
 
@@ -652,9 +658,9 @@ is a first-class PROP-035 acceptance criterion, not a later errata.
 Question for Compiler/Grammar Expert: should PROP-035 be the home for escape naming
 enforcement, or should a separate escape-naming-enforcement PROP be filed?
 
-**OQ-P28-3 — PROP-037+ loop class naming**
+**OQ-P28-3 — PROP-039+ loop class naming**
 
-When the future PROP-037+ Managed Recursion proposal is drafted, the loop class
+When the future PROP-039+ Managed Recursion proposal is drafted, the loop class
 naming requirement from P28 must be an explicit acceptance condition in the PROP.
 No unnamed loop class may carry a managed-loop contract.
 

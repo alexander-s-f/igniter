@@ -122,6 +122,12 @@ day_of_week(d: Date) -> Integer
 now() -> DateTime    -- OOF-L6: use TemporalCtx.as_of instead
 ```
 
+`OOF-L6` is the current source-level wording anchor for ambient-clock refusal.
+This cross-reference does not mint a new OOF registry code. In managed
+loop/service-loop design text, event time must enter through an explicit
+TemporalCtx-style input or a materialized event binding such as `tick.time`, not
+through `now()`.
+
 ---
 
 ## 8.7 Aggregate Observations (PROP-013 §Aggregate Observations)

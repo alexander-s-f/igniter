@@ -144,6 +144,48 @@ ServiceLivenessObligations
 This preserves the no-hidden-infinite-loop doctrine while allowing service
 liveness to be represented.
 
+### §4.1 Service-Loop Source Binding Companion Wording
+
+This companion wording reconciles Chapter 13 service-loop examples with
+PROP-037 progression descriptors. It is design text only and does not authorize
+parser, TypeChecker, SemanticIR, runtime, scheduler, or public runtime support.
+
+A future service-loop source surface such as:
+
+```igniter
+loop TickLoop tick in clock.every(250.ms) {
+  as_of = tick.time
+  ...
+}
+```
+
+maps conceptually to a `ProgressionSource` descriptor with:
+
+```json
+{
+  "kind": "progression_source",
+  "source_kind": "clock.every",
+  "payload_type": "Tick",
+  "liveness": {
+    "max_step_latency": "..."
+  }
+}
+```
+
+`clock.every` is therefore a progression `source_kind` / service-liveness source
+binding. It is not semantically equivalent to `Stream[DateTime]`, and it does
+not weaken PROP-023 `fold_stream` / window OOF rules.
+
+`tick.time` is explicit event-time binding from the materialized progression
+event, corresponding to the event-time fields defined by this proposal such as
+`scheduled_at` and/or `materialized_at` under the source policy. It is not
+ambient time. Source-level `now()` remains prohibited and should be replaced by
+an explicit TemporalCtx-style input or a materialized event-time binding.
+
+Managed local loops, structural recursion, fuel-bounded recursion, and
+`decreases fuel` remain Chapter 13 / PROP-039+ territory. They are not owned by
+PROP-037 service-liveness semantics.
+
 ---
 
 ## §5. Initial Adoption Model: Capability And Manifest Metadata First
