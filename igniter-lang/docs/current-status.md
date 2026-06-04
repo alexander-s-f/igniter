@@ -4,7 +4,7 @@ Stage 1: **CLOSED** (2026-05-06) — META-EXPERT-007
 Stage 2: **CLOSED** (2026-05-07) — META-EXPERT-009.1
 Stage 3: **OPEN** (2026-05-08) — META-EXPERT-011
 Maintained by: `[Igniter-Lang Meta Expert]`
-Last updated: 2026-06-03
+Last updated: 2026-06-04
 Policy: `meta-proposals/META-EXPERT-011-stage3-governance-opening-v0.md`
 
 > Full history in:
@@ -976,24 +976,27 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             portability remain closed; next Main Line route is
                             R246 Runtime Specification / PROP-037+ input slice
                             as design/specification-input only; R246 accepts
-                            that input slice with scope corrections and routes
-                            R247-C1-A authorization review for bounded Runtime
-                            Spec + PROP-037+ wording sync: R247 must decide
-                            whether narrow Ch8 stdlib and Language Covenant
-                            edits are allowed for `now()` / OOF
-                            reconciliation, preserve PROP-039+ or later as the
-                            managed local recursion / loop-class slot, correct
-                            Chapter 13 §13.5 so `clock.every` is progression
-                            `source_kind` rather than `Stream[DateTime]`,
-                            keep Chapter 13 / PROP-039+ local loop ownership
-                            separate from PROP-037 service-loop/progression
-                            companion ownership, keep `break` and proof
-                            fixtures deferred, and keep implementation,
-                            `igc run` widening, `.igbin`, compiler passport
-                            emission, RuntimeSmoke, public runtime, Reference
-                            Runtime, stable API, production, Spark/release,
-                            public performance, certification, portability,
-                            and lab behavior as canon closed;
+                            that input slice with scope corrections; R247
+                            accepts bounded Runtime Spec + PROP-037+ wording
+                            sync, preserving Chapter 13 / PROP-039+ local loop
+                            ownership separate from PROP-037 service-loop /
+                            progression ownership, correcting `clock.every` as
+                            progression `source_kind`, anchoring `tick.time`
+                            and Ch8 `OOF-L6`, and keeping proof fixtures held
+                            until R248; R248 conditionally accepts proof-local
+                            loops/recursion fixture evidence only, with
+                            required fidelity notes for unaccepted
+                            `tick.event_id`, ambiguous `recursive contract` +
+                            fuel modifiers, and unresolved `for ... max_steps`
+                            / static-vs-dynamic policy; next Main Line route is
+                            R249 PROP-039+ managed local recursion /
+                            loop-class authoring boundary design; implementation,
+                            `igc run` widening, `.igbin`, `.igapp`, compiler
+                            passport emission, RuntimeSmoke, public runtime,
+                            Reference Runtime, stable API, production,
+                            Spark/release, public performance, certification,
+                            portability, and lab behavior as canon remain
+                            closed;
                             further version change, additional tag/push/publish/sign/deploy,
                             public claims beyond exact post-verify alpha
                             availability wording, signing/deploy, runtime
@@ -2063,6 +2066,18 @@ Round 246 landed:
   S3-R246-C3-X: input-slice pressure                                     ✅ CONDITIONAL PASS; OOF write-scope gap routed to C4-A
   S3-R246-C4-A: input-slice decision                                     ✅ accepted-with-scope-corrections; opens R247-C1-A only
   S3-R246-C5-S: status curation                                          ✅ done; R247 wording-sync authorization review recorded
+Round 247 landed:
+  S3-R247-C1-A: wording-sync authorization                               ✅ authorized bounded Runtime Spec / PROP-037+ wording sync
+  S3-R247-C2-I: wording sync                                             ✅ done; Ch13/PROP-037/Ch8/Covenant sync, WSYNC-1..15 PASS
+  S3-R247-C3-X: wording-sync pressure                                    ✅ ACCEPT; no scope drift, low residual wording risk only
+  S3-R247-C4-A: wording-sync decision                                    ✅ accepted; opens R248 proof-fixture authorization review
+  S3-R247-C5-S: status curation                                          ✅ held first pass until C4-A landed; superseded by R248 current delta
+Round 248 landed:
+  S3-R248-C1-A: proof-fixture authorization                              ✅ authorized bounded proof-local specification fixture packet
+  S3-R248-C2-I: proof fixture packet                                     ✅ done; manifest/summary + fixtures, LRF-1..16 PASS
+  S3-R248-C3-X: proof fixture pressure                                   ✅ CONDITIONAL PASS; 3 semantic fidelity notes
+  S3-R248-C4-A: proof fixture decision                                   ✅ conditional accept; opens R249 PROP-039+ authoring boundary design
+  S3-R248-C5-S: status curation                                          ✅ done; R249 exact route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2156,7 +2171,8 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   while release execution and public claims remain closed;
                   Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
-                  PROP-039+ managed local recursion / loop-class placeholder;
+                  PROP-039+ managed local recursion / loop-class authoring boundary
+                  is the next Main Line route after R248; not canon yet;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
                             operational implementation or rollout beyond R39 design-only readiness plan,
@@ -5402,7 +5418,8 @@ PROP-038   compiler_profile_contract     accepted proposal-only by S3-R61-C3-A;
                                          public API/CLI,
                                          persisted reports, sidecars, loader/report,
                                          CompatibilityReport, and production/runtime authority remain closed
-PROP-039+  managed local recursion       placeholder only; not assigned, not canon without proposal/proof
+PROP-039+  managed local recursion       next Main Line authoring boundary after R248;
+                                         not canon without accepted proposal/proof
 ```
 
 → Close governance: `meta-proposals/META-EXPERT-009.1-stage2-close-decision-v0.md`
