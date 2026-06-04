@@ -627,6 +627,43 @@ TEST_CASES = [
         { "id" => 5, "value" => 15 }
       ]
     }
+  },
+  {
+    name: "error_handling_extension",
+    expected_status: "ok",
+    contracts: [
+      {
+        name: "ErrorHandlingWorkflow",
+        expected_output_field: "recovered",
+        expected_output_value: 0          # try_catch on err("oops") -> handler returns 0
+      },
+      {
+        name: "ErrorHandlingWorkflow",
+        expected_output_field: "ok_passthrough",
+        expected_output_value: 42         # try_catch on ok(42) -> 42
+      },
+      {
+        name: "ErrorHandlingWorkflow",
+        expected_output_field: "propagated",
+        expected_output_value: 42         # propagate(ok(42)) -> 42
+      },
+      {
+        name: "ErrorHandlingWorkflow",
+        expected_output_field: "validated",
+        expected_output_value: { "ok" => 7 }   # 7 > 5 -> ok(7)
+      },
+      {
+        name: "ErrorHandlingWorkflow",
+        expected_output_field: "invalid",
+        expected_output_value: { "err" => "too_small" }  # 3 > 5 -> err("too_small")
+      }
+    ],
+    inputs: {
+      "res_ok"    => { "ok" => 42 },
+      "res_err"   => { "err" => "oops" },
+      "raw_val"   => 7,
+      "threshold" => 5
+    }
   }
 ].freeze
 
