@@ -1,0 +1,319 @@
+{
+  "artifact_hash": "sha256:97995849560db2e15a9fb74e10d0237f892af7511664d53e80f12303f4542a1e",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:s1"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          }
+        ],
+        "operator": "length",
+        "resolved_type": {
+          "name": "Integer",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "len1",
+      "node_id": "node_len1",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:s1",
+        "input:s2"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "s2",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          }
+        ],
+        "operator": "concat",
+        "resolved_type": {
+          "name": "String",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "concatenated",
+      "node_id": "node_concatenated",
+      "obs_kind": "value_observation",
+      "type_tag": "String"
+    },
+    {
+      "dependencies": [
+        "input:s1"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          }
+        ],
+        "operator": "trim",
+        "resolved_type": {
+          "name": "String",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "trimmed",
+      "node_id": "node_trimmed",
+      "obs_kind": "value_observation",
+      "type_tag": "String"
+    },
+    {
+      "dependencies": [
+        "input:s1",
+        "input:sep"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "sep",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          }
+        ],
+        "operator": "split",
+        "resolved_type": {
+          "name": "Collection",
+          "params": [
+            {
+              "name": "String",
+              "params": []
+            }
+          ]
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "split_col",
+      "node_id": "node_split_col",
+      "obs_kind": "value_observation",
+      "type_tag": "Collection[String]"
+    },
+    {
+      "dependencies": [
+        "input:s1",
+        "input:sub"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "sub",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          }
+        ],
+        "operator": "contains",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "has_sub",
+      "node_id": "node_has_sub",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:s1",
+        "input:prefix"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          },
+          {
+            "kind": "ref",
+            "name": "prefix",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          }
+        ],
+        "operator": "starts_with",
+        "resolved_type": {
+          "name": "Bool",
+          "params": []
+        }
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "has_prefix",
+      "node_id": "node_has_prefix",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    }
+  ],
+  "contract_id": "StringWorkflow",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "s1",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "s2",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "sep",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "prefix",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "sub",
+      "required": true,
+      "type_tag": "String"
+    }
+  ],
+  "lifecycle": "session",
+  "name": "StringWorkflow",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "len1",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "concatenated",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "session",
+      "name": "trimmed",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "session",
+      "name": "split_col",
+      "required": true,
+      "type_tag": "Collection[String]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "has_sub",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "has_prefix",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "source_contract_ref": "contract/StringWorkflow/sha256:2b8d86127d68163480ab624b",
+  "type_signature": {
+    "inputs": {
+      "prefix": "String",
+      "s1": "String",
+      "s2": "String",
+      "sep": "String",
+      "sub": "String"
+    },
+    "outputs": {
+      "concatenated": "String",
+      "has_prefix": "Bool",
+      "has_sub": "Bool",
+      "len1": "Integer",
+      "split_col": "Collection[String]",
+      "trimmed": "String"
+    }
+  }
+}

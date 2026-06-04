@@ -1,0 +1,349 @@
+{
+  "compilation_report_ref": "compilation_report/c30613c08ef28fc4",
+  "contracts": [
+    {
+      "contract_name": "StringWorkflow",
+      "contract_ref": "contract/StringWorkflow/sha256:2b8d86127d68163480ab624b",
+      "escape_boundaries": [],
+      "fragment_class": "core",
+      "inputs": [
+        {
+          "lifecycle": "local",
+          "name": "s1",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "s2",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "sep",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "prefix",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "local",
+          "name": "sub",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        }
+      ],
+      "kind": "contract_ir",
+      "modifier": "pure",
+      "nodes": [
+        {
+          "deps": [
+            "s1"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "s1",
+                "resolved_type": {
+                  "name": "String",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "length",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Integer",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "len1",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "s1",
+            "s2"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "s1",
+                "resolved_type": {
+                  "name": "String",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "s2",
+                "resolved_type": {
+                  "name": "String",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "concat",
+            "kind": "call",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "concatenated",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "s1"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "s1",
+                "resolved_type": {
+                  "name": "String",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "trim",
+            "kind": "call",
+            "resolved_type": {
+              "name": "String",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "trimmed",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "s1",
+            "sep"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "s1",
+                "resolved_type": {
+                  "name": "String",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "sep",
+                "resolved_type": {
+                  "name": "String",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "split",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Collection",
+              "params": [
+                {
+                  "name": "String",
+                  "params": []
+                }
+              ]
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "split_col",
+          "type": {
+            "name": "Collection",
+            "params": [
+              {
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "deps": [
+            "s1",
+            "sub"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "s1",
+                "resolved_type": {
+                  "name": "String",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "sub",
+                "resolved_type": {
+                  "name": "String",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "contains",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "has_sub",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "deps": [
+            "s1",
+            "prefix"
+          ],
+          "expr": {
+            "args": [
+              {
+                "kind": "ref",
+                "name": "s1",
+                "resolved_type": {
+                  "name": "String",
+                  "params": []
+                }
+              },
+              {
+                "kind": "ref",
+                "name": "prefix",
+                "resolved_type": {
+                  "name": "String",
+                  "params": []
+                }
+              }
+            ],
+            "fn": "starts_with",
+            "kind": "call",
+            "resolved_type": {
+              "name": "Bool",
+              "params": []
+            }
+          },
+          "fragment": "core",
+          "kind": "compute",
+          "name": "has_prefix",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "lifecycle": "session",
+          "name": "len1",
+          "type": {
+            "name": "Integer",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "concatenated",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "trimmed",
+          "type": {
+            "name": "String",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "split_col",
+          "type": {
+            "kind": "type_ref",
+            "name": "Collection",
+            "params": [
+              {
+                "kind": "type_ref",
+                "name": "String",
+                "params": []
+              }
+            ]
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "has_sub",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        },
+        {
+          "lifecycle": "session",
+          "name": "has_prefix",
+          "type": {
+            "name": "Bool",
+            "params": []
+          }
+        }
+      ],
+      "specialization_of": null,
+      "type_args": {}
+    }
+  ],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "semantic_ir_program",
+  "module": "SparkCRM.StringExtensions",
+  "program_id": "semanticir/c30613c08ef28fc4",
+  "source_hash": "sha256:c30613c08ef28fc49c42eff3ad4e7c842ff650d9e5ed8c4aae3c5e6cdeb54c06",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/string_extension.ig"
+}

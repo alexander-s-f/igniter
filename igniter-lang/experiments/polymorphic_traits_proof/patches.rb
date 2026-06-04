@@ -671,6 +671,68 @@ module IgniterLang
           res_type = params[0] if !params.empty?
         end
         return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "length"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 1
+          type_errors << oof("OOF-TM1", "length expects exactly 1 argument, got #{args_typed.size}", node_name)
+        elsif !args_typed.empty?
+          arg_type = args_typed[0].fetch("resolved_type")
+          if !unknown?(arg_type) && type_name(arg_type) != "String"
+            type_errors << type_mismatch(type_ir("String"), arg_type, node_name)
+          end
+        end
+        return typed_expr("call", type_ir("Integer"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "trim"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 1
+          type_errors << oof("OOF-TM1", "trim expects exactly 1 argument, got #{args_typed.size}", node_name)
+        elsif !args_typed.empty?
+          arg_type = args_typed[0].fetch("resolved_type")
+          if !unknown?(arg_type) && type_name(arg_type) != "String"
+            type_errors << type_mismatch(type_ir("String"), arg_type, node_name)
+          end
+        end
+        return typed_expr("call", type_ir("String"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "concat"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 2
+          type_errors << oof("OOF-TM1", "concat expects exactly 2 arguments, got #{args_typed.size}", node_name)
+        else
+          args_typed.each do |arg_typed|
+            arg_type = arg_typed.fetch("resolved_type")
+            if !unknown?(arg_type) && type_name(arg_type) != "String"
+              type_errors << type_mismatch(type_ir("String"), arg_type, node_name)
+            end
+          end
+        end
+        return typed_expr("call", type_ir("String"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif fn == "split"
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 2
+          type_errors << oof("OOF-TM1", "split expects exactly 2 arguments, got #{args_typed.size}", node_name)
+        else
+          args_typed.each do |arg_typed|
+            arg_type = arg_typed.fetch("resolved_type")
+            if !unknown?(arg_type) && type_name(arg_type) != "String"
+              type_errors << type_mismatch(type_ir("String"), arg_type, node_name)
+            end
+          end
+        end
+        res_type = { "name" => "Collection", "params" => [type_ir("String")] }
+        return typed_expr("call", res_type, args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
+      elsif %w[contains starts_with].include?(fn)
+        args_typed = args.map { |arg| infer_expr(arg, symbol_types, type_errors, type_warnings, node_name) }
+        if args_typed.size != 2
+          type_errors << oof("OOF-TM1", "#{fn} expects exactly 2 arguments, got #{args_typed.size}", node_name)
+        else
+          args_typed.each do |arg_typed|
+            arg_type = arg_typed.fetch("resolved_type")
+            if !unknown?(arg_type) && type_name(arg_type) != "String"
+              type_errors << type_mismatch(type_ir("String"), arg_type, node_name)
+            end
+          end
+        end
+        return typed_expr("call", type_ir("Bool"), args_typed.flat_map { |a| a.fetch("deps") }, "fn" => fn, "args" => args_typed)
       end
 
       orig_infer_call(expr, symbol_types, type_errors, type_warnings, node_name)
@@ -826,7 +888,7 @@ module RuntimeMachineMemoryProof
         expr
       when "apply"
         op = expr.fetch("operator")
-        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then"].include?(op)
+        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with"].include?(op)
           operands = expr.fetch("operands").map { |op_expr| eval_expr(op_expr, values, backend: backend, as_of: as_of) }
           eval_standalone_stdlib(op, operands, values, backend: backend, as_of: as_of)
         else
@@ -834,7 +896,7 @@ module RuntimeMachineMemoryProof
         end
       when "call"
         fn = expr.fetch("fn")
-        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then"].include?(fn)
+        if ["map", "filter", "fold", "take", "avg", "min", "max", "some", "none", "ok", "err", "is_some", "is_none", "some?", "none?", "is_ok", "is_err", "ok?", "err?", "unwrap", "unwrap_or", "or_else", "flat_map", "and_then", "length", "concat", "trim", "split", "contains", "starts_with"].include?(fn)
           args = expr.fetch("args", []).map { |arg_expr| eval_expr(arg_expr, values, backend: backend, as_of: as_of) }
           eval_standalone_stdlib(fn, args, values, backend: backend, as_of: as_of)
         else
@@ -1093,6 +1155,18 @@ module RuntimeMachineMemoryProof
             v
           end
         end
+      when "length"
+        (operands[0] || "").to_s.length
+      when "concat"
+        (operands[0] || "").to_s + (operands[1] || "").to_s
+      when "trim"
+        (operands[0] || "").to_s.strip
+      when "split"
+        (operands[0] || "").to_s.split((operands[1] || "").to_s)
+      when "contains"
+        (operands[0] || "").to_s.include?((operands[1] || "").to_s)
+      when "starts_with"
+        (operands[0] || "").to_s.start_with?((operands[1] || "").to_s)
       else
         raise ArgumentError, "Unsupported standalone stdlib operator: #{op}"
       end

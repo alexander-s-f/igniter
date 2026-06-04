@@ -292,6 +292,43 @@ def parse_rust_val_from_str(str)
       res["err"] = parse_rust_val_from_str($1)
     end
     res
+  elsif str =~ /^Array\(\[(.*)\]\)$/m
+    inner = $1.strip
+    return [] if inner.empty?
+    
+    res = []
+    curr = inner.dup
+    while !curr.empty?
+      curr = curr.strip
+      if curr.start_with?(",")
+        curr = curr[1..-1].strip
+      end
+      break if curr.empty?
+      
+      if curr =~ /\AString\("([^"]*)"\)/
+        res << $1
+        curr = curr[$&.length..-1]
+      elsif curr =~ /\AInteger\((-?\d+)\)/
+        res << $1.to_i
+        curr = curr[$&.length..-1]
+      elsif curr =~ /\ABool\((true|false)\)/
+        res << ($1 == "true")
+        curr = curr[$&.length..-1]
+      elsif curr =~ /\AFloat\((-?[\d\.]+)\)/
+        res << $1.to_f
+        curr = curr[$&.length..-1]
+      elsif curr =~ /\ANil/
+        res << nil
+        curr = curr[$&.length..-1]
+      elsif curr =~ /\ADecimal\s*\{\s*value:\s*(-?\d+),\s*scale:\s*(\d+)\s*\}/
+        res << { "value" => $1.to_i, "scale" => $2.to_i }
+        curr = curr[$&.length..-1]
+      else
+        puts "DEBUG: Failed to parse array token at: #{curr}"
+        break
+      end
+    end
+    res
   else
     nil
   end
@@ -408,6 +445,25 @@ TEST_CASES = [
       "opt_in" => nil,
       "res_in" => { "err" => "fail" },
       "fallback" => 999
+    }
+  },
+  {
+    name: "string_extension",
+    expected_status: "ok",
+    contracts: [
+      { name: "StringWorkflow", expected_output_field: "len1", expected_output_value: 7 },
+      { name: "StringWorkflow", expected_output_field: "concatenated", expected_output_value: " hello  world!" },
+      { name: "StringWorkflow", expected_output_field: "trimmed", expected_output_value: "hello" },
+      { name: "StringWorkflow", expected_output_field: "split_col", expected_output_value: [" h", "llo "] },
+      { name: "StringWorkflow", expected_output_field: "has_sub", expected_output_value: true },
+      { name: "StringWorkflow", expected_output_field: "has_prefix", expected_output_value: true }
+    ],
+    inputs: {
+      "s1" => " hello ",
+      "s2" => " world!",
+      "sep" => "e",
+      "prefix" => " he",
+      "sub" => "ll"
     }
   }
 ].freeze

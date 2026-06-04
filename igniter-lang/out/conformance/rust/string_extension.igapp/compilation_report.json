@@ -1,0 +1,17 @@
+{
+  "diagnostics": [],
+  "format_version": "0.1.0",
+  "grammar_version": "0.1.0",
+  "kind": "compilation_report",
+  "pass_result": "ok",
+  "program_id": "compilation_report/c30613c08ef28fc4",
+  "semantic_ir_ref": "semanticir/c30613c08ef28fc4",
+  "source_hash": "sha256:c30613c08ef28fc49c42eff3ad4e7c842ff650d9e5ed8c4aae3c5e6cdeb54c06",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/string_extension.ig",
+  "stages": {
+    "classify": "ok",
+    "emit": "ok",
+    "parse": "ok",
+    "typecheck": "ok"
+  }
+}

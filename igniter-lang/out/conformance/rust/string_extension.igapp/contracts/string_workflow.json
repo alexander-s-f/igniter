@@ -1,0 +1,251 @@
+{
+  "artifact_hash": "sha256:acf446e9e3180abbcba67739b426a94822616c97cf36a4696ecc2a392a0a19ad",
+  "compute_nodes": [
+    {
+      "dependencies": [
+        "input:s1"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1"
+          }
+        ],
+        "operator": "length"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "len1",
+      "node_id": "node_len1",
+      "obs_kind": "value_observation",
+      "type_tag": "Integer"
+    },
+    {
+      "dependencies": [
+        "input:s1",
+        "input:s2"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1"
+          },
+          {
+            "kind": "ref",
+            "name": "s2"
+          }
+        ],
+        "operator": "concat"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "concatenated",
+      "node_id": "node_concatenated",
+      "obs_kind": "value_observation",
+      "type_tag": "String"
+    },
+    {
+      "dependencies": [
+        "input:s1"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1"
+          }
+        ],
+        "operator": "trim"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "trimmed",
+      "node_id": "node_trimmed",
+      "obs_kind": "value_observation",
+      "type_tag": "String"
+    },
+    {
+      "dependencies": [
+        "input:s1",
+        "input:sep"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1"
+          },
+          {
+            "kind": "ref",
+            "name": "sep"
+          }
+        ],
+        "operator": "split"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "split_col",
+      "node_id": "node_split_col",
+      "obs_kind": "value_observation",
+      "type_tag": "Collection[String]"
+    },
+    {
+      "dependencies": [
+        "input:s1",
+        "input:sub"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1"
+          },
+          {
+            "kind": "ref",
+            "name": "sub"
+          }
+        ],
+        "operator": "contains"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "has_sub",
+      "node_id": "node_has_sub",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    },
+    {
+      "dependencies": [
+        "input:prefix",
+        "input:s1"
+      ],
+      "expression": {
+        "kind": "apply",
+        "operands": [
+          {
+            "kind": "ref",
+            "name": "s1"
+          },
+          {
+            "kind": "ref",
+            "name": "prefix"
+          }
+        ],
+        "operator": "starts_with"
+      },
+      "fragment_class": "core",
+      "kind": "compute",
+      "lifecycle": "session",
+      "name": "has_prefix",
+      "node_id": "node_has_prefix",
+      "obs_kind": "value_observation",
+      "type_tag": "Bool"
+    }
+  ],
+  "contract_id": "StringWorkflow",
+  "escape_set": [],
+  "fragment_class": "core",
+  "input_ports": [
+    {
+      "lifecycle": "local",
+      "name": "s1",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "s2",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "sep",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "prefix",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "local",
+      "name": "sub",
+      "required": true,
+      "type_tag": "String"
+    }
+  ],
+  "lifecycle": "session",
+  "modifier": "pure",
+  "name": "StringWorkflow",
+  "output_ports": [
+    {
+      "lifecycle": "session",
+      "name": "len1",
+      "required": true,
+      "type_tag": "Integer"
+    },
+    {
+      "lifecycle": "session",
+      "name": "concatenated",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "session",
+      "name": "trimmed",
+      "required": true,
+      "type_tag": "String"
+    },
+    {
+      "lifecycle": "session",
+      "name": "split_col",
+      "required": true,
+      "type_tag": "Collection[String]"
+    },
+    {
+      "lifecycle": "session",
+      "name": "has_sub",
+      "required": true,
+      "type_tag": "Bool"
+    },
+    {
+      "lifecycle": "session",
+      "name": "has_prefix",
+      "required": true,
+      "type_tag": "Bool"
+    }
+  ],
+  "source_contract_ref": "contract/StringWorkflow/sha256:b6b2fa47ed9a4df689bb2caa",
+  "type_signature": {
+    "inputs": {
+      "prefix": "String",
+      "s1": "String",
+      "s2": "String",
+      "sep": "String",
+      "sub": "String"
+    },
+    "outputs": {
+      "concatenated": "String",
+      "has_prefix": "Bool",
+      "has_sub": "Bool",
+      "len1": "Integer",
+      "split_col": "Collection[String]",
+      "trimmed": "String"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "compilation_report_ref": "compilation_report/c30613c08ef28fc4",
+  "contracts": [
+    "StringWorkflow"
+  ],
+  "format_version": "0.1.0",
+  "fragment_class": "core",
+  "kind": "classified_program",
+  "loadable_contracts": [
+    "StringWorkflow"
+  ],
+  "oof_count": 0,
+  "pass_result": "ok",
+  "program_id": "semanticir/c30613c08ef28fc4",
+  "semantic_ir_ref": "semanticir/c30613c08ef28fc4",
+  "source_hash": "sha256:c30613c08ef28fc49c42eff3ad4e7c842ff650d9e5ed8c4aae3c5e6cdeb54c06",
+  "source_path": "/Users/alex/dev/projects/igniter/igniter-lang/source/string_extension.ig"
+}
