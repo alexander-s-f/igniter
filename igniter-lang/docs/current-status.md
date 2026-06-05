@@ -1004,9 +1004,17 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             PROP-039 as `authored-pending-review`, and routes
                             the PROP-039 lane to S3-R253-C1-A proof-local
                             fixture authorization review after the already
-                            routed S3-R252 forms round; PROP-039 implementation,
-                            forms implementation, stable grammar, `form:`
-                            canon, `igc run` widening, `.igbin`, `.igapp`,
+                            routed S3-R252 forms round; R252 accepts proof-local
+                            contract invocation forms type-directed dispatch
+                            evidence with FTD-1..FTD-12 PASS, import hiding
+                            and overriding held, and routes forms next to
+                            S3-R253-C1-A SemanticIR lowering design/proof
+                            authorization review; R251 and R252 both name
+                            S3-R253-C1-A, so dispatch numbering needs supervisor
+                            resolution before launching either same-number card;
+                            PROP-039 implementation, forms implementation,
+                            stable grammar, `form:` canon, `igc run` widening,
+                            `.igbin`, `.igapp`,
                             compiler passport emission, RuntimeSmoke, public
                             runtime, Reference Runtime, stable API, production,
                             Spark/release, public performance, certification,
@@ -2111,6 +2119,12 @@ Round 251 landed:
   S3-R251-C3-X: PROP-039 authoring pressure                              ✅ ACCEPT; no blocking claim drift
   S3-R251-C4-A: PROP-039 authoring decision                              ✅ accepted; opens S3-R253-C1-A after already-routed S3-R252 forms round
   S3-R251-C5-S: status curation                                          ✅ done; S3-R253 exact route recorded
+Round 252 landed:
+  S3-R252-C1-A: forms type-dispatch proof authorization                  ✅ authorized proof-local lab-only
+  S3-R252-C2-I: forms type-dispatch proof                                ✅ done; FTD-1..FTD-12 PASS, commands PASS/expected oof
+  S3-R252-C3-X: forms type-dispatch pressure                             ✅ ACCEPT; no blocking claim drift
+  S3-R252-C4-A: forms type-dispatch decision                             ✅ accepted; opens S3-R253-C1-A SemanticIR lowering design/proof review
+  S3-R252-C5-S: status curation                                          ✅ done; R253 route-number collision recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2207,12 +2221,15 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   PROP-039 managed local recursion proposal authoring accepted
                   by R251 as `authored-pending-review` proposal evidence only;
                   implementation/runtime authority remains closed;
-                  contract invocation forms lowering boundary accepted by R250
-                  as design-only, next forms route is S3-R252-C1-A proof-local
-                  type-directed dispatch authorization review; PROP-039
-                  authoring accepted by R251 as proposal-authoring output only,
-                  README status `authored-pending-review`, next PROP-039 route
-                  is S3-R253-C1-A after S3-R252 forms curation if present;
+                  contract invocation forms type-directed dispatch proof
+                  accepted by R252 as proof-local lab-frontier evidence only,
+                  FTD-1..FTD-12 PASS, import hiding/overriding held, and next
+                  forms route per C4-A is S3-R253-C1-A SemanticIR lowering
+                  design/proof authorization review; PROP-039 authoring
+                  accepted by R251 as proposal-authoring output only, README
+                  status `authored-pending-review`, next PROP-039 route is also
+                  named S3-R253-C1-A by R251, so route numbering requires
+                  supervisor resolution before dispatch;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
                             operational implementation or rollout beyond R39 design-only readiness plan,
