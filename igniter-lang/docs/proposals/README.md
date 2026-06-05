@@ -48,6 +48,7 @@ Closed PROPs remain in `proposals/` for reference. They are not moved to `accept
 | [PROP-036](PROP-036-compiler-profile-manifest-identity-v0.md) | accepted | `compiler_profile_id` manifest identity; accepted proposal-only by S3-R35-C3-A; separate implementation authorization required before code |
 | [PROP-037](PROP-037-external-progression-service-liveness-v0.md) | accepted | External progression and service liveness semantics; accepted proposal-only by S3-R37-C3-A; descriptor/proof follow-ups only, no parser/runtime/fragment-class authorization |
 | [PROP-038](PROP-038-compiler-profile-contract-v0.md) | accepted | `compiler_profile_contract`; accepted proposal-only by S3-R61-C3-A; proof-local implementation, internal validator extraction, report-only annotation, digest policy/proofs/errata, live validator implementation, strict-mode/refusal designs, proof-local result-shape, live implementation scope review, bounded internal-only strict-refusal implementation, live internal foundation acceptance, canon sync, and R86 Ch5/Ch7/language-spec sync are accepted in sequence through S3-R86-C4-A; public API/CLI, persisted reports/sidecars, loader/report, CompatibilityReport, runtime, Gate 3 widening, and production remain closed |
+| [PROP-039](PROP-039-managed-local-recursion-and-loop-classes-v0.md) | authored-pending-review | Managed local recursion and loop classes: FiniteLoop, BudgetedLocalLoop, StructuralRecursion, FuelBoundedRecursion, ConvergentLoop vocabulary; service liveness remains PROP-037-owned; proposal-only, no parser/typechecker/SemanticIR/runtime/API/CLI/package/public/reference/stable/production/release/performance/certification/portability authority |
 
 ---
 
@@ -88,8 +89,8 @@ service liveness semantics; S3-R36-C4-P authors the proposal as proposal-only.
 S3-R37-C3-A accepts it as proposal-only, and no parser, TypeChecker, SemanticIR,
 RuntimeMachine scheduler, Ledger/TBackend, durable queue, production execution,
 ProgressionPack migration, or new fragment class is authorized. Managed local
-recursion / loop-class extension placeholders must use PROP-039+ or later until
-formally assigned.
+recursion / loop-class extensions are now authored separately as PROP-039;
+PROP-037 remains authoritative for external progression and service liveness.
 
 **PROP-038 lifecycle:** S3-R60-C3-A assigns PROP-038 to
 `compiler_profile_contract` after R57-R60 boundary/proof/validator coverage.
@@ -167,14 +168,19 @@ sync for that foundation.
 Compiler/orchestrator integration, live compile refusal, public surfaces,
 `CompilerResult`, persisted reports/sidecars, loader/report,
 CompatibilityReport, runtime, Gate 3 widening, and production remain closed.
-Managed local recursion / loop-class extensions move to PROP-039+ or later.
+S3-R251-C1-A authorizes bounded proposal authoring for managed local recursion
+and loop-class extensions. S3-R251-C2-I authors PROP-039 as proposal-only text.
+PROP-039 does not authorize parser, TypeChecker, SemanticIR, runtime, API, CLI,
+package, `igc run`, `.igapp`, `.igbin`, compiler passport, RuntimeSmoke, public
+runtime, Reference Runtime, stable API, production, Spark, release, public demo,
+public performance, official/reference status, alternative certification,
+portability, or lab-canon authority.
 
 | ID | Title | Depends On | Stage | Priority |
 |----|-------|------------|-------|----------|
 | PROP-033 | `via profile binding` | PROP-031 | 3 | high |
 | PROP-034 | `output evidence syntax` | PROP-031, PROP-032 | 3 | high |
 | PROP-035 | profile declarations / authority resolution | PROP-031, PROP-033 | 3 | medium |
-| PROP-039+ | managed local recursion / loop-class extensions placeholder | future routing decision; PROP-037 owns progression/service liveness | 4+ | unassigned |
 | TBD | Effect Surface | PROP-031 | 3 | medium |
 | TBD | Prior queued ideas need renumbering/requeue | — | 3+ | medium |
 
@@ -256,5 +262,6 @@ implementation held; bounded internal-only strict-refusal live implementation
 authorized and landed; live internal foundation accepted; canon sync accepted;
 and R86 Ch5/Ch7/language-spec sync accepted. Spark CRM is an active
 applied-pressure source only, not PROP-038 authority.
-Managed local recursion / loop-class extensions use PROP-039+ as placeholder
-only until formal assignment.
+PROP-039 is authored-pending-review for managed local recursion and loop-class
+extensions. It remains proposal-only and grants no implementation, runtime,
+public, reference, stable, release, certification, or portability authority.
