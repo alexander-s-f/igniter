@@ -998,7 +998,13 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             accepts LAB-FORMS-P4 as lab-frontier preflight
                             evidence only, and routes the forms lane to
                             S3-R252-C1-A type-directed dispatch proof
-                            authorization review; PROP-039 proposal authoring,
+                            authorization review; R251 accepts bounded PROP-039
+                            proposal authoring as proposal-authoring evidence
+                            only, with `docs/proposals/README.md` indexing
+                            PROP-039 as `authored-pending-review`, and routes
+                            the PROP-039 lane to S3-R253-C1-A proof-local
+                            fixture authorization review after the already
+                            routed S3-R252 forms round; PROP-039 implementation,
                             forms implementation, stable grammar, `form:`
                             canon, `igc run` widening, `.igbin`, `.igapp`,
                             compiler passport emission, RuntimeSmoke, public
@@ -2099,6 +2105,12 @@ Round 250 landed:
   S3-R250-C3-X: forms boundary pressure                                  ✅ ACCEPT; no blocking authority drift
   S3-R250-C4-A: forms boundary decision                                  ✅ accepted; opens S3-R252-C1-A type-dispatch proof authorization review
   S3-R250-C5-S: status curation                                          ✅ done; S3-R252 forms route recorded
+Round 251 landed:
+  S3-R251-C1-A: PROP-039 authoring authorization                         ✅ authorized proposal/index/track authoring only
+  S3-R251-C2-I: PROP-039 proposal authoring                              ✅ authored; README indexes PROP-039 as authored-pending-review
+  S3-R251-C3-X: PROP-039 authoring pressure                              ✅ ACCEPT; no blocking claim drift
+  S3-R251-C4-A: PROP-039 authoring decision                              ✅ accepted; opens S3-R253-C1-A after already-routed S3-R252 forms round
+  S3-R251-C5-S: status curation                                          ✅ done; S3-R253 exact route recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2192,13 +2204,16 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   while release execution and public claims remain closed;
                   Spark L3B and Orders P1 remain applied pressure only;
                   classifier wiring/root require/live dispatch remain closed,
-                  PROP-039+ managed local recursion / loop-class authoring boundary
-                  accepted by R249; proposal authoring not yet authorized,
-                  next route is S3-R251-C1-A after reserved S3-R250 forms round;
+                  PROP-039 managed local recursion proposal authoring accepted
+                  by R251 as `authored-pending-review` proposal evidence only;
+                  implementation/runtime authority remains closed;
                   contract invocation forms lowering boundary accepted by R250
                   as design-only, next forms route is S3-R252-C1-A proof-local
-                  type-directed dispatch authorization review; other syntax
-                  candidates require proposal tracks
+                  type-directed dispatch authorization review; PROP-039
+                  authoring accepted by R251 as proposal-authoring output only,
+                  README status `authored-pending-review`, next PROP-039 route
+                  is S3-R253-C1-A after S3-R252 forms curation if present;
+                  other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
                             operational implementation or rollout beyond R39 design-only readiness plan,
                             concrete HSM/KMS,
@@ -5443,9 +5458,9 @@ PROP-038   compiler_profile_contract     accepted proposal-only by S3-R61-C3-A;
                                          public API/CLI,
                                          persisted reports, sidecars, loader/report,
                                          CompatibilityReport, and production/runtime authority remain closed
-PROP-039+  managed local recursion       authoring boundary accepted by R249;
-                                         proposal authoring not yet authorized;
-                                         not canon without accepted proposal/proof
+PROP-039   managed local recursion       authored-pending-review; R251 accepts
+                                         proposal-authoring output only; not
+                                         implementation/runtime authority
 ```
 
 → Close governance: `meta-proposals/META-EXPERT-009.1-stage2-close-decision-v0.md`
