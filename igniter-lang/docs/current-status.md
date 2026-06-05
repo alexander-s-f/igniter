@@ -1009,9 +1009,17 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             evidence with FTD-1..FTD-12 PASS, import hiding
                             and overriding held, and routes forms next to
                             S3-R253-C1-A SemanticIR lowering design/proof
-                            authorization review; R251 and R252 both name
-                            S3-R253-C1-A, so dispatch numbering needs supervisor
-                            resolution before launching either same-number card;
+                            authorization review; R251 and R252 both originally
+                            named S3-R253-C1-A; R253 accepts the route-resolution
+                            outcome, consumes S3-R253 as the resolution round,
+                            supersedes both old active S3-R253-C1-A
+                            technical-route names, opens forms next as
+                            S3-R254-C1-A SemanticIR lowering design/proof
+                            authorization review, preserves S3-R255 for the
+                            Igniter Lang repository split boundary, and defers
+                            PROP-039 proof-local fixtures by default to
+                            S3-R256-C1-A or later by explicit accepted routing
+                            decision only;
                             PROP-039 implementation, forms implementation,
                             stable grammar, `form:` canon, `igc run` widening,
                             `.igbin`, `.igapp`,
@@ -2117,14 +2125,20 @@ Round 251 landed:
   S3-R251-C1-A: PROP-039 authoring authorization                         ✅ authorized proposal/index/track authoring only
   S3-R251-C2-I: PROP-039 proposal authoring                              ✅ authored; README indexes PROP-039 as authored-pending-review
   S3-R251-C3-X: PROP-039 authoring pressure                              ✅ ACCEPT; no blocking claim drift
-  S3-R251-C4-A: PROP-039 authoring decision                              ✅ accepted; opens S3-R253-C1-A after already-routed S3-R252 forms round
-  S3-R251-C5-S: status curation                                          ✅ done; S3-R253 exact route recorded
+  S3-R251-C4-A: PROP-039 authoring decision                              ✅ accepted; original S3-R253 route superseded by R253, deferred to R256+
+  S3-R251-C5-S: status curation                                          ✅ done; superseded route preserved by R253 resolution
 Round 252 landed:
   S3-R252-C1-A: forms type-dispatch proof authorization                  ✅ authorized proof-local lab-only
   S3-R252-C2-I: forms type-dispatch proof                                ✅ done; FTD-1..FTD-12 PASS, commands PASS/expected oof
   S3-R252-C3-X: forms type-dispatch pressure                             ✅ ACCEPT; no blocking claim drift
-  S3-R252-C4-A: forms type-dispatch decision                             ✅ accepted; opens S3-R253-C1-A SemanticIR lowering design/proof review
-  S3-R252-C5-S: status curation                                          ✅ done; R253 route-number collision recorded
+  S3-R252-C4-A: forms type-dispatch decision                             ✅ accepted; original S3-R253 route renumbered by R253 to S3-R254
+  S3-R252-C5-S: status curation                                          ✅ done; R253 route-number collision recorded and superseded
+Round 253 landed:
+  S3-R253-C1-D: route collision resolution design                        ✅ design-ready; recommends R253 resolution, R254 forms, R255 split, R256+ PROP-039
+  S3-R253-C2-P1: route collision facts                                   ✅ facts-only; confirms R251/R252 same-number collision and R255 reservation
+  S3-R253-C3-X: route collision pressure                                 ✅ conditional accept; requires supersession wording
+  S3-R253-C4-A: route collision decision                                 ✅ accepted; consumes R253, supersedes duplicate S3-R253-C1-A route names
+  S3-R253-C5-S: status curation                                          ✅ done; active next route is S3-R254-C1-A
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2224,12 +2238,15 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   contract invocation forms type-directed dispatch proof
                   accepted by R252 as proof-local lab-frontier evidence only,
                   FTD-1..FTD-12 PASS, import hiding/overriding held, and next
-                  forms route per C4-A is S3-R253-C1-A SemanticIR lowering
-                  design/proof authorization review; PROP-039 authoring
+                  forms route per R253 C4-A/C5-S is S3-R254-C1-A SemanticIR
+                  lowering design/proof authorization review; R253 is consumed
+                  by route-resolution work and both prior active S3-R253-C1-A
+                  technical-route names are superseded; PROP-039 authoring
                   accepted by R251 as proposal-authoring output only, README
-                  status `authored-pending-review`, next PROP-039 route is also
-                  named S3-R253-C1-A by R251, so route numbering requires
-                  supervisor resolution before dispatch;
+                  status `authored-pending-review`, with proof-local fixtures
+                  deferred by default to S3-R256-C1-A or later by explicit
+                  accepted routing decision only; S3-R255 remains reserved for
+                  the Igniter Lang repository split boundary;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
                             operational implementation or rollout beyond R39 design-only readiness plan,
