@@ -1060,7 +1060,18 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             S3-R258-C1-A physical-migration authorization review
                             gate only, carries forms import hiding/overriding to
                             S3-R259-C1-A or next available, and carries PROP-039
-                            proof-local fixtures to S3-R260-C1-A or later;
+                            proof-local fixtures to S3-R260-C1-A or later; R258
+                            conditionally accepts the physical-migration
+                            authorization review as blocker and route-control
+                            evidence only, holds migration execution
+                            authorization, target population, history rewrite,
+                            remote push, package/CI/release, archive repo
+                            creation, public claims, framework-to-language
+                            authority transfer, and lab canon, opens
+                            S3-R259-C1-D current-index file-map/support-policy
+                            prep next, carries forms import hiding/overriding to
+                            S3-R260-C1-A or next available, and carries PROP-039
+                            proof-local fixtures to S3-R261-C1-A or later;
                             PROP-039 implementation, forms implementation,
                             stable grammar, `form:` canon, `igc run` widening,
                             `.igbin`, `.igapp`,
@@ -2204,6 +2215,12 @@ Round 257 landed:
   S3-R257-C3-X: support/path hygiene pressure                            ✅ conditional accept; R258 must be review gate only
   S3-R257-C4-A: support/path hygiene decision                            ✅ conditional accept; opens S3-R258-C1-A authorization review gate
   S3-R257-C5-S: status curation                                          ✅ done; review-gate route delta recorded
+Round 258 landed:
+  S3-R258-C1-A: physical-migration authorization review                  ✅ review complete; migration held / facts refresh required
+  S3-R258-C2-P1: physical-migration authorization facts                  ✅ facts-only; execution blockers verified
+  S3-R258-C3-X: physical-migration authorization pressure                ✅ conditional accept; execution held, prep next
+  S3-R258-C4-A: physical-migration authorization decision                ✅ conditional accept; opens S3-R259-C1-D current-index/support prep
+  S3-R258-C5-S: status curation                                          ✅ done; additional-prep route delta recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2335,11 +2352,21 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   target population, history rewrite, remote push,
                   package/CI/release, archive repo creation, public authority,
                   framework-to-language authority transfer, and lab canon
-                  closed, and sets active next Main Line route S3-R258-C1-A
+                  closed, and sets the then-active Main Line route S3-R258-C1-A
                   physical-migration authorization review gate only; forms
                   import hiding/overriding is carried to S3-R259-C1-A or next
                   available if split review continues, and PROP-039 proof
-                  fixtures are carried to S3-R260-C1-A or later;
+                  fixtures are carried to S3-R260-C1-A or later; R258
+                  conditionally accepts that authorization review as blocker and
+                  route-control evidence only, keeps migration execution
+                  authorization, target population, history rewrite, remote
+                  push, package/CI/release, archive repo creation, public
+                  authority, framework-to-language authority transfer, and lab
+                  canon closed, and sets active next Main Line route
+                  S3-R259-C1-D current-index file-map/support-policy prep;
+                  forms import hiding/overriding is carried to S3-R260-C1-A or
+                  next available if split prep continues, and PROP-039 proof
+                  fixtures are carried to S3-R261-C1-A or later;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
                             operational implementation or rollout beyond R39 design-only readiness plan,
