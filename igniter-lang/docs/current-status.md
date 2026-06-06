@@ -1019,7 +1019,15 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             Igniter Lang repository split boundary, and defers
                             PROP-039 proof-local fixtures by default to
                             S3-R256-C1-A or later by explicit accepted routing
-                            decision only;
+                            decision only; R254 accepts proof-local forms
+                            SemanticIR lowering evidence with FSL-1..FSL-16
+                            PASS, accepts only explicit call shape plus
+                            proof-local `lowered_from_form` metadata as the
+                            lowering target, keeps import hiding/overriding
+                            held, preserves S3-R255 as the next Main Line
+                            repository-split boundary, and carries forms import
+                            hiding/overriding proof authorization as a post-R255
+                            forms-lane candidate;
                             PROP-039 implementation, forms implementation,
                             stable grammar, `form:` canon, `igc run` widening,
                             `.igbin`, `.igapp`,
@@ -2138,7 +2146,13 @@ Round 253 landed:
   S3-R253-C2-P1: route collision facts                                   ✅ facts-only; confirms R251/R252 same-number collision and R255 reservation
   S3-R253-C3-X: route collision pressure                                 ✅ conditional accept; requires supersession wording
   S3-R253-C4-A: route collision decision                                 ✅ accepted; consumes R253, supersedes duplicate S3-R253-C1-A route names
-  S3-R253-C5-S: status curation                                          ✅ done; active next route is S3-R254-C1-A
+  S3-R253-C5-S: status curation                                          ✅ done; then-active next route was S3-R254-C1-A
+Round 254 landed:
+  S3-R254-C1-A: forms SemanticIR lowering authorization                  ✅ authorized proof-local lab compiler proof only
+  S3-R254-C2-I: forms SemanticIR lowering proof                          ✅ done; FSL-1..FSL-16 PASS, explicit call + metadata only
+  S3-R254-C3-X: forms SemanticIR lowering pressure                       ✅ conditional accept; import hiding/overriding is next-route guard
+  S3-R254-C4-A: forms SemanticIR lowering decision                       ✅ accepted; preserves R255 as next Main Line route
+  S3-R254-C5-S: status curation                                          ✅ done; R255 next route and post-R255 forms candidate recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2238,15 +2252,22 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   contract invocation forms type-directed dispatch proof
                   accepted by R252 as proof-local lab-frontier evidence only,
                   FTD-1..FTD-12 PASS, import hiding/overriding held, and next
-                  forms route per R253 C4-A/C5-S is S3-R254-C1-A SemanticIR
-                  lowering design/proof authorization review; R253 is consumed
+                  R253 routed forms to S3-R254-C1-A SemanticIR lowering
+                  design/proof authorization review; R253 is consumed
                   by route-resolution work and both prior active S3-R253-C1-A
                   technical-route names are superseded; PROP-039 authoring
                   accepted by R251 as proposal-authoring output only, README
                   status `authored-pending-review`, with proof-local fixtures
                   deferred by default to S3-R256-C1-A or later by explicit
                   accepted routing decision only; S3-R255 remains reserved for
-                  the Igniter Lang repository split boundary;
+                  the Igniter Lang repository split boundary; forms SemanticIR
+                  lowering evidence accepted by R254 as proof-local lab-frontier
+                  evidence only, FSL-1..FSL-16 PASS, lowering target limited to
+                  explicit call shape plus proof-local `lowered_from_form`
+                  metadata, import hiding/overriding held, active next Main
+                  Line route is S3-R255-C1-D repository split boundary, and
+                  forms import hiding/overriding proof authorization is carried
+                  as a post-R255 candidate without implementation authority;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
                             operational implementation or rollout beyond R39 design-only readiness plan,
