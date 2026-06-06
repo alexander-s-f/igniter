@@ -1038,7 +1038,19 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             S3-R256-C1-A candidate for sequencing, carries forms
                             import hiding/overriding proof to S3-R257-C1-A or
                             next available, and carries PROP-039 proof-local
-                            fixtures to S3-R258-C1-A or later;
+                            fixtures to S3-R258-C1-A or later; R256 accepts
+                            dry-run file-map proof as split-map evidence only,
+                            accepts current/target facts and pressure blockers,
+                            keeps physical migration, history rewrite, target
+                            population, remote/package/CI/release, archive repo
+                            creation, public claims, framework-to-language
+                            authority transfer, and lab canon closed, keeps
+                            `candidate:igniter-archive` as archive-quarantine
+                            bucket only, opens S3-R257-C1-D support-file /
+                            path-hygiene / link-rewrite prep next, and carries
+                            forms import hiding/overriding to S3-R258-C1-A or
+                            next available and PROP-039 proof-local fixtures to
+                            S3-R259-C1-A or later if split prep continues;
                             PROP-039 implementation, forms implementation,
                             stable grammar, `form:` canon, `igc run` widening,
                             `.igbin`, `.igapp`,
@@ -2170,6 +2182,12 @@ Round 255 landed:
   S3-R255-C3-X: repository split pressure                                ✅ conditional accept; requires R256 forms-candidate supersession
   S3-R255-C4-A: repository split decision                                ✅ accepted; opens S3-R256-C1-D dry-run/file-map proof next
   S3-R255-C5-S: status curation                                          ✅ done; post-R255 technical lane sequencing recorded
+Round 256 landed:
+  S3-R256-C1-D: repository split dry-run file-map proof                  ✅ accepted as split-map evidence; migration held / prep required
+  S3-R256-C2-P1: repository split current/target facts                   ✅ facts-only; target baselines, path/generated/support risks verified
+  S3-R256-C3-X: repository split dry-run pressure                        ✅ conditional accept; exact migration blockers accepted
+  S3-R256-C4-A: repository split dry-run decision                        ✅ accepted; opens S3-R257-C1-D support/path hygiene prep next
+  S3-R256-C5-S: status curation                                          ✅ done; migration-held route delta recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2286,11 +2304,16 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   `igniter-lang/**` as candidate future language repo root
                   pending dry-run file-map proof, root Ruby Framework surfaces
                   framework-owned, lab/frontier excluded from initial split,
-                  active next Main Line route S3-R256-C1-D repository split
-                  dry-run/file-map proof, old post-R255 forms S3-R256-C1-A
-                  candidate superseded for sequencing, forms import
-                  hiding/overriding carried to S3-R257-C1-A or next available,
-                  and PROP-039 proof fixtures carried to S3-R258-C1-A or later;
+                  old post-R255 forms S3-R256-C1-A candidate superseded for
+                  sequencing; R256 accepts dry-run file-map proof as split-map
+                  evidence only, accepts current/target facts and pressure
+                  blockers, keeps physical migration / target population /
+                  remote/package/CI/release / public authority closed, and sets
+                  active next Main Line route S3-R257-C1-D support-file /
+                  path-hygiene / link-rewrite prep; forms import
+                  hiding/overriding is carried to S3-R258-C1-A or next
+                  available if split prep continues, and PROP-039 proof
+                  fixtures are carried to S3-R259-C1-A or later;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
                             operational implementation or rollout beyond R39 design-only readiness plan,
