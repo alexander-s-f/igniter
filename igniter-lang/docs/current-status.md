@@ -1050,7 +1050,17 @@ Compiler Internals ✅ switched CompilerOrchestrator now uses emit_typed(typed);
                             path-hygiene / link-rewrite prep next, and carries
                             forms import hiding/overriding to S3-R258-C1-A or
                             next available and PROP-039 proof-local fixtures to
-                            S3-R259-C1-A or later if split prep continues;
+                            S3-R259-C1-A or later if split prep continues; R257
+                            conditionally accepts support-file/path-hygiene prep
+                            as migration-readiness evidence only, keeps live
+                            migration, target population, history rewrite,
+                            remote push, package/CI/release, archive repo
+                            creation, public claims, framework-to-language
+                            authority transfer, and lab canon closed, opens
+                            S3-R258-C1-A physical-migration authorization review
+                            gate only, carries forms import hiding/overriding to
+                            S3-R259-C1-A or next available, and carries PROP-039
+                            proof-local fixtures to S3-R260-C1-A or later;
                             PROP-039 implementation, forms implementation,
                             stable grammar, `form:` canon, `igc run` widening,
                             `.igbin`, `.igapp`,
@@ -2188,6 +2198,12 @@ Round 256 landed:
   S3-R256-C3-X: repository split dry-run pressure                        ✅ conditional accept; exact migration blockers accepted
   S3-R256-C4-A: repository split dry-run decision                        ✅ accepted; opens S3-R257-C1-D support/path hygiene prep next
   S3-R256-C5-S: status curation                                          ✅ done; migration-held route delta recorded
+Round 257 landed:
+  S3-R257-C1-D: repository split support/path hygiene prep               ✅ prep-designed; migration held / facts review required
+  S3-R257-C2-P1: support/path hygiene facts                              ✅ facts-only; blocker evidence verified, no migration authority
+  S3-R257-C3-X: support/path hygiene pressure                            ✅ conditional accept; R258 must be review gate only
+  S3-R257-C4-A: support/path hygiene decision                            ✅ conditional accept; opens S3-R258-C1-A authorization review gate
+  S3-R257-C5-S: status curation                                          ✅ done; review-gate route delta recorded
 Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/section
                   + PROP-030 executor approval token + PROP-030A scope exclusion
                   + PROP-031 contract modifiers + PROP-032 assumptions block;
@@ -2308,12 +2324,22 @@ Active PROPs:     PROP-028 + PROP-022A temporal errata + PROP-029 entrypoint/sec
                   sequencing; R256 accepts dry-run file-map proof as split-map
                   evidence only, accepts current/target facts and pressure
                   blockers, keeps physical migration / target population /
-                  remote/package/CI/release / public authority closed, and sets
-                  active next Main Line route S3-R257-C1-D support-file /
+                  remote/package/CI/release / public authority closed, and sets the
+                  then-active Main Line route S3-R257-C1-D support-file /
                   path-hygiene / link-rewrite prep; forms import
                   hiding/overriding is carried to S3-R258-C1-A or next
                   available if split prep continues, and PROP-039 proof
-                  fixtures are carried to S3-R259-C1-A or later;
+                  fixtures are carried to S3-R259-C1-A or later; R257
+                  conditionally accepts support-file/path-hygiene prep as
+                  migration-readiness evidence only, keeps live migration,
+                  target population, history rewrite, remote push,
+                  package/CI/release, archive repo creation, public authority,
+                  framework-to-language authority transfer, and lab canon
+                  closed, and sets active next Main Line route S3-R258-C1-A
+                  physical-migration authorization review gate only; forms
+                  import hiding/overriding is carried to S3-R259-C1-A or next
+                  available if split review continues, and PROP-039 proof
+                  fixtures are carried to S3-R260-C1-A or later;
                   other syntax candidates require proposal tracks
 Arch approval required for: any durable-audit deployment outside S3-R36-C1-A restricted scope,
                             operational implementation or rollout beyond R39 design-only readiness plan,
